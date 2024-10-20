@@ -23,7 +23,7 @@
 */
 
 import { Vec3, Quat, Mat4, absMaxComponent } from '../math';
-import enums from './enums';
+import { ShapeType } from './enums';
 import { IVec3Like, IQuatLike } from '../math/type-define';
 
 /**
@@ -35,9 +35,9 @@ import { IVec3Like, IQuatLike } from '../math/type-define';
 export class Capsule {
     /**
      * @en
-     * Gets the type of this Capsule, always returns `enums.SHAPE_CAPSULE`.
+     * Gets the type of this Capsule, always returns `ShapeType.SHAPE_CAPSULE`.
      * @zh
-     * 获取此形状的类型，值固定为 `enums.SHAPE_CAPSULE`。
+     * 获取此形状的类型，值固定为 `ShapeType.SHAPE_CAPSULE`。
      */
     get type (): number {
         return this._type;
@@ -105,7 +105,7 @@ export class Capsule {
      * @param axis @en The local orientation of this capsule [0,1,2] => [x,y,z]. @zh 胶囊体的本地朝向，映射关系 [0,1,2] => [x,y,z]。
      */
     constructor (radius = 0.5, halfHeight = 0.5, axis = 1) {
-        this._type = enums.SHAPE_CAPSULE;
+        this._type = ShapeType.SHAPE_CAPSULE;
         this.radius = radius;
         this.halfHeight = halfHeight;
         this.axis = axis;

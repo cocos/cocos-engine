@@ -25,12 +25,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @en Base classAction for action classes.
- * @zh Action 类是所有动作类型的基类。
- * @class Action
- */
-export abstract class Action {
+export enum ActionEnum {
     /**
      * @en Default Action tag.
      * @zh 默认动作标签。
@@ -38,8 +33,15 @@ export abstract class Action {
      * @static
      * @default -1
      */
-    static TAG_INVALID = -1;
+    TAG_INVALID = -1,
+}
 
+/**
+ * @en Base classAction for action classes.
+ * @zh Action 类是所有动作类型的基类。
+ * @class Action
+ */
+export abstract class Action {
     /**
      * The `originalTarget` and `target` are both assigned in `startWithTarget` method,
      * and they get the same value normally. The difference between `originalTarget` and
@@ -91,7 +93,7 @@ export abstract class Action {
      */
     public workerTarget: unknown = null;
 
-    protected tag = Action.TAG_INVALID;
+    protected tag = ActionEnum.TAG_INVALID;
 
     /**
      * @en The identifier that to mark an internal action.

@@ -343,7 +343,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
 
         // Flags
         let flags = 0;
-        if (interpolationModeRepeated) { flags |= KeyframeValueFlagMask.INTERPOLATION_MODE; }
+        if (interpolationModeRepeated) { flags |= QuatCurveKeyframeValueFlagMask.INTERPOLATION_MODE; }
         dataView.setUint32(P, flags, true); P += FLAGS_BYTES;
 
         // Frame count
@@ -408,7 +408,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
 
         // Flags
         const flags = dataView.getUint32(P, true); P += FLAGS_BYTES;
-        const interpolationModeRepeated = flags & KeyframeValueFlagMask.INTERPOLATION_MODE;
+        const interpolationModeRepeated = flags & QuatCurveKeyframeValueFlagMask.INTERPOLATION_MODE;
 
         // Frame count
         const nFrames = dataView.getUint32(P, true); P += FRAME_COUNT_BYTES;
@@ -469,7 +469,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     }
 }
 
-enum KeyframeValueFlagMask {
+enum QuatCurveKeyframeValueFlagMask {
     INTERPOLATION_MODE = 1 << 0,
 }
 

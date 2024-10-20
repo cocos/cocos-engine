@@ -28,7 +28,7 @@ import { DescriptorBlockData, DescriptorData, DescriptorSetLayoutData, LayoutGra
 import { EffectAsset } from '../../asset/assets';
 import { assert, error, warn } from '../../core';
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, Feature, Format, FormatFeatureBit, GetTypeSize, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
-import { UBOForwardLight, UBOSkinning } from '../define';
+import { UBOForwardLight, UBOForwardLightEnum, UBOSkinning } from '../define';
 import { UpdateFrequency, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
 export const INVALID_ID = 0xFFFFFFFF;
@@ -111,11 +111,11 @@ export function getCustomPhaseID (lg: LayoutGraphData, subpassOrPassID: number, 
 }
 
 export const DEFAULT_UNIFORM_COUNTS: Map<string, number> = new Map([
-    ['cc_lightPos', UBOForwardLight.LIGHTS_PER_PASS],
-    ['cc_lightColor', UBOForwardLight.LIGHTS_PER_PASS],
-    ['cc_lightSizeRangeAngle', UBOForwardLight.LIGHTS_PER_PASS],
-    ['cc_lightDir', UBOForwardLight.LIGHTS_PER_PASS],
-    ['cc_lightBoundingSizeVS', UBOForwardLight.LIGHTS_PER_PASS],
+    ['cc_lightPos', UBOForwardLightEnum.LIGHTS_PER_PASS],
+    ['cc_lightColor', UBOForwardLightEnum.LIGHTS_PER_PASS],
+    ['cc_lightSizeRangeAngle', UBOForwardLightEnum.LIGHTS_PER_PASS],
+    ['cc_lightDir', UBOForwardLightEnum.LIGHTS_PER_PASS],
+    ['cc_lightBoundingSizeVS', UBOForwardLightEnum.LIGHTS_PER_PASS],
 ]);
 
 export const DYNAMIC_UNIFORM_BLOCK: Set<string> = new Set([

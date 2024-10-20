@@ -41,7 +41,7 @@ export enum ExtensionType {
  * @en Event type in dragonbones animation.
  * @zh 龙骨动画中的事件类型。
  */
-export enum EventType {
+export enum DragonBonesEventType {
     /**
      * @en Event about animation frame.
      * @zh 动画帧相关的事件。
@@ -53,6 +53,10 @@ export enum EventType {
      */
     Sound = 1
 }
+
+// To keep the compatibility, don't use it internally, otherwise, enum value may be inlined to wrong value.
+// Use DragonBonesEventType instead.
+export const EventType = DragonBonesEventType;
 
 /**
  * @en Animation fade out mode.

@@ -23,20 +23,22 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW, WECHAT } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings,
-    assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, errorID, logID } from '../core';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, settings,
+    assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, errorID, logID,
+    SettingsCategory,
+    Settings } from '../core';
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
 import { Layers, Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
-import { Director, director } from './director';
+import { director, DirectorEvent } from './director';
 import { bindingMappingInfo } from '../rendering/define';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
@@ -88,7 +90,7 @@ export interface IGameConfig {
      * 当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。
      * @en
      * Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.PROFILING: { "showFPS": true }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.PROFILING: { "showFPS": true }}``` to set this.
      */
     showFPS?: boolean;
 
@@ -97,7 +99,7 @@ export interface IGameConfig {
      * 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。
      * @en
      * Set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { "frameRate": 60 }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.SCREEN: { "frameRate": 60 }}``` to set this.
      */
     frameRate?: number;
 
@@ -117,7 +119,7 @@ export interface IGameConfig {
      * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
      * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
      * - 4 - Force WebGPU rendering, but this option will be ignored in some browsers.
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.RENDERING: { "renderMode": 0 }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.RENDERING: { "renderMode": 0 }}``` to set this.
      */
     renderMode?: 0 | 1 | 2 | 3 | 4;
 
@@ -126,7 +128,7 @@ export interface IGameConfig {
      * Render pipeline resources
      * @zh
      * Render pipeline 资源
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.RENDERING: { "renderPipeline": '' }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.RENDERING: { "renderPipeline": '' }}``` to set this.
      */
     renderPipeline?: string;
 
@@ -135,7 +137,7 @@ export interface IGameConfig {
      * Asset Manager initialization options
      * @zh
      * 资源管理器初始化设置
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.ASSETS: {}}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.ASSETS: {}}``` to set this.
      */
     assetOptions?: IAssetManagerOptions;
 
@@ -144,7 +146,7 @@ export interface IGameConfig {
      * GPU instancing options
      * @zh
      * GPU instancing 选项
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.ANIMATION: { customJointTextureLayouts: [] }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.ANIMATION: { customJointTextureLayouts: [] }}``` to set this.
      */
     customJointTextureLayouts?: ICustomJointTextureLayout[];
 
@@ -153,7 +155,7 @@ export interface IGameConfig {
      * Physics system config
      * @zh
      * 物理系统设置
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.PHYSICS: {}}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.PHYSICS: {}}``` to set this.
      */
     physics?: IPhysicsConfig;
 
@@ -163,7 +165,7 @@ export interface IGameConfig {
      * Available value can be 'auto', 'landscape', 'portrait'.
      * @zh
      * 屏幕旋转方向，可选 “自动”，“横屏”，“竖屏”
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'orientation': 'auto' }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.SCREEN: { 'orientation': 'auto' }}``` to set this.
      */
     orientation?: ConfigOrientation;
 
@@ -173,7 +175,7 @@ export interface IGameConfig {
      * Now it only works on Web platform.
      * @zh
      * 是否让游戏外框对齐到屏幕上，目前只在 web 平台生效
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'exactFitScreen': true }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.SCREEN: { 'exactFitScreen': true }}``` to set this.
      */
     exactFitScreen?: boolean,
 }
@@ -398,7 +400,7 @@ export class Game extends EventTarget {
      * @zh 引擎和渲染器是否以完成初始化
      */
     public get inited (): boolean {
-        return this._inited;
+        return this._inited$;
     }
 
     /**
@@ -406,7 +408,7 @@ export class Game extends EventTarget {
      * @zh 游戏的设定帧率。
      */
     public get frameRate (): string | number {
-        return this._frameRate;
+        return this._frameRate$;
     }
     public set frameRate (frameRate: number | string) {
         if (typeof frameRate !== 'number') {
@@ -415,9 +417,9 @@ export class Game extends EventTarget {
                 frameRate = 60;
             }
         }
-        this._frameRate = frameRate;
+        this._frameRate$ = frameRate;
         this.frameTime = 1000 / frameRate;
-        if (this._pacer) this._pacer.targetFrameRate = this._frameRate;
+        if (this._pacer$) this._pacer$.targetFrameRate = this._frameRate$;
     }
 
     /**
@@ -425,7 +427,7 @@ export class Game extends EventTarget {
      * @zh 获取上一帧的增量时间，以秒为单位。
      */
     public get deltaTime (): number {
-        return this._useFixedDeltaTime ? this.frameTime / 1000 : this._deltaTime;
+        return this._useFixedDeltaTime$ ? this.frameTime / 1000 : this._deltaTime$;
     }
 
     /**
@@ -433,7 +435,7 @@ export class Game extends EventTarget {
      * @zh 获取从游戏开始到现在总共经过的时间，以毫秒为单位
      */
     public get totalTime (): number {
-        return performance.now() - this._initTime;
+        return performance.now() - this._initTime$;
     }
 
     /**
@@ -441,7 +443,7 @@ export class Game extends EventTarget {
      * @zh 获取当前帧开始的时间（以 ms 为单位）。
      */
     public get frameStartTime (): number {
-        return this._startTime;
+        return this._startTime$;
     }
 
     /**
@@ -455,19 +457,19 @@ export class Game extends EventTarget {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _isCloning = false;    // deserializing or instantiating
-    private _inited = false;
-    private _engineInited = false; // whether the engine has inited
-    private _rendererInitialized = false;
-    private _paused = true;
-    private _pausedByEngine = false;
+    private _inited$ = false;
+    private _engineInited$ = false; // whether the engine has inited
+    private _rendererInitialized$ = false;
+    private _paused$ = true;
+    private _pausedByEngine$ = false;
     // frame control
-    private _frameRate = 60;
-    private _pacer: Pacer | null = null;
-    private _initTime = 0;
-    private _startTime = 0;
-    private _deltaTime = 0.0;
-    private _useFixedDeltaTime = false;
-    private _shouldLoadLaunchScene = true;
+    private _frameRate$ = 60;
+    private _pacer$: Pacer | null = null;
+    private _initTime$ = 0;
+    private _startTime$ = 0;
+    private _deltaTime$ = 0.0;
+    private _useFixedDeltaTime$ = false;
+    private _shouldLoadLaunchScene$ = true;
 
     /**
      * @en The event delegate pre base module initialization. At this point you can not use pal/logging/sys/settings API.
@@ -551,9 +553,9 @@ export class Game extends EventTarget {
      * @en Called by the engine to pause the game.
      * @zh 提供给引擎调用暂停游戏接口。
      */
-    private pauseByEngine (): void {
-        if (this._paused) { return; }
-        this._pausedByEngine = true;
+    private pauseByEngine$ (): void {
+        if (this._paused$) { return; }
+        this._pausedByEngine$ = true;
         this.pause();
     }
 
@@ -561,10 +563,10 @@ export class Game extends EventTarget {
      * @en Resume paused game by engine call.
      * @zh 提供给引擎调用恢复暂停游戏接口。
      */
-    private resumeByEngine (): void {
-        if (this._pausedByEngine) {
+    private resumeByEngine$ (): void {
+        if (this._pausedByEngine$) {
             this.resume();
-            this._pausedByEngine = false;
+            this._pausedByEngine$ = false;
         }
     }
 
@@ -584,9 +586,9 @@ export class Game extends EventTarget {
      * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
      */
     public pause (): void {
-        if (this._paused) { return; }
-        this._paused = true;
-        this._pacer?.stop();
+        if (this._paused$) { return; }
+        this._paused$ = true;
+        this._pacer$?.stop();
         this.emit(Game.EVENT_PAUSE);
     }
 
@@ -596,10 +598,10 @@ export class Game extends EventTarget {
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      */
     public resume (): void {
-        if (!this._paused) { return; }
+        if (!this._paused$) { return; }
         input._clearEvents();
-        this._paused = false;
-        this._pacer?.start();
+        this._paused$ = false;
+        this._pacer$?.start();
         this.emit(Game.EVENT_RESUME);
     }
 
@@ -608,7 +610,7 @@ export class Game extends EventTarget {
      * @zh 判断游戏是否暂停。
      */
     public isPaused (): boolean {
-        return this._paused;
+        return this._paused$;
     }
 
     /**
@@ -616,15 +618,23 @@ export class Game extends EventTarget {
      * @zh 重新开始游戏
      */
     public restart (): Promise<void> {
-        const endFramePromise = new Promise<void>((resolve): void => { director.once(Director.EVENT_END_FRAME, (): void => resolve()); });
+        const endFramePromise = new Promise<void>((resolve): void => {
+            director.once(DirectorEvent.END_FRAME, (): void => resolve());
+        });
         return endFramePromise.then((): void => {
             director.reset();
             cclegacy.Object._deferredDestroy();
             this.pause();
             this.resume();
-            this._shouldLoadLaunchScene = true;
-            SplashScreen.instance.curTime = 0;
-            this._safeEmit(Game.EVENT_RESTART);
+            this._shouldLoadLaunchScene$ = true;
+        }).then((): Promise<void[]> => {
+            if (WECHAT) {
+                return Promise.resolve([]);
+            } else {
+                return SplashScreen.createInstance().init();
+            }
+        }).then((): void => {
+            this._safeEmit$(Game.EVENT_RESTART);
         });
     }
 
@@ -652,7 +662,7 @@ export class Game extends EventTarget {
      */
     public on (type: string, callback: () => void, target?: any, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this.canRegisterEvent(type)) {
+        if (this.canRegisterEvent$(type)) {
             callback.call(target);
         }
         return this.eventTargetOn(type, callback, target, once);
@@ -672,16 +682,16 @@ export class Game extends EventTarget {
      */
     public once (type: string, callback: () => void, target?: any): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this.canRegisterEvent(type)) {
+        if (this.canRegisterEvent$(type)) {
             return callback.call(target);
         }
         return this.eventTargetOnce(type, callback, target);
     }
 
-    private canRegisterEvent (type: string): boolean {
-        return this._engineInited && type === Game.EVENT_ENGINE_INITED
-            || this._inited && type === Game.EVENT_GAME_INITED
-            || this._rendererInitialized && type === Game.EVENT_RENDERER_INITED;
+    private canRegisterEvent$ (type: string): boolean {
+        return this._engineInited$ && type === Game.EVENT_ENGINE_INITED
+            || this._inited$ && type === Game.EVENT_GAME_INITED
+            || this._rendererInitialized$ && type === Game.EVENT_RENDERER_INITED;
     }
 
     /**
@@ -719,7 +729,7 @@ export class Game extends EventTarget {
      * @param config - Pass configuration object
      */
     public init (config: IGameConfig): Promise<void> {
-        this._compatibleWithOldParams(config);
+        this._compatibleWithOldParams$(config);
         // DONT change the order unless you know what's you doing
         return Promise.resolve()
             // #region Base
@@ -737,7 +747,7 @@ export class Game extends EventTarget {
             })
             .then((): Promise<void> => sys.init())
             .then((): void => {
-                this._initEvents();
+                this._initEvents$();
             })
             .then((): Promise<void> => settings.init(config.settingsPath, config.overrideSettings))
             .then((): Promise<void[]> => {
@@ -761,7 +771,7 @@ export class Game extends EventTarget {
                     console.time('Init Infrastructure');
                 }
                 macro.init();
-                this._initXR();
+                this._initXR$();
                 const adapter = findCanvas();
                 if (adapter) {
                     this.canvas = adapter.canvas;
@@ -774,7 +784,7 @@ export class Game extends EventTarget {
             })
             .then(() => {
                 const usesCustomPipeline = settings.querySettings(
-                    Settings.Category.RENDERING,
+                    SettingsCategory.RENDERING,
                     'customPipeline',
                 );
                 if (usesCustomPipeline) {
@@ -793,7 +803,7 @@ export class Game extends EventTarget {
                 assetManager.init();
                 builtinResMgr.init();
                 Layers.init();
-                this.initPacer();
+                this.initPacer$();
                 if (DEBUG) {
                     // eslint-disable-next-line no-console
                     console.timeEnd('Init Infrastructure');
@@ -809,13 +819,13 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
                 return this.onPreSubsystemInitDelegate.dispatch();
             })
-            .then((): Promise<void> => effectSettings.init(settings.querySettings(Settings.Category.RENDERING, 'effectSettingsPath') as string))
+            .then((): Promise<void> => effectSettings.init(settings.querySettings(SettingsCategory.RENDERING, 'effectSettingsPath') as string))
             .then((): void => {
                 // initialize custom render pipeline
                 if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport) {
                     return;
                 }
-                const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+                const renderMode = settings.querySettings(SettingsCategory.RENDERING, 'renderMode');
                 if (renderMode === LegacyRenderMode.HEADLESS) {
                     cclegacy.rendering.init(deviceManager.gfxDevice, null);
                     return;
@@ -828,7 +838,7 @@ export class Game extends EventTarget {
                 cclegacy.rendering.init(deviceManager.gfxDevice, data);
             })
             .then((): Promise<any[]> => {
-                const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
+                const scriptPackages = settings.querySettings<string[]>(SettingsCategory.SCRIPTING, 'scriptPackages');
                 if (scriptPackages) {
                     return Promise.all(scriptPackages.map((pack): Promise<any> => import(pack)));
                 }
@@ -853,7 +863,7 @@ export class Game extends EventTarget {
             .then((): void => {
                 log(`Cocos Creator v${VERSION}`);
                 this.emit(Game.EVENT_ENGINE_INITED);
-                this._engineInited = true;
+                this._engineInited$ = true;
             })
             // #endregion Subsystem
             // #region Project
@@ -866,7 +876,7 @@ export class Game extends EventTarget {
                     // eslint-disable-next-line no-console
                     console.time('Init Project');
                 }
-                const jsList = settings.querySettings<string[]>(Settings.Category.PLUGINS, 'jsList');
+                const jsList = settings.querySettings<string[]>(SettingsCategory.PLUGINS, 'jsList');
                 let promise = Promise.resolve();
                 if (jsList) {
                     jsList.forEach((jsListFile): void => {
@@ -876,12 +886,15 @@ export class Game extends EventTarget {
                 return promise;
             })
             .then((): Promise<any[]> => this._loadProjectBundles())
-            .then((): Promise<void> => this._loadCCEScripts())
-            .then((): void | Promise<void> => this._setupRenderPipeline())
-            .then((): Promise<any[]> => this._loadPreloadAssets())
+            .then((): Promise<void> => this._loadCCEScripts$())
+            .then((): void | Promise<void> => this._setupRenderPipeline$())
+            .then((): Promise<any[]> => this._loadPreloadAssets$())
             .then((): Promise<void[]> => {
                 builtinResMgr.compileBuiltinMaterial();
-                return SplashScreen.instance.init();
+                if (WECHAT) {
+                    return Promise.resolve([]);
+                }
+                return SplashScreen.createInstance().init();
             })
             .then((): Promise<void[]> => {
                 if (DEBUG) {
@@ -893,30 +906,30 @@ export class Game extends EventTarget {
             })
             // #endregion Project
             .then((): void => {
-                this._inited = true;
-                this._safeEmit(Game.EVENT_GAME_INITED);
+                this._inited$ = true;
+                this._safeEmit$(Game.EVENT_GAME_INITED);
             });
     }
 
-    private _initXR (): void {
+    private _initXR$ (): void {
         if (typeof globalThis.__globalXR === 'undefined') {
             globalThis.__globalXR = {};
         }
         const globalXR = globalThis.__globalXR;
-        globalXR.webxrCompatible = settings.querySettings(Settings.Category.XR, 'webxrCompatible') ?? false;
+        globalXR.webxrCompatible = settings.querySettings(SettingsCategory.XR, 'webxrCompatible') ?? false;
 
         if (sys.isXR) {
             // XrEntry must not be destroyed
             xr.entry = xr.XrEntry.getInstance();
 
-            const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
-            const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
+            const xrMSAA = settings.querySettings(SettingsCategory.RENDERING, 'msaa') ?? 1;
+            const xrRenderingScale = settings.querySettings(SettingsCategory.RENDERING, 'renderingScale') ?? 1.0;
             xr.entry.setMultisamplesRTT(xrMSAA);
             xr.entry.setRenderingScale(xrRenderingScale);
         }
     }
 
-    private _compatibleWithOldParams (config: IGameConfig): void {
+    private _compatibleWithOldParams$ (config: IGameConfig): void {
         const overrideSettings = config.overrideSettings = config.overrideSettings || {};
         if ('showFPS' in config) {
             overrideSettings.profiling = overrideSettings.profiling || {};
@@ -956,8 +969,8 @@ export class Game extends EventTarget {
         }
     }
 
-    private _loadPreloadAssets (): Promise<any[]> {
-        const preloadAssets = settings.querySettings<string[]>(Settings.Category.ASSETS, 'preloadAssets');
+    private _loadPreloadAssets$ (): Promise<any[]> {
+        const preloadAssets = settings.querySettings<string[]>(SettingsCategory.ASSETS, 'preloadAssets');
         if (!preloadAssets) return Promise.resolve([]);
         return Promise.all(preloadAssets.map((uuid): Promise<void> => new Promise<void>((resolve, reject): void => {
             assetManager.loadAny(uuid, (err): void => {
@@ -973,7 +986,7 @@ export class Game extends EventTarget {
     /**
      * @internal only for browser preview
      */
-    private _loadCCEScripts (): Promise<void> {
+    private _loadCCEScripts$ (): Promise<void> {
         return new Promise<void>((resolve, reject): void => {
             // Since there is no script in the bundle during preview, we need to load the user's script in the following way
             if (PREVIEW && !TEST && !EDITOR && !NATIVE) {
@@ -989,7 +1002,7 @@ export class Game extends EventTarget {
      * @internal only for game-view
      */
     public _loadProjectBundles (): Promise<void[]> {
-        const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(Settings.Category.ASSETS, 'preloadBundles');
+        const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(SettingsCategory.ASSETS, 'preloadBundles');
         if (!preloadBundles) return Promise.resolve([]);
         return Promise.all(preloadBundles.map(({ bundle, version }): Promise<void> => new Promise<void>((resolve, reject): void => {
             const opts: Record<string, any> = {};
@@ -1013,7 +1026,7 @@ export class Game extends EventTarget {
         if (onStart) {
             this.onStart = onStart;
         }
-        if (!this._inited || EDITOR_NOT_IN_PREVIEW) {
+        if (!this._inited$ || EDITOR_NOT_IN_PREVIEW) {
             return;
         }
         this.resume();
@@ -1022,39 +1035,42 @@ export class Game extends EventTarget {
     // @Methods
 
     private _calculateDT (useFixedDeltaTime: boolean): number {
-        this._useFixedDeltaTime = useFixedDeltaTime;
+        this._useFixedDeltaTime$ = useFixedDeltaTime;
 
         if (useFixedDeltaTime) {
-            this._startTime = performance.now();
+            this._startTime$ = performance.now();
             return this.frameTime / 1000;
         }
 
         const now = performance.now();
-        this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
-        if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
-            this._deltaTime = this.frameTime / 1000;
+        this._deltaTime$ = now > this._startTime$ ? (now - this._startTime$) / 1000 : 0;
+        if (this._deltaTime$ > Game.DEBUG_DT_THRESHOLD) {
+            this._deltaTime$ = this.frameTime / 1000;
         }
-        this._startTime = now;
-        return this._deltaTime;
+        this._startTime$ = now;
+        return this._deltaTime$;
     }
 
-    private _updateCallback (): void {
-        if (!this._inited) return;
-        if (!SplashScreen.instance.isFinished) {
+    private _updateCallback$ (): void {
+        if (!this._inited$) return;
+        if (!WECHAT && SplashScreen.instance && !SplashScreen.instance.isFinished) {
             SplashScreen.instance.update(this._calculateDT(false));
-        } else if (this._shouldLoadLaunchScene) {
-            this._shouldLoadLaunchScene = false;
-            const launchScene = settings.querySettings(Settings.Category.LAUNCH, 'launchScene') as string;
+        } else if (this._shouldLoadLaunchScene$) {
+            if (!WECHAT) {
+                SplashScreen.releaseInstance();
+            }
+            this._shouldLoadLaunchScene$ = false;
+            const launchScene = settings.querySettings(SettingsCategory.LAUNCH, 'launchScene') as string;
             if (launchScene) {
                 // load scene
                 director.loadScene(launchScene, (): void => {
                     logID(1103, launchScene);
-                    this._initTime = performance.now();
+                    this._initTime$ = performance.now();
                     director.startAnimation();
                     this.onStart?.();
                 });
             } else {
-                this._initTime = performance.now();
+                this._initTime$ = performance.now();
                 director.startAnimation();
                 this.onStart?.();
             }
@@ -1063,31 +1079,31 @@ export class Game extends EventTarget {
         }
     }
 
-    private initPacer (): void {
-        const frameRate = settings.querySettings(Settings.Category.SCREEN, 'frameRate') ?? 60;
+    private initPacer$ (): void {
+        const frameRate = settings.querySettings(SettingsCategory.SCREEN, 'frameRate') ?? 60;
         assert(typeof frameRate === 'number');
-        this._pacer = new Pacer();
-        this._pacer.onTick = this._updateCallback.bind(this);
+        this._pacer$ = new Pacer();
+        this._pacer$.onTick = this._updateCallback$.bind(this);
         this.frameRate = frameRate;
     }
 
-    private _initEvents (): void {
-        systemInfo.on('show', this._onShow, this);
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('close', this._onClose, this);
+    private _initEvents$ (): void {
+        systemInfo.on('show', this._onShow$, this);
+        systemInfo.on('hide', this._onHide$, this);
+        systemInfo.on('close', this._onClose$, this);
     }
 
-    private _onHide (): void {
+    private _onHide$ (): void {
         this.emit(Game.EVENT_HIDE);
-        this.pauseByEngine();
+        this.pauseByEngine$();
     }
 
-    private _onShow (): void {
+    private _onShow$ (): void {
         this.emit(Game.EVENT_SHOW);
-        this.resumeByEngine();
+        this.resumeByEngine$();
     }
 
-    private _onClose (): void {
+    private _onClose$ (): void {
         this.emit(Game.EVENT_CLOSE);
         // TODO : Release Resources.
         systemInfo.exit();
@@ -1128,26 +1144,26 @@ export class Game extends EventTarget {
         return director.isPersistRootNode(node);
     }
 
-    private _setupRenderPipeline (): void | Promise<void> {
+    private _setupRenderPipeline$ (): void | Promise<void> {
         const usesCustomPipeline = settings.querySettings(
-            Settings.Category.RENDERING,
+            SettingsCategory.RENDERING,
             'customPipeline',
         );
 
-        return this._setRenderPipeline(!!usesCustomPipeline);
+        return this._setRenderPipeline$(!!usesCustomPipeline);
     }
 
-    private _setRenderPipeline (customPipeline: boolean): void {
+    private _setRenderPipeline$ (customPipeline: boolean): void {
         if (!director.root!.setRenderPipeline(customPipeline)) {
             errorID(1222);
             return;
         }
 
-        this._rendererInitialized = true;
-        this._safeEmit(Game.EVENT_RENDERER_INITED);
+        this._rendererInitialized$ = true;
+        this._safeEmit$(Game.EVENT_RENDERER_INITED);
     }
 
-    private _safeEmit (event: string | number): void {
+    private _safeEmit$ (event: string | number): void {
         if (EDITOR) {
             try {
                 this.emit(event);

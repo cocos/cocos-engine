@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { Label } from '../../components';
+import { CacheMode, Label } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { UITransform } from '../../framework/ui-transform';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
@@ -206,14 +206,14 @@ export class TTFUtils {
     }
 
     _calDynamicAtlas (comp: Label, outputLayoutData: TextOutputLayoutData): void {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP || outputLayoutData.canvasSize.width <= 0 || outputLayoutData.canvasSize.height <= 0) return;
+        if (comp.cacheMode !== CacheMode.BITMAP || outputLayoutData.canvasSize.width <= 0 || outputLayoutData.canvasSize.height <= 0) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
         // TODO update material and uv
     }
 
     _resetDynamicAtlas (comp: Label): void {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        if (comp.cacheMode !== CacheMode.BITMAP) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
         frame._resetDynamicAtlasFrame();

@@ -34,7 +34,7 @@ declare const require: (path: string) =>  Promise<void>;
  * @en
  * The default grouping in Settings, which usually corresponds to the module.
  */
-enum Category {
+export enum SettingsCategory {
     PATH = 'path',
     ENGINE = 'engine',
     ASSETS = 'assets',
@@ -59,7 +59,7 @@ enum Category {
  * You can access this single instance of the module via [settings].
  */
 export class Settings {
-    static Category = Category;
+    static Category = SettingsCategory;
 
     /**
      * Initialization
@@ -83,7 +83,7 @@ export class Settings {
                     // For now, we use a system module context to dynamically import the relative path of module.
                     const settingsModule = '../settings.js';
                     import(settingsModule).then((res): void => {
-                        this._settings = res.default;
+                        this._settings$ = res.default;
                         resolve();
                     }).catch((e): void => reject(e));
                 });
@@ -98,7 +98,7 @@ export class Settings {
                             reject(err);
                             return;
                         }
-                        this._settings = result;
+                        this._settings$ = result;
                         resolve();
                     });
                 } else {
@@ -106,7 +106,7 @@ export class Settings {
                     if (result instanceof Error) {
                         reject(result);
                     } else {
-                        this._settings = result;
+                        this._settings$ = result;
                         resolve();
                     }
                 }
@@ -115,7 +115,7 @@ export class Settings {
                 xhr.open('GET', path);
                 xhr.responseType = 'text';
                 xhr.onload = (): void => {
-                    this._settings = JSON.parse(xhr.response);
+                    this._settings$ = JSON.parse(xhr.response as string);
                     resolve();
                 };
                 xhr.onerror = (): void => {
@@ -139,16 +139,16 @@ export class Settings {
      *
      * @example
      * ```ts
-     * console.log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print https://www.cocos.com
-     * settings.overrideSettings(Settings.Category.ASSETS, 'server', 'http://www.test.com');
-     * console.log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print http://www.test.com
+     * console.log(settings.querySettings(SettingsCategory.ASSETS, 'server')); // print https://www.cocos.com
+     * settings.overrideSettings(SettingsCategory.ASSETS, 'server', 'http://www.test.com');
+     * console.log(settings.querySettings(SettingsCategory.ASSETS, 'server')); // print http://www.test.com
      * ```
      */
-    overrideSettings<T = any> (category: Category | string, name: string, value: T): void {
-        if (!(category in this._override)) {
-            this._override[category] = {};
+    overrideSettings<T = any> (category: SettingsCategory | string, name: string, value: T): void {
+        if (!(category in this._override$)) {
+            this._override$[category] = {};
         }
-        this._override[category][name] = value;
+        this._override$[category][name] = value;
     }
 
     /**
@@ -164,18 +164,18 @@ export class Settings {
      *
      * @example
      * ```ts
-     * console.log(settings.querySettings(Settings.Category.ENGINE, 'debug')); // print false
+     * console.log(settings.querySettings(SettingsCategory.ENGINE, 'debug')); // print false
      * ```
      */
-    querySettings<T = any> (category: Category | string, name: string): T | null {
-        if (category in this._override) {
-            const categorySettings = this._override[category];
+    querySettings<T = any> (category: SettingsCategory | string, name: string): T | null {
+        if (category in this._override$) {
+            const categorySettings = this._override$[category];
             if (categorySettings && name in categorySettings) {
                 return categorySettings[name] as T;
             }
         }
-        if (category in this._settings) {
-            const categorySettings = this._settings[category];
+        if (category in this._settings$) {
+            const categorySettings = this._settings$[category];
             if (categorySettings && name in categorySettings) {
                 return categorySettings[name] as T;
             }
@@ -183,12 +183,12 @@ export class Settings {
         return null;
     }
 
-    private _settings: Record<string, any> = {};
-    private _override: Record<string, any> = {};
+    private _settings$: Record<string, any> = {};
+    private _override$: Record<string, any> = {};
 }
 
 export declare namespace Settings {
-    export type Category = typeof Category;
+    export type Category = typeof SettingsCategory;
 }
 
 /**

@@ -22,14 +22,11 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, Vec3, Quat, Mat4 } from '../../../core';
-import { FixedConstraint, PhysicsSystem } from '../../framework';
+import { Vec3, Quat, Mat4 } from '../../../core';
+import { FixedConstraint } from '../../framework';
 import { IFixedConstraint } from '../../spec/i-physics-constraint';
 import { PX, _trans, getTempTransform, _pxtrans } from '../physx-adapter';
-import { PxContactPairFlag } from '../physx-enum';
-import { PhysXInstance } from '../physx-instance';
 import { PhysXRigidBody } from '../physx-rigid-body';
-import { PhysXWorld } from '../physx-world';
 import { PhysXJoint } from './physx-joint';
 
 const v3_0 = new Vec3();

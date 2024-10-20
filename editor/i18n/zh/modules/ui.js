@@ -25,10 +25,16 @@ module.exports = {
                     'horizontalAlign': {
                         displayName: '水平对齐',
                         tooltip: '文字水平对齐模式。',
+                        tooltip_left: '左对齐',
+                        tooltip_right: '右对齐',
+                        tooltip_center: '居中对齐',
                     },
                     'verticalAlign': {
                         displayName: '竖直对齐',
                         tooltip: '文字竖直对齐模式。',
+                        tooltip_top: '上对齐',
+                        tooltip_bottom: '下对齐',
+                        tooltip_center: '居中对齐',
                     },
                     'fontSize': {
                         displayName: '字体大小',

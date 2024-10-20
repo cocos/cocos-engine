@@ -225,6 +225,17 @@ export class ProbeHelperQueue {
         this.probeMap.length = 0;
     }
 
+    applyMacro (): void {
+        for (const subModel of this.probeMap) {
+            let patches: IMacroPatch[] = [
+                { name: CC_USE_RGBE_OUTPUT, value: true },
+            ];
+            if (subModel.patches) {
+                patches = patches.concat(subModel.patches);
+            }
+            subModel.onMacroPatchesStateChanged(patches);
+        }
+    }
     removeMacro (): void {
         for (const subModel of this.probeMap) {
             if (!subModel.patches) continue;
@@ -238,7 +249,7 @@ export class ProbeHelperQueue {
             }
         }
     }
-    applyMacro (model: Model, probeLayoutId: number): void {
+    addToProbeQueue (model: Model, probeLayoutId: number): void {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel: SubModel = subModels[j];
@@ -258,13 +269,6 @@ export class ProbeHelperQueue {
             }
             if (passIdx < 0) { continue; }
             if (!bUseReflectPass) {
-                let patches: IMacroPatch[] = [];
-                patches = patches.concat(subModel.patches!);
-                const useRGBEPatchs: IMacroPatch[] = [
-                    { name: CC_USE_RGBE_OUTPUT, value: true },
-                ];
-                patches = patches.concat(useRGBEPatchs);
-                subModel.onMacroPatchesStateChanged(patches);
                 this.probeMap.push(subModel);
             }
         }
@@ -649,9 +653,6 @@ export class WebSetter implements Setter {
         const layoutName = this.getParentLayout();
         setCameraUBOValues(this, camera, pipeline.pipelineSceneData as PipelineSceneData, camera.scene, layoutName);
     }
-    public setBuiltinShadowMapConstants (light: Light, numLevels?: number): void {
-        setShadowUBOView(this, null, this.getParentLayout());
-    }
     public setBuiltinDirectionalLightFrustumConstants (camera: Camera, light: DirectionalLight, csmLevel = 0): void {
         setShadowUBOLightView(this, camera, light, csmLevel);
     }
@@ -659,7 +660,7 @@ export class WebSetter implements Setter {
         setShadowUBOLightView(this, null, light, 0);
     }
     public setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
-        this.setBuiltinShadowMapConstants(light);
+        setShadowUBOView(this, null, this.getParentLayout());
     }
     public setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void {
         const director = cclegacy.director;
@@ -899,61 +900,37 @@ export class RenderDrawQueue {
 }
 
 export class RenderInstancingQueue {
-    passInstances: Map<Pass, number> = new Map<Pass, number>();
-    instanceBuffers: Array<InstancedBuffer> = new Array<InstancedBuffer>();
-    sortedBatches: Array<InstancedBuffer> = new Array<InstancedBuffer>();
-
+    /**
+     * @en A set of instanced buffer
+     * @zh Instance 合批缓存集合。
+     */
+    public queue = new Set<InstancedBuffer>();
     empty (): boolean {
-        return this.passInstances.size === 0;
+        return this.queue.size === 0;
     }
 
     add (pass: Pass, subModel: SubModel, passID: number): void {
-        const iter = this.passInstances.get(pass);
-        if (iter === undefined) {
-            const instanceBufferID = this.passInstances.size;
-            if (instanceBufferID >= this.instanceBuffers.length) {
-                assert(instanceBufferID === this.instanceBuffers.length);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                this.instanceBuffers.push(new InstancedBuffer(new Pass(cclegacy.director.root)));
-            }
-            this.passInstances.set(pass, instanceBufferID);
-
-            assert(instanceBufferID < this.instanceBuffers.length);
-            const instanceBuffer = this.instanceBuffers[instanceBufferID];
-            instanceBuffer.pass = pass;
-            const instances = instanceBuffer.instances;
-            for (const item of instances) {
-                assert(item.count === 0);
-            }
-        }
-
-        const instancedBuffer = this.instanceBuffers[this.passInstances.get(pass)!];
+        const instancedBuffer = pass.getInstancedBuffer();
         instancedBuffer.merge(subModel, passID);
+        this.queue.add(instancedBuffer);
     }
 
     clear (): void {
-        this.sortedBatches.length = 0;
-        this.passInstances.clear();
-        const instanceBuffers = this.instanceBuffers;
-        instanceBuffers.forEach((instance) => {
-            instance.clear();
-        });
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
+        this.queue.clear();
     }
 
-    sort (): void {
-        this.sortedBatches.length = this.passInstances.size;
-        let index = 0;
-        for (const [pass, bufferID] of this.passInstances.entries()) {
-            this.sortedBatches[index++] = this.instanceBuffers[bufferID];
-        }
-    }
+    sort (): void {}
 
     uploadBuffers (cmdBuffer: CommandBuffer): void {
-        for (const [pass, bufferID] of this.passInstances.entries()) {
-            const instanceBuffer = this.instanceBuffers[bufferID];
-            if (instanceBuffer.hasPendingModels) {
-                instanceBuffer.uploadBuffers(cmdBuffer);
-            }
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuffer);
+            res = it.next();
         }
     }
 
@@ -964,7 +941,7 @@ export class RenderInstancingQueue {
         offset = 0,
         dynamicOffsets: number[] | null = null,
     ): void {
-        const renderQueue = this.sortedBatches;
+        const renderQueue = this.queue;
         for (const instanceBuffer of renderQueue) {
             if (!instanceBuffer.hasPendingModels) {
                 continue;
@@ -1007,33 +984,28 @@ export class RenderInstancingQueue {
     }
 }
 
-export class RenderQueueDesc {
+export class RenderQueueQuery {
     frustumCulledResultID: number;
     lightBoundsCulledResultID: number;
     renderQueueTarget: number;
-    lightType: LightType;
 
     constructor (
         frustumCulledResultID = 0xFFFFFFFF,
         lightBoundsCulledResultID = 0xFFFFFFFF,
         renderQueueTargetIn = 0xFFFFFFFF,
-        lightTypeIn: LightType = LightType.UNKNOWN,
     ) {
         this.frustumCulledResultID = frustumCulledResultID;
         this.lightBoundsCulledResultID = lightBoundsCulledResultID;
         this.renderQueueTarget = renderQueueTargetIn;
-        this.lightType = lightTypeIn;
     }
     update (
         culledSourceIn = 0xFFFFFFFF,
         lightBoundsCulledResultID = 0xFFFFFFFF,
         renderQueueTargetIn = 0xFFFFFFFF,
-        lightTypeIn: LightType = LightType.UNKNOWN,
     ): void {
         this.frustumCulledResultID = culledSourceIn;
         this.lightBoundsCulledResultID = lightBoundsCulledResultID;
         this.renderQueueTarget = renderQueueTargetIn;
-        this.lightType = lightTypeIn;
     }
 }
 
@@ -1043,8 +1015,8 @@ export class RenderQueue {
     transparentQueue: RenderDrawQueue = new RenderDrawQueue();
     opaqueInstancingQueue: RenderInstancingQueue = new RenderInstancingQueue();
     transparentInstancingQueue: RenderInstancingQueue = new RenderInstancingQueue();
+    camera: Camera | null = null;
     sceneFlags: SceneFlags = SceneFlags.NONE;
-    subpassOrPassLayoutID = 0xFFFFFFFF;
     lightByteOffset = 0xFFFFFFFF;
     sort (): void {
         this.opaqueQueue.sortOpaqueOrCutout();
@@ -1059,8 +1031,9 @@ export class RenderQueue {
         this.transparentQueue.clear();
         this.opaqueInstancingQueue.clear();
         this.transparentInstancingQueue.clear();
+        this.camera = null;
         this.sceneFlags = SceneFlags.NONE;
-        this.subpassOrPassLayoutID = 0xFFFFFFFF;
+        this.lightByteOffset = 0xFFFFFFFF;
     }
 
     empty (): boolean {
@@ -1070,12 +1043,15 @@ export class RenderQueue {
         && this.transparentInstancingQueue.empty();
     }
 
-    recordCommands (cmdBuffer: CommandBuffer, renderPass: RenderPass): void {
+    recordCommands (cmdBuffer: CommandBuffer, renderPass: RenderPass, sceneFlags: SceneFlags): void {
         const offsets = this.lightByteOffset === 0xFFFFFFFF ? null : [this.lightByteOffset];
-        this.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
-        this.opaqueInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
-
-        this.transparentInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
-        this.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
+        if (sceneFlags & (SceneFlags.OPAQUE | SceneFlags.MASK)) {
+            this.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
+            this.opaqueInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
+        }
+        if (sceneFlags & SceneFlags.BLEND) {
+            this.transparentInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
+            this.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
+        }
     }
 }

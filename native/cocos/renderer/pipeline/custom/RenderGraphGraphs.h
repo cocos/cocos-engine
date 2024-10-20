@@ -204,7 +204,7 @@ inline void clear_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noe
 }
 
 inline void remove_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
-    impl::removeVectorVertex(const_cast<SubpassGraph&>(g), u, SubpassGraph::directed_category{});
+    impl::removeVectorVertex(g, u, SubpassGraph::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
@@ -1347,74 +1347,62 @@ tag(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
         g._vertices[u].handle);
 }
 
-inline ResourceGraph::VertexValue
-value(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept {
+template <class... Ts>
+auto visitObject(ResourceGraph::vertex_descriptor v, const ResourceGraph&g, Ts&&... args) {
     using vertex_descriptor = ResourceGraph::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.resources[h.value]};
-            },
-            [&](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.managedBuffers[h.value]};
-            },
-            [&](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.managedTextures[h.value]};
-            },
-            [&](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.buffers[h.value]};
-            },
-            [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.textures[h.value]};
-            },
-            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.framebuffers[h.value]};
-            },
-            [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.swapchains[h.value]};
-            },
-            [&](const impl::ValueHandle<FormatViewTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.formatViews[h.value]};
-            },
-            [&](const impl::ValueHandle<SubresourceViewTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexValue{&g.subresourceViews[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    const auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.resources[ccstd::get<impl::ValueHandle<ManagedTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.managedBuffers[ccstd::get<impl::ValueHandle<ManagedBufferTag, vertex_descriptor>>(var).value]);
+    case 2:
+        return visitor(g.managedTextures[ccstd::get<impl::ValueHandle<ManagedTextureTag, vertex_descriptor>>(var).value]);
+    case 3:
+        return visitor(g.buffers[ccstd::get<impl::ValueHandle<PersistentBufferTag, vertex_descriptor>>(var).value]);
+    case 4:
+        return visitor(g.textures[ccstd::get<impl::ValueHandle<PersistentTextureTag, vertex_descriptor>>(var).value]);
+    case 5:
+        return visitor(g.framebuffers[ccstd::get<impl::ValueHandle<FramebufferTag, vertex_descriptor>>(var).value]);
+    case 6:
+        return visitor(g.swapchains[ccstd::get<impl::ValueHandle<SwapchainTag, vertex_descriptor>>(var).value]);
+    case 7:
+        return visitor(g.formatViews[ccstd::get<impl::ValueHandle<FormatViewTag, vertex_descriptor>>(var).value]);
+    case 8:
+        return visitor(g.subresourceViews[ccstd::get<impl::ValueHandle<SubresourceViewTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
-inline ResourceGraph::VertexConstValue
-value(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
+template <class... Ts>
+auto visitObject(ResourceGraph::vertex_descriptor v, ResourceGraph&g, Ts&&... args) {
     using vertex_descriptor = ResourceGraph::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.resources[h.value]};
-            },
-            [&](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.managedBuffers[h.value]};
-            },
-            [&](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.managedTextures[h.value]};
-            },
-            [&](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.buffers[h.value]};
-            },
-            [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.textures[h.value]};
-            },
-            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.framebuffers[h.value]};
-            },
-            [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.swapchains[h.value]};
-            },
-            [&](const impl::ValueHandle<FormatViewTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.formatViews[h.value]};
-            },
-            [&](const impl::ValueHandle<SubresourceViewTag, vertex_descriptor>& h) {
-                return ResourceGraph::VertexConstValue{&g.subresourceViews[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.resources[ccstd::get<impl::ValueHandle<ManagedTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.managedBuffers[ccstd::get<impl::ValueHandle<ManagedBufferTag, vertex_descriptor>>(var).value]);
+    case 2:
+        return visitor(g.managedTextures[ccstd::get<impl::ValueHandle<ManagedTextureTag, vertex_descriptor>>(var).value]);
+    case 3:
+        return visitor(g.buffers[ccstd::get<impl::ValueHandle<PersistentBufferTag, vertex_descriptor>>(var).value]);
+    case 4:
+        return visitor(g.textures[ccstd::get<impl::ValueHandle<PersistentTextureTag, vertex_descriptor>>(var).value]);
+    case 5:
+        return visitor(g.framebuffers[ccstd::get<impl::ValueHandle<FramebufferTag, vertex_descriptor>>(var).value]);
+    case 6:
+        return visitor(g.swapchains[ccstd::get<impl::ValueHandle<SwapchainTag, vertex_descriptor>>(var).value]);
+    case 7:
+        return visitor(g.formatViews[ccstd::get<impl::ValueHandle<FormatViewTag, vertex_descriptor>>(var).value]);
+    case 8:
+        return visitor(g.subresourceViews[ccstd::get<impl::ValueHandle<SubresourceViewTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
 template <class Tag>
@@ -2391,7 +2379,7 @@ inline void remove_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) 
             }
         }
     }
-    impl::removeVectorVertex(const_cast<ResourceGraph&>(g), u, ResourceGraph::directed_category{});
+    impl::removeVectorVertex(g, u, ResourceGraph::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
@@ -2877,104 +2865,82 @@ tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
         g._vertices[u].handle);
 }
 
-inline RenderGraph::VertexValue
-value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
+template <class... Ts>
+auto visitObject(RenderGraph::vertex_descriptor v, const RenderGraph&g, Ts&&... args) {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RasterPassTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.rasterPasses[h.value]};
-            },
-            [&](const impl::ValueHandle<RasterSubpassTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.rasterSubpasses[h.value]};
-            },
-            [&](const impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.computeSubpasses[h.value]};
-            },
-            [&](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.computePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<ResolveTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.resolvePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<CopyTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.copyPasses[h.value]};
-            },
-            [&](const impl::ValueHandle<MoveTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.movePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<RaytraceTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.raytracePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<QueueTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.renderQueues[h.value]};
-            },
-            [&](const impl::ValueHandle<SceneTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.scenes[h.value]};
-            },
-            [&](const impl::ValueHandle<BlitTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.blits[h.value]};
-            },
-            [&](const impl::ValueHandle<DispatchTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.dispatches[h.value]};
-            },
-            [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.clearViews[h.value]};
-            },
-            [&](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.viewports[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    const auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.rasterPasses[ccstd::get<impl::ValueHandle<RasterPassTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.rasterSubpasses[ccstd::get<impl::ValueHandle<RasterSubpassTag, vertex_descriptor>>(var).value]);
+    case 2:
+        return visitor(g.computeSubpasses[ccstd::get<impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>>(var).value]);
+    case 3:
+        return visitor(g.computePasses[ccstd::get<impl::ValueHandle<ComputeTag, vertex_descriptor>>(var).value]);
+    case 4:
+        return visitor(g.resolvePasses[ccstd::get<impl::ValueHandle<ResolveTag, vertex_descriptor>>(var).value]);
+    case 5:
+        return visitor(g.copyPasses[ccstd::get<impl::ValueHandle<CopyTag, vertex_descriptor>>(var).value]);
+    case 6:
+        return visitor(g.movePasses[ccstd::get<impl::ValueHandle<MoveTag, vertex_descriptor>>(var).value]);
+    case 7:
+        return visitor(g.raytracePasses[ccstd::get<impl::ValueHandle<RaytraceTag, vertex_descriptor>>(var).value]);
+    case 8:
+        return visitor(g.renderQueues[ccstd::get<impl::ValueHandle<QueueTag, vertex_descriptor>>(var).value]);
+    case 9:
+        return visitor(g.scenes[ccstd::get<impl::ValueHandle<SceneTag, vertex_descriptor>>(var).value]);
+    case 10:
+        return visitor(g.blits[ccstd::get<impl::ValueHandle<BlitTag, vertex_descriptor>>(var).value]);
+    case 11:
+        return visitor(g.dispatches[ccstd::get<impl::ValueHandle<DispatchTag, vertex_descriptor>>(var).value]);
+    case 12:
+        return visitor(g.clearViews[ccstd::get<impl::ValueHandle<ClearTag, vertex_descriptor>>(var).value]);
+    case 13:
+        return visitor(g.viewports[ccstd::get<impl::ValueHandle<ViewportTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
-inline RenderGraph::VertexConstValue
-value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
+template <class... Ts>
+auto visitObject(RenderGraph::vertex_descriptor v, RenderGraph&g, Ts&&... args) {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RasterPassTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.rasterPasses[h.value]};
-            },
-            [&](const impl::ValueHandle<RasterSubpassTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.rasterSubpasses[h.value]};
-            },
-            [&](const impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.computeSubpasses[h.value]};
-            },
-            [&](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.computePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<ResolveTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.resolvePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<CopyTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.copyPasses[h.value]};
-            },
-            [&](const impl::ValueHandle<MoveTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.movePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<RaytraceTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.raytracePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<QueueTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.renderQueues[h.value]};
-            },
-            [&](const impl::ValueHandle<SceneTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.scenes[h.value]};
-            },
-            [&](const impl::ValueHandle<BlitTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.blits[h.value]};
-            },
-            [&](const impl::ValueHandle<DispatchTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.dispatches[h.value]};
-            },
-            [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.clearViews[h.value]};
-            },
-            [&](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.viewports[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.rasterPasses[ccstd::get<impl::ValueHandle<RasterPassTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.rasterSubpasses[ccstd::get<impl::ValueHandle<RasterSubpassTag, vertex_descriptor>>(var).value]);
+    case 2:
+        return visitor(g.computeSubpasses[ccstd::get<impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>>(var).value]);
+    case 3:
+        return visitor(g.computePasses[ccstd::get<impl::ValueHandle<ComputeTag, vertex_descriptor>>(var).value]);
+    case 4:
+        return visitor(g.resolvePasses[ccstd::get<impl::ValueHandle<ResolveTag, vertex_descriptor>>(var).value]);
+    case 5:
+        return visitor(g.copyPasses[ccstd::get<impl::ValueHandle<CopyTag, vertex_descriptor>>(var).value]);
+    case 6:
+        return visitor(g.movePasses[ccstd::get<impl::ValueHandle<MoveTag, vertex_descriptor>>(var).value]);
+    case 7:
+        return visitor(g.raytracePasses[ccstd::get<impl::ValueHandle<RaytraceTag, vertex_descriptor>>(var).value]);
+    case 8:
+        return visitor(g.renderQueues[ccstd::get<impl::ValueHandle<QueueTag, vertex_descriptor>>(var).value]);
+    case 9:
+        return visitor(g.scenes[ccstd::get<impl::ValueHandle<SceneTag, vertex_descriptor>>(var).value]);
+    case 10:
+        return visitor(g.blits[ccstd::get<impl::ValueHandle<BlitTag, vertex_descriptor>>(var).value]);
+    case 11:
+        return visitor(g.dispatches[ccstd::get<impl::ValueHandle<DispatchTag, vertex_descriptor>>(var).value]);
+    case 12:
+        return visitor(g.clearViews[ccstd::get<impl::ValueHandle<ClearTag, vertex_descriptor>>(var).value]);
+    case 13:
+        return visitor(g.viewports[ccstd::get<impl::ValueHandle<ViewportTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
 template <class Tag>
@@ -4354,7 +4320,7 @@ inline void remove_vertex(RenderGraph::vertex_descriptor u, RenderGraph& g) noex
     // preserve vertex' iterators
     auto& vert = g._vertices[u];
     remove_vertex_value_impl(vert.handle, g);
-    impl::removeVectorVertex(const_cast<RenderGraph&>(g), u, RenderGraph::directed_category{});
+    impl::removeVectorVertex(g, u, RenderGraph::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));

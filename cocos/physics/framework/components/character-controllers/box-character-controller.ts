@@ -23,15 +23,11 @@
 */
 
 import {
-    ccclass, help, disallowMultiple, executeInEditMode, menu, executionOrder,
-    tooltip, displayOrder, visible, type, serializable } from 'cc.decorator';
-import { DEBUG } from 'internal:constants';
-import { Vec3, error, warn, CCFloat } from '../../../../core';
-import { Component } from '../../../../scene-graph';
+    ccclass, help, executeInEditMode, menu, executionOrder,
+    tooltip, type, serializable } from 'cc.decorator';
+import { Vec3, CCFloat } from '../../../../core';
 import { IBoxCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';
-import { selector, createCharacterController } from '../../physics-selector';
-import { PhysicsSystem } from '../../physics-system';
 import { CharacterController } from './character-controller';
 
 const v3_0 = new Vec3(0, 0, 0);

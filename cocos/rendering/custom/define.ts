@@ -29,7 +29,7 @@ import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet,
     Device,
 } from '../../gfx';
 import { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
-import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
+import { Camera, SkyBoxFlagValue } from '../../render-scene/scene/camera';
 import { CSMLevel, ShadowType, Shadows } from '../../render-scene/scene/shadows';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
@@ -37,15 +37,15 @@ import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directio
 import { PointLight } from '../../render-scene/scene/point-light';
 import { SphereLight } from '../../render-scene/scene/sphere-light';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { UBOForwardLight, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
+import { UBOForwardLightEnum, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline } from './pipeline';
 import {
     AttachmentType, LightInfo,
     QueueHint, ResourceResidency, SceneFlags, UpdateFrequency,
 } from './types';
-import { Vec4, geometry, toRadian, cclegacy, assert } from '../../core';
+import { Vec4, geometry, toRadian, cclegacy } from '../../core';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { RenderData, RenderGraph } from './render-graph';
+import { RasterPass, RenderData, RenderGraph } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData, LayoutGraphData } from './layout-graph';
 import { AABB } from '../../core/geometry';
@@ -133,7 +133,7 @@ export function getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: Attac
     let loadOp = LoadOp.CLEAR;
     if (!(clearFlag & ClearFlagBit.COLOR)
         && attachment === AttachmentType.RENDER_TARGET) {
-        if (clearFlag & SKYBOX_FLAG) {
+        if (clearFlag & SkyBoxFlagValue.VALUE) {
             loadOp = LoadOp.CLEAR;
         } else {
             loadOp = LoadOp.LOAD;
@@ -448,24 +448,17 @@ export function getDescBindingFromName (bindingName: string): number {
     return -1;
 }
 
-const uniformMap: Map<string, Float32Array> = new Map();
-const buffHashMap: Map<Buffer, number> = new Map();
-function numsHash (arr: number[]): number {
-    let hash = 0;
-    for (let i = 0; i < arr.length; i++) {
-        hash = hashCombineNum(arr[i], hash);
-    }
-    return hash;
-}
-
 class DescBuffManager {
     private buffers: Buffer[] = [];
     private currBuffIdx: number = 0;
     private device: Device;
+    public currUniform: Float32Array;
+    private _root;
     constructor (bufferSize: number, numBuffers: number = 2) {
-        const root = cclegacy.director.root;
+        const root = this._root = cclegacy.director.root;
         const device = root.device;
         this.device = device;
+        this.currUniform = new Float32Array(bufferSize / 4);
         for (let i = 0; i < numBuffers; i++) {
             const bufferInfo: BufferInfo = new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -477,43 +470,23 @@ class DescBuffManager {
         }
     }
     getCurrentBuffer (): Buffer {
-        const root = cclegacy.director.root;
-        this.currBuffIdx = root.frameCount % this.buffers.length;
+        const { director } = cclegacy;
+        this.currBuffIdx = director.getTotalFrames() % this.buffers.length;
         return this.buffers[this.currBuffIdx];
     }
-    updateBuffer (bindId: number, vals: number[], layout: string, setData: DescriptorSetData): void {
+    updateData (vals: number[]): void {
+        this.currUniform.set(vals);
+    }
+    updateBuffer (bindId: number, setData: DescriptorSetData): void {
         const descriptorSet = setData.descriptorSet!;
         const buffer = this.getCurrentBuffer();
-        const uniformKey = `${layout}${bindId}${this.currBuffIdx}`;
-        let currUniform = uniformMap.get(uniformKey);
-        const currHash = numsHash(vals);
-        if (!currUniform) {
-            currUniform = new Float32Array(vals);
-            uniformMap.set(uniformKey, currUniform);
-        }
-        const destHash = buffHashMap.get(buffer);
-        if (destHash !== currHash) {
-            currUniform.set(vals);
-            buffer.update(currUniform);
-            bindGlobalDesc(descriptorSet, bindId, buffer);
-            buffHashMap.set(buffer, currHash);
-        }
+        buffer.update(this.currUniform);
+        bindGlobalDesc(descriptorSet, bindId, buffer);
     }
 }
 
 const buffsMap: Map<string, DescBuffManager> = new Map();
-
-function updateGlobalDescBuffer (blockId: number, sceneId: number, vals: number[], layout: string, setData: DescriptorSetData): void {
-    const bindId = getDescBinding(blockId, setData);
-    if (bindId === -1) { return; }
-    const descKey = `${blockId}${bindId}${sceneId}`;
-    let currDescBuff = buffsMap.get(descKey);
-    if (!currDescBuff) {
-        buffsMap.set(descKey, new DescBuffManager(vals.length * 4));
-        currDescBuff = buffsMap.get(descKey);
-    }
-    currDescBuff!.updateBuffer(bindId, vals, layout, setData);
-}
+const currBindBuffs: Map<string, number> = new Map();
 
 const layouts: Map<string, DescriptorSetData> = new Map();
 export function getDescriptorSetDataFromLayout (layoutName: string): DescriptorSetData | undefined {
@@ -523,7 +496,6 @@ export function getDescriptorSetDataFromLayout (layoutName: string): DescriptorS
     }
     const webPip = cclegacy.director.root.pipeline as WebPipeline;
     const stageId = webPip.layoutGraph.locateChild(webPip.layoutGraph.N, layoutName);
-    assert(stageId !== 0xFFFFFFFF);
     const layout = webPip.layoutGraph.getLayout(stageId);
     const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
     layouts.set(layoutName, layoutData!);
@@ -537,8 +509,8 @@ export function getDescriptorSetDataFromLayoutId (id: number): DescriptorSetData
     return layoutData;
 }
 
-export function updateGlobalDescBinding (data: RenderData, sceneId: number, layoutName = 'default'): void {
-    updatePerPassUBO(layoutName, sceneId, data);
+export function updateGlobalDescBinding (data: RenderData, sceneId: number, idxRD: number, layoutName = 'default'): void {
+    updatePerPassUBO(layoutName, sceneId, idxRD, data);
 }
 
 function getUniformBlock (block: string, layoutName: string): UniformBlock | undefined {
@@ -572,15 +544,20 @@ class ConstantBlockInfo {
     blockId: number = -1;
 }
 const constantBlockMap: Map<number, ConstantBlockInfo> = new Map();
-function copyToConstantBuffer (target: number[], val: number[], offset: number): void {
+function copyToConstantBuffer (target: number[], val: number[], offset: number): boolean {
+    let isImparity = false;
     if (offset < 0 || offset > target.length) {
-        throw new Error('Offset is out of the bounds of the target array.');
+        return isImparity;
     }
     const length = Math.min(val.length, target.length - offset);
 
     for (let i = 0; i < length; i++) {
-        target[offset + i] = val[i];
+        if (target[offset + i] !== val[i]) {
+            target[offset + i] = val[i];
+            isImparity = true;
+        }
     }
+    return isImparity;
 }
 
 function addConstantBuffer (block: string, layout: string): number[] | null {
@@ -602,15 +579,50 @@ function addConstantBuffer (block: string, layout: string): number[] | null {
     uniformBlockMap.set(block, buffers);
     return buffers;
 }
-export function updatePerPassUBO (layout: string, sceneId: number, user: RenderData): void {
-    const constantMap = user.constants;
-    const samplers = user.samplers;
-    const textures = user.textures;
-    const buffers = user.buffers;
+
+function updateGlobalDescBuffer (descKey: string, vals: number[]): void {
+    let currDescBuff = buffsMap.get(descKey);
+    if (!currDescBuff) {
+        buffsMap.set(descKey, new DescBuffManager(vals.length * 4, 2));
+        currDescBuff = buffsMap.get(descKey);
+    }
+    currDescBuff!.updateData(vals);
+}
+
+function updateConstantBlock (
+    constantBuff: ConstantBlockInfo,
+    data: number[],
+    descriptorSetData: DescriptorSetData,
+    sceneId: number,
+    idxRD: number,
+): void {
+    const blockId = constantBuff.blockId;
+    const buffer = constantBuff.buffer;
+    const isImparity = copyToConstantBuffer(buffer, data, constantBuff.offset);
+    const bindId = getDescBinding(blockId, descriptorSetData);
+    const desc = descriptorSetData.descriptorSet!;
+    if (isImparity || !desc.getBuffer(bindId) && bindId !== -1) {
+        const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
+        currBindBuffs.set(descKey, bindId);
+        updateGlobalDescBuffer(descKey, buffer);
+    }
+}
+
+function updateDefaultConstantBlock (blockId: number, sceneId: number, idxRD: number, vals: number[], setData: DescriptorSetData): void {
+    const bindId = getDescBinding(blockId, setData);
+    if (bindId === -1) { return; }
+    const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
+    currBindBuffs.set(descKey, bindId);
+    updateGlobalDescBuffer(descKey, vals);
+}
+
+export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number, user: RenderData): void {
+    const { constants, samplers, textures, buffers } = user;
     const webPip = cclegacy.director.root.pipeline as WebPipeline;
     const lg = webPip.layoutGraph;
     const descriptorSetData = getDescriptorSetDataFromLayout(layout)!;
-    for (const [key, data] of constantMap) {
+    currBindBuffs.clear();
+    for (const [key, data] of constants) {
         let constantBlock = constantBlockMap.get(key);
         if (!constantBlock) {
             const currMemKey = Array.from(lg.constantIndex).find(([_, v]) => v === key)![0];
@@ -622,7 +634,7 @@ export function updatePerPassUBO (layout: string, sceneId: number, user: RenderD
                 if (offset === -1) {
                     // Although the current uniformMem does not belong to the current uniform block,
                     // it does not mean that it should not be bound to the corresponding descriptor.
-                    updateGlobalDescBuffer(blockId, sceneId, constantBuff, layout, descriptorSetData);
+                    updateDefaultConstantBlock(blockId, sceneId, idxRD, constantBuff, descriptorSetData);
                     continue;
                 }
                 constantBlockMap.set(key, new ConstantBlockInfo());
@@ -630,12 +642,10 @@ export function updatePerPassUBO (layout: string, sceneId: number, user: RenderD
                 constantBlock.buffer = constantBuff;
                 constantBlock.blockId = blockId;
                 constantBlock.offset = offset;
-                copyToConstantBuffer(constantBuff, data, offset);
-                updateGlobalDescBuffer(blockId, sceneId, constantBuff, layout, descriptorSetData);
+                updateConstantBlock(constantBlock, data, descriptorSetData, sceneId, idxRD);
             }
         } else {
-            copyToConstantBuffer(constantBlock.buffer, data, constantBlock.offset);
-            updateGlobalDescBuffer(constantBlock.blockId, sceneId, constantBlock.buffer, layout, descriptorSetData);
+            updateConstantBlock(constantBlock, data, descriptorSetData, sceneId, idxRD);
         }
     }
 
@@ -658,6 +668,10 @@ export function updatePerPassUBO (layout: string, sceneId: number, user: RenderD
             bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
+    for (const [key, value] of currBindBuffs) {
+        const buffManager = buffsMap.get(key)!;
+        buffManager.updateBuffer(value, descriptorSetData);
+    }
     for (const [key, value] of buffers) {
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }
@@ -666,25 +680,20 @@ export function updatePerPassUBO (layout: string, sceneId: number, user: RenderD
             bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
-    descriptorSet.update();
 }
 
-function hashCombine (hash, currHash: number): number {
-    return currHash ^= (hash >>> 0) + 0x9e3779b9 + (currHash << 6) + (currHash >> 2);
+export function hashCombineKey (val): string {
+    return `${val}-`;
 }
 
-export function hashCombineNum (val: number, currHash: number): number {
-    const hash = 5381;
-    return hashCombine((hash * 33) ^ val, currHash);
-}
-
-export function hashCombineStr (str: string, currHash: number): number {
+export function hashCombineStr (str: string): number {
     // DJB2 HASH
-    let hash = 5381;
+    let hash = 0;
     for (let i = 0; i < str.length; i++) {
-        hash = (hash * 33) ^ str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;// Convert to 32bit integer
     }
-    return hashCombine(hash, currHash);
+    return hash;
 }
 
 export function bool (val): boolean {
@@ -752,14 +761,14 @@ export function SetLightUBO (
         luminanceLDR = rangedDirLight.illuminanceLDR;
     }
 
-    let index = offset + UBOForwardLight.LIGHT_POS_OFFSET;
+    let index = offset + UBOForwardLightEnum.LIGHT_POS_OFFSET;
     buffer.set(vec4Array, index);
 
-    index = offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET;
+    index = offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET;
     vec4Array.set([size, range, 0, 0]);
     buffer.set(vec4Array, index);
 
-    index = offset + UBOForwardLight.LIGHT_COLOR_OFFSET;
+    index = offset + UBOForwardLightEnum.LIGHT_COLOR_OFFSET;
     const color = light ? light.color : new Color();
     if (light && light.useColorTemperature) {
         const tempRGB = light.colorTemperatureRGB;
@@ -780,50 +789,50 @@ export function SetLightUBO (
 
     switch (light ? light.type : LightType.UNKNOWN) {
     case LightType.SPHERE:
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
         break;
     case LightType.SPOT: {
         const spotLight = light as SpotLight;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight.spotAngle;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] =                (shadowInfo && shadowInfo.enabled
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight.spotAngle;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] =                (shadowInfo && shadowInfo.enabled
                  && spotLight.shadowEnabled
                  && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
 
-        index = offset + UBOForwardLight.LIGHT_DIR_OFFSET;
+        index = offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET;
         const direction = spotLight.direction;
         buffer[index++] = direction.x;
         buffer[index++] = direction.y;
         buffer[index] = direction.z;
 
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = spotLight.angleAttenuationStrength;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = spotLight.angleAttenuationStrength;
     } break;
     case LightType.POINT:
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
         break;
     case LightType.RANGED_DIRECTIONAL: {
         const rangedDirLight = light as RangedDirectionalLight;
         const right = rangedDirLight.right;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
 
         const direction = rangedDirLight.direction;
-        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 0] = direction.x;
-        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 1] = direction.y;
-        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 2] = direction.z;
-        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET + 0] = direction.x;
+        buffer[offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET + 1] = direction.y;
+        buffer[offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET + 2] = direction.z;
+        buffer[offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET + 3] = 0;
 
         const scale = rangedDirLight.scale;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
     } break;
     default:
         break;
@@ -832,31 +841,67 @@ export function SetLightUBO (
 
 export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: LayoutGraphData): number {
     const queueId = rg.getParent(sceneId);
-    assert(queueId !== 0xFFFFFFFF);
     const subpassOrPassID = rg.getParent(queueId);
-    assert(subpassOrPassID !== 0xFFFFFFFF);
     const passId = rg.getParent(subpassOrPassID);
     let layoutId = lg.N;
     // single render pass
     if (passId === rg.N) {
         const layoutName: string = rg.getLayout(subpassOrPassID);
-        assert(!!layoutName);
         layoutId = lg.locateChild(lg.N, layoutName);
     } else {
         const passLayoutName: string = rg.getLayout(passId);
-        assert(!!passLayoutName);
         const passLayoutId = lg.locateChild(lg.N, passLayoutName);
-        assert(passLayoutId !== lg.N);
 
         const subpassLayoutName: string = rg.getLayout(subpassOrPassID);
         if (subpassLayoutName.length === 0) {
             layoutId = passLayoutId;
         } else {
             const subpassLayoutId = lg.locateChild(passLayoutId, subpassLayoutName);
-            assert(subpassLayoutId !== lg.N);
             layoutId = subpassLayoutId;
         }
     }
-    assert(layoutId !== lg.N);
     return layoutId;
+}
+
+export function genHashValue (pass: RasterPass): void {
+    let hashCode = '';
+    for (const [name, raster] of pass.rasterViews) {
+        hashCode += hashCombineKey(name);
+        hashCode += hashCombineKey(raster.slotName);
+        hashCode += hashCombineKey(raster.accessType);
+        hashCode += hashCombineKey(raster.attachmentType);
+        hashCode += hashCombineKey(raster.loadOp);
+        hashCode += hashCombineKey(raster.storeOp);
+        hashCode += hashCombineKey(raster.clearFlags);
+        hashCode += hashCombineKey(raster.clearColor.x);
+        hashCode += hashCombineKey(raster.clearColor.y);
+        hashCode += hashCombineKey(raster.clearColor.z);
+        hashCode += hashCombineKey(raster.clearColor.w);
+        hashCode += hashCombineKey(raster.slotID);
+        hashCode += hashCombineKey(raster.shaderStageFlags);
+    }
+    for (const [name, computes] of pass.computeViews) {
+        hashCode += hashCombineKey(name);
+        for (const compute of computes) {
+            hashCode += hashCombineKey(compute.name);
+            hashCode += hashCombineKey(compute.accessType);
+            hashCode += hashCombineKey(compute.clearFlags);
+            hashCode += hashCombineKey(compute.clearValueType);
+            hashCode += hashCombineKey(compute.clearValue.x);
+            hashCode += hashCombineKey(compute.clearValue.y);
+            hashCode += hashCombineKey(compute.clearValue.z);
+            hashCode += hashCombineKey(compute.clearValue.w);
+            hashCode += hashCombineKey(compute.shaderStageFlags);
+        }
+    }
+    hashCode += hashCombineKey(pass.width);
+    hashCode += hashCombineKey(pass.height);
+    hashCode += hashCombineKey(pass.viewport.left);
+    hashCode += hashCombineKey(pass.viewport.top);
+    hashCode += hashCombineKey(pass.viewport.width);
+    hashCode += hashCombineKey(pass.viewport.height);
+    hashCode += hashCombineKey(pass.viewport.minDepth);
+    hashCode += hashCombineKey(pass.viewport.maxDepth);
+    hashCode += hashCombineKey(pass.showStatistics ? 1 : 0);
+    pass.hashValue = hashCombineStr(hashCode);
 }

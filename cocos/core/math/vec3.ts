@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /*
  Copyright (c) 2016 Chukong Technologies Inc.
  Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
@@ -31,6 +32,18 @@ import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, lerp, random } from './utils';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
+
+const abs = Math.abs;
+const max = Math.max;
+const min = Math.min;
+const PI = Math.PI;
+const acos = Math.acos;
+const sin = Math.sin;
+const cos = Math.cos;
+const sqrt = Math.sqrt;
+const ceil = Math.ceil;
+const floor = Math.floor;
+const round = Math.round;
 
 /**
  * @en Representation of 3D vectors and points.
@@ -137,9 +150,9 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量向上取整
      */
     public static ceil<Out extends IVec3Like> (out: Out, a: IVec3Like): Out {
-        out.x = Math.ceil(a.x);
-        out.y = Math.ceil(a.y);
-        out.z = Math.ceil(a.z);
+        out.x = ceil(a.x);
+        out.y = ceil(a.y);
+        out.z = ceil(a.z);
         return out;
     }
 
@@ -148,9 +161,9 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量向下取整
      */
     public static floor<Out extends IVec3Like> (out: Out, a: IVec3Like): Out {
-        out.x = Math.floor(a.x);
-        out.y = Math.floor(a.y);
-        out.z = Math.floor(a.z);
+        out.x = floor(a.x);
+        out.y = floor(a.y);
+        out.z = floor(a.z);
         return out;
     }
 
@@ -159,9 +172,9 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量最小值
      */
     public static min<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like): Out {
-        out.x = Math.min(a.x, b.x);
-        out.y = Math.min(a.y, b.y);
-        out.z = Math.min(a.z, b.z);
+        out.x = min(a.x, b.x);
+        out.y = min(a.y, b.y);
+        out.z = min(a.z, b.z);
         return out;
     }
 
@@ -170,9 +183,9 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量最大值
      */
     public static max<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like): Out {
-        out.x = Math.max(a.x, b.x);
-        out.y = Math.max(a.y, b.y);
-        out.z = Math.max(a.z, b.z);
+        out.x = max(a.x, b.x);
+        out.y = max(a.y, b.y);
+        out.z = max(a.z, b.z);
         return out;
     }
 
@@ -181,9 +194,9 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量四舍五入取整
      */
     public static round<Out extends IVec3Like> (out: Out, a: IVec3Like): Out {
-        out.x = Math.round(a.x);
-        out.y = Math.round(a.y);
-        out.z = Math.round(a.z);
+        out.x = round(a.x);
+        out.y = round(a.y);
+        out.z = round(a.z);
         return out;
     }
 
@@ -217,7 +230,7 @@ export class Vec3 extends ValueType {
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
-        return Math.sqrt(x * x + y * y + z * z);
+        return sqrt(x * x + y * y + z * z);
     }
 
     /**
@@ -239,7 +252,7 @@ export class Vec3 extends ValueType {
         const x = a.x;
         const y = a.y;
         const z = a.z;
-        return Math.sqrt(x * x + y * y + z * z);
+        return sqrt(x * x + y * y + z * z);
     }
 
     /**
@@ -284,19 +297,19 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
 
-        if (Math.abs(x) < EPSILON) {
+        if (abs(x) < EPSILON) {
             out.x = 0;
         } else {
             out.x = 1.0 / x;
         }
 
-        if (Math.abs(y) < EPSILON) {
+        if (abs(y) < EPSILON) {
             out.y = 0;
         } else {
             out.y = 1.0 / y;
         }
 
-        if (Math.abs(z) < EPSILON) {
+        if (abs(z) < EPSILON) {
             out.z = 0;
         } else {
             out.z = 1.0 / z;
@@ -316,7 +329,7 @@ export class Vec3 extends ValueType {
 
         let len = x * x + y * y + z * z;
         if (len > 0) {
-            len = 1 / Math.sqrt(len);
+            len = 1 / sqrt(len);
             out.x = x * len;
             out.y = y * len;
             out.z = z * len;
@@ -411,20 +424,20 @@ export class Vec3 extends ValueType {
                 // every vector that orthonormal to the directions can be the rotation axis.
                 const fromNormalized = Vec3.multiplyScalar(cacheV1, from, 1.0 / lenFrom);
                 const axis = Vec3.generateOrthogonal(cacheV2, fromNormalized);
-                const angle = Math.PI * t;
+                const angle = PI * t;
                 rotateAxisAngle(cacheV3, fromNormalized, axis, angle);
                 Vec3.multiplyScalar(out, cacheV3, lenLerped);
                 return out;
             } else {
                 // Do not have to clamp. We done it before.
                 const dotClamped = dot;
-                const theta = Math.acos(dotClamped) * t;
+                const theta = acos(dotClamped) * t;
                 const fromNormalized = Vec3.multiplyScalar(cacheV1, from, 1.0 / lenFrom);
                 const toNormalized = Vec3.multiplyScalar(cacheV2, to, 1.0 / lenTo);
                 Vec3.scaleAndAdd(cacheV3, toNormalized, fromNormalized, -dotClamped);
                 Vec3.normalize(cacheV3, cacheV3);
-                Vec3.multiplyScalar(cacheV3, cacheV3, Math.sin(theta));
-                Vec3.scaleAndAdd(cacheV3, cacheV3, fromNormalized, Math.cos(theta));
+                Vec3.multiplyScalar(cacheV3, cacheV3, sin(theta));
+                Vec3.scaleAndAdd(cacheV3, cacheV3, fromNormalized, cos(theta));
                 Vec3.multiplyScalar(out, cacheV3, lenLerped);
                 return out;
             }
@@ -439,12 +452,12 @@ export class Vec3 extends ValueType {
     public static random<Out extends IVec3Like> (out: Out, scale?: number): Out {
         scale = scale || 1.0;
 
-        const phi = random() * 2.0 * Math.PI;
+        const phi = random() * 2.0 * PI;
         const cosTheta = random() * 2 - 1;
-        const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+        const sinTheta = sqrt(1 - cosTheta * cosTheta);
 
-        out.x = sinTheta * Math.cos(phi) * scale;
-        out.y = sinTheta * Math.sin(phi) * scale;
+        out.x = sinTheta * cos(phi) * scale;
+        out.y = sinTheta * sin(phi) * scale;
         out.z = cosTheta * scale;
         return out;
     }
@@ -579,11 +592,11 @@ export class Vec3 extends ValueType {
         const z = v.z - o.z;
 
         // perform rotation
-        const cos = Math.cos(a);
-        const sin = Math.sin(a);
+        const c = cos(a);
+        const s = sin(a);
         const rx = x;
-        const ry = y * cos - z * sin;
-        const rz = y * sin + z * cos;
+        const ry = y * c - z * s;
+        const rz = y * s + z * c;
 
         // translate to correct position
         out.x = rx + o.x;
@@ -607,11 +620,11 @@ export class Vec3 extends ValueType {
         const z = v.z - o.z;
 
         // perform rotation
-        const cos = Math.cos(a);
-        const sin = Math.sin(a);
-        const rx = z * sin + x * cos;
+        const c = cos(a);
+        const s = sin(a);
+        const rx = z * s + x * c;
         const ry = y;
-        const rz = z * cos - x * sin;
+        const rz = z * c - x * s;
 
         // translate to correct position
         out.x = rx + o.x;
@@ -635,10 +648,10 @@ export class Vec3 extends ValueType {
         const z = v.z - o.z;
 
         // perform rotation
-        const cos = Math.cos(a);
-        const sin = Math.sin(a);
-        const rx = x * cos - y * sin;
-        const ry = x * sin + y * cos;
+        const c = cos(a);
+        const s = sin(a);
+        const rx = x * c - y * s;
+        const ry = x * s + y * c;
         const rz = z;
 
         // translate to correct position
@@ -668,11 +681,11 @@ export class Vec3 extends ValueType {
         const ny = n.y;
         const nz = n.z;
 
-        const cos = Math.cos(a);
-        const sin = Math.sin(a);
-        const rx = x * (nx * nx * (1.0 - cos) + cos) + y * (nx * ny * (1.0 - cos) - nz * sin) + z * (nx * nz * (1.0 - cos) + ny * sin);
-        const ry = x * (nx * ny * (1.0 - cos) + nz * sin) + y * (ny * ny * (1.0 - cos) + cos) + z * (ny * nz * (1.0 - cos) - nx * sin);
-        const rz = x * (nx * nz * (1.0 - cos) - ny * sin) + y * (ny * nz * (1.0 - cos) + nx * sin) + z * (nz * nz * (1.0 - cos) + cos);
+        const c = cos(a);
+        const s = sin(a);
+        const rx = x * (nx * nx * (1.0 - c) + c) + y * (nx * ny * (1.0 - c) - nz * s) + z * (nx * nz * (1.0 - c) + ny * s);
+        const ry = x * (nx * ny * (1.0 - c) + nz * s) + y * (ny * ny * (1.0 - c) + c) + z * (ny * nz * (1.0 - c) - nx * s);
+        const rz = x * (nx * nz * (1.0 - c) - ny * s) + y * (ny * nz * (1.0 - c) + nx * s) + z * (nz * nz * (1.0 - c) + c);
 
         // translate to correct position
         out.x = rx + o.x;
@@ -723,12 +736,9 @@ export class Vec3 extends ValueType {
         const { x: a0, y: a1, z: a2 } = a;
         const { x: b0, y: b1, z: b2 } = b;
         return (
-            Math.abs(a0 - b0)
-            <= epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0))
-            && Math.abs(a1 - b1)
-            <= epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1))
-            && Math.abs(a2 - b2)
-            <= epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2))
+            abs(a0 - b0) <= epsilon * max(1.0, abs(a0), abs(b0))
+                && abs(a1 - b1) <= epsilon * max(1.0, abs(a1), abs(b1))
+                && abs(a2 - b2) <= epsilon * max(1.0, abs(a2), abs(b2))
         );
     }
 
@@ -745,9 +755,9 @@ export class Vec3 extends ValueType {
         }
 
         const dot = a.x * b.x + a.y * b.y + a.z * b.z;
-        let cosine = dot / (Math.sqrt(magSqr1 * magSqr2));
+        let cosine = dot / (sqrt(magSqr1 * magSqr2));
         cosine = clamp(cosine, -1.0, 1.0);
-        return Math.acos(cosine);
+        return acos(cosine);
     }
 
     /**
@@ -829,7 +839,7 @@ export class Vec3 extends ValueType {
             return out;
         }
 
-        const distance = Math.sqrt(distanceSqr);
+        const distance = sqrt(distanceSqr);
         const scale = maxStep / distance;
         out.x = current.x + deltaX * scale;
         out.y = current.y + deltaY * scale;
@@ -850,9 +860,9 @@ export class Vec3 extends ValueType {
         // 1. Drop the component with minimal magnitude.
         // 2. Negate one of the remain components.
         // 3. Swap the remain components.
-        const absX = Math.abs(x);
-        const absY = Math.abs(y);
-        const absZ = Math.abs(z);
+        const absX = abs(x);
+        const absY = abs(y);
+        const absZ = abs(z);
         if (absX < absY && absX < absZ) {
             Vec3.set(out, 0.0, z, -y);
         } else if (absY < absZ) {
@@ -945,11 +955,7 @@ export class Vec3 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public equals (other: Vec3, epsilon = EPSILON): boolean {
-        return (
-            Math.abs(this.x - other.x) <= epsilon
-            && Math.abs(this.y - other.y) <= epsilon
-            && Math.abs(this.z - other.z) <= epsilon
-        );
+        return Vec3.equals(this, other, epsilon);
     }
 
     /**
@@ -963,9 +969,9 @@ export class Vec3 extends ValueType {
      */
     public equals3f (x: number, y: number, z: number, epsilon = EPSILON): boolean {
         return (
-            Math.abs(this.x - x) <= epsilon
-            && Math.abs(this.y - y) <= epsilon
-            && Math.abs(this.z - z) <= epsilon
+            abs(this.x - x) <= epsilon
+            && abs(this.y - y) <= epsilon
+            && abs(this.z - z) <= epsilon
         );
     }
 
@@ -1191,7 +1197,8 @@ export class Vec3 extends ValueType {
      * @returns Length of vector
      */
     public length (): number {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        const self = this;
+        return sqrt(self.x * self.x + self.y * self.y + self.z * self.z);
     }
 
     /**
@@ -1200,7 +1207,8 @@ export class Vec3 extends ValueType {
      * @returns the squared length of this vector
      */
     public lengthSqr (): number {
-        return this.x * this.x + this.y * this.y + this.z * this.z;
+        const self = this;
+        return self.x * self.x + self.y * self.y + self.z * self.z;
     }
 
     /**
@@ -1208,19 +1216,20 @@ export class Vec3 extends ValueType {
      * @zh 将当前向量归一化
      */
     public normalize (): Vec3 {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
+        const self = this;
+        const x = self.x;
+        const y = self.y;
+        const z = self.z;
 
         let len = x * x + y * y + z * z;
         if (len > 0) {
-            len = 1 / Math.sqrt(len);
-            this.x = x * len;
-            this.y = y * len;
-            this.z = z * len;
+            len = 1 / sqrt(len);
+            self.x = x * len;
+            self.y = y * len;
+            self.z = z * len;
         }
 
-        return this;
+        return self;
     }
 
     /**
@@ -1229,15 +1238,16 @@ export class Vec3 extends ValueType {
      * @param matrix matrix to transform with
      */
     public transformMat4 (matrix: Mat4): Vec3 {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
+        const self = this;
+        const x = self.x;
+        const y = self.y;
+        const z = self.z;
         let rhw = matrix.m03 * x + matrix.m07 * y + matrix.m11 * z + matrix.m15;
         rhw = rhw ? 1 / rhw : 1;
-        this.x = (matrix.m00 * x + matrix.m04 * y + matrix.m08 * z + matrix.m12) * rhw;
-        this.y = (matrix.m01 * x + matrix.m05 * y + matrix.m09 * z + matrix.m13) * rhw;
-        this.z = (matrix.m02 * x + matrix.m06 * y + matrix.m10 * z + matrix.m14) * rhw;
-        return this;
+        self.x = (matrix.m00 * x + matrix.m04 * y + matrix.m08 * z + matrix.m12) * rhw;
+        self.y = (matrix.m01 * x + matrix.m05 * y + matrix.m09 * z + matrix.m13) * rhw;
+        self.z = (matrix.m02 * x + matrix.m06 * y + matrix.m10 * z + matrix.m14) * rhw;
+        return self;
     }
 
     /**
@@ -1273,11 +1283,11 @@ const rotateAxisAngle = ((): (out: Vec3, input: Readonly<Vec3>, axis: Readonly<V
         // Here we duplicate the code to avoid circular reference.
 
         const rad = angle * 0.5;
-        const s = Math.sin(rad);
+        const s = sin(rad);
         cacheQ.x = s * axis.x;
         cacheQ.y = s * axis.y;
         cacheQ.z = s * axis.z;
-        cacheQ.w = Math.cos(rad);
+        cacheQ.w = cos(rad);
 
         Vec3.transformQuat(out, input, cacheQ);
         return out;

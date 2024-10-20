@@ -27,7 +27,7 @@ import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 import { Component } from '../scene-graph/component';
 import { Eventify, warnID, js, cclegacy } from '../core';
 import { AnimationClip } from './animation-clip';
-import { AnimationState, EventType } from './animation-state';
+import { AnimationState, AnimationStateEventType } from './animation-state';
 import { CrossFade } from './cross-fade';
 
 /**
@@ -118,7 +118,7 @@ export class Animation extends Eventify(Component) {
         }
     }
 
-    public static EventType = EventType;
+    public static EventType = AnimationStateEventType;
 
     /**
      * @en
@@ -388,17 +388,17 @@ export class Animation extends Eventify(Component) {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): TFunction {
+    public on<TFunction extends (...any) => void> (type: AnimationStateEventType, callback: TFunction, thisArg?: any, once?: boolean): TFunction {
         const ret = super.on(type, callback, thisArg, once);
-        if (type === EventType.LASTFRAME) {
+        if (type === AnimationStateEventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
         }
         return ret;
     }
 
-    public once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any): TFunction {
+    public once<TFunction extends (...any) => void> (type: AnimationStateEventType, callback: TFunction, thisArg?: any): TFunction {
         const ret = super.once(type, callback, thisArg);
-        if (type === EventType.LASTFRAME) {
+        if (type === AnimationStateEventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
         }
         return ret;
@@ -418,9 +418,9 @@ export class Animation extends Eventify(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: EventType, callback?: (...any) => void, thisArg?: any): void {
+    public off (type: AnimationStateEventType, callback?: (...any) => void, thisArg?: any): void {
         super.off(type, callback, thisArg);
-        if (type === EventType.LASTFRAME) {
+        if (type === AnimationStateEventType.LASTFRAME) {
             this._syncDisallowLastFrameEvent();
         }
     }
@@ -438,7 +438,7 @@ export class Animation extends Eventify(Component) {
     protected _doCreateState (clip: AnimationClip, name: string): AnimationState {
         const state = this._createState(clip, name);
         state._setEventTarget(this);
-        state.allowLastFrameEvent(this.hasEventListener(EventType.LASTFRAME));
+        state.allowLastFrameEvent(this.hasEventListener(AnimationStateEventType.LASTFRAME));
         if (this.node) {
             state.initialize(this.node);
         }
@@ -465,7 +465,7 @@ export class Animation extends Eventify(Component) {
     }
 
     private _syncAllowLastFrameEvent (): void {
-        if (this.hasEventListener(EventType.LASTFRAME)) {
+        if (this.hasEventListener(AnimationStateEventType.LASTFRAME)) {
             for (const stateName in this._nameToState) {
                 this._nameToState[stateName].allowLastFrameEvent(true);
             }
@@ -473,7 +473,7 @@ export class Animation extends Eventify(Component) {
     }
 
     private _syncDisallowLastFrameEvent (): void {
-        if (!this.hasEventListener(EventType.LASTFRAME)) {
+        if (!this.hasEventListener(AnimationStateEventType.LASTFRAME)) {
             for (const stateName in this._nameToState) {
                 this._nameToState[stateName].allowLastFrameEvent(false);
             }
@@ -481,7 +481,7 @@ export class Animation extends Eventify(Component) {
     }
 }
 
-type EventType_ = EventType;
+type EventType_ = AnimationStateEventType;
 
 export declare namespace Animation {
     export type EventType = EventType_;

@@ -23,7 +23,7 @@
 */
 
 import { BitmapFont } from '../../assets';
-import { Label } from '../../components';
+import { CacheMode, Label } from '../../components';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
 import { bmfont } from './bmfont';
 import { letter } from './letter';
@@ -36,7 +36,7 @@ const labelAssembler: IAssemblerManager = {
 
         if (comp.font instanceof BitmapFont) {
             assembler = bmfont;
-        } else if (comp.cacheMode === Label.CacheMode.CHAR) {
+        } else if (comp.cacheMode === CacheMode.CHAR) {
             assembler = letter;
         }
 

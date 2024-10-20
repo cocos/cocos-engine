@@ -167,6 +167,10 @@ export interface ISpriteFrameInitInfo {
 
 const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }];
 
+export enum SpriteFrameEvent {
+    UV_UPDATED = 'uv_updated',
+}
+
 /**
  * @en
  * A `SpriteFrame` support several types.
@@ -262,7 +266,7 @@ export class SpriteFrame extends Asset {
      * @en uv update event.
      * @zh uv 更新事件。
      */
-    public static EVENT_UV_UPDATED = 'uv_updated';
+    public static EVENT_UV_UPDATED = SpriteFrameEvent.UV_UPDATED;
     public static MeshType = MeshType;
 
     /**
@@ -999,7 +1003,7 @@ export class SpriteFrame extends Asset {
 
         // UV update event for components to update uv buffer
         // CalculateUV will trigger _calculateSlicedUV so it's enough to emit here
-        this.emit(SpriteFrame.EVENT_UV_UPDATED, this);
+        this.emit(SpriteFrameEvent.UV_UPDATED, this);
     }
 
     /**

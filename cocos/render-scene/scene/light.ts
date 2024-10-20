@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from '../../core';
+import { v3, Vec3 } from '../../core';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from '../core/render-scene';
 import { Node } from '../../scene-graph';
@@ -93,7 +93,7 @@ export class Light {
      */
     set color (color: Vec3) {
         this._color.set(color);
-        if (this._useColorTemperature) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
+        if (this._useColorTemperature) { Vec3.multiply(this._finalColor$, this._color, this._colorTempRGB); }
     }
 
     get color (): Vec3 {
@@ -106,7 +106,7 @@ export class Light {
      */
     set useColorTemperature (enable: boolean) {
         this._useColorTemperature = enable;
-        if (enable) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
+        if (enable) { Vec3.multiply(this._finalColor$, this._color, this._colorTempRGB); }
     }
 
     get useColorTemperature (): boolean {
@@ -120,7 +120,7 @@ export class Light {
     set colorTemperature (val: number) {
         this._colorTemp = val;
         ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
-        if (this._useColorTemperature) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
+        if (this._useColorTemperature) { Vec3.multiply(this._finalColor$, this._color, this._colorTempRGB); }
     }
 
     get colorTemperature (): number {
@@ -136,7 +136,7 @@ export class Light {
     }
 
     get finalColor (): Readonly<Vec3> {
-        return this._finalColor;
+        return this._finalColor$;
     }
 
     /**
@@ -196,13 +196,13 @@ export class Light {
 
     protected _baked = false;
 
-    protected _color: Vec3 = new Vec3(1, 1, 1);
+    protected _color: Vec3 = v3(1, 1, 1);
 
     protected _colorTemp = 6550.0;
 
-    protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
+    protected _colorTempRGB: Vec3 = v3(1, 1, 1);
 
-    private _finalColor: Vec3 = new Vec3(1, 1, 1);
+    private _finalColor$: Vec3 = v3(1, 1, 1);
 
     protected _scene: RenderScene | null = null;
 
@@ -217,7 +217,7 @@ export class Light {
     protected _visibility = CAMERA_DEFAULT_MASK;
 
     public initialize (): void {
-        this.color = new Vec3(1, 1, 1);
+        this.color = v3(1, 1, 1);
         this.colorTemperature = 6550.0;
     }
 

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { equals, Vec3, IVec3Like, murmurhash2_32_gc } from '../../core';
+import { Vec3, IVec3Like, murmurhash2_32_gc } from '../../core';
 import { CharacterController, CharacterTriggerEventType, Collider, CollisionEventType, IContactEquation, TriggerEventType } from '../framework';
 
 export { cylinder } from '../../primitive';

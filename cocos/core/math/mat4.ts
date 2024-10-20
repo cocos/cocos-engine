@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /*
  Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -48,6 +49,13 @@ export const preTransforms = Object.freeze([
  * @en Mathematical 4x4 matrix.
  * @zh 表示四维（4x4）矩阵。
  */
+
+const abs = Math.abs;
+const max = Math.max;
+const sqrt = Math.sqrt;
+const sin = Math.sin;
+const cos = Math.cos;
+const tan = Math.tan;
 
 export class Mat4 extends ValueType {
     public static IDENTITY = Object.freeze(new Mat4());
@@ -151,6 +159,30 @@ export class Mat4 extends ValueType {
     }
 
     /**
+     * @en return an zero matrix.
+     * @zh 将目标赋值为0矩阵
+     */
+    public static zero<Out extends IMat4Like> (out: Out): Out {
+        out.m00 = 0;
+        out.m01 = 0;
+        out.m02 = 0;
+        out.m03 = 0;
+        out.m04 = 0;
+        out.m05 = 0;
+        out.m06 = 0;
+        out.m07 = 0;
+        out.m08 = 0;
+        out.m09 = 0;
+        out.m10 = 0;
+        out.m11 = 0;
+        out.m12 = 0;
+        out.m13 = 0;
+        out.m14 = 0;
+        out.m15 = 0;
+        return out;
+    }
+
+    /**
      * @en Transposes a matrix and save the results to out matrix
      * @zh 转置矩阵
      */
@@ -218,11 +250,7 @@ export class Mat4 extends ValueType {
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
         if (det === 0) {
-            out.m00 = 0; out.m01 = 0; out.m02 = 0; out.m03 = 0;
-            out.m04 = 0; out.m05 = 0; out.m06 = 0; out.m07 = 0;
-            out.m08 = 0; out.m09 = 0; out.m10 = 0; out.m11 = 0;
-            out.m12 = 0; out.m13 = 0; out.m14 = 0; out.m15 = 0;
-            return out;
+            return Mat4.zero(out);
         }
         det = 1.0 / det;
 
@@ -411,9 +439,9 @@ export class Mat4 extends ValueType {
     public static rotate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, rad: number, axis: VecLike): Out | null {
         let x = axis.x; let y = axis.y; let z = axis.z;
 
-        let len = Math.sqrt(x * x + y * y + z * z);
+        let len = sqrt(x * x + y * y + z * z);
 
-        if (Math.abs(len) < EPSILON) {
+        if (abs(len) < EPSILON) {
             return null;
         }
 
@@ -424,8 +452,8 @@ export class Mat4 extends ValueType {
 
         // ref: https://en.wikipedia.org/wiki/Rotation_matrix#Axis_and_angle
 
-        const s = Math.sin(rad);
-        const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
         const t = 1 - c;
 
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
@@ -469,8 +497,8 @@ export class Mat4 extends ValueType {
      * @param rad Angle of rotation (in radians)
      */
     public static rotateX<Out extends IMat4Like> (out: Out, a: Out, rad: number): Out {
-        const s = Math.sin(rad);
-        const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
         const a10 = a.m04;
         const a11 = a.m05;
         const a12 = a.m06;
@@ -512,8 +540,8 @@ export class Mat4 extends ValueType {
     public static rotateY<Out extends IMat4Like> (out: Out, a: Out, rad: number): Out {
         // ref: https://en.wikipedia.org/wiki/Rotation_matrix#Axis_and_angle
 
-        const s = Math.sin(rad);
-        const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
         const a00 = a.m00;
         const a01 = a.m01;
         const a02 = a.m02;
@@ -555,8 +583,8 @@ export class Mat4 extends ValueType {
     public static rotateZ<Out extends IMat4Like> (out: Out, a: Out, rad: number): Out {
         // ref: https://en.wikipedia.org/wiki/Rotation_matrix#Axis_and_angle
 
-        const s = Math.sin(rad);
-        const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
         const a00 = a.m00;
         const a01 = a.m01;
         const a02 = a.m02;
@@ -596,22 +624,10 @@ export class Mat4 extends ValueType {
      * @zh 计算位移矩阵
      */
     public static fromTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike): Out {
-        out.m00 = 1;
-        out.m01 = 0;
-        out.m02 = 0;
-        out.m03 = 0;
-        out.m04 = 0;
-        out.m05 = 1;
-        out.m06 = 0;
-        out.m07 = 0;
-        out.m08 = 0;
-        out.m09 = 0;
-        out.m10 = 1;
-        out.m11 = 0;
+        Mat4.identity(out);
         out.m12 = v.x;
         out.m13 = v.y;
         out.m14 = v.z;
-        out.m15 = 1;
         return out;
     }
 
@@ -620,22 +636,10 @@ export class Mat4 extends ValueType {
      * @zh 计算缩放矩阵
      */
     public static fromScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike): Out {
+        Mat4.identity(out);
         out.m00 = v.x;
-        out.m01 = 0;
-        out.m02 = 0;
-        out.m03 = 0;
-        out.m04 = 0;
         out.m05 = v.y;
-        out.m06 = 0;
-        out.m07 = 0;
-        out.m08 = 0;
-        out.m09 = 0;
         out.m10 = v.z;
-        out.m11 = 0;
-        out.m12 = 0;
-        out.m13 = 0;
-        out.m14 = 0;
-        out.m15 = 1;
         return out;
     }
 
@@ -645,9 +649,9 @@ export class Mat4 extends ValueType {
      */
     public static fromRotation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike): Out | null {
         let x = axis.x; let y = axis.y; let z = axis.z;
-        let len = Math.sqrt(x * x + y * y + z * z);
+        let len = sqrt(x * x + y * y + z * z);
 
-        if (Math.abs(len) < EPSILON) {
+        if (abs(len) < EPSILON) {
             return null;
         }
 
@@ -656,8 +660,8 @@ export class Mat4 extends ValueType {
         y *= len;
         z *= len;
 
-        const s = Math.sin(rad);
-        const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
         const t = 1 - c;
 
         // Perform rotation-specific matrix multiplication
@@ -685,25 +689,15 @@ export class Mat4 extends ValueType {
      * @zh 计算绕 X 轴的旋转矩阵
      */
     public static fromXRotation<Out extends IMat4Like> (out: Out, rad: number): Out {
-        const s = Math.sin(rad); const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
+        Mat4.identity(out);
 
         // Perform axis-specific matrix multiplication
-        out.m00 = 1;
-        out.m01 = 0;
-        out.m02 = 0;
-        out.m03 = 0;
-        out.m04 = 0;
         out.m05 = c;
         out.m06 = s;
-        out.m07 = 0;
-        out.m08 = 0;
         out.m09 = -s;
         out.m10 = c;
-        out.m11 = 0;
-        out.m12 = 0;
-        out.m13 = 0;
-        out.m14 = 0;
-        out.m15 = 1;
         return out;
     }
 
@@ -712,25 +706,15 @@ export class Mat4 extends ValueType {
      * @zh 计算绕 Y 轴的旋转矩阵
      */
     public static fromYRotation<Out extends IMat4Like> (out: Out, rad: number): Out {
-        const s = Math.sin(rad); const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
+        Mat4.identity(out);
 
         // Perform axis-specific matrix multiplication
         out.m00 = c;
-        out.m01 = 0;
         out.m02 = -s;
-        out.m03 = 0;
-        out.m04 = 0;
-        out.m05 = 1;
-        out.m06 = 0;
-        out.m07 = 0;
         out.m08 = s;
-        out.m09 = 0;
         out.m10 = c;
-        out.m11 = 0;
-        out.m12 = 0;
-        out.m13 = 0;
-        out.m14 = 0;
-        out.m15 = 1;
         return out;
     }
 
@@ -739,25 +723,15 @@ export class Mat4 extends ValueType {
      * @zh 计算绕 Z 轴的旋转矩阵
      */
     public static fromZRotation<Out extends IMat4Like> (out: Out, rad: number): Out {
-        const s = Math.sin(rad); const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
+        Mat4.identity(out);
 
         // Perform axis-specific matrix multiplication
         out.m00 = c;
         out.m01 = s;
-        out.m02 = 0;
-        out.m03 = 0;
         out.m04 = -s;
         out.m05 = c;
-        out.m06 = 0;
-        out.m07 = 0;
-        out.m08 = 0;
-        out.m09 = 0;
-        out.m10 = 1;
-        out.m11 = 0;
-        out.m12 = 0;
-        out.m13 = 0;
-        out.m14 = 0;
-        out.m15 = 1;
         return out;
     }
 
@@ -830,9 +804,9 @@ export class Mat4 extends ValueType {
         const m08 = m3_1.m06 = mat.m08;
         const m09 = m3_1.m07 = mat.m09;
         const m10 = m3_1.m08 = mat.m10;
-        out.x = Math.sqrt(m00 * m00 + m01 * m01 + m02 * m02);
-        out.y = Math.sqrt(m04 * m04 + m05 * m05 + m06 * m06);
-        out.z = Math.sqrt(m08 * m08 + m09 * m09 + m10 * m10);
+        out.x = sqrt(m00 * m00 + m01 * m01 + m02 * m02);
+        out.y = sqrt(m04 * m04 + m05 * m05 + m06 * m06);
+        out.z = sqrt(m08 * m08 + m09 * m09 + m10 * m10);
         // account for refections
         if (Mat3.determinant(m3_1) < 0) { out.x *= -1; }
         return out;
@@ -847,25 +821,25 @@ export class Mat4 extends ValueType {
         let S = 0;
 
         if (trace > 0) {
-            S = Math.sqrt(trace + 1.0) * 2;
+            S = sqrt(trace + 1.0) * 2;
             out.w = 0.25 * S;
             out.x = (mat.m06 - mat.m09) / S;
             out.y = (mat.m08 - mat.m02) / S;
             out.z = (mat.m01 - mat.m04) / S;
         } else if ((mat.m00 > mat.m05) && (mat.m00 > mat.m10)) {
-            S = Math.sqrt(1.0 + mat.m00 - mat.m05 - mat.m10) * 2;
+            S = sqrt(1.0 + mat.m00 - mat.m05 - mat.m10) * 2;
             out.w = (mat.m06 - mat.m09) / S;
             out.x = 0.25 * S;
             out.y = (mat.m01 + mat.m04) / S;
             out.z = (mat.m08 + mat.m02) / S;
         } else if (mat.m05 > mat.m10) {
-            S = Math.sqrt(1.0 + mat.m05 - mat.m00 - mat.m10) * 2;
+            S = sqrt(1.0 + mat.m05 - mat.m00 - mat.m10) * 2;
             out.w = (mat.m08 - mat.m02) / S;
             out.x = (mat.m01 + mat.m04) / S;
             out.y = 0.25 * S;
             out.z = (mat.m06 + mat.m09) / S;
         } else {
-            S = Math.sqrt(1.0 + mat.m10 - mat.m00 - mat.m05) * 2;
+            S = sqrt(1.0 + mat.m10 - mat.m00 - mat.m05) * 2;
             out.w = (mat.m01 - mat.m04) / S;
             out.x = (mat.m08 + mat.m02) / S;
             out.y = (mat.m06 + mat.m09) / S;
@@ -986,7 +960,7 @@ export class Mat4 extends ValueType {
      * @returns The receiving matrix
      */
     public static fromSRT<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike): Out {
-        const x = q.x; const y = q.y; const z = q.z; const w = q.w;
+        const { x, y, z, w } = q;
         const x2 = x + x;
         const y2 = y + y;
         const z2 = z + z;
@@ -1034,47 +1008,7 @@ export class Mat4 extends ValueType {
      * @deprecated Please use [[fromSRTOrigin]] instead.
      */
     public static fromRTSOrigin<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike, o: VecLike): Out {
-        const x = q.x; const y = q.y; const z = q.z; const w = q.w;
-        const x2 = x + x;
-        const y2 = y + y;
-        const z2 = z + z;
-
-        const xx = x * x2;
-        const xy = x * y2;
-        const xz = x * z2;
-        const yy = y * y2;
-        const yz = y * z2;
-        const zz = z * z2;
-        const wx = w * x2;
-        const wy = w * y2;
-        const wz = w * z2;
-
-        const sx = s.x;
-        const sy = s.y;
-        const sz = s.z;
-
-        const ox = o.x;
-        const oy = o.y;
-        const oz = o.z;
-
-        out.m00 = (1 - (yy + zz)) * sx;
-        out.m01 = (xy + wz) * sx;
-        out.m02 = (xz - wy) * sx;
-        out.m03 = 0;
-        out.m04 = (xy - wz) * sy;
-        out.m05 = (1 - (xx + zz)) * sy;
-        out.m06 = (yz + wx) * sy;
-        out.m07 = 0;
-        out.m08 = (xz + wy) * sz;
-        out.m09 = (yz - wx) * sz;
-        out.m10 = (1 - (xx + yy)) * sz;
-        out.m11 = 0;
-        out.m12 = v.x + ox - (out.m00 * ox + out.m04 * oy + out.m08 * oz);
-        out.m13 = v.y + oy - (out.m01 * ox + out.m05 * oy + out.m09 * oz);
-        out.m14 = v.z + oz - (out.m02 * ox + out.m06 * oy + out.m10 * oz);
-        out.m15 = 1;
-
-        return out;
+        return Mat4.fromSRTOrigin(out, q, v, s, o);
     }
 
     /**
@@ -1238,7 +1172,7 @@ export class Mat4 extends ValueType {
         out: Out, fov: number, aspect: number, near: number, far: number,
         isFOVY = true, minClipZ = -1, projectionSignY = 1, orientation = 0,
     ): Out {
-        const f = 1.0 / Math.tan(fov / 2);
+        const f = 1.0 / tan(fov / 2);
         const nf = 1 / (near - far);
 
         const x = isFOVY ? f / aspect : f;
@@ -1340,7 +1274,7 @@ export class Mat4 extends ValueType {
         let z1 = eyey - centery;
         let z2 = eyez - centerz;
 
-        let len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+        let len = 1 / sqrt(z0 * z0 + z1 * z1 + z2 * z2);
         z0 *= len;
         z1 *= len;
         z2 *= len;
@@ -1348,7 +1282,7 @@ export class Mat4 extends ValueType {
         let x0 = upy * z2 - upz * z1;
         let x1 = upz * z0 - upx * z2;
         let x2 = upx * z1 - upy * z0;
-        len = 1 / Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+        len = 1 / sqrt(x0 * x0 + x1 * x1 + x2 * x2);
         x0 *= len;
         x1 *= len;
         x2 *= len;
@@ -1603,22 +1537,22 @@ export class Mat4 extends ValueType {
         // TAOCP vol.2, 3rd ed., s.4.2.4, p.213-225
         // defines a 'close enough' relationship between u and v that scales for magnitude
         return (
-            Math.abs(a.m00 - b.m00) <= epsilon * Math.max(1.0, Math.abs(a.m00), Math.abs(b.m00))
-            && Math.abs(a.m01 - b.m01) <= epsilon * Math.max(1.0, Math.abs(a.m01), Math.abs(b.m01))
-            && Math.abs(a.m02 - b.m02) <= epsilon * Math.max(1.0, Math.abs(a.m02), Math.abs(b.m02))
-            && Math.abs(a.m03 - b.m03) <= epsilon * Math.max(1.0, Math.abs(a.m03), Math.abs(b.m03))
-            && Math.abs(a.m04 - b.m04) <= epsilon * Math.max(1.0, Math.abs(a.m04), Math.abs(b.m04))
-            && Math.abs(a.m05 - b.m05) <= epsilon * Math.max(1.0, Math.abs(a.m05), Math.abs(b.m05))
-            && Math.abs(a.m06 - b.m06) <= epsilon * Math.max(1.0, Math.abs(a.m06), Math.abs(b.m06))
-            && Math.abs(a.m07 - b.m07) <= epsilon * Math.max(1.0, Math.abs(a.m07), Math.abs(b.m07))
-            && Math.abs(a.m08 - b.m08) <= epsilon * Math.max(1.0, Math.abs(a.m08), Math.abs(b.m08))
-            && Math.abs(a.m09 - b.m09) <= epsilon * Math.max(1.0, Math.abs(a.m09), Math.abs(b.m09))
-            && Math.abs(a.m10 - b.m10) <= epsilon * Math.max(1.0, Math.abs(a.m10), Math.abs(b.m10))
-            && Math.abs(a.m11 - b.m11) <= epsilon * Math.max(1.0, Math.abs(a.m11), Math.abs(b.m11))
-            && Math.abs(a.m12 - b.m12) <= epsilon * Math.max(1.0, Math.abs(a.m12), Math.abs(b.m12))
-            && Math.abs(a.m13 - b.m13) <= epsilon * Math.max(1.0, Math.abs(a.m13), Math.abs(b.m13))
-            && Math.abs(a.m14 - b.m14) <= epsilon * Math.max(1.0, Math.abs(a.m14), Math.abs(b.m14))
-            && Math.abs(a.m15 - b.m15) <= epsilon * Math.max(1.0, Math.abs(a.m15), Math.abs(b.m15))
+            abs(a.m00 - b.m00) <= epsilon * max(1.0, abs(a.m00), abs(b.m00))
+            && abs(a.m01 - b.m01) <= epsilon * max(1.0, abs(a.m01), abs(b.m01))
+            && abs(a.m02 - b.m02) <= epsilon * max(1.0, abs(a.m02), abs(b.m02))
+            && abs(a.m03 - b.m03) <= epsilon * max(1.0, abs(a.m03), abs(b.m03))
+            && abs(a.m04 - b.m04) <= epsilon * max(1.0, abs(a.m04), abs(b.m04))
+            && abs(a.m05 - b.m05) <= epsilon * max(1.0, abs(a.m05), abs(b.m05))
+            && abs(a.m06 - b.m06) <= epsilon * max(1.0, abs(a.m06), abs(b.m06))
+            && abs(a.m07 - b.m07) <= epsilon * max(1.0, abs(a.m07), abs(b.m07))
+            && abs(a.m08 - b.m08) <= epsilon * max(1.0, abs(a.m08), abs(b.m08))
+            && abs(a.m09 - b.m09) <= epsilon * max(1.0, abs(a.m09), abs(b.m09))
+            && abs(a.m10 - b.m10) <= epsilon * max(1.0, abs(a.m10), abs(b.m10))
+            && abs(a.m11 - b.m11) <= epsilon * max(1.0, abs(a.m11), abs(b.m11))
+            && abs(a.m12 - b.m12) <= epsilon * max(1.0, abs(a.m12), abs(b.m12))
+            && abs(a.m13 - b.m13) <= epsilon * max(1.0, abs(a.m13), abs(b.m13))
+            && abs(a.m14 - b.m14) <= epsilon * max(1.0, abs(a.m14), abs(b.m14))
+            && abs(a.m15 - b.m15) <= epsilon * max(1.0, abs(a.m15), abs(b.m15))
         );
     }
 
@@ -1741,16 +1675,17 @@ export class Mat4 extends ValueType {
         m12 = 0, m13 = 0, m14 = 0, m15 = 1,
     ) {
         super();
+        const self = this;
         if (typeof m00 === 'object') {
-            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03;
-            this.m04 = m00.m04; this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07;
-            this.m08 = m00.m08; this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11;
-            this.m12 = m00.m12; this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15;
+            self.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03;
+            self.m04 = m00.m04; this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07;
+            self.m08 = m00.m08; this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11;
+            self.m12 = m00.m12; this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15;
         } else {
-            this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
-            this.m04 = m04; this.m05 = m05; this.m06 = m06; this.m07 = m07;
-            this.m08 = m08; this.m09 = m09; this.m10 = m10; this.m11 = m11;
-            this.m12 = m12; this.m13 = m13; this.m14 = m14; this.m15 = m15;
+            self.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
+            self.m04 = m04; this.m05 = m05; this.m06 = m06; this.m07 = m07;
+            self.m08 = m08; this.m09 = m09; this.m10 = m10; this.m11 = m11;
+            self.m12 = m12; this.m13 = m13; this.m14 = m14; this.m15 = m15;
         }
     }
 
@@ -1791,18 +1726,19 @@ export class Mat4 extends ValueType {
         m04 = 0, m05 = 1, m06 = 0, m07 = 0,
         m08 = 0, m09 = 0, m10 = 1, m11 = 0,
         m12 = 0, m13 = 0, m14 = 0, m15 = 1): Mat4 {
+        const self = this;
         if (typeof m00 === 'object') {
-            this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
-            this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
-            this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11; this.m12 = m00.m12;
-            this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15; this.m00 = m00.m00;
+            self.m01 = m00.m01; self.m02 = m00.m02; self.m03 = m00.m03; self.m04 = m00.m04;
+            self.m05 = m00.m05; self.m06 = m00.m06; self.m07 = m00.m07; self.m08 = m00.m08;
+            self.m09 = m00.m09; self.m10 = m00.m10; self.m11 = m00.m11; self.m12 = m00.m12;
+            self.m13 = m00.m13; self.m14 = m00.m14; self.m15 = m00.m15; self.m00 = m00.m00;
         } else {
-            this.m01 = m01; this.m02 = m02; this.m03 = m03; this.m04 = m04;
-            this.m05 = m05; this.m06 = m06; this.m07 = m07; this.m08 = m08;
-            this.m09 = m09; this.m10 = m10; this.m11 = m11; this.m12 = m12;
-            this.m13 = m13; this.m14 = m14; this.m15 = m15; this.m00 = m00;
+            self.m01 = m01; self.m02 = m02; self.m03 = m03; self.m04 = m04;
+            self.m05 = m05; self.m06 = m06; self.m07 = m07; self.m08 = m08;
+            self.m09 = m09; self.m10 = m10; self.m11 = m11; self.m12 = m12;
+            self.m13 = m13; self.m14 = m14; self.m15 = m15; self.m00 = m00;
         }
-        return this;
+        return self;
     }
 
     /**
@@ -1813,40 +1749,59 @@ export class Mat4 extends ValueType {
      * @return Returns `true' when the elements of both matrices are equal; otherwise returns `false'.
      */
     public equals (other: Mat4, epsilon = EPSILON): boolean {
-        const hasInf = Math.abs(this.m00) === Infinity
-        || Math.abs(this.m01) === Infinity
-        || Math.abs(this.m02) === Infinity
-        || Math.abs(this.m03) === Infinity
-        || Math.abs(this.m04) === Infinity
-        || Math.abs(this.m05) === Infinity
-        || Math.abs(this.m06) === Infinity
-        || Math.abs(this.m07) === Infinity
-        || Math.abs(this.m08) === Infinity
-        || Math.abs(this.m09) === Infinity
-        || Math.abs(this.m10) === Infinity
-        || Math.abs(this.m11) === Infinity
-        || Math.abs(this.m12) === Infinity
-        || Math.abs(this.m13) === Infinity
-        || Math.abs(this.m14) === Infinity
-        || Math.abs(this.m15) === Infinity;
+        const inf = Infinity;
+        const self = this;
+        const m00 = self.m00;
+        const m01 = self.m01;
+        const m02 = self.m02;
+        const m03 = self.m03;
+        const m04 = self.m04;
+        const m05 = self.m05;
+        const m06 = self.m06;
+        const m07 = self.m07;
+        const m08 = self.m08;
+        const m09 = self.m09;
+        const m10 = self.m10;
+        const m11 = self.m11;
+        const m12 = self.m12;
+        const m13 = self.m13;
+        const m14 = self.m14;
+        const m15 = self.m15;
+
+        const hasInf = abs(m00) === inf
+        || abs(m01) === inf
+        || abs(m02) === inf
+        || abs(m03) === inf
+        || abs(m04) === inf
+        || abs(m05) === inf
+        || abs(m06) === inf
+        || abs(m07) === inf
+        || abs(m08) === inf
+        || abs(m09) === inf
+        || abs(m10) === inf
+        || abs(m11) === inf
+        || abs(m12) === inf
+        || abs(m13) === inf
+        || abs(m14) === inf
+        || abs(m15) === inf;
 
         return (!hasInf
-            && Math.abs(this.m00 - other.m00) <= epsilon * Math.max(1.0, Math.abs(this.m00), Math.abs(other.m00))
-            && Math.abs(this.m01 - other.m01) <= epsilon * Math.max(1.0, Math.abs(this.m01), Math.abs(other.m01))
-            && Math.abs(this.m02 - other.m02) <= epsilon * Math.max(1.0, Math.abs(this.m02), Math.abs(other.m02))
-            && Math.abs(this.m03 - other.m03) <= epsilon * Math.max(1.0, Math.abs(this.m03), Math.abs(other.m03))
-            && Math.abs(this.m04 - other.m04) <= epsilon * Math.max(1.0, Math.abs(this.m04), Math.abs(other.m04))
-            && Math.abs(this.m05 - other.m05) <= epsilon * Math.max(1.0, Math.abs(this.m05), Math.abs(other.m05))
-            && Math.abs(this.m06 - other.m06) <= epsilon * Math.max(1.0, Math.abs(this.m06), Math.abs(other.m06))
-            && Math.abs(this.m07 - other.m07) <= epsilon * Math.max(1.0, Math.abs(this.m07), Math.abs(other.m07))
-            && Math.abs(this.m08 - other.m08) <= epsilon * Math.max(1.0, Math.abs(this.m08), Math.abs(other.m08))
-            && Math.abs(this.m09 - other.m09) <= epsilon * Math.max(1.0, Math.abs(this.m09), Math.abs(other.m09))
-            && Math.abs(this.m10 - other.m10) <= epsilon * Math.max(1.0, Math.abs(this.m10), Math.abs(other.m10))
-            && Math.abs(this.m11 - other.m11) <= epsilon * Math.max(1.0, Math.abs(this.m11), Math.abs(other.m11))
-            && Math.abs(this.m12 - other.m12) <= epsilon * Math.max(1.0, Math.abs(this.m12), Math.abs(other.m12))
-            && Math.abs(this.m13 - other.m13) <= epsilon * Math.max(1.0, Math.abs(this.m13), Math.abs(other.m13))
-            && Math.abs(this.m14 - other.m14) <= epsilon * Math.max(1.0, Math.abs(this.m14), Math.abs(other.m14))
-            && Math.abs(this.m15 - other.m15) <= epsilon * Math.max(1.0, Math.abs(this.m15), Math.abs(other.m15))
+            && abs(m00 - other.m00) <= epsilon * max(1.0, abs(m00), abs(other.m00))
+            && abs(m01 - other.m01) <= epsilon * max(1.0, abs(m01), abs(other.m01))
+            && abs(m02 - other.m02) <= epsilon * max(1.0, abs(m02), abs(other.m02))
+            && abs(m03 - other.m03) <= epsilon * max(1.0, abs(m03), abs(other.m03))
+            && abs(m04 - other.m04) <= epsilon * max(1.0, abs(m04), abs(other.m04))
+            && abs(m05 - other.m05) <= epsilon * max(1.0, abs(m05), abs(other.m05))
+            && abs(m06 - other.m06) <= epsilon * max(1.0, abs(m06), abs(other.m06))
+            && abs(m07 - other.m07) <= epsilon * max(1.0, abs(m07), abs(other.m07))
+            && abs(m08 - other.m08) <= epsilon * max(1.0, abs(m08), abs(other.m08))
+            && abs(m09 - other.m09) <= epsilon * max(1.0, abs(m09), abs(other.m09))
+            && abs(m10 - other.m10) <= epsilon * max(1.0, abs(m10), abs(other.m10))
+            && abs(m11 - other.m11) <= epsilon * max(1.0, abs(m11), abs(other.m11))
+            && abs(m12 - other.m12) <= epsilon * max(1.0, abs(m12), abs(other.m12))
+            && abs(m13 - other.m13) <= epsilon * max(1.0, abs(m13), abs(other.m13))
+            && abs(m14 - other.m14) <= epsilon * max(1.0, abs(m14), abs(other.m14))
+            && abs(m15 - other.m15) <= epsilon * max(1.0, abs(m15), abs(other.m15))
         );
     }
 
@@ -1857,10 +1812,11 @@ export class Mat4 extends ValueType {
      * @return Returns `true' when the elements of both matrices are equal; otherwise returns `false'.
      */
     public strictEquals (other: Mat4): boolean {
-        return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02 && this.m03 === other.m03
-            && this.m04 === other.m04 && this.m05 === other.m05 && this.m06 === other.m06 && this.m07 === other.m07
-            && this.m08 === other.m08 && this.m09 === other.m09 && this.m10 === other.m10 && this.m11 === other.m11
-            && this.m12 === other.m12 && this.m13 === other.m13 && this.m14 === other.m14 && this.m15 === other.m15;
+        const self = this;
+        return self.m00 === other.m00 && self.m01 === other.m01 && self.m02 === other.m02 && self.m03 === other.m03
+            && self.m04 === other.m04 && self.m05 === other.m05 && self.m06 === other.m06 && self.m07 === other.m07
+            && self.m08 === other.m08 && self.m09 === other.m09 && self.m10 === other.m10 && self.m11 === other.m11
+            && self.m12 === other.m12 && self.m13 === other.m13 && self.m14 === other.m14 && self.m15 === other.m15;
     }
 
     /**
@@ -1883,23 +1839,7 @@ export class Mat4 extends ValueType {
      * @return `this`
      */
     public identity (): Mat4 {
-        this.m00 = 1;
-        this.m01 = 0;
-        this.m02 = 0;
-        this.m03 = 0;
-        this.m04 = 0;
-        this.m05 = 1;
-        this.m06 = 0;
-        this.m07 = 0;
-        this.m08 = 0;
-        this.m09 = 0;
-        this.m10 = 1;
-        this.m11 = 0;
-        this.m12 = 0;
-        this.m13 = 0;
-        this.m14 = 0;
-        this.m15 = 1;
-        return this;
+        return Mat4.identity(this);
     }
 
     /**
@@ -1908,23 +1848,7 @@ export class Mat4 extends ValueType {
      * @return `this`
      */
     public zero (): Mat4 {
-        this.m00 = 0;
-        this.m01 = 0;
-        this.m02 = 0;
-        this.m03 = 0;
-        this.m04 = 0;
-        this.m05 = 0;
-        this.m06 = 0;
-        this.m07 = 0;
-        this.m08 = 0;
-        this.m09 = 0;
-        this.m10 = 0;
-        this.m11 = 0;
-        this.m12 = 0;
-        this.m13 = 0;
-        this.m14 = 0;
-        this.m15 = 0;
-        return this;
+        return Mat4.zero(this);
     }
 
     /**
@@ -1932,20 +1856,22 @@ export class Mat4 extends ValueType {
      * @zh 计算当前矩阵的转置矩阵。
      */
     public transpose (): Mat4 {
-        const a01 = this.m01; const a02 = this.m02; const a03 = this.m03; const a12 = this.m06; const a13 = this.m07; const a23 = this.m11;
-        this.m01 = this.m04;
-        this.m02 = this.m08;
-        this.m03 = this.m12;
-        this.m04 = a01;
-        this.m06 = this.m09;
-        this.m07 = this.m13;
-        this.m08 = a02;
-        this.m09 = a12;
-        this.m11 = this.m14;
-        this.m12 = a03;
-        this.m13 = a13;
-        this.m14 = a23;
-        return this;
+        const self = this;
+        const a01 = self.m01; const a02 = self.m02; const a03 = self.m03;
+        const a12 = self.m06; const a13 = self.m07; const a23 = self.m11;
+        self.m01 = self.m04;
+        self.m02 = self.m08;
+        self.m03 = self.m12;
+        self.m04 = a01;
+        self.m06 = self.m09;
+        self.m07 = self.m13;
+        self.m08 = a02;
+        self.m09 = a12;
+        self.m11 = self.m14;
+        self.m12 = a03;
+        self.m13 = a13;
+        self.m14 = a23;
+        return self;
     }
 
     /**
@@ -1953,10 +1879,11 @@ export class Mat4 extends ValueType {
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert (): Mat4 {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
-        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
-        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
-        const a30 = this.m12; const a31 = this.m13; const a32 = this.m14; const a33 = this.m15;
+        const self = this;
+        const a00 = self.m00; const a01 = self.m01; const a02 = self.m02; const a03 = self.m03;
+        const a10 = self.m04; const a11 = self.m05; const a12 = self.m06; const a13 = self.m07;
+        const a20 = self.m08; const a21 = self.m09; const a22 = self.m10; const a23 = self.m11;
+        const a30 = self.m12; const a31 = self.m13; const a32 = self.m14; const a33 = self.m15;
 
         const b00 = a00 * a11 - a01 * a10;
         const b01 = a00 * a12 - a02 * a10;
@@ -1975,29 +1902,29 @@ export class Mat4 extends ValueType {
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
         if (det === 0) {
-            this.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-            return this;
+            self.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            return self;
         }
         det = 1.0 / det;
 
-        this.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
-        this.m01 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
-        this.m02 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-        this.m03 = (a22 * b04 - a21 * b05 - a23 * b03) * det;
-        this.m04 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
-        this.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
-        this.m06 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
-        this.m07 = (a20 * b05 - a22 * b02 + a23 * b01) * det;
-        this.m08 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
-        this.m09 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
-        this.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
-        this.m11 = (a21 * b02 - a20 * b04 - a23 * b00) * det;
-        this.m12 = (a11 * b07 - a10 * b09 - a12 * b06) * det;
-        this.m13 = (a00 * b09 - a01 * b07 + a02 * b06) * det;
-        this.m14 = (a31 * b01 - a30 * b03 - a32 * b00) * det;
-        this.m15 = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+        self.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+        self.m01 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+        self.m02 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+        self.m03 = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+        self.m04 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+        self.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+        self.m06 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+        self.m07 = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+        self.m08 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+        self.m09 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+        self.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+        self.m11 = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+        self.m12 = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+        self.m13 = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+        self.m14 = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+        self.m15 = (a20 * b03 - a21 * b01 + a22 * b00) * det;
 
-        return this;
+        return self;
     }
 
     /**
@@ -2006,10 +1933,11 @@ export class Mat4 extends ValueType {
      * @return 当前矩阵的行列式。
      */
     public determinant (): number {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
-        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
-        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
-        const a30 = this.m12; const a31 = this.m13; const a32 = this.m14; const a33 = this.m15;
+        const self = this;
+        const a00 = self.m00; const a01 = self.m01; const a02 = self.m02; const a03 = self.m03;
+        const a10 = self.m04; const a11 = self.m05; const a12 = self.m06; const a13 = self.m07;
+        const a20 = self.m08; const a21 = self.m09; const a22 = self.m10; const a23 = self.m11;
+        const a30 = self.m12; const a31 = self.m13; const a32 = self.m14; const a33 = self.m15;
 
         const b00 = a00 * a11 - a01 * a10;
         const b01 = a00 * a12 - a02 * a10;
@@ -2034,23 +1962,24 @@ export class Mat4 extends ValueType {
      * @param mat the second operand
      */
     public add (mat: Mat4): Mat4 {
-        this.m00 += mat.m00;
-        this.m01 += mat.m01;
-        this.m02 += mat.m02;
-        this.m03 += mat.m03;
-        this.m04 += mat.m04;
-        this.m05 += mat.m05;
-        this.m06 += mat.m06;
-        this.m07 += mat.m07;
-        this.m08 += mat.m08;
-        this.m09 += mat.m09;
-        this.m10 += mat.m10;
-        this.m11 += mat.m11;
-        this.m12 += mat.m12;
-        this.m13 += mat.m13;
-        this.m14 += mat.m14;
-        this.m15 += mat.m15;
-        return this;
+        const self = this;
+        self.m00 += mat.m00;
+        self.m01 += mat.m01;
+        self.m02 += mat.m02;
+        self.m03 += mat.m03;
+        self.m04 += mat.m04;
+        self.m05 += mat.m05;
+        self.m06 += mat.m06;
+        self.m07 += mat.m07;
+        self.m08 += mat.m08;
+        self.m09 += mat.m09;
+        self.m10 += mat.m10;
+        self.m11 += mat.m11;
+        self.m12 += mat.m12;
+        self.m13 += mat.m13;
+        self.m14 += mat.m14;
+        self.m15 += mat.m15;
+        return self;
     }
 
     /**
@@ -2059,23 +1988,24 @@ export class Mat4 extends ValueType {
      * @param mat the second operand
      */
     public subtract (mat: Mat4): Mat4 {
-        this.m00 -= mat.m00;
-        this.m01 -= mat.m01;
-        this.m02 -= mat.m02;
-        this.m03 -= mat.m03;
-        this.m04 -= mat.m04;
-        this.m05 -= mat.m05;
-        this.m06 -= mat.m06;
-        this.m07 -= mat.m07;
-        this.m08 -= mat.m08;
-        this.m09 -= mat.m09;
-        this.m10 -= mat.m10;
-        this.m11 -= mat.m11;
-        this.m12 -= mat.m12;
-        this.m13 -= mat.m13;
-        this.m14 -= mat.m14;
-        this.m15 -= mat.m15;
-        return this;
+        const self = this;
+        self.m00 -= mat.m00;
+        self.m01 -= mat.m01;
+        self.m02 -= mat.m02;
+        self.m03 -= mat.m03;
+        self.m04 -= mat.m04;
+        self.m05 -= mat.m05;
+        self.m06 -= mat.m06;
+        self.m07 -= mat.m07;
+        self.m08 -= mat.m08;
+        self.m09 -= mat.m09;
+        self.m10 -= mat.m10;
+        self.m11 -= mat.m11;
+        self.m12 -= mat.m12;
+        self.m13 -= mat.m13;
+        self.m14 -= mat.m14;
+        self.m15 -= mat.m15;
+        return self;
     }
 
     /**
@@ -2084,36 +2014,7 @@ export class Mat4 extends ValueType {
      * @param mat the second operand
      */
     public multiply (mat: Mat4): Mat4 {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
-        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
-        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
-        const a30 = this.m12; const a31 = this.m13; const a32 = this.m14; const a33 = this.m15;
-
-        // Cache only the current line of the second matrix
-        let b0 = mat.m00; let b1 = mat.m01; let b2 = mat.m02; let b3 = mat.m03;
-        this.m00 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
-        this.m01 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
-        this.m02 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
-        this.m03 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-        b0 = mat.m04; b1 = mat.m05; b2 = mat.m06; b3 = mat.m07;
-        this.m04 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
-        this.m05 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
-        this.m06 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
-        this.m07 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-        b0 = mat.m08; b1 = mat.m09; b2 = mat.m10; b3 = mat.m11;
-        this.m08 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
-        this.m09 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
-        this.m10 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
-        this.m11 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-        b0 = mat.m12; b1 = mat.m13; b2 = mat.m14; b3 = mat.m15;
-        this.m12 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
-        this.m13 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
-        this.m14 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
-        this.m15 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-        return this;
+        return Mat4.multiply(this, this, mat);
     }
 
     /**
@@ -2122,23 +2023,24 @@ export class Mat4 extends ValueType {
      * @param scalar amount to scale the matrix's elements by
      */
     public multiplyScalar (scalar: number): Mat4 {
-        this.m00 *= scalar;
-        this.m01 *= scalar;
-        this.m02 *= scalar;
-        this.m03 *= scalar;
-        this.m04 *= scalar;
-        this.m05 *= scalar;
-        this.m06 *= scalar;
-        this.m07 *= scalar;
-        this.m08 *= scalar;
-        this.m09 *= scalar;
-        this.m10 *= scalar;
-        this.m11 *= scalar;
-        this.m12 *= scalar;
-        this.m13 *= scalar;
-        this.m14 *= scalar;
-        this.m15 *= scalar;
-        return this;
+        const self = this;
+        self.m00 *= scalar;
+        self.m01 *= scalar;
+        self.m02 *= scalar;
+        self.m03 *= scalar;
+        self.m04 *= scalar;
+        self.m05 *= scalar;
+        self.m06 *= scalar;
+        self.m07 *= scalar;
+        self.m08 *= scalar;
+        self.m09 *= scalar;
+        self.m10 *= scalar;
+        self.m11 *= scalar;
+        self.m12 *= scalar;
+        self.m13 *= scalar;
+        self.m14 *= scalar;
+        self.m15 *= scalar;
+        return self;
     }
 
     /**
@@ -2162,16 +2064,17 @@ export class Mat4 extends ValueType {
      */
     public transform (vec: Vec3): Mat4 {
         const { x, y, z } = vec;
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
-        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
-        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
+        const self = this;
+        const a00 = self.m00; const a01 = self.m01; const a02 = self.m02; const a03 = self.m03;
+        const a10 = self.m04; const a11 = self.m05; const a12 = self.m06; const a13 = self.m07;
+        const a20 = self.m08; const a21 = self.m09; const a22 = self.m10; const a23 = self.m11;
 
-        this.m12 = a00 * x + a10 * y + a20 * z + this.m12;
-        this.m13 = a01 * x + a11 * y + a21 * z + this.m13;
-        this.m14 = a02 * x + a12 * y + a22 * z + this.m14;
-        this.m15 = a03 * x + a13 * y + a23 * z + this.m15;
+        self.m12 = a00 * x + a10 * y + a20 * z + self.m12;
+        self.m13 = a01 * x + a11 * y + a21 * z + self.m13;
+        self.m14 = a02 * x + a12 * y + a22 * z + self.m14;
+        self.m15 = a03 * x + a13 * y + a23 * z + self.m15;
 
-        return this;
+        return self;
     }
 
     /**
@@ -2180,20 +2083,21 @@ export class Mat4 extends ValueType {
      * @param vec vector to scale by
      */
     public scale (vec: Vec3): Mat4 {
-        const x = vec.x; const y = vec.y; const z = vec.z;
-        this.m00 *= x;
-        this.m01 *= x;
-        this.m02 *= x;
-        this.m03 *= x;
-        this.m04 *= y;
-        this.m05 *= y;
-        this.m06 *= y;
-        this.m07 *= y;
-        this.m08 *= z;
-        this.m09 *= z;
-        this.m10 *= z;
-        this.m11 *= z;
-        return this;
+        const { x, y, z } = vec;
+        const self = this;
+        self.m00 *= x;
+        self.m01 *= x;
+        self.m02 *= x;
+        self.m03 *= x;
+        self.m04 *= y;
+        self.m05 *= y;
+        self.m06 *= y;
+        self.m07 *= y;
+        self.m08 *= z;
+        self.m09 *= z;
+        self.m10 *= z;
+        self.m11 *= z;
+        return self;
     }
 
     /**
@@ -2205,9 +2109,9 @@ export class Mat4 extends ValueType {
     public rotate (rad: number, axis: Vec3): Mat4 | null {
         let x = axis.x; let y = axis.y; let z = axis.z;
 
-        let len = Math.sqrt(x * x + y * y + z * z);
+        let len = sqrt(x * x + y * y + z * z);
 
-        if (Math.abs(len) < EPSILON) {
+        if (abs(len) < EPSILON) {
             return null;
         }
 
@@ -2216,13 +2120,14 @@ export class Mat4 extends ValueType {
         y *= len;
         z *= len;
 
-        const s = Math.sin(rad);
-        const c = Math.cos(rad);
+        const s = sin(rad);
+        const c = cos(rad);
         const t = 1 - c;
 
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
-        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
-        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
+        const self = this;
+        const a00 = self.m00; const a01 = self.m01; const a02 = self.m02; const a03 = self.m03;
+        const a10 = self.m04; const a11 = self.m05; const a12 = self.m06; const a13 = self.m07;
+        const a20 = self.m08; const a21 = self.m09; const a22 = self.m10; const a23 = self.m11;
 
         // Construct the elements of the rotation matrix
         const b00 = x * x * t + c; const b01 = y * x * t + z * s; const b02 = z * x * t - y * s;
@@ -2230,20 +2135,20 @@ export class Mat4 extends ValueType {
         const b20 = x * z * t + y * s; const b21 = y * z * t - x * s; const b22 = z * z * t + c;
 
         // Perform rotation-specific matrix multiplication
-        this.m00 = a00 * b00 + a10 * b01 + a20 * b02;
-        this.m01 = a01 * b00 + a11 * b01 + a21 * b02;
-        this.m02 = a02 * b00 + a12 * b01 + a22 * b02;
-        this.m03 = a03 * b00 + a13 * b01 + a23 * b02;
-        this.m04 = a00 * b10 + a10 * b11 + a20 * b12;
-        this.m05 = a01 * b10 + a11 * b11 + a21 * b12;
-        this.m06 = a02 * b10 + a12 * b11 + a22 * b12;
-        this.m07 = a03 * b10 + a13 * b11 + a23 * b12;
-        this.m08 = a00 * b20 + a10 * b21 + a20 * b22;
-        this.m09 = a01 * b20 + a11 * b21 + a21 * b22;
-        this.m10 = a02 * b20 + a12 * b21 + a22 * b22;
-        this.m11 = a03 * b20 + a13 * b21 + a23 * b22;
+        self.m00 = a00 * b00 + a10 * b01 + a20 * b02;
+        self.m01 = a01 * b00 + a11 * b01 + a21 * b02;
+        self.m02 = a02 * b00 + a12 * b01 + a22 * b02;
+        self.m03 = a03 * b00 + a13 * b01 + a23 * b02;
+        self.m04 = a00 * b10 + a10 * b11 + a20 * b12;
+        self.m05 = a01 * b10 + a11 * b11 + a21 * b12;
+        self.m06 = a02 * b10 + a12 * b11 + a22 * b12;
+        self.m07 = a03 * b10 + a13 * b11 + a23 * b12;
+        self.m08 = a00 * b20 + a10 * b21 + a20 * b22;
+        self.m09 = a01 * b20 + a11 * b21 + a21 * b22;
+        self.m10 = a02 * b20 + a12 * b21 + a22 * b22;
+        self.m11 = a03 * b20 + a13 * b21 + a23 * b22;
 
-        return this;
+        return self;
     }
 
     /**
@@ -2265,18 +2170,19 @@ export class Mat4 extends ValueType {
      * @param out Vector to receive scale component
      */
     public getScale (out: Vec3): Vec3 {
-        const m00 = m3_1.m00 = this.m00;
-        const m01 = m3_1.m01 = this.m01;
-        const m02 = m3_1.m02 = this.m02;
-        const m04 = m3_1.m03 = this.m04;
-        const m05 = m3_1.m04 = this.m05;
-        const m06 = m3_1.m05 = this.m06;
-        const m08 = m3_1.m06 = this.m08;
-        const m09 = m3_1.m07 = this.m09;
-        const m10 = m3_1.m08 = this.m10;
-        out.x = Math.sqrt(m00 * m00 + m01 * m01 + m02 * m02);
-        out.y = Math.sqrt(m04 * m04 + m05 * m05 + m06 * m06);
-        out.z = Math.sqrt(m08 * m08 + m09 * m09 + m10 * m10);
+        const self = this;
+        const m00 = m3_1.m00 = self.m00;
+        const m01 = m3_1.m01 = self.m01;
+        const m02 = m3_1.m02 = self.m02;
+        const m04 = m3_1.m03 = self.m04;
+        const m05 = m3_1.m04 = self.m05;
+        const m06 = m3_1.m05 = self.m06;
+        const m08 = m3_1.m06 = self.m08;
+        const m09 = m3_1.m07 = self.m09;
+        const m10 = m3_1.m08 = self.m10;
+        out.x = sqrt(m00 * m00 + m01 * m01 + m02 * m02);
+        out.y = sqrt(m04 * m04 + m05 * m05 + m06 * m06);
+        out.z = sqrt(m08 * m08 + m09 * m09 + m10 * m10);
         // account for reflections
         if (Mat3.determinant(m3_1) < 0) { out.x *= -1; }
         return out;
@@ -2288,19 +2194,20 @@ export class Mat4 extends ValueType {
      * @param out Vector to receive rotation component
      */
     public getRotation (out: Quat): Quat {
+        const self = this;
         // Extract rotation matrix first
-        const sx = Vec3.set(v3_1, this.m00, this.m01, this.m02).length();
-        const sy = Vec3.set(v3_1, this.m04, this.m05, this.m06).length();
-        const sz = Vec3.set(v3_1, this.m08, this.m09, this.m10).length();
-        m3_1.m00 = this.m00 / sx;
-        m3_1.m01 = this.m01 / sx;
-        m3_1.m02 = this.m02 / sx;
-        m3_1.m03 = this.m04 / sy;
-        m3_1.m04 = this.m05 / sy;
-        m3_1.m05 = this.m06 / sy;
-        m3_1.m06 = this.m08 / sz;
-        m3_1.m07 = this.m09 / sz;
-        m3_1.m08 = this.m10 / sz;
+        const sx = Vec3.set(v3_1, self.m00, self.m01, self.m02).length();
+        const sy = Vec3.set(v3_1, self.m04, self.m05, self.m06).length();
+        const sz = Vec3.set(v3_1, self.m08, self.m09, self.m10).length();
+        m3_1.m00 = self.m00 / sx;
+        m3_1.m01 = self.m01 / sx;
+        m3_1.m02 = self.m02 / sx;
+        m3_1.m03 = self.m04 / sy;
+        m3_1.m04 = self.m05 / sy;
+        m3_1.m05 = self.m06 / sy;
+        m3_1.m06 = self.m08 / sz;
+        m3_1.m07 = self.m09 / sz;
+        m3_1.m08 = self.m10 / sz;
         const det = Mat3.determinant(m3_1);
         if (det < 0) {
             m3_1.m00 *= -1;
@@ -2322,42 +2229,7 @@ export class Mat4 extends ValueType {
      * @deprecated Since 3.8.0, please use [[fromSRT]] instead
      */
     public fromRTS (q: Quat, v: Vec3, s: Vec3): Mat4 {
-        const x = q.x; const y = q.y; const z = q.z; const w = q.w;
-        const x2 = x + x;
-        const y2 = y + y;
-        const z2 = z + z;
-
-        const xx = x * x2;
-        const xy = x * y2;
-        const xz = x * z2;
-        const yy = y * y2;
-        const yz = y * z2;
-        const zz = z * z2;
-        const wx = w * x2;
-        const wy = w * y2;
-        const wz = w * z2;
-        const sx = s.x;
-        const sy = s.y;
-        const sz = s.z;
-
-        this.m00 = (1 - (yy + zz)) * sx;
-        this.m01 = (xy + wz) * sx;
-        this.m02 = (xz - wy) * sx;
-        this.m03 = 0;
-        this.m04 = (xy - wz) * sy;
-        this.m05 = (1 - (xx + zz)) * sy;
-        this.m06 = (yz + wx) * sy;
-        this.m07 = 0;
-        this.m08 = (xz + wy) * sz;
-        this.m09 = (yz - wx) * sz;
-        this.m10 = (1 - (xx + yy)) * sz;
-        this.m11 = 0;
-        this.m12 = v.x;
-        this.m13 = v.y;
-        this.m14 = v.z;
-        this.m15 = 1;
-
-        return this;
+        return Mat4.fromSRT(this, q, v, s);
     }
 
     /**
@@ -2369,42 +2241,7 @@ export class Mat4 extends ValueType {
      * @return `this`
      */
     public fromSRT (q: Quat, v: Vec3, s: Vec3): Mat4 {
-        const x = q.x; const y = q.y; const z = q.z; const w = q.w;
-        const x2 = x + x;
-        const y2 = y + y;
-        const z2 = z + z;
-
-        const xx = x * x2;
-        const xy = x * y2;
-        const xz = x * z2;
-        const yy = y * y2;
-        const yz = y * z2;
-        const zz = z * z2;
-        const wx = w * x2;
-        const wy = w * y2;
-        const wz = w * z2;
-        const sx = s.x;
-        const sy = s.y;
-        const sz = s.z;
-
-        this.m00 = (1 - (yy + zz)) * sx;
-        this.m01 = (xy + wz) * sx;
-        this.m02 = (xz - wy) * sx;
-        this.m03 = 0;
-        this.m04 = (xy - wz) * sy;
-        this.m05 = (1 - (xx + zz)) * sy;
-        this.m06 = (yz + wx) * sy;
-        this.m07 = 0;
-        this.m08 = (xz + wy) * sz;
-        this.m09 = (yz - wx) * sz;
-        this.m10 = (1 - (xx + yy)) * sz;
-        this.m11 = 0;
-        this.m12 = v.x;
-        this.m13 = v.y;
-        this.m14 = v.z;
-        this.m15 = 1;
-
-        return this;
+        return Mat4.fromSRT(this, q, v, s);
     }
 
     /**
@@ -2414,42 +2251,7 @@ export class Mat4 extends ValueType {
      * @return `this`
      */
     public fromQuat (q: Quat): Mat4 {
-        const x = q.x; const y = q.y; const z = q.z; const w = q.w;
-        const x2 = x + x;
-        const y2 = y + y;
-        const z2 = z + z;
-
-        const xx = x * x2;
-        const yx = y * x2;
-        const yy = y * y2;
-        const zx = z * x2;
-        const zy = z * y2;
-        const zz = z * z2;
-        const wx = w * x2;
-        const wy = w * y2;
-        const wz = w * z2;
-
-        this.m00 = 1 - yy - zz;
-        this.m01 = yx + wz;
-        this.m02 = zx - wy;
-        this.m03 = 0;
-
-        this.m04 = yx - wz;
-        this.m05 = 1 - xx - zz;
-        this.m06 = zy + wx;
-        this.m07 = 0;
-
-        this.m08 = zx + wy;
-        this.m09 = zy - wx;
-        this.m10 = 1 - xx - yy;
-        this.m11 = 0;
-
-        this.m12 = 0;
-        this.m13 = 0;
-        this.m14 = 0;
-        this.m15 = 1;
-
-        return this;
+        return Mat4.fromQuat(this, q);
     }
 }
 

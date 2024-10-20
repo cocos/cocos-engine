@@ -23,7 +23,7 @@
 */
 
 import { screenAdapter } from 'pal/screen-adapter';
-import { EventType } from './web-view-enums';
+import { WebViewEventType } from './web-view-enums';
 import { error, warn } from '../core/platform';
 import { WebViewImpl } from './web-view-impl';
 import { game } from '../game';
@@ -46,12 +46,12 @@ export class WebViewImplWeb extends WebViewImpl {
         }
         const onLoaded = (e: Event): void => {
             this._forceUpdate = true;
-            this.dispatchEvent(EventType.LOADED);
+            this.dispatchEvent(WebViewEventType.LOADED);
 
             const iframe = e.target as HTMLIFrameElement;
             const body = iframe.contentDocument && iframe.contentDocument.body;
             if (body && body.innerHTML.includes('404')) {
-                this.dispatchEvent(EventType.ERROR, body.innerHTML);
+                this.dispatchEvent(WebViewEventType.ERROR, body.innerHTML);
             }
         };
 
@@ -62,7 +62,7 @@ export class WebViewImplWeb extends WebViewImpl {
         if (this.webview) {
             this.webview.src = url;
             // emit loading event
-            this.dispatchEvent(EventType.LOADING);
+            this.dispatchEvent(WebViewEventType.LOADING);
         }
     }
 
@@ -116,7 +116,7 @@ export class WebViewImplWeb extends WebViewImpl {
                 try {
                     win.eval(str);
                 } catch (e) {
-                    this.dispatchEvent(EventType.ERROR, e);
+                    this.dispatchEvent(WebViewEventType.ERROR, e);
                     error(e);
                 }
             }

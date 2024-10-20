@@ -3,7 +3,7 @@ import { EDITOR } from 'internal:constants';
 import { LightInfo, QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { Pipeline, RenderPassBuilder, RenderQueueBuilder } from '../../custom/pipeline';
-import { Camera, SKYBOX_FLAG } from '../../../render-scene/scene';
+import { Camera, SkyBoxFlagValue } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
 import { getRenderArea } from '../../custom/define';
@@ -222,9 +222,9 @@ export class PassContext {
 
             const clearFlag = this.clearFlag & ClearFlagBit.COLOR;
             let loadOp = LoadOp.CLEAR;
-            if (clearFlag === ClearFlagBit.NONE && !(this.clearFlag & SKYBOX_FLAG)) {
+            if (clearFlag === ClearFlagBit.NONE && !(this.clearFlag & SkyBoxFlagValue.VALUE)) {
                 loadOp = LoadOp.LOAD;
-            } else if (this.clearFlag & SKYBOX_FLAG) {
+            } else if (this.clearFlag & SkyBoxFlagValue.VALUE) {
                 clearColor.set(0, 0, 0, 1);
             }
             pass.addRenderTarget(name, loadOp, StoreOp.STORE, clearColor);

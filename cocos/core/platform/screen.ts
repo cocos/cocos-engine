@@ -25,10 +25,10 @@
  THE SOFTWARE.
 */
 
-import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Size } from '../math';
-import { Settings, settings } from '../settings';
+import { settings, SettingsCategory } from '../settings';
 import { error, warn, warnID } from './debug';
 import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**
@@ -40,9 +40,9 @@ export class Screen {
      * @internal
      */
     public init (): void {
-        const exactFitScreen = settings.querySettings(Settings.Category.SCREEN, 'exactFitScreen') ?? true;
-        const orientation = settings.querySettings(Settings.Category.SCREEN, 'orientation') ?? 'auto';
-        const isHeadlessMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') === 3;
+        const exactFitScreen = settings.querySettings(SettingsCategory.SCREEN, 'exactFitScreen') ?? true;
+        const orientation = settings.querySettings(SettingsCategory.SCREEN, 'orientation') ?? 'auto';
+        const isHeadlessMode = settings.querySettings(SettingsCategory.RENDERING, 'renderMode') === 3;
         screenAdapter.init({ exactFitScreen, configOrientation: orientation, isHeadlessMode }, (): void => {
             const director = legacyCC.director;
             if (!director.root?.pipeline) {

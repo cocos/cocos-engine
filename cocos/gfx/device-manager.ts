@@ -23,8 +23,8 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, JSB, WEBGPU } from 'internal:constants';
-import { cclegacy, getError, sys, screen, Settings, settings, errorID } from '../core';
+import { EDITOR, JSB } from 'internal:constants';
+import { cclegacy, getError, sys, screen, settings, errorID, Settings } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';

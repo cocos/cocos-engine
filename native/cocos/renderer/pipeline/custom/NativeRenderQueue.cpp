@@ -254,15 +254,20 @@ void NativeRenderQueue::sort() {
 void NativeRenderQueue::recordCommands(
     gfx::CommandBuffer *cmdBuffer,
     gfx::RenderPass *renderPass,
-    uint32_t subpassIndex) const {
-    opaqueQueue.recordCommandBuffer(
-        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
-    opaqueInstancingQueue.recordCommandBuffer(
-        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
-    transparentQueue.recordCommandBuffer(
-        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
-    transparentInstancingQueue.recordCommandBuffer(
-        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    uint32_t subpassIndex,
+    SceneFlags sceneFlags) const {
+    if (any(sceneFlags & (SceneFlags::OPAQUE | SceneFlags::MASK))) {
+        opaqueQueue.recordCommandBuffer(
+            renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+        opaqueInstancingQueue.recordCommandBuffer(
+            renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    }
+    if (any(sceneFlags & SceneFlags::BLEND)) {
+        transparentQueue.recordCommandBuffer(
+            renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+        transparentInstancingQueue.recordCommandBuffer(
+            renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    }
 }
 
 } // namespace render

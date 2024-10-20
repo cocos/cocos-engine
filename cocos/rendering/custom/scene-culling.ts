@@ -1,17 +1,18 @@
-import { Vec3, assert, RecyclePool } from '../../core';
+import { DEBUG } from 'internal:constants';
+import { Vec3, RecyclePool, assert } from '../../core';
 import { Frustum, intersect, AABB } from '../../core/geometry';
 import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageBit, BufferUsageBit } from '../../gfx';
-import { BatchingSchemes, Pass, RenderScene } from '../../render-scene';
+import { BatchingSchemes, RenderScene } from '../../render-scene';
 import { CSMLevel, Camera, DirectionalLight, Light, LightType, Model, PointLight, ProbeType,
     RangedDirectionalLight,
-    ReflectionProbe, SKYBOX_FLAG, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
+    ReflectionProbe, SkyBoxFlagValue, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
 import { Layers, Node } from '../../scene-graph';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { hashCombineStr, getSubpassOrPassID, bool, AlignUp, SetLightUBO } from './define';
+import { bool, AlignUp, SetLightUBO, hashCombineKey } from './define';
 import { LayoutGraphData } from './layout-graph';
 import { CullingFlags, RenderGraph, RenderGraphValue, SceneData, RenderQueue as RenderQueue0 } from './render-graph';
 import { SceneFlags } from './types';
-import { RenderQueue, RenderQueueDesc, instancePool } from './web-pipeline-types';
+import { RenderQueue, RenderQueueQuery, instancePool } from './web-pipeline-types';
 import { ObjectPool } from './utils';
 import { getUniformBlockSize } from './layout-graph-utils';
 import { WebProgramLibrary } from './web-program-library';
@@ -24,69 +25,37 @@ class CullingPools {
     lightBoundsCullingResultRecycle = new RecyclePool(() => new LightBoundsCullingResult(), 8);
     lightBoundsCullingKeyRecycle = new RecyclePool(() => new LightBoundsCullingKey(), 8);
     renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 8);
-    renderQueueDescRecycle = new RecyclePool(() => new RenderQueueDesc(), 8);
+    renderQueueQueryRecycle = new RecyclePool(() => new RenderQueueQuery(), 8);
 }
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D,
     Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
-
+const objIdMap: WeakMap<object, number> = new WeakMap();
+let cullingKeys: string = '';
+let objectCount: number = 0;
+function objectID (claze: object): number {
+    if (!objIdMap.has(claze)) objIdMap.set(claze, ++objectCount);
+    return objIdMap.get(claze)!;
+}
 function computeCullingKey (
     sceneData: SceneData,
     castShadows: boolean,
     refId: number = -1,
-): number {
-    let hashCode = 0;
-    const camera = sceneData.camera;
-    const light = sceneData.light.light;
+): string {
+    cullingKeys = '';
+    const camera = sceneData.camera!;
+    const light = sceneData.light.light!;
     const lightLevel = sceneData.light.level;
-    const culledByLight = sceneData.light.culledByLight;
-    const reflectProbe = sceneData.light.probe;
+    const reflectProbe = sceneData.light.probe!;
     const shadeLight = sceneData.shadingLight;
-    if (camera) {
-        // camera
-        hashCode = hashCombineStr(`u${camera.node.uuid}`, hashCode);
-        hashCode = hashCombineStr(`p${camera.priority}`, hashCode);
-        hashCode = hashCombineStr(`v${camera.visibility}`, hashCode);
-        hashCode = hashCombineStr(`f${camera.clearFlag}`, hashCode);
-        hashCode = hashCombineStr(`cx${camera.clearColor.x}cy${camera.clearColor.y}cz${camera.clearColor.z}cw${camera.clearColor.w}`, hashCode);
-        hashCode = hashCombineStr(`cd${camera.clearDepth}cs${camera.clearStencil}`, hashCode);
-        hashCode = hashCombineStr(`pj${camera.projectionType}`, hashCode);
-        hashCode = hashCombineStr(`fa${camera.fovAxis}`, hashCode);
-        hashCode = hashCombineStr(`fov${camera.fov}`, hashCode);
-        hashCode = hashCombineStr(`n${camera.nearClip}`, hashCode);
-        hashCode = hashCombineStr(`far${camera.farClip}`, hashCode);
-        hashCode = hashCombineStr(`apt${camera.aperture}`, hashCode);
-        hashCode = hashCombineStr(`sht${camera.shutter}`, hashCode);
-        hashCode = hashCombineStr(`iso${camera.iso}`, hashCode);
-        hashCode = hashCombineStr(`rx${camera.viewport.x}ry${camera.viewport.y}rw${camera.viewport.width}rh${camera.viewport.height}`, hashCode);
-        hashCode = hashCombineStr(`upp${camera.usePostProcess}`, hashCode);
-    }
-    // light
-    if (light) {
-        hashCode = hashCombineStr(`u${light.node!.uuid}`, hashCode);
-        // hashCode = hashCombineStr(`cx${light.finalColor.x}cy${light.finalColor.y}cz${light.finalColor.z}`, hashCode);
-        // hashCode = hashCombineStr(`ct${light.useColorTemperature}`, hashCode);
-        // hashCode = hashCombineStr(`ctv${light.colorTemperature}`, hashCode);
-        // hashCode = hashCombineStr(`vis${light.visibility}`, hashCode);
-        // hashCode = hashCombineStr(`tp${light.type}`, hashCode);
-        // switch (light.type) {
-        // case LightType.DIRECTIONAL:
-        //     hashCode = hashCombineStr(`${(light as DirectionalLight).illuminance}`, hashCode);
-        //     break;
-        // default:
-        // }
-    }
-    if (shadeLight) {
-        hashCode = hashCombineStr(`shadeLight${shadeLight.node!.uuid}`, hashCode);
-    }
-    hashCode = hashCombineStr(`culledByLight${culledByLight}`, hashCode);
-    hashCode = hashCombineStr(`cast${castShadows}`, hashCode);
-    hashCode = hashCombineStr(`level${lightLevel}`, hashCode);
-    if (reflectProbe) {
-        hashCode = hashCombineStr(`probe${reflectProbe.getProbeId()}`, hashCode);
-    }
-    hashCode = hashCombineStr(`refId${refId}`, hashCode);
-    return hashCode;
+    cullingKeys += hashCombineKey(camera ? objectID(camera) : 0);
+    cullingKeys += hashCombineKey(reflectProbe ? objectID(reflectProbe) : 0);
+    cullingKeys += hashCombineKey((refId === -1 && light) ? objectID(light) : 0);
+    cullingKeys += hashCombineKey((refId !== -1 && shadeLight) ? objectID(shadeLight) : 0);
+    cullingKeys += hashCombineKey(refId === -1 ? lightLevel : 0);
+    cullingKeys += hashCombineKey(castShadows ? 1 : 0);
+    cullingKeys += hashCombineKey(refId);
+    return cullingKeys;
 }
 
 class FrustumCullingKey {
@@ -116,8 +85,8 @@ class LightBoundsCullingKey {
 }
 
 class LightBoundsCulling {
-    resultKeyIndex: Map<number, LightBoundsCullingKey> = new Map<number, LightBoundsCullingKey>();
-    resultIndex: Map<number, LightBoundsCullingID> = new Map<number, LightBoundsCullingID>();
+    resultKeyIndex: Map<string, LightBoundsCullingKey> = new Map<string, LightBoundsCullingKey>();
+    resultIndex: Map<string, LightBoundsCullingID> = new Map<string, LightBoundsCullingID>();
     update (): void {
         this.resultIndex.clear();
         this.resultKeyIndex.clear();
@@ -136,13 +105,27 @@ class LightBoundsCullingResult {
 
 type FrustumCullingID = number;
 type LightBoundsCullingID = number;
+type RenderQueueID = number;
+
+function makeRenderQueueKey (
+    frustumCulledResultID: FrustumCullingID,
+    lightBoundsCulledResultID: LightBoundsCullingID,
+    queueLayoutID: RenderQueueID,
+): string {
+    return `${frustumCulledResultID}-${lightBoundsCulledResultID}-${queueLayoutID}`;
+}
+
+function extractRenderQueueKey (key: string): number[] {
+    const keys = key.split('-');
+    return [parseInt(keys[0]), parseInt(keys[1]), parseInt(keys[2])];
+}
 
 let pSceneData: PipelineSceneData;
 
 class FrustumCulling {
     // key: hash val
-    resultIndex: Map<number, FrustumCullingID> = new Map<number, FrustumCullingID>();
-    resultKeyIndex: Map<number, FrustumCullingKey> = new Map<number, FrustumCullingKey>();
+    resultIndex: Map<string, FrustumCullingID> = new Map<string, FrustumCullingID>();
+    resultKeyIndex: Map<string, FrustumCullingKey> = new Map<string, FrustumCullingKey>();
     update (): void {
         this.resultIndex.clear();
         this.resultKeyIndex.clear();
@@ -157,22 +140,23 @@ function isModelVisible (model: Model, visibility: number): boolean {
     return !!(visibility & model.visFlags);
 }
 
+function isVisible (model: Model, visibility: number): boolean {
+    return isNodeVisible(model.node, visibility) || isModelVisible(model, visibility);
+}
+
 function isReflectProbeMask (model: Model): boolean {
     return bool((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags));
 }
 
 const transWorldBounds = new AABB();
 function isFrustumVisible (model: Model, frustum: Readonly<Frustum>, castShadow: boolean): boolean {
-    const modelWorldBounds = model.worldBounds;
-    if (!modelWorldBounds) {
-        return false;
-    }
-    transWorldBounds.copy(modelWorldBounds);
+    const modelWorldBounds = model.worldBounds!;
     const shadows = pSceneData.shadows;
-    if (shadows.type === ShadowType.Planar && castShadow) {
+    if (castShadow && shadows.type === ShadowType.Planar) {
         AABB.transform(transWorldBounds, modelWorldBounds, shadows.matLight);
+        return !intersect.aabbFrustum(transWorldBounds, frustum);
     }
-    return !intersect.aabbFrustum(transWorldBounds, frustum);
+    return !intersect.aabbFrustum(modelWorldBounds, frustum);
 }
 
 function isIntersectAABB (lAABB: AABB, rAABB: AABB): boolean {
@@ -190,55 +174,48 @@ function sceneCulling (
     const skybox = pSceneData.skybox;
     const skyboxModel = skybox.model;
     const visibility = camera.visibility;
-    const camSkyboxFlag = camera.clearFlag & SKYBOX_FLAG;
+    const camSkyboxFlag = camera.clearFlag & SkyBoxFlagValue.VALUE;
     if (!castShadow && skybox && skybox.enabled && skyboxModel && camSkyboxFlag) {
         models.push(skyboxModel);
     }
 
     for (const model of scene.models) {
-        assert(!!model);
         if (!model.enabled || !model.node || (castShadow && !model.castShadow)) {
             continue;
         }
-        if (scene && scene.isCulledByLod(camera, model)) {
+        if (scene.isCulledByLod(camera, model)) {
             continue;
         }
-        if (!probe || (probe && probe.probeType === ProbeType.CUBE)) {
-            if (isNodeVisible(model.node, visibility)
-                || isModelVisible(model, visibility)) {
-                const wBounds = model.worldBounds;
-                // frustum culling
-                if (wBounds && ((!probe && isFrustumVisible(model, camOrLightFrustum, castShadow))
-                    || (probe && isIntersectAABB(wBounds, probe.boundingBox!)))) {
-                    continue;
-                }
-
-                models.push(model);
+        const wBounds = model.worldBounds;
+        if (!probe) {
+            if (!isVisible(model, visibility)) {
+                continue;
             }
+            // frustum culling
+            if (wBounds && isFrustumVisible(model, camOrLightFrustum, castShadow)) {
+                continue;
+            }
+            models.push(model);
+        } else if (probe.probeType === ProbeType.CUBE) {
+            if (!isVisible(model, visibility)) {
+                continue;
+            }
+            if (wBounds && isIntersectAABB(wBounds, probe.boundingBox!)) {
+                continue;
+            }
+            models.push(model);
         } else if (isReflectProbeMask(model)) {
             models.push(model);
         }
     }
 }
 
-function isBlend (pass: Pass): boolean {
-    let bBlend = false;
-    for (const target of pass.blendState.targets) {
-        if (target.blend) {
-            bBlend = true;
-        }
-    }
-    return bBlend;
-}
-
+const _tempVec3 = new Vec3();
 function computeSortingDepth (camera: Camera, model: Model): number {
     let depth = 0;
     if (model.node) {
-        const  node = model.transform;
-        const tempVec3 = vec3Pool.acquire();
-        const position = Vec3.subtract(tempVec3, node.worldPosition, camera.position);
-        depth = position.dot(camera.forward);
-        vec3Pool.release(tempVec3);
+        Vec3.subtract(_tempVec3, model.worldBounds ? model.worldBounds.center : model.node.worldPosition, camera.position);
+        depth = Vec3.dot(_tempVec3, camera.forward);
     }
     return depth;
 }
@@ -254,11 +231,12 @@ function addRenderObject (
 ): void {
     const probeQueue = queue.probeQueue;
     if (isDrawProbe) {
-        probeQueue.applyMacro(model, phaseLayoutId);
+        probeQueue.addToProbeQueue(model, phaseLayoutId);
     }
     const subModels = model.subModels;
     const subModelCount = subModels.length;
     const skyboxModel = pSceneData.skybox.model;
+    const depth = computeSortingDepth(camera, model);
     for (let subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
         const subModel = subModels[subModelIdx];
         const passes = subModel.passes;
@@ -267,7 +245,7 @@ function addRenderObject (
         if (probePhase) phaseLayoutId = probeQueue.defaultId;
         for (let passIdx = 0; passIdx < passCount; ++passIdx) {
             if (model === skyboxModel && !subModelIdx && !passIdx && isDrawOpaqueOrMask) {
-                queue.opaqueQueue.add(model, computeSortingDepth(camera, model), subModelIdx, passIdx);
+                queue.opaqueQueue.add(model, depth, subModelIdx, passIdx);
                 continue;
             }
             const pass = passes[passIdx];
@@ -277,7 +255,7 @@ function addRenderObject (
                 continue;
             }
             // check scene flags
-            const is_blend = isBlend(pass);
+            const is_blend = pass.blendState.targets[0].blend;
             const isOpaqueOrMask = !is_blend;
             if (!isDrawBlend && is_blend) {
                 // skip transparent object
@@ -295,13 +273,10 @@ function addRenderObject (
                 } else {
                     queue.opaqueInstancingQueue.add(pass, subModel, passIdx);
                 }
+            } else if (is_blend) {
+                queue.transparentQueue.add(model, depth, subModelIdx, passIdx);
             } else {
-                const depth = computeSortingDepth(camera, model);
-                if (is_blend) {
-                    queue.transparentQueue.add(model, depth, subModelIdx, passIdx);
-                } else {
-                    queue.opaqueQueue.add(model, depth, subModelIdx, passIdx);
-                }
+                queue.opaqueQueue.add(model, depth, subModelIdx, passIdx);
             }
         }
     }
@@ -313,8 +288,9 @@ export class SceneCulling {
     frustumCullingResults: Array<Array<Model>> = new Array<Array<Model>>();
     lightBoundsCullings: Map<RenderScene, LightBoundsCulling> = new Map<RenderScene, LightBoundsCulling>();
     lightBoundsCullingResults: Array<LightBoundsCullingResult> = new Array<LightBoundsCullingResult>();
+    renderQueueIndex: Map<string, number> = new Map<string, RenderQueueID>();
     renderQueues: Array<RenderQueue> = new Array<RenderQueue>();
-    renderQueueIndex: Map<number, RenderQueueDesc> = new Map<number, RenderQueueDesc>();
+    renderQueueQueryIndex: Map<number, RenderQueueQuery> = new Map<number, RenderQueueQuery>();
     cullingPools = new CullingPools();
     // source id
     numFrustumCulling = 0;
@@ -324,6 +300,11 @@ export class SceneCulling {
     layoutGraph;
     renderGraph!: RenderGraph;
     enableLightCulling = true;
+
+    readonly kFilterMask = SceneFlags.SHADOW_CASTER | SceneFlags.REFLECTION_PROBE;
+    readonly kDrawMask = SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.BLEND;
+    readonly kAllMask = this.kFilterMask | this.kDrawMask;
+
     resetPool (): void {
         const cullingPools = this.cullingPools;
         cullingPools.frustumCullingKeyRecycle.reset();
@@ -332,7 +313,7 @@ export class SceneCulling {
         cullingPools.lightBoundsCullingResultRecycle.reset();
         cullingPools.lightBoundsCullingKeyRecycle.reset();
         cullingPools.renderQueueRecycle.reset();
-        cullingPools.renderQueueDescRecycle.reset();
+        cullingPools.renderQueueQueryRecycle.reset();
         instancePool.reset();
     }
     clear (): void {
@@ -341,8 +322,9 @@ export class SceneCulling {
         this.frustumCullingResults.length = 0;
         this.lightBoundsCullings.clear();
         this.lightBoundsCullingResults.length = 0;
-        this.renderQueues.length = 0;
         this.renderQueueIndex.clear();
+        this.renderQueues.length = 0;
+        this.renderQueueQueryIndex.clear();
         this.numLightBoundsCulling = 0;
         this.numFrustumCulling = 0;
         this.numRenderQueues = 0;
@@ -352,10 +334,10 @@ export class SceneCulling {
         this.layoutGraph = lg;
         this.renderGraph = rg;
         pSceneData = pplSceneData;
-        this.collectCullingQueries(rg, lg);
+        this.collectCullingQueries(rg);
         this.batchFrustumCulling(pplSceneData);
         this.batchLightBoundsCulling();
-        this.fillRenderQueues(rg, pplSceneData);
+        this.fillRenderQueues();
     }
 
     private getOrCreateLightBoundsCulling (sceneData: SceneData, frustumCullingID: FrustumCullingID): LightBoundsCullingID {
@@ -368,9 +350,7 @@ export class SceneCulling {
         if (!this.enableLightCulling) {
             return 0xFFFFFFFF; // Return an empty ID.
         }
-        assert(!!sceneData.shadingLight, 'shadingLight is expected but not found.');
-        const scene = sceneData.scene;
-        assert(!!scene, 'scene is expected but not found.');
+        const scene = sceneData.scene!;
 
         let queries = this.lightBoundsCullings.get(scene);
         if (!queries) {
@@ -386,7 +366,6 @@ export class SceneCulling {
         }
         const lightBoundsCullingID: LightBoundsCullingID = this.numLightBoundsCulling++;
         if (this.numLightBoundsCulling >  this.lightBoundsCullingResults.length) {
-            assert(this.numLightBoundsCulling === (this.lightBoundsCullingResults.length + 1));
             this.lightBoundsCullingResults.push(this.cullingPools.lightBoundsCullingResultRecycle.add().update());
         }
         queries.resultIndex.set(key, lightBoundsCullingID);
@@ -417,7 +396,6 @@ export class SceneCulling {
         }
         const frustumCulledResultID: FrustumCullingID = this.numFrustumCulling++;
         if (this.numFrustumCulling >  this.frustumCullingResults.length) {
-            assert(this.numFrustumCulling === (this.frustumCullingResults.length + 1));
             this.frustumCullingResults.push([]);
         }
         queries.resultIndex.set(key, frustumCulledResultID);
@@ -430,50 +408,88 @@ export class SceneCulling {
         return frustumCulledResultID;
     }
 
-    private createRenderQueue (sceneFlags: SceneFlags, subpassOrPassLayoutID: number): number {
+    private getOrCreateRenderQueue (renderQueueKey: string, sceneFlags: SceneFlags, camera: Camera | null): number {
+        const renderQueueID = this.renderQueueIndex.get(renderQueueKey);
+        if (renderQueueID !== undefined) {
+            const rq = this.renderQueues[renderQueueID];
+            if (DEBUG) {
+                assert(rq.camera === camera);
+                assert((rq.sceneFlags & this.kFilterMask) === (sceneFlags & this.kFilterMask));
+            }
+            rq.sceneFlags |= sceneFlags & this.kDrawMask;
+            return renderQueueID;
+        }
+
         const targetID = this.numRenderQueues++;
+
+        // renderQueues are not cleared, so we can reuse the space
+        // this->renderQueues.size() is more like a capacity
         if (this.numRenderQueues > this.renderQueues.length) {
-            assert(this.numRenderQueues === (this.renderQueues.length + 1));
             const renderQueue = this.cullingPools.renderQueueRecycle.add();
             renderQueue.update();
             this.renderQueues.push(renderQueue);
         }
-        assert(targetID < this.renderQueues.length);
         const rq = this.renderQueues[targetID];
-        assert(rq.empty());
-        assert(rq.sceneFlags === SceneFlags.NONE);
-        assert(rq.subpassOrPassLayoutID === 0xFFFFFFFF);
-        rq.sceneFlags = sceneFlags;
-        rq.subpassOrPassLayoutID = subpassOrPassLayoutID;
+
+        // Update render queue index
+        this.renderQueueIndex.set(renderQueueKey, targetID);
+
+        // Update render queue
+        if (DEBUG) {
+            assert(rq.empty());
+            assert(rq.camera === null);
+            assert(rq.sceneFlags === SceneFlags.NONE);
+            assert(camera !== null);
+            assert(this.renderQueueIndex.size === this.numRenderQueues);
+        }
+        rq.camera = camera;
+        rq.sceneFlags = sceneFlags & this.kAllMask;
+
         return targetID;
     }
 
-    private collectCullingQueries (rg: RenderGraph, lg: LayoutGraphData): void {
+    private collectCullingQueries (rg: RenderGraph): void {
         for (const v of rg.v()) {
             if (!rg.h(RenderGraphValue.Scene, v) || !rg.getValid(v)) {
                 continue;
             }
             const sceneData = rg.j<SceneData>(v);
             if (!sceneData.scene) {
-                assert(!!sceneData.scene);
                 continue;
             }
             const frustumCulledResultID = this.getOrCreateFrustumCulling(v);
             const lightBoundsCullingID = this.getOrCreateLightBoundsCulling(sceneData, frustumCulledResultID);
-            const layoutID: number = getSubpassOrPassID(v, rg, lg);
-            const targetID = this.createRenderQueue(sceneData.flags, layoutID);
 
-            const lightType = sceneData.light.light ? sceneData.light.light.type : LightType.UNKNOWN;
-            const renderQueueDesc = this.cullingPools.renderQueueDescRecycle.add();
-            renderQueueDesc.update(frustumCulledResultID, lightBoundsCullingID, targetID, lightType);
+            // Get render queue phaseLayoutID
+            const queueID = rg.getParent(v);
+            if (DEBUG) {
+                assert(queueID !== 0xFFFFFFFF);
+                assert(rg.h(RenderGraphValue.Queue, queueID));
+            }
+            const renderQueue = rg.j<RenderQueue0>(queueID);
+            const phaseLayoutID = renderQueue.phaseID;
+
+            // Make render queue key
+            const renderQueueKey = makeRenderQueueKey(
+                frustumCulledResultID,
+                lightBoundsCullingID,
+                phaseLayoutID,
+            );
+
+            // Get or create render queue
+            const renderQueueID = this.getOrCreateRenderQueue(renderQueueKey, sceneData.flags, sceneData.camera);
+
+            // add render queue query
+            const renderQueueQuery = this.cullingPools.renderQueueQueryRecycle.add();
+            renderQueueQuery.update(frustumCulledResultID, lightBoundsCullingID, renderQueueID);
+
             // add render queue to query source
-            this.renderQueueIndex.set(v, renderQueueDesc);
+            this.renderQueueQueryIndex.set(v, renderQueueQuery);
         }
     }
 
     uploadInstancing (cmdBuffer: CommandBuffer): void {
         for (let queueID = 0; queueID !== this.numRenderQueues; ++queueID) {
-            assert(this.numRenderQueues <= this.renderQueues.length);
             const queue = this.renderQueues[queueID];
             queue.opaqueInstancingQueue.uploadBuffers(cmdBuffer);
             queue.transparentInstancingQueue.uploadBuffers(cmdBuffer);
@@ -483,7 +499,6 @@ export class SceneCulling {
     private _getPhaseIdFromScene (scene: number): number {
         const rg: RenderGraph = this.renderGraph;
         const renderQueueId = rg.getParent(scene);
-        assert(rg.h(RenderGraphValue.Queue, renderQueueId));
         const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
         return graphRenderQueue.phaseID;
     }
@@ -497,7 +512,7 @@ export class SceneCulling {
             return camera.frustum;
         }
         if (shadows.enabled && shadows.type === ShadowType.ShadowMap && mainLight && mainLight.node) {
-            // pplSceneData.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
+            // pplSceneData.updateShadowUBORange(UBOShadowEnum.SHADOW_COLOR_OFFSET, shadows.shadowColor);
             csmLayers.update(pplSceneData, camera);
         }
 
@@ -509,37 +524,33 @@ export class SceneCulling {
 
     private batchFrustumCulling (pplSceneData: PipelineSceneData): void {
         for (const [scene, queries] of this.frustumCullings) {
-            assert(!!scene);
             for (const [key, frustomCulledResultID] of queries.resultIndex) {
                 const cullingKey = queries.resultKeyIndex.get(key)!;
                 const sceneData = cullingKey.sceneData!;
-                assert(!!sceneData.camera);
-                assert(!sceneData.camera.scene || sceneData.camera.scene === scene);
                 const light = sceneData.light.light;
                 const level = sceneData.light.level;
                 const castShadow = cullingKey.castShadows;
                 const probe = sceneData.light.probe;
                 const camera = probe ? probe.camera : sceneData.camera;
-                assert(frustomCulledResultID < this.frustumCullingResults.length);
                 const models = this.frustumCullingResults[frustomCulledResultID];
                 if (probe) {
-                    sceneCulling(scene, camera, camera.frustum, castShadow, probe, models);
+                    sceneCulling(scene, camera!, camera!.frustum, castShadow, probe, models);
                     continue;
                 }
                 if (light) {
                     switch (light.type) {
                     case LightType.SPOT:
-                        sceneCulling(scene, camera, (light as SpotLight).frustum, castShadow, null, models);
+                        sceneCulling(scene, camera!, (light as SpotLight).frustum, castShadow, null, models);
                         break;
                     case LightType.DIRECTIONAL: {
-                        const frustum = this.getBuiltinShadowFrustum(pplSceneData, camera, light as DirectionalLight, level);
-                        sceneCulling(scene, camera, frustum, castShadow, null, models);
+                        const frustum = this.getBuiltinShadowFrustum(pplSceneData, camera!, light as DirectionalLight, level);
+                        sceneCulling(scene, camera!, frustum, castShadow, null, models);
                     }
                         break;
                     default:
                     }
                 } else {
-                    sceneCulling(scene, camera, camera.frustum, castShadow, null, models);
+                    sceneCulling(scene, camera!, camera!.frustum, castShadow, null, models);
                 }
             }
         }
@@ -548,7 +559,6 @@ export class SceneCulling {
     private executeSphereLightCulling (light: SphereLight, frustumCullingResult: Array<Model>, lightBoundsCullingResult: Array<Model>): void {
         const lightAABB = light.aabb;
         for (const model of frustumCullingResult) {
-            assert(!!model);
             const modelBounds = model.worldBounds;
             if (!modelBounds || intersect.aabbWithAABB(modelBounds, lightAABB)) {
                 lightBoundsCullingResult.push(model);
@@ -560,7 +570,6 @@ export class SceneCulling {
         const lightAABB = light.aabb;
         const lightFrustum: Frustum = light.frustum;
         for (const model of frustumCullingResult) {
-            assert(!!model);
             const modelBounds = model.worldBounds;
             if (!modelBounds || (intersect.aabbWithAABB(lightAABB, modelBounds) && intersect.aabbFrustum(modelBounds, lightFrustum))) {
                 lightBoundsCullingResult.push(model);
@@ -571,7 +580,6 @@ export class SceneCulling {
     private executePointLightCulling (light: PointLight, frustumCullingResult: Array<Model>, lightBoundsCullingResult: Array<Model>): void {
         const lightAABB = light.aabb;
         for (const model of frustumCullingResult) {
-            assert(!!model);
             const modelBounds = model.worldBounds;
             if (!modelBounds || intersect.aabbWithAABB(lightAABB, modelBounds)) {
                 lightBoundsCullingResult.push(model);
@@ -586,7 +594,6 @@ export class SceneCulling {
     ): void {
         rangedDirLightBoundingBox.transform(light.node!.worldMatrix, null, null, null, lightAABB);
         for (const model of frustumCullingResult) {
-            assert(!!model);
             const modelBounds = model.worldBounds;
             if (!modelBounds || intersect.aabbWithAABB(lightAABB, modelBounds)) {
                 lightBoundsCullingResult.push(model);
@@ -596,19 +603,13 @@ export class SceneCulling {
 
     private batchLightBoundsCulling (): void {
         for (const [scene, queries] of this.lightBoundsCullings) {
-            assert(!!scene);
             for (const [key, cullingID] of queries.resultIndex) {
                 const cullingKey = queries.resultKeyIndex.get(key)!;
                 const sceneData = cullingKey.sceneData!;
                 const frustumCullingID = cullingKey.frustumCullingID;
                 const frustumCullingResult = this.frustumCullingResults[frustumCullingID];
-                assert(!!sceneData.camera);
-                assert(!!sceneData.shadingLight);
-                assert(!sceneData.camera.scene || sceneData.camera.scene === scene);
-                assert(cullingID < this.frustumCullingResults.length);
                 const lightBoundsCullingResult = this.lightBoundsCullingResults[cullingID];
-                assert(lightBoundsCullingResult.instances.length === 0);
-                switch (sceneData.shadingLight.type) {
+                switch (sceneData.shadingLight!.type) {
                 case LightType.SPHERE:
                     {
                         const light = sceneData.shadingLight as SphereLight;
@@ -641,58 +642,55 @@ export class SceneCulling {
         }
     }
 
-    private fillRenderQueues (rg: RenderGraph, pplSceneData: PipelineSceneData): void {
-        for (const [sceneId, desc] of this.renderQueueIndex) {
-            assert(rg.h(RenderGraphValue.Scene, sceneId));
-            const frustomCulledResultID = desc.frustumCulledResultID;
-            const lightBoundsCullingID = desc.lightBoundsCulledResultID;
-            const targetId = desc.renderQueueTarget;
-            const sceneData = rg.j<SceneData>(sceneId);
-            const isDrawBlend: boolean = bool(sceneData.flags & SceneFlags.TRANSPARENT_OBJECT);
-            const isDrawOpaqueOrMask: boolean = bool(sceneData.flags & (SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT));
-            const isDrawShadowCaster: boolean = bool(sceneData.flags & SceneFlags.SHADOW_CASTER);
-            const isDrawProbe: boolean = bool(sceneData.flags & SceneFlags.REFLECTION_PROBE);
+    private _getModelsByCullingResults (lightBoundsCullingID, frustomCulledResultID): Array<Model> {
+        // is culled by light bounds
+        if (lightBoundsCullingID !== 0xFFFFFFFF) {
+            if (lightBoundsCullingID < this.lightBoundsCullingResults.length) {
+                return this.lightBoundsCullingResults[lightBoundsCullingID].instances;
+            } else {
+                return [];
+            }
+        }
+        // not culled by light bounds
+        if (frustomCulledResultID < this.frustumCullingResults.length) {
+            return this.frustumCullingResults[frustomCulledResultID];
+        } else {
+            return [];
+        }
+    }
+
+    private fillRenderQueues (): void {
+        for (const [key, targetID] of this.renderQueueIndex) {
+            // render queue target
+            const renderQueue = this.renderQueues[targetID];
+            if (DEBUG) {
+                assert(targetID < this.renderQueues.length);
+                assert(renderQueue.empty());
+            }
+
+            const [frustomCulledResultID, lightBoundsCullingID, phaseLayoutID] = extractRenderQueueKey(key);
+
+            // check scene flags
+            const isDrawBlend: boolean = bool(renderQueue.sceneFlags & SceneFlags.BLEND);
+            const isDrawOpaqueOrMask: boolean = bool(renderQueue.sceneFlags & (SceneFlags.OPAQUE | SceneFlags.MASK));
+            const isDrawShadowCaster: boolean = bool(renderQueue.sceneFlags & SceneFlags.SHADOW_CASTER);
+            const isDrawProbe: boolean = bool(renderQueue.sceneFlags & SceneFlags.REFLECTION_PROBE);
+
             if (!isDrawShadowCaster && !isDrawBlend && !isDrawOpaqueOrMask && !isDrawProbe) {
+                // nothing to draw
                 continue;
             }
-            // render queue info
-            const renderQueueId = rg.getParent(sceneId);
-            assert(rg.h(RenderGraphValue.Queue, renderQueueId));
-            const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
-            const phaseLayoutId = graphRenderQueue.phaseID;
-            assert(phaseLayoutId !== this.layoutGraph.N);
 
             // culling source
-            assert(frustomCulledResultID < this.frustumCullingResults.length);
-            const sourceModels = ((): Array<Model> => {
-                // is culled by light bounds
-                if (lightBoundsCullingID !== 0xFFFFFFFF) {
-                    if (lightBoundsCullingID < this.lightBoundsCullingResults.length) {
-                        return this.lightBoundsCullingResults[lightBoundsCullingID].instances;
-                    } else {
-                        return [];
-                    }
-                }
-                // not culled by light bounds
-                if (frustomCulledResultID < this.frustumCullingResults.length) {
-                    return this.frustumCullingResults[frustomCulledResultID];
-                } else {
-                    return [];
-                }
-            })();
-
-            // queue target
-            assert(targetId < this.renderQueues.length);
-            const renderQueue = this.renderQueues[targetId];
-            assert(renderQueue.empty());
+            const sourceModels = this._getModelsByCullingResults(lightBoundsCullingID, frustomCulledResultID);
 
             // skybox
-            const camera = sceneData.camera;
-            assert(!!camera);
+            const camera = renderQueue.camera!;
+
             // fill render queue
             for (const model of sourceModels) {
                 addRenderObject(
-                    phaseLayoutId,
+                    phaseLayoutID,
                     isDrawOpaqueOrMask,
                     isDrawBlend,
                     isDrawProbe,
@@ -721,8 +719,6 @@ export class LightResource {
     private readonly lightIndex = new Map<Light, number>();
 
     init (programLib: WebProgramLibrary, deviceIn: Device, maxNumLights: number): void {
-        assert(!this.device);
-
         this.device = deviceIn;
         this.programLibrary = programLib;
 
@@ -752,8 +748,6 @@ export class LightResource {
         ));
 
         this.cpuBuffer = new Float32Array(bufferSize / Float32Array.BYTES_PER_ELEMENT);
-
-        assert(!!(this.elementSize && this.maxNumLights));
         this.resized = true;
     }
 
@@ -785,13 +779,13 @@ export class LightResource {
         }
 
         // Assign light byte offset to each queue
-        for (const [sceneID, desc] of sceneCulling.renderQueueIndex) {
-            if (desc.lightBoundsCulledResultID === 0xFFFFFFFF) {
+        for (const [sceneID, query] of sceneCulling.renderQueueQueryIndex) {
+            if (query.lightBoundsCulledResultID === 0xFFFFFFFF) {
                 continue;
             }
-            const lightByteOffset: number = sceneCulling.lightBoundsCullingResults[desc.lightBoundsCulledResultID].lightByteOffset;
+            const lightByteOffset: number = sceneCulling.lightBoundsCullingResults[query.lightBoundsCulledResultID].lightByteOffset;
 
-            sceneCulling.renderQueues[desc.renderQueueTarget].lightByteOffset = lightByteOffset;
+            sceneCulling.renderQueues[query.renderQueueTarget].lightByteOffset = lightByteOffset;
         }
     }
 
@@ -846,8 +840,6 @@ export class LightResource {
             this.cpuBuffer = new Float32Array(bufferSize / Float32Array.BYTES_PER_ELEMENT);
             this.cpuBuffer.set(prevCpuBuffer);
         }
-
-        assert(this.lights.length < this.maxNumLights);
 
         // Add light
         const lightID = this.lights.length;

@@ -36,7 +36,7 @@ export abstract class Framebuffer extends GFXObject {
      * @zh GFX 渲染过程。
      */
     public get renderPass (): RenderPass {
-        return this._renderPass!;
+        return this._renderPass$!;
     }
 
     /**
@@ -44,7 +44,7 @@ export abstract class Framebuffer extends GFXObject {
      * @zh 颜色纹理视图数组。
      */
     public get colorTextures (): (Texture | null)[] {
-        return this._colorTextures;
+        return this._colorTextures$;
     }
 
     /**
@@ -52,7 +52,7 @@ export abstract class Framebuffer extends GFXObject {
      * @zh 深度模板纹理视图。
      */
     public get depthStencilTexture (): Texture | null {
-        return this._depthStencilTexture;
+        return this._depthStencilTexture$;
     }
 
     public get width (): number {
@@ -61,7 +61,7 @@ export abstract class Framebuffer extends GFXObject {
         } else if (this.depthStencilTexture) {
             return this.depthStencilTexture.width;
         }
-        return this._width;
+        return this._width$;
     }
 
     public get height (): number {
@@ -70,18 +70,18 @@ export abstract class Framebuffer extends GFXObject {
         } else if (this.depthStencilTexture) {
             return this.depthStencilTexture.height;
         }
-        return this._height;
+        return this._height$;
     }
 
     public get needRebuild (): boolean {
         return false;
     }
 
-    protected _renderPass: RenderPass | null = null;
-    protected _colorTextures: (Texture | null)[] = [];
-    protected _depthStencilTexture: Texture | null = null;
-    protected _width: number = 0;
-    protected _height: number = 0;
+    protected _renderPass$: RenderPass | null = null;
+    protected _colorTextures$: (Texture | null)[] = [];
+    protected _depthStencilTexture$: Texture | null = null;
+    protected _width$: number = 0;
+    protected _height$: number = 0;
 
     constructor () {
         super(ObjectType.FRAMEBUFFER);

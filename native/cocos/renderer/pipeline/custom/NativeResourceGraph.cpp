@@ -36,6 +36,29 @@ namespace cc {
 
 namespace render {
 
+gfx::Texture* RenderSwapchain::getColorTexture(gfx::Swapchain* swapchain) noexcept {
+    CC_EXPECTS(swapchain);
+    gfx::Texture* texture = swapchain->getColorTexture();
+    CC_ENSURES(texture);
+    return texture;
+}
+
+gfx::Texture* RenderSwapchain::getColorTexture(scene::RenderWindow* renderWindow) noexcept {
+    const auto& fb = renderWindow->getFramebuffer();
+    CC_EXPECTS(fb);
+    CC_EXPECTS(fb->getColorTextures().size() == 1);
+    gfx::Texture* texture = fb->getColorTextures()[0];
+    CC_ENSURES(texture);
+    return texture;
+}
+
+gfx::Texture* RenderSwapchain::getDepthStencilTexture(gfx::Swapchain* swapchain) noexcept {
+    CC_EXPECTS(swapchain);
+    gfx::Texture* texture = swapchain->getDepthStencilTexture();
+    CC_ENSURES(texture);
+    return texture;
+}
+
 ResourceGroup::~ResourceGroup() noexcept {
     for (const auto& buffer : instancingBuffers) {
         buffer->clear();
@@ -398,23 +421,7 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
             return fb->getColorTextures()[0];
         },
         [](const RenderSwapchain& sc) -> gfx::Texture* {
-            gfx::Texture* texture1 = nullptr;
-            if (sc.swapchain) {
-                if (sc.isDepthStencil) {
-                    texture1 = sc.swapchain->getDepthStencilTexture();
-                } else {
-                    texture1 = sc.swapchain->getColorTexture();
-                }
-            } else {
-                CC_EXPECTS(sc.renderWindow);
-                CC_EXPECTS(!sc.isDepthStencil);
-                const auto& fb = sc.renderWindow->getFramebuffer();
-                CC_EXPECTS(fb);
-                CC_EXPECTS(fb->getColorTextures().size() == 1);
-                CC_EXPECTS(fb->getColorTextures().at(0));
-                texture1 = fb->getColorTextures()[0];
-            }
-            return texture1;
+            return sc.texture;
         },
         [](const FormatView& view) -> gfx::Texture* {
             // TODO(zhouzhenglong): add ImageView support

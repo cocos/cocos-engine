@@ -28,7 +28,7 @@ import { log2 } from '../core/math/bits';
 import { js } from '../core';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import { getError, warnID } from '../core/platform/debug';
-import { Settings, settings } from '../core/settings';
+import { settings, SettingsCategory } from '../core/settings';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -74,7 +74,7 @@ export class Layers {
      * @internal
      */
     public static init (): void {
-        const userLayers = settings.querySettings<LayerItem[]>(Settings.Category.ENGINE, 'customLayers');
+        const userLayers = settings.querySettings<LayerItem[]>(SettingsCategory.ENGINE, 'customLayers');
         if (!userLayers) return;
         for (let i = 0; i < userLayers.length; i++) {
             const layer = userLayers[i];

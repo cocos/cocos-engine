@@ -30,7 +30,7 @@ downloader.register({
 });
 
 function loadImage (url, options, onComplete) {
-    const img = window.screencanvas.createImage();
+    const img = $global.screencanvas.createImage();
 
     function loadCallback () {
         img.onload = null;

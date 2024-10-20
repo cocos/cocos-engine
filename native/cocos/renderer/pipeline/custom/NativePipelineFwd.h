@@ -27,10 +27,11 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
-// clang-format off
 #pragma once
-#include "cocos/base/std/variant.h"
+// clang-format off
+// IWYU pragma: begin_exports
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
+// IWYU pragma: end_exports
 
 namespace cc {
 
@@ -93,7 +94,8 @@ struct LightBoundsCullingID;
 struct LightBoundsCullingKey;
 struct LightBoundsCulling;
 struct NativeRenderQueueID;
-struct NativeRenderQueueDesc;
+struct NativeRenderQueueKey;
+struct NativeRenderQueueQuery;
 struct LightBoundsCullingResult;
 struct SceneCulling;
 struct LightResource;
@@ -124,8 +126,18 @@ struct hash<cc::render::FrustumCullingID> {
 };
 
 template <>
+struct hash<cc::render::LightBoundsCullingID> {
+    hash_t operator()(const cc::render::LightBoundsCullingID& val) const noexcept;
+};
+
+template <>
 struct hash<cc::render::LightBoundsCullingKey> {
     hash_t operator()(const cc::render::LightBoundsCullingKey& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::NativeRenderQueueKey> {
+    hash_t operator()(const cc::render::NativeRenderQueueKey& val) const noexcept;
 };
 
 } // namespace ccstd

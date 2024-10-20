@@ -32,58 +32,43 @@
 
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
-import { BYTEDANCE, DEBUG, EDITOR, TEST, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, Color, error, IVec3 } from '../../core';
+import { EDITOR, TEST, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, sys, Color, error, IVec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
+import { IPhysicsConfig, PhysicsRayResult } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
-import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
+import { PxHitFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 import { Node } from '../../scene-graph';
-import { Director, director, game } from '../../game';
-import { degreesToRadians } from '../../core/utils/misc';
-import { PhysXCharacterController } from './character-controllers/physx-character-controller';
+import { game } from '../../game';
 
 export let PX = {} as any;
 const globalThis = cclegacy._global;
 // Use bytedance native or js physics if nativePhysX is not null.
-const USE_BYTEDANCE = BYTEDANCE && globalThis.nativePhysX;
 const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
 
 // Init physx libs when engine init.
 game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
 export function InitPhysXLibs (): Promise<void> {
-    if (USE_BYTEDANCE) {
-        return new Promise<void>((resolve, reject) => {
-            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
-            Object.assign(PX, globalThis.nativePhysX);
-            Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
-            _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
-            _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
-            initConfigAndCacheObject(PX);
-            resolve();
-        });
-    } else {
-        const errorReport = (msg: any): void => { error(msg); };
-        return ensureWasmModuleReady().then(() => {
-            if (shouldUseWasmModule()) {
-                return Promise.all([
-                    import('external:emscripten/physx/physx.release.wasm.js'),
-                    import('external:emscripten/physx/physx.release.wasm.wasm'),
-                ]).then(([
-                    { default: physxWasmFactory },
-                    { default: physxWasmUrl },
-                ]) => initWASM(physxWasmFactory, physxWasmUrl));
-            } else {
-                return import('external:emscripten/physx/physx.release.asm.js').then(
-                    ({ default: physxAsmFactory }) => initASM(physxAsmFactory),
-                );
-            }
-        }).catch(errorReport);
-    }
+    const errorReport = (msg: any): void => { error(msg); };
+    return ensureWasmModuleReady().then(() => {
+        if (shouldUseWasmModule()) {
+            return Promise.all([
+                import('external:emscripten/physx/physx.release.wasm.js'),
+                import('external:emscripten/physx/physx.release.wasm.wasm'),
+            ]).then(([
+                { default: physxWasmFactory },
+                { default: physxWasmUrl },
+            ]) => initWASM(physxWasmFactory, physxWasmUrl));
+        } else {
+            return import('external:emscripten/physx/physx.release.asm.js').then(
+                ({ default: physxAsmFactory }) => initASM(physxAsmFactory),
+            );
+        }
+    }).catch(errorReport);
 }
 
 function initASM (physxAsmFactory): any {
@@ -208,43 +193,24 @@ export const _pxtrans = _trans as unknown as IPxTransformExt;
 
 export function addReference (shape: PhysXShape, impl: any): void {
     if (!impl) return;
-    if (USE_BYTEDANCE) {
-        PX.IMPL_PTR[shape.id] = shape;
-        impl.setUserData(shape.id);
-    } else {
-        if (impl.$$) { PX.IMPL_PTR[impl.$$.ptr] = shape; }
-    }
+    if (impl.$$) PX.IMPL_PTR[impl.$$.ptr] = shape;
 }
 
 export function removeReference (shape: PhysXShape, impl: any): void {
     if (!impl) return;
-    if (USE_BYTEDANCE) {
-        PX.IMPL_PTR[shape.id] = null;
-        delete PX.IMPL_PTR[shape.id];
-    } else {
-        if (impl.$$) {
-            PX.IMPL_PTR[impl.$$.ptr] = null;
-            delete PX.IMPL_PTR[impl.$$.ptr];
-        }
+    if (impl.$$) {
+        PX.IMPL_PTR[impl.$$.ptr] = null;
+        delete PX.IMPL_PTR[impl.$$.ptr];
     }
 }
 
 export function getWrapShape<T> (pxShape: any): T {
-    if (USE_BYTEDANCE) {
-        return PX.IMPL_PTR[pxShape];
-    } else {
-        return PX.IMPL_PTR[pxShape.$$.ptr];
-    }
+    return PX.IMPL_PTR[pxShape.$$.ptr];
 }
 
 export function getTempTransform (pos: IVec3Like, quat: IQuatLike): any {
-    if (USE_BYTEDANCE) {
-        _pxtrans.setPosition(pos);
-        _pxtrans.setQuaternion(quat);
-    } else {
-        Vec3.copy(_pxtrans.translation, pos);
-        Quat.copy(_pxtrans.rotation, quat);
-    }
+    Vec3.copy(_pxtrans.translation, pos);
+    Quat.copy(_pxtrans.rotation, quat);
     return _pxtrans;
 }
 
@@ -255,28 +221,15 @@ export function getJsTransform (pos: IVec3Like, quat: IQuatLike): any {
 }
 
 export function addActorToScene (scene: any, actor: any): void {
-    if (USE_BYTEDANCE) {
-        scene.addActor(actor);
-    } else {
-        scene.addActor(actor, null);
-    }
+    scene.addActor(actor, null);
 }
 
 export function setJointActors (joint: any, actor0: any, actor1: any): void {
-    if (USE_BYTEDANCE) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        actor1 ? joint.setActors(actor0, actor1) : joint.setActors(actor0);
-    } else {
-        joint.setActors(actor0, actor1);
-    }
+    joint.setActors(actor0, actor1);
 }
 
 export function setMassAndUpdateInertia (impl: any, mass: number): void {
-    if (USE_BYTEDANCE) {
-        PX.RigidBodyExt.setMassAndUpdateInertia(impl, mass);
-    } else {
-        impl.setMassAndUpdateInertia(mass);
-    }
+    impl.setMassAndUpdateInertia(mass);
 }
 
 export function copyPhysXTransform (node: Node, transform: any): void {
@@ -284,67 +237,40 @@ export function copyPhysXTransform (node: Node, transform: any): void {
     const wr = node.worldRotation;
     const dontUpdate = physXEqualsCocosVec3(transform, wp) && physXEqualsCocosQuat(transform, wr);
     if (dontUpdate) return;
-    if (USE_BYTEDANCE) {
-        node.setWorldPosition(transform.p as Vec3);
-        node.setWorldRotation(transform.q as Quat);
-    } else {
-        node.setWorldPosition(transform.translation as Vec3);
-        node.setWorldRotation(transform.rotation as Quat);
-    }
+
+    node.setWorldPosition(transform.translation as Vec3);
+    node.setWorldRotation(transform.rotation as Quat);
 }
 
 export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
-    const pos = USE_BYTEDANCE ? trans.p : trans.translation;
-    return Vec3.equals(pos as IVec3Like, v3, PX.EPSILON as number);
+    return Vec3.equals(trans.translation as IVec3Like, v3, PX.EPSILON as number);
 }
 
 export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
-    const rot = USE_BYTEDANCE ? trans.q : trans.rotation;
-    return Quat.equals(rot as IQuatLike, q, PX.EPSILON as number);
+    return Quat.equals(trans.rotation as IQuatLike, q, PX.EPSILON as number);
 }
 
 export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like): void {
     if (isGlobal) {
-        if (USE_BYTEDANCE) {
-            PX.RigidBodyExt.applyImpulse(impl, vec, rp);
-        } else {
-            impl.applyImpulse(vec, rp);
-        }
-    } else if (USE_BYTEDANCE) {
-        PX.RigidBodyExt.applyLocalImpulse(impl, vec, rp);
-    } else {
+        impl.applyImpulse(vec, rp);
+    }  else {
         impl.applyLocalImpulse(vec, rp);
     }
 }
 
 export function applyForce (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like): void {
     if (isGlobal) {
-        if (USE_BYTEDANCE) {
-            PX.RigidBodyExt.applyForce(impl, vec, rp);
-        } else {
-            impl.applyForce(vec, rp);
-        }
-    } else if (USE_BYTEDANCE) {
-        PX.RigidBodyExt.applyLocalForce(impl, vec, rp);
-    } else {
+        impl.applyForce(vec, rp);
+    }  else {
         impl.applyLocalForce(vec, rp);
     }
 }
 
 export function applyTorqueForce (impl: any, vec: IVec3Like): void {
-    if (USE_BYTEDANCE) {
-        impl.addTorque(vec, PX.ForceMode.eFORCE, true);
-    } else {
-        impl.addTorque(vec);
-    }
+    impl.addTorque(vec);
 }
 
 export function getShapeFlags (isTrigger: boolean): any {
-    if (USE_BYTEDANCE) {
-        const flag = (isTrigger ? PX.ShapeFlag.eTRIGGER_SHAPE : PX.ShapeFlag.eSIMULATION_SHAPE)
-            | PX.ShapeFlag.eSCENE_QUERY_SHAPE | PX.ShapeFlag.eVISUALIZATION;
-        return flag;
-    }
     const flag = (isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
         | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value | PX.PxShapeFlag.eVISUALIZATION.value;
     return new PX.PxShapeFlags(flag);
@@ -352,19 +278,11 @@ export function getShapeFlags (isTrigger: boolean): any {
 
 // eslint-disable-next-line default-param-last
 export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: geometry.AABB): void {
-    if (USE_BYTEDANCE) {
-        const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
-        geometry.AABB.fromPoints(out, b3.minimum as IVec3, b3.maximum as IVec3);
-    } else {
-        const b3 = shape.getWorldBounds(actor, i);
-        geometry.AABB.fromPoints(out, b3.minimum as IVec3, b3.maximum as IVec3);
-    }
+    const b3 = shape.getWorldBounds(actor, i);
+    geometry.AABB.fromPoints(out, b3.minimum as IVec3, b3.maximum as IVec3);
 }
 
 export function getShapeMaterials (pxMtl: any): any {
-    if (USE_BYTEDANCE) {
-        return [pxMtl];
-    }
     if (PX.VECTOR_MAT.size() > 0) {
         PX.VECTOR_MAT.set(0, pxMtl);
     } else {
@@ -373,158 +291,43 @@ export function getShapeMaterials (pxMtl: any): any {
     return PX.VECTOR_MAT;
 }
 
-export function setupCommonCookingParam (params: any, skipMeshClean = false, skipEdgedata = false): void {
-    if (!USE_BYTEDANCE) return;
-    params.setSuppressTriangleMeshRemapTable(true);
-    if (!skipMeshClean) {
-        params.setMeshPreprocessParams(params.getMeshPreprocessParams() & ~PX.MeshPreprocessingFlag.eDISABLE_CLEAN_MESH);
-    } else {
-        params.setMeshPreprocessParams(params.getMeshPreprocessParams() | PX.MeshPreprocessingFlag.eDISABLE_CLEAN_MESH);
-    }
-
-    if (skipEdgedata) {
-        params.setMeshPreprocessParams(params.getMeshPreprocessParams() & ~PX.MeshPreprocessingFlag.eDISABLE_ACTIVE_EDGES_PRECOMPUTE);
-    } else {
-        params.setMeshPreprocessParams(params.getMeshPreprocessParams() | PX.MeshPreprocessingFlag.eDISABLE_ACTIVE_EDGES_PRECOMPUTE);
-    }
-}
-
 export function createConvexMesh (_buffer: Float32Array | number[], cooking: any, physics: any): any {
     const vertices = shrinkPositions(_buffer);
-    if (USE_BYTEDANCE) {
-        const cdesc = new PX.ConvexMeshDesc();
-        const verticesF32 = new Float32Array(vertices);
-        cdesc.setPointsData(verticesF32);
-        cdesc.setPointsCount(verticesF32.length / 3);
-        cdesc.setPointsStride(3 * Float32Array.BYTES_PER_ELEMENT);
-        cdesc.setConvexFlags(PX.ConvexFlag.eCOMPUTE_CONVEX);
-        return cooking.createConvexMesh(cdesc);
-    } else {
-        const l = vertices.length;
-        const vArr = new PX.PxVec3Vector();
-        for (let i = 0; i < l; i += 3) {
-            vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
-        }
-        const r = cooking.createConvexMesh(vArr, physics);
-        vArr.delete();
-        return r;
+    const l = vertices.length;
+    const vArr = new PX.PxVec3Vector();
+    for (let i = 0; i < l; i += 3) {
+        vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
     }
+    const r = cooking.createConvexMesh(vArr, physics);
+    vArr.delete();
+    return r;
 }
 
 // eTIGHT_BOUNDS = (1<<0) convex
 // eDOUBLE_SIDED = (1<<1) trimesh
 export function createMeshGeometryFlags (flags: number, isConvex: boolean): any {
-    if (USE_BYTEDANCE) {
-        return flags;
-    }
     return isConvex ? new PX.PxConvexMeshGeometryFlags(flags) : new PX.PxMeshGeometryFlags(flags);
 }
 
 export function createTriangleMesh (vertices: Float32Array | number[], indices: Uint32Array, cooking: any, physics: any): any {
-    if (USE_BYTEDANCE) {
-        const meshDesc = new PX.TriangleMeshDesc();
-        meshDesc.setPointsData(vertices);
-        // meshDesc.setPointsCount(vertices.length / 3);
-        // meshDesc.setPointsStride(Float32Array.BYTES_PER_ELEMENT * 3);
-        const indicesUI32 = new Uint32Array(indices);
-        meshDesc.setTrianglesData(indicesUI32);
-        // meshDesc.setTrianglesCount(indicesUI32.length / 3);
-        // meshDesc.setTrianglesStride(Uint32Array.BYTES_PER_ELEMENT * 3);
-        return cooking.createTriangleMesh(meshDesc);
-    } else {
-        const l = vertices.length;
-        const l2 = indices.length;
-        const vArr = new PX.PxVec3Vector();
-        for (let i = 0; i < l; i += 3) {
-            vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
-        }
-        const iArr = new PX.PxU16Vector();
-        for (let i = 0; i < l2; i += 3) {
-            iArr.push_back(indices[i]); iArr.push_back(indices[i + 1]); iArr.push_back(indices[i + 2]);
-        }
-        const r = cooking.createTriMeshExt(vArr, iArr, physics);
-        vArr.delete(); iArr.delete();
-        return r;
+    const l = vertices.length;
+    const l2 = indices.length;
+    const vArr = new PX.PxVec3Vector();
+    for (let i = 0; i < l; i += 3) {
+        vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
     }
-}
-
-export function createBV33TriangleMesh (
-    vertices: number[],
-    indices: Uint32Array,
-    cooking: any,
-    physics: any,
-    skipMeshCleanUp = false,
-    skipEdgeData = false,
-    cookingPerformance = false,
-    meshSizePerfTradeoff = true,
-    inserted = true,
-): any {
-    if (!USE_BYTEDANCE) return;
-    const meshDesc = new PX.TriangleMeshDesc();
-    meshDesc.setPointsData(vertices);
-    meshDesc.setTrianglesData(indices);
-
-    const params = cooking.getParams();
-    setupCommonCookingParam(params, skipMeshCleanUp, skipEdgeData);
-    const midDesc = new PX.BVH33MidphaseDesc();
-
-    if (cookingPerformance) midDesc.setMeshCookingHint(PX.MeshCookingHint.eCOOKING_PERFORMANCE);
-    else midDesc.setMeshCookingHint(PX.MeshCookingHint.eSIM_PERFORMANCE);
-
-    if (meshSizePerfTradeoff) midDesc.setMeshSizePerformanceTradeOff(0.0);
-    else midDesc.setMeshSizePerformanceTradeOff(0.55);
-
-    params.setMidphaseDesc(midDesc);
-    cooking.setParams(params);
-    console.info(`[PHYSICS]: cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
-    return cooking.createTriangleMesh(meshDesc);
-}
-
-export function createBV34TriangleMesh (
-    vertices: number[],
-    indices: Uint32Array,
-    cooking: any,
-    physics: any,
-    skipMeshCleanUp = false,
-    skipEdgeData = false,
-    numTrisPerLeaf = true,
-    inserted = true,
-): void {
-    if (!USE_BYTEDANCE) return;
-    const meshDesc = new PX.TriangleMeshDesc();
-    meshDesc.setPointsData(vertices);
-    meshDesc.setTrianglesData(indices);
-    const params = cooking.getParams();
-    setupCommonCookingParam(params, skipMeshCleanUp, skipEdgeData);
-
-    const midDesc = new PX.BVH34MidphaseDesc();
-    midDesc.setNumPrimsLeaf(numTrisPerLeaf);
-    params.setMidphaseDesc(midDesc);
-    cooking.setParams(params);
-    console.info(`[PHYSICS]: cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
-    return cooking.createTriangleMesh(meshDesc);
+    const iArr = new PX.PxU16Vector();
+    for (let i = 0; i < l2; i += 3) {
+        iArr.push_back(indices[i]); iArr.push_back(indices[i + 1]); iArr.push_back(indices[i + 2]);
+    }
+    const r = cooking.createTriMeshExt(vArr, iArr, physics);
+    vArr.delete(); iArr.delete();
+    return r;
 }
 
 export function createHeightField (terrain: any, heightScale: number, cooking: any, physics: any): any {
     const sizeI = terrain.getVertexCountI();
     const sizeJ = terrain.getVertexCountJ();
-    if (USE_BYTEDANCE) {
-        const samples = new PX.HeightFieldSamples(sizeI * sizeJ);
-        for (let i = 0; i < sizeI; i++) {
-            for (let j = 0; j < sizeJ; j++) {
-                const s = terrain.getHeight(i, j) / heightScale;
-                const index = j + i * sizeJ;
-                samples.setHeightAtIndex(index, s);
-                // samples.setMaterialIndex0AtIndex(index, 0);
-                // samples.setMaterialIndex1AtIndex(index, 0);
-            }
-        }
-        const hfdesc = new PX.HeightFieldDesc();
-        hfdesc.setNbRows(sizeJ);
-        hfdesc.setNbColumns(sizeI);
-        hfdesc.setSamples(samples);
-        return cooking.createHeightField(hfdesc);
-    }
     const samples = new PX.PxHeightFieldSampleVector();
     for (let i = 0; i < sizeI; i++) {
         for (let j = 0; j < sizeJ; j++) {
@@ -537,9 +340,6 @@ export function createHeightField (terrain: any, heightScale: number, cooking: a
 }
 
 export function createHeightFieldGeometry (hf: any, flags: number, hs: number, xs: number, zs: number): any {
-    if (USE_BYTEDANCE) {
-        return new PX.HeightFieldGeometry(hf, hs, xs, zs);
-    }
     return new PX.PxHeightFieldGeometry(
         hf,
         new PX.PxMeshGeometryFlags(flags),
@@ -550,11 +350,7 @@ export function createHeightFieldGeometry (hf: any, flags: number, hs: number, x
 }
 
 export function simulateScene (scene: any, deltaTime: number): void {
-    if (USE_BYTEDANCE) {
-        scene.simulate(deltaTime);
-    } else {
-        scene.simulate(deltaTime, true);
-    }
+    scene.simulate(deltaTime, true);
 }
 
 export function raycastAll (
@@ -572,62 +368,36 @@ export function raycastAll (
     const queryFilterCB = PhysXInstance.queryFilterCB;
     const mutipleResults = PhysXInstance.mutipleResults;
     const mutipleResultSize = PhysXInstance.mutipleResultSize;
-    if (USE_BYTEDANCE) {
-        queryfilterData.data.word3 = word3;
-        queryfilterData.data.word0 = options.mask >>> 0;
-        queryfilterData.flags = queryFlags;
-        const r = PX.SceneQueryExt.raycastMultiple(
-            world.scene,
-            worldRay.o,
-            worldRay.d,
-            maxDistance,
-            flags,
-            mutipleResultSize,
-            queryfilterData,
-            queryFilterCB,
-        );
+    queryfilterData.setWords(options.mask >>> 0, 0);
+    queryfilterData.setWords(word3, 3);
+    queryfilterData.setFlags(queryFlags);
+    const blocks = mutipleResults;
+    const r = world.scene.raycastMultiple(
+        worldRay.o,
+        worldRay.d,
+        maxDistance,
+        flags,
+        blocks,
+        blocks.size(),
+        queryfilterData,
+        queryFilterCB,
+        null,
+    );
 
-        if (r) {
-            for (let i = 0; i < r.length; i++) {
-                const block = r[i];
-                const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
-                const result = pool.add();
-                result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
-                results.push(result);
-            }
-            return true;
+    if (r > 0) {
+        for (let i = 0; i < r; i++) {
+            const block = blocks.get(i);
+            const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+            const result = pool.add();
+            result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
+            results.push(result);
         }
-    } else {
-        queryfilterData.setWords(options.mask >>> 0, 0);
-        queryfilterData.setWords(word3, 3);
-        queryfilterData.setFlags(queryFlags);
-        const blocks = mutipleResults;
-        const r = world.scene.raycastMultiple(
-            worldRay.o,
-            worldRay.d,
-            maxDistance,
-            flags,
-            blocks,
-            blocks.size(),
-            queryfilterData,
-            queryFilterCB,
-            null,
-        );
-
-        if (r > 0) {
-            for (let i = 0; i < r; i++) {
-                const block = blocks.get(i);
-                const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
-                const result = pool.add();
-                result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
-                results.push(result);
-            }
-            return true;
-        } if (r === -1) {
-            // eslint-disable-next-line no-console
-            console.error('not enough memory.');
-        }
+        return true;
+    } if (r === -1) {
+        // eslint-disable-next-line no-console
+        console.error('not enough memory.');
     }
+
     return false;
 }
 
@@ -639,45 +409,27 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
     const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER;
     const queryfilterData = PhysXInstance.queryfilterData;
     const queryFilterCB = PhysXInstance.queryFilterCB;
-    if (USE_BYTEDANCE) {
-        queryfilterData.data.word3 = word3;
-        queryfilterData.data.word0 = options.mask >>> 0;
-        queryfilterData.flags = queryFlags;
-        const block = PX.SceneQueryExt.raycastSingle(
-            world.scene,
-            worldRay.o,
-            worldRay.d,
-            maxDistance,
-            flags,
-            queryfilterData,
-            queryFilterCB,
-        );
-        if (block) {
-            const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
-            result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
-            return true;
-        }
-    } else {
-        queryfilterData.setWords(options.mask >>> 0, 0);
-        queryfilterData.setWords(word3, 3);
-        queryfilterData.setFlags(queryFlags);
-        const block = PhysXInstance.singleResult;
-        const r = world.scene.raycastSingle(
-            worldRay.o,
-            worldRay.d,
-            options.maxDistance,
-            flags,
-            block,
-            queryfilterData,
-            queryFilterCB,
-            null,
-        );
-        if (r) {
-            const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
-            result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
-            return true;
-        }
+    queryfilterData.setWords(options.mask >>> 0, 0);
+    queryfilterData.setWords(word3, 3);
+    queryfilterData.setFlags(queryFlags);
+    const block = PhysXInstance.singleResult;
+
+    const r = world.scene.raycastSingle(
+        worldRay.o,
+        worldRay.d,
+        options.maxDistance,
+        flags,
+        block,
+        queryfilterData,
+        queryFilterCB,
+        null,
+    );
+    if (r) {
+        const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+        result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
+        return true;
     }
+
     return false;
 }
 
@@ -776,62 +528,32 @@ export function sweepClosest (
 }
 
 export function initializeWorld (world: any): void {
-    if (USE_BYTEDANCE) {
-        // construct PhysX instance object only once
-        if (!PhysXInstance.physics) {
-            // const physics = PX.createPhysics();
-            PhysXInstance.physics = PX.physics; // Bytedance have internal physics instance
-            PhysXInstance.cooking = PX.createCooking(new PX.CookingParams());
-            PhysXInstance.queryFilterCB = new PX.QueryFilterCallback();
-            PhysXInstance.queryFilterCB.setPreFilter(world.callback.queryCallback.preFilterForByteDance);
-            PhysXInstance.queryfilterData = { data: { word0: 0, word1: 0, word2: 0, word3: 1 }, flags: 0 };
-        }
-
-        initConfigForByteDance();
-        hackForMultiThread();
-        const sceneDesc = PhysXInstance.physics.createSceneDesc();
-        if (PX.MULTI_THREAD) {
-            const mstc = sceneDesc.getMaxSubThreadCount();
-            const count = PX.SUB_THREAD_COUNT > mstc ? mstc : PX.SUB_THREAD_COUNT;
-            sceneDesc.setSubThreadCount(count);
-            console.info('[PHYSICS][PhysX]:', `use muti-thread mode, sub thread count: ${count}, max count: ${mstc}`);
-        } else {
-            console.info('[PHYSICS][PhysX]:', 'use single-thread mode');
-        }
-        sceneDesc.setFlag(PX.SceneFlag.eENABLE_PCM, true);
-        sceneDesc.setFlag(PX.SceneFlag.eENABLE_CCD, true);
-        const scene = PhysXInstance.physics.createScene(sceneDesc);
-        scene.setNeedOnContact(true);
-        scene.setNeedOnTrigger(true);
-        world.scene = scene;
-    } else {
-        // construct PhysX instance object only once
-        if (!PhysXInstance.foundation) {
-            const version = PX.PX_PHYSICS_VERSION;
-            const allocator = new PX.PxDefaultAllocator();
-            const defaultErrorCallback = new PX.PxDefaultErrorCallback();
-            const foundation = PhysXInstance.foundation = PX.PxCreateFoundation(version, allocator, defaultErrorCallback);
-            PhysXInstance.pvd = null;
-            const scale = new PX.PxTolerancesScale();
-            PhysXInstance.physics = PX.physics = PX.PxCreatePhysics(version, foundation, scale, false, PhysXInstance.pvd);
-            PhysXInstance.cooking = PX.PxCreateCooking(version, foundation, new PX.PxCookingParams(scale));
-            PX.PxInitExtensions(PhysXInstance.physics, PhysXInstance.pvd);
-            PhysXInstance.singleResult = new PX.PxRaycastHit();
-            PhysXInstance.mutipleResults = new PX.PxRaycastHitVector();
-            PhysXInstance.mutipleResults.resize(PhysXInstance.mutipleResultSize, PhysXInstance.singleResult);
-            PhysXInstance.queryfilterData = new PX.PxQueryFilterData();
-            PhysXInstance.simulationCB = PX.PxSimulationEventCallback.implement(world.callback.eventCallback);
-            PhysXInstance.queryFilterCB = PX.PxQueryFilterCallback.implement(world.callback.queryCallback);
-            PhysXInstance.singleSweepResult = new PX.PxSweepHit();
-            PhysXInstance.mutipleSweepResults = new PX.PxSweepHitVector();
-            PhysXInstance.mutipleSweepResults.resize(PhysXInstance.mutipleResultSize, PhysXInstance.singleSweepResult);
-        }
-
-        const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
-        world.scene = PhysXInstance.physics.createScene(sceneDesc);
-        world.scene.setVisualizationParameter(PX.PxVisualizationParameter.eSCALE, 1);
-        world.controllerManager = PX.PxCreateControllerManager(world.scene, false);
+    // construct PhysX instance object only once
+    if (!PhysXInstance.foundation) {
+        const version = PX.PX_PHYSICS_VERSION;
+        const allocator = new PX.PxDefaultAllocator();
+        const defaultErrorCallback = new PX.PxDefaultErrorCallback();
+        const foundation = PhysXInstance.foundation = PX.PxCreateFoundation(version, allocator, defaultErrorCallback);
+        PhysXInstance.pvd = null;
+        const scale = new PX.PxTolerancesScale();
+        PhysXInstance.physics = PX.physics = PX.PxCreatePhysics(version, foundation, scale, false, PhysXInstance.pvd);
+        PhysXInstance.cooking = PX.PxCreateCooking(version, foundation, new PX.PxCookingParams(scale));
+        PX.PxInitExtensions(PhysXInstance.physics, PhysXInstance.pvd);
+        PhysXInstance.singleResult = new PX.PxRaycastHit();
+        PhysXInstance.mutipleResults = new PX.PxRaycastHitVector();
+        PhysXInstance.mutipleResults.resize(PhysXInstance.mutipleResultSize, PhysXInstance.singleResult);
+        PhysXInstance.queryfilterData = new PX.PxQueryFilterData();
+        PhysXInstance.simulationCB = PX.PxSimulationEventCallback.implement(world.callback.eventCallback);
+        PhysXInstance.queryFilterCB = PX.PxQueryFilterCallback.implement(world.callback.queryCallback);
+        PhysXInstance.singleSweepResult = new PX.PxSweepHit();
+        PhysXInstance.mutipleSweepResults = new PX.PxSweepHitVector();
+        PhysXInstance.mutipleSweepResults.resize(PhysXInstance.mutipleResultSize, PhysXInstance.singleSweepResult);
     }
+
+    const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
+    world.scene = PhysXInstance.physics.createScene(sceneDesc);
+    world.scene.setVisualizationParameter(PX.PxVisualizationParameter.eSCALE, 1);
+    world.controllerManager = PX.PxCreateControllerManager(world.scene, false);
 }
 
 /**
@@ -845,113 +567,23 @@ export function initializeWorld (world: any): void {
  * totoal = 48
  */
 export function getContactPosition (pxContactOrOffset: any, out: IVec3Like, buf: any): void {
-    if (USE_BYTEDANCE) {
-        Vec3.fromArray(out, new Float32Array(buf as ArrayBufferLike, pxContactOrOffset as number, 3));
-    } else {
-        Vec3.copy(out, pxContactOrOffset.position);
-    }
+    Vec3.copy(out, pxContactOrOffset.position);
 }
 
 export function getContactNormal (pxContactOrOffset: any, out: IVec3Like, buf: any): void {
-    if (USE_BYTEDANCE) {
-        Vec3.fromArray(out, new Float32Array(buf as ArrayBufferLike, (pxContactOrOffset as number) + 12, 3));
-    } else {
-        Vec3.copy(out, pxContactOrOffset.normal);
-    }
+    Vec3.copy(out, pxContactOrOffset.normal);
 }
 
 export function getContactDataOrByteOffset (index: number, offset: number): any {
-    if (USE_BYTEDANCE) {
-        return index * 40 + offset;
-    } else {
-        const gc = PX.getGContacts();
-        const data = gc.get(index + offset);
-        gc.delete();
-        return data;
-    }
-}
-
-export function gatherEvents (world: PhysXWorld): void {
-    if (USE_BYTEDANCE) {
-        // contact
-        const contactBuf = world.scene.getContactData() as ArrayBuffer;
-        if (contactBuf && contactBuf.byteLength > 0) {
-            const uint32view = new Uint32Array(contactBuf);
-            const pairCount = uint32view[0];
-            /**
-             * struct ContactPair{
-             *      u32 shapeUserData0;
-             *      u32 shapeUserData1;
-             *      u32 events;
-             *      u32 contactCount;
-             * };
-             * Total byte length = 16
-             */
-            const contactPointBufferBegin = pairCount * 16 + 4;
-            let contactPointByteOffset = contactPointBufferBegin;
-            for (let i = 0; i < pairCount; i++) {
-                const offset = i * 4 + 1;
-                const shape0 = PX.IMPL_PTR[uint32view[offset]] as PhysXShape;
-                const shape1 = PX.IMPL_PTR[uint32view[offset + 1]] as PhysXShape;
-                const events = uint32view[offset + 2];
-                const contactCount = uint32view[offset + 3];
-                if (events & PxPairFlag.eNOTIFY_TOUCH_PERSISTS) {
-                    world.callback.onCollision('onCollisionStay', shape0, shape1, contactCount, contactBuf, contactPointByteOffset);
-                } else if (events & PxPairFlag.eNOTIFY_TOUCH_FOUND) {
-                    world.callback.onCollision('onCollisionEnter', shape0, shape1, contactCount, contactBuf, contactPointByteOffset);
-                } else if (events & PxPairFlag.eNOTIFY_TOUCH_LOST) {
-                    world.callback.onCollision('onCollisionExit', shape0, shape1, contactCount, contactBuf, contactPointByteOffset);
-                }
-                /**
-                 * struct ContactPairPoint{
-                 *      PxVec3 position;
-                 *      PxVec3 normal;
-                 *      PxVec3 impulse;
-                 *      float separation;
-                 * };
-                 * Total byte length = 40
-                 */
-                contactPointByteOffset += 40 * contactCount;
-            }
-        }
-
-        // trigger
-        const triggerBuf = world.scene.getTriggerData() as ArrayBuffer;
-        if (triggerBuf && triggerBuf.byteLength > 0) {
-            /**
-             * struct TriggerPair {
-             *      u32 shapeUserData0;
-             *      u32 shapeUserData1;
-             *      u32 status;
-             * };
-             * Total byte length = 12
-             */
-            const uint32view = new Uint32Array(triggerBuf);
-            const pairCount = uint32view.length / 3;
-            for (let i = 0; i < pairCount; i++) {
-                const begin = i * 3;
-                const shape0 = PX.IMPL_PTR[uint32view[begin]] as PhysXShape;
-                const shape1 = PX.IMPL_PTR[uint32view[begin + 1]] as PhysXShape;
-                const events = uint32view[begin + 2];
-                if (events & PxPairFlag.eNOTIFY_TOUCH_FOUND) {
-                    world.callback.onTrigger('onTriggerEnter', shape0, shape1, true);
-                } else if (events & PxPairFlag.eNOTIFY_TOUCH_LOST) {
-                    world.callback.onTrigger('onTriggerExit', shape0, shape1, false);
-                }
-            }
-        }
-    }
+    const gc = PX.getGContacts();
+    const data = gc.get(index + offset);
+    gc.delete();
+    return data;
 }
 
 export function syncNoneStaticToSceneIfWaking (actor: any, node: Node): void {
-    if (USE_BYTEDANCE) {
-        const transform = actor.getGlobalPoseIfWaking();
-        if (!transform) return;
-        copyPhysXTransform(node, transform);
-    } else {
-        if (actor.isSleeping()) return;
-        copyPhysXTransform(node, actor.getGlobalPose());
-    }
+    if (actor.isSleeping()) return;
+    copyPhysXTransform(node, actor.getGlobalPose());
 }
 
 /**
@@ -959,57 +591,4 @@ export function syncNoneStaticToSceneIfWaking (actor: any, node: Node): void {
  */
 interface IPhysicsConfigEXT extends IPhysicsConfig {
     physX: { epsilon: number, multiThread: boolean, subThreadCount: number, }
-}
-
-function initConfigForByteDance (): void {
-    const physX = settings.querySettings(Settings.Category.PHYSICS, 'physX');
-    if (physX) {
-        const { epsilon, multiThread, subThreadCount } = physX;
-        PX.EPSILON = epsilon;
-        PX.MULTI_THREAD = multiThread;
-        PX.SUB_THREAD_COUNT = subThreadCount;
-    }
-}
-
-// hack for multi thread mode, should be refactor in future
-function hackForMultiThread (): void {
-    if (USE_BYTEDANCE && PX.MULTI_THREAD) {
-        PhysicsSystem.prototype.postUpdate = function postUpdate (deltaTime: number): void {
-            const sys = this as any;
-            if (!sys._enable) {
-                sys.physicsWorld.syncSceneToPhysics();
-                return;
-            }
-            if (sys._autoSimulation) {
-                director.emit(Director.EVENT_BEFORE_PHYSICS);
-                sys._accumulator += deltaTime;
-                sys._subStepCount = 1;
-                sys.physicsWorld.syncSceneToPhysics();
-                sys.physicsWorld.step(sys._fixedTimeStep);
-                sys._accumulator -= sys._fixedTimeStep;
-                sys._mutiThreadYield = performance.now();
-            }
-        };
-
-        // eslint-disable-next-line no-inner-declarations
-        function lastUpdate (sys: any): void {
-            if (!sys._enable) return;
-
-            if (sys._autoSimulation) {
-                const yieldTime = performance.now() - sys._mutiThreadYield;
-                sys.physicsWorld.syncPhysicsToScene();
-                sys.physicsWorld.emitEvents();
-                if (cclegacy.profiler && cclegacy.profiler._stats) {
-                    cclegacy.profiler._stats.physics.counter._time += yieldTime;
-                }
-                director.emit(Director.EVENT_AFTER_PHYSICS);
-            }
-        }
-
-        director.on(Director.EVENT_END_FRAME, (): void => {
-            if (!director.isPaused()) {
-                lastUpdate(PhysicsSystem.instance);
-            }
-        });
-    }
 }

@@ -102,7 +102,7 @@ struct LayoutGraph {
         return {_vertices.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -153,29 +153,29 @@ struct LayoutGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -201,17 +201,17 @@ struct LayoutGraph {
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
@@ -314,14 +314,14 @@ inline bool operator<(const NameLocalID& lhs, const NameLocalID& rhs) noexcept {
 
 struct DescriptorData {
     DescriptorData() = default;
-    DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn, uint32_t countIn) noexcept
+    DescriptorData(const NameLocalID& descriptorIDIn, gfx::Type typeIn, uint32_t countIn) noexcept
     : descriptorID(descriptorIDIn),
       type(typeIn),
       count(countIn) {}
-    DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn) noexcept
+    DescriptorData(const NameLocalID& descriptorIDIn, gfx::Type typeIn) noexcept
     : descriptorID(descriptorIDIn),
       type(typeIn) {}
-    DescriptorData(NameLocalID descriptorIDIn) noexcept // NOLINT
+    DescriptorData(const NameLocalID& descriptorIDIn) noexcept // NOLINT
     : descriptorID(descriptorIDIn) {}
 
     NameLocalID descriptorID;
@@ -544,7 +544,7 @@ struct LayoutGraphData {
         return {_vertices.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -594,29 +594,29 @@ struct LayoutGraphData {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -642,17 +642,17 @@ struct LayoutGraphData {
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 

@@ -64,6 +64,8 @@ struct RenderGraphVisitorContext {
         RenderGraph::vertex_descriptor,
         std::tuple<gfx::DescriptorSet*, gfx::DescriptorSet*>>& renderGraphDescriptorSet;
     ccstd::pmr::unordered_map<
+        RenderGraph::vertex_descriptor, gfx::DescriptorSet*>& uiDescriptorSet;
+    ccstd::pmr::unordered_map<
         RenderGraph::vertex_descriptor,
         gfx::DescriptorSet*>& profilerPerPassDescriptorSets;
     ccstd::pmr::unordered_map<

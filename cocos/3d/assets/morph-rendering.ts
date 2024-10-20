@@ -28,12 +28,12 @@ import {
 import { Mesh } from './mesh';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { ImageAsset } from '../../asset/assets/image-asset';
-import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
+import { UBOMorph, UBOMorphEnum, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
     UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../rendering/define';
 import { Morph, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue, warn, bits, nextPow2, cclegacy, warnID } from '../../core';
 import { IMacroPatch } from '../../render-scene';
-import { PixelFormat } from '../../asset/assets/asset-enum';
+import { Filter, PixelFormat, WrapMode } from '../../asset/assets/asset-enum';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -92,11 +92,11 @@ export function createMorphRendering (mesh: Mesh, gfxDevice: Device): MorphRende
 
 /**
  * @en Standard morph rendering class, it supports both GPU and CPU based morph blending.
- * If sub mesh morph targets count is less than [[pipeline.UBOMorph.MAX_MORPH_TARGET_COUNT]], then GPU based blending is enabled.
+ * If sub mesh morph targets count is less than [[pipeline.UBOMorphEnum.MAX_MORPH_TARGET_COUNT]], then GPU based blending is enabled.
  * Each of the sub-mesh morph has its own [[MorphRenderingInstance]],
  * its morph target weights, render pipeline state and strategy of morph blending are controlled separately.
  * @zh 标准形变网格渲染类，它同时支持 CPU 和 GPU 的形变混合计算。
- * 如果子网格形变目标数量少于 [[pipeline.UBOMorph.MAX_MORPH_TARGET_COUNT]]，那么就会使用基于 GPU 的形变混合计算。
+ * 如果子网格形变目标数量少于 [[pipeline.UBOMorphEnum.MAX_MORPH_TARGET_COUNT]]，那么就会使用基于 GPU 的形变混合计算。
  * 每个子网格形变都使用自己独立的 [[MorphRenderingInstance]]，它的形变目标权重、渲染管线状态和形变混合计算策略都是独立控制的。
  */
 export class StdMorphRendering implements MorphRendering {
@@ -117,7 +117,7 @@ export class StdMorphRendering implements MorphRendering {
                 continue;
             }
 
-            if (preferCpuComputing || subMeshMorph.targets.length > UBOMorph.MAX_MORPH_TARGET_COUNT) {
+            if (preferCpuComputing || subMeshMorph.targets.length > UBOMorphEnum.MAX_MORPH_TARGET_COUNT) {
                 this._subMeshRenderings[iSubMesh] = new CpuComputing(
                     this._mesh,
                     iSubMesh,
@@ -489,12 +489,12 @@ class MorphUniforms {
 
     constructor (gfxDevice: Device, targetCount: number) {
         this._targetCount = targetCount;
-        this._localBuffer = new DataView(new ArrayBuffer(UBOMorph.SIZE));
+        this._localBuffer = new DataView(new ArrayBuffer(UBOMorphEnum.SIZE));
         this._remoteBuffer = gfxDevice.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            UBOMorph.SIZE,
-            UBOMorph.SIZE,
+            UBOMorphEnum.SIZE,
+            UBOMorphEnum.SIZE,
         ));
     }
 
@@ -510,19 +510,19 @@ class MorphUniforms {
         assertIsTrue(weights.length === this._targetCount);
         const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
         for (let iWeight = 0; iWeight < weights.length; ++iWeight) {
-            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], isLittleEndian);
+            this._localBuffer.setFloat32(UBOMorphEnum.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], isLittleEndian);
         }
     }
 
     public setMorphTextureInfo (width: number, height: number): void {
         const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, isLittleEndian);
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorphEnum.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorphEnum.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, isLittleEndian);
     }
 
     public setVerticesCount (count: number): void {
         const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorphEnum.OFFSET_OF_VERTICES_COUNT, count, isLittleEndian);
     }
 
     public commit (): void {
@@ -550,12 +550,12 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number): {
     if (hasFeatureFloatTexture) {
         pixelRequired = vec4Capacity;
         pixelBytes = 16;
-        pixelFormat = Texture2D.PixelFormat.RGBA32F;
+        pixelFormat = PixelFormat.RGBA32F;
         UpdateViewConstructor = Float32Array;
     } else {
         pixelRequired = 4 * vec4Capacity;
         pixelBytes = 4;
-        pixelFormat = Texture2D.PixelFormat.RGBA8888;
+        pixelFormat = PixelFormat.RGBA8888;
         UpdateViewConstructor = Uint8Array;
     }
 
@@ -583,9 +583,9 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number): {
                 format: pixelFormat,
             });
             const textureAsset = new Texture2D();
-            textureAsset.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-            textureAsset.setMipFilter(Texture2D.Filter.NONE);
-            textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
+            textureAsset.setFilters(Filter.NEAREST, Filter.NEAREST);
+            textureAsset.setMipFilter(Filter.NONE);
+            textureAsset.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
             textureAsset.image = image;
             if (!textureAsset.getGFXTexture()) {
                 warnID(16375);

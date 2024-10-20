@@ -22,16 +22,17 @@
  THE SOFTWARE.
 */
 
+import { DEBUG } from 'internal:constants';
 import { B2, B2ObjectType, getTSObjectFromWASMObjectPtr } from './instantiated';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { B2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, TWO_PI, HALF_PI, warn } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
-import { Collider2D, Joint2D } from '../framework';
+import { Collider2D } from '../framework';
 import { B2Shape2D } from './shapes/shape-2d';
 import { B2Joint } from './joints/joint-2d';
 
@@ -249,7 +250,11 @@ export class B2RigidBody2D implements IRigidBody2D {
         return this._body!.IsEnabled();
     }
     setActive (v: boolean): void {
-        this._body!.SetEnabled(v);
+        if (!this._body!.GetWorld().IsLocked()) {
+            this._body!.SetEnabled(v);
+        } else if (DEBUG) {
+            warn('Can not active RigidBody in contract listener.');
+        }
     }
     wakeUp (): void {
         this._body!.SetAwake(true);

@@ -33,9 +33,9 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, Settings, settings, warnID } from '../core';
+import { preTransforms, System, sys, cclegacy, settings, warnID, SettingsCategory } from '../core';
 import { Root } from '../root';
-import { director } from '../game';
+import { director, DirectorEvent } from '../game';
 import { ccwindow } from '../core/global-exports';
 
 const _characters = '0123456789. ';
@@ -131,7 +131,7 @@ export class Profiler extends System {
     }
 
     init (): void {
-        const showFPS = !!settings.querySettings(Settings.Category.PROFILING, 'showFPS');
+        const showFPS = !!settings.querySettings(SettingsCategory.PROFILING, 'showFPS');
         if (showFPS) {
             this.showStats();
         } else {
@@ -165,13 +165,13 @@ export class Profiler extends System {
                 this._rootNode.active = false;
             }
 
-            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_RENDER, this.afterRender, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_DRAW, this.afterPresent, this);
+            director.off(DirectorEvent.BEFORE_UPDATE, this.beforeUpdate, this);
+            director.off(DirectorEvent.AFTER_UPDATE, this.afterUpdate, this);
+            director.off(DirectorEvent.BEFORE_PHYSICS, this.beforePhysics, this);
+            director.off(DirectorEvent.AFTER_PHYSICS, this.afterPhysics, this);
+            director.off(DirectorEvent.BEFORE_DRAW, this.beforeDraw, this);
+            director.off(DirectorEvent.AFTER_RENDER, this.afterRender, this);
+            director.off(DirectorEvent.AFTER_DRAW, this.afterPresent, this);
             this._showFPS = false;
             director.root!.pipeline.profiler = null;
             cclegacy.game.config.showFPS = false;
@@ -195,13 +195,13 @@ export class Profiler extends System {
                 this._rootNode.active = true;
             }
 
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_RENDER, this.afterRender, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_DRAW, this.afterPresent, this);
+            director.on(DirectorEvent.BEFORE_UPDATE, this.beforeUpdate, this);
+            director.on(DirectorEvent.AFTER_UPDATE, this.afterUpdate, this);
+            director.on(DirectorEvent.BEFORE_PHYSICS, this.beforePhysics, this);
+            director.on(DirectorEvent.AFTER_PHYSICS, this.afterPhysics, this);
+            director.on(DirectorEvent.BEFORE_DRAW, this.beforeDraw, this);
+            director.on(DirectorEvent.AFTER_RENDER, this.afterRender, this);
+            director.on(DirectorEvent.AFTER_DRAW, this.afterPresent, this);
 
             this._showFPS = true;
             this._canvasDone = true;

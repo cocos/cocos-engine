@@ -560,6 +560,13 @@
             "ccGlobal": true,
             "internal": false
         },
+        "MIGU": {
+            "comment": "Running in the migu's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
 
         "EDITOR": {
             "comment": "Running in the editor.",
@@ -601,7 +608,6 @@
             "dynamic": true
         },
 
-
         "DEBUG": {
             "comment": "Running debug mode.",
             "type": "boolean",
@@ -609,6 +615,7 @@
             "ccGlobal": true,
             "internal": false
         },
+
         "SERVER_MODE": {
             "comment": "Running in the server mode.",
             "type": "boolean",
@@ -635,7 +642,7 @@
         "RUNTIME_BASED": {
             "comment": "Running in runtime based environment.",
             "type": "boolean",
-            "value": "$OPPO || $VIVO || $HUAWEI || $COCOSPLAY || $QTT || $LINKSURE",
+            "value": "$OPPO || $VIVO || $HUAWEI || $COCOSPLAY || $QTT || $LINKSURE || $MIGU",
             "ccGlobal": true,
             "internal": false
         },
@@ -705,6 +712,13 @@
             "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help", "editable", "visible",
             "readOnly", "displayName", "tooltip", "group", "range", "rangeMin", "rangeMax", "rangeStep", "slide",
             "displayOrder", "unit", "radian", "multiline", "disallowAnimation"
+        ]
+    },
+
+    "treeShake": {
+        "noSideEffectFiles": [
+            "cocos/serialization/instantiate-jit.ts",
+            "cocos/game/splash-screen.ts"
         ]
     }
 }

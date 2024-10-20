@@ -33,7 +33,7 @@ import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlag
 } from '../gfx';
 import { MacroRecord } from '../render-scene/core/pass-utils';
 import { RenderWindow } from '../render-scene/core/render-window';
-import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
+import { Camera, SkyBoxFlagValue } from '../render-scene/scene/camera';
 import { Model } from '../render-scene/scene/model';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { GeometryRenderer } from './geometry-renderer';
@@ -300,7 +300,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
 
         if (!(clearFlags & ClearFlagBit.COLOR)) {
-            if (clearFlags & SKYBOX_FLAG) {
+            if (clearFlags & SkyBoxFlagValue.VALUE) {
                 colorAttachment.loadOp = LoadOp.CLEAR;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;

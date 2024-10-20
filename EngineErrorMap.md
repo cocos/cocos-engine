@@ -655,7 +655,15 @@ should set resolutionPolicy
 
 ### 2300
 
-The touches is more than MAX_TOUCHES, nUnusedIndex = %s
+The touches is more than MAX_TOUCHES.
+
+### 2301
+
+Cannot create the same touch object.
+
+### 2302
+
+The touches is more than MAX_TOUCHES, release touch id %s.
 
 ### 2400
 
@@ -3331,6 +3339,10 @@ Custom pipeline invalid render phase, program: %s. Please reimport all effects (
 
 custom-pipeline module not available.
 
+### 12110
+
+MaterialPass passID in legacy pipeline is wrongly initialized.
+
 ### 13100
 
 Incorrect CCON magic.
@@ -3832,3 +3844,35 @@ ProgressBar FILLED mode only works when barSprite's Type is FILLED!
 ### 16398
 
 ProgressBar non-FILLED mode only works when barSprite's Type is non-FILLED!
+
+### 16399
+
+CopyTextureToBuffers: not supported texture target.
+
+### 16400
+
+Limit values to be greater than 0
+
+### 16401
+
+beginRenderPass: Only primary command buffer is supported.
+
+### 16402
+
+execute is not supported.
+
+### 16403
+
+GPU memory alias is not supported
+
+### 16404
+
+Block '%s' does not bound
+
+### 16405
+
+This device does not support WebGL2
+
+### 16406
+
+Can't find the spriteFrame of tilesets %s

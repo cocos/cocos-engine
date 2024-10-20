@@ -31,18 +31,18 @@ import { InputEventType } from '../../input/types/event-enum';
 import { EventDispatcherPriority, IEventDispatcher } from '../../input/input';
 
 const mouseEvents = [
-    Input.EventType.MOUSE_DOWN,
-    Input.EventType.MOUSE_MOVE,
-    Input.EventType.MOUSE_UP,
-    Input.EventType.MOUSE_WHEEL,
-    Input.EventType.MOUSE_LEAVE,
-    Input.EventType.MOUSE_ENTER,
+    InputEventType.MOUSE_DOWN,
+    InputEventType.MOUSE_MOVE,
+    InputEventType.MOUSE_UP,
+    InputEventType.MOUSE_WHEEL,
+    InputEventType.MOUSE_LEAVE,
+    InputEventType.MOUSE_ENTER,
 ];
 const touchEvents = [
-    Input.EventType.TOUCH_START,
-    Input.EventType.TOUCH_MOVE,
-    Input.EventType.TOUCH_END,
-    Input.EventType.TOUCH_CANCEL,
+    InputEventType.TOUCH_START,
+    InputEventType.TOUCH_MOVE,
+    InputEventType.TOUCH_END,
+    InputEventType.TOUCH_CANCEL,
 ];
 
 class PointerEventDispatcher implements IEventDispatcher {

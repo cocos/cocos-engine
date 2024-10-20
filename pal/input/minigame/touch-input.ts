@@ -26,32 +26,30 @@ import { TouchCallback } from 'pal/input';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
-import { ALIPAY, VIVO } from 'internal:constants';
 import { Size, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { EventTouch, Touch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
-import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';
 
 export class TouchInputSource {
-    private _eventTarget: EventTarget = new EventTarget();
+    private _eventTarget$: EventTarget = new EventTarget();
 
     constructor () {
         if (systemInfo.hasFeature(Feature.INPUT_TOUCH)) {
-            this._registerEvent();
+            this._registerEvent$();
         }
     }
 
-    private _registerEvent (): void {
-        minigame.onTouchStart(this._createCallback(InputEventType.TOUCH_START));
-        minigame.onTouchMove(this._createCallback(InputEventType.TOUCH_MOVE));
-        minigame.onTouchEnd(this._createCallback(InputEventType.TOUCH_END));
-        minigame.onTouchCancel(this._createCallback(InputEventType.TOUCH_CANCEL));
+    private _registerEvent$ (): void {
+        minigame.onTouchStart(this._createCallback$(InputEventType.TOUCH_START));
+        minigame.onTouchMove(this._createCallback$(InputEventType.TOUCH_MOVE));
+        minigame.onTouchEnd(this._createCallback$(InputEventType.TOUCH_END));
+        minigame.onTouchCancel(this._createCallback$(InputEventType.TOUCH_CANCEL));
     }
 
-    private _createCallback (eventType: InputEventType) {
+    private _createCallback$ (eventType: InputEventType) {
         return (event: TouchEvent): void => {
             const handleTouches: Touch[] = [];
             const windowSize = screenAdapter.windowSize;
@@ -63,7 +61,7 @@ export class TouchInputSource {
                 if (touchID === null) {
                     continue;
                 }
-                const location = this._getLocation(changedTouch, windowSize, dpr);
+                const location = this._getLocation$(changedTouch, windowSize, dpr);
                 const touch = touchManager.getOrCreateTouch(touchID, location.x, location.y);
                 if (!touch) {
                     continue;
@@ -80,18 +78,18 @@ export class TouchInputSource {
                     eventType,
                     touchManager.getAllTouches(),
                 );
-                this._eventTarget.emit(eventType, eventTouch);
+                this._eventTarget$.emit(eventType, eventTouch);
             }
         };
     }
 
-    private _getLocation (touch: globalThis.Touch, windowSize: Size, dpr: number): Vec2 {
+    private _getLocation$ (touch: globalThis.Touch, windowSize: Size, dpr: number): Vec2 {
         const x = touch.clientX * dpr;
         const y = windowSize.height - touch.clientY * dpr;
         return new Vec2(x, y);
     }
 
     public on (eventType: InputEventType, callback: TouchCallback, target?: any): void {
-        this._eventTarget.on(eventType, callback, target);
+        this._eventTarget$.on(eventType, callback, target);
     }
 }

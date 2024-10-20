@@ -23,19 +23,19 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy } from '../../core';
+import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy, SettingsCategory } from '../../core';
 import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
 
 import { DelayEvent } from './physics-internal-types';
 import { ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
-import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
+import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup2D } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
-import { director, Director } from '../../game';
+import { director, DirectorEvent } from '../../game';
 import type { IPhysicsWorld } from '../spec/i-physics-world';
 
 let instance: PhysicsSystem2D | null = null;
-cclegacy.internal.PhysicsGroup2D = PhysicsGroup;
+cclegacy.internal.PhysicsGroup2D = PhysicsGroup2D;
 
 export class PhysicsSystem2D extends Eventify(System) {
     /**
@@ -187,8 +187,8 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取预定义的物理分组。
      */
-    public static get PhysicsGroup (): typeof PhysicsGroup {
-        return PhysicsGroup;
+    public static get PhysicsGroup (): typeof PhysicsGroup2D {
+        return PhysicsGroup2D;
     }
 
     /**
@@ -230,16 +230,16 @@ export class PhysicsSystem2D extends Eventify(System) {
     private constructor () {
         super();
 
-        const gravity = settings.querySettings(Settings.Category.PHYSICS, 'gravity');
+        const gravity = settings.querySettings(SettingsCategory.PHYSICS, 'gravity');
         if (gravity) {
             Vec2.copy(this._gravity, gravity as IVec2Like);
             this._gravity.multiplyScalar(PHYSICS_2D_PTM_RATIO);
         }
-        this._allowSleep = settings.querySettings<boolean>(Settings.Category.PHYSICS, 'allowSleep') ?? this._allowSleep;
-        this._fixedTimeStep = settings.querySettings<number>(Settings.Category.PHYSICS, 'fixedTimeStep') ?? this._fixedTimeStep;
-        this._maxSubSteps = settings.querySettings<number>(Settings.Category.PHYSICS, 'maxSubSteps') ?? this._maxSubSteps;
-        this._autoSimulation = settings.querySettings<boolean>(Settings.Category.PHYSICS, 'autoSimulation') ?? this._autoSimulation;
-        const collisionMatrix = settings.querySettings(Settings.Category.PHYSICS, 'collisionMatrix');
+        this._allowSleep = settings.querySettings<boolean>(SettingsCategory.PHYSICS, 'allowSleep') ?? this._allowSleep;
+        this._fixedTimeStep = settings.querySettings<number>(SettingsCategory.PHYSICS, 'fixedTimeStep') ?? this._fixedTimeStep;
+        this._maxSubSteps = settings.querySettings<number>(SettingsCategory.PHYSICS, 'maxSubSteps') ?? this._maxSubSteps;
+        this._autoSimulation = settings.querySettings<boolean>(SettingsCategory.PHYSICS, 'autoSimulation') ?? this._autoSimulation;
+        const collisionMatrix = settings.querySettings(SettingsCategory.PHYSICS, 'collisionMatrix');
         if (collisionMatrix) {
             for (const i in collisionMatrix) {
                 const bit = parseInt(i);
@@ -248,12 +248,12 @@ export class PhysicsSystem2D extends Eventify(System) {
             }
         }
 
-        const collisionGroups = settings.querySettings<Array<{ name: string, index: number }>>(Settings.Category.PHYSICS, 'collisionGroups');
+        const collisionGroups = settings.querySettings<Array<{ name: string, index: number }>>(SettingsCategory.PHYSICS, 'collisionGroups');
         if (collisionGroups) {
             const cg = collisionGroups;
             if (cg instanceof Array) {
-                cg.forEach((v): void => { PhysicsGroup[v.name] = 1 << v.index; });
-                Enum.update(PhysicsGroup);
+                cg.forEach((v): void => { PhysicsGroup2D[v.name] = 1 << v.index; });
+                Enum.update(PhysicsGroup2D);
             }
         }
 
@@ -279,7 +279,7 @@ export class PhysicsSystem2D extends Eventify(System) {
             return;
         }
 
-        director.emit(Director.EVENT_BEFORE_PHYSICS);
+        director.emit(DirectorEvent.BEFORE_PHYSICS);
 
         this.physicsWorld.syncSceneToPhysics();
 
@@ -310,7 +310,7 @@ export class PhysicsSystem2D extends Eventify(System) {
         }
 
         this._steping = false;
-        director.emit(Director.EVENT_AFTER_PHYSICS);
+        director.emit(DirectorEvent.AFTER_PHYSICS);
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-types
@@ -383,4 +383,4 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
 }
 
-director.once(Director.EVENT_INIT, (): void => { PhysicsSystem2D.constructAndRegister(); });
+director.once(DirectorEvent.INIT, (): void => { PhysicsSystem2D.constructAndRegister(); });

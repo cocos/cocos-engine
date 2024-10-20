@@ -449,14 +449,6 @@ public:
      */
     virtual void setTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     /**
-     * @deprecated Method will be removed in the future
-     */
-    virtual void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
-    /**
-     * @deprecated Method will be removed in the future
-     */
-    virtual void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
-    /**
      * @en Set sampler descriptor.
      * Type of the sampler should match the one in shader.
      * @zh 设置采样器描述符。类型需要与着色器中的一致。
@@ -472,13 +464,6 @@ public:
      * @param camera @en The camera instance to be set. @zh 当前相机
      */
     virtual void setBuiltinCameraConstants(const scene::Camera *camera) = 0;
-    /**
-     * @deprecated Method will be removed in the future
-     * @en Same as setBuiltinDirectionalLightConstants
-     * @zh 同setBuiltinDirectionalLightConstants
-     * @param light @en The main light. @zh 主光
-     */
-    virtual void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) = 0;
     /**
      * @en Set builtin directional light and shadow constants.
      * For list of constants, please check CCShadow in cc-shadow.chunk and CCCamera in cc-global.chunk.
@@ -1736,16 +1721,6 @@ public:
     virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
     /**
      * @experimental
-     * @engineInternal
-     */
-    virtual void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) = 0;
-    /**
-     * @experimental
-     * @engineInternal
-     */
-    virtual void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) = 0;
-    /**
-     * @experimental
      */
     virtual uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) = 0;
     /**
@@ -1766,12 +1741,6 @@ public:
     }
     void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height) {
         updateStorageTexture(name, width, height, gfx::Format::UNKNOWN);
-    }
-    void addBuiltinGpuCullingPass(const scene::Camera *camera) {
-        addBuiltinGpuCullingPass(camera, "", nullptr);
-    }
-    void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName) {
-        addBuiltinGpuCullingPass(camera, hzbName, nullptr);
     }
 };
 

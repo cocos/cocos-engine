@@ -24,7 +24,7 @@ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { IVec3Like, Vec3, Quat, Mat4, error, math, toRadian } from '../../../core';
+import { IVec3Like, Vec3, Quat, Mat4, toRadian } from '../../../core';
 import { ConfigurableConstraint, EConstraintMode, EDriverMode } from '../../framework';
 import { IConfigurableConstraint } from '../../spec/i-physics-constraint';
 import { PX, _trans, getTempTransform, _pxtrans } from '../physx-adapter';
@@ -34,7 +34,6 @@ import { PhysXJoint } from './physx-joint';
 const CC_V3_0 = new Vec3();
 const CC_V3_1 = new Vec3();
 const CC_QUAT_0 = new Quat();
-const CC_QUAT_1 = new Quat();
 const CC_MAT4_0 = new Mat4();
 
 function getConstraintFlag (v: EConstraintMode): any {

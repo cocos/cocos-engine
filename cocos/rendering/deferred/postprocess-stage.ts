@@ -28,7 +28,7 @@
  */
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../render-scene/scene';
-import { SetIndex, UBOLocal } from '../define';
+import { SetIndex, UBOLocal, UBOLocalEnum } from '../define';
 import { Color, Rect, PipelineState, ClearFlagBit, DescriptorSetInfo, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from '../enum';
@@ -146,8 +146,8 @@ export class PostProcessStage extends RenderStage {
                 this._localUBO = device.createBuffer(new BufferInfo(
                     BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                     MemoryUsageBit.DEVICE,
-                    UBOLocal.SIZE,
-                    UBOLocal.SIZE,
+                    UBOLocalEnum.SIZE,
+                    UBOLocalEnum.SIZE,
                 ));
                 this._stageDesc.bindBuffer(UBOLocal.BINDING, this._localUBO);
             }

@@ -41,14 +41,14 @@ import { parseLoadResArgs, parseParameters } from './utilities';
  *
  */
 export default class Bundle {
-    private _config: Config = new Config();
+    private _config$: Config = new Config();
 
     /**
      * For internal use.
      * @engineInternal
      */
     public get config (): Config {
-        return this._config;
+        return this._config$;
     }
 
     /**
@@ -60,7 +60,7 @@ export default class Bundle {
      *
      */
     public get name (): string {
-        return this._config.name;
+        return this._config$.name;
     }
 
     /**
@@ -72,7 +72,7 @@ export default class Bundle {
      *
      */
     public get deps (): string[] {
-        return this._config.deps!;
+        return this._config$.deps!;
     }
 
     /**
@@ -84,7 +84,7 @@ export default class Bundle {
      *
      */
     public get base (): string {
-        return this._config.base;
+        return this._config$.base;
     }
 
     /**
@@ -103,7 +103,7 @@ export default class Bundle {
      *
      */
     public getInfoWithPath (path: string, type?: Constructor<Asset> | null): IAddressableInfo | null {
-        return this._config.getInfoWithPath(path, type);
+        return this._config$.getInfoWithPath(path, type);
     }
 
     /**
@@ -125,7 +125,7 @@ export default class Bundle {
      * bundle.getDirWithPath('images', Texture2D, infos);
      */
     public getDirWithPath (path: string, type?: Constructor<Asset> | null, out?: IAddressableInfo[]): IAddressableInfo[] {
-        return this._config.getDirWithPath(path, type, out);
+        return this._config$.getDirWithPath(path, type, out);
     }
 
     /**
@@ -143,7 +143,7 @@ export default class Bundle {
      *
      */
     public getAssetInfo (uuid: string): IAssetInfo | null {
-        return this._config.getAssetInfo(uuid);
+        return this._config$.getAssetInfo(uuid);
     }
 
     /**
@@ -161,7 +161,7 @@ export default class Bundle {
      *
      */
     public getSceneInfo (name: string): ISceneInfo | null {
-        return this._config.getSceneInfo(name);
+        return this._config$.getSceneInfo(name);
     }
 
     /**
@@ -176,7 +176,7 @@ export default class Bundle {
      *
      */
     public init (options: IConfigOption): void {
-        this._config.init(options);
+        this._config$.init(options);
         bundles.add(options.name, this);
     }
 
@@ -638,7 +638,7 @@ export default class Bundle {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _destroy (): void {
-        this._config.destroy();
+        this._config$.destroy();
     }
 }
 

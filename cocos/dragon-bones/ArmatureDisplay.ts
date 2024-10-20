@@ -58,7 +58,7 @@ ccenum(DefaultAnimsEnum);
 enum DefaultCacheMode {
     REALTIME = 0,
 }
-ccenum(DefaultAnimsEnum);
+ccenum(DefaultCacheMode);
 
 /**
  * @en Control animation speed, should be larger than 0.

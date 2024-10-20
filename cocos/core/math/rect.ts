@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
@@ -31,6 +32,9 @@ import { IRectLike, IVec2Like } from './type-define';
 import { Vec2 } from './vec2';
 import { legacyCC } from '../global-exports';
 
+const max = Math.max;
+const min = Math.min;
+
 /**
  * @en
  * A 2D rectangle defined by x, y position at the bottom-left corner and width, height.
@@ -50,10 +54,10 @@ export class Rect extends ValueType {
      * @returns Target rectangle.
      */
     public static fromMinMax <Out extends IRectLike, VecLike extends IVec2Like> (out: Out, v1: VecLike, v2: VecLike): Out {
-        const minX = Math.min(v1.x, v2.x);
-        const minY = Math.min(v1.y, v2.y);
-        const maxX = Math.max(v1.x, v2.x);
-        const maxY = Math.max(v1.y, v2.y);
+        const minX = min(v1.x, v2.x);
+        const minY = min(v1.y, v2.y);
+        const maxX = max(v1.x, v2.x);
+        const maxY = max(v1.y, v2.y);
         out.x = minX;
         out.y = minY;
         out.width = maxX - minX;
@@ -99,10 +103,10 @@ export class Rect extends ValueType {
         const byMin = other.y;
         const bxMax = other.x + other.width;
         const byMax = other.y + other.height;
-        out.x = Math.max(axMin, bxMin);
-        out.y = Math.max(ayMin, byMin);
-        out.width = Math.min(axMax, bxMax) - out.x;
-        out.height = Math.min(ayMax, byMax) - out.y;
+        out.x = max(axMin, bxMin);
+        out.y = max(ayMin, byMin);
+        out.width = min(axMax, bxMax) - out.x;
+        out.height = min(ayMax, byMax) - out.y;
 
         return out;
     }
@@ -123,10 +127,10 @@ export class Rect extends ValueType {
         const by = other.y;
         const bw = other.width;
         const bh = other.height;
-        out.x = Math.min(x, bx);
-        out.y = Math.min(y, by);
-        out.width = Math.max(x + w, bx + bw) - out.x;
-        out.height = Math.max(y + h, by + bh) - out.y;
+        out.x = min(x, bx);
+        out.y = min(y, by);
+        out.width = max(x + w, bx + bw) - out.x;
+        out.height = max(y + h, by + bh) - out.y;
 
         return out;
     }
@@ -327,18 +331,19 @@ export class Rect extends ValueType {
     public set (x?: number, y?: number, width?: number, height?: number): any;
 
     public set (x?: Rect | number, y?: number, width?: number, height?: number): any {
+        const self = this;
         if (typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-            this.width = x.width;
-            this.height = x.height;
+            self.x = x.x;
+            self.y = x.y;
+            self.width = x.width;
+            self.height = x.height;
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.width = width || 0;
-            this.height = height || 0;
+            self.x = x || 0;
+            self.y = y || 0;
+            self.width = width || 0;
+            self.height = height || 0;
         }
-        return this;
+        return self;
     }
 
     /**
@@ -348,10 +353,11 @@ export class Rect extends ValueType {
      * @returns Returns `true' when the minimum and maximum values of both rectangles are equal, respectively; otherwise, returns `false'.
      */
     public equals (other: Rect): boolean {
-        return this.x === other.x
-            && this.y === other.y
-            && this.width === other.width
-            && this.height === other.height;
+        const self = this;
+        return self.x === other.x
+            && self.y === other.y
+            && self.width === other.width
+            && self.height === other.height;
     }
 
     /**
@@ -361,16 +367,17 @@ export class Rect extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Rect, ratio: number): Rect {
-        const x = this.x;
-        const y = this.y;
-        const w = this.width;
-        const h = this.height;
-        this.x = x + (to.x - x) * ratio;
-        this.y = y + (to.y - y) * ratio;
-        this.width = w + (to.width - w) * ratio;
-        this.height = h + (to.height - h) * ratio;
+        const self = this;
+        const x = self.x;
+        const y = self.y;
+        const w = self.width;
+        const h = self.height;
+        self.x = x + (to.x - x) * ratio;
+        self.y = y + (to.y - y) * ratio;
+        self.width = w + (to.width - w) * ratio;
+        self.height = h + (to.height - h) * ratio;
 
-        return this;
+        return self;
     }
 
     /**
@@ -379,7 +386,8 @@ export class Rect extends ValueType {
      * @returns The information of the current rect in string
      */
     public toString (): string {
-        return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
+        const self = this;
+        return `(${self.x.toFixed(2)}, ${self.y.toFixed(2)}, ${self.width.toFixed(2)}, ${self.height.toFixed(2)})`;
     }
 
     /**
@@ -389,11 +397,12 @@ export class Rect extends ValueType {
      * @returns If intersected, return `true', otherwise return `false'.
      */
     public intersects (other: Rect): boolean {
-        const maxax = this.x + this.width;
-        const maxay = this.y + this.height;
+        const self = this;
+        const maxax = self.x + self.width;
+        const maxay = self.y + self.height;
         const maxbx = other.x + other.width;
         const maxby = other.y + other.height;
-        return !(maxax < other.x || maxbx < this.x || maxay < other.y || maxby < this.y);
+        return !(maxax < other.x || maxbx < self.x || maxay < other.y || maxby < self.y);
     }
 
     /**
@@ -403,10 +412,11 @@ export class Rect extends ValueType {
      * @returns The specified point is included in the rectangle and returns `true', otherwise it returns `false'.
      */
     public contains (point: Vec2): boolean {
-        return (this.x <= point.x
-                && this.x + this.width >= point.x
-                && this.y <= point.y
-                && this.y + this.height >= point.y);
+        const self = this;
+        return (self.x <= point.x
+                && self.x + self.width >= point.x
+                && self.y <= point.y
+                && self.y + self.height >= point.y);
     }
 
     /**
@@ -416,10 +426,11 @@ export class Rect extends ValueType {
      * @returns Returns `true' if all the points of the specified rectangle are included in the current rectangle, `false' otherwise.
      */
     public containsRect (other: Rect): boolean {
-        return (this.x <= other.x
-                && this.x + this.width >= other.x + other.width
-                && this.y <= other.y
-                && this.y + this.height >= other.y + other.height);
+        const self = this;
+        return (self.x <= other.x
+                && self.x + self.width >= other.x + other.width
+                && self.y <= other.y
+                && self.y + self.height >= other.y + other.height);
     }
 
     /**
@@ -432,10 +443,11 @@ export class Rect extends ValueType {
      * @param matrix The matrix4
      */
     public transformMat4 (mat: Mat4): Rect {
-        const ol = this.x;
-        const ob = this.y;
-        const or = ol + this.width;
-        const ot = ob + this.height;
+        const self = this;
+        const ol = self.x;
+        const ob = self.y;
+        const or = ol + self.width;
+        const ot = ob + self.height;
         const lbx = mat.m00 * ol + mat.m04 * ob + mat.m12;
         const lby = mat.m01 * ol + mat.m05 * ob + mat.m13;
         const rbx = mat.m00 * or + mat.m04 * ob + mat.m12;
@@ -445,17 +457,17 @@ export class Rect extends ValueType {
         const rtx = mat.m00 * or + mat.m04 * ot + mat.m12;
         const rty = mat.m01 * or + mat.m05 * ot + mat.m13;
 
-        const minX = Math.min(lbx, rbx, ltx, rtx);
-        const maxX = Math.max(lbx, rbx, ltx, rtx);
-        const minY = Math.min(lby, rby, lty, rty);
-        const maxY = Math.max(lby, rby, lty, rty);
+        const minX = min(lbx, rbx, ltx, rtx);
+        const maxX = max(lbx, rbx, ltx, rtx);
+        const minY = min(lby, rby, lty, rty);
+        const maxY = max(lby, rby, lty, rty);
 
-        this.x = minX;
-        this.y = minY;
-        this.width = maxX - minX;
-        this.height = maxY - minY;
+        self.x = minX;
+        self.y = minY;
+        self.width = maxX - minX;
+        self.height = maxY - minY;
 
-        return this;
+        return self;
     }
 
     /**
@@ -471,10 +483,11 @@ export class Rect extends ValueType {
      * @param out_rt The right top point
      */
     public transformMat4ToPoints (mat: Mat4, out_lb: Vec2, out_lt: Vec2, out_rt: Vec2, out_rb: Vec2): void {
-        const ol = this.x;
-        const ob = this.y;
-        const or = ol + this.width;
-        const ot = ob + this.height;
+        const self = this;
+        const ol = self.x;
+        const ob = self.y;
+        const or = ol + self.width;
+        const ot = ob + self.height;
         out_lb.x = mat.m00 * ol + mat.m04 * ob + mat.m12;
         out_lb.y = mat.m01 * ol + mat.m05 * ob + mat.m13;
         out_rb.x = mat.m00 * or + mat.m04 * ob + mat.m12;

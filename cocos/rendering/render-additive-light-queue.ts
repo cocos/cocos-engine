@@ -36,8 +36,11 @@ import { RangedDirectionalLight } from '../render-scene/scene/ranged-directional
 import { SubModel } from '../render-scene/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../render-scene/scene/light';
-import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
-    UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture, isEnableEffect } from './define';
+import { SetIndex, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
+    UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture, isEnableEffect,
+    UBOShadowEnum,
+    UBOForwardLightEnum,
+    UBOForwardLight } from './define';
 import { Camera } from '../render-scene/scene/camera';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { GlobalDSManager } from './global-descriptor-set-manager';
@@ -116,7 +119,7 @@ export class RenderAdditiveLightQueue {
     private declare _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
     private _instancedLightPassPool = _lightPassPool.alloc();
-    private _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    private _shadowUBO = new Float32Array(UBOShadowEnum.COUNT);
     private _lightBufferCount = 16;
     private declare _lightBufferStride: number;
     private declare _lightBufferElementCount: number;
@@ -131,7 +134,7 @@ export class RenderAdditiveLightQueue {
         this._device = pipeline.device;
 
         const alignment = this._device.capabilities.uboOffsetAlignment;
-        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / alignment) * alignment;
+        this._lightBufferStride = Math.ceil(UBOForwardLightEnum.SIZE / alignment) * alignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
         this._lightBuffer = this._device.createBuffer(new BufferInfo(
@@ -141,7 +144,7 @@ export class RenderAdditiveLightQueue {
             this._lightBufferStride,
         ));
 
-        this._firstLightBufferView = this._device.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+        this._firstLightBufferView = this._device.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLightEnum.SIZE));
 
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
     }
@@ -358,18 +361,18 @@ export class RenderAdditiveLightQueue {
                     PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
                 }
 
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = 1.0;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = 1.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = 0.0;
 
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.SPHERE;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = 0.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.SPHERE;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
                 // Reserve sphere light shadow interface
-                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadowEnum.SHADOW_COLOR_OFFSET);
                 break;
             }
             case LightType.SPOT: {
@@ -401,40 +404,40 @@ export class RenderAdditiveLightQueue {
                 // light viewProj
                 Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
 
-                Mat4.toArray(this._shadowUBO, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
-                Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+                Mat4.toArray(this._shadowUBO, _matShadowView, UBOShadowEnum.MAT_LIGHT_VIEW_OFFSET);
+                Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadowEnum.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = 0.01;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = (light as SpotLight).range;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = 0.0;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = 0.01;
+                this._shadowUBO[UBOShadowEnum.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = (light as SpotLight).range;
+                this._shadowUBO[UBOShadowEnum.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 3] = 0.0;
 
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = spotLight.shadowPcf;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = spotLight.shadowBias;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = spotLight.shadowPcf;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = spotLight.shadowBias;
 
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.SPOT;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = spotLight.shadowNormalBias;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.SPOT;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = spotLight.shadowNormalBias;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 0] = matShadowProj.m10;
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 1] = matShadowProj.m14;
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 2] = matShadowProj.m11;
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 3] = matShadowProj.m15;
+                this._shadowUBO[UBOShadowEnum.SHADOW_PROJ_DEPTH_INFO_OFFSET + 0] = matShadowProj.m10;
+                this._shadowUBO[UBOShadowEnum.SHADOW_PROJ_DEPTH_INFO_OFFSET + 1] = matShadowProj.m14;
+                this._shadowUBO[UBOShadowEnum.SHADOW_PROJ_DEPTH_INFO_OFFSET + 2] = matShadowProj.m11;
+                this._shadowUBO[UBOShadowEnum.SHADOW_PROJ_DEPTH_INFO_OFFSET + 3] = matShadowProj.m15;
 
-                this._shadowUBO[UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 0] = matShadowInvProj.m10;
-                this._shadowUBO[UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 1] = matShadowInvProj.m14;
-                this._shadowUBO[UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 2] = matShadowInvProj.m11;
-                this._shadowUBO[UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 3] = matShadowInvProj.m15;
+                this._shadowUBO[UBOShadowEnum.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 0] = matShadowInvProj.m10;
+                this._shadowUBO[UBOShadowEnum.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 1] = matShadowInvProj.m14;
+                this._shadowUBO[UBOShadowEnum.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 2] = matShadowInvProj.m11;
+                this._shadowUBO[UBOShadowEnum.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 3] = matShadowInvProj.m15;
 
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 0] = matShadowProj.m00;
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 1] = matShadowProj.m05;
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 2] = 1.0 / matShadowProj.m00;
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 3] = 1.0 / matShadowProj.m05;
+                this._shadowUBO[UBOShadowEnum.SHADOW_PROJ_INFO_OFFSET + 0] = matShadowProj.m00;
+                this._shadowUBO[UBOShadowEnum.SHADOW_PROJ_INFO_OFFSET + 1] = matShadowProj.m05;
+                this._shadowUBO[UBOShadowEnum.SHADOW_PROJ_INFO_OFFSET + 2] = 1.0 / matShadowProj.m00;
+                this._shadowUBO[UBOShadowEnum.SHADOW_PROJ_INFO_OFFSET + 3] = 1.0 / matShadowProj.m05;
 
-                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadowEnum.SHADOW_COLOR_OFFSET);
 
                 // Spot light sampler binding
                 if (shadowFrameBufferMap.has(light)) {
@@ -451,18 +454,18 @@ export class RenderAdditiveLightQueue {
                     PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
                 }
 
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = 1.0;
-                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = 1.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = 0.0;
 
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.POINT;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = 0.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.POINT;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = 0.0;
+                this._shadowUBO[UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
                 // Reserve point light shadow interface
-                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadowEnum.SHADOW_COLOR_OFFSET);
                 break;
             }
             default:
@@ -486,7 +489,7 @@ export class RenderAdditiveLightQueue {
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstLightBufferView = deviceManager.gfxDevice.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+            this._firstLightBufferView = deviceManager.gfxDevice.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLightEnum.SIZE));
         }
 
         for (let l = 0, offset = 0; l < validPunctualLights.length; l++, offset += this._lightBufferElementCount) {
@@ -497,13 +500,13 @@ export class RenderAdditiveLightQueue {
                 // UBOForwardLight
                 Vec3.toArray(_vec4Array, (light as SphereLight).position);
                 _vec4Array[3] = LightType.SPHERE;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_POS_OFFSET);
 
                 _vec4Array[0] = (light as SphereLight).size;
                 _vec4Array[1] = (light as SphereLight).range;
                 _vec4Array[2] = 0.0;
                 _vec4Array[3] = 0.0;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
@@ -518,22 +521,22 @@ export class RenderAdditiveLightQueue {
                 } else {
                     _vec4Array[3] = (light as SphereLight).luminance;
                 }
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_COLOR_OFFSET);
                 break;
             case LightType.SPOT:
                 // UBOForwardLight
                 Vec3.toArray(_vec4Array, (light as SpotLight).position);
                 _vec4Array[3] = LightType.SPOT;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_POS_OFFSET);
 
                 _vec4Array[0] = (light as SpotLight).size;
                 _vec4Array[1] = (light as SpotLight).range;
                 _vec4Array[2] = (light as SpotLight).spotAngle;
                 _vec4Array[3] = (shadowInfo.enabled && (light as SpotLight).shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as SpotLight).direction);
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET);
 
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
@@ -548,26 +551,26 @@ export class RenderAdditiveLightQueue {
                 } else {
                     _vec4Array[3] = (light as SpotLight).luminance;
                 }
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_COLOR_OFFSET);
 
                 // cc_lightBoundingSizeVS, light angle attenuation strength
                 _vec4Array[0] = 0;
                 _vec4Array[1] = 0;
                 _vec4Array[2] = 0;
                 _vec4Array[3] = (light as SpotLight).angleAttenuationStrength;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET);
                 break;
             case LightType.POINT:
                 // UBOForwardLight
                 Vec3.toArray(_vec4Array, (light as PointLight).position);
                 _vec4Array[3] = LightType.POINT;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_POS_OFFSET);
 
                 _vec4Array[0] = 0.0;
                 _vec4Array[1] = (light as PointLight).range;
                 _vec4Array[2] = 0.0;
                 _vec4Array[3] = 0.0;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
@@ -582,28 +585,28 @@ export class RenderAdditiveLightQueue {
                 } else {
                     _vec4Array[3] = (light as PointLight).luminance;
                 }
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_COLOR_OFFSET);
                 break;
             case LightType.RANGED_DIRECTIONAL:
                 // UBOForwardLight
                 Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).position);
                 _vec4Array[3] = LightType.RANGED_DIRECTIONAL;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_POS_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).right);
                 _vec4Array[3] = 0;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).direction);
                 _vec4Array[3] = 0;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET);
 
                 // eslint-disable-next-line no-case-declarations
                 const scale = (light as RangedDirectionalLight).scale;
                 _v3.set(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5);
                 Vec3.toArray(_vec4Array, _v3);
                 _vec4Array[3] = 0;
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET);
 
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
@@ -618,7 +621,7 @@ export class RenderAdditiveLightQueue {
                 } else {
                     _vec4Array[3] = (light as RangedDirectionalLight).illuminance;
                 }
-                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLightEnum.LIGHT_COLOR_OFFSET);
                 break;
             default:
             }

@@ -32,9 +32,7 @@ import { DescriptorSetLayout } from './descriptor-set-layout';
 
 import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
-import { TextureBarrier } from './states/texture-barrier';
-import { BufferBarrier } from './states/buffer-barrier';
-import { GCObject } from '../../core';
+import { GCObject } from '../../core/data/gc-object';
 
 interface ICopyable { copy (info: ICopyable): ICopyable; }
 
@@ -112,25 +110,13 @@ export enum Feature {
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
-    // This flag indicates whether the device can benefit from subpass-style usages.
-    // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
-    // extension is used to simulate input attachments, so the flag is not set when
-    // the extension is not supported, and you should switch to the fallback branch
-    // (without the extension requirement) in GLSL shader sources accordingly.
-    // Everything else can remain the same.
-    //
-    // Another caveat when using the Framebuffer Fetch extensions in shaders is that
-    // for subpasses with exactly 4 inout attachments the output is automatically set
-    // to the last attachment (taking advantage of 'inout' property), and a separate
-    // blit operation (if needed) will be added for you afterwards to transfer the
-    // rendering result to the correct subpass output texture. This is to ameliorate
-    // the max number of attachment limit(4) situation for many devices, and shader
-    // sources inside this kind of subpass must match this behavior.
-    INPUT_ATTACHMENT_BENEFIT,
+
+    INPUT_ATTACHMENT_BENEFIT, // @deprecated
     SUBPASS_COLOR_INPUT,
     SUBPASS_DEPTH_STENCIL_INPUT,
-    RASTERIZATION_ORDER_COHERENT,
-    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,
+    RASTERIZATION_ORDER_NOCOHERENT,
+
+    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,   // resolve depth stencil
     COUNT,
 }
 
@@ -366,6 +352,7 @@ export enum BufferUsageBit {
 
 export enum BufferFlagBit {
     NONE = 0,
+    ENABLE_STAGING_WRITE = 0x01,
 }
 
 export enum MemoryAccessBit {
@@ -399,17 +386,18 @@ export enum TextureUsageBit {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 }
 
 export enum TextureFlagBit {
     NONE = 0,
-    GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
-    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
-    EXTERNAL_OES = 0x4, // External oes texture
-    EXTERNAL_NORMAL = 0x8, // External normal texture
-    LAZILY_ALLOCATED = 0x10, // Try lazily allocated mode.
+    GEN_MIPMAP = 0x1,           // Generate mipmaps using bilinear filter
+    GENERAL_LAYOUT = 0x2,       // @deprecated, For inout framebuffer attachments
+    EXTERNAL_OES = 0x4,         // External oes texture
+    EXTERNAL_NORMAL = 0x8,      // External normal texture
+    LAZILY_ALLOCATED = 0x10,    // Try lazily allocated mode.
     MUTABLE_VIEW_FORMAT = 0x40, // texture view as different format
-    MUTABLE_STORAGE = 0x80, // mutable storage for gl
+    MUTABLE_STORAGE = 0x80,     // mutable storage for gl image
 }
 
 export enum FormatFeatureBit {
@@ -419,6 +407,7 @@ export enum FormatFeatureBit {
     LINEAR_FILTER = 0x4,     // Allow linear filtering when sampling in shaders or blitting
     STORAGE_TEXTURE = 0x8,   // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
+    SHADING_RATE = 0x20,     // Allow usages as shading rate
 }
 
 export enum SampleCount {
@@ -581,6 +570,8 @@ export enum AccessFlagBit {
     TRANSFER_WRITE = 1 << 24,                 // Written as the destination of a transfer operation
     HOST_PREINITIALIZED = 1 << 25,            // Data pre-filled by host before device access starts
     HOST_WRITE = 1 << 26,                     // Written on the host
+
+    SHADING_RATE = 1 << 27, // Read as a shading rate image
 }
 
 export enum ResolveMode {
@@ -756,6 +747,8 @@ export class DeviceCaps {
         public maxComputeWorkGroupSize: Size = new Size(),
         public maxComputeWorkGroupCount: Size = new Size(),
         public supportQuery: boolean = false,
+        public supportVariableRateShading: boolean = false,
+        public supportSubPassShading: boolean = false,
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,
         public clipSpaceSignY: number = 1,
@@ -783,6 +776,8 @@ export class DeviceCaps {
         this.maxComputeWorkGroupSize.copy(info.maxComputeWorkGroupSize);
         this.maxComputeWorkGroupCount.copy(info.maxComputeWorkGroupCount);
         this.supportQuery = info.supportQuery;
+        this.supportVariableRateShading = info.supportVariableRateShading;
+        this.supportSubPassShading = info.supportSubPassShading;
         this.clipSpaceMinZ = info.clipSpaceMinZ;
         this.screenSpaceSignY = info.screenSpaceSignY;
         this.clipSpaceSignY = info.clipSpaceSignY;
@@ -1025,6 +1020,21 @@ export class Color {
     }
 }
 
+export class MarkerInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public name: string = '',
+        public color: Color = new Color(),
+    ) {}
+
+    public copy (info: Readonly<MarkerInfo>): MarkerInfo {
+        this.name = info.name;
+        this.color.copy(info.color);
+        return this;
+    }
+}
+
 export class BindingMappingInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
@@ -1227,6 +1237,8 @@ export class TextureViewInfo {
         public levelCount: number = 1,
         public baseLayer: number = 0,
         public layerCount: number = 1,
+        public basePlane: number = 0,
+        public planeCount: number = 1,
     ) {}
 
     public copy (info: Readonly<TextureViewInfo>): TextureViewInfo {
@@ -1237,6 +1249,8 @@ export class TextureViewInfo {
         this.levelCount = info.levelCount;
         this.baseLayer = info.baseLayer;
         this.layerCount = info.layerCount;
+        this.basePlane = info.basePlane;
+        this.planeCount = info.planeCount;
         return this;
     }
 }
@@ -1496,6 +1510,7 @@ export class ShaderInfo {
         public textures: UniformTexture[] = [],
         public images: UniformStorageImage[] = [],
         public subpassInputs: UniformInputAttachment[] = [],
+        public hash: number = 0xFFFFFFFF,
     ) {}
 
     public copy (info: Readonly<ShaderInfo>): ShaderInfo {
@@ -1509,6 +1524,7 @@ export class ShaderInfo {
         deepCopy(this.textures, info.textures, UniformTexture);
         deepCopy(this.images, info.images, UniformStorageImage);
         deepCopy(this.subpassInputs, info.subpassInputs, UniformInputAttachment);
+        this.hash = info.hash;
         return this;
     }
 }
@@ -1588,6 +1604,7 @@ export class SubpassInfo {
         public preserves: number[] = [],
         public depthStencil: number = -1,
         public depthStencilResolve: number = -1,
+        public shadingRate: number = -1,
         public depthResolveMode: ResolveMode = ResolveMode.NONE,
         public stencilResolveMode: ResolveMode = ResolveMode.NONE,
     ) {}
@@ -1599,6 +1616,7 @@ export class SubpassInfo {
         this.preserves = info.preserves.slice();
         this.depthStencil = info.depthStencil;
         this.depthStencilResolve = info.depthStencilResolve;
+        this.shadingRate = info.shadingRate;
         this.depthResolveMode = info.depthResolveMode;
         this.stencilResolveMode = info.stencilResolveMode;
         return this;
@@ -1612,16 +1630,16 @@ export class SubpassDependency {
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
         public generalBarrier: GeneralBarrier = null!,
-        public prevAccesses: AccessFlags[] = [AccessFlagBit.NONE],
-        public nextAccesses: AccessFlags[] = [AccessFlagBit.NONE],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
     ) {}
 
     public copy (info: Readonly<SubpassDependency>): SubpassDependency {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
         this.generalBarrier = info.generalBarrier;
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         return this;
     }
 }
@@ -1631,20 +1649,47 @@ export class RenderPassInfo {
 
     constructor (
         public colorAttachments: ColorAttachment[] = [],
-        public depthStencilAttachment: DepthStencilAttachment | null = null,
-        public depthStencilResolveAttachment: DepthStencilAttachment | null = null,
+        public depthStencilAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
+        public depthStencilResolveAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
         public subpasses: SubpassInfo[] = [],
         public dependencies: SubpassDependency[] = [],
     ) {}
 
     public copy (info: Readonly<RenderPassInfo>): RenderPassInfo {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
-        if (info.depthStencilAttachment && this.depthStencilAttachment) this.depthStencilAttachment.copy(info.depthStencilAttachment);
-        if (info.depthStencilResolveAttachment && this.depthStencilResolveAttachment) {
-            this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
-        }
+        this.depthStencilAttachment.copy(info.depthStencilAttachment);
+        this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
         deepCopy(this.dependencies, info.dependencies, SubpassDependency);
+        return this;
+    }
+}
+
+export class ResourceRange {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public width: number = 0,
+        public height: number = 0,
+        public depthOrArraySize: number = 0,
+        public firstSlice: number = 0,
+        public numSlices: number = 0,
+        public mipLevel: number = 0,
+        public levelCount: number = 0,
+        public basePlane: number = 0,
+        public planeCount: number = 0,
+    ) {}
+
+    public copy (info: Readonly<ResourceRange>): ResourceRange {
+        this.width = info.width;
+        this.height = info.height;
+        this.depthOrArraySize = info.depthOrArraySize;
+        this.firstSlice = info.firstSlice;
+        this.numSlices = info.numSlices;
+        this.mipLevel = info.mipLevel;
+        this.levelCount = info.levelCount;
+        this.basePlane = info.basePlane;
+        this.planeCount = info.planeCount;
         return this;
     }
 }
@@ -1673,10 +1718,7 @@ export class TextureBarrierInfo {
         public prevAccesses: AccessFlags = AccessFlagBit.NONE,
         public nextAccesses: AccessFlags = AccessFlagBit.NONE,
         public type: BarrierType = BarrierType.FULL,
-        public baseMipLevel: number = 0,
-        public levelCount: number = 1,
-        public baseSlice: number = 0,
-        public sliceCount: number = 1,
+        public range: ResourceRange = new ResourceRange(),
         public discardContents: boolean = false,
         public srcQueue: Queue | null = null,
         public dstQueue: Queue | null = null,
@@ -1686,10 +1728,7 @@ export class TextureBarrierInfo {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
         this.type = info.type;
-        this.baseMipLevel = info.baseMipLevel;
-        this.levelCount = info.levelCount;
-        this.baseSlice = info.baseSlice;
-        this.sliceCount = info.sliceCount;
+        this.range.copy(info.range);
         this.discardContents = info.discardContents;
         this.srcQueue = info.srcQueue;
         this.dstQueue = info.dstQueue;
@@ -1774,10 +1813,6 @@ export class DescriptorSetLayoutInfo {
     public copy (info: Readonly<DescriptorSetLayoutInfo>): DescriptorSetLayoutInfo {
         deepCopy(this.bindings, info.bindings, DescriptorSetLayoutBinding);
         return this;
-    }
-
-    reset (): void {
-        this.bindings.length = 0;
     }
 }
 
@@ -1869,15 +1904,27 @@ export class FormatInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public readonly name: string = '',
-        public readonly size: number = 0,
-        public readonly count: number = 0,
-        public readonly type: FormatType = FormatType.NONE,
-        public readonly hasAlpha: boolean = false,
-        public readonly hasDepth: boolean = false,
-        public readonly hasStencil: boolean = false,
-        public readonly isCompressed: boolean = false,
+        public name: string = '',
+        public size: number = 0,
+        public count: number = 0,
+        public type: FormatType = FormatType.NONE,
+        public hasAlpha: boolean = false,
+        public hasDepth: boolean = false,
+        public hasStencil: boolean = false,
+        public isCompressed: boolean = false,
     ) {}
+
+    public copy (info: Readonly<FormatInfo>): FormatInfo {
+        this.name = info.name;
+        this.size = info.size;
+        this.count = info.count;
+        this.type = info.type;
+        this.hasAlpha = info.hasAlpha;
+        this.hasDepth = info.hasDepth;
+        this.hasStencil = info.hasStencil;
+        this.isCompressed = info.isCompressed;
+        return this;
+    }
 }
 
 export class MemoryStatus {
@@ -1959,28 +2006,28 @@ export class DynamicStates {
   */
 export class GFXObject extends GCObject {
     public get objectType (): ObjectType {
-        return this._objectType;
+        return this._objectType$;
     }
 
     public get objectID (): number {
-        return this._objectID;
+        return this._objectID$;
     }
 
     public get typedID (): number {
-        return this._typedID;
+        return this._typedID$;
     }
 
-    protected _objectType = ObjectType.UNKNOWN;
-    protected _objectID = 0;
-    protected _typedID = 0;
+    protected _objectType$ = ObjectType.UNKNOWN;
+    protected _objectID$ = 0;
+    protected _typedID$ = 0;
 
     private static _idTable = Array(ObjectType.COUNT).fill(1 << 16);
 
     constructor (objectType: ObjectType) {
         super();
-        this._objectType = objectType;
-        this._objectID = GFXObject._idTable[ObjectType.UNKNOWN]++;
-        this._typedID = GFXObject._idTable[objectType]++;
+        this._objectType$ = objectType;
+        this._objectID$ = GFXObject._idTable[ObjectType.UNKNOWN]++;
+        this._typedID$ = GFXObject._idTable[objectType]++;
     }
 }
 
@@ -2163,6 +2210,8 @@ export function IsPowerOf2 (x: number): boolean {
     return x > 0 && (x & (x - 1)) === 0;
 }
 
+const ceil = Math.ceil;
+
 /**
   * @en Get memory size of the specified fomat.
   * @zh 获取指定格式对应的内存大小。
@@ -2180,7 +2229,7 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.BC1_ALPHA:
         case Format.BC1_SRGB:
         case Format.BC1_SRGB_ALPHA:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
         case Format.BC2:
         case Format.BC2_SRGB:
         case Format.BC3:
@@ -2191,10 +2240,10 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.BC6H_UF16:
         case Format.BC7:
         case Format.BC7_SRGB:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
         case Format.BC5:
         case Format.BC5_SNORM:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 32 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 32 * depth;
 
         case Format.ETC_RGB8:
         case Format.ETC2_RGB8:
@@ -2202,65 +2251,65 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.ETC2_RGB8_A1:
         case Format.EAC_R11:
         case Format.EAC_R11SN:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
         case Format.ETC2_RGBA8:
         case Format.ETC2_SRGB8_A1:
         case Format.EAC_RG11:
         case Format.EAC_RG11SN:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
 
         case Format.PVRTC_RGB2:
         case Format.PVRTC_RGBA2:
         case Format.PVRTC2_2BPP:
-            return Math.ceil(width / 8) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 8) * ceil(height / 4) * 8 * depth;
 
         case Format.PVRTC_RGB4:
         case Format.PVRTC_RGBA4:
         case Format.PVRTC2_4BPP:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
 
         case Format.ASTC_RGBA_4X4:
         case Format.ASTC_SRGBA_4X4:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
         case Format.ASTC_RGBA_5X4:
         case Format.ASTC_SRGBA_5X4:
-            return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 5) * ceil(height / 4) * 16 * depth;
         case Format.ASTC_RGBA_5X5:
         case Format.ASTC_SRGBA_5X5:
-            return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 5) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_6X5:
         case Format.ASTC_SRGBA_6X5:
-            return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 6) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_6X6:
         case Format.ASTC_SRGBA_6X6:
-            return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 6) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_8X5:
         case Format.ASTC_SRGBA_8X5:
-            return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_8X6:
         case Format.ASTC_SRGBA_8X6:
-            return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_8X8:
         case Format.ASTC_SRGBA_8X8:
-            return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 8) * 16 * depth;
         case Format.ASTC_RGBA_10X5:
         case Format.ASTC_SRGBA_10X5:
-            return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_10X6:
         case Format.ASTC_SRGBA_10X6:
-            return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_10X8:
         case Format.ASTC_SRGBA_10X8:
-            return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 8) * 16 * depth;
         case Format.ASTC_RGBA_10X10:
         case Format.ASTC_SRGBA_10X10:
-            return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 10) * 16 * depth;
         case Format.ASTC_RGBA_12X10:
         case Format.ASTC_SRGBA_12X10:
-            return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
+            return ceil(width / 12) * ceil(height / 10) * 16 * depth;
         case Format.ASTC_RGBA_12X12:
         case Format.ASTC_SRGBA_12X12:
-            return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
+            return ceil(width / 12) * ceil(height / 12) * 16 * depth;
 
         default: {
             return 0;
@@ -2471,7 +2520,7 @@ export function formatAlignment (format: Format): FormatAlignment {
 }
 
 export function alignTo (size: number, alignment: number): number {
-    return Math.ceil(size / alignment) * alignment;
+    return ceil(size / alignment) * alignment;
 }
 
 declare interface GPUTexture {}

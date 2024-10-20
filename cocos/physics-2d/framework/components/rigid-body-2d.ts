@@ -31,7 +31,7 @@ import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 import { Component } from '../../../scene-graph';
 import { help, serializable, tooltip } from '../../../core/data/decorators';
 
-const { property, type, menu, ccclass } = _decorator;
+const { type, menu, ccclass } = _decorator;
 
 @ccclass('cc.RigidBody2D')
 @help('i18n:cc.RigidBody2D')

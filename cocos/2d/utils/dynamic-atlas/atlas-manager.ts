@@ -25,7 +25,7 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { System, macro, cclegacy } from '../../../core';
 import { Atlas, DynamicAtlasTexture } from './atlas';
-import { director } from '../../../game';
+import { director, DirectorEvent } from '../../../game';
 import { SpriteFrame } from '../../assets';
 import { Filter } from '../../../gfx/base/define';
 import { TextureBase } from '../../../asset/assets/texture-base';
@@ -74,10 +74,10 @@ export class DynamicAtlasManager extends System {
 
         if (value) {
             this.reset();
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+            director.on(DirectorEvent.BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
         } else {
             this.reset();
-            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+            director.off(DirectorEvent.BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
         }
 
         this._enabled = value;
