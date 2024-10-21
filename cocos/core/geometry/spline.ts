@@ -26,6 +26,7 @@ import { JSB } from 'internal:constants';
 import { clamp, Vec3 } from '../math';
 import { assertID, warnID } from '../platform/debug';
 import { ShapeType } from './enums';
+import { assertsArrayIndex } from '../data/utils/asserts';
 
 export enum SplineMode {
     /**
@@ -266,7 +267,7 @@ export class Spline {
      * @param index
      */
     public removeKnot (index: number): void {
-        assertID(index >= 0 && index < this._knots$.length, 16408);
+        assertsArrayIndex(this._knots$, index);
 
         this._knots$.splice(index, 1);
     }
@@ -280,7 +281,7 @@ export class Spline {
      * @param knot @en The knot to be set to the specified position. @zh 要设置的结点。
      */
     public setKnot (index: number, knot: Vec3): void {
-        assertID(index >= 0 && index < this._knots$.length, 16408);
+        assertsArrayIndex(this._knots$, index);
 
         this._knots$[index].set(knot);
     }
@@ -294,7 +295,7 @@ export class Spline {
      * @returns @en The knot of the specified position of this Spline instance. @zh 当前 Spline 实例指定位置的结点。
      */
     public getKnot (index: number): Readonly<Vec3> {
-        assertID(index >= 0 && index < this._knots$.length, 16408);
+        assertsArrayIndex(this._knots$, index);
 
         return this._knots$[index];
     }
