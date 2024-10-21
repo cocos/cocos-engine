@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { clamp, v3, Vec3 } from '../math';
+import { clamp, Vec3 } from '../math';
 import { assertID, warnID } from '../platform/debug';
 import { ShapeType } from './enums';
 
@@ -76,10 +76,10 @@ export enum SplineMode {
 
 const SPLINE_WHOLE_INDEX = 0xffffffff;
 
-const _v0 = v3();
-const _v1 = v3();
-const _v2 = v3();
-const _v3 = v3();
+const _v0 = new Vec3();
+const _v1 = new Vec3();
+const _v2 = new Vec3();
+const _v3 = new Vec3();
 
 /**
  * @en
@@ -105,7 +105,7 @@ export class Spline {
         this._mode$ = mode;
 
         for (let i = 0; i < knots.length; i++) {
-            this._knots$[i] = v3(knots[i]);
+            this._knots$[i] = new Vec3(knots[i]);
         }
 
         if (JSB) {
@@ -313,7 +313,7 @@ export class Spline {
 
         const segments = this.getSegments();
         if (segments === 0) {
-            return new Vec3(0.0, 0.0, 0.0);
+            return new Vec3();
         }
 
         if (index === SPLINE_WHOLE_INDEX) {
@@ -338,7 +338,7 @@ export class Spline {
             return Spline.calcCatmullRom$(v0, this._knots$[index], this._knots$[index + 1], v3, t);
         }
         default:
-            return new Vec3(0.0, 0.0, 0.0);
+            return new Vec3();
         }
     }
 
@@ -395,11 +395,12 @@ export class Spline {
             return count / 4;
         default:
             assertID(false, 16407);
+            return 0;
         }
     }
 
     private static calcLinear$ (v0: Vec3, v1: Vec3, t: number): Vec3 {
-        const result = v3();
+        const result = new Vec3();
         Vec3.multiplyScalar(_v0, v0, (1.0 - t));
         Vec3.multiplyScalar(_v1, v1, t);
         Vec3.add(result, _v0, _v1);
