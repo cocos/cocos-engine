@@ -3876,3 +3876,11 @@ This device does not support WebGL2
 ### 16406
 
 Can't find the spriteFrame of tilesets %s
+
+### 16407
+
+Spline error: invalid mode
+
+### 16408
+
+Spline: invalid index
