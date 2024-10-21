@@ -39,6 +39,9 @@ import { BlendFactor } from '../../gfx';
 import { TextStyle } from '../assembler/label/text-style';
 import { TextLayout } from '../assembler/label/text-layout';
 import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
+import type { RenderData } from '../renderer/render-data';
+import type { LetterFont } from '../assembler/label/letter-font';
+import type { TTF } from '../assembler/label/ttf';
 
 const tempColor = Color.WHITE.clone();
 /**
@@ -952,7 +955,7 @@ export class Label extends UIRenderer {
             this._applyFontTexture();
         }
         if (this._assembler) {
-            this._assembler.updateRenderData(this);
+            this._assembler.updateRenderData!(this);
         }
     }
 
@@ -1011,7 +1014,7 @@ export class Label extends UIRenderer {
 
         if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
+                this._renderData = this._assembler.createData(this) as RenderData;
                 this.renderData!.material = this.material;
                 this._updateColor();
             }
@@ -1030,17 +1033,17 @@ export class Label extends UIRenderer {
                 }
                 this.changeMaterialForDefine();
                 if (this._assembler) {
-                    this._assembler.updateRenderData(this);
+                    this._assembler.updateRenderData!(this);
                 }
             }
         } else {
             if (this.cacheMode === CacheMode.CHAR) {
-                this._letterTexture = this._assembler!.getAssemblerData();
+                this._letterTexture = (this._assembler as LetterFont).getAssemblerData();
                 this._texture = this._letterTexture;
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
-                this._assemblerData = this._assembler!.getAssemblerData();
-                const image = new ImageAsset(this._assemblerData!.canvas);
+                this._assemblerData = (this._assembler as TTF).getAssemblerData();
+                const image = new ImageAsset(this._assemblerData.canvas);
                 const texture = new Texture2D();
                 texture.image = image;
                 this._ttfSpriteFrame.texture = texture;

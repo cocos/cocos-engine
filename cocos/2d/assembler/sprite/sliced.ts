@@ -23,12 +23,12 @@
 */
 
 import { Color } from '../../../core';
-import { IRenderData, RenderData } from '../../renderer/render-data';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Sprite } from '../../components';
-import { IAssembler } from '../../renderer/base';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Sprite } from '../../components';
+import type { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const tempRenderData: IRenderData[] = [];
 for (let i = 0; i < 4; i++) {
@@ -39,20 +39,21 @@ for (let i = 0; i < 4; i++) {
  * sliced 组装器
  * 可通过 `UI.sliced` 获取该组装器。
  */
-export const sliced: IAssembler = {
+class Sliced implements IAssembler {
+    private QUAD_INDICES!: Uint16Array;
 
-    createData (sprite: Sprite) {
+    createData (sprite: Sprite): RenderData {
         const renderData: RenderData | null = sprite.requestRenderData()!;
         // 0-4 for local vertex
         renderData.dataLength = 16;
         renderData.resize(16, 54);
         this.QUAD_INDICES = new Uint16Array(54);
         this.createQuadIndices(4, 4);
-        renderData.chunk.setIndexBuffer(this.QUAD_INDICES as Uint16Array);
+        renderData.chunk.setIndexBuffer(this.QUAD_INDICES);
         return renderData;
-    },
+    }
 
-    createQuadIndices (vertexRow: number, vertexCol: number) {
+    private createQuadIndices (vertexRow: number, vertexCol: number): void {
         let offset = 0;
         for (let curRow = 0; curRow < vertexRow - 1; curRow++) {
             for (let curCol = 0; curCol < vertexCol - 1; curCol++) {
@@ -74,9 +75,9 @@ export const sliced: IAssembler = {
                 this.QUAD_INDICES[offset++] = vid + vertexCol;
             }
         }
-    },
+    }
 
-    updateRenderData (sprite: Sprite) {
+    updateRenderData (sprite: Sprite): void {
         const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
@@ -102,9 +103,9 @@ export const sliced: IAssembler = {
             }
             renderData.updateRenderData(sprite, frame);
         }
-    },
+    }
 
-    updateVertexData (sprite: Sprite) {
+    private updateVertexData (sprite: Sprite): void {
         const renderData: RenderData = sprite.renderData!;
         const dataList: IRenderData[] = renderData.data;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
@@ -148,9 +149,9 @@ export const sliced: IAssembler = {
                 }
             }
         }
-    },
+    }
 
-    fillBuffers (sprite: Sprite, renderer: IBatcher) {
+    fillBuffers (sprite: Sprite, renderer: IBatcher): void {
         const renderData: RenderData = sprite.renderData!;
         const chunk = renderData.chunk;
         if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
@@ -176,9 +177,9 @@ export const sliced: IAssembler = {
             }
         }
         meshBuffer.indexOffset = indexOffset;
-    },
+    }
 
-    updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {
+    private updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk): void {
         const renderData = sprite.renderData!;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
@@ -206,9 +207,9 @@ export const sliced: IAssembler = {
                 vData[offset + 2] = (m02 * x + m06 * y + m14) * rhw;
             }
         }
-    },
+    }
 
-    updateUVs (sprite: Sprite) {
+    updateUVs (sprite: Sprite): void {
         if (!sprite.spriteFrame) return;
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
@@ -220,9 +221,9 @@ export const sliced: IAssembler = {
             vData[uvOffset + 1] = uv[i].v;
             uvOffset += stride;
         }
-    },
+    }
 
-    updateColor (sprite: Sprite) {
+    updateColor (sprite: Sprite): void {
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
@@ -240,5 +241,7 @@ export const sliced: IAssembler = {
             vData[colorOffset + 3] = colorA;
             colorOffset += stride;
         }
-    },
-};
+    }
+}
+
+export const sliced = new Sliced();

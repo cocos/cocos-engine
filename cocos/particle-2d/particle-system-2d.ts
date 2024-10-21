@@ -38,11 +38,11 @@ import { BlendFactor } from '../gfx';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
-import { IBatcher } from '../2d/renderer/i-batcher';
+import type { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 import { ccwindow } from '../core/global-exports';
-import type { IAssembler } from '../2d';
+import type { IAssembler, MeshRenderData } from '../2d';
 import type { TextureBase } from '../asset/assets/texture-base';
 
 /**
@@ -136,6 +136,80 @@ function getParticleComponents (node): ParticleSystem2D[] {
         return node.getComponentsInChildren(ParticleSystem2D) as ParticleSystem2D[];
     }
     return getParticleComponents(parent);
+}
+
+interface IParticle2DParameters {
+    maxParticles?: string;
+    particleLifespan?: string;
+    particleLifespanVariance?: string;
+    emissionRate?: string;
+    duration?: string;
+    blendFuncSource?: string;
+    blendFuncDestination?: string;
+    startColorRed?: string;
+    startColorGreen?: string;
+    startColorBlue?: string;
+    startColorAlpha?: string;
+
+    startColorVarianceRed?: string;
+    startColorVarianceGreen?: string;
+    startColorVarianceBlue?: string;
+    startColorVarianceAlpha?: string;
+
+    finishColorRed?: string;
+    finishColorGreen?: string;
+    finishColorBlue?: string;
+    finishColorAlpha?: string;
+
+    finishColorVarianceRed?: string;
+    finishColorVarianceGreen?: string;
+    finishColorVarianceBlue?: string;
+    finishColorVarianceAlpha?: string;
+
+    startParticleSize?: string;
+    startParticleSizeVariance?: string;
+    finishParticleSize?: string;
+    finishParticleSizeVariance?: string;
+
+    positionType?: string;
+
+    sourcePositionVariancex?: string;
+    sourcePositionVariancey?: string;
+
+    angle?: string;
+    angleVariance?: string;
+
+    rotationStart?: string;
+    rotationStartVariance?: string;
+    rotationEnd?: string;
+    rotationEndVariance?: string;
+
+    emitterType?: string;
+
+    gravityx?: string;
+    gravityy?: string;
+
+    speed?: string;
+    speedVariance?: string;
+
+    radialAcceleration?: string;
+    radialAccelVariance?: string;
+
+    tangentialAcceleration?: string;
+    tangentialAccelVariance?: string;
+
+    rotationIsDir?: string;
+
+    maxRadius?: string;
+    maxRadiusVariance?: string;
+    minRadius?: string;
+    minRadiusVariance?: string;
+    rotatePerSecond?: string;
+    rotatePerSecondVariance?: string;
+
+    spriteFrameUuid?: string;
+    textureFileName?: string;
+    textureImageData?: string;
 }
 
 /**
@@ -740,10 +814,10 @@ export class ParticleSystem2D extends UIRenderer {
     private _positionType = PositionType.FREE;
 
     private _stopped = true;
-    private declare _previewTimer;
+    private declare _previewTimer: number | null;
     private declare _focused: boolean;
-    private declare _plistFile;
-    private declare _tiffReader;
+    private declare _plistFile: string;
+    private declare _tiffReader: TiffReader;
     private _useFile: boolean;
 
     constructor () {
@@ -768,7 +842,7 @@ export class ParticleSystem2D extends UIRenderer {
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator.uvFilled = 0;
 
-        if (this._simulator.renderData && this._assembler) {
+        if (this._simulator.renderData && this._assembler && this._assembler.removeData) {
             this._assembler.removeData(this._simulator.renderData);
         }
     }
@@ -843,13 +917,13 @@ export class ParticleSystem2D extends UIRenderer {
             this._assembler = assembler;
         }
         if (this._assembler && this._assembler.createData) {
-            this._simulator.renderData = this._assembler.createData(this);
+            this._simulator.renderData = this._assembler.createData(this) as MeshRenderData;
             this._simulator.renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
             this._simulator.initDrawInfo();
         }
     }
 
-    protected lateUpdate (dt): void {
+    protected lateUpdate (dt: number): void {
         if (!this._simulator.finished) {
             this._simulator.step(dt);
         }
@@ -917,14 +991,14 @@ export class ParticleSystem2D extends UIRenderer {
             if (!this._custom) {
                 const isDiffFrame = this._spriteFrame !== file.spriteFrame;
                 if (isDiffFrame) this.spriteFrame = file.spriteFrame;
-                this._initWithDictionary(file._nativeAsset);
+                this._initWithDictionary(file._nativeAsset as IParticle2DParameters);
             }
 
             if (!this._spriteFrame) {
                 if (file.spriteFrame) {
                     this.spriteFrame = file.spriteFrame;
                 } else if (this._custom) {
-                    this._initTextureWithDictionary(file._nativeAsset);
+                    this._initTextureWithDictionary(file._nativeAsset as IParticle2DParameters);
                 }
             } else if (!this._renderSpriteFrame && this._spriteFrame) {
                 this._applySpriteFrame();
@@ -935,7 +1009,7 @@ export class ParticleSystem2D extends UIRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _initTextureWithDictionary (dict: any): boolean {
+    public _initTextureWithDictionary (dict: IParticle2DParameters): boolean {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid = dict.spriteFrameUuid;
             assetManager.loadAny(spriteFrameUuid, (err: Error, spriteFrame: SpriteFrame): void => {
@@ -1023,7 +1097,9 @@ export class ParticleSystem2D extends UIRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _initWithDictionary (dict: any): boolean {
+    public _initWithDictionary (dict: IParticle2DParameters): boolean {
+        const parseInt = globalThis.parseInt as (v: string | number) => number;
+        const parseFloat = globalThis.parseFloat as (v: string | number) => number;
         this._useFile = true;
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
@@ -1034,7 +1110,7 @@ export class ParticleSystem2D extends UIRenderer {
         // emission Rate
         const _tempEmissionRate = dict.emissionRate;
         if (_tempEmissionRate) {
-            this.emissionRate = _tempEmissionRate;
+            this.emissionRate = parseFloat(_tempEmissionRate);
         } else {
             this.emissionRate = Math.min(this.totalParticles / this.life, Number.MAX_VALUE);
         }
