@@ -597,6 +597,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 16404, "Block '%s' does not bound" },
 { 16405, "This device does not support WebGL2" },
 { 16406, "Can't find the spriteFrame of tilesets %s" },
+{ 16407, "Spline error: invalid mode" },
 
 };
 }//namespace cc
