@@ -867,7 +867,9 @@ export class Batcher2D implements IBatcher {
     // TODO: Not a good way to do the job
     // Although it's a private method, it is invoked in text-processing.ts and texture-base.ts
     // by legacyCC.director.root.batcher2D._releaseDescriptorSetCache
-    // @engineInternal
+    /**
+     * @engineInternal
+     */
     public _releaseDescriptorSetCache (textureHash: number | Texture | null, sampler: Sampler | null = null): void {
         if (JSB) {
             this._nativeObj.releaseDescriptorSetCache(textureHash as Texture, sampler as Sampler);

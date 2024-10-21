@@ -1033,7 +1033,9 @@ export class Game extends EventTarget {
     }
 
     // @Methods
-    // @engineInternal
+    /**
+     * @engineInternal
+     */
     public _calculateDT (useFixedDeltaTime: boolean): number {
         this._useFixedDeltaTime$ = useFixedDeltaTime;
 

@@ -331,7 +331,9 @@ export class AssetManager {
 
     private constructor () {}
 
-    // @engineInternal
+    /**
+     * @engineInternal
+     */
     public getReleaseManager (): ReleaseManager {
         return this._releaseManager$;
     }
