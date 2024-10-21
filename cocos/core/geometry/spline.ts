@@ -324,19 +324,23 @@ export class Spline {
             t     = (t % deltaT) / deltaT;
         }
 
+        const knots = this._knots$;
+
         if (index >= segments) {
-            return new Vec3(this._knots$[this._knots$.length - 1]);
+            return new Vec3(knots[knots.length - 1]);
         }
 
         switch (this._mode$) {
         case SplineMode.LINEAR:
-            return Spline.calcLinear$(this._knots$[index], this._knots$[index + 1], t);
-        case SplineMode.BEZIER:
-            return Spline.calcBezier$(this._knots$[index * 4], this._knots$[index * 4 + 1], this._knots$[index * 4 + 2], this._knots$[index * 4 + 3], t);
+            return Spline.calcLinear$(knots[index], knots[index + 1], t);
+        case SplineMode.BEZIER: {
+            const start = index * 4;
+            return Spline.calcBezier$(knots[start], knots[start + 1], knots[start + 2], knots[start + 3], t);
+        }
         case SplineMode.CATMULL_ROM: {
-            const v0 = index > 0 ? this._knots$[index - 1] : this._knots$[index];
-            const v3 = index + 2 < this._knots$.length ? this._knots$[index + 2] : this._knots$[index + 1];
-            return Spline.calcCatmullRom$(v0, this._knots$[index], this._knots$[index + 1], v3, t);
+            const v0 = index > 0 ? knots[index - 1] : knots[index];
+            const v3 = index + 2 < knots.length ? knots[index + 2] : knots[index + 1];
+            return Spline.calcCatmullRom$(v0, knots[index], knots[index + 1], v3, t);
         }
         default:
             return new Vec3();
