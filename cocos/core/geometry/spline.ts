@@ -22,10 +22,11 @@
  THE SOFTWARE.
 */
 
-import { assertIsTrue } from '../data/utils/asserts';
+import { JSB } from 'internal:constants';
 import { clamp, Vec3 } from '../math';
-import { warnID } from '../platform/debug';
+import { assertID, warnID } from '../platform/debug';
 import { ShapeType } from './enums';
+import { assertsArrayIndex } from '../data/utils/asserts';
 
 export enum SplineMode {
     /**
@@ -90,8 +91,15 @@ const _v3 = new Vec3();
 
 export class Spline {
     private readonly _type$: number;
-    private _mode$: SplineMode = SplineMode.CATMULL_ROM;
+    private declare _mode$: SplineMode;
     private _knots$: Vec3[] = [];
+
+    // The private properties '_mode' and '_knots' are used in 'jsb_conversions_spec.cpp' for native platforms.
+    // bool sevalue_to_native(const se::Value &from, cc::geometry::Spline *to, se::Object * /*unused*/)
+    // So declare them here and add references in constructor.
+    private declare _mode: SplineMode;
+    private declare _knots: Vec3[];
+    //
 
     private constructor (mode: SplineMode = SplineMode.CATMULL_ROM, knots: Readonly<Vec3[]> = []) {
         this._type$ = ShapeType.SHAPE_SPLINE;
@@ -99,6 +107,11 @@ export class Spline {
 
         for (let i = 0; i < knots.length; i++) {
             this._knots$[i] = new Vec3(knots[i]);
+        }
+
+        if (JSB) {
+            this._mode = this._mode$;
+            this._knots = this._knots$;
         }
     }
 
@@ -254,7 +267,7 @@ export class Spline {
      * @param index
      */
     public removeKnot (index: number): void {
-        assertIsTrue(index >= 0 && index < this._knots$.length, 'Spline: invalid index');
+        assertsArrayIndex(this._knots$, index);
 
         this._knots$.splice(index, 1);
     }
@@ -268,7 +281,7 @@ export class Spline {
      * @param knot @en The knot to be set to the specified position. @zh 要设置的结点。
      */
     public setKnot (index: number, knot: Vec3): void {
-        assertIsTrue(index >= 0 && index < this._knots$.length, 'Spline: invalid index');
+        assertsArrayIndex(this._knots$, index);
 
         this._knots$[index].set(knot);
     }
@@ -282,7 +295,7 @@ export class Spline {
      * @returns @en The knot of the specified position of this Spline instance. @zh 当前 Spline 实例指定位置的结点。
      */
     public getKnot (index: number): Readonly<Vec3> {
-        assertIsTrue(index >= 0 && index < this._knots$.length, 'Spline: invalid index');
+        assertsArrayIndex(this._knots$, index);
 
         return this._knots$[index];
     }
@@ -301,7 +314,7 @@ export class Spline {
 
         const segments = this.getSegments();
         if (segments === 0) {
-            return new Vec3(0.0, 0.0, 0.0);
+            return new Vec3();
         }
 
         if (index === SPLINE_WHOLE_INDEX) {
@@ -311,22 +324,26 @@ export class Spline {
             t     = (t % deltaT) / deltaT;
         }
 
+        const knots = this._knots$;
+
         if (index >= segments) {
-            return new Vec3(this._knots$[this._knots$.length - 1]);
+            return new Vec3(knots[knots.length - 1]);
         }
 
         switch (this._mode$) {
         case SplineMode.LINEAR:
-            return Spline.calcLinear$(this._knots$[index], this._knots$[index + 1], t);
-        case SplineMode.BEZIER:
-            return Spline.calcBezier$(this._knots$[index * 4], this._knots$[index * 4 + 1], this._knots$[index * 4 + 2], this._knots$[index * 4 + 3], t);
+            return Spline.calcLinear$(knots[index], knots[index + 1], t);
+        case SplineMode.BEZIER: {
+            const start = index * 4;
+            return Spline.calcBezier$(knots[start], knots[start + 1], knots[start + 2], knots[start + 3], t);
+        }
         case SplineMode.CATMULL_ROM: {
-            const v0 = index > 0 ? this._knots$[index - 1] : this._knots$[index];
-            const v3 = index + 2 < this._knots$.length ? this._knots$[index + 2] : this._knots$[index + 1];
-            return Spline.calcCatmullRom$(v0, this._knots$[index], this._knots$[index + 1], v3, t);
+            const v0 = index > 0 ? knots[index - 1] : knots[index];
+            const v3 = index + 2 < knots.length ? knots[index + 2] : knots[index + 1];
+            return Spline.calcCatmullRom$(v0, knots[index], knots[index + 1], v3, t);
         }
         default:
-            return new Vec3(0.0, 0.0, 0.0);
+            return new Vec3();
         }
     }
 
@@ -382,7 +399,8 @@ export class Spline {
 
             return count / 4;
         default:
-            assertIsTrue(false, 'Spline error: invalid mode');
+            assertID(false, 16407);
+            return 0;
         }
     }
 
