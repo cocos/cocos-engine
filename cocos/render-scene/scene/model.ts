@@ -823,7 +823,7 @@ export class Model {
         }
 
         const coefficients: Vec3[] = [];
-        const weights = new Vec4(0.0, 0.0, 0.0, 0.0);
+        const weights = new Vec4();
         const lightProbes = (cclegacy.director.root as Root).pipeline.pipelineSceneData.lightProbes;
 
         this._lastWorldBoundCenter$.set(center);
@@ -837,8 +837,9 @@ export class Model {
             return;
         }
 
-        cclegacy.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
-        cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSHEnum.SH_LINEAR_CONST_R_OFFSET, coefficients);
+        const SH = cclegacy.internal.SH;
+        SH.reduceRinging(coefficients, lightProbes.reduceRinging);
+        SH.updateUBOData(this._localSHData, UBOSHEnum.SH_LINEAR_CONST_R_OFFSET, coefficients);
         this.updateSHBuffer$();
     }
 
