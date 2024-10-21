@@ -1318,7 +1318,7 @@ class DeviceRenderScene implements RecordingInterface {
     public record (): void {
         const devicePass = this._currentQueue.devicePass;
         const sceneCulling = context.culling;
-        if (!devicePass.indexOfRD) this._updateRenderData();
+        this._updateRenderData();
         this._applyViewport();
         // Currently processing blit and camera first
         if (this.blit) {
