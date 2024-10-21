@@ -23,7 +23,6 @@
 */
 
 import { JSB } from 'internal:constants';
-import { assertIsTrue } from '../data/utils/asserts';
 import { clamp, v3, Vec3 } from '../math';
 import { assertID, warnID } from '../platform/debug';
 import { ShapeType } from './enums';
