@@ -109,7 +109,6 @@ export function launchEngine (): Promise<void> {
                     });
                 });
             });             
-        });
     }).catch((e: any) => {
         console.error('imported failed', e.message, e.stack)
     });
