@@ -716,7 +716,11 @@
             "cocos/serialization/instantiate-jit.ts",
             "cocos/game/splash-screen.ts",
             "cocos/core/utils/jsb-utils.ts",
-            "cocos/2d/framework/ui-skew-utils.ts"
+            "cocos/2d/framework/ui-skew-utils.ts",
+            "pal/input/minigame/gamepad-input.ts",
+            "pal/input/minigame/handheld-input.ts",
+            "pal/input/minigame/handle-input.ts",
+            "pal/input/minigame/hmd-input.ts"
         ]
     }
 }

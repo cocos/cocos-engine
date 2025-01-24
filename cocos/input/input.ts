@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR_NOT_IN_PREVIEW, NATIVE } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, HTML5, NATIVE } from 'internal:constants';
 import { AccelerometerInputSource, GamepadInputDevice, HMDInputDevice, HandheldInputDevice,
     HandleInputDevice, KeyboardInputSource, MouseInputSource, TouchInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
@@ -139,9 +139,10 @@ export class Input {
     private _mouseInput = new MouseInputSource();
     private _keyboardInput = new KeyboardInputSource();
     private _accelerometerInput = new AccelerometerInputSource();
-    private _handleInput = new HandleInputDevice();
-    private _hmdInput = new HMDInputDevice();
-    private _handheldInput = new HandheldInputDevice();
+
+    private declare _handleInput: HandleInputDevice;
+    private declare _hmdInput: HMDInputDevice;
+    private declare _handheldInput: HandheldInputDevice;
 
     private _eventKeyboardList: EventKeyboard[] = [];
     private _eventAccelerationList: EventAcceleration[] = [];
@@ -156,10 +157,17 @@ export class Input {
     private _eventDispatcherList: IEventDispatcher[] = [];
 
     constructor () {
+        if (HTML5 || NATIVE) {
+            this._handleInput = new HandleInputDevice();
+            this._hmdInput = new HMDInputDevice();
+            this._handheldInput = new HandheldInputDevice();
+        }
         this._registerEvent();
         this._inputEventDispatcher = new InputEventDispatcher(this._eventTarget);
         this._registerEventDispatcher(this._inputEventDispatcher);
-        GamepadInputDevice._init();
+        if (HTML5 || NATIVE) {
+            GamepadInputDevice._init();
+        }
     }
 
     /**
@@ -419,41 +427,43 @@ export class Input {
             });
         }
 
-        if (sys.hasFeature(sys.Feature.EVENT_GAMEPAD)) {
-            const eventGamepadList = self._eventGamepadList;
-            GamepadInputDevice._on(InputEventType.GAMEPAD_CHANGE, (event): void => {
-                self._dispatchOrPushEvent(event, eventGamepadList);
-            });
-            GamepadInputDevice._on(InputEventType.GAMEPAD_INPUT, (event): void => {
-                self._dispatchOrPushEvent(event, eventGamepadList);
-            });
-            GamepadInputDevice._on(InputEventType.HANDLE_POSE_INPUT, (event): void => {
-                self._dispatchOrPushEvent(event, eventGamepadList);
-            });
-        }
+        if (HTML5 || NATIVE) {
+            if (sys.hasFeature(sys.Feature.EVENT_GAMEPAD)) {
+                const eventGamepadList = self._eventGamepadList;
+                GamepadInputDevice._on(InputEventType.GAMEPAD_CHANGE, (event): void => {
+                    self._dispatchOrPushEvent(event, eventGamepadList);
+                });
+                GamepadInputDevice._on(InputEventType.GAMEPAD_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventGamepadList);
+                });
+                GamepadInputDevice._on(InputEventType.HANDLE_POSE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventGamepadList);
+                });
+            }
 
-        if (sys.hasFeature(sys.Feature.EVENT_HANDLE)) {
-            const eventHandleList = self._eventHandleList;
-            handleInput._on(InputEventType.HANDLE_INPUT, (event): void => {
-                self._dispatchOrPushEvent(event, eventHandleList);
-            });
-            handleInput._on(InputEventType.HANDLE_POSE_INPUT, (event): void => {
-                self._dispatchOrPushEvent(event, eventHandleList);
-            });
-        }
+            if (sys.hasFeature(sys.Feature.EVENT_HANDLE)) {
+                const eventHandleList = self._eventHandleList;
+                handleInput._on(InputEventType.HANDLE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventHandleList);
+                });
+                handleInput._on(InputEventType.HANDLE_POSE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventHandleList);
+                });
+            }
 
-        if (sys.hasFeature(sys.Feature.EVENT_HMD)) {
-            const eventHMDList = self._eventHMDList;
-            self._hmdInput._on(InputEventType.HMD_POSE_INPUT, (event): void => {
-                self._dispatchOrPushEvent(event, eventHMDList);
-            });
-        }
+            if (sys.hasFeature(sys.Feature.EVENT_HMD)) {
+                const eventHMDList = self._eventHMDList;
+                self._hmdInput._on(InputEventType.HMD_POSE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventHMDList);
+                });
+            }
 
-        if (sys.hasFeature(sys.Feature.EVENT_HANDHELD)) {
-            const eventHandheldList = self._eventHandheldList;
-            self._handheldInput._on(InputEventType.HANDHELD_POSE_INPUT, (event): void => {
-                self._dispatchOrPushEvent(event, eventHandheldList);
-            });
+            if (sys.hasFeature(sys.Feature.EVENT_HANDHELD)) {
+                const eventHandheldList = self._eventHandheldList;
+                self._handheldInput._on(InputEventType.HANDHELD_POSE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventHandheldList);
+                });
+            }
         }
     }
 
