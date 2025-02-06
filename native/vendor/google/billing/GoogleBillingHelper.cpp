@@ -40,6 +40,8 @@
 #include "vendor/google/billing/build-params/ConsumeParams.h"
 #include "vendor/google/billing/result-values/ProductDetails.h"
 #include "vendor/google/billing/result-values/Purchase.h"
+#include "vendor/google/common/JsUtils.h"
+
 namespace {
 
 #ifndef JCLS_BILLING
@@ -48,49 +50,14 @@ namespace {
 }; // namespace
 
 namespace cc {
-namespace {
-void invokeJsCallback(se::Object* obj, const char* jsFunctionName, const se::ValueArray& args) {
-    if (!obj) {
-        return;
-    }
-
-    se::Value funcVal;
-    if (!obj->getProperty(jsFunctionName, &funcVal) || !funcVal.isObject()) {
-        return;
-    }
-    se::Value rval;
-    funcVal.toObject()->call(args, obj, &rval);
-}
-
-template <typename... Args>
-void callJSfunc(se::Object* obj, const char* jsFunctionName, Args&&... inargs) { // NOLINT(readability-identifier-naming)
-    if (!se::ScriptEngine::getInstance()->isValid()) {
-        return;
-    }
-    se::AutoHandleScope scope;
-    se::ValueArray args;
-    args.resize(sizeof...(Args));
-    nativevalue_to_se_args_v(args, inargs...);
-    invokeJsCallback(obj, jsFunctionName, args);
-}
-
-void callJSfunc(se::Object* obj, const char* jsFunctionName) { // NOLINT(readability-identifier-naming)
-    if (!se::ScriptEngine::getInstance()->isValid()) {
-        return;
-    }
-    se::AutoHandleScope scope;
-    invokeJsCallback(obj, jsFunctionName, se::ValueArray());
-}
-
-template void callJSfunc(se::Object* obj, const char*, BillingResult*&&);
-template void callJSfunc(se::Object* obj, const char*, BillingResult*&&, const std::vector<cc::ProductDetails*>&);
-template void callJSfunc(se::Object* obj, const char*, BillingResult*&&, const std::vector<cc::Purchase*>&);
-template void callJSfunc(se::Object* obj, const char*, BillingResult*&&, const std::string&);
-template void callJSfunc(se::Object* obj, const char*, BillingResult*&&, BillingConfig*&&);
-template void callJSfunc(se::Object* obj, const char*, BillingResult*&&, AlternativeBillingOnlyReportingDetails*&&);
-template void callJSfunc(se::Object* obj, const char*, BillingResult*&&, ExternalOfferReportingDetails*&&);
-template void callJSfunc(se::Object* obj, const char*, InAppMessageResult*&&);
-} // namespace
+template se::Value callJSfunc(se::Object* obj, const char*, BillingResult*&&);
+template se::Value callJSfunc(se::Object* obj, const char*, BillingResult*&&, const std::vector<cc::ProductDetails*>&);
+template se::Value callJSfunc(se::Object* obj, const char*, BillingResult*&&, const std::vector<cc::Purchase*>&);
+template se::Value callJSfunc(se::Object* obj, const char*, BillingResult*&&, const std::string&);
+template se::Value callJSfunc(se::Object* obj, const char*, BillingResult*&&, BillingConfig*&&);
+template se::Value callJSfunc(se::Object* obj, const char*, BillingResult*&&, AlternativeBillingOnlyReportingDetails*&&);
+template se::Value callJSfunc(se::Object* obj, const char*, BillingResult*&&, ExternalOfferReportingDetails*&&);
+template se::Value callJSfunc(se::Object* obj, const char*, InAppMessageResult*&&);
 
 int GoogleBillingHelper::createGoogleBilling(BillingClient::Builder* builder) {
     int tag = JniHelper::callStaticIntMethod(JCLS_BILLING, "newTag");

@@ -35,46 +35,14 @@
 #include "cocos/bindings/manual/jsb_global_init.h"
 #include "vendor/google/billing/GoogleBilling.h"
 #include "vendor/google/billing/build-params/PendingPurchasesParams.h"
-
+#include "vendor/google/common/JniUtils.h"
 namespace {
-
 #ifndef JCLS_BILLING
     #define JCLS_BILLING "google/billing/GoogleBillingHelper"
 #endif
 }; // namespace
 
 namespace cc {
-namespace {
-std::string callStringMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName) {
-    jmethodID methodId = env->GetMethodID(clazz, methodName, "()Ljava/lang/String;");
-    jobject jStringObj = env->CallObjectMethod(obj, methodId);
-    if (jStringObj != nullptr) {
-        return cc::StringUtils::getStringUTFCharsJNI(env, static_cast<jstring>(jStringObj));
-    }
-    return "";
-}
-jobject callObjectMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName, const char* returnType) {
-    std::string returnSign = cc::StringUtils::format("()L%s", returnType);
-    jmethodID methodId = env->GetMethodID(clazz, methodName, returnSign.c_str());
-    return env->CallObjectMethod(obj, methodId);
-}
-
-int callIntMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName) {
-    jmethodID methodId = env->GetMethodID(clazz, methodName, "()I");
-    return env->CallIntMethod(obj, methodId);
-}
-
-bool callBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName) {
-    jmethodID methodId = env->GetMethodID(clazz, methodName, "()Z");
-    return env->CallBooleanMethod(obj, methodId);
-}
-
-long callLongMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName) {
-    jmethodID methodId = env->GetMethodID(clazz, methodName, "()J");
-    return env->CallLongMethod(obj, methodId);
-}
-
-} // namespace
 
 cc::BillingResult* JniBilling::toBillingResult(JNIEnv* env, jobject obj) {
     jclass clazz = env->GetObjectClass(obj);

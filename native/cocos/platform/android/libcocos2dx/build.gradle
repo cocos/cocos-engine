@@ -43,4 +43,5 @@ dependencies {
     if(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean()) {
         implementation "com.android.billingclient:billing:7.1.0"
     }
+    implementation "com.google.android.gms:play-services-games-v2:+"
 }
