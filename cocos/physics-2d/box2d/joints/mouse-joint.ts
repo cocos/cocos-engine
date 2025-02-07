@@ -66,7 +66,10 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     _createJointDef (): any {
         const def = new b2.MouseJointDef();
         const comp = this._jointComp as MouseJoint2D;
-        def.target.Set(this._touchPoint.x / PHYSICS_2D_PTM_RATIO, this._touchPoint.y / PHYSICS_2D_PTM_RATIO);
+        def.target.Set(
+            this._touchPoint.x / PHYSICS_2D_PTM_RATIO,
+            this._touchPoint.y / PHYSICS_2D_PTM_RATIO,
+        );
         def.maxForce = comp.maxForce;
         def.dampingRatio = comp.dampingRatio;
         def.frequencyHz = comp.frequency;
@@ -85,18 +88,16 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         }
     }
 
-    onEnable (): void {
-    }
+    onEnable (): void {}
 
-    start (): void {
-    }
+    start (): void {}
 
     onTouchBegan (event: Touch): void {
         this._isTouched = true;
 
         const target = this._touchPoint.set(event.getUILocation());
 
-        const world = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld);
+        const world = PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld;
         const colliders = world.testPoint(target);
         if (colliders.length <= 0) return;
 
@@ -117,6 +118,13 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     }
 
     onTouchEnd (event: Touch): void {
+        const canvas = find('Canvas');
+        if (canvas) {
+            canvas.off(NodeEventType.TOUCH_START, this.onTouchBegan, this);
+            canvas.off(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
+            canvas.off(NodeEventType.TOUCH_END, this.onTouchEnd, this);
+            canvas.off(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
+        }
         this._destroy();
         this._isTouched = false;
     }
