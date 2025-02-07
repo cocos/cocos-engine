@@ -297,14 +297,14 @@ jobs:
         run: |
           if [ ! -d "$HOME/openharmony" ]; then
             mkdir -p $HOME/openharmony
-            echo "Download commandline-tools-linux.zip ..."
-            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-12/commandline-tools-linux-x64-5.0.3.906.zip.001
-            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-12/commandline-tools-linux-x64-5.0.3.906.zip.002
-            echo "Unzip commandline-tools-linux.zip ..."
-            7z x commandline-tools-linux-x64-5.0.3.906.zip.001 -o$HOME/openharmony > /dev/null
+            echo "Download commandline-tools-linux-x64-5.0.7.200.zip ..."
+            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-13/commandline-tools-linux-x64-5.0.7.200.zip.001
+            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-13/commandline-tools-linux-x64-5.0.7.200.zip.002
+            echo "Unzip commandline-tools-linux-x64-5.0.7.200.zip ..."
+            7z x commandline-tools-linux-x64-5.0.7.200.zip.001 -o$HOME/openharmony > /dev/null
             cd $HOME/openharmony
             ls -l
-            cd commandline-tools-linux-x64-5.0.3.906
+            cd commandline-tools-linux-x64-5.0.7.200
             ls -l
           fi
 
@@ -317,11 +317,11 @@ jobs:
           npm -v
           java --version
           echo "=============== list files in oh sdk ($HOME/openharmony) ==============="
-          pushd $HOME/openharmony/commandline-tools-linux-x64-5.0.3.906
+          pushd $HOME/openharmony/commandline-tools-linux-x64-5.0.7.200
           ls -l
           popd
 
-          export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.3.906/bin
+          export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
           which hvigorw
 
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
