@@ -262,15 +262,14 @@ jobs:
         run: |
           df -h
 
-      - name: Install libgl1-mesa-dri
+      - name: Install libgl1
         run: |
-          sudo apt-get install -y libgl1-mesa-dri
+          sudo apt-get install -y libgl1
 
       - name: Checking libGL.so.1
         run: |
           echo "Checking libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
-          find /usr -name "libGL*"
-          ls -l /usr/lib/x86_64-linux-gnu/ | grep libGL
+          ls -l /usr/lib/x86_64-linux-gnu/*.so
 
       - uses: actions/checkout@v4
       - name: Download external libraries
