@@ -119,6 +119,13 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
     }
 
     onTouchEnd (event: Touch): void {
+        const canvas = find('Canvas');
+        if (canvas) {
+            canvas.off(NodeEventType.TOUCH_START, this.onTouchBegan, this);
+            canvas.off(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
+            canvas.off(NodeEventType.TOUCH_END, this.onTouchEnd, this);
+            canvas.off(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
+        }
         this.destroy();
         this._isTouched = false;
     }
