@@ -243,10 +243,6 @@ jobs:
           cat /etc/ld.so.conf
           cat /etc/ld.so.conf.d/*
 
-      - name: Install libgl-mesa-glx
-        run: |
-          sudo apt install libgl-mesa-glx -y
-
       - name: Checking libGL.so.1
         run: |
           echo "Checking libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
