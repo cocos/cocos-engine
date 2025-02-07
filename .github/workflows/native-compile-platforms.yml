@@ -331,7 +331,7 @@ jobs:
           ls -l
           popd
 
-          export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
+          export PATH=/usr/lib/x86_64-linux-gnu:$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
           which hvigorw
 
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
