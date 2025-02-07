@@ -238,6 +238,7 @@ jobs:
           echo "Install libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
           sudo apt update
           sudo apt install -y libgl1
+          find / -name "libGL*"
 
       - name: Before free space
         run: |
