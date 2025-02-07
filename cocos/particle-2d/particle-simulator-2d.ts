@@ -105,7 +105,7 @@ export class Simulator {
     public active = false;
     public uvFilled = 0;
     public finished = false;
-    public declare renderData: MeshRenderData;
+    public renderData: MeshRenderData | null = null;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
@@ -368,6 +368,7 @@ export class Simulator {
 
         // Request buffer for particles
         const renderData = this.renderData;
+        if (!renderData) return;
         const particleCount = particles.length;
         renderData.reset();
         this.requestData(particleCount * 4, particleCount * 6);
@@ -467,8 +468,8 @@ export class Simulator {
             }
         }
 
-        this.renderData.material = this.sys.getRenderMaterial(0); // hack
-        this.renderData.frame = this.sys._renderSpriteFrame; // hack
+        renderData.material = this.sys.getRenderMaterial(0); // hack
+        renderData.frame = this.sys._renderSpriteFrame; // hack
         renderData.setRenderDrawInfoAttributes();
 
         if (particles.length === 0 && !this.active && !this.readyToPlay) {
@@ -478,6 +479,7 @@ export class Simulator {
     }
 
     requestData (vertexCount: number, indexCount: number): void {
+        if (!this.renderData) return;
         let offset = this.renderData.indexCount;
         this.renderData.request(vertexCount, indexCount);
         const count = this.renderData.indexCount / 6;
@@ -494,7 +496,6 @@ export class Simulator {
     }
 
     public initDrawInfo (): void {
-        const renderData = this.renderData;
-        renderData.setRenderDrawInfoAttributes();
+        this.renderData?.setRenderDrawInfoAttributes();
     }
 }

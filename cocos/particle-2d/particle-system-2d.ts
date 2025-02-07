@@ -42,7 +42,7 @@ import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 import { ccwindow } from '../core/global-exports';
-import type { IAssembler } from '../2d';
+import type { IAssembler, MeshRenderData } from '../2d';
 import type { TextureBase } from '../asset/assets/texture-base';
 
 /**
@@ -770,9 +770,7 @@ export class ParticleSystem2D extends UIRenderer {
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator.uvFilled = 0;
 
-        if (this._simulator.renderData && this._assembler) {
-            this._assembler.removeData(this._simulator.renderData);
-        }
+        this.destroyRenderData();
     }
 
     private initProperties (): void {
@@ -838,20 +836,32 @@ export class ParticleSystem2D extends UIRenderer {
         }
     }
 
-    protected _flushAssembler (): void {
+    public override destroyRenderData (): void {
+        if (this._simulator.renderData && this._assembler) {
+            this._assembler.removeData(this._simulator.renderData);
+            this._simulator.renderData = null;
+        }
+    }
+
+    protected override _flushAssembler (): void {
         const assembler = ParticleSystem2D.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
         if (this._assembler && this._assembler.createData) {
-            this._simulator.renderData = this._assembler.createData(this);
-            this._simulator.renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
-            this._simulator.initDrawInfo();
+            const simulator = this._simulator;
+            let renderData = simulator.renderData;
+            if (!renderData) {
+                renderData = simulator.renderData = this._assembler.createData(this) as MeshRenderData;
+                simulator.uvFilled = 0;
+                renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
+                simulator.initDrawInfo();
+            }
         }
     }
 
-    protected lateUpdate (dt: number): void {
+    protected override lateUpdate (dt: number): void {
         if (!this._simulator.finished) {
             this._simulator.step(dt);
         }
