@@ -343,7 +343,9 @@ jobs:
           echo "PATH=$PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           echo "ldd ..."
-          ldd /home/runner/openharmony/commandline-tools-linux-x64-5.0.7.200/sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so
+          ldd $HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so
+          ls -l /usr/lib/x86_64-linux-gnu/libGL.so.1
+          ls -l /usr/lib/x86_64-linux-gnu/libGL.so.1.7.0
           echo "hvigorw path:"
           which hvigorw
 
