@@ -236,6 +236,13 @@ jobs:
       - name: Show PATH env
         run: |
           echo "PATH=$PATH"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+          echo "ldconfig"
+          ldconfig -v 2>/dev/null | awk '{print $1}' | grep -E '^/'
+          echo "/etc/ld.so.conf"
+          cat /etc/ld.so.conf
+          cat /etc/ld.so.conf.d/*
+
 
       - name: Checking libGL.so.1
         run: |
@@ -331,7 +338,9 @@ jobs:
           ls -l
           popd
 
-          export PATH=/usr/lib/x86_64-linux-gnu:$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
+          export PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
+          echo "PATH=$PATH"
+          echo "hvigorw path:"
           which hvigorw
 
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
