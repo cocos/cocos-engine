@@ -269,7 +269,7 @@ jobs:
       - name: Checking libGL.so.1
         run: |
           echo "Checking libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
-          ls -l /usr/lib/x86_64-linux-gnu/*.so
+          ls -l /usr/lib/x86_64-linux-gnu/*.so*
 
       - uses: actions/checkout@v4
       - name: Download external libraries
@@ -341,12 +341,7 @@ jobs:
           popd
 
           export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
           echo "PATH=$PATH"
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-          echo "ldd ..."
-          ldd $HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so
-          ls -l /usr/lib/x86_64-linux-gnu
           echo "hvigorw path:"
           which hvigorw
 
