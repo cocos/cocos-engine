@@ -66,7 +66,9 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     auto *lightingMap = descriptorSet->getTexture(LIGHTMAPTEXTURE::BINDING);
     auto *reflectionProbeCubemap = descriptorSet->getTexture(REFLECTIONPROBECUBEMAP::BINDING);
     auto *reflectionProbePlanarMap = descriptorSet->getTexture(REFLECTIONPROBEPLANARMAP::BINDING);
-    auto *reflectionProbeBlendCubemap = descriptorSet->getTexture(REFLECTIONPROBEBLENDCUBEMAP::BINDING);
+    gfx::Texture *reflectionProbeBlendCubemap = ENABLE_PROBE_BLEND
+        ? descriptorSet->getTexture(REFLECTIONPROBEBLENDCUBEMAP::BINDING)
+        : nullptr;
     uint32_t reflectionProbeType = subModel->getReflectionProbeType();
     auto *shader = shaderImplant;
     if (!shader) {

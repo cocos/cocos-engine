@@ -41,6 +41,7 @@ import {
     UBOLocalEnum, UBOSH, UBOSHEnum, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
     UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING,
     UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING,
+    ENABLE_PROBE_BLEND,
 } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
@@ -1014,6 +1015,9 @@ export class Model {
      * @param texture probe cubemap
      */
     public updateReflectionProbeBlendCubemap (texture: TextureCube | null): void {
+        if (!ENABLE_PROBE_BLEND) { // Disable probe blend for WebGPU
+            return;
+        }
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 

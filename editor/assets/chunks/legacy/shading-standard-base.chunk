@@ -263,14 +263,16 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
           #else
             env = mix(skyBoxEnv, env, fixedR.w);
           #endif
-        } else {
-          vec3 centerPosBlend, boxHalfSizeBlend;
-          float mipCountBlend;
-          GetBlendCubeReflectionProbeData(centerPosBlend, boxHalfSizeBlend, mipCountBlend, s.reflectionProbeBlendId);
-          vec4 fixedRBlend = CalculateBoxProjectedDirection(R, s.position, centerPosBlend, boxHalfSizeBlend);
-          vec3 probe1 = SampleReflectionProbe(cc_reflectionProbeBlendCubemap, fixedRBlend.xyz, s.roughness, mipCountBlend, isBlendReflectProbeUsingRGBE(s.reflectionProbeBlendId));
-          env = mix(env, probe1, s.reflectionProbeBlendFactor);
         }
+        // Disable probe blend for WebGPU
+        // else {
+        //   vec3 centerPosBlend, boxHalfSizeBlend;
+        //   float mipCountBlend;
+        //   GetBlendCubeReflectionProbeData(centerPosBlend, boxHalfSizeBlend, mipCountBlend, s.reflectionProbeBlendId);
+        //   vec4 fixedRBlend = CalculateBoxProjectedDirection(R, s.position, centerPosBlend, boxHalfSizeBlend);
+        //   vec3 probe1 = SampleReflectionProbe(cc_reflectionProbeBlendCubemap, fixedRBlend.xyz, s.roughness, mipCountBlend, isBlendReflectProbeUsingRGBE(s.reflectionProbeBlendId));
+        //   env = mix(env, probe1, s.reflectionProbeBlendFactor);
+        // }
       }
     #endif
   #endif

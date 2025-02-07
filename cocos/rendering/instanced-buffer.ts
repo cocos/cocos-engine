@@ -25,7 +25,7 @@
 import { Pass } from '../render-scene';
 import { SubModel } from '../render-scene/scene';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING,
-    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from './define';
+    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, ENABLE_PROBE_BLEND } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
 
@@ -42,7 +42,7 @@ export interface IInstancedItem {
     reflectionProbeCubemap: Texture;
     reflectionProbePlanarMap: Texture;
     useReflectionProbeType: number;
-    reflectionProbeBlendCubemap: Texture;
+    reflectionProbeBlendCubemap: Texture | null;
 }
 
 const INITIAL_CAPACITY = 32;
@@ -77,7 +77,9 @@ export class InstancedBuffer {
         const lightingMap = subModelDescriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
         const reflectionProbeCubemap = subModelDescriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING);
         const reflectionProbePlanarMap = subModelDescriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING);
-        const reflectionProbeBlendCubemap = subModelDescriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING);
+        const reflectionProbeBlendCubemap = ENABLE_PROBE_BLEND
+            ? subModelDescriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING)
+            : null;
         const useReflectionProbeType = subModel.useReflectionProbeType;
         let shader = shaderImplant;
         if (!shader) {
@@ -102,7 +104,7 @@ export class InstancedBuffer {
             if (instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
                 continue;
             }
-            if (instance.reflectionProbeBlendCubemap.objectID !== reflectionProbeBlendCubemap.objectID) {
+            if (ENABLE_PROBE_BLEND && instance.reflectionProbeBlendCubemap!.objectID !== reflectionProbeBlendCubemap!.objectID) {
                 continue;
             }
 

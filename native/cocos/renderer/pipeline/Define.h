@@ -264,7 +264,8 @@ enum class CC_DLL ModelLocalBindings {
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
     SAMPLER_REFLECTION_PROBE_DATA_MAP,
-    SAMPLER_REFLECTION_PROBE_BLEND_CUBE,
+    // SAMPLER_REFLECTION_PROBE_BLEND_CUBE, // Disable for WebGPU
+
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ModelLocalBindings)
@@ -670,8 +671,10 @@ struct CC_DLL REFLECTIONPROBEDATAMAP {
     static const ccstd::string NAME;
 };
 
+constexpr bool ENABLE_PROBE_BLEND = false;
+
 struct CC_DLL REFLECTIONPROBEBLENDCUBEMAP {
-    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_BLEND_CUBE);
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_DATA_MAP) + 1; // SAMPLER_REFLECTION_PROBE_BLEND_CUBE
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;

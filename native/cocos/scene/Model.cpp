@@ -687,6 +687,9 @@ void Model::updateReflectionProbeDataMap(Texture2D *texture) {
 }
 
 void Model::updateReflectionProbeBlendCubemap(TextureCube *texture) {
+    if constexpr (!pipeline::ENABLE_PROBE_BLEND) { // Disable probe blend for WebGPU
+        return;
+    }
     _localDataUpdated = true;
     if (texture == nullptr) {
         texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));
