@@ -341,6 +341,9 @@ jobs:
           export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
           export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
           echo "PATH=$PATH"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+          echo "ldd ..."
+          ldd /home/runner/openharmony/commandline-tools-linux-x64-5.0.7.200/sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so
           echo "hvigorw path:"
           which hvigorw
 
@@ -390,9 +393,9 @@ jobs:
           ls -l ./entry/src/main/ets/workers/cocos_worker.ts
 
           echo "=============== EXECUTE hvigorw ==============="
-          hvigorw clean -i
-          hvigorw --stop-daemon -i
-          hvigorw --mode module -p product=default assembleHap --parallel --incremental debuggable=true --no-daemon -d
+          LD_DEBUG=libs hvigorw clean -i
+          LD_DEBUG=libs hvigorw --stop-daemon -i
+          LD_DEBUG=libs hvigorw --mode module -p product=default assembleHap --parallel --incremental debuggable=true --no-daemon -d
           #./hvigorw default@ProcessLibs -p debuggable=true --no-daemon -d
           echo "=============== EXECUTE hvigorw DONE ==============="
 
