@@ -841,6 +841,7 @@ export class ParticleSystem2D extends UIRenderer {
             this._assembler.removeData(this._simulator.renderData);
             this._simulator.renderData = null;
         }
+        super.destroyRenderData();
     }
 
     protected override _flushAssembler (): void {
