@@ -339,6 +339,7 @@ jobs:
           popd
 
           export PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
           echo "PATH=$PATH"
           echo "hvigorw path:"
           which hvigorw
