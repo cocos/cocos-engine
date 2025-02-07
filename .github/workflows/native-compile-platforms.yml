@@ -243,12 +243,6 @@ jobs:
           cat /etc/ld.so.conf
           cat /etc/ld.so.conf.d/*
 
-      - name: Checking libGL.so.1
-        run: |
-          echo "Checking libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
-          find /usr -name "libGL*"
-          ls -l /usr/lib/x86_64-linux-gnu/ | grep libGL
-
       - name: Before free space
         run: |
           df -h
@@ -267,6 +261,16 @@ jobs:
       - name: After free space
         run: |
           df -h
+
+      - name: Install libgl1-mesa-dri
+        run: |
+          sudo apt-get install -y libgl1-mesa-dri
+
+      - name: Checking libGL.so.1
+        run: |
+          echo "Checking libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
+          find /usr -name "libGL*"
+          ls -l /usr/lib/x86_64-linux-gnu/ | grep libGL
 
       - uses: actions/checkout@v4
       - name: Download external libraries
@@ -343,8 +347,7 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           echo "ldd ..."
           ldd $HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so
-          ls -l /usr/lib/x86_64-linux-gnu/libGL.so.1
-          ls -l /usr/lib/x86_64-linux-gnu/libGL.so.1.7.0
+          ls -l /usr/lib/x86_64-linux-gnu
           echo "hvigorw path:"
           which hvigorw
 
@@ -394,9 +397,9 @@ jobs:
           ls -l ./entry/src/main/ets/workers/cocos_worker.ts
 
           echo "=============== EXECUTE hvigorw ==============="
-          LD_DEBUG=libs hvigorw clean -i
-          LD_DEBUG=libs hvigorw --stop-daemon -i
-          LD_DEBUG=libs hvigorw --mode module -p product=default assembleHap --parallel --incremental debuggable=true --no-daemon -d
+          hvigorw clean -i
+          hvigorw --stop-daemon -i
+          hvigorw --mode module -p product=default assembleHap --parallel --incremental debuggable=true --no-daemon -d
           #./hvigorw default@ProcessLibs -p debuggable=true --no-daemon -d
           echo "=============== EXECUTE hvigorw DONE ==============="
 
