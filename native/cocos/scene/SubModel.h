@@ -105,12 +105,10 @@ protected:
 
     gfx::Device *_device{nullptr};
     Model *_owner{nullptr};
-    gfx::Sampler *_reflectionSampler{nullptr};
 
     IntrusivePtr<gfx::InputAssembler> _inputAssembler;
     IntrusivePtr<gfx::DescriptorSet> _descriptorSet;
     IntrusivePtr<gfx::DescriptorSet> _worldBoundDescriptorSet;
-    IntrusivePtr<gfx::Texture> _reflectionTex;
     IntrusivePtr<RenderingSubMesh> _subMesh;
 
     InstancedAttributeBlock _instancedAttributeBlock{};

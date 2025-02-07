@@ -58,8 +58,6 @@ export class SubModel {
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
     protected _worldBoundDescriptorSet: DescriptorSet | null = null;
-    protected _reflectionTex: Texture | null = null;
-    protected _reflectionSampler: Sampler | null = null;
     protected _instancedAttributeBlock: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
     protected _instancedWorldMatrixIndex = -1;
     protected _instancedSHIndex = -1;
@@ -265,10 +263,6 @@ export class SubModel {
 
         this._passes = null;
         this._shaders = null;
-
-        if (this._reflectionTex) this._reflectionTex.destroy();
-        this._reflectionTex = null;
-        this._reflectionSampler = null;
     }
 
     /**

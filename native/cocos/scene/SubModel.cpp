@@ -168,9 +168,6 @@ void SubModel::destroy() {
     _subMesh = nullptr;
     _passes.reset();
     _shaders.clear();
-
-    CC_SAFE_DESTROY_NULL(_reflectionTex);
-    _reflectionSampler = nullptr;
 }
 
 void SubModel::onPipelineStateChanged() {
