@@ -22,7 +22,7 @@ jobs:
         id: cache-oh-sdk
         uses: actions/cache@v4
         env:
-          cache-name: cache-oh-sdk-12
+          cache-name: cache-oh-sdk-13
         with:
           path: ${{ steps.oh-sdk-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-build-${{ env.cache-name }}
@@ -33,13 +33,13 @@ jobs:
         run: |
           if [ ! -d "$HOME/openharmony" ]; then
             mkdir -p $HOME/openharmony
-            echo "Download commandline-tools-linux.zip ..."
-            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-12/commandline-tools-linux-x64-5.0.3.906.zip.001
-            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-12/commandline-tools-linux-x64-5.0.3.906.zip.002
-            echo "Unzip commandline-tools-linux.zip ..."
-            7z x commandline-tools-linux-x64-5.0.3.906.zip.001 -o$HOME/openharmony > /dev/null
+            echo "Download commandline-tools-linux-x64-5.0.7.200.zip ..."
+            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-13/commandline-tools-linux-x64-5.0.7.200.zip.001
+            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-13/commandline-tools-linux-x64-5.0.7.200.zip.002
+            echo "Unzip commandline-tools-linux-x64-5.0.7.200.zip ..."
+            7z x commandline-tools-linux-x64-5.0.7.200.zip.001 -o$HOME/openharmony > /dev/null
             cd $HOME/openharmony
             ls -l
-            cd commandline-tools-linux-x64-5.0.3.906
+            cd commandline-tools-linux-x64-5.0.7.200
             ls -l
           fi
