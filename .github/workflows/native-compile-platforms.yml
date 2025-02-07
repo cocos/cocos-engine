@@ -233,6 +233,12 @@ jobs:
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
+      - name: Install libGL.so.1
+        run: |
+          echo "Install libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
+          sudo apt update
+          sudo apt install -y libgl1
+
       - name: Before free space
         run: |
           df -h
