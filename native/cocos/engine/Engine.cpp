@@ -73,7 +73,7 @@
 namespace {
 
 bool setCanvasCallback(se::Object *global) {
-    se::AutoHandleScope scope;
+    const se::AutoHandleScope scope;
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     auto handler = window->getWindowHandle();
