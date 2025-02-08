@@ -31,6 +31,7 @@ import { Component } from '../scene-graph/component';
 import { Attribute, AttributeName, Format, PrimitiveMode } from '../gfx';
 import { Color, toDegree, toRadian, Vec4, cclegacy } from '../core';
 import { scene } from '../render-scene';
+import type { Director } from '../game/director';
 
 @ccclass('cc.Billboard')
 @help('i18n:cc.Billboard')
@@ -38,14 +39,14 @@ import { scene } from '../render-scene';
 @executeInEditMode
 export class Billboard extends Component {
     @type(Texture2D)
-    private _texture = null;
+    private _texture: Texture2D | null = null;
 
     /**
      * @zh Billboard纹理。
      */
     @type(Texture2D)
     @tooltip('i18n:billboard.texture')
-    get texture (): null {
+    get texture (): Texture2D | null {
         return this._texture;
     }
 
@@ -248,7 +249,7 @@ export class Billboard extends Component {
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });
-        const model = this._model = cclegacy.director.root.createModel(scene.Model, this.node);
+        const model = this._model = (cclegacy.director as Director).root!.createModel(scene.Model);
         model.node = model.transform = this.node;
         if (this._material == null) {
             this._material = new Material();
