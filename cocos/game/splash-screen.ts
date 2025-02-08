@@ -53,7 +53,6 @@ interface ISplashSetting {
     background?: SplashBackground;
 }
 
-/** @mangle */
 interface SplashBackground {
     type: SplashBackgroundType;
     color?: Color;
@@ -61,7 +60,6 @@ interface SplashBackground {
     base64?: string;
 }
 
-/** @mangle */
 interface SplashLogo {
     type: SplashLogoType;
     image?: string;
