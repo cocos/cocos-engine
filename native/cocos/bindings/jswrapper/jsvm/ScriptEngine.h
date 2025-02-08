@@ -78,6 +78,11 @@ public:
     ScriptEngine();
     ~ScriptEngine();
     /**
+	     *  @brief Shut down the JSVM engine, because cleanup doesn't destroy all objects immediately.
+	     */
+	void closeEngine();
+	
+    /**
          *  @brief Sets the delegate for file operation.
          *  @param delegate[in] The delegate instance for file operation.
          */
