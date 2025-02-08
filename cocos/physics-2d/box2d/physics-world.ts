@@ -121,7 +121,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
                 canvas.parent = scene;
             }
 
-            const node = new Node('PHYSICS_2D_DEBUG_DRAW');
+            let node: Node | null = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
             node.hideFlags |= CCObjectFlags.DontSave;
             node.parent = canvas;
@@ -139,6 +139,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             } catch (e: any) {
                 errorID(4501, e.message as string);
                 node.destroy();
+                node = null;
             }
         }
 
