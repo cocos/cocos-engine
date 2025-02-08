@@ -160,6 +160,10 @@ cc.ReverseTime.initWithAction(): the action was already passed in.
 <!-- DEPRECATED -->
 cc.Animate.initWithAnimation(): animation must be non-NULL
 
+### 1031
+
+Set `setter` to boolean is deprecated. Please don not use like this again.
+
 ### 1100
 
 Expected 'data' dict, but not found. Config file: %s

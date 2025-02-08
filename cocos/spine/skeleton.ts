@@ -1616,7 +1616,7 @@ export class Skeleton extends UIRenderer {
     protected _updateDebugDraw (): void {
         if (this.debugBones || this.debugSlots || this.debugMesh) {
             if (!this._debugRenderer) {
-                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                let debugDrawNode: Node | null = new Node('DEBUG_DRAW_NODE');
                 debugDrawNode.layer = this.node.layer;
                 debugDrawNode.hideFlags |= CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
                 let debugDraw: Graphics | undefined;
@@ -1632,6 +1632,7 @@ export class Skeleton extends UIRenderer {
                 } catch (e: any) {
                     errorID(4501, e.message as string);
                     debugDrawNode.destroy();
+                    debugDrawNode = null;
                 }
             }
             if (this.isAnimationCached()) {

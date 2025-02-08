@@ -996,7 +996,7 @@ export class ArmatureDisplay extends UIRenderer {
     _updateDebugDraw (): void {
         if (this.debugBones) {
             if (!this._debugDraw) {
-                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                let debugDrawNode: Node | null = new Node('DEBUG_DRAW_NODE');
                 debugDrawNode.hideFlags |= CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
                 let debugDraw: Graphics | undefined;
                 try {
@@ -1009,6 +1009,7 @@ export class ArmatureDisplay extends UIRenderer {
                 } catch (e: any) {
                     errorID(4501, e.message as string);
                     debugDrawNode.destroy();
+                    debugDrawNode = null;
                 }
             }
         } else if (this._debugDraw) {

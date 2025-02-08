@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
-import { warnID, error, errorID, StringSubstitution } from '../platform/debug';
+import { warnID, error, errorID, StringSubstitution, logID } from '../platform/debug';
 import { IDGenerator }  from './id-generator';
 
 const tempCIDGenerator = new IDGenerator('TmpCId.');
@@ -136,7 +136,7 @@ export const getset = ((): (object: Record<string | number, any>, propertyName: 
     };
     return (object: Record<string | number, any>, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false): void => {
         if (typeof setter === 'boolean') {
-            console.log('Set `setter` to boolean is deprecated. Please don not use like this again.');
+            logID(1031);
             enumerable = setter;
             setter = undefined;
         }
