@@ -81,9 +81,9 @@ bool setCanvasCallback(se::Object *global) {
     auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
 
     se::Value jsbVal;
-    bool ok = global->getProperty("jsb", &jsbVal);
+    const bool ok = global->getProperty("jsb", &jsbVal);
     if (!jsbVal.isObject()) {
-        se::HandleObject jsbObj(se::Object::createPlainObject());
+        const se::HandleObject jsbObj(se::Object::createPlainObject());
         global->setProperty("jsb", se::Value(jsbObj));
         jsbVal.setObject(jsbObj, true);
     }
@@ -91,13 +91,13 @@ bool setCanvasCallback(se::Object *global) {
     se::Value windowVal;
     jsbVal.toObject()->getProperty("window", &windowVal);
     if (!windowVal.isObject()) {
-        se::HandleObject windowObj(se::Object::createPlainObject());
+        const se::HandleObject windowObj(se::Object::createPlainObject());
         jsbVal.toObject()->setProperty("window", se::Value(windowObj));
         windowVal.setObject(windowObj, true);
     }
 
-    int width = static_cast<int>(viewSize.width / dpr);
-    int height = static_cast<int>(viewSize.height / dpr);
+    const int width = static_cast<int>(viewSize.width / dpr);
+    const int height = static_cast<int>(viewSize.height / dpr);
     windowVal.toObject()->setProperty("innerWidth", se::Value(width));
     windowVal.toObject()->setProperty("innerHeight", se::Value(height));
 
