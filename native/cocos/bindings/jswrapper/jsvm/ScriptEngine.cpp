@@ -352,22 +352,18 @@ void ScriptEngine::cleanup() {
     
     SE_LOGD("ScriptEngine::cleanup begin ...\n");
     _isInCleanup = true;
-    
-    //cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::BEFORE_CLEANUP);
-
-    do{
-        se::AutoHandleScope hs;
+    se::AutoHandleScope hs;
+    do{    
         for (const auto &hook : _beforeCleanupHookArray) {
             hook();
         }
-        _beforeCleanupHookArray.clear();
     }while (0);
-    
+    _beforeCleanupHookArray.clear();
 
     SAFE_DEC_REF(_globalObj);
     Object::cleanup();
     Class::cleanup();
-   
+    garbageCollect();
 
     __oldConsoleLog.setUndefined();
     __oldConsoleDebug.setUndefined();
@@ -375,8 +371,6 @@ void ScriptEngine::cleanup() {
     __oldConsoleWarn.setUndefined();
     __oldConsoleError.setUndefined();
     __oldConsoleAssert.setUndefined();
-    garbageCollect();
-
 
     _globalObj = nullptr;
     _isValid   = false;
