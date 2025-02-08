@@ -37,8 +37,6 @@
 namespace se {
 std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
 
-
-
 Object::Object() {}
 Object::~Object() {
     if (__objectMap) {

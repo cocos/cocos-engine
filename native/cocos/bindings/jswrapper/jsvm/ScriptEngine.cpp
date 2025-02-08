@@ -349,11 +349,10 @@ void ScriptEngine::cleanup() {
     if (!_isValid) {
         return;
     }
-    
     SE_LOGD("ScriptEngine::cleanup begin ...\n");
     _isInCleanup = true;
     se::AutoHandleScope hs;
-    do{    
+    do{
         for (const auto &hook : _beforeCleanupHookArray) {
             hook();
         }
