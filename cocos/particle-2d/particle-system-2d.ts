@@ -856,7 +856,7 @@ export class ParticleSystem2D extends UIRenderer {
             if (!renderData) {
                 renderData = simulator.renderData = this._assembler.createData(this) as MeshRenderData;
                 simulator.uvFilled = 0;
-                renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
+                renderData.particleInitRenderDrawInfo(this.renderEntity); // Make sure renderEntity and renderData are both from simulator.
                 simulator.initDrawInfo();
             }
         }
