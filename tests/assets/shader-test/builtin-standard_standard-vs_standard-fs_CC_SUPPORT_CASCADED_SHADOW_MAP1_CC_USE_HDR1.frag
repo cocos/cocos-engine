@@ -945,8 +945,8 @@ vec4 fragTextureLod (samplerCube tex, vec3 coord, float lod) {
   #endif
 #endif
 #if CC_USE_REFLECTION_PROBE
-  layout(set = 2, binding = 14) uniform samplerCube cc_reflectionProbeCubemap;
-  layout(set = 2, binding = 15) uniform sampler2D cc_reflectionProbePlanarMap;
+  layout(set = 2, binding = 13) uniform samplerCube cc_reflectionProbeCubemap;
+  layout(set = 2, binding = 14) uniform sampler2D cc_reflectionProbePlanarMap;
 #endif
 #if CC_USE_LIGHT_PROBE
 #if CC_USE_LIGHT_PROBE

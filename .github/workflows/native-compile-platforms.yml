@@ -233,6 +233,16 @@ jobs:
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
+      - name: Show PATH env
+        run: |
+          echo "PATH=$PATH"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+          echo "ldconfig"
+          ldconfig -v 2>/dev/null | awk '{print $1}' | grep -E '^/'
+          echo "/etc/ld.so.conf"
+          cat /etc/ld.so.conf
+          cat /etc/ld.so.conf.d/*
+
       - name: Before free space
         run: |
           df -h
@@ -251,6 +261,15 @@ jobs:
       - name: After free space
         run: |
           df -h
+
+      - name: Install libgl1
+        run: |
+          sudo apt-get install -y libgl1
+
+      - name: Checking libGL.so.1
+        run: |
+          echo "Checking libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
+          ls -l /usr/lib/x86_64-linux-gnu/*.so*
 
       - uses: actions/checkout@v4
       - name: Download external libraries
@@ -297,14 +316,14 @@ jobs:
         run: |
           if [ ! -d "$HOME/openharmony" ]; then
             mkdir -p $HOME/openharmony
-            echo "Download commandline-tools-linux.zip ..."
-            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-12/commandline-tools-linux-x64-5.0.3.906.zip.001
-            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-12/commandline-tools-linux-x64-5.0.3.906.zip.002
-            echo "Unzip commandline-tools-linux.zip ..."
-            7z x commandline-tools-linux-x64-5.0.3.906.zip.001 -o$HOME/openharmony > /dev/null
+            echo "Download commandline-tools-linux-x64-5.0.7.200.zip ..."
+            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-13/commandline-tools-linux-x64-5.0.7.200.zip.001
+            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-13/commandline-tools-linux-x64-5.0.7.200.zip.002
+            echo "Unzip commandline-tools-linux-x64-5.0.7.200.zip ..."
+            7z x commandline-tools-linux-x64-5.0.7.200.zip.001 -o$HOME/openharmony > /dev/null
             cd $HOME/openharmony
             ls -l
-            cd commandline-tools-linux-x64-5.0.3.906
+            cd commandline-tools-linux-x64-5.0.7.200
             ls -l
           fi
 
@@ -317,11 +336,13 @@ jobs:
           npm -v
           java --version
           echo "=============== list files in oh sdk ($HOME/openharmony) ==============="
-          pushd $HOME/openharmony/commandline-tools-linux-x64-5.0.3.906
+          pushd $HOME/openharmony/commandline-tools-linux-x64-5.0.7.200
           ls -l
           popd
 
-          export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.3.906/bin
+          export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
+          echo "PATH=$PATH"
+          echo "hvigorw path:"
           which hvigorw
 
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
