@@ -130,8 +130,8 @@ public:
     static void resetChangedFlags();
     static void clearNodeArray();
     
-    static void _incSkewCompCount();
-    static void _decSkewCompCount();
+    static void _incSkewCompCount(); // NOLINT
+    static void _decSkewCompCount(); // NOLINT
 
     Node();
     explicit Node(const ccstd::string &name);
