@@ -71,14 +71,34 @@ export function findSkewAndGetOriginalWorldMatrix (node: Node | null, out: Mat4)
 export function updateLocalMatrixBySkew (uiSkewComp: UISkew, outLocalMatrix: Mat4): void {
     if (!uiSkewComp.isSkewEnabled()) return;
     if (uiSkewComp.x === 0 && uiSkewComp.y === 0) return;
-    const skewX = Math.tan(uiSkewComp.x * DEG_TO_RAD);
-    const skewY = Math.tan(uiSkewComp.y * DEG_TO_RAD);
-    const a = outLocalMatrix.m00;
-    const b = outLocalMatrix.m01;
-    const c = outLocalMatrix.m04;
-    const d = outLocalMatrix.m05;
-    outLocalMatrix.m00 = a + c * skewY;
-    outLocalMatrix.m01 = b + d * skewY;
-    outLocalMatrix.m04 = c + a * skewX;
-    outLocalMatrix.m05 = d + b * skewX;
+
+    if (uiSkewComp.rotational) {
+        const radiansX = -(uiSkewComp.x * DEG_TO_RAD);
+        const radiansY = (uiSkewComp.y * DEG_TO_RAD);
+        const cx = Math.cos(radiansX);
+        const sx = Math.sin(radiansX);
+        const cy = Math.cos(radiansY);
+        const sy = Math.sin(radiansY);
+
+        const m00 = outLocalMatrix.m00;
+        const m01 = outLocalMatrix.m01;
+        const m04 = outLocalMatrix.m04;
+        const m05 = outLocalMatrix.m05;
+
+        outLocalMatrix.m00 = cy * m00 - sx * m01;
+        outLocalMatrix.m01 = sy * m00 + cx * m01;
+        outLocalMatrix.m04 = cy * m04 - sx * m05;
+        outLocalMatrix.m05 = sy * m04 + cx * m05;
+    } else {
+        const skewX = Math.tan(uiSkewComp.x * DEG_TO_RAD);
+        const skewY = Math.tan(uiSkewComp.y * DEG_TO_RAD);
+        const a = outLocalMatrix.m00;
+        const b = outLocalMatrix.m01;
+        const c = outLocalMatrix.m04;
+        const d = outLocalMatrix.m05;
+        outLocalMatrix.m00 = a + c * skewY;
+        outLocalMatrix.m01 = b + d * skewY;
+        outLocalMatrix.m04 = c + a * skewX;
+        outLocalMatrix.m05 = d + b * skewX;
+    }
 }

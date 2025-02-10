@@ -223,6 +223,18 @@ module.exports = {
                     },
                 },
             },
+            'UISkew': {
+                properties: {
+                    'rotational': {
+                        displayName: 'Rotational',
+                        tooltip: '是否使用旋转类型的斜切算法？',
+                    },
+                    'skew': {
+                        displayName: 'Skew',
+                        tooltip: '斜切角度值',
+                    },
+                },
+            },
         },
         'sp': {
             'Skeleton': {

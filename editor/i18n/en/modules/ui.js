@@ -235,6 +235,18 @@ module.exports = {
                     },
                 },
             },
+            'UISkew': {
+                properties: {
+                    'rotational': {
+                        displayName: 'Rotational',
+                        tooltip: 'Whether to use the rotational style of skew ?',
+                    },
+                    'skew': {
+                        displayName: 'Skew',
+                        tooltip: 'The skew value, unit is degree.',
+                    },
+                },
+            },
         },
         'sp': {
             'Skeleton': {
