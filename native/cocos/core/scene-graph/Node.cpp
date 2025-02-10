@@ -62,7 +62,6 @@ Node::Node(const ccstd::string &name) {
     } else {
         _name = name;
     }
-    // _eventProcessor = ccnew NodeEventProcessor(this);
 }
 
 Node::~Node() {
