@@ -464,7 +464,7 @@ void Node::updateWorldTransform() { // NOLINT(misc-no-recursion)
     updateWorldTransformRecursive(dirtyBits);
 }
 
-void Node::updateLocalMatrixBySkew(Mat4 *outLocalMatrix) {
+void Node::updateLocalMatrixBySkew(Mat4 *outLocalMatrix) const {
     if (_skewX == 0 && _skewY == 0) {
         return;
     }
@@ -776,8 +776,8 @@ bool Node::findSkewAndGetOriginalWorldMatrix(Node *node, Mat4 *out) {
     if (startNode) {
         out->set(startNode->_parent->_worldMatrix); // Set the first no-skew node's world matrix to out.
         auto iter = std::find(ancestors.begin(), ancestors.end(), startNode);
-        long start = static_cast<long>(iter - ancestors.begin());
-        for (long i = start; i >= 0; --i) {
+        int64_t start = static_cast<int64_t>(iter - ancestors.begin());
+        for (int64_t i = start; i >= 0; --i) {
             const auto *cur = ancestors[i];
             Mat4::fromRTS(cur->_localRotation, cur->_localPosition, cur->_localScale, &curMat4);
             Mat4::multiply(*out, curMat4, out);
