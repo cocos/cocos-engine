@@ -23,13 +23,19 @@
 */
 
 import { JSB } from 'internal:constants';
-import { ccclass, disallowMultiple, displayOrder, executeInEditMode, menu, serializable, tooltip, type } from 'cc.decorator';
+import { ccclass, disallowMultiple, displayOrder, executeInEditMode, menu, serializable, type } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
 import { CCBoolean, cclegacy, IVec2Like, v2, Vec2 } from '../../core';
 import { NodeEventType, TransformBit } from '../../scene-graph';
 import { TRANSFORM_ON, Node } from '../../scene-graph/node';
 
 const tempVec2 = v2();
+
+enum SkewType {
+    NONE = 0,
+    STANDARD,
+    ROTATIONAL,
+}
 @ccclass('cc.UISkew')
 @menu('UI/UISkew')
 @disallowMultiple
@@ -100,7 +106,12 @@ export class UISkew extends Component {
 
     private _syncNative (enabled: boolean): void {
         if (JSB) {
-            (this.node as any)._hasSkewComp = enabled;
+            const node = this.node as any;
+            if (enabled) {
+                node._skewType = this._rotational ? SkewType.ROTATIONAL : SkewType.STANDARD;
+            } else {
+                node._skewType = SkewType.NONE;
+            }
         }
     }
 
