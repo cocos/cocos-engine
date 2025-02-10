@@ -209,7 +209,7 @@ module.exports = {
                         displayName: 'Sprite Atlas',
                         tooltip: 'Atlas that the image belongs to.',
                     },
-                    'sprite_frame': {
+                    'spriteFrame': {
                         displayName: 'Sprite Frame',
                         tooltip: 'Sprite Frame image to use.',
                     },
@@ -221,7 +221,7 @@ module.exports = {
                             '- Tiled : When changing the size, the original size image will continue to be tiled. <br>' +
                             '- Filled : set a certain starting position and direction of filling, and the picture can be cropped and displayed at a certain ratio.',
                     },
-                    'size_mode': {
+                    'sizeMode': {
                         displayName: 'Size Mode',
                         tooltip: 'Set the size of the node on which the Sprite component is on. ' +
                             '<br>CUSTOM for setting width and height manually;' +
