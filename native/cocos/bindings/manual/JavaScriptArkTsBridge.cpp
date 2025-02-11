@@ -113,7 +113,7 @@ bool JavaScriptArkTsBridge::CallInfo::execute(se::Value& rval) {
     std::function<void(cc::CallbackParamType)> cb = [&promise](cc::CallbackParamType message) {
         promise.set_value(message);
     };
-    cc::AsyncCallParam *callParam = new cc::AsyncCallParam{cb, _paramStr, module_info, _clsPath, method};
+    cc::CallParam *callParam = new cc::CallParam{cb, _paramStr, module_info, _clsPath, method};
     if (_isSyn) {
         cc::JSFunction::getFunction("executeMethodSync").invoke(callParam, _isSyn);
     } else {

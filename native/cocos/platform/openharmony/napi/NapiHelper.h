@@ -35,7 +35,7 @@
 namespace cc {
 using CallbackParamType = std::variant<std::string, double, bool>;
 
-struct AsyncCallParam {
+struct CallParam {
     std::function<void(CallbackParamType)> cb;
     std::string paramStr;
     char *module_info;
@@ -116,7 +116,7 @@ public:
         status = napi_call_function(env, global, func, sizeof...(Args), jsArgs, &return_val);
     }
 
-    void invoke(AsyncCallParam *callParam, bool isSync) {
+    void invoke(CallParam *callParam, bool isSync) {
         callParam->executeFuncRef = funcRef;
 
         napi_status status;
@@ -159,9 +159,9 @@ public:
     }
 
     static void CallJsAsync(napi_env env, napi_value js_cb, void *context, void *data) {
-        AsyncCallParam *callParam = (AsyncCallParam *)(context);
+        CallParam *callParam = (CallParam *)(context);
         if (callParam == nullptr) {
-            CC_LOG_WARNING("CallJS AsyncCallParam callParam is null");
+            CC_LOG_WARNING("CallJS CallParam callParam is null");
             return;
         }
 
@@ -181,9 +181,9 @@ public:
             napi_value return_val;
             napi_get_undefined(env, &return_val);
 
-            AsyncCallParam *callbackParam = reinterpret_cast<AsyncCallParam *>(param_in);
+            CallParam *callbackParam = reinterpret_cast<CallParam *>(param_in);
             if (callbackParam == nullptr) {
-                CC_LOG_WARNING("CallJS AsyncCallParam callbackParam is null");
+                CC_LOG_WARNING("CallJS CallParam callbackParam is null");
                 return return_val;
             }
 
@@ -248,9 +248,9 @@ public:
     }
 
     static void CallJsSync(napi_env env, napi_value js_cb, void *context, void *data) {
-        AsyncCallParam *callParam = (AsyncCallParam *)(context);
+        CallParam *callParam = (CallParam *)(context);
         if (callParam == nullptr) {
-            CC_LOG_WARNING("CallJS AsyncCallParam callParam is null");
+            CC_LOG_WARNING("CallJS CallParam callParam is null");
             return;
         }
 
