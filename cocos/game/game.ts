@@ -995,8 +995,8 @@ export class Game extends EventTarget {
             if (PREVIEW && !TEST && !EDITOR && !NATIVE) {
                 const bundleName = 'cce:/internal/x/prerequisite-imports';
                 import(bundleName).then((): void => resolve(), (reason): void => reject(reason));
-            } else if (EDITOR) {
-                globalThis.cce.Script && globalThis.cce.Script.init().then(() => resolve());
+            } else if (EDITOR && globalThis.cce && globalThis.cce.Script) {
+                globalThis.cce.Script.init().then(() => resolve());
             } else {
                 resolve();
             }
