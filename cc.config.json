@@ -561,6 +561,13 @@
             "ccGlobal": true,
             "internal": false
         },
+        "HONOR": {
+            "comment": "Running in the honor's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
         "EDITOR": {
             "comment": "Running in the editor.",
             "type": "boolean",
@@ -633,7 +640,7 @@
         "RUNTIME_BASED": {
             "comment": "Running in runtime based environment.",
             "type": "boolean",
-            "value": "$OPPO || $VIVO || $HUAWEI || $MIGU",
+            "value": "$OPPO || $VIVO || $HUAWEI || $MIGU || $HONOR",
             "ccGlobal": true,
             "internal": false
         },
