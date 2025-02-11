@@ -202,7 +202,7 @@ module.exports = {
                         displayName: 'Sprite Atlas',
                         tooltip: '图片资源所属的 Atlas 图集资源',
                     },
-                    'sprite_frame': {
+                    'spriteFrame': {
                         displayName: 'Sprite Frame',
                         tooltip: '渲染 Sprite 使用的 Sprite Frame 图片资源',
                     },
@@ -213,7 +213,7 @@ module.exports = {
                             '- 平铺 Tiled 修改尺寸时会不断平铺原始大小的图片 <br>' +
                             '- 填充 Filled 设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片',
                     },
-                    'size_mode': {
+                    'sizeMode': {
                         displayName: 'Size Mode',
                         tooltip: '指定 Sprite 所在节点的尺寸<br>CUSTOM 表示自定义尺寸<br>TRIMMED 表示取原始图片剪裁透明像素后的尺寸<br>RAW 表示取原始图片未剪裁的尺寸',
                     },

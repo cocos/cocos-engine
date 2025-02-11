@@ -136,8 +136,8 @@ public:
     static void resetChangedFlags();
     static void clearNodeArray();
     
-    static void _incSkewCompCount();
-    static void _decSkewCompCount();
+    static void _incSkewCompCount(); // NOLINT
+    static void _decSkewCompCount(); // NOLINT
 
     Node();
     explicit Node(const ccstd::string &name);
@@ -629,7 +629,7 @@ private:
 
     void inverseTransformPointRecursive(Vec3 &out) const;
     void updateWorldTransformRecursive(uint32_t &superDirtyBits);
-    void updateLocalMatrixBySkew(Mat4 *outLocalMatrix);
+    void updateLocalMatrixBySkew(Mat4 *outLocalMatrix) const;
 
     inline void notifyLocalPositionUpdated() {
         emit<LocalPositionUpdated>(_localPosition.x, _localPosition.y, _localPosition.z);

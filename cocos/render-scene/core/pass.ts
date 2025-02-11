@@ -715,7 +715,8 @@ export class Pass {
             lastSize = size;
         }
         // create gfx buffer resource
-        const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
+        // lastSize is aligned to 16, the same as _bufferViewInfo.range.
+        const totalSize = startOffsets[startOffsets.length - 1] + Math.ceil(lastSize / 16) * 16;
         if (totalSize) {
             // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
             _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
