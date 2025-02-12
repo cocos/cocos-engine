@@ -1193,7 +1193,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @engineInternal
      */
-    public updateMaterial (): void {
+    public override updateMaterial (): void {
         let mat: Material;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();

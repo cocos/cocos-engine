@@ -711,11 +711,11 @@ export class ArmatureDisplay extends UIRenderer {
     /**
      * @engineInternal
      */
-    public updateMaterial (): void {
-        let mat;
+    public override updateMaterial (): void {
+        let mat: Material;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
-        this.setSharedMaterial(mat as Material, 0);
+        this.setSharedMaterial(mat, 0);
         this._cleanMaterialCache();
     }
 
