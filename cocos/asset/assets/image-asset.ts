@@ -38,11 +38,12 @@ const COMPRESSED_MIPMAP_DATA_SIZE_LENGTH = 4;
 const COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH = 4;
 const COMPRESSED_MIPMAP_MAGIC = 0x50494d43;
 
-export const compressType = Enum({
-    PVR: 0,
-    PKM: 1,
-    ASTC: 2,
-});
+export enum compressType {
+    PVR = 0,
+    PKM = 1,
+    ASTC = 2,
+}
+Enum(compressType);
 
 // PVR constants //
 // https://github.com/toji/texture-tester/blob/master/js/webgl-texture-util.js#L424

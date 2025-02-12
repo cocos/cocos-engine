@@ -27,7 +27,7 @@ import { IRenderData } from './render-data';
 import { NativeRenderDrawInfo } from './native-2d';
 import { Node } from '../../scene-graph';
 import { Sampler, Texture } from '../../gfx';
-import { Model } from '../../render-scene/scene';
+import { Model } from '../../render-scene/scene/model';
 import { Material } from '../../asset/assets';
 
 export enum AttrUInt8ArrayView {

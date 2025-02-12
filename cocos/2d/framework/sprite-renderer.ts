@@ -27,7 +27,7 @@ import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
 import { Color, Vec2, cclegacy } from '../../core';
 import { ModelLocalBindings } from '../../rendering/define';
-import { Model } from '../../render-scene/scene';
+import { Model } from '../../render-scene/scene/model';
 import type { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';

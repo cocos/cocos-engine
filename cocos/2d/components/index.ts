@@ -24,6 +24,7 @@
 
 export * from './label';
 export { Sprite } from './sprite';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { UIMeshRenderer } from './ui-mesh-renderer';
 export { LabelOutline } from './label-outline';
 export { UIStaticBatch } from './ui-static-batch';

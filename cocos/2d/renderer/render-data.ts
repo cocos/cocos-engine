@@ -155,7 +155,7 @@ export class BaseRenderData {
                     }
                 }
             } else if (this.multiOwner === false) {
-                if (!this._renderDrawInfo) {
+                if (!this._renderDrawInfo && JSB) {
                     this._renderDrawInfo = new RenderDrawInfo();
                     // for no resize() invoking components
                     //this.setRenderDrawInfoAttributes();

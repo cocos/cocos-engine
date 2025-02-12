@@ -65,6 +65,7 @@ export interface IRenderData {
     color: Color;
 }
 
+/** mangle */
 class LetterInfo {
     public char = '';
     public valid = true;
@@ -74,6 +75,7 @@ class LetterInfo {
     public hash = '';
 }
 
+/** @mangle */
 export class TextProcessing {
     // -------------------- Common Part --------------------------
     public static instance: TextProcessing;

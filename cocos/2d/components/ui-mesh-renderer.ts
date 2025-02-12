@@ -58,8 +58,8 @@ import type { UIRenderer } from '../framework/ui-renderer';
 export class UIMeshRenderer extends Component {
     constructor () {
         super();
-        this._renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
         if (JSB) {
+            this._renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
             this._UIModelNativeProxy = new NativeUIModelProxy();
         }
     }

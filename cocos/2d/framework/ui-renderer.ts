@@ -655,7 +655,11 @@ export class UIRenderer extends Renderer {
     // RenderEntity
     // it should be overwritten by inherited classes
     protected createRenderEntity (): RenderEntity {
-        return new RenderEntity(RenderEntityType.STATIC);
+        if (JSB) {
+            return new RenderEntity(RenderEntityType.STATIC);
+        } else {
+            return null!;
+        }
     }
 }
 

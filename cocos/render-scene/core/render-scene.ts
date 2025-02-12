@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { USE_3D } from 'internal:constants';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
@@ -186,7 +187,9 @@ export class RenderScene {
      */
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._lodStateCache = new LodStateCache(this);
+        if (USE_3D) {
+            this._lodStateCache = new LodStateCache(this);
+        }
         return true;
     }
 
@@ -197,6 +200,8 @@ export class RenderScene {
      * @returns void
      */
     public update (stamp: number): void {
+        if (!USE_3D) return;
+
         const mainLight = this._mainLight;
         if (mainLight) {
             mainLight.update();
@@ -253,6 +258,7 @@ export class RenderScene {
     }
 
     public isCulledByLod (camera: Camera, model: Model): boolean {
+        if (!USE_3D) return false;
         return this._lodStateCache.isLodModelCulled(camera, model);
     }
 
@@ -263,7 +269,9 @@ export class RenderScene {
     public addCamera (cam: Camera): void {
         cam.attachToScene(this);
         this._cameras.push(cam);
-        this._lodStateCache.addCamera(cam);
+        if (USE_3D) {
+            this._lodStateCache.addCamera(cam);
+        }
     }
 
     /**
@@ -288,7 +296,9 @@ export class RenderScene {
     public removeCameras (): void {
         this._cameras.forEach((camera) => {
             camera.detachFromScene();
-            this._lodStateCache.removeCamera(camera);
+            if (USE_3D) {
+                this._lodStateCache.removeCamera(camera);
+            }
         });
         this._cameras.length = 0;
     }
@@ -299,6 +309,7 @@ export class RenderScene {
      * @param dl The main directional light source
      */
     public setMainLight (dl: DirectionalLight | null): void {
+        if (!USE_3D) return;
         this._mainLight = dl;
         if (this._mainLight) this._mainLight.activate();
     }
@@ -309,6 +320,7 @@ export class RenderScene {
      * @param dl The main directional light source, if it's not the actual main light, nothing happens.
      */
     public unsetMainLight (dl: DirectionalLight): void {
+        if (!USE_3D) return;
         if (this._mainLight === dl) {
             const dlList = this._directionalLights;
             if (dlList.length) {
@@ -328,6 +340,7 @@ export class RenderScene {
      * @param dl The directional light.
      */
     public addDirectionalLight (dl: DirectionalLight): void {
+        if (!USE_3D) return;
         dl.attachToScene(this);
         this._directionalLights.push(dl);
     }
@@ -338,6 +351,7 @@ export class RenderScene {
      * @param dl The directional light.
      */
     public removeDirectionalLight (dl: DirectionalLight): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._directionalLights.length; ++i) {
             if (this._directionalLights[i] === dl) {
                 dl.detachFromScene();
@@ -353,6 +367,7 @@ export class RenderScene {
      * @param pl The sphere light.
      */
     public addSphereLight (pl: SphereLight): void {
+        if (!USE_3D) return;
         pl.attachToScene(this);
         this._sphereLights.push(pl);
     }
@@ -363,6 +378,7 @@ export class RenderScene {
      * @param pl The sphere light.
      */
     public removeSphereLight (pl: SphereLight): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._sphereLights.length; ++i) {
             if (this._sphereLights[i] === pl) {
                 pl.detachFromScene();
@@ -379,6 +395,7 @@ export class RenderScene {
      * @param sl The spot light.
      */
     public addSpotLight (sl: SpotLight): void {
+        if (!USE_3D) return;
         sl.attachToScene(this);
         this._spotLights.push(sl);
     }
@@ -389,6 +406,7 @@ export class RenderScene {
      * @param sl The spot light.
      */
     public removeSpotLight (sl: SpotLight): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._spotLights.length; ++i) {
             if (this._spotLights[i] === sl) {
                 sl.detachFromScene();
@@ -404,6 +422,7 @@ export class RenderScene {
      * @zh 删除所有球面光源。
      */
     public removeSphereLights (): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._sphereLights.length; ++i) {
             this._sphereLights[i].detachFromScene();
         }
@@ -415,6 +434,7 @@ export class RenderScene {
      * @zh 删除所有聚光灯光源。
      */
     public removeSpotLights (): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._spotLights.length; ++i) {
             this._spotLights[i].detachFromScene();
         }
@@ -427,6 +447,7 @@ export class RenderScene {
      * @param pl @en The point light. @zh 点光源。
      */
     public addPointLight (pl: PointLight): void {
+        if (!USE_3D) return;
         pl.attachToScene(this);
         this._pointLights.push(pl);
     }
@@ -437,6 +458,7 @@ export class RenderScene {
      * @param pl @en The point light. @zh 点光源。
      */
     public removePointLight (pl: PointLight): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._pointLights.length; ++i) {
             if (this._pointLights[i] === pl) {
                 pl.detachFromScene();
@@ -451,6 +473,7 @@ export class RenderScene {
      * @zh 删除所有点光源。
      */
     public removePointLights (): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._pointLights.length; ++i) {
             this._pointLights[i].detachFromScene();
         }
@@ -463,6 +486,7 @@ export class RenderScene {
      * @param l @en The ranged directional light. @zh 范围平行光。
      */
     public addRangedDirLight (l: RangedDirectionalLight): void {
+        if (!USE_3D) return;
         l.attachToScene(this);
         this._rangedDirLights.push(l);
     }
@@ -473,6 +497,7 @@ export class RenderScene {
      * @param l @en The ranged directional light. @zh 范围平行光。
      */
     public removeRangedDirLight (l: RangedDirectionalLight): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._rangedDirLights.length; ++i) {
             if (this._rangedDirLights[i] === l) {
                 l.detachFromScene();
@@ -487,6 +512,7 @@ export class RenderScene {
      * @zh 删除所有范围平行光源。
      */
     public removeRangedDirLights (): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._rangedDirLights.length; ++i) {
             this._rangedDirLights[i].detachFromScene();
         }
@@ -499,6 +525,7 @@ export class RenderScene {
      * @param m The model.
      */
     public addModel (m: Model): void {
+        if (!USE_3D) return;
         m.attachToScene(this);
         this._models.push(m);
     }
@@ -509,6 +536,7 @@ export class RenderScene {
      * @param m The model.
      */
     public removeModel (model: Model): void {
+        if (!USE_3D) return;
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
                 this._lodStateCache.removeModel(model);
@@ -525,6 +553,7 @@ export class RenderScene {
      * @zh 删除所有模型。
      */
     public removeModels (): void {
+        if (!USE_3D) return;
         this._models.forEach((m) => {
             this._lodStateCache.removeModel(m);
             m.detachFromScene();
@@ -577,6 +606,7 @@ export class RenderScene {
      * @param lodGroup the LOD group
      */
     addLODGroup (lodGroup: LODGroup): void {
+        if (!USE_3D) return;
         this._lodGroups.push(lodGroup);
         lodGroup.attachToScene(this);
         this._lodStateCache.addLodGroup(lodGroup);
@@ -590,6 +620,7 @@ export class RenderScene {
      * @param lodGroup the LOD group
      */
     removeLODGroup (lodGroup: LODGroup): void {
+        if (!USE_3D) return;
         const index = this._lodGroups.indexOf(lodGroup);
         if (index >= 0) {
             this._lodGroups.splice(index, 1);
@@ -605,6 +636,7 @@ export class RenderScene {
      * @zh 删除所有LOD 组。
      */
     removeLODGroups (): void {
+        if (!USE_3D) return;
         this._lodGroups.forEach((group) => {
             this._lodStateCache.removeLodGroup(group);
         });
@@ -616,6 +648,7 @@ export class RenderScene {
      * @zh 通知所有模型全局管线状态已更新，需要更新自身状态。
      */
     public onGlobalPipelineStateChanged (): void {
+        if (!USE_3D) return;
         this._models.forEach((m) => {
             m.onGlobalPipelineStateChanged();
         });

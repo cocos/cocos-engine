@@ -33,7 +33,7 @@ import { Shader } from '../../gfx';
  * @zh 阴影贴图分辨率。
  * @en The shadow map size.
  * @static
- * @enum Shadows.ShadowSize
+ * @enum ShadowSize
  */
 export const ShadowSize = Enum({
     /**
