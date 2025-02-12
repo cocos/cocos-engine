@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, USE_XR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { warnID, warn, debug } from '../../core/platform/debug';
 import { WebGL2StateCache } from './webgl2-state-cache';
@@ -122,7 +122,7 @@ export function getExtensions (gl: WebGL2RenderingContext): IWebGL2Extensions {
 export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext | null {
     let context: WebGL2RenderingContext | null = null;
     try {
-        if (globalThis.__globalXR?.webxrCompatible) {
+        if (USE_XR && globalThis.__globalXR?.webxrCompatible) {
             const glAttribs = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
                 antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,

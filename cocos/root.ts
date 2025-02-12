@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { USE_XR } from 'internal:constants';
 import { Pool, cclegacy, warnID, settings, macro, log, errorID, SettingsCategory } from './core';
 import { DebugView } from './rendering/debug-view';
 import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
@@ -476,7 +477,7 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
-        if (globalThis.__globalXR?.isWebXR) {
+        if (USE_XR && globalThis.__globalXR?.isWebXR) {
             this._doWebXRFrameMove();
         } else {
             this._frameMoveBegin();
@@ -686,6 +687,7 @@ export class Root {
     }
 
     private _doWebXRFrameMove (): void {
+        if (!USE_XR) return;
         const xr = globalThis.__globalXR;
         if (!xr) {
             return;
