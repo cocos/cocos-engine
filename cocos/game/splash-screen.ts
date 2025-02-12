@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, USE_XR } from 'internal:constants';
 import { Material, MaterialPropertyFull } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, settings, sys, cclegacy, easing, preTransforms, SettingsCategory } from '../core';
 import {
@@ -513,7 +513,7 @@ export class SplashScreen {
         if (!sys.isXR || xr.entry.isRenderAllowable()) {
             const renderSize = sys.isXR ? 2 : 1;
             for (let xrEye = 0; xrEye < renderSize; xrEye++) {
-                if (sys.isXR) {
+                if (USE_XR && sys.isXR) {
                     xr.entry.renderLoopStart(xrEye);
                     const xrFov = xr.entry.getEyeFov(xrEye);
                     // device's fov may be asymmetry
@@ -627,7 +627,7 @@ export class SplashScreen {
                 device.present();
                 device.enableAutoBarrier(!legacyCC.rendering);
 
-                if (sys.isXR) {
+                if (USE_XR && sys.isXR) {
                     xr.entry.renderLoopEnd(xrEye);
                 }
             }
