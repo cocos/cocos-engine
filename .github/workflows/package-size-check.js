@@ -11,7 +11,7 @@ const features = [];
 files.forEach(file => {
     const filePath = ps.join(exportsDir, file);
     const feature = ps.parse(ps.basename(filePath)).name;
-    if (feature !== 'vendor-google') {
+    if (feature !== 'vendor-google' && feature !== 'xr') {
         features.push(feature);
     }
 });
