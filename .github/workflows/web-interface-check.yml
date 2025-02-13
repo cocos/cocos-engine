@@ -268,14 +268,14 @@ jobs:
           if [ "$DIFF_SIZE" -gt 0 ]; then
             ICON="⚠️ +"
           elif [ "$DIFF_SIZE" -lt 0 ]; then
-            ICON="👍"
+            ICON="👍 "
           else
             ICON="✅"
           fi
 
           PACKAGE_SIZE_INFO="|Wechat MiniGames| Before | After | Diff |
           |:-:|:-:|:-:|:-:|
-          | 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON $DIFF_SIZE bytes |"
+          | 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |"
 
           cat <<< "PACKAGE_SIZE_INFO: ${PACKAGE_SIZE_INFO}"
           sed -i "1s/^/$PACKAGE_SIZE_INFO\n/" ./engine/interface-diff.txt
