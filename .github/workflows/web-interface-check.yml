@@ -287,7 +287,7 @@ jobs:
           fi
 
           PACKAGE_SIZE_INFO="## Code Size Check Report
-          |Wechat MiniGames| Before | After | Diff |
+          |Wechat MiniGame| Before | After | Diff |
           |:-:|:-:|:-:|:-:|
           | 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |"
 
