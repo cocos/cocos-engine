@@ -1,7 +1,6 @@
 const fs = require('fs-extra');
 const ps = require('path');
 const { buildEngine } = require('@cocos/ccbuild');
-const { platform } = require('os');
 
 const args = process.argv.slice(2);
 if (args.length == 0) {
@@ -23,7 +22,7 @@ files.forEach(file => {
         allFeatures.push(feature);
     }
 });
-allFeatures.push('meshopt'); // meshopt feature doesn't have a module entry in 'exports' directory, so append it manually here.
+allFeatures.push('meshopt', 'marionette', 'procedural-animation'); // meshopt feature doesn't have a module entry in 'exports' directory, so append it manually here.
 
 console.log(`all features: [ ${allFeatures.join(', ')} ]`);
 
