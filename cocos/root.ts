@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { USE_3D } from 'internal:constants';
+import { USE_3D, USE_XR } from 'internal:constants';
 import { Pool, cclegacy, warnID, settings, macro, log, errorID, SettingsCategory } from './core';
 import { DebugView } from './rendering/debug-view';
 import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
@@ -257,7 +257,7 @@ export class Root {
     private _batcher: Batcher2D | null = null;
     private declare _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
-    private _modelPools = USE_3D ? new Map<Constructor<Model>, Pool<Model>>() : null!;
+    private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = USE_3D ? new Map<Constructor<Light>, Pool<Light>>() : null!;
     private _debugView = new DebugView();
@@ -477,7 +477,7 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
-        if (globalThis.__globalXR?.isWebXR) {
+        if (USE_XR && globalThis.__globalXR?.isWebXR) {
             this._doWebXRFrameMove();
         } else {
             this._frameMoveBegin();
@@ -569,7 +569,6 @@ export class Root {
      * @returns The model created
      */
     public createModel<T extends Model> (ModelCtor: typeof Model): T {
-        if (!USE_3D) return null!;
         let p = this._modelPools.get(ModelCtor);
         if (!p) {
             this._modelPools.set(ModelCtor, new Pool((): Model => new ModelCtor(), 10, (obj): void => obj.destroy()));
@@ -586,7 +585,6 @@ export class Root {
      * @param m @en The model to be destroyed @zh 要销毁的模型
      */
     public destroyModel (m: Model): void {
-        if (!USE_3D) return;
         const p = this._modelPools.get(m.constructor as Constructor<Model>);
         if (p) {
             p.free(m);
@@ -691,7 +689,7 @@ export class Root {
     }
 
     private _doWebXRFrameMove (): void {
-        if (!USE_3D) return;
+        if (!USE_XR) return;
         const xr = globalThis.__globalXR;
         if (!xr) {
             return;

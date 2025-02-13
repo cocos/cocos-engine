@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR } from 'internal:constants';
+import { EDITOR, USE_XR } from 'internal:constants';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like, preTransforms, warnID, geometry, cclegacy, Vec4, rect, mat4, v3 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
@@ -1016,10 +1016,12 @@ export class Camera {
 
         let viewProjDirty = false;
         const xr = globalThis.__globalXR;
-        if (xr && xr.isWebXR && xr.webXRWindowMap && xr.updateViewport) {
-            const x = xr.webXRMatProjs ? 1 / xr.webXRMatProjs.length : 1;
-            const wndXREye = xr.webXRWindowMap.get(this._window);
-            this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
+        if (USE_XR) {
+            if (xr && xr.isWebXR && xr.webXRWindowMap && xr.updateViewport) {
+                const x = xr.webXRMatProjs ? 1 / xr.webXRMatProjs.length : 1;
+                const wndXREye = xr.webXRWindowMap.get(this._window);
+                this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
+            }
         }
 
         const forward = this._forward;
@@ -1045,7 +1047,7 @@ export class Camera {
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
             // Only for rendertexture processing
             if (this._proj === CameraProjection.PERSPECTIVE) {
-                if (xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
+                if (USE_XR && xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
                     const wndXREye = xr.webXRWindowMap.get(this._window);
                     matProj.set(xr.webXRMatProjs[wndXREye] as Mat4);
                 } else {

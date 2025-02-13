@@ -179,6 +179,10 @@ export class BaseRenderData {
         }
     }
 
+    /**
+     * @engineInternal
+     * @mangle
+     */
     protected setRenderDrawInfoAttributes (): void {
         if (JSB) {
             const renderDrawInfo = this._renderDrawInfo;
@@ -354,7 +358,7 @@ export class RenderData extends BaseRenderData {
     }
 
     /** @mangle */
-    protected setRenderDrawInfoAttributes (): void {
+    protected override setRenderDrawInfoAttributes (): void {
         if (JSB) {
             if (!this._renderDrawInfo) {
                 return;
@@ -791,7 +795,11 @@ export class MeshRenderData extends BaseRenderData {
         }
     }
 
-    //  only for particle2d
+    /**
+     * only for particle2d
+     * @engineInternal
+     * @mangle
+     */
     public particleInitRenderDrawInfo (entity: RenderEntity): void {
         if (JSB) {
             if (entity.renderEntityType === RenderEntityType.STATIC) {

@@ -496,14 +496,15 @@ export class Label extends UIRenderer {
         return this._cacheMode;
     }
     set cacheMode (value) {
-        if (this._cacheMode === value) {
+        const oldCacheMode = this._cacheMode;
+        if (oldCacheMode === value) {
             return;
         }
 
-        if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
+        if (oldCacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
             this._ttfSpriteFrame._resetDynamicAtlasFrame();
         }
-        if (this._cacheMode === CacheMode.CHAR) {
+        if (oldCacheMode === CacheMode.CHAR) {
             this._ttfSpriteFrame = null;
             this.destroyLetterTexture();
         }
