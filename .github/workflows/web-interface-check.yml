@@ -293,7 +293,7 @@ jobs:
           cat <<< "${PACKAGE_SIZE_INFO}"
           ORITINAL_DIFF_CONTENT=$(cat ./engine/interface-diff.txt)
           echo "Original Diff: "
-          printf "$ORITINAL_DIFF_CONTENT"
+          printf "%s\n" "$ORITINAL_DIFF_CONTENT"
           rm ./engine/interface-diff.txt
 
           # Use printf to avoid \n missing
