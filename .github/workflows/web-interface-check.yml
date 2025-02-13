@@ -131,9 +131,10 @@ jobs:
         run: |
           cd engine
           npm install
-          cd ..
+          cd ../engine-HEAD
+          npm install --ignore-scripts
           # Use package-size-check.js in HEAD
-          node ./engine-HEAD/.github/workflows/package-size-check.js "$(pwd)/engine"
+          node /.github/workflows/package-size-check.js "$(pwd)/engine"
 
       - name: Restore patches (BASE)
         run: |
