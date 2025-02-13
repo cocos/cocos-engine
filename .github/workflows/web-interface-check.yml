@@ -49,6 +49,22 @@ jobs:
           ref: ${{ github.base_ref }}
           path: './engine'
 
+      - uses: actions/checkout@v4
+        name: Checkout Head Ref
+        with:
+          ref: 'refs/pull/${{ github.event.pull_request.number }}/head'
+          path: './engine-HEAD'
+          fetch-depth: 0
+
+      - name: Show Refs
+        run: |
+          cd ./engine
+          echo "BASE LOG:"
+          git --no-pager log -3
+          cd ../engine-HEAD
+          echo "HEAD LOG:"
+          git --no-pager log -3
+
       - name: Get Base Ref
         working-directory: ./engine
         run: |
@@ -111,12 +127,13 @@ jobs:
           git status
 
       - name: Build Base Declarations
-        working-directory: ./engine
+        working-directory: .
         run: |
+          cd engine
           npm install
-          if [ -e ./.github/workflows/package-size-check.js ]; then
-            node ./.github/workflows/package-size-check.js
-          fi
+          cd ..
+          # Use package-size-check.js in HEAD
+          node ./engine-HEAD/.github/workflows/package-size-check.js "$(pwd)/engine"
 
       - name: Restore patches (BASE)
         run: |
@@ -129,13 +146,6 @@ jobs:
       - name: Clear npm Cache
         run: |
           npm cache clean --force
-
-      - uses: actions/checkout@v4
-        name: Checkout Head Ref
-        with:
-          ref: 'refs/pull/${{ github.event.pull_request.number }}/head'
-          path: './engine-HEAD'
-          fetch-depth: 0
 
       - name: Head merges base
         working-directory: ./engine-HEAD
@@ -229,7 +239,7 @@ jobs:
         working-directory: ./engine-HEAD
         run: |
           npm install
-          node ./.github/workflows/package-size-check.js
+          node ./.github/workflows/package-size-check.js "$(pwd)"
 
       - name: Restore patches (HEAD)
         run: |
@@ -250,19 +260,24 @@ jobs:
       - name: Check package size
         run: |
           BASE_SIZE=0
-          if [ -d ./engine/build-cc-out ]; then
-            BASE_SIZE=$(du -sb ./engine/build-cc-out | awk '{print $1}')
+          if [ -d ./engine/build-cc-out-all ]; then
+            BASE_SIZE=$(du -sb ./engine/build-cc-out-all | awk '{print $1}')
           fi
-          HEAD_SIZE=$(du -sb ./engine-HEAD/build-cc-out | awk '{print $1}')
+          HEAD_SIZE=$(du -sb ./engine-HEAD/build-cc-out-all | awk '{print $1}')
           DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
           if [ "$DIFF_SIZE" -gt 0 ]; then
-            PACKAGE_SIZE_INFO="⚠️ Package size ⤴ $DIFF_SIZE bytes, old: $BASE_SIZE, new: $HEAD_SIZE"
+            ICON="⚠️ +"
           elif [ "$DIFF_SIZE" -lt 0 ]; then
-            PACKAGE_SIZE_INFO="👍 Package size ⤵ $DIFF_SIZE bytes, old: $BASE_SIZE, new: $HEAD_SIZE"
+            ICON="👍 -"
           else
-            PACKAGE_SIZE_INFO="✅ Package size is not changed"
+            ICON="✅"
           fi
-          echo "PACKAGE_SIZE_INFO: ${PACKAGE_SIZE_INFO}"
+
+          PACKAGE_SIZE_INFO="|Wechat MiniGames| Before | After | Diff |
+          |:-:|:-:|:-:|:-:|
+          | 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON $DIFF_SIZE bytes |"
+
+          cat <<< "PACKAGE_SIZE_INFO: ${PACKAGE_SIZE_INFO}"
           sed -i "1s/^/$PACKAGE_SIZE_INFO\n/" ./engine/interface-diff.txt
 
 

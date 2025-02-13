@@ -2,25 +2,63 @@ const fs = require('fs-extra');
 const ps = require('path');
 const { buildEngine } = require('@cocos/ccbuild');
 
-const engineRoot = ps.resolve(__dirname, '..', '..');
+const args = process.argv.slice(2);
+if (args.length == 0) {
+    console.error('Please specify the engine root path');
+    process.exit(1);
+}
+const engineRoot = args[0];
+
 console.log(`Engine root: ${engineRoot}`);
 
 const exportsDir = ps.join(engineRoot, 'exports');
 const files = fs.readdirSync(exportsDir);
-const features = [];
+
+const allFeatures = [];
 files.forEach(file => {
     const filePath = ps.join(exportsDir, file);
     const feature = ps.parse(ps.basename(filePath)).name;
     if (feature !== 'vendor-google' && feature !== 'xr') {
-        features.push(feature);
+        allFeatures.push(feature);
     }
 });
 
-console.log(`features: [ ${features.join(', ')} ]`);
+console.log(`all features: [ ${allFeatures.join(', ')} ]`);
 
-(async () => {
-    const outDir = ps.join(engineRoot, 'build-cc-out');
+const features2D = [
+    "2d",
+    "affine-transform",
+    "animation",
+    "audio",
+    "base",
+    "dragon-bones",
+    "gfx-webgl",
+    "gfx-webgl2",
+    "graphics",
+    "intersection-2d",
+    "mask",
+    "particle-2d",
+    "physics-2d-framework",
+    "physics-2d-builtin",
+    "physics-2d-box2d",
+    "physics-2d-box2d-wasm",
+    "profiler",
+    "rich-text",
+    "spine",
+    "tiled-map",
+    "tween",
+    "ui",
+    "ui-skew",
+    "video",
+    "webview",
+    "legacy-pipeline",
+    "custom-pipeline",
+    "custom-pipeline-builtin-scripts"
+];
 
+console.log(`2d features: [ ${features2D.join(', ')} ]`);
+
+async function buildEngineForFeatures(features, outDir) {
     const options = {
         engine: engineRoot,
         out: outDir,
@@ -71,4 +109,9 @@ console.log(`features: [ ${features.join(', ')} ]`);
     await fs.emptyDir(outDir);
 
     await buildEngine(options);
+}
+
+(async () => {
+    await buildEngineForFeatures(allFeatures, ps.join(engineRoot, 'build-cc-out-all'));
+    // await buildEngineForFeatures(features2D, ps.join(engineRoot, 'build-cc-out-2d'));
 })();
