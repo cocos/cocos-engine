@@ -22,6 +22,7 @@ files.forEach(file => {
         allFeatures.push(feature);
     }
 });
+allFeatures.push('meshopt'); // meshopt feature doesn't have a module entry in 'exports' directory, so append it manually here.
 
 console.log(`all features: [ ${allFeatures.join(', ')} ]`);
 
