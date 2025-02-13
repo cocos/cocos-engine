@@ -56,6 +56,32 @@ jobs:
           path: './engine-HEAD'
           fetch-depth: 0
 
+      - name: Head merges base
+        working-directory: ./engine-HEAD
+        run: |
+          git config user.name "Cocos CI"
+          git config user.email "cocos-ci@cocos.com"
+          echo "BASE_REF: ${{ env.BASE_REF }}"
+          HEAD_REF=$(git rev-parse HEAD)
+          echo "HEAD_REF: $HEAD_REF"
+          echo "--------------------------------------------------------"
+          echo "HEAD LOG:"
+          git --no-pager log -3
+          echo "--------------------------------------------------------"
+          git fetch origin ${{ env.BASE_REF }}
+          git reset --hard ${{ env.BASE_REF }}
+          echo "--------------------------------------------------------"
+          echo "BASE LOG:"
+          git --no-pager log -3
+          echo "--------------------------------------------------------"
+          CURRENT_REF=$(git rev-parse HEAD)
+          echo "---- $CURRENT_REF merges $HEAD_REF ----"
+          git merge $HEAD_REF
+          echo "--------------------------------------------------------"
+          echo "MERGED LOG:"
+          git --no-pager log -5
+          echo "--------------------------------------------------------"
+
       - name: Show Refs
         run: |
           cd ./engine
@@ -149,32 +175,6 @@ jobs:
         run: |
           npm cache clean --force
 
-      - name: Head merges base
-        working-directory: ./engine-HEAD
-        run: |
-          git config user.name "Cocos CI"
-          git config user.email "cocos-ci@cocos.com"
-          echo "BASE_REF: ${{ env.BASE_REF }}"
-          HEAD_REF=$(git rev-parse HEAD)
-          echo "HEAD_REF: $HEAD_REF"
-          echo "--------------------------------------------------------"
-          echo "HEAD LOG:"
-          git --no-pager log -3
-          echo "--------------------------------------------------------"
-          git fetch origin ${{ env.BASE_REF }}
-          git reset --hard ${{ env.BASE_REF }}
-          echo "--------------------------------------------------------"
-          echo "BASE LOG:"
-          git --no-pager log -3
-          echo "--------------------------------------------------------"
-          CURRENT_REF=$(git rev-parse HEAD)
-          echo "---- $CURRENT_REF merges $HEAD_REF ----"
-          git merge $HEAD_REF
-          echo "--------------------------------------------------------"
-          echo "MERGED LOG:"
-          git --no-pager log -5
-          echo "--------------------------------------------------------"
-
       - run: |
           echo "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
 
@@ -259,6 +259,12 @@ jobs:
           tolerance: worse
           output: ./engine/interface-diff.txt
 
+      - name: optimize interface check report
+        working-directory: ./engine
+        run: |
+          cat ./interface-diff.txt
+          node ./.github/workflows/interface-check-report.js
+
       - name: Check package size
         run: |
           BASE_SIZE=0
@@ -284,11 +290,8 @@ jobs:
           echo $PACKAGE_SIZE_INFO > ./engine/interface-diff.txt
           echo $ORITINAL_DIFF_CONTENT >> ./engine/interface-diff.txt
 
-      - name: optimize interface check report
-        working-directory: ./engine
-        run: |
-          cat ./interface-diff.txt
-          node ./.github/workflows/interface-check-report.js
+          echo "Diff after merge: "
+          cat ./engine/interface-diff.txt
 
       - name: Write PR number to file
         uses: actions/github-script@v7
