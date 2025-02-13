@@ -24,7 +24,7 @@
 */
 
 import { ccclass, displayOrder, executionOrder, help, menu, range, requireComponent, serializable, tooltip, type } from 'cc.decorator';
-import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, USE_XR } from 'internal:constants';
 import { UITransform } from '../2d/framework';
 import { legacyCC } from '../core/global-exports';
 import { Size, Vec2, Vec3, approx, v2, v3 } from '../core/math';
@@ -979,8 +979,10 @@ export class ScrollView extends ViewGroup {
         node.on(NodeEventType.TOUCH_CANCEL, self._onTouchCancelled, self, true);
         node.on(NodeEventType.MOUSE_WHEEL, self._onMouseWheel, self, true);
 
-        node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
-        node.on(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+        if (USE_XR) {
+            node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
+            node.on(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+        }
 
         input.on(InputEventType.HANDLE_INPUT, self._dispatchEventHandleInput, self);
         input.on(InputEventType.GAMEPAD_INPUT, self._dispatchEventHandleInput, self);
@@ -996,8 +998,10 @@ export class ScrollView extends ViewGroup {
         node.off(NodeEventType.TOUCH_CANCEL, self._onTouchCancelled, self, true);
         node.off(NodeEventType.MOUSE_WHEEL, self._onMouseWheel, self, true);
 
-        node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
-        node.off(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+        if (USE_XR) {
+            node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
+            node.off(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+        }
         input.off(InputEventType.HANDLE_INPUT, self._dispatchEventHandleInput, self);
         input.off(InputEventType.GAMEPAD_INPUT, self._dispatchEventHandleInput, self);
     }
@@ -1904,6 +1908,7 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _xrHoverEnter (event: XrUIPressEvent): void {
+        if (!USE_XR) return;
         if (event.deviceType === DeviceType.Left) {
             this._hoverIn = XrhoverType.LEFT;
         } else if (event.deviceType === DeviceType.Right) {
@@ -1912,6 +1917,7 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _xrHoverExit (event: XrUIPressEvent): void {
+        if (!USE_XR) return;
         this._hoverIn = XrhoverType.NONE;
     }
 
@@ -1923,18 +1929,21 @@ export class ScrollView extends ViewGroup {
             handleInputDevice = event.handleInputDevice;
         }
         let value: Vec2;
-        if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
+        if (!this.enabledInHierarchy || (USE_XR && this._hoverIn === XrhoverType.NONE)) {
             return;
         }
-        if (this._hoverIn === XrhoverType.LEFT) {
-            value = handleInputDevice.leftStick.getValue();
-            if (!value.equals(Vec2.ZERO)) {
-                this._xrThumbStickMove(value);
-            }
-        } else if (this._hoverIn === XrhoverType.RIGHT) {
-            value = handleInputDevice.rightStick.getValue();
-            if (!value.equals(Vec2.ZERO)) {
-                this._xrThumbStickMove(value);
+
+        if (USE_XR) {
+            if (this._hoverIn === XrhoverType.LEFT) {
+                value = handleInputDevice.leftStick.getValue();
+                if (!value.equals(Vec2.ZERO)) {
+                    this._xrThumbStickMove(value);
+                }
+            } else if (this._hoverIn === XrhoverType.RIGHT) {
+                value = handleInputDevice.rightStick.getValue();
+                if (!value.equals(Vec2.ZERO)) {
+                    this._xrThumbStickMove(value);
+                }
             }
         }
     }
