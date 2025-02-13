@@ -270,7 +270,7 @@ jobs:
           elif [ "$DIFF_SIZE" -lt 0 ]; then
             ICON="👍 "
           else
-            ICON="✅"
+            ICON="✅ "
           fi
 
           PACKAGE_SIZE_INFO="|Wechat MiniGames| Before | After | Diff |
