@@ -200,35 +200,35 @@ export class RenderScene {
      * @returns void
      */
     public update (stamp: number): void {
-        if (!USE_3D) return;
+        if (USE_3D) {
+            const mainLight = this._mainLight;
+            if (mainLight) {
+                mainLight.update();
+            }
 
-        const mainLight = this._mainLight;
-        if (mainLight) {
-            mainLight.update();
-        }
+            const sphereLights = this._sphereLights;
+            for (let i = 0; i < sphereLights.length; i++) {
+                const light = sphereLights[i];
+                light.update();
+            }
 
-        const sphereLights = this._sphereLights;
-        for (let i = 0; i < sphereLights.length; i++) {
-            const light = sphereLights[i];
-            light.update();
-        }
+            const spotLights = this._spotLights;
+            for (let i = 0; i < spotLights.length; i++) {
+                const light = spotLights[i];
+                light.update();
+            }
 
-        const spotLights = this._spotLights;
-        for (let i = 0; i < spotLights.length; i++) {
-            const light = spotLights[i];
-            light.update();
-        }
+            const pointLights = this._pointLights;
+            for (let i = 0; i < pointLights.length; i++) {
+                const light = pointLights[i];
+                light.update();
+            }
 
-        const pointLights = this._pointLights;
-        for (let i = 0; i < pointLights.length; i++) {
-            const light = pointLights[i];
-            light.update();
-        }
-
-        const rangedDirLights = this._rangedDirLights;
-        for (let i = 0; i < rangedDirLights.length; i++) {
-            const light = rangedDirLights[i];
-            light.update();
+            const rangedDirLights = this._rangedDirLights;
+            for (let i = 0; i < rangedDirLights.length; i++) {
+                const light = rangedDirLights[i];
+                light.update();
+            }
         }
 
         const models = this._models;
@@ -240,7 +240,10 @@ export class RenderScene {
                 model.updateUBOs(stamp);
             }
         }
-        this._lodStateCache.updateLodState();
+
+        if (USE_3D) {
+            this._lodStateCache.updateLodState();
+        }
     }
 
     /**
@@ -249,12 +252,17 @@ export class RenderScene {
      */
     public destroy (): void {
         this.removeCameras();
-        this.removeSphereLights();
-        this.removeSpotLights();
-        this.removeRangedDirLights();
+        if (USE_3D) {
+            this.removeSphereLights();
+            this.removeSpotLights();
+            this.removeRangedDirLights();
+        }
         this.removeModels();
-        this.removeLODGroups();
-        this._lodStateCache.clearCache();
+
+        if (USE_3D) {
+            this.removeLODGroups();
+            this._lodStateCache.clearCache();
+        }
     }
 
     public isCulledByLod (camera: Camera, model: Model): boolean {
@@ -525,7 +533,6 @@ export class RenderScene {
      * @param m The model.
      */
     public addModel (m: Model): void {
-        if (!USE_3D) return;
         m.attachToScene(this);
         this._models.push(m);
     }
@@ -536,10 +543,11 @@ export class RenderScene {
      * @param m The model.
      */
     public removeModel (model: Model): void {
-        if (!USE_3D) return;
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                this._lodStateCache.removeModel(model);
+                if (USE_3D) {
+                    this._lodStateCache.removeModel(model);
+                }
                 model.detachFromScene();
                 this._models.splice(i, 1);
 
@@ -553,9 +561,10 @@ export class RenderScene {
      * @zh 删除所有模型。
      */
     public removeModels (): void {
-        if (!USE_3D) return;
         this._models.forEach((m) => {
-            this._lodStateCache.removeModel(m);
+            if (USE_3D) {
+                this._lodStateCache.removeModel(m);
+            }
             m.detachFromScene();
             m.destroy();
         });
@@ -648,7 +657,6 @@ export class RenderScene {
      * @zh 通知所有模型全局管线状态已更新，需要更新自身状态。
      */
     public onGlobalPipelineStateChanged (): void {
-        if (!USE_3D) return;
         this._models.forEach((m) => {
             m.onGlobalPipelineStateChanged();
         });
