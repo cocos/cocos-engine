@@ -312,16 +312,16 @@ jobs:
           check_diff "build-cc-out-all"
           PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
 
-          cat <<< "${PACKAGE_SIZE_INFO}"
+          printf "%s\n" "$PACKAGE_SIZE_INFO"
 
           DIFF_FILE_PATH=./engine-HEAD/interface-diff.txt
-          ORITINAL_DIFF_CONTENT=$(cat ${DIFF_FILE_PATH})
+          ORIGINAL_DIFF_CONTENT=$(cat ${DIFF_FILE_PATH})
           echo "Original Diff: "
-          printf "%s\n" "$ORITINAL_DIFF_CONTENT"
+          printf "%s\n" "$ORIGINAL_DIFF_CONTENT"
 
           # Use printf to avoid \n missing
           printf "%s\n" "$PACKAGE_SIZE_INFO" > ${DIFF_FILE_PATH}
-          printf "%s\n" "$ORITINAL_DIFF_CONTENT" >> ${DIFF_FILE_PATH}
+          printf "%s\n" "$ORIGINAL_DIFF_CONTENT" >> ${DIFF_FILE_PATH}
 
           echo "Diff after merge: "
           cat ${DIFF_FILE_PATH}
