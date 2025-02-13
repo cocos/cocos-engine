@@ -268,7 +268,7 @@ jobs:
           if [ "$DIFF_SIZE" -gt 0 ]; then
             ICON="⚠️ +"
           elif [ "$DIFF_SIZE" -lt 0 ]; then
-            ICON="👍 -"
+            ICON="👍"
           else
             ICON="✅"
           fi
