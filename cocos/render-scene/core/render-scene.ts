@@ -291,7 +291,9 @@ export class RenderScene {
             if (this._cameras[i] === camera) {
                 this._cameras.splice(i, 1);
                 camera.detachFromScene();
-                this._lodStateCache.removeCamera(camera);
+                if (USE_3D) {
+                    this._lodStateCache.removeCamera(camera);
+                }
                 return;
             }
         }
@@ -686,6 +688,7 @@ class LODInfo {
  * @zh 管理LODGroup的使用状态，包含使用层级及其上的model可见相机列表；便于判断当前model是否被LODGroup裁剪
  * @en Manage the usage status of LODGroup, including the usage level and the list of visible cameras on its models;
  * easy to determine whether the current mod is cropped by LODGroup。
+ * @mangle
  */
 class LodStateCache {
     constructor (scene: RenderScene) {
