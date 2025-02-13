@@ -273,7 +273,7 @@ jobs:
       - name: Check Package Size
         run: |
           PACKAGE_SIZE_INFO="## Code Size Check Report
-          |Wechat MiniGame| Before | After | Diff |
+          | Wechat (WASM) | Before | After | Diff |
           |:-:|:-:|:-:|:-:|"
 
           BASE_SIZE=0
@@ -324,7 +324,7 @@ jobs:
           PACKAGE_SIZE_INFO=$(printf "%s\n" "${PACKAGE_SIZE_INFO}")
 
           # Check Web platform
-          WEB_PLATFORM_TABLE_HEADER="| Web | Before | After | Diff |
+          WEB_PLATFORM_TABLE_HEADER="| Web (WASM + ASMJS) | Before | After | Diff |
           |:-:|:-:|:-:|:-:|"
           PACKAGE_SIZE_INFO=$(printf "%s\n\n\n%s\n" "${PACKAGE_SIZE_INFO}" "$WEB_PLATFORM_TABLE_HEADER")
 
