@@ -118,6 +118,16 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "overrideConstants": {
+          "additionalProperties": {
+            "type": [
+              "number",
+              "boolean"
+            ]
+          },
+          "description": "Constants to override when this feature is enabled. The overridden constants should be defined in cc.config.json.",
+          "type": "object"
         }
       },
       "required": [

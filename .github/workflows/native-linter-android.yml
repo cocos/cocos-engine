@@ -26,10 +26,30 @@ jobs:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install Python3.8
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt update
+          sudo apt remove python
+          sudo apt install python3.8
+          echo "python version: $(python --version)"
+          echo "python path: $(which python)"
+
+      - name: Install libffi7 which clang-tidy-11 depends on
+        run: |
+          echo "install libffi7"
+          wget http://ftp.ubuntu.com/ubuntu/ubuntu/pool/universe/libf/libffi7/libffi7_3.3-5ubuntu1_amd64.deb
+          sudo dpkg -i libffi7_3.3-5ubuntu1_amd64.deb
+
+
       - name: Install CMake & Clang Tidy
         run: |
+          cd .github/workflows
+          chmod +x ./llvm.sh
+          sudo ./llvm.sh 11
           sudo apt update --fix-missing
-          sudo apt install -y cmake llvm clang-tidy ninja-build
+          sudo apt install -y cmake llvm clang-tidy-11 ninja-build
       - name: Download external
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
@@ -90,7 +110,7 @@ jobs:
           if [[ "$FILTERED-xxx" == "-xxx" ]]; then
             echo "no source files match"
           else
-            clang-tidy --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
+            clang-tidy-11 --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
           fi
       - name: clang-tidy-action
         uses: PatriceJiang/clang-tidy-action@master

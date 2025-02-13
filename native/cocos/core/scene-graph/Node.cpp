@@ -62,7 +62,6 @@ Node::Node(const ccstd::string &name) {
     } else {
         _name = name;
     }
-    // _eventProcessor = ccnew NodeEventProcessor(this);
 }
 
 Node::~Node() {
@@ -465,21 +464,42 @@ void Node::updateWorldTransform() { // NOLINT(misc-no-recursion)
     updateWorldTransformRecursive(dirtyBits);
 }
 
-void Node::updateLocalMatrixBySkew(Mat4 *outLocalMatrix) {
+void Node::updateLocalMatrixBySkew(Mat4 *outLocalMatrix) const {
     if (_skewX == 0 && _skewY == 0) {
         return;
     }
-    const float skewX = tanf(mathutils::toRadian(_skewX));
-    const float skewY = tanf(mathutils::toRadian(_skewY));
+    
     float *m = outLocalMatrix->m;
-    const float a = m[0];
-    const float b = m[1];
-    const float c = m[4];
-    const float d = m[5];
-    m[0] = a + c * skewY;
-    m[1] = b + d * skewY;
-    m[4] = c + a * skewX;
-    m[5] = d + b * skewX;
+    
+    if (_skewType == static_cast<uint8_t>(SkewType::ROTATIONAL)) {
+        const float radiansX = -mathutils::toRadian(_skewX);
+        const float radiansY = mathutils::toRadian(_skewY);
+        const float cx = cosf(radiansX);
+        const float sx = sinf(radiansX);
+        const float cy = cosf(radiansY);
+        const float sy = sinf(radiansY);
+
+        const float m00 = m[0];
+        const float m01 = m[1];
+        const float m04 = m[4];
+        const float m05 = m[5];
+
+        m[0] = cy * m00 - sx * m01;
+        m[1] = sy * m00 + cx * m01;
+        m[4] = cy * m04 - sx * m05;
+        m[5] = sy * m04 + cx * m05;
+    } else {
+        const float skewX = tanf(mathutils::toRadian(_skewX));
+        const float skewY = tanf(mathutils::toRadian(_skewY));
+        const float a = m[0];
+        const float b = m[1];
+        const float c = m[4];
+        const float d = m[5];
+        m[0] = a + c * skewY;
+        m[1] = b + d * skewY;
+        m[4] = c + a * skewX;
+        m[5] = d + b * skewX;
+    }
 }
 
 void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-no-recursion)
@@ -495,6 +515,7 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
     dirtyBits |= currDirtyBits;
     bool positionDirty = dirtyBits & static_cast<uint32_t>(TransformBit::POSITION);
     bool rotationScaleSkewDirty = dirtyBits & static_cast<uint32_t>(TransformBit::RSS);
+    bool foundSkewInAncestor = false;
     if (parent) {
         if (positionDirty && !rotationScaleSkewDirty) {
             _worldPosition.transformMat4(_localPosition, parent->_worldMatrix);
@@ -507,19 +528,27 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
             static Mat4 localMatrix;
             Mat4 *originalWorldMatrix = &_worldMatrix;
             Mat4::fromRTS(_localRotation, _localPosition, _localScale, &localMatrix);
-            if (_hasSkewComp) {
-                // Save the original world matrix without skew side effect.
-                Mat4::multiply(_parent->_worldMatrix, localMatrix, &tempMat4);
-                originalWorldMatrix = &tempMat4;
-                //
-                // If skew is dirty, rotation and scale must be also dirty.
-                // See _updateNodeTransformFlags in ui-skew.ts.
-                updateLocalMatrixBySkew(&localMatrix);
+            if (skewCompCount > 0) {
+                foundSkewInAncestor = findSkewAndGetOriginalWorldMatrix(_parent, &tempMat4);
+                if ((_skewType != static_cast<uint8_t>(SkewType::NONE)) || foundSkewInAncestor) {
+                    // Save the original world matrix without skew side effect.
+                    Mat4::multiply(tempMat4, localMatrix, &tempMat4);
+                    originalWorldMatrix = &tempMat4;
+                    
+                    if (_skewType != static_cast<uint8_t>(SkewType::NONE)) {
+                        updateLocalMatrixBySkew(&localMatrix);
+                    }
+                }
             }
             Mat4::multiply(parent->_worldMatrix, localMatrix, &_worldMatrix);
             const bool rotChanged = dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION);
             Quaternion *rotTmp = rotChanged ? &_worldRotation : nullptr;
             Mat4::toRTS(*originalWorldMatrix, rotTmp, &_worldPosition, &_worldScale);
+            if (skewCompCount > 0 && foundSkewInAncestor) {
+                // NOTE: world position from Mat4.toSRT(originalWorldMatrix, ...) will not consider the skew factor.
+                // So we need to update the world position manually here.
+                Vec3::transformMat4(_localPosition, parent->_worldMatrix, &_worldPosition);
+            }
         }
     } else {
         if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
@@ -536,7 +565,7 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
                 _worldScale.set(_localScale);
             }
             Mat4::fromRTS(_worldRotation, _worldPosition, _worldScale, &_worldMatrix);
-            if (_hasSkewComp) {
+            if (_skewType != static_cast<uint8_t>(SkewType::NONE)) {
                 updateLocalMatrixBySkew(&_worldMatrix);
             }
         }
@@ -651,7 +680,7 @@ void Node::setWorldScale(float x, float y, float z) {
     if (_parent != nullptr) {
         updateWorldTransform(); // ensure reentryability
         
-        if (_hasSkewComp) {
+        if (_skewType != static_cast<uint8_t>(SkewType::NONE)) {
             Mat4::fromRTS(_localRotation, _localPosition, _localScale, &_worldMatrix);
             Mat4::multiply(_parent->_worldMatrix, _worldMatrix, &_worldMatrix);
         }
@@ -747,17 +776,18 @@ void Node::setAngle(float val) {
     notifyLocalRotationUpdated();
 }
 
-bool Node::getParentWorldMatrixNoSkew(Node *parent, Mat4 *out) {
-    if (!parent) {
+/* static */
+bool Node::findSkewAndGetOriginalWorldMatrix(Node *node, Mat4 *out) {
+    if (!node) {
         return false;
     }
     static ccstd::vector<Node*> tempNodes;
     tempNodes.resize(0);
     auto &ancestors = tempNodes;
     Node *startNode = nullptr;
-    for (auto *cur = parent; cur; cur = cur->_parent) {
+    for (auto *cur = node; cur; cur = cur->_parent) {
         ancestors.emplace_back(cur);
-        if (cur->_hasSkewComp) {
+        if (cur->_skewType != static_cast<uint8_t>(SkewType::NONE)) {
             startNode = cur;
         }
     }
@@ -767,13 +797,15 @@ bool Node::getParentWorldMatrixNoSkew(Node *parent, Mat4 *out) {
     if (startNode) {
         out->set(startNode->_parent->_worldMatrix); // Set the first no-skew node's world matrix to out.
         auto iter = std::find(ancestors.begin(), ancestors.end(), startNode);
-        long start = static_cast<long>(iter - ancestors.begin());
-        for (long i = start; i >= 0; --i) {
-            const auto *node = ancestors[i];
-            Mat4::fromRTS(node->_localRotation, node->_localPosition, node->_localScale, &curMat4);
+        int64_t start = static_cast<int64_t>(iter - ancestors.begin());
+        for (int64_t i = start; i >= 0; --i) {
+            const auto *cur = ancestors[i];
+            Mat4::fromRTS(cur->_localRotation, cur->_localPosition, cur->_localScale, &curMat4);
             Mat4::multiply(*out, curMat4, out);
         }
         ret = true;
+    } else {
+        out->set(node->_worldMatrix);
     }
 
     tempNodes.resize(0);
@@ -803,7 +835,7 @@ void Node::onSetParent(Node *oldParent, bool keepWorldTransform) {
                 if (hasSkew) {
                     if (oldParent) {
                         // Calculate old parent's world matrix without skew side effect.
-                        const bool foundSkewInOldParent = Node::getParentWorldMatrixNoSkew(oldParent, &tempMatrix);
+                        const bool foundSkewInOldParent = Node::findSkewAndGetOriginalWorldMatrix(oldParent, &tempMatrix);
                         Mat4::fromRTS(_localRotation, _localPosition, _localScale, &localMatrix);
                         const Mat4 &oldParentMatrix = foundSkewInOldParent ? tempMatrix : oldParent->_worldMatrix;
                         // Calculate current node's world matrix without skew side effect.
@@ -811,7 +843,7 @@ void Node::onSetParent(Node *oldParent, bool keepWorldTransform) {
                     }
                     
                     // Calculate new parent's world matrix without skew side effect.
-                    const bool foundSkewInNewParent = Node::getParentWorldMatrixNoSkew(_parent, &tempMatrix);
+                    const bool foundSkewInNewParent = Node::findSkewAndGetOriginalWorldMatrix(_parent, &tempMatrix);
                     if (foundSkewInNewParent) {
                         newParentMatrix = &tempMatrix;
                     }

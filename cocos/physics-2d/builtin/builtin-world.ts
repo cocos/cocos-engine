@@ -24,9 +24,7 @@
 
 import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-// import { Graphics } from '../../2d';
-import { CCObjectFlags, Vec3, Color, IVec2Like, Vec2, Rect, js } from '../../core';
-// import { Canvas } from '../../2d/framework';
+import { CCObjectFlags, Vec3, Color, IVec2Like, Vec2, Rect, js, errorID } from '../../core';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
 import { BuiltinCircleShape } from './shapes/circle-shape-2d';
@@ -36,6 +34,7 @@ import { PhysicsSystem2D, Collider2D } from '../framework';
 import { BuiltinContact } from './builtin-contact';
 import { Node, find } from '../../scene-graph';
 import { director } from '../../game';
+import type { Graphics } from '../../2d/components/graphics';
 
 const contactResults: BuiltinContact[] = [];
 const testIntersectResults: Collider2D[] = [];
@@ -44,7 +43,7 @@ const testIntersectResults: Collider2D[] = [];
 export class BuiltinPhysicsWorld implements IPhysicsWorld {
     private _contacts: BuiltinContact[] = [];
     private _shapes: BuiltinShape2D[] = [];
-    private _debugGraphics: any = null;
+    private _debugGraphics: Graphics | null = null;
     private _debugDrawFlags = 0;
 
     get debugDrawFlags (): number {
@@ -219,18 +218,26 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                 canvas.parent = scene;
             }
 
-            const node = new Node('PHYSICS_2D_DEBUG_DRAW');
+            let node: Node | null = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
             node.hideFlags |= CCObjectFlags.DontSave;
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
 
-            this._debugGraphics = node.addComponent('cc.Graphics');
-            this._debugGraphics.lineWidth = 2;
+            try {
+                this._debugGraphics = node.addComponent('cc.Graphics') as Graphics;
+                this._debugGraphics.lineWidth = 2;
+            } catch (e: any) {
+                errorID(4501, e.message as string);
+                node.destroy();
+                node = null;
+            }
         }
 
-        const parent = this._debugGraphics.node.parent!;
-        this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
+        if (this._debugGraphics) {
+            const parent = this._debugGraphics.node.parent!;
+            this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
+        }
     }
 
     testPoint (p: Vec2): readonly Collider2D[] {

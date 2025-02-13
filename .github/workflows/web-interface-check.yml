@@ -54,6 +54,48 @@ jobs:
         run: |
           echo "BASE_REF=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
+      - uses: actions/checkout@v4
+        name: Checkout Head Ref
+        with:
+          ref: 'refs/pull/${{ github.event.pull_request.number }}/head'
+          path: './engine-HEAD'
+          fetch-depth: 0
+
+      - name: Head merges base
+        working-directory: ./engine-HEAD
+        run: |
+          git config user.name "Cocos CI"
+          git config user.email "cocos-ci@cocos.com"
+          echo "BASE_REF: ${{ env.BASE_REF }}"
+          HEAD_REF=$(git rev-parse HEAD)
+          echo "HEAD_REF: $HEAD_REF"
+          echo "--------------------------------------------------------"
+          echo "HEAD LOG:"
+          git --no-pager log -3
+          echo "--------------------------------------------------------"
+          git fetch origin ${{ env.BASE_REF }}
+          git reset --hard ${{ env.BASE_REF }}
+          echo "--------------------------------------------------------"
+          echo "BASE LOG:"
+          git --no-pager log -3
+          echo "--------------------------------------------------------"
+          CURRENT_REF=$(git rev-parse HEAD)
+          echo "---- $CURRENT_REF merges $HEAD_REF ----"
+          git merge $HEAD_REF
+          echo "--------------------------------------------------------"
+          echo "MERGED LOG:"
+          git --no-pager log -5
+          echo "--------------------------------------------------------"
+
+      - name: Show Refs
+        run: |
+          cd ./engine
+          echo "BASE LOG:"
+          git --no-pager log -3
+          cd ../engine-HEAD
+          echo "HEAD LOG:"
+          git --no-pager log -3
+
       - run: |
           echo "EXT_VERSION=$(node ./engine/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
 
@@ -111,12 +153,15 @@ jobs:
           git status
 
       - name: Build Base Declarations
-        working-directory: ./engine
+        working-directory: .
         run: |
+          ROOT_DIR=$(pwd)
+          cd engine
           npm install
-          if [ -e ./.github/workflows/package-size-check.js ]; then
-            node ./.github/workflows/package-size-check.js
-          fi
+          cd ../engine-HEAD
+          npm install --ignore-scripts
+          # Use package-size-check.js in HEAD
+          node .github/workflows/package-size-check.js "$ROOT_DIR/engine"
 
       - name: Restore patches (BASE)
         run: |
@@ -129,39 +174,6 @@ jobs:
       - name: Clear npm Cache
         run: |
           npm cache clean --force
-
-      - uses: actions/checkout@v4
-        name: Checkout Head Ref
-        with:
-          ref: 'refs/pull/${{ github.event.pull_request.number }}/head'
-          path: './engine-HEAD'
-          fetch-depth: 0
-
-      - name: Head merges base
-        working-directory: ./engine-HEAD
-        run: |
-          git config user.name "Cocos CI"
-          git config user.email "cocos-ci@cocos.com"
-          echo "BASE_REF: ${{ env.BASE_REF }}"
-          HEAD_REF=$(git rev-parse HEAD)
-          echo "HEAD_REF: $HEAD_REF"
-          echo "--------------------------------------------------------"
-          echo "HEAD LOG:"
-          git --no-pager log -3
-          echo "--------------------------------------------------------"
-          git fetch origin ${{ env.BASE_REF }}
-          git reset --hard ${{ env.BASE_REF }}
-          echo "--------------------------------------------------------"
-          echo "BASE LOG:"
-          git --no-pager log -3
-          echo "--------------------------------------------------------"
-          CURRENT_REF=$(git rev-parse HEAD)
-          echo "---- $CURRENT_REF merges $HEAD_REF ----"
-          git merge $HEAD_REF
-          echo "--------------------------------------------------------"
-          echo "MERGED LOG:"
-          git --no-pager log -5
-          echo "--------------------------------------------------------"
 
       - run: |
           echo "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
@@ -229,7 +241,7 @@ jobs:
         working-directory: ./engine-HEAD
         run: |
           npm install
-          node ./.github/workflows/package-size-check.js
+          node ./.github/workflows/package-size-check.js "$(pwd)"
 
       - name: Restore patches (HEAD)
         run: |
@@ -245,32 +257,94 @@ jobs:
           new: ./engine-HEAD/bin/.declarations/cc.d.ts
           mode: addition
           tolerance: worse
-          output: ./engine/interface-diff.txt
-
-      - name: Check package size
-        run: |
-          BASE_SIZE=0
-          if [ -d ./engine/build-cc-out ]; then
-            BASE_SIZE=$(du -sb ./engine/build-cc-out | awk '{print $1}')
-          fi
-          HEAD_SIZE=$(du -sb ./engine-HEAD/build-cc-out | awk '{print $1}')
-          DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
-          if [ "$DIFF_SIZE" -gt 0 ]; then
-            PACKAGE_SIZE_INFO="⚠️ Package size ⤴ $DIFF_SIZE bytes, old: $BASE_SIZE, new: $HEAD_SIZE"
-          elif [ "$DIFF_SIZE" -lt 0 ]; then
-            PACKAGE_SIZE_INFO="👍 Package size ⤵ $DIFF_SIZE bytes, old: $BASE_SIZE, new: $HEAD_SIZE"
-          else
-            PACKAGE_SIZE_INFO="✅ Package size is not changed"
-          fi
-          echo "PACKAGE_SIZE_INFO: ${PACKAGE_SIZE_INFO}"
-          sed -i "1s/^/$PACKAGE_SIZE_INFO\n/" ./engine/interface-diff.txt
-
+          output: ./engine-HEAD/interface-diff.txt
 
       - name: optimize interface check report
-        working-directory: ./engine
+        working-directory: ./engine-HEAD
         run: |
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
+
+      - name: After optimize interface check report
+        working-directory: ./engine-HEAD
+        run: |
+          cat ./interface-diff.txt
+
+      - name: Check Package Size
+        run: |
+          PACKAGE_SIZE_INFO="## Code Size Check Report
+          | Wechat (WASM) | Before | After | Diff |
+          |:-:|:-:|:-:|:-:|"
+
+          BASE_SIZE=0
+          HEAD_SIZE=0
+          DIFF_SIZE=0
+          ICON="✅ "
+
+          reset_diff_vars() {
+            BASE_SIZE=0
+            HEAD_SIZE=0
+            DIFF_SIZE=0
+            ICON="✅ "
+          }
+
+          check_diff() {
+            ccbuild_out_folder_name="$1"
+            if [ -d ./engine/$ccbuild_out_folder_name ]; then
+              BASE_SIZE=$(du -sb ./engine/$ccbuild_out_folder_name | awk '{print $1}')
+            fi
+            HEAD_SIZE=$(du -sb ./engine-HEAD/$ccbuild_out_folder_name | awk '{print $1}')
+            DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
+            if [ "$DIFF_SIZE" -gt 0 ]; then
+              ICON="⚠️ +"
+            elif [ "$DIFF_SIZE" -lt 0 ]; then
+              ICON="👍 "
+            else
+              ICON="✅ "
+            fi
+          }
+
+          # Check Wechat platform
+          check_diff "build-cc-out-2d-empty-legacy-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D Empty (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
+
+          check_diff "build-cc-out-2d-legacy-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D All (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
+
+          check_diff "build-cc-out-2d-new-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D All (new pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
+
+          check_diff "build-cc-out-all"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| (2D + 3D) All | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
+
+          PACKAGE_SIZE_INFO=$(printf "%s\n" "${PACKAGE_SIZE_INFO}")
+
+          # Check Web platform
+          WEB_PLATFORM_TABLE_HEADER="| Web (WASM + ASMJS) | Before | After | Diff |
+          |:-:|:-:|:-:|:-:|"
+          PACKAGE_SIZE_INFO=$(printf "%s\n\n\n%s\n" "${PACKAGE_SIZE_INFO}" "$WEB_PLATFORM_TABLE_HEADER")
+
+          check_diff "build-cc-out-all-web"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| (2D + 3D) All | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
+
+          printf "%s\n" "$PACKAGE_SIZE_INFO"
+
+          DIFF_FILE_PATH=./engine-HEAD/interface-diff.txt
+          ORIGINAL_DIFF_CONTENT=$(cat ${DIFF_FILE_PATH})
+          echo "Original Diff: "
+          printf "%s\n" "$ORIGINAL_DIFF_CONTENT"
+
+          # Use printf to avoid \n missing
+          printf "%s\n" "$PACKAGE_SIZE_INFO" > ${DIFF_FILE_PATH}
+          printf "%s\n" "$ORIGINAL_DIFF_CONTENT" >> ${DIFF_FILE_PATH}
+
+          echo "Diff after merge: "
+          cat ${DIFF_FILE_PATH}
 
       - name: Write PR number to file
         uses: actions/github-script@v7
@@ -291,4 +365,4 @@ jobs:
         with:
           name: interface-diff.txt
           path: |
-            ./engine/interface-diff.txt
+            ./engine-HEAD/interface-diff.txt

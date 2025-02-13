@@ -38,10 +38,14 @@ const nativePageLifecycle :context = nativerender.getContext(ContextType.JSPAGE_
 const engineUtils :context = nativerender.getContext(ContextType.ENGINE_UTILS);
 
 
-function executeNativeMethod(nativeFunc: Function, funcData: string, funCb: Function): void {
+function executeMethodAsync(nativeFunc: Function, funcData: string, funCb: Function): void {
   nativeFunc && nativeFunc(funcData, funCb);
 }
-engineUtils.registerFunction("executeNativeMethod", executeNativeMethod);
+function executeMethodSync(nativeFunc: Function, funcData: string): string|boolean|number {
+  return nativeFunc && nativeFunc(funcData);
+}
+engineUtils.registerFunction("executeMethodAsync", executeMethodAsync);
+engineUtils.registerFunction("executeMethodSync", executeMethodSync);
 
 interface WorkerMessage {
   type: string;

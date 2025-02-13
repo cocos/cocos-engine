@@ -36,18 +36,15 @@
 
 namespace se {
 std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
-std::set<Object*> Object::objBaseSet = {};
-
-bool Object::restarting = false;
 
 Object::Object() {}
 Object::~Object() {
-    if(restarting) {
-        objBaseSet.insert(this);
-    }
     if (__objectMap) {
         __objectMap->erase(this);
     }
+
+    delete _privateObject;
+    _privateObject = nullptr;
 }
 
 Object* Object::createObjectWithClass(Class* cls) {
@@ -652,7 +649,6 @@ std::string Object::toString() const {
 }
 
 void Object::root() {
-    JSVM_Status status;
     if (_rootCount == 0) {
         uint32_t result = 0;
         _objRef.incRef(_env);
@@ -661,7 +657,6 @@ void Object::root() {
 }
 
 void Object::unroot() {
-    JSVM_Status status;
     if (_rootCount > 0) {
         --_rootCount;
         if (_rootCount == 0) {
@@ -704,37 +699,34 @@ void Object::weakCallback(JSVM_Env env, void* nativeObject, void* finalizeHint /
         }
         void* rawPtr = reinterpret_cast<Object*>(finalizeHint)->_privateData;
         Object* seObj = reinterpret_cast<Object*>(finalizeHint);
-
-        auto it = objBaseSet.find(seObj);
-        if(it != objBaseSet.end()) {
+        if (seObj->_onCleaingPrivateData) { //called by cleanPrivateData, not release seObj;
             return;
         }
-        
-        if (seObj->_onCleaingPrivateData) { //called by cleanPrivateData, not release seObj;
+        if(!NativePtrToObjectMap::isValid()) {
             return;
         }
         if (seObj->_clearMappingInFinalizer && rawPtr != nullptr) {
             auto iter = NativePtrToObjectMap::find(rawPtr);
             if (iter != NativePtrToObjectMap::end()) {
-                    if (seObj->_finalizeCb != nullptr) {
-                    seObj->_finalizeCb(env, finalizeHint, finalizeHint);
-                } else {
-                    assert(seObj->_getClass() != nullptr);
-                    if (seObj->_getClass()->_getFinalizeFunction() != nullptr) {
-                        seObj->_getClass()->_getFinalizeFunction()(env, finalizeHint, finalizeHint);
-                    }
-                }
-                seObj->decRef();
                 NativePtrToObjectMap::erase(iter);
             } else {
                 SE_LOGE("not find ptr in NativePtrToObjectMap");
             }
         }
+
+        if (seObj->_finalizeCb != nullptr) {
+            seObj->_finalizeCb(env, finalizeHint, finalizeHint);
+        } else {
+            assert(seObj->_getClass() != nullptr);
+            if (seObj->_getClass()->_getFinalizeFunction() != nullptr) {
+                seObj->_getClass()->_getFinalizeFunction()(env, finalizeHint, finalizeHint);
+            }
+        }
+        seObj->decRef();
     }
 }
 
 void Object::setup() {
-    restarting = false;
     __objectMap = std::make_unique<std::unordered_map<Object*, void*>>();
 }
 
@@ -749,11 +741,11 @@ void Object::cleanup() {
         obj = e.second;
 
         if (obj->_finalizeCb != nullptr) {
-            obj->_finalizeCb(ScriptEngine::getEnv(), nativeObj, nullptr);
+            obj->_finalizeCb(ScriptEngine::getEnv(), obj, nullptr);
         } else {
             if (obj->_getClass() != nullptr) {
                 if (obj->_getClass()->_getFinalizeFunction() != nullptr) {
-                    obj->_getClass()->_getFinalizeFunction()(ScriptEngine::getEnv(), nativeObj, nullptr);
+                    obj->_getClass()->_getFinalizeFunction()(ScriptEngine::getEnv(), obj, nullptr);
                 }
             }
         }

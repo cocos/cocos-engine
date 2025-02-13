@@ -191,7 +191,7 @@ void Model::updateUBOs(uint32_t stamp) {
     for (const auto &subModel : _subModels) {
         const auto idx = subModel->getInstancedWorldMatrixIndex();
         if (idx >= 0) {
-            ccstd::vector<TypedArray> &attrs = subModel->getInstancedAttributeBlock().views;
+            const ccstd::vector<TypedArray> &attrs = subModel->getInstancedAttributeBlock().views;
             subModel->updateInstancedWorldMatrix(worldMatrix, idx);
         } else {
             hasNonInstancingPass = true;
@@ -216,7 +216,7 @@ void Model::updateUBOs(uint32_t stamp) {
                 const Vec4 depthScale = {1.F, 0.F, 0.F, 1.F};
                 _localBuffer->write(depthScale, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
             } else {
-                uint16_t mipAndUseRGBE = probe->isRGBE() ? 1000 : 0;
+                const uint16_t mipAndUseRGBE = probe->isRGBE() ? 1000 : 0;
                 const Vec4 pos = {probe->getNode()->getWorldPosition().x, probe->getNode()->getWorldPosition().y, probe->getNode()->getWorldPosition().z, 0.F};
                 _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
                 const Vec4 boxSize = {probe->getBoudingSize().x, probe->getBoudingSize().y, probe->getBoudingSize().z, static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() + mipAndUseRGBE : 1 + mipAndUseRGBE)};
@@ -225,9 +225,9 @@ void Model::updateUBOs(uint32_t stamp) {
             if (_reflectionProbeType == scene::UseReflectionProbeType::BLEND_PROBES ||
                 _reflectionProbeType == scene::UseReflectionProbeType::BLEND_PROBES_AND_SKYBOX) {
                 if (blendProbe) {
-                    uint16_t mipAndUseRGBE = blendProbe->isRGBE() ? 1000 : 0;
+                    const uint16_t mipAndUseRGBE = blendProbe->isRGBE() ? 1000 : 0;
                     const Vec3 worldPos = blendProbe->getNode()->getWorldPosition();
-                    Vec3 boudingBox = blendProbe->getBoudingSize();
+                    const Vec3 boudingBox = blendProbe->getBoudingSize();
                     const Vec4 pos = {worldPos.x, worldPos.y, worldPos.z, _reflectionProbeBlendWeight};
                     _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
                     const Vec4 boxSize = {boudingBox.x, boudingBox.y, boudingBox.z, static_cast<float>(blendProbe->getCubeMap() ? blendProbe->getCubeMap()->mipmapLevel() + mipAndUseRGBE : 1 + mipAndUseRGBE)};
@@ -431,7 +431,7 @@ void Model::updateSHUBOs() {
 
     _lastWorldBoundCenter.set(center);
     _tetrahedronIndex = lightProbes->getData()->getInterpolationWeights(center, _tetrahedronIndex, weights);
-    bool result = lightProbes->getData()->getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
+    const bool result = lightProbes->getData()->getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
     if (!result) {
         return;
     }
@@ -468,7 +468,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
 
-    patches.push_back({CC_USE_REFLECTION_PROBE, static_cast<int32_t>(_reflectionProbeType)});
+    patches.emplace_back(CC_USE_REFLECTION_PROBE, static_cast<int32_t>(_reflectionProbeType));
 
     if (_lightmap != nullptr) {
         bool stationary = false;
@@ -495,7 +495,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
             }
         }
     }
-    patches.push_back({CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
+    patches.emplace_back(CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight);
 
     return patches;
 }
@@ -651,7 +651,7 @@ void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
         bindingTexture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
     }
     if (bindingTexture) {
-        gfx::SamplerInfo info{
+        const gfx::SamplerInfo info{
             cc::gfx::Filter::LINEAR,
             cc::gfx::Filter::LINEAR,
             cc::gfx::Filter::NONE,
@@ -687,6 +687,9 @@ void Model::updateReflectionProbeDataMap(Texture2D *texture) {
 }
 
 void Model::updateReflectionProbeBlendCubemap(TextureCube *texture) {
+    if constexpr (!pipeline::ENABLE_PROBE_BLEND) { // Disable probe blend for WebGPU
+        return;
+    }
     _localDataUpdated = true;
     if (texture == nullptr) {
         texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));

@@ -181,7 +181,6 @@ export class Sprite extends UIRenderer {
      */
     @type(SpriteAtlas)
     @displayOrder(4)
-    @tooltip('i18n:sprite.atlas')
     get spriteAtlas (): SpriteAtlas | null {
         return this._atlas;
     }
@@ -201,7 +200,6 @@ export class Sprite extends UIRenderer {
      */
     @type(SpriteFrame)
     @displayOrder(5)
-    @tooltip('i18n:sprite.sprite_frame')
     get spriteFrame (): SpriteFrame | null {
         return this._spriteFrame;
     }
@@ -234,7 +232,6 @@ export class Sprite extends UIRenderer {
      */
     @type(SpriteType)
     @displayOrder(6)
-    @tooltip('i18n:sprite.type')
     get type (): SpriteType {
         return this._type;
     }
@@ -374,7 +371,6 @@ export class Sprite extends UIRenderer {
         return this._type === SpriteType.SIMPLE;
     })
     @displayOrder(8)
-    @tooltip('i18n:sprite.trim')
     get trim (): boolean {
         return this._isTrimmedMode;
     }
@@ -397,7 +393,6 @@ export class Sprite extends UIRenderer {
      */
     @editable
     @displayOrder(5)
-    @tooltip('i18n:sprite.gray_scale')
     get grayscale (): boolean {
         return this._useGrayscale;
     }
@@ -425,7 +420,6 @@ export class Sprite extends UIRenderer {
      */
     @type(SizeMode)
     @displayOrder(5)
-    @tooltip('i18n:sprite.size_mode')
     get sizeMode (): SizeMode {
         return this._sizeMode;
     }

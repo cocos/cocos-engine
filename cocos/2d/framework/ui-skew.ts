@@ -23,14 +23,19 @@
 */
 
 import { JSB } from 'internal:constants';
-import { ccclass, disallowMultiple, executeInEditMode, menu, serializable, type } from 'cc.decorator';
+import { ccclass, disallowMultiple, displayOrder, executeInEditMode, menu, serializable, type } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { cclegacy, IVec2Like, v2, Vec2 } from '../../core';
+import { CCBoolean, cclegacy, IVec2Like, v2, Vec2 } from '../../core';
 import { NodeEventType, TransformBit } from '../../scene-graph';
 import { TRANSFORM_ON, Node } from '../../scene-graph/node';
 
 const tempVec2 = v2();
 
+enum SkewType {
+    NONE = 0,
+    STANDARD,
+    ROTATIONAL,
+}
 @ccclass('cc.UISkew')
 @menu('UI/UISkew')
 @disallowMultiple
@@ -38,6 +43,9 @@ const tempVec2 = v2();
 export class UISkew extends Component {
     @serializable
     private _skew: Vec2 = v2();
+
+    @serializable
+    private _rotational = false;
 
     // FIXME(cjh): I added this property instead of `Component.enabled` since I found that
     // When in UISkew.onDisable callback, `this.enabled` may still be true.
@@ -53,6 +61,19 @@ export class UISkew extends Component {
      */
     isSkewEnabled (): boolean {
         return this._skewEnabled;
+    }
+
+    @displayOrder(0)
+    @type(CCBoolean)
+    get rotational (): boolean {
+        return this._rotational;
+    }
+
+    set rotational (value: boolean) {
+        this._rotational = value;
+        if (this._skewEnabled) {
+            this._updateNodeTransformFlags();
+        }
     }
 
     protected override __preload (): void {
@@ -85,7 +106,12 @@ export class UISkew extends Component {
 
     private _syncNative (enabled: boolean): void {
         if (JSB) {
-            (this.node as any)._hasSkewComp = enabled;
+            const node = this.node as any;
+            if (enabled) {
+                node._skewType = this._rotational ? SkewType.ROTATIONAL : SkewType.STANDARD;
+            } else {
+                node._skewType = SkewType.NONE;
+            }
         }
     }
 
@@ -139,6 +165,7 @@ export class UISkew extends Component {
      * @en Gets the skew value of the node. Unit is degree.
      * @zh 获取节点斜切角度。
      */
+    @displayOrder(1)
     @type(Vec2)
     get skew (): Readonly<Vec2> {
         return this._skew;

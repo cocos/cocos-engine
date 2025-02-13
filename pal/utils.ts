@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, USE_XR } from 'internal:constants';
 import { warnID } from '../cocos/core/platform/debug';
 
 /**
@@ -202,7 +202,7 @@ export function setTimeoutRAF<T extends any[]> (callback: (...args: T) => void, 
     || window.oRequestAnimationFrame
     || window.msRequestAnimationFrame;
 
-    if (EDITOR || raf === undefined || globalThis.__globalXR?.isWebXR) {
+    if (EDITOR || raf === undefined || (USE_XR && globalThis.__globalXR?.isWebXR)) {
         return setTimeout(callback, delay, ...args);
     }
 
@@ -234,7 +234,7 @@ export function clearTimeoutRAF (id: number): void {
         || window.mozCancelAnimationFrame
         || window.webkitCancelAnimationFrame
         || window.ocancelAnimationFrame;
-    if (EDITOR || caf === undefined || globalThis.__globalXR?.isWebXR) {
+    if (EDITOR || caf === undefined || (USE_XR && globalThis.__globalXR?.isWebXR)) {
         clearTimeout(id);
     } else {
         caf(id);

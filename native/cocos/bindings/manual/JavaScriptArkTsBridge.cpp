@@ -107,79 +107,21 @@ bool JavaScriptArkTsBridge::CallInfo::execute(se::Value& rval) {
         module_name = pos != std::string::npos ? pathStr.substr(0, pos).c_str() : "entry";
     }
 
-    auto env = cc::NapiHelper::getWorkerEnv();
 
-    napi_status status;
-    napi_value result;
     char* module_info = __getModuleInfo(module_name);
-    status = napi_load_module_with_info(env, _clsPath, module_info, &result);
-    free(module_info);
-    module_info = nullptr;
-    if (status != napi_ok) {
-        CC_LOG_WARNING("callNativeMethod napi_load_module_with_info fail, status=%{public}d", status);
-        return false;
-    }
-
-    napi_value func;
-    status = napi_get_named_property(env, result, method, &func);
-    if (status != napi_ok) {
-        CC_LOG_WARNING("callNativeMethod napi_get_named_property fail, status=%{public}d", status);
-        return false;
-    }
-
-    if (_isSyn) {
-        napi_value jsArg = Napi::String::New(env, _paramStr);
-        napi_value return_val;
-        status = napi_call_function(env, result, func, 1, &jsArg, &return_val);
-        if (status != napi_ok) {
-            CC_LOG_WARNING("callNativeMethod napi_call_function fail, status=%{public}d", status);
-            return false;
-        }
-
-        napi_valuetype valueType;
-        status = napi_typeof(env, return_val, &valueType);
-        if (status != napi_ok) {
-            CC_LOG_WARNING("callNativeMethod napi_typeof fail, status=%{public}d", status);
-            return false;
-        }
-
-        switch (valueType) {
-            case napi_string: {
-                size_t str_size;
-                napi_get_value_string_utf8(env, return_val, nullptr, 0, &str_size);
-                char* buf = new char[str_size + 1];
-                napi_get_value_string_utf8(env, return_val, buf, str_size + 1, &str_size);
-                rval = se::Value(std::string(buf));
-                delete[] buf;
-                break;
-            }
-            case napi_number: {
-                double num_value;
-                napi_get_value_double(env, return_val, &num_value);
-                CC_LOG_INFO("Returned number: %f", num_value);
-                rval = se::Value(num_value);
-                break;
-            }
-            case napi_boolean: {
-                bool bool_value;
-                napi_get_value_bool(env, return_val, &bool_value);
-                rval = se::Value(bool_value);
-                break;
-            }
-            default:
-                CC_LOG_WARNING("Unhandled return value type");
-                break;
-        }
-        return true;
-    }
-
     std::promise<cc::CallbackParamType> promise;
     std::function<void(cc::CallbackParamType)> cb = [&promise](cc::CallbackParamType message) {
         promise.set_value(message);
     };
-    cc::AsyncCallParam* callParam = new cc::AsyncCallParam{cb, _paramStr, func};
-    cc::JSFunction::getFunction("executeNativeMethod").invokeAsync(callParam);
+    cc::CallParam *callParam = new cc::CallParam{cb, _paramStr, module_info, _clsPath, method};
+    if (_isSyn) {
+        cc::JSFunction::getFunction("executeMethodSync").invoke(callParam, _isSyn);
+    } else {
+        cc::JSFunction::getFunction("executeMethodAsync").invoke(callParam, _isSyn);
+    }
     cc::CallbackParamType methodResult = promise.get_future().get();
+    free(module_info);
+    delete callParam;
     rval = se::Value(convertToSeValue(methodResult));
     return true;
 }

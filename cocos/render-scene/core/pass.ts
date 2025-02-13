@@ -601,7 +601,8 @@ export class Pass {
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
         this._priority = RenderPriority.DEFAULT;
         this._stage = RenderPassStage.DEFAULT;
-        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+        const enableEffectImport: boolean = cclegacy.rendering?.enableEffectImport;
+        if (enableEffectImport) {
             const r = cclegacy.rendering;
             if (typeof info.phase === 'number') {
                 this._passID = (info as Pass)._passID;
@@ -647,7 +648,7 @@ export class Pass {
         this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
         this._programName = info.program;
         this._defines = copyDefines ? ({ ...info.defines }) : info.defines;
-        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+        if (enableEffectImport) {
             this._shaderInfo = (cclegacy.rendering.programLib as ProgramLibrary)
                 .getProgramInfo(this._phaseID, this._programName);
         } else {
@@ -661,7 +662,7 @@ export class Pass {
         if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
 
         // init descriptor set
-        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+        if (enableEffectImport) {
             _dsInfo.layout = (cclegacy.rendering.programLib as ProgramLibrary)
                 .getMaterialDescriptorSetLayout(this._device, this._phaseID, info.program);
         } else {
@@ -673,7 +674,7 @@ export class Pass {
         const blocks = this._shaderInfo.blocks;
         let blockSizes: number[];
         let handleMap: Record<string, number>;
-        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+        if (enableEffectImport) {
             const programLib = (cclegacy.rendering.programLib as ProgramLibrary);
             blockSizes = programLib.getBlockSizes(this._phaseID, this._programName);
             handleMap = programLib.getHandleMap(this._phaseID, this._programName);
@@ -684,7 +685,7 @@ export class Pass {
         }
 
         // build uniform blocks
-        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+        if (enableEffectImport) {
             const programLib = (cclegacy.rendering.programLib as ProgramLibrary);
             const shaderInfo = programLib.getShaderInfo(this._phaseID, this.program);
             this._buildMaterialUniformBlocks(device, shaderInfo.blocks, blockSizes);
@@ -714,7 +715,8 @@ export class Pass {
             lastSize = size;
         }
         // create gfx buffer resource
-        const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
+        // lastSize is aligned to 16, the same as _bufferViewInfo.range.
+        const totalSize = startOffsets[startOffsets.length - 1] + Math.ceil(lastSize / 16) * 16;
         if (totalSize) {
             // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
             _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
@@ -808,6 +810,7 @@ export class Pass {
 
     /**
      * @engineInternal
+     * @mangle
      * Only for UI
      */
     public _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number): void {
@@ -848,6 +851,7 @@ export class Pass {
     // Only for UI
     /**
      * @engineInternal
+     * @mangle
      */
     public _updatePassHash (): void {
         this._hash = Pass.getPassHash(this);
@@ -877,6 +881,7 @@ export class Pass {
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
     /**
      * @engineInternal
+     * @mangle
      * Currently, can not just mark setter as engine internal, so change to a function.
      */
     setRootBufferDirty (val: boolean): void { this._rootBufferDirty = val; }
@@ -884,6 +889,7 @@ export class Pass {
     get priority (): RenderPriority { return this._priority; }
     /**
      * @engineInternal
+     * @mangle
      * Currently, can not just mark setter as engine internal, so change to a function.
      */
     setPriority (val: RenderPriority): void { this._priority = val; }

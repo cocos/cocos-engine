@@ -770,9 +770,7 @@ export class ParticleSystem2D extends UIRenderer {
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator.uvFilled = 0;
 
-        if (this._simulator.renderData && this._assembler && this._assembler.removeData) {
-            this._assembler.removeData(this._simulator.renderData);
-        }
+        this.destroyRenderData();
     }
 
     private initProperties (): void {
@@ -838,20 +836,33 @@ export class ParticleSystem2D extends UIRenderer {
         }
     }
 
-    protected _flushAssembler (): void {
+    public override destroyRenderData (): void {
+        if (this._simulator.renderData && this._assembler) {
+            this._assembler.removeData(this._simulator.renderData);
+            this._simulator.renderData = null;
+        }
+        super.destroyRenderData();
+    }
+
+    protected override _flushAssembler (): void {
         const assembler = ParticleSystem2D.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
         if (this._assembler && this._assembler.createData) {
-            this._simulator.renderData = this._assembler.createData(this) as MeshRenderData;
-            this._simulator.renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
-            this._simulator.initDrawInfo();
+            const simulator = this._simulator;
+            let renderData = simulator.renderData;
+            if (!renderData) {
+                renderData = simulator.renderData = this._assembler.createData(this) as MeshRenderData;
+                simulator.uvFilled = 0;
+                renderData.particleInitRenderDrawInfo(this.renderEntity); // Make sure renderEntity and renderData are both from simulator.
+                simulator.initDrawInfo();
+            }
         }
     }
 
-    protected lateUpdate (dt: number): void {
+    protected override lateUpdate (dt: number): void {
         if (!this._simulator.finished) {
             this._simulator.step(dt);
         }

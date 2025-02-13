@@ -24,12 +24,13 @@
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, override, displayOrder, editable, visible } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
-import { error, logID, warn } from '../core/platform/debug';
+import { error, errorID, logID, warn } from '../core/platform/debug';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node, NodeEventType } from '../scene-graph';
 import { CCObjectFlags, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
-import { Graphics, RenderData, UIRenderer } from '../2d';
+import type { Graphics } from '../2d/components/graphics';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
 import { MaterialInstance } from '../render-scene';
@@ -43,6 +44,7 @@ import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame, SkeletonCacheItemInfo } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
+import { RenderData } from '../2d/renderer/render-data';
 
 const CachedFrameTime = 1 / 60;
 
@@ -297,16 +299,19 @@ export class Skeleton extends UIRenderer {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _debugRenderer: Graphics | null = null;
     /**
      * @engineInternal
+     * @mangle
      */
-    public _startSlotIndex;
+    public _startSlotIndex: number;
     /**
      * @engineInternal
+     * @mangle
      */
-    public _endSlotIndex;
+    public _endSlotIndex: number;
 
     private _customMaterialInstance: MaterialInstance | null = null;
     _vLength = 0;
@@ -1189,7 +1194,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @engineInternal
      */
-    public updateMaterial (): void {
+    public override updateMaterial (): void {
         let mat: Material;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
@@ -1613,16 +1618,24 @@ export class Skeleton extends UIRenderer {
     protected _updateDebugDraw (): void {
         if (this.debugBones || this.debugSlots || this.debugMesh) {
             if (!this._debugRenderer) {
-                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                let debugDrawNode: Node | null = new Node('DEBUG_DRAW_NODE');
                 debugDrawNode.layer = this.node.layer;
                 debugDrawNode.hideFlags |= CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
-                const debugDraw = debugDrawNode.addComponent(Graphics);
-                debugDraw.lineWidth = 5;
-                debugDraw.strokeColor = new Color(255, 0, 0, 255);
+                let debugDraw: Graphics | null = null;
 
-                this._debugRenderer = debugDraw;
-                debugDrawNode.parent = this.node;
-                this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
+                try {
+                    debugDraw = debugDrawNode.addComponent('cc.Graphics') as Graphics;
+                    debugDraw.lineWidth = 5;
+                    debugDraw.strokeColor = new Color(255, 0, 0, 255);
+
+                    this._debugRenderer = debugDraw;
+                    debugDrawNode.parent = this.node;
+                    this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
+                } catch (e: any) {
+                    errorID(4501, e.message as string);
+                    debugDrawNode.destroy();
+                    debugDrawNode = null;
+                }
             }
             if (this.isAnimationCached()) {
                 warn('Debug bones or slots is invalid in cached mode');

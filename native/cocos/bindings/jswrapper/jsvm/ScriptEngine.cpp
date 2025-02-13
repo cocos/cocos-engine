@@ -138,17 +138,14 @@ SE_BIND_FUNC(JSB_console_assert)
 ScriptEngine *gSriptEngineInstance = nullptr;
 
 ScriptEngine::ScriptEngine() {
-    static bool initialized = false;
-    if (initialized) {
-        return;
-    }
-    JSVM_InitOptions initOptions;
-    memset(&initOptions, 0, sizeof(initOptions));
-    OH_JSVM_Init(&initOptions);
-    initialized = true;
+    OH_JSVM_Init(nullptr);
+    gSriptEngineInstance = this;
 };
 
-ScriptEngine::~ScriptEngine() = default;
+ScriptEngine::~ScriptEngine() {
+    cleanup();
+    gSriptEngineInstance = nullptr;
+};
 
 void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate &delegate) {
     _fileOperationDelegate = delegate;
@@ -303,6 +300,21 @@ bool ScriptEngine::init() {
 
 Object *ScriptEngine::getGlobalObject() const { return _globalObj; }
     
+void ScriptEngine::closeEngine() {
+    JSVM_Env env = _env;
+    _env = nullptr;
+
+    JSVM_Status status;
+    NODE_API_CALL(status, env, OH_JSVM_CloseEnvScope(env, _envScope));
+    NODE_API_CALL(status, env, OH_JSVM_DestroyEnv(env));
+    NODE_API_CALL(status, env, OH_JSVM_CloseVMScope(_vm, _vmScope));
+    NODE_API_CALL(status, env, OH_JSVM_DestroyVM(_vm));
+    _envScope = nullptr;
+    env = nullptr;
+    _vmScope = nullptr;
+    _vm = nullptr;
+}
+
 bool ScriptEngine::start() {
     bool ok = true;
     if (!init()) {
@@ -337,8 +349,6 @@ void ScriptEngine::cleanup() {
     if (!_isValid) {
         return;
     }
-    Object::restarting = true;
-    Object::resetBaseSet();
     SE_LOGD("ScriptEngine::cleanup begin ...\n");
     _isInCleanup = true;
     se::AutoHandleScope hs;
@@ -360,20 +370,6 @@ void ScriptEngine::cleanup() {
     __oldConsoleWarn.setUndefined();
     __oldConsoleError.setUndefined();
     __oldConsoleAssert.setUndefined();
-
-    JSVM_Env env = _env;
-    _env = nullptr;
-
-    JSVM_Status status;
-    NODE_API_CALL(status, env, OH_JSVM_CloseEnvScope(env, _envScope));
-
-    NODE_API_CALL(status, env, OH_JSVM_DestroyEnv(env));
-    NODE_API_CALL(status, env, OH_JSVM_CloseVMScope(_vm, _vmScope));
-    NODE_API_CALL(status, env, OH_JSVM_DestroyVM(_vm));
-    _envScope = nullptr;
-    env = nullptr;
-    _vmScope = nullptr;
-    _vm = nullptr;
 
     _globalObj = nullptr;
     _isValid   = false;

@@ -23,15 +23,14 @@
 */
 
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING,
-    INST_MAT_WORLD, INST_SH, isEnableEffect,
+import { RenderPriority,
+    INST_MAT_WORLD, INST_SH,
     UBOSHEnum } from '../../rendering/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
-import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager,
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture,
+    Sampler, Shader, deviceManager,
     Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
 import { errorID, Mat4, cclegacy } from '../../core';
-import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../root';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -59,8 +58,6 @@ export class SubModel {
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
     protected _worldBoundDescriptorSet: DescriptorSet | null = null;
-    protected _reflectionTex: Texture | null = null;
-    protected _reflectionSampler: Sampler | null = null;
     protected _instancedAttributeBlock: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
     protected _instancedWorldMatrixIndex = -1;
     protected _instancedSHIndex = -1;
@@ -239,43 +236,6 @@ export class SubModel {
         this._flushPassInfo();
 
         this.priority = RenderPriority.DEFAULT;
-        const r = cclegacy.rendering;
-        // initialize resources for reflection material
-        if (((!r || !r.enableEffectImport) && passes[0].phase === getPhaseID('reflection'))
-        || (isEnableEffect() && passes[0].phaseID === r.getPhaseID(r.getPassID('default'), 'reflection'))) {
-            let texWidth = root.mainWindow!.width;
-            let texHeight = root.mainWindow!.height;
-            const minSize = 512;
-
-            if (texHeight < texWidth) {
-                texWidth = minSize * texWidth / texHeight;
-                texHeight = minSize;
-            } else {
-                texWidth = minSize;
-                texHeight = minSize * texHeight / texWidth;
-            }
-
-            this._reflectionTex = this._device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.STORAGE | TextureUsageBit.TRANSFER_SRC | TextureUsageBit.SAMPLED,
-                Format.RGBA8,
-                texWidth,
-                texHeight,
-            ));
-
-            this.descriptorSet.bindTexture(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionTex);
-
-            this._reflectionSampler = this._device.getSampler(new SamplerInfo(
-                Filter.LINEAR,
-                Filter.LINEAR,
-                Filter.NONE,
-                Address.CLAMP,
-                Address.CLAMP,
-                Address.CLAMP,
-            ));
-            this.descriptorSet.bindSampler(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionSampler);
-            this.descriptorSet.bindTexture(UNIFORM_REFLECTION_STORAGE_BINDING, this._reflectionTex);
-        }
     }
 
     /**
@@ -291,7 +251,9 @@ export class SubModel {
         this._inputAssembler!.destroy();
         this._inputAssembler = null;
 
-        this._worldBoundDescriptorSet?.destroy();
+        if (this._worldBoundDescriptorSet) {
+            this._worldBoundDescriptorSet.destroy();
+        }
         this._worldBoundDescriptorSet = null;
 
         this.priority = RenderPriority.DEFAULT;
@@ -301,10 +263,6 @@ export class SubModel {
 
         this._passes = null;
         this._shaders = null;
-
-        if (this._reflectionTex) this._reflectionTex.destroy();
-        this._reflectionTex = null;
-        this._reflectionSampler = null;
     }
 
     /**
@@ -319,7 +277,20 @@ export class SubModel {
             pass.update();
         }
         this._descriptorSet!.update();
-        this._worldBoundDescriptorSet?.update();
+        if (this._worldBoundDescriptorSet) this._worldBoundDescriptorSet.update();
+    }
+
+    private _updatePasses (): void {
+        const passes = this._passes;
+        if (!passes) { return; }
+
+        passes.forEach((pass) => {
+            pass.beginChangeStatesSilently();
+            pass.tryCompile(); // force update shaders
+            pass.endChangeStatesSilently();
+        });
+
+        this._flushPassInfo();
     }
 
     /**
@@ -327,17 +298,7 @@ export class SubModel {
      * @zh 管线更新回调
      */
     public onPipelineStateChanged (): void {
-        const passes = this._passes;
-        if (!passes) { return; }
-
-        for (let i = 0; i < passes.length; i++) {
-            const pass = passes[i];
-            pass.beginChangeStatesSilently();
-            pass.tryCompile(); // force update shaders
-            pass.endChangeStatesSilently();
-        }
-
-        this._flushPassInfo();
+        this._updatePasses();
     }
 
     /**
@@ -357,17 +318,7 @@ export class SubModel {
         }
         this._patches = patches;
 
-        const passes = this._passes;
-        if (!passes) { return; }
-
-        for (let i = 0; i < passes.length; i++) {
-            const pass = passes[i];
-            pass.beginChangeStatesSilently();
-            pass.tryCompile(); // force update shaders
-            pass.endChangeStatesSilently();
-        }
-
-        this._flushPassInfo();
+        this._updatePasses();
     }
 
     /**

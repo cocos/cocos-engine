@@ -30,14 +30,20 @@ const m4_1 = mat4();
 const tempNodes: Node[] = [];
 const DEG_TO_RAD = Math.PI / 180.0;
 
-export function getParentWorldMatrixNoSkew (parent: Node | null, out: Mat4): boolean {
-    if (!parent) {
+/**
+ * Check whether the node or its parent has skew components and return the original world matrix without skew to `out` parameter.
+ * @param node The node and its parent for finding skew.
+ * @param out The node's original world matrix without skew.
+ * @return true if the node or its parent has skew components, otherwise returns false.
+ */
+export function findSkewAndGetOriginalWorldMatrix (node: Node | null, out: Mat4): boolean {
+    if (!node) {
         return false;
     }
     tempNodes.length = 0;
     const ancestors: Node[] = tempNodes;
     let startNode: Node | null = null;
-    for (let cur: Node | null = parent; cur; cur = cur.parent) {
+    for (let cur: Node | null = node; cur; cur = cur.parent) {
         ancestors.push(cur);
         if (cur._uiProps._uiSkewComp) {
             startNode = cur;
@@ -49,11 +55,13 @@ export function getParentWorldMatrixNoSkew (parent: Node | null, out: Mat4): boo
         out.set(startNode.parent!._mat); // Set the first no-skew node's world matrix to out.
         const start = ancestors.indexOf(startNode);
         for (let i = start; i >= 0; --i) {
-            const node = ancestors[i];
-            Mat4.fromSRT(m4_1, node.rotation, node.position, node.scale);
+            const cur = ancestors[i];
+            Mat4.fromSRT(m4_1, cur.rotation, cur.position, cur.scale);
             Mat4.multiply(out, out, m4_1);
         }
         ret = true;
+    } else {
+        out.set(node._mat);
     }
 
     tempNodes.length = 0;
@@ -63,14 +71,34 @@ export function getParentWorldMatrixNoSkew (parent: Node | null, out: Mat4): boo
 export function updateLocalMatrixBySkew (uiSkewComp: UISkew, outLocalMatrix: Mat4): void {
     if (!uiSkewComp.isSkewEnabled()) return;
     if (uiSkewComp.x === 0 && uiSkewComp.y === 0) return;
-    const skewX = Math.tan(uiSkewComp.x * DEG_TO_RAD);
-    const skewY = Math.tan(uiSkewComp.y * DEG_TO_RAD);
-    const a = outLocalMatrix.m00;
-    const b = outLocalMatrix.m01;
-    const c = outLocalMatrix.m04;
-    const d = outLocalMatrix.m05;
-    outLocalMatrix.m00 = a + c * skewY;
-    outLocalMatrix.m01 = b + d * skewY;
-    outLocalMatrix.m04 = c + a * skewX;
-    outLocalMatrix.m05 = d + b * skewX;
+
+    if (uiSkewComp.rotational) {
+        const radiansX = -(uiSkewComp.x * DEG_TO_RAD);
+        const radiansY = (uiSkewComp.y * DEG_TO_RAD);
+        const cx = Math.cos(radiansX);
+        const sx = Math.sin(radiansX);
+        const cy = Math.cos(radiansY);
+        const sy = Math.sin(radiansY);
+
+        const m00 = outLocalMatrix.m00;
+        const m01 = outLocalMatrix.m01;
+        const m04 = outLocalMatrix.m04;
+        const m05 = outLocalMatrix.m05;
+
+        outLocalMatrix.m00 = cy * m00 - sx * m01;
+        outLocalMatrix.m01 = sy * m00 + cx * m01;
+        outLocalMatrix.m04 = cy * m04 - sx * m05;
+        outLocalMatrix.m05 = sy * m04 + cx * m05;
+    } else {
+        const skewX = Math.tan(uiSkewComp.x * DEG_TO_RAD);
+        const skewY = Math.tan(uiSkewComp.y * DEG_TO_RAD);
+        const a = outLocalMatrix.m00;
+        const b = outLocalMatrix.m01;
+        const c = outLocalMatrix.m04;
+        const d = outLocalMatrix.m05;
+        outLocalMatrix.m00 = a + c * skewY;
+        outLocalMatrix.m01 = b + d * skewY;
+        outLocalMatrix.m04 = c + a * skewX;
+        outLocalMatrix.m05 = d + b * skewX;
+    }
 }

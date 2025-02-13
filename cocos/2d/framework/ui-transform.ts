@@ -29,7 +29,7 @@ import { Mat4, Rect, Size, Vec2, Vec3, geometry, warnID, visibleRect, approx, EP
 import { director, DirectorEvent } from '../../game/director';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { IMask } from '../../scene-graph/node-event-processor';
-import { Mask } from '../components/mask';
+import type { Mask } from '../components/mask';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -795,6 +795,7 @@ export class UITransform extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @engineInternal
+     * @mangle
      */
     public static _sortSiblings (): void {
         UITransform.priorityChangeNodeMap.forEach((node, ID): void => {
@@ -808,6 +809,7 @@ export class UITransform extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @engineInternal
+     * @mangle
      */
     public static _cleanChangeMap (): void {
         UITransform.priorityChangeNodeMap.clear();

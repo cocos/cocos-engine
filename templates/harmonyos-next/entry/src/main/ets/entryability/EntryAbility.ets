@@ -1,12 +1,12 @@
 import UIAbility from '@ohos.app.ability.UIAbility';
-import cocos from 'libcocos.so';
+import cocos, { context } from 'libcocos.so';
 import { ContextType } from '../common/Constants';
 import window from '@ohos.window';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { AbilityConstant, Want } from '@kit.AbilityKit';
 
-const nativeContext = cocos.getContext(ContextType.ENGINE_UTILS);
-const nativeAppLifecycle = cocos.getContext(ContextType.APP_LIFECYCLE);
+const nativeContext: context = cocos.getContext(ContextType.ENGINE_UTILS);
+const nativeAppLifecycle: context = cocos.getContext(ContextType.APP_LIFECYCLE);
 enum windowStageType {
   hide,
   show

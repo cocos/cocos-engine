@@ -1183,14 +1183,14 @@ Object.defineProperty(nodeProto, '_static', {
     },
 });
 
-Object.defineProperty(nodeProto, '_hasSkewComp', {
+Object.defineProperty(nodeProto, '_skewType', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[3] != 0;
+    get(): number {
+        return this._sharedUint8Arr[3];
     },
     set(v) {
-        this._sharedUint8Arr[3] = (v ? 1 : 0);
+        this._sharedUint8Arr[3] = v;
     },
 });
 

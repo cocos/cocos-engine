@@ -117,12 +117,6 @@ public:
         BIGINT64,
         BIGUINT64
     };
-
-    static std::set<Object*> objBaseSet;
-    static bool restarting;
-    static void resetBaseSet() {
-          objBaseSet.erase(objBaseSet.begin(), objBaseSet.end());
-    }
     
     using BufferContentsFreeFunc = void (*)(void *contents, size_t byteLength, void *userData);
 

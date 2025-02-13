@@ -73,7 +73,7 @@
 namespace {
 
 bool setCanvasCallback(se::Object *global) {
-    se::AutoHandleScope scope;
+    const se::AutoHandleScope scope;
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     auto handler = window->getWindowHandle();
@@ -81,9 +81,9 @@ bool setCanvasCallback(se::Object *global) {
     auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
 
     se::Value jsbVal;
-    bool ok = global->getProperty("jsb", &jsbVal);
+    const bool ok = global->getProperty("jsb", &jsbVal);
     if (!jsbVal.isObject()) {
-        se::HandleObject jsbObj(se::Object::createPlainObject());
+        const se::HandleObject jsbObj(se::Object::createPlainObject());
         global->setProperty("jsb", se::Value(jsbObj));
         jsbVal.setObject(jsbObj, true);
     }
@@ -91,13 +91,13 @@ bool setCanvasCallback(se::Object *global) {
     se::Value windowVal;
     jsbVal.toObject()->getProperty("window", &windowVal);
     if (!windowVal.isObject()) {
-        se::HandleObject windowObj(se::Object::createPlainObject());
+        const se::HandleObject windowObj(se::Object::createPlainObject());
         jsbVal.toObject()->setProperty("window", se::Value(windowObj));
         windowVal.setObject(windowObj, true);
     }
 
-    int width = static_cast<int>(viewSize.width / dpr);
-    int height = static_cast<int>(viewSize.height / dpr);
+    const int width = static_cast<int>(viewSize.width / dpr);
+    const int height = static_cast<int>(viewSize.height / dpr);
     windowVal.toObject()->setProperty("innerWidth", se::Value(width));
     windowVal.toObject()->setProperty("innerHeight", se::Value(height));
 
@@ -207,6 +207,10 @@ void Engine::destroy() {
     if (cc::render::getRenderingModule()) {
         cc::render::Factory::destroy(cc::render::getRenderingModule());
     }
+    #if(CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSVM)
+        // When using JSVM, not all objects are destroyed during cleanup, so we need to close JSVM at the end.
+        _scriptEngine->closeEngine();
+    #endif
 
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;

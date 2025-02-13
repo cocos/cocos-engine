@@ -208,6 +208,7 @@ export class UIRenderer extends Renderer {
     /**
      * As can not set setter internal individually, so add setRenderData();
      * @engineInternal
+     * @mangle
      */
     setRenderData (renderData: RenderData | null): void {
         this._renderData = renderData;
@@ -277,6 +278,7 @@ export class UIRenderer extends Renderer {
     public _internalId = -1;
     /**
      * @engineInternal
+     * @mangle
      */
     public _flagChangedVersion = -1;
 
@@ -470,6 +472,10 @@ export class UIRenderer extends Renderer {
     }
 
     /**
+     * cocos-test-projects/assets/cases/rendertexture depends on this method, so it should not be marked as `@mangle` now.
+     * FIXME(cjh): `protected` is not equal to `@engineInternal + public`, because `protected` methods are also APIs exposed to developers,
+     * For example, developers could implement a class which extends `UIRenderer` and call this method.
+     * The mistake was merged in https://github.com/cocos/cocos-engine/pull/14572 , and it needs to be fixed in the future.
      * @engineInternal
      */
     public updateMaterial (): void {

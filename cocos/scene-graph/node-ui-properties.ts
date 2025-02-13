@@ -26,7 +26,8 @@ import { UIRenderer } from '../2d/framework/ui-renderer';
 import { warnID } from '../core/platform/debug';
 import { UIMeshRenderer } from '../2d';
 import type { Node } from './node';
-import type { UITransform, UISkew } from '../2d/framework';
+import type { UITransform } from '../2d/framework';
+import type { UISkew } from '../2d/framework/ui-skew';
 
 /**
  * @en Node's UI properties abstraction
@@ -73,6 +74,7 @@ export class NodeUIProperties {
     /**
      * NOTE: engineInternal tag cannot only mark opacity setter as internal.
      * @engineInternal
+     * @mangle
      */
     public setOpacity (v: number): void { this._opacity = v; }
     public get opacity (): number { return this._opacity; }

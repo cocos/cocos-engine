@@ -149,19 +149,16 @@ export enum ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
-    SAMPLER_REFLECTION,
-
-    STORAGE_REFLECTION,
 
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
     SAMPLER_REFLECTION_PROBE_DATA_MAP,
-    SAMPLER_REFLECTION_PROBE_BLEND_CUBE,
+    // SAMPLER_REFLECTION_PROBE_BLEND_CUBE, // Disable for WebGPU
 
     COUNT,
 }
 const LOCAL_UBO_COUNT = ModelLocalBindings.SAMPLER_JOINTS;
-const LOCAL_SAMPLER_COUNT = ModelLocalBindings.STORAGE_REFLECTION - LOCAL_UBO_COUNT;
+const LOCAL_SAMPLER_COUNT = ModelLocalBindings.COUNT - LOCAL_UBO_COUNT;
 const LOCAL_STORAGE_IMAGE_COUNT = ModelLocalBindings.COUNT - LOCAL_UBO_COUNT - LOCAL_SAMPLER_COUNT;
 
 export enum SetIndex {
@@ -686,6 +683,7 @@ export class UBOSkinning {
 
 /**
  * @internal This method only used to init localDescriptorSetLayout.layouts[UBOSkinning.NAME]
+ * @engineInternal
 */
 export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number): void {
     UBOSkinning.initLayout(maxCount);
@@ -950,44 +948,6 @@ localDescriptorSetLayout.layouts[UNIFORM_SPRITE_TEXTURE_NAME] = UNIFORM_SPRITE_T
 localDescriptorSetLayout.bindings[UNIFORM_SPRITE_TEXTURE_BINDING] = UNIFORM_SPRITE_TEXTURE_DESCRIPTOR;
 
 /**
- * @en The sampler for reflection
- * @zh 反射纹理采样器。
- */
-const UNIFORM_REFLECTION_TEXTURE_NAME = 'cc_reflectionTexture';
-export const UNIFORM_REFLECTION_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_REFLECTION;
-const UNIFORM_REFLECTION_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(
-    UNIFORM_REFLECTION_TEXTURE_BINDING,
-    DescriptorType.SAMPLER_TEXTURE,
-    1,
-    ShaderStageFlagBit.FRAGMENT,
-    MemoryAccessBit.READ_ONLY,
-    ViewDimension.TEX2D,
-);
-const UNIFORM_REFLECTION_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_TEXTURE_NAME, Type.SAMPLER2D, 1);
-localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_TEXTURE_NAME] = UNIFORM_REFLECTION_TEXTURE_LAYOUT;
-localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_TEXTURE_BINDING] = UNIFORM_REFLECTION_TEXTURE_DESCRIPTOR;
-
-/**
-  * @en The storage image for reflection
-  * @zh 反射纹理存储。
-  */
-const UNIFORM_REFLECTION_STORAGE_NAME = 'cc_reflectionStorage';
-export const UNIFORM_REFLECTION_STORAGE_BINDING = ModelLocalBindings.STORAGE_REFLECTION;
-const UNIFORM_REFLECTION_STORAGE_DESCRIPTOR = new DescriptorSetLayoutBinding(
-    UNIFORM_REFLECTION_STORAGE_BINDING,
-    DescriptorType.STORAGE_IMAGE,
-    1,
-    ShaderStageFlagBit.COMPUTE,
-    MemoryAccessBit.READ_WRITE,
-    ViewDimension.TEX2D,
-    SampleType.FLOAT,
-    Format.RGBA8,
-);
-const UNIFORM_REFLECTION_STORAGE_LAYOUT = new UniformStorageImage(SetIndex.LOCAL, UNIFORM_REFLECTION_STORAGE_BINDING, UNIFORM_REFLECTION_STORAGE_NAME, Type.IMAGE2D, 1);
-localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_STORAGE_NAME] = UNIFORM_REFLECTION_STORAGE_LAYOUT;
-localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_STORAGE_BINDING] = UNIFORM_REFLECTION_STORAGE_DESCRIPTOR;
-
-/**
  * @en The sampler for reflection probe cubemap
  * @zh 反射探针立方体贴图纹理采样器。
  */
@@ -1064,7 +1024,7 @@ localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING] = U
  * @zh 用于blend的反射探针立方体贴图纹理采样器。
  */
 const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME = 'cc_reflectionProbeBlendCubemap';
-export const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_BLEND_CUBE;
+export const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_DATA_MAP + 1; // SAMPLER_REFLECTION_PROBE_BLEND_CUBE
 const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(
     UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
     DescriptorType.SAMPLER_TEXTURE,
@@ -1080,8 +1040,14 @@ const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT = new UniformSamplerTexture(
     Type.SAMPLER_CUBE,
     1,
 );
-localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT;
-localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR;
+/**
+ * @engineInternal
+ */
+export const ENABLE_PROBE_BLEND = false;
+if (ENABLE_PROBE_BLEND) {
+    localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT;
+    localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR;
+}
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
