@@ -257,16 +257,16 @@ jobs:
           new: ./engine-HEAD/bin/.declarations/cc.d.ts
           mode: addition
           tolerance: worse
-          output: ./engine/interface-diff.txt
+          output: ./engine-HEAD/interface-diff.txt
 
       - name: optimize interface check report
-        working-directory: ./engine
+        working-directory: ./engine-HEAD
         run: |
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
 
       - name: After optimize interface check report
-        working-directory: ./engine
+        working-directory: ./engine-HEAD
         run: |
           cat ./interface-diff.txt
 
@@ -291,17 +291,18 @@ jobs:
           | 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |"
 
           cat <<< "${PACKAGE_SIZE_INFO}"
-          ORITINAL_DIFF_CONTENT=$(cat ./engine/interface-diff.txt)
+
+          DIFF_FILE_PATH=./engine-HEAD/interface-diff.txt
+          ORITINAL_DIFF_CONTENT=$(cat ${DIFF_FILE_PATH})
           echo "Original Diff: "
           printf "%s\n" "$ORITINAL_DIFF_CONTENT"
-          rm ./engine/interface-diff.txt
 
           # Use printf to avoid \n missing
-          printf "%s\n" "$PACKAGE_SIZE_INFO" > ./engine/interface-diff.txt
-          printf "%s\n" "$ORITINAL_DIFF_CONTENT" >> ./engine/interface-diff.txt
+          printf "%s\n" "$PACKAGE_SIZE_INFO" > ${DIFF_FILE_PATH}
+          printf "%s\n" "$ORITINAL_DIFF_CONTENT" >> ${DIFF_FILE_PATH}
 
           echo "Diff after merge: "
-          cat ./engine/interface-diff.txt
+          cat ${DIFF_FILE_PATH}
 
       - name: Write PR number to file
         uses: actions/github-script@v7
@@ -322,4 +323,4 @@ jobs:
         with:
           name: interface-diff.txt
           path: |
-            ./engine/interface-diff.txt
+            ./engine-HEAD/interface-diff.txt
