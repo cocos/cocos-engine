@@ -1015,8 +1015,8 @@ export class Camera {
         if (!this._node) return;
 
         let viewProjDirty = false;
+        const xr = globalThis.__globalXR;
         if (USE_XR) {
-            const xr = globalThis.__globalXR;
             if (xr && xr.isWebXR && xr.webXRWindowMap && xr.updateViewport) {
                 const x = xr.webXRMatProjs ? 1 / xr.webXRMatProjs.length : 1;
                 const wndXREye = xr.webXRWindowMap.get(this._window);
