@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const ps = require('path');
 const { buildEngine } = require('@cocos/ccbuild');
+const { platform } = require('os');
 
 const args = process.argv.slice(2);
 if (args.length == 0) {
@@ -67,19 +68,23 @@ const features2DNewPipeline = [...features2DCommon, "custom-pipeline", "custom-p
 
 console.log(`2d features: [ ${features2DLegacyPipeline.join(', ')} ]`);
 
-async function buildEngineForFeatures(features, outDir, noDeprecatedFeatures) {
-    const options = {
+async function buildEngineForFeatures(options) {
+    console.log(`>>> ==============================================================`);
+    console.log(`>>> ============== features: ${options.features.join(', ')}`);
+    console.log(`>>> ============== outDir: ${options.outDir}`);
+    const outDir = options.outDir;
+    const ccbuildOptions = {
         engine: engineRoot,
         out: outDir,
-        platform: "WECHAT",
+        platform: options.platform,
         moduleFormat: "system",
         compress: true,
         split: false,
-        nativeCodeBundleMode: "wasm",
+        nativeCodeBundleMode: options.nativeCodeBundleMode,
         assetURLFormat: "runtime-resolved",
-        noDeprecatedFeatures,
+        noDeprecatedFeatures: options.noDeprecatedFeatures,
         sourceMap: false,
-        features,
+        features: options.features,
         loose: true,
         mode: "BUILD",
         flags: {
@@ -87,7 +92,7 @@ async function buildEngineForFeatures(features, outDir, noDeprecatedFeatures) {
             NET_MODE: 0,
             SERVER_MODE: false
         },
-        wasmCompressionMode: 'brotli',
+        wasmCompressionMode: options.wasmCompressionMode,
         inlineEnum: true,
         mangleProperties: {
             mangleList: [
@@ -117,12 +122,50 @@ async function buildEngineForFeatures(features, outDir, noDeprecatedFeatures) {
     await fs.ensureDir(outDir);
     await fs.emptyDir(outDir);
 
-    await buildEngine(options);
+    await buildEngine(ccbuildOptions);
 }
 
 (async () => {
-    await buildEngineForFeatures(allFeatures, ps.join(engineRoot, 'build-cc-out-all'), false);
-    await buildEngineForFeatures(features2DLegacyPipeline, ps.join(engineRoot, 'build-cc-out-2d-legacy-pipline'), true);
-    await buildEngineForFeatures(features2DNewPipeline, ps.join(engineRoot, 'build-cc-out-2d-new-pipline'), true);
-    await buildEngineForFeatures(features2DEmptyLegacyPipeline, ps.join(engineRoot, 'build-cc-out-2d-empty-legacy-pipline'), true);
+    await buildEngineForFeatures({
+        features: allFeatures,
+        outDir: ps.join(engineRoot, 'build-cc-out-all'),
+        noDeprecatedFeatures: false,
+        platform: "WECHAT",
+        nativeCodeBundleMode: "wasm",
+        wasmCompressionMode: 'brotli',
+    });
+
+    await buildEngineForFeatures({
+        features: allFeatures,
+        outDir: ps.join(engineRoot, 'build-cc-out-all-web'),
+        noDeprecatedFeatures: false,
+        platform: "HTML5",
+    });
+
+    await buildEngineForFeatures({
+        features: features2DLegacyPipeline,
+        outDir: ps.join(engineRoot, 'build-cc-out-2d-legacy-pipline'),
+        noDeprecatedFeatures: true,
+        platform: "WECHAT",
+        nativeCodeBundleMode: "wasm",
+        wasmCompressionMode: 'brotli',
+    });
+
+    await buildEngineForFeatures({
+        features: features2DNewPipeline,
+        outDir: ps.join(engineRoot, 'build-cc-out-2d-new-pipline'),
+        noDeprecatedFeatures: true,
+        platform: "WECHAT",
+        nativeCodeBundleMode: "wasm",
+        wasmCompressionMode: 'brotli',
+    });
+    
+    await buildEngineForFeatures({
+        features: features2DEmptyLegacyPipeline,
+        outDir: ps.join(engineRoot, 'build-cc-out-2d-empty-legacy-pipline'),
+        noDeprecatedFeatures: true,
+        platform: "WECHAT",
+        nativeCodeBundleMode: "wasm",
+        wasmCompressionMode: 'brotli',
+    });
 })();
