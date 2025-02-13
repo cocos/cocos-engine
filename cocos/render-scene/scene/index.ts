@@ -23,11 +23,9 @@
 */
 
 export * from './camera';
-
-/** @export_if context.buildTimeConstants.USE_3D */
 export * from './model';
-/** @export_if context.buildTimeConstants.USE_3D */
 export * from './submodel';
+
 /** @export_if context.buildTimeConstants.USE_3D */
 export * from './ambient';
 /** @export_if context.buildTimeConstants.USE_3D */
