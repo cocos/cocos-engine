@@ -270,26 +270,47 @@ jobs:
         run: |
           cat ./interface-diff.txt
 
-      - name: Check package size
+      - name: Check Package Size
         run: |
-          BASE_SIZE=0
-          if [ -d ./engine/build-cc-out-all ]; then
-            BASE_SIZE=$(du -sb ./engine/build-cc-out-all | awk '{print $1}')
-          fi
-          HEAD_SIZE=$(du -sb ./engine-HEAD/build-cc-out-all | awk '{print $1}')
-          DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
-          if [ "$DIFF_SIZE" -gt 0 ]; then
-            ICON="⚠️ +"
-          elif [ "$DIFF_SIZE" -lt 0 ]; then
-            ICON="👍 "
-          else
-            ICON="✅ "
-          fi
-
           PACKAGE_SIZE_INFO="## Code Size Check Report
           |Wechat MiniGame| Before | After | Diff |
-          |:-:|:-:|:-:|:-:|
-          | 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |"
+          |:-:|:-:|:-:|:-:|"
+
+          BASE_SIZE=0
+          HEAD_SIZE=0
+          DIFF_SIZE=0
+          ICON="✅ "
+
+          reset_diff_vars() {
+            BASE_SIZE=0
+            HEAD_SIZE=0
+            DIFF_SIZE=0
+            ICON="✅ "
+          }
+
+          check_diff() {
+            ccbuild_out_folder_name="$1"
+            if [ -d ./engine/$ccbuild_out_folder_name ]; then
+              BASE_SIZE=$(du -sb ./engine/$ccbuild_out_folder_name | awk '{print $1}')
+            fi
+            HEAD_SIZE=$(du -sb ./engine-HEAD/$ccbuild_out_folder_name | awk '{print $1}')
+            DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
+            if [ "$DIFF_SIZE" -gt 0 ]; then
+              ICON="⚠️ +"
+            elif [ "$DIFF_SIZE" -lt 0 ]; then
+              ICON="👍 "
+            else
+              ICON="✅ "
+            fi
+          }
+
+          check_diff "build-cc-out-2d-legacy-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n" "${PACKAGE_SIZE_INFO}\n| 2D (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+
+          reset_diff_vars
+
+          check_diff "build-cc-out-all"
+          PACKAGE_SIZE_INFO=$(printf "%s\n" "${PACKAGE_SIZE_INFO}\n| 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
 
           cat <<< "${PACKAGE_SIZE_INFO}"
 

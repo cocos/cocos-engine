@@ -26,7 +26,7 @@ allFeatures.push('meshopt'); // meshopt feature doesn't have a module entry in '
 
 console.log(`all features: [ ${allFeatures.join(', ')} ]`);
 
-const features2D = [
+const features2DCommon = [
     "2d",
     "affine-transform",
     "animation",
@@ -52,12 +52,15 @@ const features2D = [
     "ui-skew",
     "video",
     "webview",
-    "legacy-pipeline",
-    "custom-pipeline",
-    "custom-pipeline-builtin-scripts"
 ];
 
-console.log(`2d features: [ ${features2D.join(', ')} ]`);
+// "custom-pipeline",
+// "custom-pipeline-builtin-scripts",
+// "custom-pipeline-post-process",
+
+const features2DLegacyPipeline = [...features2DCommon, "legacy-pipeline"];
+
+console.log(`2d features: [ ${features2DLegacyPipeline.join(', ')} ]`);
 
 async function buildEngineForFeatures(features, outDir) {
     const options = {
@@ -114,5 +117,5 @@ async function buildEngineForFeatures(features, outDir) {
 
 (async () => {
     await buildEngineForFeatures(allFeatures, ps.join(engineRoot, 'build-cc-out-all'));
-    // await buildEngineForFeatures(features2D, ps.join(engineRoot, 'build-cc-out-2d'));
+    await buildEngineForFeatures(features2DLegacyPipeline, ps.join(engineRoot, 'build-cc-out-2d-legacy-pipline'));
 })();
