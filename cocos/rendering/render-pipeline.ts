@@ -163,9 +163,6 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     constructor (name?: string) {
         super(name);
     }
-    onGlobalPipelineStateChanged (): void {
-        throw new Error('Method not implemented.');
-    }
 
     /**
      * @zh
@@ -718,6 +715,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._pipelineSceneData?.destroy();
 
         return super.destroy();
+    }
+
+    public onGlobalPipelineStateChanged (): void {
+        // do nothing
     }
 
     protected _generateConstantMacros (): void {
