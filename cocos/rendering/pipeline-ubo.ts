@@ -52,6 +52,7 @@ const _lightDir = new Vec4(0.0, 0.0, 1.0, 0.0);
 const _tempVec3 = new Vec3();
 
 const mat4ToArray = Mat4.toArray;
+const vec3ToArray = Vec3.toArray;
 const vec4ToArray = Vec4.toArray;
 const colorToArray = Color.toArray;
 
@@ -144,7 +145,7 @@ export class PipelineUBO {
                 const mainLightDir = mainLight.direction;
                 _lightDir.set(mainLightDir.x, mainLightDir.y, mainLightDir.z, shadowEnable);
                 vec4ToArray(cv, _lightDir, UBOCameraEnum.MAIN_LIT_DIR_OFFSET);
-                Vec3.toArray(cv, mainLight.color, UBOCameraEnum.MAIN_LIT_COLOR_OFFSET);
+                vec3ToArray(cv, mainLight.color, UBOCameraEnum.MAIN_LIT_COLOR_OFFSET);
                 if (mainLight.useColorTemperature) {
                     const colorTempRGB = mainLight.colorTemperatureRGB;
                     cv[UBOCameraEnum.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
@@ -179,9 +180,9 @@ export class PipelineUBO {
             cv[UBOCameraEnum.AMBIENT_GROUND_OFFSET + 3] = skybox.envmap ? skybox.envmap?.mipmapLevel : 1.0;
         }
 
-        Mat4.toArray(cv, camera.matView, UBOCameraEnum.MAT_VIEW_OFFSET);
-        Mat4.toArray(cv, camera.node.worldMatrix, UBOCameraEnum.MAT_VIEW_INV_OFFSET);
-        Vec3.toArray(cv, camera.position, UBOCameraEnum.CAMERA_POS_OFFSET);
+        mat4ToArray(cv, camera.matView, UBOCameraEnum.MAT_VIEW_OFFSET);
+        mat4ToArray(cv, camera.node.worldMatrix, UBOCameraEnum.MAT_VIEW_INV_OFFSET);
+        vec3ToArray(cv, camera.position, UBOCameraEnum.CAMERA_POS_OFFSET);
 
         mat4ToArray(cv, camera.matProj, UBOCameraEnum.MAT_PROJ_OFFSET);
         mat4ToArray(cv, camera.matProjInv, UBOCameraEnum.MAT_PROJ_INV_OFFSET);
