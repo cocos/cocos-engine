@@ -297,8 +297,8 @@ jobs:
           rm ./engine/interface-diff.txt
 
           # Use printf to avoid \n missing
-          printf "${PACKAGE_SIZE_INFO}\n" > ./engine/interface-diff.txt
-          printf "$ORITINAL_DIFF_CONTENT" >> ./engine/interface-diff.txt
+          printf "%s\n" "$PACKAGE_SIZE_INFO" > ./engine/interface-diff.txt
+          printf "%s\n" "$ORITINAL_DIFF_CONTENT" >> ./engine/interface-diff.txt
 
           echo "Diff after merge: "
           cat ./engine/interface-diff.txt
