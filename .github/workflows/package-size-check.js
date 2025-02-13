@@ -54,15 +54,20 @@ const features2DCommon = [
     "webview",
 ];
 
-// "custom-pipeline",
-// "custom-pipeline-builtin-scripts",
-// "custom-pipeline-post-process",
+const features2DEmptyLegacyPipeline = [
+    "2d",
+    "audio",
+    "base",
+    "gfx-webgl2",
+    "legacy-pipeline",
+];
 
 const features2DLegacyPipeline = [...features2DCommon, "legacy-pipeline"];
+const features2DNewPipeline = [...features2DCommon, "custom-pipeline", "custom-pipeline-builtin-scripts"];
 
 console.log(`2d features: [ ${features2DLegacyPipeline.join(', ')} ]`);
 
-async function buildEngineForFeatures(features, outDir) {
+async function buildEngineForFeatures(features, outDir, noDeprecatedFeatures) {
     const options = {
         engine: engineRoot,
         out: outDir,
@@ -72,7 +77,7 @@ async function buildEngineForFeatures(features, outDir) {
         split: false,
         nativeCodeBundleMode: "wasm",
         assetURLFormat: "runtime-resolved",
-        noDeprecatedFeatures: true,
+        noDeprecatedFeatures,
         sourceMap: false,
         features,
         loose: true,
@@ -116,6 +121,8 @@ async function buildEngineForFeatures(features, outDir) {
 }
 
 (async () => {
-    await buildEngineForFeatures(allFeatures, ps.join(engineRoot, 'build-cc-out-all'));
-    await buildEngineForFeatures(features2DLegacyPipeline, ps.join(engineRoot, 'build-cc-out-2d-legacy-pipline'));
+    await buildEngineForFeatures(allFeatures, ps.join(engineRoot, 'build-cc-out-all'), false);
+    await buildEngineForFeatures(features2DLegacyPipeline, ps.join(engineRoot, 'build-cc-out-2d-legacy-pipline'), true);
+    await buildEngineForFeatures(features2DNewPipeline, ps.join(engineRoot, 'build-cc-out-2d-new-pipline'), true);
+    await buildEngineForFeatures(features2DEmptyLegacyPipeline, ps.join(engineRoot, 'build-cc-out-2d-empty-legacy-pipline'), true);
 })();

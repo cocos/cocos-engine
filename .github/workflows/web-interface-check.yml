@@ -304,13 +304,21 @@ jobs:
             fi
           }
 
-          check_diff "build-cc-out-2d-legacy-pipline"
-          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          check_diff "build-cc-out-2d-empty-legacy-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D Empty (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
 
+          check_diff "build-cc-out-2d-legacy-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D All (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
+
+          check_diff "build-cc-out-2d-new-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D All (new pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
           reset_diff_vars
 
           check_diff "build-cc-out-all"
-          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| (2D + 3D) All | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
 
           printf "%s\n" "$PACKAGE_SIZE_INFO"
 
