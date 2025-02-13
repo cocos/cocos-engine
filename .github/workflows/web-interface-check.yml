@@ -305,12 +305,12 @@ jobs:
           }
 
           check_diff "build-cc-out-2d-legacy-pipline"
-          PACKAGE_SIZE_INFO=$(printf "%s\n" "${PACKAGE_SIZE_INFO}\n| 2D (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
 
           reset_diff_vars
 
           check_diff "build-cc-out-all"
-          PACKAGE_SIZE_INFO=$(printf "%s\n" "${PACKAGE_SIZE_INFO}\n| 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D + 3D | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
 
           cat <<< "${PACKAGE_SIZE_INFO}"
 
