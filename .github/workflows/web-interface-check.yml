@@ -49,6 +49,11 @@ jobs:
           ref: ${{ github.base_ref }}
           path: './engine'
 
+      - name: Get Base Ref
+        working-directory: ./engine
+        run: |
+          echo "BASE_REF=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
       - uses: actions/checkout@v4
         name: Checkout Head Ref
         with:
@@ -90,11 +95,6 @@ jobs:
           cd ../engine-HEAD
           echo "HEAD LOG:"
           git --no-pager log -3
-
-      - name: Get Base Ref
-        working-directory: ./engine
-        run: |
-          echo "BASE_REF=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - run: |
           echo "EXT_VERSION=$(node ./engine/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
@@ -265,6 +265,11 @@ jobs:
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
 
+      - name: After optimize interface check report
+        working-directory: ./engine
+        run: |
+          cat ./interface-diff.txt
+
       - name: Check package size
         run: |
           BASE_SIZE=0
@@ -287,7 +292,10 @@ jobs:
 
           cat <<< "${PACKAGE_SIZE_INFO}"
           ORITINAL_DIFF_CONTENT=$(cat ./engine/interface-diff.txt)
-          echo $PACKAGE_SIZE_INFO > ./engine/interface-diff.txt
+          echo "Original Diff: "
+          echo $ORITINAL_DIFF_CONTENT
+          rm ./engine/interface-diff.txt
+          echo "${PACKAGE_SIZE_INFO}\n" > ./engine/interface-diff.txt
           echo $ORITINAL_DIFF_CONTENT >> ./engine/interface-diff.txt
 
           echo "Diff after merge: "
