@@ -32,15 +32,28 @@ jobs:
           else
             echo "Unknown OS: $RUNNER_OS"
           fi
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18.x'
+
+      - name: Show Node Heap Size Limmit Before Set NODE_OPTIONS
+        run: node -e "console.log(require('v8').getHeapStatistics().heap_size_limit / 1024 / 1024 + ' MB')"
+
+      - name: Set NODE_OPTIONS
+        run: echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
+
+      - name: Show Node Heap Size Limmit After Set NODE_OPTIONS
+        run: node -e "console.log(require('v8').getHeapStatistics().heap_size_limit / 1024 / 1024 + ' MB')"
+
+      - name: Check NODE_OPTIONS env
+        run: echo "NODE_OPTIONS=$NODE_OPTIONS"
 
       - name: Setup emsdk
         uses: dumganhar/setup-emsdk@997d2cde2deabda085a11f98e86e842915b0e846
         with:
           version: 3.1.41
-          actions-cache-folder: 'emsdk-cache-3.1.41'
+          actions-cache-folder: 'mac-emsdk-cache-3.1.41'
 
       - name: Verify
         run: |
