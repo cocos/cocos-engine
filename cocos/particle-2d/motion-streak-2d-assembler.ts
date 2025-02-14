@@ -29,7 +29,6 @@ import { MotionStreak, MotionStreakPoint } from './motion-streak-2d';
 import { Vec2, Color } from '../core';
 import type { IBatcher } from '../2d/renderer/i-batcher';
 import type { RenderData } from '../2d/renderer/render-data';
-import type { UIRenderer } from '../2d';
 
 const _normal = new Vec2();
 const _vec2 = new Vec2();
@@ -43,10 +42,6 @@ function normal (out: Vec2, dir: Vec2): Vec2 {
 }
 
 class MotionStreakAssembler implements IAssembler {
-    updateUVs (comp: UIRenderer, ...args: any[]): void {
-        throw new Error('Method not implemented.');
-    }
-
     createData (comp: MotionStreak): RenderData {
         const renderData = comp.requestRenderData();
         renderData.dataLength = 4;
