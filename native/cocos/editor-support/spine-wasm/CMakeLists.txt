@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME "spine")
+set(SPINE_VERSION "3.8")
+# set(SPINE_VERSION "4.2")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -56,9 +58,28 @@ message(">>> CMAKE_C_COMPILE_FEATURES is ${CMAKE_C_COMPILE_FEATURES}")
 message(">>> CMAKE_CXX_COMPILE_FEATURES is ${CMAKE_CXX_COMPILE_FEATURES}")
 message(">>> --------------------------------------------------------------")
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/..)
-file(GLOB SPINE_CORE_SRC "${CMAKE_CURRENT_LIST_DIR}/../spine/*.cpp")
-file(GLOB COCOS_ADAPTER_SRC "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
+
+
+
+if(SPINE_VERSION STREQUAL "3.8")
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/../spine/3.8/)
+    file(GLOB SPINE_CORE_SRC "${CMAKE_CURRENT_LIST_DIR}/../spine/3.8/spine/*.cpp")
+    file(GLOB COCOS_ADAPTER_SRC 
+        "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/3.8/*.cpp"
+    )
+    add_definitions(-DCC_SPINE_VERSION_3_8)
+elseif(SPINE_VERSION STREQUAL "4.2")
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/../spine/4.2/)
+    file(GLOB SPINE_CORE_SRC "${CMAKE_CURRENT_LIST_DIR}/../spine/4.2/spine/*.cpp")
+    file(GLOB COCOS_ADAPTER_SRC 
+        "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/4.2/*.cpp"
+    )
+    add_definitions(-DCC_SPINE_VERSION_4_2)
+else()
+    message(FATAL_ERROR "Unsupported SPINE_VERSION: ${SPINE_VERSION}")
+endif()
 
 add_executable(${APP_NAME} ${SPINE_CORE_SRC} ${COCOS_ADAPTER_SRC})
 
