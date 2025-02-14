@@ -14,7 +14,7 @@ jobs:
   interface_check:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/setup-node@v4
         with:
