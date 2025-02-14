@@ -769,6 +769,8 @@
 
     "treeShake": {
         "noSideEffectFiles": [
+            "cocos/xr/event/xr-event-handle.ts",
+            "cocos/xr/xr-enums.ts",
             "cocos/serialization/instantiate-jit.ts",
             "cocos/game/splash-screen.ts",
             "cocos/core/utils/jsb-utils.ts",

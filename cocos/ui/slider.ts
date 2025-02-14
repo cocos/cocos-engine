@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, USE_XR } from 'internal:constants';
 import { Component, EventHandler } from '../scene-graph';
 import { UITransform } from '../2d/framework';
 import { EventTouch, Touch } from '../input/types';
@@ -184,36 +184,50 @@ export class Slider extends Component {
     // 注册事件
 
     public onEnable (): void {
-        this._updateHandlePosition();
+        const self = this;
+        const node = self.node;
+        const handle = self._handle;
+        self._updateHandlePosition();
 
-        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
-        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        node.on(NodeEventType.TOUCH_START, self._onTouchBegan, self);
+        node.on(NodeEventType.TOUCH_MOVE, self._onTouchMoved, self);
+        node.on(NodeEventType.TOUCH_END, self._onTouchEnded, self);
+        node.on(NodeEventType.TOUCH_CANCEL, self._onTouchCancelled, self);
 
-        this.node.on(XrUIPressEventType.XRUI_HOVER_STAY, this._xrHoverStay, this);
-        this.node.on(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
-        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
-        if (this._handle && this._handle.isValid) {
-            this._handle.node.on(NodeEventType.TOUCH_START, this._onHandleDragStart, this);
-            this._handle.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
-            this._handle.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        if (USE_XR) {
+            node.on(XrUIPressEventType.XRUI_HOVER_STAY, self._xrHoverStay, self);
+            node.on(XrUIPressEventType.XRUI_CLICK, self._xrClick, self);
+            node.on(XrUIPressEventType.XRUI_UNCLICK, self._xrUnClick, self);
+        }
+
+        if (handle && handle.isValid) {
+            const handleNode = handle.node;
+            handleNode.on(NodeEventType.TOUCH_START, self._onHandleDragStart, self);
+            handleNode.on(NodeEventType.TOUCH_MOVE, self._onTouchMoved, self);
+            handleNode.on(NodeEventType.TOUCH_END, self._onTouchEnded, self);
         }
     }
 
     public onDisable (): void {
-        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
-        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.off(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        const self = this;
+        const node = self.node;
+        const handle = self._handle;
+        node.off(NodeEventType.TOUCH_START, self._onTouchBegan, self);
+        node.off(NodeEventType.TOUCH_MOVE, self._onTouchMoved, self);
+        node.off(NodeEventType.TOUCH_END, self._onTouchEnded, self);
+        node.off(NodeEventType.TOUCH_CANCEL, self._onTouchCancelled, self);
 
-        this.node.off(XrUIPressEventType.XRUI_HOVER_STAY, this._xrHoverStay, this);
-        this.node.off(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
-        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
-        if (this._handle && this._handle.isValid) {
-            this._handle.node.off(NodeEventType.TOUCH_START, this._onHandleDragStart, this);
-            this._handle.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
-            this._handle.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        if (USE_XR) {
+            node.off(XrUIPressEventType.XRUI_HOVER_STAY, self._xrHoverStay, self);
+            node.off(XrUIPressEventType.XRUI_CLICK, self._xrClick, self);
+            node.off(XrUIPressEventType.XRUI_UNCLICK, self._xrUnClick, self);
+        }
+
+        if (handle && handle.isValid) {
+            const handleNode = handle.node;
+            handleNode.off(NodeEventType.TOUCH_START, self._onHandleDragStart, self);
+            handleNode.off(NodeEventType.TOUCH_MOVE, self._onTouchMoved, self);
+            handleNode.off(NodeEventType.TOUCH_END, self._onTouchEnded, self);
         }
     }
 
@@ -328,6 +342,7 @@ export class Slider extends Component {
     }
 
     protected _xrHandleProgress (point: Vec3): void {
+        if (!USE_XR) return;
         if (!this._touchHandle) {
             const uiTrans = this.node._getUITransformComp()!;
             uiTrans.convertToNodeSpaceAR(point, _tempPos);
@@ -340,6 +355,7 @@ export class Slider extends Component {
     }
 
     protected _xrClick (event: XrUIPressEvent): void {
+        if (!USE_XR) return;
         if (!this._handle) {
             return;
         }
@@ -349,11 +365,13 @@ export class Slider extends Component {
     }
 
     protected _xrUnClick (): void {
+        if (!USE_XR) return;
         this._dragging = false;
         this._touchHandle = false;
     }
 
     protected _xrHoverStay (event: XrUIPressEvent): void {
+        if (!USE_XR) return;
         if (!this._dragging) {
             return;
         }

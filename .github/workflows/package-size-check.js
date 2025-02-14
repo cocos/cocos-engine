@@ -1,7 +1,6 @@
 const fs = require('fs-extra');
 const ps = require('path');
-const { buildEngine } = require('@cocos/ccbuild');
-const { platform } = require('os');
+const { buildEngine, StatsQuery } = require('@cocos/ccbuild');
 
 const args = process.argv.slice(2);
 if (args.length == 0) {
@@ -11,21 +10,6 @@ if (args.length == 0) {
 const engineRoot = args[0];
 
 console.log(`Engine root: ${engineRoot}`);
-
-const exportsDir = ps.join(engineRoot, 'exports');
-const files = fs.readdirSync(exportsDir);
-
-const allFeatures = [];
-files.forEach(file => {
-    const filePath = ps.join(exportsDir, file);
-    const feature = ps.parse(ps.basename(filePath)).name;
-    if (feature !== 'vendor-google' && feature !== 'xr') {
-        allFeatures.push(feature);
-    }
-});
-allFeatures.push('meshopt'); // meshopt feature doesn't have a module entry in 'exports' directory, so append it manually here.
-
-console.log(`all features: [ ${allFeatures.join(', ')} ]`);
 
 const features2DCommon = [
     "2d",
@@ -125,7 +109,18 @@ async function buildEngineForFeatures(options) {
     await buildEngine(ccbuildOptions);
 }
 
-(async () => {/*
+(async () => {
+    const statsQuery = await StatsQuery.create(engineRoot);
+
+    const excludeFeatures = [
+        'vendor-google',
+        'xr',
+    ];
+    
+    const allFeatures = statsQuery.getFeatures().filter(feature => !excludeFeatures.includes(feature));
+    console.log(`all features: [ ${allFeatures.join(', ')} ]`);
+
+    /*
     await buildEngineForFeatures({
         features: allFeatures,
         outDir: ps.join(engineRoot, 'build-cc-out-all'),

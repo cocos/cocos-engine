@@ -38,7 +38,7 @@ import { BlendFactor } from '../gfx';
 import { PNGReader } from './png-reader';
 import { tiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
-import { IBatcher } from '../2d/renderer/i-batcher';
+import type { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 import { ccwindow } from '../core/global-exports';
@@ -837,8 +837,11 @@ export class ParticleSystem2D extends UIRenderer {
     }
 
     public override destroyRenderData (): void {
-        if (this._simulator.renderData && this._assembler) {
-            this._assembler.removeData(this._simulator.renderData);
+        if (this._simulator.renderData) {
+            const assembler = this._assembler;
+            if (assembler && assembler.removeData) {
+                assembler.removeData(this._simulator.renderData);
+            }
             this._simulator.renderData = null;
         }
         super.destroyRenderData();
@@ -980,7 +983,7 @@ export class ParticleSystem2D extends UIRenderer {
                     }
                 });
             } else if (dict.textureImageData) {
-                const textureData = dict.textureImageData as string;
+                const textureData: string = dict.textureImageData;
 
                 if (textureData && textureData.length > 0) {
                     let imgPathName = imgPath;

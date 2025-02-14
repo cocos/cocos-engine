@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { TEST } from 'internal:constants';
+import { TEST, USE_XR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
 import { Material } from '../asset/assets/material';
@@ -405,7 +405,7 @@ export class Profiler extends System {
         if (surfaceTransform !== this.offsetData[3]) {
             const preTransform = preTransforms[surfaceTransform];
             let x = -0.9; let y = -0.9 * clipSpaceSignY;
-            if (sys.isXR) {
+            if (USE_XR && sys.isXR) {
                 x = -0.5; y = -0.5 * clipSpaceSignY;
             }
             this.offsetData[0] = x * preTransform[0] + y * preTransform[2];

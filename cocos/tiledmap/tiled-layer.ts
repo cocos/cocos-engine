@@ -1478,7 +1478,7 @@ export class TiledLayer extends UIRenderer {
         const assembler = TiledLayer.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
-            this._assembler.createData(this);
+            this._assembler.createData!(this);
         }
         if (this._tiledDataArray.length === 0) {
             this._markForUpdateRenderData();

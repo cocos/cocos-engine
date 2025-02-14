@@ -44,6 +44,7 @@ import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame, SkeletonCacheItemInfo } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
+import { RenderData } from '../2d/renderer/render-data';
 
 const CachedFrameTime = 1 / 60;
 
@@ -1145,8 +1146,8 @@ export class Skeleton extends UIRenderer {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._skeleton && this._assembler) {
-            this._renderData = this._assembler.createData(this);
+        if (this._skeleton && this._assembler && this._assembler.createData) {
+            this._renderData = this._assembler.createData(this) as RenderData;
             this._markForUpdateRenderData();
             this._updateColor();
         }
@@ -1601,8 +1602,9 @@ export class Skeleton extends UIRenderer {
                 this._instance!.setUseTint(this._useTint);
             }
         }
-        if (this._assembler && this._skeleton) {
-            this._renderData = this._assembler.createData(this);
+        const assembler = this._assembler;
+        if (assembler && assembler.createData && this._skeleton) {
+            this._renderData = assembler.createData(this) as RenderData;
             this._markForUpdateRenderData();
         }
     }
@@ -1619,7 +1621,7 @@ export class Skeleton extends UIRenderer {
                 let debugDrawNode: Node | null = new Node('DEBUG_DRAW_NODE');
                 debugDrawNode.layer = this.node.layer;
                 debugDrawNode.hideFlags |= CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
-                let debugDraw: Graphics | undefined;
+                let debugDraw: Graphics | null = null;
 
                 try {
                     debugDraw = debugDrawNode.addComponent('cc.Graphics') as Graphics;
