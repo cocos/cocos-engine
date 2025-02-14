@@ -16,6 +16,15 @@ jobs:
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: macos-latest
     steps:
+      - name: Check OS
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            echo "Running on Ubuntu"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "Running on macOS"
+          else
+            echo "Unknown OS: $RUNNER_OS"
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: '18.x'
@@ -35,8 +44,11 @@ jobs:
         run: |
           if ! command -v ninja &> /dev/null; then
               echo "Ninja not found, installing..."
-              # sudo apt update
-              sudo apt install ninja-build
+              if [[ "$RUNNER_OS" == "Linux" ]]; then
+                sudo apt install ninja-build
+              else
+                brew install ninja
+              fi
           else
               echo "Ninja is already installed."
           fi
