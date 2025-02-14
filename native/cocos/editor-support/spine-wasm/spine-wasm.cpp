@@ -37,11 +37,19 @@ namespace {
                 AttachmentVertices* attachmentVertices;
                 auto* attachment = entry._attachment;
                 if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
-                    auto* meshAttachment = static_cast<MeshAttachment *>(attachment);
+                    auto* meshAttachment = static_cast<MeshAttachment*>(attachment);
+#ifdef CC_SPINE_VERSION_3_8
+                    attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRendererObject());
+#else
                     attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRegion()->rendererObject);
+#endif
                 } else if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
-                    auto* regionAttachment = static_cast<RegionAttachment *>(attachment);
+                    auto* regionAttachment = static_cast<RegionAttachment*>(attachment);
+#ifdef CC_SPINE_VERSION_3_8
+                    attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRendererObject());
+#else
                     attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRegion()->rendererObject);
+#endif
                 }
                 if (attachmentVertices) {
                     auto& textureName = attachmentVertices->_textureName;
@@ -97,7 +105,11 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const String& jsonS
         return nullptr;
     }
     AttachmentLoader* attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
+    #ifdef CC_SPINE_VERSION_3_8
+    SkeletonJson json(attachmentLoader);
+    #else
     SkeletonJson json(attachmentLoader, true);
+    #endif
     json.setScale(1.0F);
     SkeletonData* skeletonData = json.readSkeletonData(jsonStr.buffer());
     auto& errorMsg = json.getError();
@@ -120,7 +132,11 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize
         return nullptr;
     }
     AttachmentLoader* attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
+    #ifdef CC_SPINE_VERSION_3_8
+    SkeletonBinary binary(attachmentLoader);
+    #else
     SkeletonBinary binary(attachmentLoader, true);
+    #endif
     binary.setScale(1.0F);
     SkeletonData* skeletonData = binary.readSkeletonData(s_mem, byteSize);
     auto& errorMsg = binary.getError();
@@ -145,9 +161,10 @@ void SpineWasmUtil::registerSpineSkeletonDataWithUUID(SkeletonData* data, const 
 void SpineWasmUtil::destroySpineSkeletonDataWithUUID(const String& uuid) {
     if (skeletonDataMap.containsKey(uuid)) {
         auto* data = skeletonDataMap[uuid];
+#if CC_USE_SPINE_4_2
         auto& skins = data->getSkins();
         auto skinSize = skins.size();
-        //release AttachmentVertices
+        // release AttachmentVertices
         for (int i = 0; i < skinSize; ++i) {
             auto* skin = skins[i];
             auto entries = skin->getAttachments();
@@ -156,10 +173,10 @@ void SpineWasmUtil::destroySpineSkeletonDataWithUUID(const String& uuid) {
                 AttachmentVertices* attachmentVertices;
                 auto* attachment = entry._attachment;
                 if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
-                    auto* meshAttachment = static_cast<MeshAttachment *>(attachment);
+                    auto* meshAttachment = static_cast<MeshAttachment*>(attachment);
                     attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRegion()->rendererObject);
                 } else if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
-                    auto* regionAttachment = static_cast<RegionAttachment *>(attachment);
+                    auto* regionAttachment = static_cast<RegionAttachment*>(attachment);
                     attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRegion()->rendererObject);
                 }
                 if (attachmentVertices) {
@@ -167,6 +184,7 @@ void SpineWasmUtil::destroySpineSkeletonDataWithUUID(const String& uuid) {
                 }
             }
         }
+#endif
         delete data;
         skeletonDataMap.remove(uuid);
     }
