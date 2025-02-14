@@ -41,7 +41,7 @@ class RenderDrawInfo;
 class Material;
 };
 
-namespace spine {
+namespace cc {
 
 class SkeletonCacheAnimation : public cc::RefCounted, public cc::middleware::IMiddleware {
 public:
@@ -143,4 +143,4 @@ private:
     ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
     bool _needClearMaterialCaches = false;
 };
-} // namespace spine
+} // namespace cc

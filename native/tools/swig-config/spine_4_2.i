@@ -42,27 +42,27 @@ using namespace spine;
 //
 %ignore cc::RefCounted;
 %ignore *::rtti;
-%ignore spine::SkeletonCache::SegmentData;
-%ignore spine::SkeletonCache::BoneData;
-%ignore spine::SkeletonCache::FrameData;
-%ignore spine::SkeletonCache::AnimationData;
+%ignore cc::SkeletonCache::SegmentData;
+%ignore cc::SkeletonCache::BoneData;
+%ignore cc::SkeletonCache::FrameData;
+%ignore cc::SkeletonCache::AnimationData;
 %ignore spine::Skin::AttachmentMap::getEntries;
 
 %ignore spine::Polygon::Polygon;
 %ignore spine::Polygon::_vertices;
 
-%ignore spine::SkeletonRenderer::create;
-%ignore spine::SkeletonRenderer::initWithJsonFile;
-%ignore spine::SkeletonRenderer::initWithBinaryFile;
-%ignore spine::SkeletonRenderer::createWithData;
-%ignore spine::SkeletonRenderer::initWithData;
-%ignore spine::SkeletonRenderer::createWithSkeleton;
-%ignore spine::SkeletonRenderer::createWithFile;
-%ignore spine::SkeletonRenderer::requestDrawInfo;
-%ignore spine::SkeletonRenderer::requestMaterial;
-%ignore spine::SkeletonAnimation::createWithData;
-%ignore spine::SkeletonAnimation::onTrackEntryEvent;
-%ignore spine::SkeletonAnimation::onAnimationStateEvent;
+%ignore cc::SkeletonRenderer::create;
+%ignore cc::SkeletonRenderer::initWithJsonFile;
+%ignore cc::SkeletonRenderer::initWithBinaryFile;
+%ignore cc::SkeletonRenderer::createWithData;
+%ignore cc::SkeletonRenderer::initWithData;
+%ignore cc::SkeletonRenderer::createWithSkeleton;
+%ignore cc::SkeletonRenderer::createWithFile;
+%ignore cc::SkeletonRenderer::requestDrawInfo;
+%ignore cc::SkeletonRenderer::requestMaterial;
+%ignore cc::SkeletonAnimation::createWithData;
+%ignore cc::SkeletonAnimation::onTrackEntryEvent;
+%ignore cc::SkeletonAnimation::onAnimationStateEvent;
 %ignore spine::TrackEntry::setListener;
 %ignore spine::AnimationState::setListener;
 %ignore spine::Attachment::getRTTI;
@@ -104,14 +104,14 @@ using namespace spine;
 %ignore spine::VertexEffect::getRTTI;
 %ignore spine::ConstraintData::getRTTI;
 
-%ignore spine::SkeletonDataMgr::destroyInstance;
-%ignore spine::SkeletonDataMgr::hasSkeletonData;
-%ignore spine::SkeletonDataMgr::setSkeletonData;
-%ignore spine::SkeletonDataMgr::retainByUUID;
-%ignore spine::SkeletonDataMgr::releaseByUUID;
-%ignore spine::SkeletonCacheAnimation::render;
-%ignore spine::SkeletonCacheAnimation::requestDrawInfo;
-%ignore spine::SkeletonCacheAnimation::requestMaterial;
+%ignore cc::SkeletonDataMgr::destroyInstance;
+%ignore cc::SkeletonDataMgr::hasSkeletonData;
+%ignore cc::SkeletonDataMgr::setSkeletonData;
+%ignore cc::SkeletonDataMgr::retainByUUID;
+%ignore cc::SkeletonDataMgr::releaseByUUID;
+%ignore cc::SkeletonCacheAnimation::render;
+%ignore cc::SkeletonCacheAnimation::requestDrawInfo;
+%ignore cc::SkeletonCacheAnimation::requestMaterial;
 %ignore spine::Timeline::apply(Skeleton&, float, float, Vector<Event*>*, float, MixBlend, MixDirection);
 %ignore spine::AnimationState::apply(Skeleton&);
 %ignore spine::Animation::apply(Skeleton&, float, float, bool, Vector<Event*>*, float, MixBlend, MixDirection);
@@ -148,10 +148,10 @@ using namespace spine;
 // Note:
 //  1. 'Rename Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
-%rename(create) spine::SkeletonAnimation::createWithFile;
-%rename(setCompleteListenerNative) spine::SkeletonAnimation::setCompleteListener;
-%rename(setTrackCompleteListenerNative) spine::SkeletonAnimation::setTrackCompleteListener;
-%rename(create) spine::SkeletonRenderer::createWithFile;
+%rename(create) cc::SkeletonAnimation::createWithFile;
+%rename(setCompleteListenerNative) cc::SkeletonAnimation::setCompleteListener;
+%rename(setTrackCompleteListenerNative) cc::SkeletonAnimation::setTrackCompleteListener;
+%rename(create) cc::SkeletonRenderer::createWithFile;
 
 %rename(frames) spine::TranslateTimeline::_frames;
 %rename(boneIndex) spine::TranslateTimeline::_boneIndex;
@@ -193,8 +193,6 @@ using namespace spine;
 %rename(maxY) spine::SkeletonBounds::_maxY;
 %rename(boundingBoxes) spine::SkeletonBounds::_boundingBoxes;
 %rename(polygons) spine::SkeletonBounds::_polygons;
-%rename(JitterEffect) spine::JitterVertexEffect;
-%rename(SwirlEffect) spine::SwirlVertexEffect;
 %rename(setSkinByName) spine::Skeleton::setSkin(const String &);
 %rename(slotIndex) spine::Skin::AttachmentMap::Entry::_slotIndex;
 %rename(name) spine::Skin::AttachmentMap::Entry::_name;
@@ -588,7 +586,7 @@ using namespace spine;
 %include "editor-support/spine/4.2/spine/TransformConstraintData.h"
 %include "editor-support/spine/4.2/spine/TransformConstraintTimeline.h"
 
-%include "editor-support/spine-creator-support/CCSkeletonRenderer.h"
+%include "editor-support/spine-creator-support/SkeletonRenderer.h"
 %include "editor-support/spine-creator-support/SkeletonAnimation.h"
 %include "editor-support/spine-creator-support/SkeletonDataMgr.h"
 %include "editor-support/spine-creator-support/SkeletonCacheAnimation.h"

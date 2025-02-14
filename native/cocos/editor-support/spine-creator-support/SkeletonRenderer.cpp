@@ -27,7 +27,7 @@
  * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include "spine-creator-support/CCSkeletonRenderer.h"
+#include "spine-creator-support/SkeletonRenderer.h"
 #include <algorithm>
 #include "2d/renderer/RenderDrawInfo.h"
 #include "2d/renderer/RenderEntity.h"
@@ -55,7 +55,7 @@ using std::min;
 static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 
-static spine::Cocos2dTextureLoader textureLoader;
+static Cocos2dTextureLoader textureLoader;
 static std::vector<middleware::Texture2D *> _slotTextureSet{};
 
 enum DebugType {
@@ -64,23 +64,25 @@ enum DebugType {
     MESH,
     BONES
 };
-CCSkeletonRenderer *CCSkeletonRenderer::create() {
-    return new CCSkeletonRenderer();
+
+namespace cc {
+SkeletonRenderer *SkeletonRenderer::create() {
+    return new SkeletonRenderer();
 }
 
-CCSkeletonRenderer *CCSkeletonRenderer::createWithSkeleton(Skeleton *skeleton, bool ownsSkeleton, bool ownsSkeletonData) {
-    return new CCSkeletonRenderer(skeleton, ownsSkeleton, ownsSkeletonData);
+SkeletonRenderer *SkeletonRenderer::createWithSkeleton(Skeleton *skeleton, bool ownsSkeleton, bool ownsSkeletonData) {
+    return new SkeletonRenderer(skeleton, ownsSkeleton, ownsSkeletonData);
 }
 
-CCSkeletonRenderer *CCSkeletonRenderer::createWithData(SkeletonData *skeletonData, bool ownsSkeletonData) {
-    return new CCSkeletonRenderer(skeletonData, ownsSkeletonData);
+SkeletonRenderer *SkeletonRenderer::createWithData(SkeletonData *skeletonData, bool ownsSkeletonData) {
+    return new SkeletonRenderer(skeletonData, ownsSkeletonData);
 }
 
-CCSkeletonRenderer *CCSkeletonRenderer::createWithFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
-    return new CCSkeletonRenderer(skeletonDataFile, atlasFile, scale);
+SkeletonRenderer *SkeletonRenderer::createWithFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
+    return new SkeletonRenderer(skeletonDataFile, atlasFile, scale);
 }
 
-void CCSkeletonRenderer::initialize() {
+void SkeletonRenderer::initialize() {
     if (_clipper == nullptr) {
         _clipper = new (__FILE__, __LINE__) SkeletonClipping();
     }
@@ -98,19 +100,19 @@ void CCSkeletonRenderer::initialize() {
 #endif
 }
 
-void CCSkeletonRenderer::beginSchedule() {
+void SkeletonRenderer::beginSchedule() {
     MiddlewareManager::getInstance()->addTimer(this);
 }
 
-void CCSkeletonRenderer::onEnable() {
+void SkeletonRenderer::onEnable() {
     beginSchedule();
 }
 
-void CCSkeletonRenderer::onDisable() {
+void SkeletonRenderer::onDisable() {
     stopSchedule();
 }
 
-void CCSkeletonRenderer::stopSchedule() {
+void SkeletonRenderer::stopSchedule() {
     MiddlewareManager::getInstance()->removeTimer(this);
     if (_sharedBufferOffset) {
         _sharedBufferOffset->reset();
@@ -122,26 +124,26 @@ void CCSkeletonRenderer::stopSchedule() {
     }
 }
 
-void CCSkeletonRenderer::setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData) {
+void SkeletonRenderer::setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData) {
     _skeleton = new (__FILE__, __LINE__) Skeleton(skeletonData);
     _ownsSkeletonData = ownsSkeletonData;
 }
 
-CCSkeletonRenderer::CCSkeletonRenderer() = default;
+SkeletonRenderer::SkeletonRenderer() = default;
 
-CCSkeletonRenderer::CCSkeletonRenderer(Skeleton *skeleton, bool ownsSkeleton, bool ownsSkeletonData, bool ownsAtlas) {
+SkeletonRenderer::SkeletonRenderer(Skeleton *skeleton, bool ownsSkeleton, bool ownsSkeletonData, bool ownsAtlas) {
     initWithSkeleton(skeleton, ownsSkeleton, ownsSkeletonData, ownsAtlas);
 }
 
-CCSkeletonRenderer::CCSkeletonRenderer(SkeletonData *skeletonData, bool ownsSkeletonData) {
+SkeletonRenderer::SkeletonRenderer(SkeletonData *skeletonData, bool ownsSkeletonData) {
     initWithData(skeletonData, ownsSkeletonData);
 }
 
-CCSkeletonRenderer::CCSkeletonRenderer(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
+SkeletonRenderer::SkeletonRenderer(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
     initWithJsonFile(skeletonDataFile, atlasFile, scale);
 }
 
-CCSkeletonRenderer::~CCSkeletonRenderer() {
+SkeletonRenderer::~SkeletonRenderer() {
 #if CC_USE_SPINE_3_8
     CC_SAFE_RELEASE(_effectDelegate);
 #endif
@@ -172,7 +174,7 @@ CCSkeletonRenderer::~CCSkeletonRenderer() {
     stopSchedule();
 }
 
-void CCSkeletonRenderer::initWithUUID(const std::string &uuid) {
+void SkeletonRenderer::initWithUUID(const std::string &uuid) {
     _ownsSkeleton = true;
     _uuid = uuid;
     SkeletonData *skeletonData = SkeletonDataMgr::getInstance()->retainByUUID(uuid);
@@ -182,7 +184,7 @@ void CCSkeletonRenderer::initWithUUID(const std::string &uuid) {
     initialize();
 }
 
-void CCSkeletonRenderer::initWithSkeleton(Skeleton *skeleton, bool ownsSkeleton, bool ownsSkeletonData, bool ownsAtlas) {
+void SkeletonRenderer::initWithSkeleton(Skeleton *skeleton, bool ownsSkeleton, bool ownsSkeletonData, bool ownsAtlas) {
     _skeleton = skeleton;
     _ownsSkeleton = ownsSkeleton;
     _ownsSkeletonData = ownsSkeletonData;
@@ -191,13 +193,13 @@ void CCSkeletonRenderer::initWithSkeleton(Skeleton *skeleton, bool ownsSkeleton,
     initialize();
 }
 
-void CCSkeletonRenderer::initWithData(SkeletonData *skeletonData, bool ownsSkeletonData) {
+void SkeletonRenderer::initWithData(SkeletonData *skeletonData, bool ownsSkeletonData) {
     _ownsSkeleton = true;
     setSkeletonData(skeletonData, ownsSkeletonData);
     initialize();
 }
 
-void CCSkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, Atlas *atlas, float scale) {
+void SkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, Atlas *atlas, float scale) {
     _atlas = atlas;
     _attachmentLoader = new (__FILE__, __LINE__) Cocos2dAtlasAttachmentLoader(_atlas);
 
@@ -212,7 +214,7 @@ void CCSkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, A
     initialize();
 }
 
-void CCSkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
+void SkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
     _atlas = new (__FILE__, __LINE__) Atlas(atlasFile.c_str(), &textureLoader);
     CC_ASSERT(_atlas);
 
@@ -230,7 +232,7 @@ void CCSkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, c
     initialize();
 }
 
-void CCSkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, Atlas *atlas, float scale) {
+void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, Atlas *atlas, float scale) {
     _atlas = atlas;
     _attachmentLoader = new (__FILE__, __LINE__) Cocos2dAtlasAttachmentLoader(_atlas);
 
@@ -245,7 +247,7 @@ void CCSkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile,
     initialize();
 }
 
-void CCSkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
+void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
     _atlas = new (__FILE__, __LINE__) Atlas(atlasFile.c_str(), &textureLoader);
     CC_ASSERT(_atlas);
 
@@ -263,7 +265,7 @@ void CCSkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile,
     initialize();
 }
 
-void CCSkeletonRenderer::render(float /*deltaTime*/) {
+void SkeletonRenderer::render(float /*deltaTime*/) {
     if (!_skeleton) return;
     auto *entity = _entity;
     entity->clearDynamicRenderDrawInfos();
@@ -844,7 +846,7 @@ void CCSkeletonRenderer::render(float /*deltaTime*/) {
     }
 }
 
-cc::Rect CCSkeletonRenderer::getBoundingBox() const {
+cc::Rect SkeletonRenderer::getBoundingBox() const {
     static cc::middleware::IOBuffer buffer(1024);
     float *worldVertices = nullptr;
     float minX = 999999.0F;
@@ -887,7 +889,7 @@ cc::Rect CCSkeletonRenderer::getBoundingBox() const {
     return cc::Rect(minX, minY, maxX - minX, maxY - minY);
 }
 
-void CCSkeletonRenderer::updateWorldTransform() {
+void SkeletonRenderer::updateWorldTransform() {
     if (_skeleton) {
 #if CC_USE_SPINE_3_8
         _skeleton->updateWorldTransform();
@@ -897,83 +899,83 @@ void CCSkeletonRenderer::updateWorldTransform() {
     }
 }
 
-void CCSkeletonRenderer::setAttachEnabled(bool enabled) {
+void SkeletonRenderer::setAttachEnabled(bool enabled) {
     _useAttach = enabled;
 }
 
-void CCSkeletonRenderer::setToSetupPose() {
+void SkeletonRenderer::setToSetupPose() {
     if (_skeleton) {
         _skeleton->setToSetupPose();
     }
 }
 
-void CCSkeletonRenderer::setBonesToSetupPose() {
+void SkeletonRenderer::setBonesToSetupPose() {
     if (_skeleton) {
         _skeleton->setBonesToSetupPose();
     }
 }
 
-void CCSkeletonRenderer::setSlotsToSetupPose() {
+void SkeletonRenderer::setSlotsToSetupPose() {
     if (_skeleton) {
         _skeleton->setSlotsToSetupPose();
     }
 }
 
-spine::Bone *CCSkeletonRenderer::findBone(const std::string &boneName) const {
+spine::Bone *SkeletonRenderer::findBone(const std::string &boneName) const {
     if (_skeleton) {
         return _skeleton->findBone(boneName.c_str());
     }
     return nullptr;
 }
 
-spine::Slot *CCSkeletonRenderer::findSlot(const std::string &slotName) const {
+spine::Slot *SkeletonRenderer::findSlot(const std::string &slotName) const {
     if (_skeleton) {
         return _skeleton->findSlot(slotName.c_str());
     }
     return nullptr;
 }
 
-void CCSkeletonRenderer::setSkin(const std::string &skinName) {
+void SkeletonRenderer::setSkin(const std::string &skinName) {
     if (_skeleton) {
         _skeleton->setSkin(skinName.empty() ? nullptr : skinName.c_str());
         _skeleton->setSlotsToSetupPose();
     }
 }
 
-void CCSkeletonRenderer::setSkin(const char *skinName) {
+void SkeletonRenderer::setSkin(const char *skinName) {
     if (_skeleton) {
         _skeleton->setSkin(skinName);
         _skeleton->setSlotsToSetupPose();
     }
 }
 
-spine::Attachment *CCSkeletonRenderer::getAttachment(const std::string &slotName, const std::string &attachmentName) const {
+spine::Attachment *SkeletonRenderer::getAttachment(const std::string &slotName, const std::string &attachmentName) const {
     if (_skeleton) {
         return _skeleton->getAttachment(slotName.c_str(), attachmentName.c_str());
     }
     return nullptr;
 }
 
-bool CCSkeletonRenderer::setAttachment(const std::string &slotName, const std::string &attachmentName) {
+bool SkeletonRenderer::setAttachment(const std::string &slotName, const std::string &attachmentName) {
     if (_skeleton) {
         _skeleton->setAttachment(slotName.c_str(), attachmentName.empty() ? nullptr : attachmentName.c_str());
     }
     return true;
 }
 
-bool CCSkeletonRenderer::setAttachment(const std::string &slotName, const char *attachmentName) {
+bool SkeletonRenderer::setAttachment(const std::string &slotName, const char *attachmentName) {
     if (_skeleton) {
         _skeleton->setAttachment(slotName.c_str(), attachmentName);
     }
     return true;
 }
 
-void CCSkeletonRenderer::setUseTint(bool enabled) {
+void SkeletonRenderer::setUseTint(bool enabled) {
     _useTint = enabled;
 }
 
 #if CC_USE_SPINE_3_8
-void CCSkeletonRenderer::setVertexEffectDelegate(VertexEffectDelegate *effectDelegate) {
+void SkeletonRenderer::setVertexEffectDelegate(VertexEffectDelegate *effectDelegate) {
     if (_effectDelegate == effectDelegate) {
         return;
     }
@@ -983,85 +985,85 @@ void CCSkeletonRenderer::setVertexEffectDelegate(VertexEffectDelegate *effectDel
 }
 #endif
 
-void CCSkeletonRenderer::setSlotsRange(int startSlotIndex, int endSlotIndex) {
+void SkeletonRenderer::setSlotsRange(int startSlotIndex, int endSlotIndex) {
     this->_startSlotIndex = startSlotIndex;
     this->_endSlotIndex = endSlotIndex;
 }
 
-spine::Skeleton *CCSkeletonRenderer::getSkeleton() const {
+spine::Skeleton *SkeletonRenderer::getSkeleton() const {
     return _skeleton;
 }
 
-void CCSkeletonRenderer::setTimeScale(float scale) {
+void SkeletonRenderer::setTimeScale(float scale) {
     _timeScale = scale;
 }
 
-float CCSkeletonRenderer::getTimeScale() const {
+float SkeletonRenderer::getTimeScale() const {
     return _timeScale;
 }
 
-void CCSkeletonRenderer::paused(bool value) {
+void SkeletonRenderer::paused(bool value) {
     _paused = value;
 }
 
-void CCSkeletonRenderer::setColor(float r, float g, float b, float a) {
+void SkeletonRenderer::setColor(float r, float g, float b, float a) {
     _nodeColor.r = r / 255.0F;
     _nodeColor.g = g / 255.0F;
     _nodeColor.b = b / 255.0F;
     _nodeColor.a = a / 255.0F;
 }
 
-void CCSkeletonRenderer::setBatchEnabled(bool enabled) {
+void SkeletonRenderer::setBatchEnabled(bool enabled) {
     if (enabled != _enableBatch) {
         _needClearMaterialCaches = true;
         _enableBatch = enabled;
     }
 }
 
-void CCSkeletonRenderer::setDebugBonesEnabled(bool enabled) {
+void SkeletonRenderer::setDebugBonesEnabled(bool enabled) {
     _debugBones = enabled;
 }
 
-void CCSkeletonRenderer::setDebugSlotsEnabled(bool enabled) {
+void SkeletonRenderer::setDebugSlotsEnabled(bool enabled) {
     _debugSlots = enabled;
 }
 
-void CCSkeletonRenderer::setDebugMeshEnabled(bool enabled) {
+void SkeletonRenderer::setDebugMeshEnabled(bool enabled) {
     _debugMesh = enabled;
 }
 
-void CCSkeletonRenderer::setOpacityModifyRGB(bool value) {
+void SkeletonRenderer::setOpacityModifyRGB(bool value) {
     _premultipliedAlpha = value;
 }
 
-bool CCSkeletonRenderer::isOpacityModifyRGB() const {
+bool SkeletonRenderer::isOpacityModifyRGB() const {
     return _premultipliedAlpha;
 }
 
-se_object_ptr CCSkeletonRenderer::getDebugData() const {
+se_object_ptr SkeletonRenderer::getDebugData() const {
     if (_debugBuffer) {
         return _debugBuffer->getTypeArray();
     }
     return nullptr;
 }
 
-se_object_ptr CCSkeletonRenderer::getSharedBufferOffset() const {
+se_object_ptr SkeletonRenderer::getSharedBufferOffset() const {
     if (_sharedBufferOffset) {
         return _sharedBufferOffset->getTypeArray();
     }
     return nullptr;
 }
 
-void CCSkeletonRenderer::setRenderEntity(cc::RenderEntity *entity) {
+void SkeletonRenderer::setRenderEntity(cc::RenderEntity *entity) {
     _entity = entity;
 }
 
-void CCSkeletonRenderer::setMaterial(cc::Material *material) {
+void SkeletonRenderer::setMaterial(cc::Material *material) {
     _material = material;
     _needClearMaterialCaches = true;
 }
 
-cc::RenderDrawInfo *CCSkeletonRenderer::requestDrawInfo(int idx) {
+cc::RenderDrawInfo *SkeletonRenderer::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
         draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
@@ -1070,7 +1072,7 @@ cc::RenderDrawInfo *CCSkeletonRenderer::requestDrawInfo(int idx) {
     return _drawInfoArray[idx];
 }
 
-cc::Material *CCSkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
+cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     if (_needClearMaterialCaches) {
         _needClearMaterialCaches = false;
         for (auto &item : _materialCaches) {
@@ -1105,7 +1107,7 @@ cc::Material *CCSkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t bl
     return _materialCaches[key];
 }
 
-void CCSkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D *tex2d, bool createAttachment) {
+void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D *tex2d, bool createAttachment) {
     if (!_skeleton) return;
     auto slot = _skeleton->findSlot(slotName.c_str());
     if (!slot) return;
@@ -1235,3 +1237,4 @@ void CCSkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture
     }
     attachmentVertices->_texture = middlewareTexture;
 }
+} // namespace cc

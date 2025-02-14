@@ -32,8 +32,9 @@
 #include <string>
 #include "base/RefCounted.h"
 #include "spine/spine.h"
+using namespace spine;
+namespace cc {
 
-namespace spine {
 class VertexEffectDelegate : public cc::RefCounted {
 public:
     VertexEffectDelegate();
@@ -56,4 +57,4 @@ private:
     Interpolation *_interpolation = nullptr;
     std::string _effectType = "none";
 };
-} // namespace spine
+} // namespace cc

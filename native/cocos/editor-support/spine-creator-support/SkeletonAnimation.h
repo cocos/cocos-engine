@@ -28,10 +28,10 @@
  *****************************************************************************/
 
 #pragma once
-#include "spine-creator-support/CCSkeletonRenderer.h"
+#include "spine-creator-support/SkeletonRenderer.h"
 #include "spine/spine.h"
 
-namespace spine {
+namespace cc {
 
 typedef std::function<void(TrackEntry *entry)> StartListener;
 typedef std::function<void(TrackEntry *entry)> InterruptListener;
@@ -42,7 +42,7 @@ typedef std::function<void(TrackEntry *entry, Event *event)> EventListener;
 
 /** Draws an animated skeleton, providing an AnimationState for applying one or more animations and queuing animations to be
   * played later. */
-class SkeletonAnimation : public CCSkeletonRenderer {
+class SkeletonAnimation : public cc::SkeletonRenderer {
 public:
     static SkeletonAnimation *create();
     static SkeletonAnimation *createWithData(SkeletonData *skeletonData, bool ownsSkeletonData = false);
@@ -102,7 +102,7 @@ protected:
     EventListener _eventListener = nullptr;
 
 private:
-    typedef CCSkeletonRenderer super;
+    typedef cc::SkeletonRenderer super;
 };
 
-} // namespace spine
+} // namespace cc

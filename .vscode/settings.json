@@ -19,7 +19,19 @@
         "source.fixAll": "explicit",
     },
     "files.associations": {
-        "iterator": "cpp"
+        "*.cmake": "makefile",
+        "iterator": "cpp",
+        "*.ipp": "cpp",
+        "filesystem": "cpp",
+        "chrono": "cpp",
+        "random": "cpp",
+        "string": "cpp",
+        "regex": "cpp",
+        "xlocale": "cpp",
+        "xstring": "cpp",
+        "tuple": "cpp",
+        "vector": "cpp",
+        "istream": "c"
     },
     "cmake.configureOnOpen": false,
 }

@@ -34,7 +34,7 @@
 USING_NS_MW;        // NOLINT(google-build-using-namespace)
 using namespace cc; // NOLINT(google-build-using-namespace)
 
-namespace spine {
+namespace cc {
 
 float SkeletonCache::FrameTime = 1.0F / 60.0F;
 float SkeletonCache::MaxCacheTime = 120.0F;
@@ -559,4 +559,4 @@ void SkeletonCache::resetAnimationData(const std::string &animationName) {
         }
     }
 }
-} // namespace spine
+} // namespace cc

@@ -274,15 +274,13 @@ function overrideProperty_ColorTimeline (): void {
 }
 
 function overrideProperty_Timeline (): void {
-    if (SPINE_VERSION >= '4.2') {
-        const prototype = spine.Timeline.prototype as any;
-        overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
-    }
+    const prototype = spine.Timeline.prototype as any;
+    overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
 }
 
 function overrideProperty_AttachmentTimeline (): void {
     const prototype = spine.AttachmentTimeline.prototype as any;
-    if (SPINE_VERSION <= '3.8') {
+    if (SPINE_VERSION === '3.8') {
         overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
     }
     overrideDefineArrayProp(prototype, prototype.getAttachmentNames, 'attachmentNames');
@@ -345,9 +343,9 @@ export function overrideSpineDefine (wasm): void {
     overrideProperty_SkinEntry();
     overrideProperty_SkeletonData();
     overrideProperty_RotateTimeline();
-    if (SPINE_VERSION <= '3.8') {
+    if (SPINE_VERSION === '3.8') {
         overrideProperty_ColorTimeline();
-    } else if (SPINE_VERSION >= '4.2') {
+    } else if (SPINE_VERSION === '4.2') {
         overrideProperty_Timeline();
     }
     overrideProperty_AttachmentTimeline();

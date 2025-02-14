@@ -33,7 +33,7 @@
 #include "platform/FileUtils.h"
 #include "spine-creator-support/AttachmentVertices.h"
 
-namespace spine {
+namespace cc {
 static CustomTextureLoader customTextureLoader = nullptr;
 void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader) {
     customTextureLoader = texLoader;
@@ -43,7 +43,7 @@ static SpineObjectDisposeCallback spineObjectDisposeCallback = nullptr;
 void setSpineObjectDisposeCallback(SpineObjectDisposeCallback callback) {
     spineObjectDisposeCallback = callback;
 }
-} // namespace spine
+} // namespace cc
 
 USING_NS_MW;           // NOLINT(google-build-using-namespace)
 using namespace cc;    // NOLINT(google-build-using-namespace)
@@ -123,8 +123,8 @@ Cocos2dTextureLoader::~Cocos2dTextureLoader() = default;
 
 void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
     middleware::Texture2D *texture = nullptr;
-    if (spine::customTextureLoader) {
-        texture = spine::customTextureLoader(path.buffer());
+    if (customTextureLoader) {
+        texture = customTextureLoader(path.buffer());
     }
     CC_ASSERT_NOT_NULL(texture);
 

@@ -41,13 +41,13 @@
 #include "middleware-adapter.h"
 #include "platform/FileUtils.h"
 #include "spine-creator-support/SkeletonDataMgr.h"
-#include "spine-creator-support/CCSkeletonRenderer.h"
+#include "spine-creator-support/SkeletonRenderer.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 #include "spine-creator-support/Vector2.h"
 
 using namespace cc;
 
-static spine::Cocos2dTextureLoader textureLoader;
+static cc::Cocos2dTextureLoader textureLoader;
 static cc::RefMap<ccstd::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
 static middleware::Texture2D *_getPreloadedAtlasTexture(const char *path) {
     CC_ASSERT(_preloadedAtlasTextures);
@@ -68,7 +68,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr = SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         spine::SkeletonData *skeletonData = mgr->retainByUUID(uuid);
@@ -95,14 +95,14 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     // create atlas from preloaded texture
 
     _preloadedAtlasTextures = &textures;
-    spine::spAtlasPage_setCustomTextureLoader(_getPreloadedAtlasTexture);
+    spAtlasPage_setCustomTextureLoader(_getPreloadedAtlasTexture);
 
     spine::Atlas *atlas = ccnew_placement(__FILE__, __LINE__) spine::Atlas(atlasText.c_str(), (int)atlasText.size(), "", &textureLoader);
 
     _preloadedAtlasTextures = nullptr;
-    spine::spAtlasPage_setCustomTextureLoader(nullptr);
+    spAtlasPage_setCustomTextureLoader(nullptr);
 
-    spine::AttachmentLoader *attachmentLoader = ccnew_placement(__FILE__, __LINE__) spine::Cocos2dAtlasAttachmentLoader(atlas);
+    spine::AttachmentLoader *attachmentLoader = ccnew_placement(__FILE__, __LINE__) Cocos2dAtlasAttachmentLoader(atlas);
     spine::SkeletonData *skeletonData = nullptr;
 
     std::size_t length = skeletonDataFile.length();
@@ -164,7 +164,7 @@ static bool js_register_spine_disposeSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr = SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (!hasSkeletonData) return true;
     mgr->releaseByUUID(uuid);
@@ -182,7 +182,7 @@ static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     }
     bool ok = false;
 
-    spine::CCSkeletonRenderer *node = nullptr;
+    cc::SkeletonRenderer *node = nullptr;
     ok = seval_to_native_ptr(args[0], &node);
     SE_PRECONDITION2(ok, false, "Converting SpineRenderer failed!");
 
@@ -190,7 +190,7 @@ static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     ok = sevalue_to_native(args[1], &uuid);
     SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr = SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         node->initWithUUID(uuid);
@@ -212,7 +212,7 @@ static bool js_register_spine_retainSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr = SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         spine::SkeletonData *skeletonData = mgr->retainByUUID(uuid);
@@ -612,7 +612,7 @@ bool register_all_spine_manual(se::Object *obj) {
     __jsb_spine_Slot_proto->defineFunction("setAttachment", _SE(js_spine_Slot_setAttachment));
     __jsb_spine_Slot_proto->defineFunction("getAttachment", _SE(js_spine_Slot_getAttachment));
 
-    spine::setSpineObjectDisposeCallback([](void *spineObj) {
+    cc::setSpineObjectDisposeCallback([](void *spineObj) {
         if (!se::NativePtrToObjectMap::isValid()) {
             return;
         }
@@ -628,7 +628,7 @@ bool register_all_spine_manual(se::Object *obj) {
     });
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-        spine::SkeletonDataMgr::destroyInstance();
+        SkeletonDataMgr::destroyInstance();
     });
 
     se::ScriptEngine::getInstance()->clearException();
