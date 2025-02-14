@@ -36,7 +36,6 @@
 #include "base/RefCounted.h"
 #include "spine/SkeletonData.h"
 #include "spine/spine.h"
-
 namespace spine {
 
 class SkeletonDataInfo;

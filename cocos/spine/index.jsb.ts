@@ -47,6 +47,7 @@ import spineLib from './lib/spine-core';
 export * from './skeleton';
 export * from './skeleton-data';
 export * from './assembler';
+export * from './lib/spine-version';
 
 export const spine = globalThis.spine;
 spine.EventType = spineLib.EventType

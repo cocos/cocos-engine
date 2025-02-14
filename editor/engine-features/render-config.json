@@ -372,19 +372,40 @@
             "default": true,
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
-            "cmakeConfig": "USE_SPINE",
             "isNativeModule": true,
-            "enginePlugin": true,
+            "enginePlugin": false,
             "category": "2d",
             "dependencies": [
                 "2d"
             ],
-            "flags": {
-                "LOAD_SPINE_MANUALLY": {
-                    "label": "i18n:ENGINE.features.flags.spine.loadManual.label",
-                    "description": "i18n:ENGINE.features.flags.spine.loadManual.description",
-                    "ui-type": "checkbox",
-                    "default": false
+            "options": {
+                "spine-3.8": {
+                    "cmakeConfig": "USE_SPINE_3_8",
+                    "default": true,
+                    "label": "i18n:ENGINE.features.spine_38X.label",
+                    "description": "i18n:ENGINE.features.spine_38X.description",
+                    "flags": {
+                        "LOAD_SPINE_MANUALLY": {
+                            "label": "i18n:ENGINE.features.flags.spine.loadManual.label",
+                            "description": "i18n:ENGINE.features.flags.spine.loadManual.description",
+                            "ui-type": "checkbox",
+                            "default": false
+                        }
+                    }
+                },
+                "spine-4.2": {
+                    "cmakeConfig": "USE_SPINE_4_2",
+                    "default": false,
+                    "label": "i18n:ENGINE.features.spine_42X.label",
+                    "description": "i18n:ENGINE.features.spine_42X.description",
+                    "flags": {
+                        "LOAD_SPINE_MANUALLY": {
+                            "label": "i18n:ENGINE.features.flags.spine.loadManual.label",
+                            "description": "i18n:ENGINE.features.flags.spine.loadManual.description",
+                            "ui-type": "checkbox",
+                            "default": false
+                        }
+                    }
                 }
             }
         },

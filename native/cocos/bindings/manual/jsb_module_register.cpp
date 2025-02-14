@@ -109,8 +109,12 @@
 #if CC_USE_MIDDLEWARE
     #include "cocos/bindings/auto/jsb_editor_support_auto.h"
 
+    #if CC_USE_SPINE_3_8
+        #include "cocos/bindings/auto/jsb_spine_3_8_auto.h"
+    #elif CC_USE_SPINE_4_2
+        #include "cocos/bindings/auto/jsb_spine_4_2_auto.h"
+    #endif
     #if CC_USE_SPINE
-        #include "cocos/bindings/auto/jsb_spine_auto.h"
         #include "cocos/bindings/manual/jsb_spine_manual.h"
     #endif
 

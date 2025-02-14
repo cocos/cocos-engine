@@ -14,9 +14,9 @@ set(ENABLE_BINARY_PARSER 1)
 # set(ENABLE_PROFILING "--profiling")
 set(VERBOSE_LOG 0)
 
-set(CMAKE_BUILD_TYPE "MinSizeRel")
+# set(CMAKE_BUILD_TYPE "MinSizeRel")
 # set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-# set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Debug")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(ENABLE_CLOSURE_COMPILER 0)

@@ -190,13 +190,27 @@
         "vendor-google": {
             "modules": ["vendor-google"]
         },
-        "spine": {
+        "spine-3.8": {
             "modules": ["spine"],
             "dependentAssets": [
                 "c27215d8-6835-4b68-bfbb-bdeac6100c04",
                 "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
             ],
-            "dependentModules": ["2d"]
+            "dependentModules": ["2d"],
+            "intrinsicFlags": {
+                "SPINE_3_8": true
+            }
+        },
+        "spine-4.2": {
+            "modules": ["spine"],
+            "dependentAssets": [
+                "c27215d8-6835-4b68-bfbb-bdeac6100c04",
+                "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
+            ],
+            "dependentModules": ["2d"],
+            "intrinsicFlags": {
+                "SPINE_4_2": true
+            }
         },
         "dragon-bones": {
             "modules": ["dragon-bones"],
@@ -425,6 +439,22 @@
             "isVirtualModule": false,
             "overrides": {
                 "cocos/animation/marionette/pose-graph/runtime-exports.ts": "cocos/animation/marionette/pose-graph/runtime-exports-empty.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.SPINE_3_8",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-3.8.ts",
+                "native/external/emscripten/spine/spine.d.ts": "native/external/emscripten/spine/3.8/spine.d.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.SPINE_4_2",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-4.2.ts",
+                "native/external/emscripten/spine/spine.d.ts": "native/external/emscripten/spine/4.2/spine.d.ts"
             }
         }
     ],

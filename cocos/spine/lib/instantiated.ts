@@ -28,6 +28,7 @@ import { game } from '../../game';
 import { error, sys } from '../../core';
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
+import { SPINE_VERSION } from './spine-version';
 
 const PAGESIZE = 65536; // 64KiB
 
@@ -97,21 +98,21 @@ function shouldUseWasmModule (): boolean {
     }
 }
 
-export function waitForSpineWasmInstantiation (): Promise<void> {
+function waitForSpineWasmInstantiation_3_8 (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then(() => {
         if (shouldUseWasmModule()) {
             return Promise.all([
-                import('external:emscripten/spine/spine.wasm.js'),
-                import('external:emscripten/spine/spine.wasm'),
+                import('external:emscripten/spine/3.8/spine.wasm.js'),
+                import('external:emscripten/spine/3.8/spine.wasm'),
             ]).then(([
                 { default: wasmFactory },
                 { default: spineWasmUrl },
             ]) => initWasm(wasmFactory, spineWasmUrl));
         } else {
             return Promise.all([
-                import('external:emscripten/spine/spine.asm.js'),
-                import('external:emscripten/spine/spine.js.mem'),
+                import('external:emscripten/spine/3.8/spine.asm.js'),
+                import('external:emscripten/spine/3.8/spine.js.mem'),
             ]).then(([
                 { default: asmFactory },
                 { default: asmJsMemUrl },
@@ -120,8 +121,45 @@ export function waitForSpineWasmInstantiation (): Promise<void> {
     }).catch(errorReport);
 }
 
+function waitForSpineWasmInstantiation_4_2 (): Promise<void> {
+    const errorReport = (msg: any): void => { error(msg); };
+    return ensureWasmModuleReady().then(() => {
+        if (shouldUseWasmModule()) {
+            return Promise.all([
+                import('external:emscripten/spine/4.2/spine.wasm.js'),
+                import('external:emscripten/spine/4.2/spine.wasm'),
+            ]).then(([
+                { default: wasmFactory },
+                { default: spineWasmUrl },
+            ]) => initWasm(wasmFactory, spineWasmUrl));
+        } else {
+            return Promise.all([
+                import('external:emscripten/spine/4.2/spine.asm.js'),
+                import('external:emscripten/spine/4.2/spine.js.mem'),
+            ]).then(([
+                { default: asmFactory },
+                { default: asmJsMemUrl },
+            ]) => initAsmJS(asmFactory, asmJsMemUrl));
+        }
+    }).catch(errorReport);
+}
+
+export function waitForSpineWasmInstantiation (): Promise<void> {
+    if (SPINE_VERSION === '3.8') {
+        return waitForSpineWasmInstantiation_3_8();
+    } else if (SPINE_VERSION === '4.2') {
+        return waitForSpineWasmInstantiation_4_2();
+    }
+    error('Spine version not supported');
+    return Promise.resolve();
+}
+
 if (!JSB && (!BUILD || !LOAD_SPINE_MANUALLY)) {
-    game.onPostInfrastructureInitDelegate.add(waitForSpineWasmInstantiation);
+    if (SPINE_VERSION === '3.8') {
+        game.onPostInfrastructureInitDelegate.add(waitForSpineWasmInstantiation_3_8);
+    } else if (SPINE_VERSION === '4.2') {
+        game.onPostInfrastructureInitDelegate.add(waitForSpineWasmInstantiation_4_2);
+    }
 }
 
 registerList.push(overrideSpineDefine);
