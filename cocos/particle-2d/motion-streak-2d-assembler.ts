@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import type { IAssembler, IAssemblerManager } from '../2d/renderer/base';
-import { MotionStreak, MotionStreakPoint } from './motion-streak-2d';
+import { MotionStreak, Point } from './motion-streak-2d';
 import { Vec2, Color } from '../core';
 import type { IBatcher } from '../2d/renderer/i-batcher';
 import type { RenderData } from '../2d/renderer/render-data';
@@ -59,7 +59,7 @@ class MotionStreakAssembler implements IAssembler {
 
         const points = comp.points;
 
-        let cur: MotionStreakPoint | undefined;
+        let cur: Point | undefined;
         if (points.length > 1) {
             const point = points[0];
             const difx = point.point.x - tx;
@@ -70,7 +70,7 @@ class MotionStreakAssembler implements IAssembler {
         }
 
         if (!cur) {
-            cur = new MotionStreakPoint();
+            cur = new Point();
             points.unshift(cur);
         }
 

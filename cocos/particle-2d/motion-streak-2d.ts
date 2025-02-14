@@ -31,7 +31,7 @@ import type { IBatcher } from '../2d/renderer/i-batcher';
 import { Vec2 } from '../core';
 import type { RenderData } from '../2d/renderer/render-data';
 
-export class MotionStreakPoint {
+export class Point {
     public point = new Vec2();
     public dir = new Vec2();
     public distance = 0;
@@ -42,12 +42,12 @@ export class MotionStreakPoint {
         if (dir) this.dir.set(dir);
     }
 
-    public setPoint (x, y): void {
+    public setPoint (x: number, y: number): void {
         this.point.x = x;
         this.point.y = y;
     }
 
-    public setDir (x, y): void {
+    public setDir (x: number, y: number): void {
         this.dir.x = x;
         this.dir.y = y;
     }
@@ -70,7 +70,7 @@ export class MotionStreakPoint {
 @menu('Effects/MotionStreak')
 @help('i18n:COMPONENT.help_url.motionStreak')
 export class MotionStreak extends UIRenderer {
-    public static Point = MotionStreakPoint;
+    public static Point = Point;
 
     constructor () {
         super();
@@ -161,7 +161,7 @@ export class MotionStreak extends UIRenderer {
         this._fastMode = val;
     }
 
-    public get points (): MotionStreakPoint[] {
+    public get points (): Point[] {
         return this._points;
     }
 
@@ -177,7 +177,7 @@ export class MotionStreak extends UIRenderer {
     private _texture: Texture2D | null  = null;
     @serializable
     private _fastMode = false;
-    private _points: MotionStreakPoint[] = [];
+    private _points: Point[] = [];
 
     public onEnable (): void {
         super.onEnable();
