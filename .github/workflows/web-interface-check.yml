@@ -20,8 +20,15 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             echo "Running on Ubuntu"
+            sed --version
+            echo "GSED=sed" >> "$GITHUB_ENV"
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             echo "Running on macOS"
+            echo "Install GNU sed ..."
+            brew install gnu-sed
+            which gsed
+            gsed --version
+            echo "GSED=gsed" >> "$GITHUB_ENV"
           else
             echo "Unknown OS: $RUNNER_OS"
           fi
@@ -140,7 +147,7 @@ jobs:
       - name: Build Spine ASMJS (BASE)
         run: |
           cd ./engine/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
+          $GSED -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
           mkdir build-asmjs
           cd build-asmjs
           emcmake cmake .. -GNinja
@@ -219,7 +226,7 @@ jobs:
       - name: Build Spine ASMJS (HEAD)
         run: |
           cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
+          $GSED -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
           mkdir build-asmjs
           cd build-asmjs
           emcmake cmake .. -GNinja
