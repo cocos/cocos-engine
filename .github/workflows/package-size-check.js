@@ -11,16 +11,6 @@ const engineRoot = args[0];
 
 console.log(`Engine root: ${engineRoot}`);
 
-const statsQuery = await StatsQuery.create(engineRoot);
-
-const excludeFeatures = [
-    'vendor-google',
-    'xr',
-];
-
-const allFeatures = statsQuery.getFeatures().filter(feature => !excludeFeatures.includes(feature));
-console.log(`all features: [ ${allFeatures.join(', ')} ]`);
-
 const features2DCommon = [
     "2d",
     "affine-transform",
@@ -120,6 +110,16 @@ async function buildEngineForFeatures(options) {
 }
 
 (async () => {
+    const statsQuery = await StatsQuery.create(engineRoot);
+
+    const excludeFeatures = [
+        'vendor-google',
+        'xr',
+    ];
+    
+    const allFeatures = statsQuery.getFeatures().filter(feature => !excludeFeatures.includes(feature));
+    console.log(`all features: [ ${allFeatures.join(', ')} ]`);
+
     await buildEngineForFeatures({
         features: allFeatures,
         outDir: ps.join(engineRoot, 'build-cc-out-all'),
