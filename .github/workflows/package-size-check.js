@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const ps = require('path');
-const { buildEngine } = require('@cocos/ccbuild');
+const { buildEngine, StatsQuery } = require('@cocos/ccbuild');
 
 const args = process.argv.slice(2);
 if (args.length == 0) {
@@ -11,19 +11,14 @@ const engineRoot = args[0];
 
 console.log(`Engine root: ${engineRoot}`);
 
-const exportsDir = ps.join(engineRoot, 'exports');
-const files = fs.readdirSync(exportsDir);
+const statsQuery = await StatsQuery.create(engineRoot);
 
-const allFeatures = [];
-files.forEach(file => {
-    const filePath = ps.join(exportsDir, file);
-    const feature = ps.parse(ps.basename(filePath)).name;
-    if (feature !== 'vendor-google' && feature !== 'xr') {
-        allFeatures.push(feature);
-    }
-});
-allFeatures.push('meshopt', 'marionette', 'procedural-animation'); // meshopt feature doesn't have a module entry in 'exports' directory, so append it manually here.
+const excludeFeatures = [
+    'vendor-google',
+    'xr',
+];
 
+const allFeatures = statsQuery.getFeatures().filter(feature => !excludeFeatures.includes(feature));
 console.log(`all features: [ ${allFeatures.join(', ')} ]`);
 
 const features2DCommon = [
