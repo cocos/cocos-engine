@@ -192,7 +192,11 @@ void SkeletonCache::update(float deltaTime) {
     if (_ownsSkeleton) _skeleton->update(deltaTime);
     _state->update(deltaTime);
     _state->apply(*_skeleton);
+#if CC_USE_SPINE_3_8
     _skeleton->updateWorldTransform();
+#else
+    _skeleton->updateWorldTransform(Physics::Physics_Update);
+#endif
 }
 
 void SkeletonCache::updateToFrame(const std::string &animationName, int toFrameIdx /*= -1*/) {
@@ -325,7 +329,11 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
         spine::Color attachmentColor;
         if (slot->getAttachment()->getRTTI().isExactly(RegionAttachment::rtti)) {
             auto *attachment = dynamic_cast<RegionAttachment *>(slot->getAttachment());
+#if CC_USE_SPINE_3_8
             attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
+#else
+            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+#endif
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -340,7 +348,11 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                 trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
             }
+#if CC_USE_SPINE_3_8
             attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
+#else
+            attachment->computeWorldVertices(*slot, reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
+#endif
 
             trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
             ibSize = static_cast<int32_t>(trianglesTwoColor.indexCount * sizeof(uint16_t));
@@ -352,7 +364,11 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
 
         } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
             auto *attachment = dynamic_cast<MeshAttachment *>(slot->getAttachment());
+#if CC_USE_SPINE_3_8
             attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
+#else
+            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+#endif
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {

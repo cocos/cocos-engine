@@ -38,17 +38,17 @@ namespace {
                 auto* attachment = entry._attachment;
                 if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
                     auto* meshAttachment = static_cast<MeshAttachment *>(attachment);
-                    attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRendererObject());
-                } else {
+                    attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRegion()->rendererObject);
+                } else if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
                     auto* regionAttachment = static_cast<RegionAttachment *>(attachment);
-                    attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRendererObject());
+                    attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRegion()->rendererObject);
                 }
                 if (attachmentVertices) {
-                    auto& textureName = attachmentVertices->_textureId;
+                    auto& textureName = attachmentVertices->_textureName;
                     if (textureMap.containsKey(textureName)) {
-                        attachmentVertices->_textureId = textureMap[textureName];
+                        attachmentVertices->_textureUUID = textureMap[textureName];
                     } else {
-                        spine::String logInfo(attachment->getName());
+                        spine::String logInfo(textureName);
                         logInfo.append(" attachment's texture doesn`t exist ");
                         logInfo.append(textureName);
                         logToConsole(logInfo.buffer());
@@ -97,9 +97,13 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const String& jsonS
         return nullptr;
     }
     AttachmentLoader* attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
-    SkeletonJson json(attachmentLoader);
+    SkeletonJson json(attachmentLoader, true);
     json.setScale(1.0F);
     SkeletonData* skeletonData = json.readSkeletonData(jsonStr.buffer());
+    auto& errorMsg = json.getError();
+    if (!errorMsg.isEmpty()) {
+        logToConsole(errorMsg.buffer());
+    }
 
     updateAttachmentVerticesTextureId(skeletonData, textureNames, textureUUIDs);
 
@@ -116,9 +120,13 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize
         return nullptr;
     }
     AttachmentLoader* attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
-    SkeletonBinary binary(attachmentLoader);
+    SkeletonBinary binary(attachmentLoader, true);
     binary.setScale(1.0F);
     SkeletonData* skeletonData = binary.readSkeletonData(s_mem, byteSize);
+    auto& errorMsg = binary.getError();
+    if (!errorMsg.isEmpty()) {
+        logToConsole(errorMsg.buffer());
+    }
 
     updateAttachmentVerticesTextureId(skeletonData, textureNames, textureUUIDs);
 
@@ -137,6 +145,28 @@ void SpineWasmUtil::registerSpineSkeletonDataWithUUID(SkeletonData* data, const 
 void SpineWasmUtil::destroySpineSkeletonDataWithUUID(const String& uuid) {
     if (skeletonDataMap.containsKey(uuid)) {
         auto* data = skeletonDataMap[uuid];
+        auto& skins = data->getSkins();
+        auto skinSize = skins.size();
+        //release AttachmentVertices
+        for (int i = 0; i < skinSize; ++i) {
+            auto* skin = skins[i];
+            auto entries = skin->getAttachments();
+            while (entries.hasNext()) {
+                Skin::AttachmentMap::Entry& entry = entries.next();
+                AttachmentVertices* attachmentVertices;
+                auto* attachment = entry._attachment;
+                if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
+                    auto* meshAttachment = static_cast<MeshAttachment *>(attachment);
+                    attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRegion()->rendererObject);
+                } else if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
+                    auto* regionAttachment = static_cast<RegionAttachment *>(attachment);
+                    attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRegion()->rendererObject);
+                }
+                if (attachmentVertices) {
+                    delete attachmentVertices;
+                }
+            }
+        }
         delete data;
         skeletonDataMap.remove(uuid);
     }

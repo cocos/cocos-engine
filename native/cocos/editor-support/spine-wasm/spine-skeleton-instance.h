@@ -43,9 +43,6 @@ public:
     void setUseTint(bool useTint);
     void setDebugMode(bool debug);
     void setColor(float r, float g, float b, float a);
-    void setJitterEffect(spine::JitterVertexEffect *effect);
-    void setSwirlEffect(spine::SwirlVertexEffect *effect);
-    void clearEffect();
     spine::AnimationState *getAnimationState();
     void setMix(const spine::String &from, const spine::String &to, float duration);
     inline void setListener(uint32_t listenerID) { _eventListenerID = listenerID;}
@@ -68,7 +65,6 @@ private:
     spine::AnimationStateData *_animStateData = nullptr;
     spine::AnimationState *_animState = nullptr;
     spine::SkeletonClipping *_clipper = nullptr;
-    spine::VertexEffect *_effect = nullptr;
     SpineModel *_model = nullptr;
     uint32_t _eventListenerID = 0;
     uint32_t _trackEntryListenerID = 0;

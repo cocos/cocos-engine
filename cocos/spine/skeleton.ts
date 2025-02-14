@@ -45,6 +45,7 @@ import SkeletonCache, { AnimationCache, AnimationFrame, SkeletonCacheItemInfo } 
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
 import { RenderData } from '../2d/renderer/render-data';
+import { SPINE_VERSION } from './lib/spine-version';
 
 const CachedFrameTime = 1 / 60;
 
@@ -783,7 +784,12 @@ export class Skeleton extends UIRenderer {
            it will cause rendering issues when a prefab with Spine assets is added to the scene node tree.
         */
         if (this.defaultSkin && this.defaultSkin !== '') this.setSkin(this.defaultSkin);
-        if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
+        if (this.defaultAnimation) {
+            this.animation = this.defaultAnimation.toString();
+        } else if (this._animationName) {
+            this.animation = this._animationName;
+        }
+
         this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();
@@ -1624,7 +1630,7 @@ export class Skeleton extends UIRenderer {
                 let debugDraw: Graphics | null = null;
 
                 try {
-                    debugDraw = debugDrawNode.addComponent('cc.Graphics') as Graphics;
+                    debugDraw = debugDrawNode.addComponent('cc.Graphics');
                     debugDraw.lineWidth = 5;
                     debugDraw.strokeColor = new Color(255, 0, 0, 255);
 
@@ -1699,11 +1705,16 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
+     * @version 3.8, deprecated since spine 4.2
      * @en Sets vertex effect delegate.
      * @zh 设置顶点特效动画代理。
      * @param effectDelegate @en Vertex effect delegate. @zh 顶点特效代理。
      */
     public setVertexEffectDelegate (effectDelegate: VertexEffectDelegate | null | undefined): void {
+        if (SPINE_VERSION !== '3.8') {
+            warn('setVertexEffectDelegate is deprecated since spine 4.2');
+            return;
+        }
         if (!this._instance) {
             return;
         }

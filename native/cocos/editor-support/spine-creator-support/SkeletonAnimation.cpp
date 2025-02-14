@@ -127,7 +127,11 @@ void SkeletonAnimation::update(float deltaTime) {
         if (_ownsSkeleton) _skeleton->update(deltaTime);
         _state->update(deltaTime);
         _state->apply(*_skeleton);
+#if CC_USE_SPINE_3_8
         _skeleton->updateWorldTransform();
+#else
+        _skeleton->updateWorldTransform(Physics::Physics_Update);
+#endif
     }
 }
 
