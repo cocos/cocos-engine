@@ -32,8 +32,9 @@
 #include <vector>
 
 using namespace spine; //NOLINT
+using namespace cc; //NOLINT
 
-namespace spine {
+namespace cc {
 
 class AttachmentVertices;
 
@@ -74,7 +75,7 @@ public:
     std::vector<int> texturesIndex;
 };
 
-} // namespace spine
+} // namespace cc
 
 SkeletonDataMgr *SkeletonDataMgr::instance = nullptr;
 

@@ -102,6 +102,7 @@ function waitForSpineWasmInstantiation_3_8 (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then(() => {
         if (shouldUseWasmModule()) {
+            //We should use static code here, import operation will cause file copye to cache folder.
             return Promise.all([
                 import('external:emscripten/spine/3.8/spine.wasm.js'),
                 import('external:emscripten/spine/3.8/spine.wasm'),
@@ -125,6 +126,7 @@ function waitForSpineWasmInstantiation_4_2 (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then(() => {
         if (shouldUseWasmModule()) {
+            //We should use static code here, import operation will cause file copye to cache folder.
             return Promise.all([
                 import('external:emscripten/spine/4.2/spine.wasm.js'),
                 import('external:emscripten/spine/4.2/spine.wasm'),

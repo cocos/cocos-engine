@@ -1049,11 +1049,11 @@ module.exports = link(mixin({
             label: "Spine 动画",
             description: "Spine 动画支持。",
         },
-        spine_38X: {
+        spine_38: {
             label: "Spine 3.8",
             description: "Spine 3.8",
         },
-        spine_42X: {
+        spine_42: {
             label: "Spine 4.2",
             description: "Spine 4.2",
         },

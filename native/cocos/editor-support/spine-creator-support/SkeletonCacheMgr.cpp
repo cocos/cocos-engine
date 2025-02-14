@@ -30,7 +30,7 @@
 #include "SkeletonCacheMgr.h"
 #include "base/DeferredReleasePool.h"
 
-namespace spine {
+namespace cc {
 SkeletonCacheMgr *SkeletonCacheMgr::instance = nullptr;
 SkeletonCache *SkeletonCacheMgr::buildSkeletonCache(const std::string &uuid) {
     SkeletonCache *animation = _caches.at(uuid);
@@ -50,4 +50,4 @@ void SkeletonCacheMgr::removeSkeletonCache(const std::string &uuid) {
         _caches.erase(it);
     }
 }
-} // namespace spine
+} // namespace cc

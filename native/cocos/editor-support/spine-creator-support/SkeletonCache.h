@@ -34,7 +34,7 @@
 #include "SkeletonAnimation.h"
 #include "middleware-adapter.h"
 
-namespace spine {
+namespace cc {
 class SkeletonCache : public SkeletonAnimation {
 public:
     struct SegmentData {
@@ -154,4 +154,4 @@ private:
     std::string _curAnimationName = "";
     std::map<std::string, AnimationData *> _animationCaches;
 };
-} // namespace spine
+} // namespace cc

@@ -31,7 +31,7 @@
 #include "SkeletonCache.h"
 #include "base/RefMap.h"
 
-namespace spine {
+namespace cc {
 
 class SkeletonCacheMgr {
 public:
@@ -50,11 +50,11 @@ public:
     }
 
     void removeSkeletonCache(const std::string &uuid);
-    SkeletonCache *buildSkeletonCache(const std::string &uuid);
+    cc::SkeletonCache *buildSkeletonCache(const std::string &uuid);
 
 private:
     static SkeletonCacheMgr *instance;
     cc::RefMap<std::string, SkeletonCache *> _caches;
 };
 
-} // namespace spine
+} // namespace cc

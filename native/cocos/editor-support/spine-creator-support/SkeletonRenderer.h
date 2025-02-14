@@ -47,20 +47,18 @@ namespace cc {
 class RenderEntity;
 class RenderDrawInfo;
 class Material;
-}; // namespace cc
 
-namespace spine {
-
+using namespace spine;
 class AttachmentVertices;
 
 /** Draws a skeleton.
      */
-class CCSkeletonRenderer : public cc::RefCounted, public cc::middleware::IMiddleware {
+class SkeletonRenderer : public cc::RefCounted, public cc::middleware::IMiddleware {
 public:
-    static CCSkeletonRenderer *create();
-    static CCSkeletonRenderer *createWithSkeleton(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
-    static CCSkeletonRenderer *createWithData(SkeletonData *skeletonData, bool ownsSkeletonData = false);
-    static CCSkeletonRenderer *createWithFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
+    static SkeletonRenderer *create();
+    static SkeletonRenderer *createWithSkeleton(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
+    static SkeletonRenderer *createWithData(SkeletonData *skeletonData, bool ownsSkeletonData = false);
+    static SkeletonRenderer *createWithFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
     void update(float deltaTime) override {}
     void render(float deltaTime) override;
@@ -133,12 +131,12 @@ public:
     void onEnable();
     void onDisable();
 
-    CCSkeletonRenderer();
-    explicit CCSkeletonRenderer(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
-    explicit CCSkeletonRenderer(SkeletonData *skeletonData, bool ownsSkeletonData = false);
-    CCSkeletonRenderer(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
+    SkeletonRenderer();
+    explicit SkeletonRenderer(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
+    explicit SkeletonRenderer(SkeletonData *skeletonData, bool ownsSkeletonData = false);
+    SkeletonRenderer(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
-    ~CCSkeletonRenderer() override;
+    ~SkeletonRenderer() override;
 
     void initWithUUID(const std::string &uuid);
     void initWithSkeleton(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
@@ -177,7 +175,7 @@ protected:
     bool _debugBones = false;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
     bool _premultipliedAlpha = false;
-    SkeletonClipping *_clipper = nullptr;
+    spine::SkeletonClipping *_clipper = nullptr;
     bool _useTint = false;
     bool _enableBatch = false;
     std::string _uuid;
@@ -194,5 +192,4 @@ protected:
     ccstd::unordered_map<uint32_t, cc::Material *> _materialCaches;
     bool _needClearMaterialCaches = false;
 };
-
-} // namespace spine
+}; // namespace cc

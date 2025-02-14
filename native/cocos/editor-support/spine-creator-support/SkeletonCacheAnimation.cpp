@@ -46,7 +46,7 @@ using namespace cc::gfx; // NOLINT(google-build-using-namespace)
 static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 
-namespace spine {
+namespace cc {
 
 SkeletonCacheAnimation::SkeletonCacheAnimation(const std::string &uuid, bool isShare) {
     if (isShare) {
@@ -601,4 +601,4 @@ cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_
     return _materialCaches[key];
 }
 
-} // namespace spine
+} // namespace cc

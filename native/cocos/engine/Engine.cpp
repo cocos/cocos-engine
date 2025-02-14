@@ -192,7 +192,7 @@ void Engine::destroy() {
 #endif
 
 #if CC_USE_SPINE
-    spine::SkeletonCacheMgr::destroyInstance();
+    cc::SkeletonCacheMgr::destroyInstance();
 #endif
 
 #if CC_USE_MIDDLEWARE
