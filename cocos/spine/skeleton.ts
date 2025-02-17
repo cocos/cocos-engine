@@ -1037,6 +1037,12 @@ export class Skeleton extends UIRenderer {
         }
         this._skinName = name;
         this.invalidAnimationCache();
+        if (EDITOR_NOT_IN_PREVIEW) {
+            this.paused = false;
+            this.scheduleOnce(() => {
+                this.paused = true;
+            }, 0);
+        }
     }
 
     /**
