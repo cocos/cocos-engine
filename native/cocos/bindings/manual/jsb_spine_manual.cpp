@@ -119,14 +119,14 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
             spine::SkeletonBinary binary(attachmentLoader);
             binary.setScale(scale);
             skeletonData = binary.readSkeletonData(cocos2dData.getBytes(), (int)cocos2dData.getSize());
-            auto &errorMsg = binary.getError();
+            const auto &errorMsg = binary.getError();
             CC_ASSERT_FORMAT(skeletonData, "Spine parse error: %s", errorMsg.buffer());
         }
     } else {
         spine::SkeletonJson json(attachmentLoader);
         json.setScale(scale);
         skeletonData = json.readSkeletonData(skeletonDataFile.c_str());
-        auto &errorMsg = json.getError();
+        const auto &errorMsg = json.getError();
         CC_ASSERT_FORMAT(skeletonData, "Spine parse error: %s", errorMsg.buffer());
     }
 

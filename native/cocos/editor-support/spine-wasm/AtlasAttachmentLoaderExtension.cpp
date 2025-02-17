@@ -5,9 +5,6 @@ using namespace spine;
 
 #include <emscripten/emscripten.h>
 #include <emscripten/val.h>
-
-
-
 using namespace spine;
 
 static void wasmLog(const char* message) {

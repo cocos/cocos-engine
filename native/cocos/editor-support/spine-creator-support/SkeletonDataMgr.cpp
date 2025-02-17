@@ -56,6 +56,7 @@ public:
                 auto *region = regions[i];
                 if (region->rendererObject) {
                     delete static_cast<AttachmentVertices *>(region->rendererObject);
+                    region->rendererObject = nullptr;
                 }
             }
 #endif

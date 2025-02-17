@@ -133,7 +133,7 @@ void SpineSkeletonInstance::collectMeshData() {
     uint32_t strideColor = byteStrideColor / sizeof_float;
 
     Color4F color;
-    auto &slotArray = _skeleton->getDrawOrder(); 
+    auto &slotArray = _skeleton->getDrawOrder();
     uint32_t slotCount = slotArray.size();
     DEBUG_SHAPE_TYPE debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_REGION;
 
