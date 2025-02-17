@@ -70,4 +70,6 @@ jobs:
       - name: check result
         run: |
           find ./ -name SimulatorApp-Mac
+          echo "==> Show lipo info: "
+          lipo -info simulator/Release/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac
           [ -f ./simulator/Release/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac ] && exit 0 || exit 1
