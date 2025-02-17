@@ -107,6 +107,12 @@ jobs:
           ref: "${{ env.EXT_VERSION }}"
           fetch-depth: 1
 
+      - name: Create spine/3.8 soft link (Temp)
+        run: |
+          cd ./engine/native/external/emscripten
+          cp -r spine 3.8
+          mv 3.8 ./spine/
+
       - name: Apply emscripten patches (BASE)
         run: |
           echo "--------------------------------- Save bind.cpp ---------------------------------"
@@ -185,6 +191,12 @@ jobs:
           path: './engine-HEAD/native/external'
           ref: "${{ env.EXT_VERSION_HEAD }}"
           fetch-depth: 1
+
+      - name: Create spine/3.8 soft link (Temp)
+        run: |
+          cd ./engine/native/external/emscripten
+          cp -r spine 3.8
+          mv 3.8 ./spine/
 
       - name: Apply emscripten patches (HEAD)
         run: |
