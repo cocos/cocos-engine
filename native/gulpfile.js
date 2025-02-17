@@ -79,6 +79,7 @@ gulp.task('gen-simulator', async function () {
         } 
         else {
             args.push('Xcode');
+            args.push(`-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64`);
         }
         args.push('-DCC_DEBUG_FORCE=ON','-DUSE_V8_DEBUGGER_FORCE=ON');
         args.push(absolutePath('./tools/simulator/frameworks/runtime-src/'));
@@ -111,7 +112,7 @@ gulp.task('gen-simulator', async function () {
     await new Promise((resolve, reject) => {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
-            makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet', '-arch', 'x86_64']);
+            makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet']);
         } else {
             makeArgs = makeArgs.concat(['--config', 'Release']);
         }
