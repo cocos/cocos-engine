@@ -25,7 +25,6 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
-import { Component } from '../../scene-graph';
 import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3, warn } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
