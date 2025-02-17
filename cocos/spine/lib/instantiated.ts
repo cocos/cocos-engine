@@ -25,7 +25,7 @@
 import { instantiateWasm, fetchBuffer, ensureWasmModuleReady } from 'pal/wasm';
 import { BUILD, JSB, LOAD_SPINE_MANUALLY, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 import { game } from '../../game';
-import { error, sys } from '../../core';
+import { error, errorID, sys } from '../../core';
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
 import { SPINE_VERSION } from './spine-version';
@@ -101,8 +101,8 @@ function shouldUseWasmModule (): boolean {
 function waitForSpineWasmInstantiation_3_8 (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then(() => {
+        //We should use static code here, import operation will cause file copy to cache folder.
         if (shouldUseWasmModule()) {
-            //We should use static code here, import operation will cause file copye to cache folder.
             return Promise.all([
                 import('external:emscripten/spine/3.8/spine.wasm.js'),
                 import('external:emscripten/spine/3.8/spine.wasm'),
@@ -125,8 +125,8 @@ function waitForSpineWasmInstantiation_3_8 (): Promise<void> {
 function waitForSpineWasmInstantiation_4_2 (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then(() => {
+        //We should use static code here, import operation will cause file copy to cache folder.
         if (shouldUseWasmModule()) {
-            //We should use static code here, import operation will cause file copye to cache folder.
             return Promise.all([
                 import('external:emscripten/spine/4.2/spine.wasm.js'),
                 import('external:emscripten/spine/4.2/spine.wasm'),
@@ -152,7 +152,7 @@ export function waitForSpineWasmInstantiation (): Promise<void> {
     } else if (SPINE_VERSION === '4.2') {
         return waitForSpineWasmInstantiation_4_2();
     }
-    error('Spine version not supported');
+    errorID(16419);
     return Promise.resolve();
 }
 

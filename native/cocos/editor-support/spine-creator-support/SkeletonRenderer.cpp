@@ -570,7 +570,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             }
 #endif
 
-            // 获取当前插槽的变换矩阵
+            // TODO: implement PathAttachment
             //auto &transform = slot->getBone().getWorldTransform();
         } else if (slot->getAttachment()->getRTTI().isExactly(ClippingAttachment::rtti)) {
             auto *clip = dynamic_cast<ClippingAttachment *>(slot->getAttachment());

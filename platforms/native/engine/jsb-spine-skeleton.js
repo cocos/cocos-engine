@@ -405,7 +405,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setVertexEffectDelegate = function (effectDelegate) {
-        if (cc.sp.SPINE_VERSION !== '3.8') {
+        if (cc.sp.SPINE_VERSION === '4.2') {
             cc.warn('setVertexEffectDelegate is deprecated since spine 4.2');
             return;
         }

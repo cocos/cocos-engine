@@ -3972,3 +3972,7 @@ cached mode not support setMix!!!
 ### 16418
 
 Debug bones or slots is invalid in cached mode.
+
+### 16419
+
+Spine version not supported.
