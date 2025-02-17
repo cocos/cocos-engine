@@ -194,7 +194,7 @@ jobs:
 
       - name: Create spine/3.8 soft link (Temp)
         run: |
-          cd ./engine/native/external/emscripten
+          cd ./engine-HEAD/native/external/emscripten
           cp -r spine 3.8
           mv 3.8 ./spine/
 
