@@ -174,7 +174,7 @@ jobs:
         if: env.FOUND_SPINE_VERSION_BASE == 'true'
         run: |
           cd ./engine/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2"))/g' CMakeLists.txt
+          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           rm -rf build-wasm
           mkdir build-wasm
           cd build-wasm
@@ -186,7 +186,7 @@ jobs:
         if: env.FOUND_SPINE_VERSION_BASE == 'true'
         run: |
           cd ./engine/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2"))/g' CMakeLists.txt
+          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
           rm -rf build-asmjs
           mkdir build-asmjs
@@ -299,7 +299,7 @@ jobs:
       - name: Build Spine 4.2 WASM (HEAD)
         run: |
           cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2"))/g' CMakeLists.txt
+          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           rm -rf build-wasm
           mkdir build-wasm
           cd build-wasm
@@ -310,7 +310,7 @@ jobs:
       - name: Build Spine 4.2 ASMJS (HEAD)
         run: |
           cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2"))/g' CMakeLists.txt
+          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
           rm -rf build-asmjs
           mkdir build-asmjs
