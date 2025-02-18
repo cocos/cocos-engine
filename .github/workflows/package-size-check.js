@@ -30,7 +30,8 @@ const features2DCommon = [
     "physics-2d-box2d-wasm",
     "profiler",
     "rich-text",
-    "spine-3.8",
+    "spine", // Old version uses 'spine' feature
+    "spine-3.8", // New version uses 'spine-xxx' feature
     "tiled-map",
     "tween",
     "ui",
