@@ -692,8 +692,6 @@ let TiledMap = cc.Class({
         let node = this.node;
         let layerInfos = mapInfo.getAllChildren();
         let textures = this._textures;
-        let maxWidth = 0;
-        let maxHeight = 0;
 
         if (layerInfos && layerInfos.length > 0) {
             for (let i = 0, len = layerInfos.length; i < len; i++) {
@@ -751,9 +749,6 @@ let TiledMap = cc.Class({
                     child.height = texture.height;
                     images.push(child);
                 }
-
-                maxWidth = Math.max(maxWidth, child.width);
-                maxHeight = Math.max(maxHeight, child.height);
             }
         }
 
@@ -765,8 +760,8 @@ let TiledMap = cc.Class({
             }
         }
 
-        this.node.width = maxWidth;
-        this.node.height = maxHeight;
+        this.node.width = this._mapSize.width * this._tileSize.width;
+        this.node.height = this._mapSize.height * this._tileSize.height;
         this._syncAnchorPoint();
     },
 
