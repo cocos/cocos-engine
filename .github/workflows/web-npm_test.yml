@@ -28,6 +28,7 @@ jobs:
     - name: Verify
       run: |
         which emcc
+        echo "emcc version: "
         emcc -v
 
     - name: Install ninja
