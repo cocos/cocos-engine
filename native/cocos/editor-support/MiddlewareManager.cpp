@@ -80,16 +80,16 @@ void MiddlewareManager::update(float dt) {
         auto *editor = _updateList[i];
         editor->update(dt);
     }
-}
 
-void MiddlewareManager::render(float dt) {
     for (auto &iter: _operateCacheMap) {
         auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
         if (!iter.second && it != _updateList.end()) {
              _updateList.erase(it);
         }
     }
+}
 
+void MiddlewareManager::render(float dt) {
     for (auto it : _mbMap) {
         auto *buffer = it.second;
         if (buffer) {
