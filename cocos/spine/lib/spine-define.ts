@@ -356,3 +356,6 @@ export function overrideSpineDefine (wasm): void {
     overrideProperty_Animation();
     overrideProperty_Skeleton();
 }
+
+// To avoid cycle dependence: spine-version.ts -> spine-version-4.2.ts -> spine-wasm-utils.ts -> spine-define.ts -> spine-version.ts
+(spine as any)._overrideSpineDefine = overrideSpineDefine;
