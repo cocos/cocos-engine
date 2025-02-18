@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 #include "jsb_spine_manual.h"
+#include "base/Assertf.h"
 #include "base/Data.h"
 #include "base/memory/Memory.h"
 
