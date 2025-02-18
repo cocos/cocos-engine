@@ -78,6 +78,7 @@ jobs:
         
     - name: Copy Spine 3.8 files to external directory
       run: |
+        SPINE_VERSION="3.8"
         DIST_PATH="dist/3.8"
         rm -rf $DIST_PATH
         mkdir -p $DIST_PATH
