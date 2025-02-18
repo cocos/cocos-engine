@@ -20,15 +20,14 @@ jobs:
         node-version: '18.x'
 
     - name: Setup emsdk
-        uses: dumganhar/setup-emsdk@997d2cde2deabda085a11f98e86e842915b0e846
-        with:
-          version: 3.1.41
-          actions-cache-folder: 'emsdk-cache-3.1.41'
+      uses: dumganhar/setup-emsdk@997d2cde2deabda085a11f98e86e842915b0e846
+      with:
+        version: 3.1.41
+        actions-cache-folder: 'emsdk-cache-3.1.41'
 
     - name: Verify
       run: |
         which emcc
-        echo "emcc version: "
         emcc -v
 
     - name: Install ninja
