@@ -585,7 +585,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         }
 #endif
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
-        auto &UVs = mesh->getUVs();
+        const auto &UVs = mesh->getUVs();
         for (size_t i = 0, ii = 0, nn = mesh->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
             vertices[i].texCoord.u = UVs[ii];
             vertices[i].texCoord.v = UVs[ii + 1];
