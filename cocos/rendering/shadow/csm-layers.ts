@@ -29,6 +29,7 @@ import { IRenderObject } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { CachedArray } from '../../core/memop/cached-array';
 import { cclegacy } from '../../core';
+import type { Director } from '../../game/director';
 
 const _mat4Trans = new Mat4();
 const _matShadowTrans = new Mat4();
@@ -345,12 +346,12 @@ export class CSMLayers {
     }
 
     private _updateFixedArea (dirLight: DirectionalLight): void {
-        const device = cclegacy.director.root.device;
+        const device = (cclegacy.director as Director).root!.device;
         const x = dirLight.shadowOrthoSize;
         const y = dirLight.shadowOrthoSize;
         const near = dirLight.shadowNear;
         const far = dirLight.shadowFar;
-        Mat4.fromRT(_matShadowTrans, dirLight.node!.getWorldRotation(), dirLight.node!.getWorldPosition());
+        Mat4.fromRT(_matShadowTrans, dirLight.node!.worldRotation, dirLight.node!.worldPosition);
         Mat4.invert(_matShadowView, _matShadowTrans);
         Mat4.ortho(
             _matShadowProj,
@@ -425,8 +426,8 @@ export class CSMLayers {
         if (!camera.node) { return; }
 
         const cameraNode = camera.node;
-        const position = cameraNode.getWorldPosition();
-        const rotation = cameraNode.getWorldRotation();
+        const position = cameraNode.worldPosition;
+        const rotation = cameraNode.worldRotation;
 
         Mat4.fromRT(out, rotation, position);
     }

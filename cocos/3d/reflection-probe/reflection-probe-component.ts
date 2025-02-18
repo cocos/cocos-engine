@@ -23,7 +23,7 @@
 */
 import { ccclass, executeInEditMode, help, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCBoolean, Color, screen, Enum, Vec3, warn, CCObjectFlags } from '../../core';
+import { CCBoolean, Color, screen, Enum, Vec3, warn, CCObjectFlags, v3 } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -35,6 +35,8 @@ import { Camera } from '../../misc/camera-component';
 import { Node, TransformBit } from '../../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../../render-scene/scene/reflection-probe';
 import { absolute } from '../../physics/utils/util';
+
+const tmpVec3 = v3();
 
 export enum ProbeResolution {
     /**
@@ -64,9 +66,9 @@ export enum ProbeResolution {
 @playOnFocus
 @help('i18n:cc.ReflectionProbe')
 export class ReflectionProbe extends Component {
-    protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> = new Vec3(1, 1, 1);
-    protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> = new Vec3(5, 0.5, 5);
-    protected readonly _lastSize = new Vec3();
+    protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> = v3(1, 1, 1);
+    protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> = v3(5, 0.5, 5);
+    protected readonly _lastSize = v3();
     @serializable
     protected _resolution = 256;
     @serializable
@@ -85,7 +87,7 @@ export class ReflectionProbe extends Component {
     protected _cubemap: TextureCube | null = null;
 
     @serializable
-    protected readonly _size = new Vec3(1, 1, 1);
+    protected readonly _size = v3(1, 1, 1);
 
     @serializable
     protected _sourceCamera: Camera | null = null;
@@ -101,9 +103,8 @@ export class ReflectionProbe extends Component {
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
 
-    private _sourceCameraPos = new Vec3(0, 0, 0);
-
-    private _position = new Vec3(0, 0, 0);
+    private _sourceCameraPos = v3();
+    private _position = v3();
 
     /**
      * @en
@@ -358,7 +359,7 @@ export class ReflectionProbe extends Component {
             ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
         ReflectionProbeManager.probeManager.updateProbeData();
-        this._position = this.node.getWorldPosition().clone();
+        this.node.getWorldPosition(this._position);
     }
 
     public onDestroy (): void {
@@ -399,9 +400,9 @@ export class ReflectionProbe extends Component {
 
         //update probe info for realtime
         if (!EDITOR) {
-            const worldPos = this.node.getWorldPosition();
-            if (!this._position.equals(worldPos)) {
-                this._position = worldPos;
+            this.node.getWorldPosition(tmpVec3);
+            if (!this._position.equals(tmpVec3)) {
+                this._position.set(tmpVec3);
                 this.probe.updateBoundingBox();
                 ReflectionProbeManager.probeManager.updateProbeData();
                 ReflectionProbeManager.probeManager.updateProbeOfModels();
