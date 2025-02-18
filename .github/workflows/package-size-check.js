@@ -7,8 +7,8 @@ if (args.length == 0) {
     console.error('Please specify the engine root path');
     process.exit(1);
 }
-const engineRoot = args[0];
 
+const engineRoot = args[0];
 console.log(`Engine root: ${engineRoot}`);
 
 const features2DCommon = [
@@ -30,7 +30,8 @@ const features2DCommon = [
     "physics-2d-box2d-wasm",
     "profiler",
     "rich-text",
-    "spine",
+    "spine", // Old version uses 'spine' feature
+    "spine-3.8", // New version uses 'spine-xxx' feature
     "tiled-map",
     "tween",
     "ui",
@@ -115,13 +116,24 @@ async function buildEngineForFeatures(options) {
     const excludeFeatures = [
         'vendor-google',
         'xr',
+        'spine-3.8',
+        'spine-4.2',
     ];
     
     const allFeatures = statsQuery.getFeatures().filter(feature => !excludeFeatures.includes(feature));
     console.log(`all features: [ ${allFeatures.join(', ')} ]`);
+    const allFeaturesForWeChat = [...allFeatures, 'spine-3.8'];
+    let allFeaturesForWeb = [...allFeatures, 'spine-4.2'];
+
+    if (!fs.pathExistsSync(ps.join(engineRoot, 'cocos', 'spine', 'lib', 'spine-version-4.2.ts'))) {
+        console.log(`Doesn't found spine-version-4.2.ts`);
+        allFeaturesForWeb = allFeaturesForWeChat;
+    } else {
+        console.log(`Found spine-version-4.2.ts`);
+    }
 
     await buildEngineForFeatures({
-        features: allFeatures,
+        features: allFeaturesForWeChat,
         outDir: ps.join(engineRoot, 'build-cc-out-all'),
         noDeprecatedFeatures: false,
         platform: "WECHAT",
@@ -130,7 +142,7 @@ async function buildEngineForFeatures(options) {
     });
 
     await buildEngineForFeatures({
-        features: allFeatures,
+        features: allFeaturesForWeb,
         outDir: ps.join(engineRoot, 'build-cc-out-all-web'),
         noDeprecatedFeatures: false,
         platform: "HTML5",
