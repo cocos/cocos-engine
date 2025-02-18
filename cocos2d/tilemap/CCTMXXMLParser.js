@@ -903,6 +903,7 @@ cc.TMXMapInfo.prototype = {
                         let imageName = image.getAttribute('source');
                         imageName = imageName.replace(/\\/g, '\/');
                         tileset.sourceImage = this._textures[imageName];
+                        tileset.imageSize = this._textureSizes[imageName];
                         if (!tileset.sourceImage) {
                             cc.errorID(7221, imageName);
                         }
