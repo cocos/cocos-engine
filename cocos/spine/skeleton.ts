@@ -1630,7 +1630,7 @@ export class Skeleton extends UIRenderer {
                 let debugDraw: Graphics | null = null;
 
                 try {
-                    debugDraw = debugDrawNode.addComponent('cc.Graphics');
+                    debugDraw = debugDrawNode.addComponent('cc.Graphics') as Graphics;
                     debugDraw.lineWidth = 5;
                     debugDraw.strokeColor = new Color(255, 0, 0, 255);
 
