@@ -58,7 +58,7 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
 #endif
         auto *attachmentVertices = new AttachmentVertices(4, quadTriangles, 6, region->page->name);
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
-        auto &uvs = regionAttachment->getUVs();
+        const auto &uvs = regionAttachment->getUVs();
         for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
             vertices[i].texCoord.u = uvs[ii];
             vertices[i].texCoord.v = uvs[ii + 1];
@@ -79,7 +79,7 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
         auto *attachmentVertices = new AttachmentVertices(
             static_cast<int32_t>(meshAttachment->getWorldVerticesLength() >> 1), meshAttachment->getTriangles().buffer(), static_cast<int32_t>(meshAttachment->getTriangles().size()), region->page->name);
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
-        auto &uvs = meshAttachment->getUVs();
+        const auto &uvs = meshAttachment->getUVs();
         for (size_t i = 0, ii = 0, nn = meshAttachment->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
             vertices[i].texCoord.u = uvs[ii];
             vertices[i].texCoord.v = uvs[ii + 1];
