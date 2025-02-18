@@ -862,19 +862,35 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public getComponent<T extends Component>(classConstructor: Constructor<T> | AbstractedConstructor<T>): T | null;
 
     /**
-      * @en
-      * Returns the component of supplied type if the node has one attached, null if it doesn't.
-      * You can also get component in the node by passing in the name of the script.
-      * @zh
-      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。
-      * 传入参数也可以是脚本的名称。
-      * @param className The class name of the target component
-      * @example
-      * ```
-      * // get custom test class.
-      * var test = node.getComponent("Test");
-      * ```
-      */
+     * @en
+     * Returns the component of supplied type if the node has one attached, null if it doesn't.
+     * You can also get component in the node by passing in the name of the script.
+     * @zh
+     * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。
+     * 传入参数也可以是脚本的名称。
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * // get custom test class.
+     * var test = node.getComponent("Test") as Test | null;
+     * ```
+     */
+    public getComponent(className: string): Component | null;
+
+    /**
+     * @en
+     * Returns the component of supplied type if the node has one attached, null if it doesn't.
+     * You can also get component in the node by passing in the name of the script.
+     * @zh
+     * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。
+     * 传入参数也可以是脚本的名称。
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * // get custom test class.
+     * var test = node.getComponent<Test>("Test");
+     * ```
+     */
     public getComponent<T extends Component>(className: string): T | null;
 
     public getComponent<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): T | null {
@@ -896,6 +912,21 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Returns all components of given type in the node.
      * @zh 返回节点上指定类型的所有组件。
      * @param className The class name of the target component
+     * @example
+     * ```
+     * var test = node.getComponents('Test') as Test[];
+     * ```
+     */
+    public getComponents(className: string): Component[];
+
+    /**
+     * @en Returns all components of given type in the node.
+     * @zh 返回节点上指定类型的所有组件。
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * var test = node.getComponents<Test>('Test');
+     * ```
      */
     public getComponents<T extends Component>(className: string): T[];
 
@@ -925,7 +956,18 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param className The class name of the target component
      * @example
      * ```
-     * var Test = node.getComponentInChildren("Test");
+     * var test = node.getComponentInChildren("Test") as Test | null;
+     * ```
+     */
+    public getComponentInChildren(className: string): Component | null;
+
+    /**
+     * @en Returns the component of given type in any of its children using depth first search.
+     * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * var test = node.getComponentInChildren<Test>("Test");
      * ```
      */
     public getComponentInChildren<T extends Component>(className: string): T | null;
@@ -955,7 +997,18 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param className The class name of the target component
      * @example
      * ```
-     * var tests = node.getComponentsInChildren("Test");
+     * var tests = node.getComponentsInChildren("Test") as Test[];
+     * ```
+     */
+    public getComponentsInChildren(className: string): Component[];
+
+    /**
+     * @en Returns all components of given type in self or any of its children.
+     * @zh 递归查找自身或所有子节点中指定类型的组件
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * var tests = node.getComponentsInChildren<Test>("Test");
      * ```
      */
     public getComponentsInChildren<T extends Component>(className: string): T[];
@@ -989,7 +1042,19 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @throws `TypeError` if the `className` does not specify a cc-class constructor extending the `Component`.
      * @example
      * ```
-     * var test = node.addComponent("Test");
+     * var test = node.addComponent("Test") as Test;
+     * ```
+     */
+    public addComponent(className: string): Component;
+
+    /**
+     * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
+     * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
+     * @param className The class name of the component to add
+     * @throws `TypeError` if the `className` does not specify a cc-class constructor extending the `Component`.
+     * @example
+     * ```
+     * var test = node.addComponent<Test>("Test");
      * ```
      */
     public addComponent<T extends Component>(className: string): T;
