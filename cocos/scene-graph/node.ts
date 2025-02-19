@@ -653,6 +653,63 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
+     * @en Batch update the children's sibling index to the index of in children, and
+     * returns the sibling indices of the updated children.
+     * @zh 批量更新当前节点子节点的sibling index为其在children数组中的下标，返回更新的节点下标。
+     * @return @en The sibling indices of the updated children.
+     * @zh 已更新的子节点的sibling index。
+     */
+    protected fixSiblingChanges (): number[] {
+        const changed: number[] = [];
+        for (let i = 0; i < this._children.length; ++i) {
+            const node = this._children[i];
+            if (node._siblingIndex !== i) {
+                node._siblingIndex = i;
+                changed.push(i);
+            }
+        }
+        return changed;
+    }
+
+    /**
+     * @en Emit children's sibling indices change events.
+     * @zh 批量并触发节点sibling index更新事件。
+     * @param changed @en The sibling indices of the updated children.
+     * @zh 已更新的子节点的sibling index。
+     */
+    protected emitSiblingIndicesChanges (changed: number[]): void {
+        if (changed.length > 0) {
+            this.emit(NodeEventType.CHILDREN_ORDER_CHANGED);
+            for (const i of changed) {
+                const node = this._children[i];
+                if (node._onSiblingIndexChanged) {
+                    node._onSiblingIndexChanged(i);
+                }
+                node._eventProcessor.onUpdatingSiblingIndex();
+            }
+        }
+    }
+
+    /**
+     * @en Sort children and batch update sibling indices and emit update events.
+     * @zh 对当前节点的子节点排序，并批量更新sibling index及触发变更事件
+     * @param sort @en A sort function to sort the nodes.
+     * @zh 用于将节点排序的方法。
+     * @return @en The sibling indices of the updated children.
+     * @zh 已更新的子节点的sibling index。
+     */
+    public sortChildren (sort: (ns: Node[]) => void): number[] {
+        if (this._objFlags & Deactivating) {
+            errorID(3821);
+            return [];
+        }
+        sort(this._children);
+        const changes = this.fixSiblingChanges();
+        this.emitSiblingIndicesChanges(changes);
+        return changes;
+    }
+
+    /**
      * @en Walk though the sub children tree of the current node.
      * Each node, including the current node, in the sub tree will be visited two times,
      * before all children and after all children.
