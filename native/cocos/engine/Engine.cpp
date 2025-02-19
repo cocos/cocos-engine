@@ -114,6 +114,14 @@ bool setCanvasCallback(se::Object *global) {
 
 namespace cc {
 
+/** static */
+bool Engine::isValid() {
+    return CC_CURRENT_APPLICATION() 
+        && CC_CURRENT_ENGINE() 
+        && se::ScriptEngine::getInstance()
+        && se::ScriptEngine::getInstance()->isValid();
+}
+
 Engine::Engine() {
     _scriptEngine = ccnew se::ScriptEngine();
 

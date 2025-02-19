@@ -25,13 +25,15 @@
 #include "jsb_websocket.h"
 #include "MappingUtils.h"
 #include "base/std/container/unordered_set.h"
-#include "cocos/base/DeferredReleasePool.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global.h"
+#include "base/DeferredReleasePool.h"
+#include "base/UTF8.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_conversions.h"
+#include "bindings/manual/jsb_global.h"
+#include "engine/Engine.h"
 
 #include "application/ApplicationManager.h"
-#include "base/UTF8.h"
+
 
 /*
  [Constructor(in DOMString url, in optional DOMString protocols)]
@@ -76,12 +78,10 @@ JsbWebSocketDelegate::~JsbWebSocketDelegate() {
 }
 
 void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
+    if (!cc::Engine::isValid()) return;
+
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
-
-    if (CC_CURRENT_APPLICATION() == nullptr) {
-        return;
-    }
 
     se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
     if (!wsObj) {
@@ -108,12 +108,10 @@ void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
 }
 
 void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::network::WebSocket::Data &data) {
+    if (!cc::Engine::isValid()) return;
+
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
-
-    if (CC_CURRENT_APPLICATION() == nullptr) {
-        return;
-    }
 
     se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
     if (!wsObj) {
@@ -157,12 +155,10 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
 }
 
 void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, const ccstd::string &reason, bool wasClean) {
+    if (!cc::Engine::isValid()) return;
+
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
-
-    if (CC_CURRENT_APPLICATION() == nullptr) {
-        return;
-    }
 
     se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
     do {
@@ -209,12 +205,10 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
 }
 
 void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network::WebSocket::ErrorCode & /*error*/) {
+    if (!cc::Engine::isValid()) return;
+
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
-
-    if (CC_CURRENT_APPLICATION() == nullptr) {
-        return;
-    }
 
     se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
     if (!wsObj) {
