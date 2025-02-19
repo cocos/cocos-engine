@@ -653,10 +653,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
-     * @en Batch update the children's sibling index to the index of in children, and emit events.
-     * @zh 批量更新当前节点子节点的sibling index为其在children数组中的下标，并触发事件。
+     * @en Batch update the children's sibling index to the index of in children, and
+     * returns the sibling indices of the updated children.
+     * @zh 批量更新当前节点子节点的sibling index为其在children数组中的下标，返回更新的节点下标。
+     * @return @en The sibling indices of the updated children.
+     * @zh 已更新的子节点的sibling index。
      */
-    private batchUpdateSiblingIndices (): void {
+    protected fixSiblingChanges (): number[] {
         const changed: number[] = [];
         for (let i = 0; i < this._children.length; ++i) {
             const node = this._children[i];
@@ -665,6 +668,16 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 changed.push(i);
             }
         }
+        return changed;
+    }
+
+    /**
+     * @en Emit children's sibling indices change events.
+     * @zh 批量并触发节点sibling index更新事件。
+     * @param changed @en The sibling indices of the updated children.
+     * @zh 已更新的子节点的sibling index。
+     */
+    protected emitSiblingIndicesChanges (changed: number[]): void {
         if (changed.length > 0) {
             this.emit(NodeEventType.CHILDREN_ORDER_CHANGED);
             for (const i of changed) {
@@ -678,76 +691,22 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
-     * @en Set the children's sibling index in a batch.
-     * @zh 批量设置当前节点子节点的sibling index。
-     * @param indices @en New sibling indeces for all children.
-     * @zh 所有子节点的新索引值。
-     * @return True if indices set, false if parameter not valid.
+     * @en Sort children and batch update sibling indices and emit update events.
+     * @zh 对当前节点的子节点排序，并批量更新sibling index及触发变更事件
+     * @param sort @en A sort function to sort the nodes.
+     * @zh 用于将节点排序的方法。
+     * @return @en The sibling indices of the updated children.
+     * @zh 已更新的子节点的sibling index。
      */
-    public setChildrenIndices (indices: number[]): boolean {
+    public sortChildren (sort: (ns: Node[]) => void): number[] {
         if (this._objFlags & Deactivating) {
             errorID(3821);
-            return false;
+            return [];
         }
-        //check indices length
-        const length = indices.length;
-        if (length !== this._children.length) {
-            return false;
-        }
-        //check if indices contains all value in [0,length)
-        const checks: boolean[] = [];
-        for (let i = 0; i < length; i++) {
-            checks.push(false);
-        }
-        for (const ni of indices) {
-            if (ni >= 0 && ni < length) {
-                checks[ni] = true;
-            }
-        }
-        let valid = true;
-        for (const check of checks) {
-            if (!check) {
-                valid = false;
-                break;
-            }
-        }
-        if (!valid) {
-            return false;
-        }
-        //set the indeces
-        let i = 0;
-        while (i < indices.length) {
-            const ni = indices[i];
-            if (ni === i) {
-                i++;
-            } else {
-                //swap indices
-                indices[i] = indices[ni];
-                indices[ni] = ni;
-                //swap node
-                const node = this._children[i];
-                this._children[i] = this._children[ni];
-                this.children[ni] = node;
-            }
-        }
-        this.batchUpdateSiblingIndices();
-        return true;
-    }
-
-    /**
-     * @en Sort the children according to the comparator.
-     * @zh 根据比较器对当前节点的子节点全排序
-     * @param comp @en A comparator that return negtive value / 0 value / positive value
-     * when the first node is less than / equals to / greater than the second node.
-     * @zh 一个比较器，当第一个节点小于/等于/大于第二个节点时，返回负值/0值/正值。
-     */
-    public sortChildren (comp: (n1: Node, n2: Node) => number): void {
-        if (this._objFlags & Deactivating) {
-            errorID(3821);
-            return;
-        }
-        this._children.sort(comp);
-        this.batchUpdateSiblingIndices();
+        sort(this._children);
+        const changes = this.fixSiblingChanges();
+        this.emitSiblingIndicesChanges(changes);
+        return changes;
     }
 
     /**
