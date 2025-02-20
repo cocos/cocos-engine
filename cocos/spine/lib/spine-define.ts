@@ -26,7 +26,8 @@
 
 import spine from './spine-core';
 import { js } from '../../core';
-import { SPINE_VERSION } from './spine-version';
+
+let SPINE_VERSION;
 
 function resizeArray (array: any[], newSize: number): any[] {
     if (!array) return new Array(newSize);
@@ -326,6 +327,7 @@ function overrideProperty_Skeleton (): void {
 }
 
 export function overrideSpineDefine (wasm): void {
+    SPINE_VERSION = spine.SPINE_VERSION;
     overrideClass(wasm);
     overrideProperty_IkConstraintData();
     overrideProperty_PathConstraintData();
@@ -357,7 +359,5 @@ export function overrideSpineDefine (wasm): void {
     overrideProperty_Skeleton();
 }
 
-namespace spine {
-    // To avoid cycle dependence: spine-version.ts -> spine-version-4.2.ts -> spine-wasm-utils.ts -> spine-define.ts -> spine-version.ts
-    export const _overrideSpineDefine = overrideSpineDefine;
-}
+// To avoid cycle dependence: spine-version.ts -> spine-version-4.2.ts -> spine-wasm-utils.ts -> spine-define.ts -> spine-version.ts
+(spine)._overrideSpineDefine = overrideSpineDefine;

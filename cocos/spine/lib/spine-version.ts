@@ -30,7 +30,9 @@
 // import './spine-version-4.2';
 //
 
-export const SPINE_VERSION = '3.8';
+namespace spine {
+    export const SPINE_VERSION = '3.8';
+}
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
     return null!;

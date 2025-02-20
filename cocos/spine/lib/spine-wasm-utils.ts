@@ -3,7 +3,6 @@ import { instantiateWasm, fetchBuffer } from 'pal/wasm';
 import { NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 import { sys } from '../../core';
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
-import './spine-define'; // Make spine._overrideSpineDefine take effect.
 
 const PAGESIZE = 65536; // 64KiB
 
