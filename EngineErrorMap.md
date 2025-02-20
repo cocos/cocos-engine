@@ -3955,7 +3955,7 @@ Track index can not greater than 0 in cached mode.
 
 ### 16414
 
-\'getCurrent\' interface can not be invoked in cached mode.
+'getCurrent' interface can not be invoked in cached mode.
 
 ### 16415
 
@@ -3963,11 +3963,11 @@ cached mode not support setMix!!!
 
 ### 16416
 
-\'clearTracks\' interface can not be invoked in cached mode.
+'clearTracks' interface can not be invoked in cached mode.
 
 ### 16417
 
-\'clearTrack\' interface can not be invoked in cached mode.
+'clearTrack' interface can not be invoked in cached mode.
 
 ### 16418
 

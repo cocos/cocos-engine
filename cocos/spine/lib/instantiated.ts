@@ -24,7 +24,6 @@
 
 import { BUILD, JSB, LOAD_SPINE_MANUALLY } from 'internal:constants';
 import { game } from '../../game';
-import './spine-define'; // Make spine._overrideSpineDefine take effect.
 import { waitForSpineWasmInstantiation } from './spine-version';
 
 if (!JSB && (!BUILD || !LOAD_SPINE_MANUALLY)) {
