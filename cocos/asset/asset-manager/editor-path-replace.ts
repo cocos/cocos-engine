@@ -81,7 +81,7 @@ if ((EDITOR || PREVIEW) && !TEST) {
             let text = '';
             if (EDITOR) {
                 const info = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
-                if (info && info.library['.cconb']) {
+                if (info && info.library['.bin'] && Object.keys(info.library).length === 1) {
                     text = '.cconb';
                 }
             } else {
