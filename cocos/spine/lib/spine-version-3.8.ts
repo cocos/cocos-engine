@@ -28,13 +28,7 @@ import { error } from '../../core';
 import { shouldUseWasmModule, initWasm, initAsmJS } from './spine-wasm-utils';
 
 
-declare module './spine-core' {
-    export namespace spine {
-        const SPINE_VERSION: string;
-    }
-}
-
-spine.SPINE_VERSION = '3.8';
+(spine as any).SPINE_VERSION = '3.8';
 
 
 

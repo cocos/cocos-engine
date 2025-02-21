@@ -22,20 +22,13 @@
  THE SOFTWARE.
 */
 
-/// <reference path="spine-core.d.ts" />
-// for merge SPINE_VERSION to namespace 'spine'
 import spine from './spine-core';
 import { ensureWasmModuleReady } from 'pal/wasm';
 import { error } from '../../core';
 import { shouldUseWasmModule, initWasm, initAsmJS } from './spine-wasm-utils';
 
-declare module './spine-core' {
-    export namespace spine {
-        const SPINE_VERSION: string;
-    }
-}
 
-spine.SPINE_VERSION = '4.2';
+(spine as any).SPINE_VERSION = '4.2';
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
