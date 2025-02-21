@@ -51,7 +51,9 @@ public:
         if (atlas) {
 #if CC_USE_SPINE_4_2
             auto &regions = atlas->getRegions();
-            for (auto *region : regions) {
+            int size = regions.size();
+            for (int i = 0; i < size; i++) {
+                auto *region = regions[i];
                 if (region->rendererObject) {
                     delete static_cast<AttachmentVertices *>(region->rendererObject);
                     region->rendererObject = nullptr;
