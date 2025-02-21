@@ -28,7 +28,8 @@
 // Uncomment the following two lines while trying update the code in spine-version-[3.8 | 4.2].ts.
 // import './spine-version-3.8';
 // import './spine-version-4.2';
-//
+
+/// <reference path="spine-core.d.ts" />
 // for merge SPINE_VERSION to namespace 'spine'
 import spine from './spine-core';
 
