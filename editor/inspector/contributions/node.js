@@ -1504,7 +1504,7 @@ const Elements = {
                 case 'Enum': {
                     return enumList.length === dump.enumList?.length && enumList.every((item, index) => {
                         return item.name === dump.enumList?.[index].name && item.value === dump.enumList?.[index].value;
-                    });
+                    }) && enumList.findIndex(item => item.value === value) !== -1;
                 }
                 default: return true;
             }
