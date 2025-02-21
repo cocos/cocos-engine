@@ -369,7 +369,6 @@
             "hidden": true
         },
         "spine": {
-            "default": true,
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
             "isNativeModule": true,
