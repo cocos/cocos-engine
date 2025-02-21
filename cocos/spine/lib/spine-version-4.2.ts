@@ -29,9 +29,13 @@ import { ensureWasmModuleReady } from 'pal/wasm';
 import { error } from '../../core';
 import { shouldUseWasmModule, initWasm, initAsmJS } from './spine-wasm-utils';
 
-namespace spine {
-    export const SPINE_VERSION = '4.2';
+declare module './spine-core' {
+    export namespace spine {
+        const SPINE_VERSION: string;
+    }
 }
+
+spine.SPINE_VERSION = '4.2';
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };

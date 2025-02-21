@@ -327,7 +327,7 @@ function overrideProperty_Skeleton (): void {
 }
 
 export function overrideSpineDefine (wasm): void {
-    SPINE_VERSION = spine.SPINE_VERSION;
+    SPINE_VERSION = (spine as any).SPINE_VERSION;
     overrideClass(wasm);
     overrideProperty_IkConstraintData();
     overrideProperty_PathConstraintData();
@@ -360,4 +360,4 @@ export function overrideSpineDefine (wasm): void {
 }
 
 // To avoid cycle dependence: spine-version.ts -> spine-version-4.2.ts -> spine-wasm-utils.ts -> spine-define.ts -> spine-version.ts
-(spine)._overrideSpineDefine = overrideSpineDefine;
+(spine as any)._overrideSpineDefine = overrideSpineDefine;

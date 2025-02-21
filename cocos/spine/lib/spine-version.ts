@@ -29,10 +29,16 @@
 // import './spine-version-3.8';
 // import './spine-version-4.2';
 //
+// for merge SPINE_VERSION to namespace 'spine'
+import spine from './spine-core';
 
-namespace spine {
-    export const SPINE_VERSION = '3.8';
+declare module './spine-core' {
+    export namespace spine {
+        const SPINE_VERSION: string;
+    }
 }
+
+spine.SPINE_VERSION = '3.8';
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
     return null!;

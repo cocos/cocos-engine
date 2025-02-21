@@ -46,7 +46,7 @@ import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
 import { RenderData } from '../2d/renderer/render-data';
 
-const SPINE_VERSION = spine.SPINE_VERSION;//defined at spine-version.ts
+const SPINE_VERSION = (spine as any).SPINE_VERSION;// defined in spine-version.ts
 const CachedFrameTime = 1 / 60;
 
 type TrackListener = (x: spine.TrackEntry) => void;
