@@ -463,6 +463,9 @@ void WsThreadHelper::onSubThreadLoop() {
         // Android: Let libuv lws to decide when to stop
         wsPolling = true;
         lws_service(wsContext, WS_ENABLE_LIBUV ? 40 : 4);
+        #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+            std::this_thread::sleep_for(std::chrono::milliseconds(3));
+        #endif
         wsPolling = false;
     }
 }
