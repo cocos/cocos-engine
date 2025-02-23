@@ -162,10 +162,6 @@ class Simple implements IAssembler {
     }
 
     updateColor (comp: TiledLayer): void {
-        if (!comp.withColor) {
-            return;
-        }
-
         const color = comp.color;
         const colorR = color.r / 255;
         const colorG = color.g / 255;
