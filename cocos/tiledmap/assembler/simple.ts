@@ -176,7 +176,7 @@ class Simple implements IAssembler {
                 continue;
             }
 
-            // 为了性能, 直接使用常量 `4 , 5 , 9`.
+            // 为了性能, 直接使用常量 `5, 4, 9`.
             const vData = renderData.chunk.vb;
             let colorOffset = 5;
             for (let i = 0; i < 4; i++, colorOffset += 9) {
