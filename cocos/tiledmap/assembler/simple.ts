@@ -161,23 +161,37 @@ class Simple implements IAssembler {
         }
     }
 
-    updateColor (tiled: TiledLayer): void {
-        const color = tiled.color;
-        const colorV = new Float32Array(4);
-        colorV[0] = color.r / 255;
-        colorV[1] = color.g / 255;
-        colorV[2] = color.b / 255;
-        colorV[3] = color.a / 255;
-        const rs = tiled.tiledDataArray;
-        for (let index = 0; index < rs.length; index++) {
-            const r = rs[index];
-            if (!(r as any).renderData) continue;
-            const renderData = (r as any).renderData;
-            const vs = renderData.vData;
-            for (let i = renderData.vertexStart, l = renderData.vertexCount; i < l; i++) {
-                vs.set(colorV, i * 9 + 5);
+    updateColor (comp: TiledLayer): void {
+        if (!comp.withColor) {
+            return;
+        }
+
+        const color = comp.color;
+        const colorR = color.r / 255;
+        const colorG = color.g / 255;
+        const colorB = color.b / 255;
+        const colorA = color.a / 255;
+
+        const rs = comp.tiledDataArray;
+        const count = rs.length;
+        for (let index = 0; index < count; index++) {
+            const renderData = (rs[index] as any).renderData as RenderData;
+            if (!renderData) {
+                continue;
+            }
+
+            // 为了性能, 直接使用常量 `4 , 5 , 9`.
+            const vData = renderData.chunk.vb;
+            let colorOffset = 5;
+            for (let i = 0; i < 4; i++, colorOffset += 9) {
+                vData[colorOffset] = colorR;
+                vData[colorOffset + 1] = colorG;
+                vData[colorOffset + 2] = colorB;
+                vData[colorOffset + 3] = colorA;
             }
         }
+
+        comp.colorChanged = true;
     }
 }
 
