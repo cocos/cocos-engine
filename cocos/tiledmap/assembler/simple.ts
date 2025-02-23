@@ -81,9 +81,7 @@ class Simple implements IAssembler {
     }
 
     createData (layer: TiledLayer): BaseRenderData {
-        if (JSB) {
-            this.ensureAccessor();
-        }
+        this.ensureAccessor();
 
         return null as unknown as BaseRenderData;
     }
