@@ -26,7 +26,9 @@ export interface Migration {
     migrate(moduleCache: Record<string, boolean>): Record<string, boolean>;
 }
 
-export type Features = Record<string, IFeatureItem>;
+export interface Features {
+    [feature: string]: IFeatureItem;
+};
 
 export interface BaseItem {
     /**
@@ -90,6 +92,18 @@ export interface BaseItem {
     enginePlugin?: boolean;
 
     /**
+     * @zh 限定的使用环境，允许宏的组合条件判断，默认为空支持任意环境，配置后限定为指定环境。如设置为 "$NATIVE || $HTML5" 则仅在 native 和 html5 环境下生效。
+     * @en The restricted usage environment allows for conditional judgments using macro combinations. By default, it supports any environment, but once configured, it is limited to the specified environment. For example, if set to "$NATIVE || $HTML5", it will only take effect in native and HTML5 environments.
+     */
+    envCondition?: string;
+
+    /**
+     * @zh 当环境不符合限定的使用环境时，自动回退的模块名称。仅当 `envCondition` 配置后才有效。
+     * @en The name of the engine feature to automatically fall back to when the environment does not meet the restricted usage conditions. This is only effective when `envCondition` is configured.
+     */
+    fallback?: string;
+
+    /**
      * @zh 是否为必选模块，新增模块为必选模块时，旧版本升级后会强制选择此模块，否则不会选择。
      * @en Whether it is a required module. When adding a new module, the old version will be forced to select this module after the upgrade, otherwise it will not be selected.
      */
@@ -103,7 +117,7 @@ export interface BaseItem {
 }
 
 export interface IFeatureItem extends BaseItem {
-    options: Record<string, BaseItem>
+    options: {[feature: string]: BaseItem};
 }
 
 export interface CategoryInfo {

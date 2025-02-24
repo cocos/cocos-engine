@@ -26,6 +26,37 @@
                 "enginePlugin": {
                     "type": "boolean"
                 },
+                "envCondition": {
+                    "type": "string"
+                },
+                "fallback": {
+                    "type": "string"
+                },
+                "flags": {
+                    "additionalProperties": {
+                        "additionalProperties": false,
+                        "properties": {
+                            "default": {
+                                "type": "boolean"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "label": {
+                                "type": "string"
+                            },
+                            "ui-type": {
+                                "enum": [
+                                    "checkbox",
+                                    "select"
+                                ],
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "object"
+                },
                 "hidden": {
                     "type": "boolean"
                 },
@@ -40,9 +71,6 @@
                 },
                 "required": {
                     "type": "boolean"
-                },
-                "flags": {
-                    "type": "object"
                 }
             },
             "type": "object"
@@ -66,143 +94,8 @@
             "type": "object"
         },
         "Features": {
-            "additionalProperties": false,
-            "properties": {
-                "2d": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "3d": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "animation": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "audio": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "base": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "custom-pipeline": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "custom-pipeline-post-process": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "legacy-pipeline": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "debug-renderer": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "dragon-bones": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "geometry-renderer": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "gfx-webgl": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "gfx-webgl2": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "gfx-webgpu": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "intersection-2d": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "light-probe": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "marionette": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "meshopt": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "occlusion-query": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "particle": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "particle-2d": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics-2d": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics-2d-box2d": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics-2d-box2d-wasm": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics-2d-builtin": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics-ammo": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics-builtin": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics-cannon": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "physics-physx": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "primitive": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "procedural-animation": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "profiler": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "skeletal-animation": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "spine": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "terrain": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "tiled-map": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "vendor": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "tween": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "ui": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "video": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "websocket": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "websocket-server": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "webview": {
-                    "$ref": "#/definitions/IFeatureItem"
-                },
-                "xr": {
-                    "$ref": "#/definitions/IFeatureItem"
-                }
+            "additionalProperties": {
+                "$ref": "#/definitions/IFeatureItem"
             },
             "type": "object"
         },
@@ -230,6 +123,37 @@
                 "enginePlugin": {
                     "type": "boolean"
                 },
+                "envCondition": {
+                    "type": "string"
+                },
+                "fallback": {
+                    "type": "string"
+                },
+                "flags": {
+                    "additionalProperties": {
+                        "additionalProperties": false,
+                        "properties": {
+                            "default": {
+                                "type": "boolean"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "label": {
+                                "type": "string"
+                            },
+                            "ui-type": {
+                                "enum": [
+                                    "checkbox",
+                                    "select"
+                                ],
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "object"
+                },
                 "hidden": {
                     "type": "boolean"
                 },
@@ -240,157 +164,16 @@
                     "type": "string"
                 },
                 "options": {
-                    "$ref": "#/definitions/Record<EngineFeature,BaseItem>"
+                    "additionalProperties": {
+                        "$ref": "#/definitions/BaseItem"
+                    },
+                    "type": "object"
                 },
                 "readonly": {
                     "type": "boolean"
                 },
                 "required": {
                     "type": "boolean"
-                },
-                "flags": {
-                    "type": "object"
-                }
-            },
-            "type": "object"
-        },
-        "Record<EngineFeature,BaseItem>": {
-            "additionalProperties": false,
-            "properties": {
-                "2d": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "3d": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "animation": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "audio": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "base": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "custom-pipeline": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "custom-pipeline-post-process": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "legacy-pipeline": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "debug-renderer": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "dragon-bones": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "geometry-renderer": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "gfx-webgl": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "gfx-webgl2": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "gfx-webgpu": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "intersection-2d": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "light-probe": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "marionette": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "meshopt": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "occlusion-query": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "particle": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "particle-2d": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics-2d": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics-2d-box2d": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics-2d-box2d-wasm": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics-2d-builtin": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics-ammo": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics-builtin": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics-cannon": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "physics-physx": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "primitive": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "procedural-animation": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "profiler": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "skeletal-animation": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "spine": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "terrain": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "tiled-map": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "vendor": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "tween": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "ui": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "video": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "websocket": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "websocket-server": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "webview": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "xr": {
-                    "$ref": "#/definitions/BaseItem"
                 }
             },
             "type": "object"
@@ -421,3 +204,4 @@
     },
     "type": "object"
 }
+
