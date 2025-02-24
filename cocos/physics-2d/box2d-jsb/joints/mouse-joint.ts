@@ -32,7 +32,7 @@ import { b2PhysicsWorld } from '../physics-world';
 import { NodeEventType } from '../../../scene-graph/node-event';
 import { find } from '../../../scene-graph';
 
-const tempB2Vec2 = new b2.Vec2();
+const tempB2Vec2 = new b2jsb.Vec2();
 
 export class b2MouseJoint extends b2Joint implements IMouseJoint {
     _touchPoint = new Vec2();
@@ -42,27 +42,27 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         if (this._b2joint) {
             tempB2Vec2.x = v.x / PHYSICS_2D_PTM_RATIO;
             tempB2Vec2.y = v.y / PHYSICS_2D_PTM_RATIO;
-            (this._b2joint as b2.MouseJoint).SetTarget(tempB2Vec2);
+            (this._b2joint as b2jsb.MouseJoint).SetTarget(tempB2Vec2);
         }
     }
     setDampingRatio (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.MouseJoint).SetDampingRatio(v);
+            (this._b2joint as b2jsb.MouseJoint).SetDampingRatio(v);
         }
     }
     setFrequency (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.MouseJoint).SetFrequency(v);
+            (this._b2joint as b2jsb.MouseJoint).SetFrequency(v);
         }
     }
     setMaxForce (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.MouseJoint).SetMaxForce(v);
+            (this._b2joint as b2jsb.MouseJoint).SetMaxForce(v);
         }
     }
 
     _createJointDef (): any {
-        const def = new b2.MouseJointDef();
+        const def = new b2jsb.MouseJointDef();
         const comp = this._jointComp as MouseJoint2D;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore

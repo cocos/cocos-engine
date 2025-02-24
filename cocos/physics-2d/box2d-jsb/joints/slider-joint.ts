@@ -31,7 +31,7 @@ export class b2SliderJoint extends b2Joint implements ISliderJoint {
     // limit
     enableLimit (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint as b2.PrismaticJoint).EnableLimit(v);
+            (this._b2joint as b2jsb.PrismaticJoint).EnableLimit(v);
         }
     }
     setLowerLimit (v: number): void {
@@ -43,30 +43,30 @@ export class b2SliderJoint extends b2Joint implements ISliderJoint {
     updateLimits (): void {
         if (this._b2joint) {
             const comp = this._jointComp as SliderJoint2D;
-            (this._b2joint as b2.PrismaticJoint).SetLimits(comp.lowerLimit / PHYSICS_2D_PTM_RATIO, comp.upperLimit / PHYSICS_2D_PTM_RATIO);
+            (this._b2joint as b2jsb.PrismaticJoint).SetLimits(comp.lowerLimit / PHYSICS_2D_PTM_RATIO, comp.upperLimit / PHYSICS_2D_PTM_RATIO);
         }
     }
 
     // motor
     enableMotor (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint as b2.PrismaticJoint).EnableMotor(v);
+            (this._b2joint as b2jsb.PrismaticJoint).EnableMotor(v);
         }
     }
     setMaxMotorForce (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.PrismaticJoint).SetMaxMotorForce(v);
+            (this._b2joint as b2jsb.PrismaticJoint).SetMaxMotorForce(v);
         }
     }
     setMotorSpeed (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.PrismaticJoint).SetMotorSpeed(v);
+            (this._b2joint as b2jsb.PrismaticJoint).SetMotorSpeed(v);
         }
     }
 
     _createJointDef (): any {
         const comp = this._jointComp as SliderJoint2D;
-        const def = new b2.PrismaticJointDef();
+        const def = new b2jsb.PrismaticJointDef();
         def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
         def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         const angle = toRadian(comp.angle);

@@ -26,13 +26,13 @@ import { Vec2 } from '../../../core';
 import { b2EmptyInstance } from '../empty-for-editor';
 
 if (!JSB) {
-    (globalThis as any).b2 = b2EmptyInstance;
+    (globalThis as any).b2jsb = b2EmptyInstance;
 }
 
-export class PhysicsAABBQueryCallback extends b2.QueryCallback {
-    private _point = new b2.Vec2();
+export class PhysicsAABBQueryCallback extends b2jsb.QueryCallback {
+    private _point = new b2jsb.Vec2();
     private _isPoint = false;
-    private _fixtures: b2.Fixture[] = [];
+    private _fixtures: b2jsb.Fixture[] = [];
 
     init (point?: Vec2): void {
         this.initWithThis(this);
@@ -47,7 +47,7 @@ export class PhysicsAABBQueryCallback extends b2.QueryCallback {
         this._fixtures.length = 0;
     }
 
-    ReportFixture (fixture: b2.Fixture): boolean {
+    ReportFixture (fixture: b2jsb.Fixture): boolean {
         if (this._isPoint) {
             if (fixture.TestPoint(this._point)) {
                 this._fixtures.push(fixture);

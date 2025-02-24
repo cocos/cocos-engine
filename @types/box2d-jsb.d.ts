@@ -1,4 +1,4 @@
-declare namespace b2 {
+declare namespace b2jsb {
     const maxPolygonVertices: number;
 
     export interface XY {

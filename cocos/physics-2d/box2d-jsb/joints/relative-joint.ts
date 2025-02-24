@@ -30,33 +30,33 @@ import { toRadian, Vec2 } from '../../../core';
 export class b2RelativeJoint extends b2Joint implements IRelativeJoint {
     setMaxForce (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.MotorJoint).SetMaxForce(v);
+            (this._b2joint as b2jsb.MotorJoint).SetMaxForce(v);
         }
     }
     setAngularOffset (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.MotorJoint).SetAngularOffset(toRadian(v));
+            (this._b2joint as b2jsb.MotorJoint).SetAngularOffset(toRadian(v));
         }
     }
     setLinearOffset (v: Vec2): void {
         if (this._b2joint) {
-            (this._b2joint as b2.MotorJoint).SetLinearOffset(new b2.Vec2(v.x / PHYSICS_2D_PTM_RATIO, v.y / PHYSICS_2D_PTM_RATIO));
+            (this._b2joint as b2jsb.MotorJoint).SetLinearOffset(new b2jsb.Vec2(v.x / PHYSICS_2D_PTM_RATIO, v.y / PHYSICS_2D_PTM_RATIO));
         }
     }
     setCorrectionFactor (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.MotorJoint).m_correctionFactor = v;
+            (this._b2joint as b2jsb.MotorJoint).m_correctionFactor = v;
         }
     }
     setMaxTorque (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.MotorJoint).SetMaxTorque(v);
+            (this._b2joint as b2jsb.MotorJoint).SetMaxTorque(v);
         }
     }
 
     _createJointDef (): any {
         const comp = this._jointComp as RelativeJoint2D;
-        const def = new b2.MotorJointDef();
+        const def = new b2jsb.MotorJointDef();
         def.linearOffset = { x: comp.linearOffset.x / PHYSICS_2D_PTM_RATIO, y: comp.linearOffset.y / PHYSICS_2D_PTM_RATIO };
         def.angularOffset = toRadian(comp.angularOffset);
         def.maxForce = comp.maxForce;

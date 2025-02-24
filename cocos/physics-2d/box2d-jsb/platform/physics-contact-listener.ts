@@ -27,11 +27,11 @@ import { js } from '../../../core';
 import { b2EmptyInstance } from '../empty-for-editor';
 
 if (!JSB) {
-    (globalThis as any).b2 = b2EmptyInstance;
+    (globalThis as any).b2jsb = b2EmptyInstance;
 }
 
-export class PhysicsContactListener extends b2.ContactListener {
-    _contactFixtures: b2.Fixture[] = [];
+export class PhysicsContactListener extends b2jsb.ContactListener {
+    _contactFixtures: b2jsb.Fixture[] = [];
 
     _BeginContact: any = null;
     _EndContact: any = null;
@@ -54,7 +54,7 @@ export class PhysicsContactListener extends b2.ContactListener {
         this._PostSolve = cb;
     }
 
-    BeginContact (contact: b2.Contact): void {
+    BeginContact (contact: b2jsb.Contact): void {
         if (!this._BeginContact) return;
 
         const fixtureA = contact.GetFixtureA();
@@ -69,20 +69,20 @@ export class PhysicsContactListener extends b2.ContactListener {
         }
     }
 
-    EndContact (contact: b2.Contact): void {
+    EndContact (contact: b2jsb.Contact): void {
         if (this._EndContact && (contact as any)._shouldReport) {
             (contact as any)._shouldReport = false;
             this._EndContact(contact);
         }
     }
 
-    PreSolve (contact: b2.Contact, oldManifold: b2.Manifold): void {
+    PreSolve (contact: b2jsb.Contact, oldManifold: b2jsb.Manifold): void {
         if (this._PreSolve && (contact as any)._shouldReport) {
             this._PreSolve(contact, oldManifold);
         }
     }
 
-    PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse): void {
+    PostSolve (contact: b2jsb.Contact, impulse: b2jsb.ContactImpulse): void {
         if (this._PostSolve && (contact as any)._shouldReport) {
             this._PostSolve(contact, impulse);
         }

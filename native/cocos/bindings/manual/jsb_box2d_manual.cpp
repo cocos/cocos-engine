@@ -283,10 +283,10 @@ SE_BIND_FUNC_FAST(js_Body_SetAngleJSB)
 bool register_all_box2d_manual(se::Object *obj) { // NOLINT
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("b2", &nsVal)) {
+    if (!obj->getProperty("b2jsb", &nsVal)) {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
-        obj->setProperty("b2", nsVal);
+        obj->setProperty("b2jsb", nsVal);
     }
     
     se::Object *nsObj = nsVal.toObject();

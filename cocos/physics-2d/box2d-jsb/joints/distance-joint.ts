@@ -29,13 +29,13 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 export class b2DistanceJoint extends b2Joint implements IDistanceJoint {
     setMaxLength (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.RopeJoint).SetMaxLength(v);
+            (this._b2joint as b2jsb.RopeJoint).SetMaxLength(v);
         }
     }
 
     _createJointDef (): any {
         const comp = this._jointComp as DistanceJoint2D;
-        const def = new b2.RopeJointDef();
+        const def = new b2jsb.RopeJointDef();
         def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
         def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         def.maxLength = comp.maxLength / PHYSICS_2D_PTM_RATIO;
