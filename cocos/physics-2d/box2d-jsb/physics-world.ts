@@ -26,7 +26,7 @@
 import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js, errorID } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 // import { Canvas } from '../../2d/framework';
 // import { Graphics } from '../../2d/components';
@@ -155,21 +155,26 @@ export class b2PhysicsWorld implements IPhysicsWorld {
                 canvas.parent = scene;
             }
 
-            const node = new Node('PHYSICS_2D_DEBUG_DRAW');
+            let node: Node | null = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
             node.hideFlags |= CCObject.Flags.DontSave;
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
             node.layer = Layers.Enum.UI_2D;
 
-            this._debugGraphics = node.addComponent('cc.Graphics');
-            this._debugGraphics.lineWidth = 3;
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
-            debugDraw.initWithThis(debugDraw);
-            this._b2DebugDrawer = debugDraw;
-            this._world.SetDebugDraw(debugDraw);
+            try {
+                this._debugGraphics = node.addComponent('cc.Graphics');
+                this._debugGraphics.lineWidth = 3;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
+                debugDraw.initWithThis(debugDraw);
+                this._b2DebugDrawer = debugDraw;
+                this._world.SetDebugDraw(debugDraw);
+            } catch (e: any) {
+                errorID(4501, e.message as string);
+                node.destroy();
+                node = null;
+            }
         }
 
         const parent = this._debugGraphics.node.parent!;
