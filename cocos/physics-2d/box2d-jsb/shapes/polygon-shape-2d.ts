@@ -48,7 +48,7 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
     }
 
     _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): any[] {
-        const shapes: b2.PolygonShape[] = [];
+        const shapes: b2jsb.PolygonShape[] = [];
 
         const comp = this.collider as PolygonCollider2D;
         const points = comp.points;
@@ -69,24 +69,24 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
         for (let i = 0; i < polys.length; i++) {
             const poly = polys[i];
 
-            let shape: b2.PolygonShape | null = null; let vertices: b2.Vec2[] = [];
-            let firstVertice: b2.Vec2 | null = null;
+            let shape: b2jsb.PolygonShape | null = null; let vertices: b2jsb.Vec2[] = [];
+            let firstVertice: b2jsb.Vec2 | null = null;
 
             for (let j = 0, l = poly.length; j < l; j++) {
                 if (!shape) {
-                    shape = new b2.PolygonShape();
+                    shape = new b2jsb.PolygonShape();
                 }
                 const p = poly[j];
                 const x = (relativePositionX + (p.x + offset.x) * scaleX) / PHYSICS_2D_PTM_RATIO;
                 const y = (relativePositionY + (p.y + offset.y) * scaleY) / PHYSICS_2D_PTM_RATIO;
-                const v = new b2.Vec2(x, y);
+                const v = new b2jsb.Vec2(x, y);
                 vertices.push(v);
 
                 if (!firstVertice) {
                     firstVertice = v;
                 }
 
-                if (vertices.length === b2.maxPolygonVertices) {
+                if (vertices.length === b2jsb.maxPolygonVertices) {
                     shape.Set(vertices, vertices.length);
                     shapes.push(shape);
 

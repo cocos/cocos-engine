@@ -22,12 +22,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { JSB } from 'internal:constants';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';
+import { b2EmptyInstance } from '../empty-for-editor';
 
-export class PhysicsRayCastCallback extends b2.RayCastCallback {
+if (!JSB) {
+    (globalThis as any).b2jsb = b2EmptyInstance;
+}
+export class PhysicsRayCastCallback extends b2jsb.RayCastCallback {
     _type = ERaycast2DType.Closest;
-    _fixtures: b2.Fixture[] = [];
+    _fixtures: b2jsb.Fixture[] = [];
     _points: Vec2[] = [];
     _normals: Vec2[] = [];
     _fractions: number[] = [];
@@ -44,7 +49,7 @@ export class PhysicsRayCastCallback extends b2.RayCastCallback {
         this._fractions.length = 0;
     }
 
-    ReportFixture (fixture: b2.Fixture, point, normal, fraction): any {
+    ReportFixture (fixture: b2jsb.Fixture, point, normal, fraction): any {
         if ((fixture.GetFilterData().categoryBits & this._mask) === 0) {
             return 0;
         }

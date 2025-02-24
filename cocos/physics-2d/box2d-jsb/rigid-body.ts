@@ -37,10 +37,10 @@ const tempVec3 = new Vec3();
 const tempVec2_1 = { x: 0, y: 0 };
 
 export class b2RigidBody2D implements IRigidBody2D {
-    get impl (): b2.Body | null {
+    get impl (): b2jsb.Body | null {
         return this._body;
     }
-    set _imp (v: b2.Body | null) {
+    set _imp (v: b2jsb.Body | null) {
         this._body = v;
     }
 
@@ -57,7 +57,7 @@ export class b2RigidBody2D implements IRigidBody2D {
     _animatedPos = new Vec2();
     _animatedAngle = 0;
 
-    private _body: b2.Body | null = null;
+    private _body: b2jsb.Body | null = null;
     private _rigidBody!: RigidBody2D;
 
     private _inited = false;
@@ -126,7 +126,7 @@ export class b2RigidBody2D implements IRigidBody2D {
                     this._animatedAngle = rotation;
                 }
             } else {
-                const tempFloatArray = b2._tempFloatArray;
+                const tempFloatArray = b2jsb._tempFloatArray;
                 if (isPosDirty && isRotDirty) {
                     tempFloatArray[0] = tempVec2_1.x;
                     tempFloatArray[1] = tempVec2_1.y;
@@ -281,7 +281,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         return this._body!.GetMass();
     }
     setLinearVelocity (v: IVec2Like): void {
-        this._body!.SetLinearVelocity(v as b2.Vec2);
+        this._body!.SetLinearVelocity(v as b2jsb.Vec2);
     }
     getLinearVelocity<Out extends IVec2Like> (out: Out): Out {
         const velocity = this._body!.GetLinearVelocity();
@@ -381,13 +381,13 @@ export class b2RigidBody2D implements IRigidBody2D {
             tempVec2_1.x = point.x / PHYSICS_2D_PTM_RATIO;
             tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;
             // @ts-ignore
-            this._body.ApplyForce(force as b2.Vec2, tempVec2_1, wake);
+            this._body.ApplyForce(force as b2jsb.Vec2, tempVec2_1, wake);
         }
     }
 
     applyForceToCenter (force: IVec2Like, wake: boolean): void {
         if (this._body) {
-            this._body.ApplyForceToCenter(force as b2.Vec2, wake);
+            this._body.ApplyForceToCenter(force as b2jsb.Vec2, wake);
         }
     }
 
@@ -402,13 +402,13 @@ export class b2RigidBody2D implements IRigidBody2D {
             tempVec2_1.x = point.x / PHYSICS_2D_PTM_RATIO;
             tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;
             // @ts-ignore
-            this._body.ApplyLinearImpulse(impulse as b2.Vec2, tempVec2_1, wake);
+            this._body.ApplyLinearImpulse(impulse as b2jsb.Vec2, tempVec2_1, wake);
         }
     }
 
     applyLinearImpulseToCenter (impulse: IVec2Like, wake: boolean): void {
         if (this._body) {
-            this._body.ApplyLinearImpulse(impulse as b2.Vec2, this._body.GetPosition(), wake);
+            this._body.ApplyLinearImpulse(impulse as b2jsb.Vec2, this._body.GetPosition(), wake);
         }
     }
 

@@ -30,35 +30,35 @@ import { toRadian } from '../../../core';
 export class b2WheelJoint extends b2Joint implements IWheelJoint {
     setDampingRatio (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.WheelJoint).SetSpringDampingRatio(v);
+            (this._b2joint as b2jsb.WheelJoint).SetSpringDampingRatio(v);
         }
     }
     setFrequency (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.WheelJoint).SetSpringFrequencyHz(v);
+            (this._b2joint as b2jsb.WheelJoint).SetSpringFrequencyHz(v);
         }
     }
 
     // motor
     enableMotor (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint as b2.WheelJoint).EnableMotor(v);
+            (this._b2joint as b2jsb.WheelJoint).EnableMotor(v);
         }
     }
     setMaxMotorTorque (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.WheelJoint).SetMaxMotorTorque(v);
+            (this._b2joint as b2jsb.WheelJoint).SetMaxMotorTorque(v);
         }
     }
     setMotorSpeed (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.WheelJoint).SetMotorSpeed(v);
+            (this._b2joint as b2jsb.WheelJoint).SetMotorSpeed(v);
         }
     }
 
     _createJointDef (): any {
         const comp = this._jointComp as WheelJoint2D;
-        const def = new b2.WheelJointDef();
+        const def = new b2jsb.WheelJointDef();
         def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
         def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         const angle = toRadian(comp.angle);

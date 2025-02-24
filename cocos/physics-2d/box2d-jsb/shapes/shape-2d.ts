@@ -27,7 +27,7 @@ import { Rect, Vec3 } from '../../../core';
 import { b2PhysicsWorld } from '../physics-world';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 
-const tempFilter = new b2.Filter();
+const tempFilter = new b2jsb.Filter();
 const lowerBound = { x: 0, y: 0 };
 const upperBound = { x: 0, y: 0 };
 
@@ -43,17 +43,17 @@ function getFilter (shape: b2Shape2D): any {
 }
 
 export class b2Shape2D implements IBaseShape {
-    protected _shapes: b2.Shape[] = [];
-    protected _fixtures: b2.Fixture[] = [];
+    protected _shapes: b2jsb.Shape[] = [];
+    protected _fixtures: b2jsb.Fixture[] = [];
 
     protected _collider: Collider2D | null = null;
-    protected _body: b2.Body | null = null;
+    protected _body: b2jsb.Body | null = null;
 
     private _inited = false;
 
     private _rect = new Rect();
 
-    get impl (): b2.Shape[] {
+    get impl (): b2jsb.Shape[] {
         return this._shapes;
     }
 
@@ -141,12 +141,12 @@ export class b2Shape2D implements IBaseShape {
         return r;
     }
 
-    getFixtureIndex (fixture: b2.Fixture): number {
+    getFixtureIndex (fixture: b2jsb.Fixture): number {
         return this._fixtures.indexOf(fixture);
     }
 
     //relativePositionX/Y : relative Position from shape to rigid body
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): b2.Shape[] {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): b2jsb.Shape[] {
         return [];
     }
 
@@ -159,10 +159,10 @@ export class b2Shape2D implements IBaseShape {
         let relativePosition = Vec3.ZERO;
         const body = comp.getComponent(RigidBody2D);
 
-        //if rigid body is not attached to the same node of collider, this b2.shape is attached
+        //if rigid body is not attached to the same node of collider, this b2jsb.shape is attached
         // to the groundRigidBody(pos zero, rot zero)
         if (body && body.impl && body.impl.impl) {
-            this._body = body.impl.impl as b2.Body;
+            this._body = body.impl.impl as b2jsb.Body;
         } else {
             this._body = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).groundBodyImpl;
             relativePosition = comp.node.worldPosition;
@@ -175,7 +175,7 @@ export class b2Shape2D implements IBaseShape {
         for (let i = 0; i < shapes.length; i++) {
             const shape = shapes[i];
 
-            const fixDef = new b2.FixtureDef();
+            const fixDef = new b2jsb.FixtureDef();
 
             fixDef.density = comp.density;
             fixDef.isSensor = comp.sensor;

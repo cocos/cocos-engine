@@ -29,23 +29,23 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 export class b2SpringJoint extends b2Joint implements ISpringJoint {
     setDampingRatio (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.DistanceJoint).SetDampingRatio(v);
+            (this._b2joint as b2jsb.DistanceJoint).SetDampingRatio(v);
         }
     }
     setFrequency (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.DistanceJoint).SetFrequency(v);
+            (this._b2joint as b2jsb.DistanceJoint).SetFrequency(v);
         }
     }
     setDistance (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as b2.DistanceJoint).SetLength(v);
+            (this._b2joint as b2jsb.DistanceJoint).SetLength(v);
         }
     }
 
     _createJointDef (): any {
         const comp = this._jointComp as SpringJoint2D;
-        const def = new b2.DistanceJointDef();
+        const def = new b2jsb.DistanceJointDef();
         def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
         def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         def.length = comp.distance / PHYSICS_2D_PTM_RATIO;

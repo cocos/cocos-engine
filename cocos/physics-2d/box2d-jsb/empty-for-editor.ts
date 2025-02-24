@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,24 +21,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { IDistanceJoint } from '../../spec/i-physics-joint';
-import { b2Joint } from './joint-2d';
-import { DistanceJoint2D } from '../../framework';
-import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 
-export class b2DistanceJoint extends b2Joint implements IDistanceJoint {
-    setMaxLength (v: number): void {
-        if (this._b2joint) {
-            (this._b2joint as b2jsb.RopeJoint).SetMaxLength(v);
-        }
-    }
-
-    _createJointDef (): any {
-        const comp = this._jointComp as DistanceJoint2D;
-        const def = new b2jsb.RopeJointDef();
-        def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
-        def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
-        def.maxLength = comp.maxLength / PHYSICS_2D_PTM_RATIO;
-        return def;
-    }
-}
+export const b2EmptyInstance = {
+    ContactListener: class {},
+    QueryCallback: class {},
+    Draw: class {},
+    Vec2: class {},
+    RayCastCallback: class {},
+    BodyDef: class {},
+    AABB: class {},
+    Filter: class {},
+    Transform: class {},
+    Color: class {},
+};

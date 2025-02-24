@@ -27,7 +27,7 @@ import { b2PhysicsWorld } from '../physics-world';
 import { Vec2 } from '../../../core';
 
 export class b2Joint implements IJoint2D {
-    get impl (): b2.Joint | null {
+    get impl (): b2jsb.Joint | null {
         return this._b2joint;
     }
     get comp (): Joint2D | null {
@@ -37,7 +37,7 @@ export class b2Joint implements IJoint2D {
         return this._body;
     }
 
-    protected _b2joint: b2.Joint | null = null;
+    protected _b2joint: b2jsb.Joint | null = null;
     protected _jointComp: Joint2D | null = null;
     protected _body: RigidBody2D | null = null;
 
@@ -114,7 +114,7 @@ export class b2Joint implements IJoint2D {
         this._inited = false;
     }
 
-    _createJointDef (): b2.JointDef | null {
+    _createJointDef (): b2jsb.JointDef | null {
         return null;
     }
 

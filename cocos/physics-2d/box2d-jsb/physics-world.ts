@@ -23,13 +23,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, JSB, TEST } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js, errorID } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 // import { Canvas } from '../../2d/framework';
-// import { Graphics } from '../../2d/components';
+import type { Graphics } from '../../2d/components/graphics';
 
 import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
@@ -41,19 +41,26 @@ import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
 import { Node, find, Layers } from '../../scene-graph';
 import { director } from '../../game';
+import { b2EmptyInstance } from './empty-for-editor';
 
-//@ts-ignore
-const _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(5 * 4)); // 5 floats is enough for box2d jsb.
-//@ts-ignore
-b2._tempFloatArray = _tempFloatArray; // For other ts file in box2d-jsb module to access this arraybuffer.
-b2._setTempFloatArray(_tempFloatArray.buffer);
+let _tempFloatArray: Float32Array;
+
+if (!JSB) {
+    (globalThis as any).b2jsb = b2EmptyInstance;
+} else {
+    //@ts-ignore
+    _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(5 * 4)); // 5 floats is enough for box2d jsb.
+    //@ts-ignore
+    b2jsb._tempFloatArray = _tempFloatArray; // For other ts file in box2d-jsb module to access this arraybuffer.
+    b2jsb._setTempFloatArray(_tempFloatArray.buffer);
+}
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();
 const tempVec2_2 = new Vec2();
 
-const temoBodyDef = new b2.BodyDef();
-const tempB2AABB = new b2.AABB();
+const temoBodyDef = new b2jsb.BodyDef();
+const tempB2AABB = new b2jsb.AABB();
 
 const testResults: Collider2D[] = [];
 
@@ -81,30 +88,30 @@ class Color {
 }
 
 // }
-b2.Color = Color;
+b2jsb.Color = Color;
 
 export class b2PhysicsWorld implements IPhysicsWorld {
-    protected _world: b2.World;
+    protected _world: b2jsb.World;
     protected _bodies: b2RigidBody2D[] = [];
     protected _animatedBodies: b2RigidBody2D[] = [];
     protected _rotationAxis: Vec3 = new Vec3();
-    protected _physicsGroundBody: b2.Body;
+    protected _physicsGroundBody: b2jsb.Body;
 
     protected _contactListener: PhysicsContactListener;
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
     protected _raycastQueryCallback: PhysicsRayCastCallback;
 
-    get impl (): b2.World {
+    get impl (): b2jsb.World {
         return this._world;
     }
 
-    get groundBodyImpl (): b2.Body {
+    get groundBodyImpl (): b2jsb.Body {
         return this._physicsGroundBody;
     }
 
     constructor () {
-        this._world = new b2.World(new b2.Vec2(0, -10));
-        const tempBodyDef = new b2.BodyDef();
+        this._world = new b2jsb.World(new b2jsb.Vec2(0, -10));
+        const tempBodyDef = new b2jsb.BodyDef();
         //tempBodyDef.position.Set(480 / PHYSICS_2D_PTM_RATIO, 320 / PHYSICS_2D_PTM_RATIO);//temporary
         this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
         const listener = new PhysicsContactListener();
@@ -121,8 +128,8 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._raycastQueryCallback = new PhysicsRayCastCallback();
     }
 
-    _debugGraphics: any = null;
-    _b2DebugDrawer: b2.Draw | null = null;
+    _debugGraphics: Graphics | null = null;
+    _b2DebugDrawer: b2jsb.Draw | null = null;
 
     _debugDrawFlags = 0;
     get debugDrawFlags (): number {
@@ -163,13 +170,15 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.layer = Layers.Enum.UI_2D;
 
             try {
-                this._debugGraphics = node.addComponent('cc.Graphics');
+                this._debugGraphics = node.addComponent<Graphics>('cc.Graphics');
                 this._debugGraphics.lineWidth = 3;
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
                 debugDraw.initWithThis(debugDraw);
                 this._b2DebugDrawer = debugDraw;
                 this._world.SetDebugDraw(debugDraw);
+                const parent = this._debugGraphics.node.parent!;
+                this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
             } catch (e: any) {
                 errorID(4501, e.message as string);
                 node.destroy();
@@ -177,16 +186,13 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             }
         }
 
-        const parent = this._debugGraphics.node.parent!;
-        this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
-
         if (this._b2DebugDrawer) {
             this._b2DebugDrawer.SetFlags(this.debugDrawFlags);
         }
     }
 
     setGravity (v: IVec2Like): void {
-        this._world.SetGravity(v as b2.Vec2);
+        this._world.SetGravity(v as b2jsb.Vec2);
     }
 
     setAllowSleep (v: boolean): void {
@@ -217,7 +223,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         callback.init(type, mask);
         this._world.RayCast(callback, tempVec2_1, tempVec2_2);
 
-        const fixtures = callback.getFixtures() as b2.Fixture[];
+        const fixtures = callback.getFixtures() as b2jsb.Fixture[];
         if (fixtures.length > 0) {
             const points = callback.getPoints();
             const normals = callback.getNormals();
@@ -377,10 +383,10 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    registerContactFixture (fixture: b2.Fixture): void {
+    registerContactFixture (fixture: b2jsb.Fixture): void {
         this._contactListener.registerContactFixture(fixture);
     }
-    unregisterContactFixture (fixture: b2.Fixture): void {
+    unregisterContactFixture (fixture: b2jsb.Fixture): void {
         this._contactListener.unregisterContactFixture(fixture);
     }
 
@@ -461,7 +467,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         c.emit(Contact2DType.PRE_SOLVE);
     }
 
-    _onPostSolve (b2contact: b2ContactExtends, impulse: b2.ContactImpulse): void {
+    _onPostSolve (b2contact: b2ContactExtends, impulse: b2jsb.ContactImpulse): void {
         const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
         if (!c) {
             return;
