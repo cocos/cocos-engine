@@ -24,7 +24,6 @@
 import { IJoint2D } from '../../spec/i-physics-joint';
 import { Joint2D, PhysicsSystem2D, RigidBody2D } from '../../framework';
 import { b2PhysicsWorld } from '../physics-world';
-import { Vec2 } from '../../../core';
 
 export class b2Joint implements IJoint2D {
     get impl (): b2jsb.Joint | null {

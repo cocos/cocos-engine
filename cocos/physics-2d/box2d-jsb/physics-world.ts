@@ -26,7 +26,7 @@
 import { EDITOR_NOT_IN_PREVIEW, JSB, TEST } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js, errorID } from '../../core';
+import { IVec2Like, Vec3, Quat, Vec2, toDegree, Rect, CCObject, js, errorID } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 // import { Canvas } from '../../2d/framework';
 import type { Graphics } from '../../2d/components/graphics';
