@@ -26,10 +26,10 @@
 import { EDITOR_NOT_IN_PREVIEW, JSB, TEST } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js, errorID } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 // import { Canvas } from '../../2d/framework';
-// import { Graphics } from '../../2d/components';
+import type { Graphics } from '../../2d/components/graphics';
 
 import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
@@ -128,7 +128,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._raycastQueryCallback = new PhysicsRayCastCallback();
     }
 
-    _debugGraphics: any = null;
+    _debugGraphics: Graphics | null = null;
     _b2DebugDrawer: b2jsb.Draw | null = null;
 
     _debugDrawFlags = 0;
@@ -162,25 +162,29 @@ export class b2PhysicsWorld implements IPhysicsWorld {
                 canvas.parent = scene;
             }
 
-            const node = new Node('PHYSICS_2D_DEBUG_DRAW');
+            let node: Node | null = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
             node.hideFlags |= CCObject.Flags.DontSave;
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
             node.layer = Layers.Enum.UI_2D;
 
-            this._debugGraphics = node.addComponent('cc.Graphics');
-            this._debugGraphics.lineWidth = 3;
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
-            debugDraw.initWithThis(debugDraw);
-            this._b2DebugDrawer = debugDraw;
-            this._world.SetDebugDraw(debugDraw);
+            try {
+                this._debugGraphics = node.addComponent<Graphics>('cc.Graphics');
+                this._debugGraphics.lineWidth = 3;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
+                debugDraw.initWithThis(debugDraw);
+                this._b2DebugDrawer = debugDraw;
+                this._world.SetDebugDraw(debugDraw);
+                const parent = this._debugGraphics.node.parent!;
+                this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
+            } catch (e: any) {
+                errorID(4501, e.message as string);
+                node.destroy();
+                node = null;
+            }
         }
-
-        const parent = this._debugGraphics.node.parent!;
-        this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
 
         if (this._b2DebugDrawer) {
             this._b2DebugDrawer.SetFlags(this.debugDrawFlags);
