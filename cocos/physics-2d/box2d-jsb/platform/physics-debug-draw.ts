@@ -21,9 +21,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { JSB } from 'internal:constants';
 import { Color, Vec2 } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
-import { Graphics } from '../../../2d';
+import type { Graphics } from '../../../2d/components/graphics';
+import { b2EmptyInstance } from '../empty-for-editor';
+
+if (!JSB) {
+    (globalThis as any).b2 = b2EmptyInstance;
+}
 
 const _tmp_vec2 = new b2.Vec2();
 const _tmp_color = new Color();

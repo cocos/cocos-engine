@@ -21,7 +21,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { JSB } from 'internal:constants';
 import { Vec2 } from '../../../core';
+import { b2EmptyInstance } from '../empty-for-editor';
+
+if (!JSB) {
+    (globalThis as any).b2 = b2EmptyInstance;
+}
 
 export class PhysicsAABBQueryCallback extends b2.QueryCallback {
     private _point = new b2.Vec2();

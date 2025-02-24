@@ -22,7 +22,13 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { js } from '../../../core';
+import { b2EmptyInstance } from '../empty-for-editor';
+
+if (!JSB) {
+    (globalThis as any).b2 = b2EmptyInstance;
+}
 
 export class PhysicsContactListener extends b2.ContactListener {
     _contactFixtures: b2.Fixture[] = [];

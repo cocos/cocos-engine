@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, JSB, TEST } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
@@ -41,12 +41,19 @@ import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
 import { Node, find, Layers } from '../../scene-graph';
 import { director } from '../../game';
+import { b2EmptyInstance } from './empty-for-editor';
 
-//@ts-ignore
-const _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(5 * 4)); // 5 floats is enough for box2d jsb.
-//@ts-ignore
-b2._tempFloatArray = _tempFloatArray; // For other ts file in box2d-jsb module to access this arraybuffer.
-b2._setTempFloatArray(_tempFloatArray.buffer);
+let _tempFloatArray: Float32Array;
+
+if (!JSB) {
+    (globalThis as any).b2 = b2EmptyInstance;
+} else {
+    //@ts-ignore
+    _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(5 * 4)); // 5 floats is enough for box2d jsb.
+    //@ts-ignore
+    b2._tempFloatArray = _tempFloatArray; // For other ts file in box2d-jsb module to access this arraybuffer.
+    b2._setTempFloatArray(_tempFloatArray.buffer);
+}
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();

@@ -24,6 +24,7 @@
       "./@types/globals",
       "./@types/consts",
       "./@types/jsb",
+      "./@types/box2d-jsb",
       "./@types/editor-extends",
       "./@types/webGL.extras",
       "./@types/webGL2.extras",
@@ -39,7 +40,6 @@
       "./native/external/emscripten/spine/spine",
       "./native/external/emscripten/meshopt/meshopt_decoder",
       "./native/external/emscripten/box2d/box2d",
-      "./native/external/emscripten/box2d/box2d-jsb",
 
       // pal
       "./@types/pal/system-info",

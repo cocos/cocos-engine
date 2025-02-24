@@ -22,9 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { JSB } from 'internal:constants';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';
+import { b2EmptyInstance } from '../empty-for-editor';
 
+if (!JSB) {
+    (globalThis as any).b2 = b2EmptyInstance;
+}
 export class PhysicsRayCastCallback extends b2.RayCastCallback {
     _type = ERaycast2DType.Closest;
     _fixtures: b2.Fixture[] = [];
