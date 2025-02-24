@@ -27,6 +27,8 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
+// NOLINTBEGIN(misc-include-cleaner)
+#include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonSerialization.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/details/SerializationUtils.h"
@@ -142,3 +144,4 @@ void load(InputArchive& ar, PipelineStatistics& v) {
 } // namespace render
 
 } // namespace cc
+// NOLINTEND(misc-include-cleaner)

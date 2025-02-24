@@ -36,6 +36,14 @@ namespace cc {
 
 namespace render {
 
+inline const char* getName(LayoutType e) noexcept {
+    switch (e) {
+        case LayoutType::VULKAN: return "VULKAN";
+        case LayoutType::WEBGPU: return "WEBGPU";
+    }
+    return "";
+}
+inline const char* getName(const Layout& /*v*/) noexcept { return "Layout"; }
 inline const char* getName(DescriptorTypeOrder e) noexcept {
     switch (e) {
         case DescriptorTypeOrder::UNIFORM_BUFFER: return "UNIFORM_BUFFER";
@@ -55,7 +63,6 @@ inline const char* getName(const DescriptorBlock& /*v*/) noexcept { return "Desc
 inline const char* getName(const DescriptorBlockFlattened& /*v*/) noexcept { return "DescriptorBlockFlattened"; }
 inline const char* getName(const DescriptorBlockIndex& /*v*/) noexcept { return "DescriptorBlockIndex"; }
 inline const char* getName(const DescriptorGroupBlockIndex& /*v*/) noexcept { return "DescriptorGroupBlockIndex"; }
-inline const char* getName(const DescriptorGroupBlock& /*v*/) noexcept { return "DescriptorGroupBlock"; }
 inline const char* getName(const DescriptorDB& /*v*/) noexcept { return "DescriptorDB"; }
 inline const char* getName(const RenderStageTag& /*v*/) noexcept { return "RenderStage"; }
 inline const char* getName(const RenderPhaseTag& /*v*/) noexcept { return "RenderPhase"; }
@@ -76,9 +83,6 @@ inline const char* getName(const DescriptorData& /*v*/) noexcept { return "Descr
 inline const char* getName(const DescriptorBlockData& /*v*/) noexcept { return "DescriptorBlockData"; }
 inline const char* getName(const DescriptorSetLayoutData& /*v*/) noexcept { return "DescriptorSetLayoutData"; }
 inline const char* getName(const DescriptorSetData& /*v*/) noexcept { return "DescriptorSetData"; }
-inline const char* getName(const DescriptorGroupBlockData& /*v*/) noexcept { return "DescriptorGroupBlockData"; }
-inline const char* getName(const DescriptorGroupLayoutData& /*v*/) noexcept { return "DescriptorGroupLayoutData"; }
-inline const char* getName(const DescriptorGroupData& /*v*/) noexcept { return "DescriptorGroupData"; }
 inline const char* getName(const PipelineLayoutData& /*v*/) noexcept { return "PipelineLayoutData"; }
 inline const char* getName(const ShaderBindingData& /*v*/) noexcept { return "ShaderBindingData"; }
 inline const char* getName(const ShaderLayoutData& /*v*/) noexcept { return "ShaderLayoutData"; }

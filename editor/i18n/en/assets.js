@@ -10,17 +10,20 @@ module.exports = {
         cloneToDirectoryIllegal: 'Please limit the saved path to the current project assets path',
         preview: {
             header: 'Preview',
+            resetCameraView: 'Reset camera view',
         },
         spine: {
             skin: 'Skin',
             animation: 'Animation',
             loop: 'Loop',
             timeScale: 'Rate',
+            enable: 'Enable',
             premultipliedAlpha: 'Premultiplied Alpha',
             useTint: 'Use Tint',
-            debugSlots: 'Debug Slots',
-            debugBones: 'Debug Bones',
-            debugMesh: 'Debug Mesh',
+            debug: 'Debug',
+            debugSlots: 'Slots',
+            debugBones: 'Bones',
+            debugMesh: 'Mesh',
         },
     },
 

@@ -28,7 +28,7 @@ import { EffectAsset } from './effect-asset';
 import { Texture, Type } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { IPassInfoFull, Pass, PassOverrides } from '../../render-scene/core/pass';
-import { MacroRecord, MaterialProperty } from '../../render-scene/core/pass-utils';
+import { getTypeFromHandle, MacroRecord, MaterialProperty } from '../../render-scene/core/pass-utils';
 import { Color, warnID, Vec4, cclegacy } from '../../core';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 import { Renderer } from '../../misc/renderer';
@@ -139,8 +139,8 @@ export class Material extends Asset {
      */
     protected _hash = 0;
 
-    constructor () {
-        super();
+    constructor (name?: string) {
+        super(name);
     }
 
     /**
@@ -388,6 +388,7 @@ export class Material extends Asset {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _fillInfo (info: IMaterialInfo): void {
         if (info.technique !== undefined) { this._techIdx = info.technique; }
@@ -402,6 +403,7 @@ export class Material extends Asset {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _prepareInfo (patch: Record<string, unknown> | Record<string, unknown>[], cur: Record<string, unknown>[]): void {
         let patchArray = patch;
@@ -416,6 +418,7 @@ export class Material extends Asset {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _createPasses (): Pass[] {
         const tech = this._effectAsset!.techniques[this._techIdx || 0];
@@ -443,6 +446,7 @@ export class Material extends Asset {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _update (keepProps = true): void {
         if (this._effectAsset) {
@@ -470,11 +474,12 @@ export class Material extends Asset {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _uploadProperty (pass: Pass, name: string, val: MaterialPropertyFull | MaterialPropertyFull[]): boolean {
         const handle = pass.getHandle(name);
         if (!handle) { return false; }
-        const type = Pass.getTypeFromHandle(handle);
+        const type = getTypeFromHandle(handle);
         if (type < (Type.SAMPLER1D as number)) {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
@@ -490,9 +495,9 @@ export class Material extends Asset {
                 pass.resetUniform(name);
             }
         } else if (Array.isArray(val)) {
-            for (let i = 0; i < val.length; i++) {
-                this._bindTexture(pass, handle, val[i], i);
-            }
+            val.forEach((v, i) => {
+                this._bindTexture(pass, handle, v, i);
+            });
         } else if (val) {
             this._bindTexture(pass, handle, val);
         } else {
@@ -503,6 +508,7 @@ export class Material extends Asset {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _bindTexture (pass: Pass, handle: number, val: MaterialPropertyFull, index?: number): void {
         const binding = Pass.getBindingFromHandle(handle);
@@ -521,6 +527,7 @@ export class Material extends Asset {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _doDestroy (): void {
         if (this._passes && this._passes.length) {

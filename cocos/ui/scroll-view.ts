@@ -24,7 +24,7 @@
 */
 
 import { ccclass, displayOrder, executionOrder, help, menu, range, requireComponent, serializable, tooltip, type } from 'cc.decorator';
-import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, USE_XR } from 'internal:constants';
 import { UITransform } from '../2d/framework';
 import { legacyCC } from '../core/global-exports';
 import { Size, Vec2, Vec3, approx, v2, v3 } from '../core/math';
@@ -304,7 +304,7 @@ export class ScrollView extends ViewGroup {
         if (this._content === value) {
             return;
         }
-        const viewTrans = value && value.parent && value.parent._uiProps.uiTransformComp;
+        const viewTrans = value && value.parent && value.parent._getUITransformComp();
         if (value && (!value || !viewTrans)) {
             logID(4302);
             return;
@@ -435,7 +435,7 @@ export class ScrollView extends ViewGroup {
         if (!parent) {
             return null;
         }
-        return parent._uiProps.uiTransformComp;
+        return parent._getUITransformComp();
     }
 
     protected _autoScrolling = false;
@@ -712,7 +712,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content || !this.view) {
             return Vec2.ZERO;
         }
-        const contentSize = this._content._uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content._getUITransformComp()!.contentSize;
         let horizontalMaximizeOffset = contentSize.width - this.view.width;
         let verticalMaximizeOffset = contentSize.height - this.view.height;
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
@@ -979,8 +979,10 @@ export class ScrollView extends ViewGroup {
         node.on(NodeEventType.TOUCH_CANCEL, self._onTouchCancelled, self, true);
         node.on(NodeEventType.MOUSE_WHEEL, self._onMouseWheel, self, true);
 
-        node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
-        node.on(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+        if (USE_XR) {
+            node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
+            node.on(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+        }
 
         input.on(InputEventType.HANDLE_INPUT, self._dispatchEventHandleInput, self);
         input.on(InputEventType.GAMEPAD_INPUT, self._dispatchEventHandleInput, self);
@@ -996,8 +998,10 @@ export class ScrollView extends ViewGroup {
         node.off(NodeEventType.TOUCH_CANCEL, self._onTouchCancelled, self, true);
         node.off(NodeEventType.MOUSE_WHEEL, self._onMouseWheel, self, true);
 
-        node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
-        node.off(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+        if (USE_XR) {
+            node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
+            node.off(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+        }
         input.off(InputEventType.HANDLE_INPUT, self._dispatchEventHandleInput, self);
         input.off(InputEventType.GAMEPAD_INPUT, self._dispatchEventHandleInput, self);
     }
@@ -1161,7 +1165,8 @@ export class ScrollView extends ViewGroup {
 
         if (captureListeners) {
             // captureListeners are arranged from child to parent
-            for (const listener of captureListeners) {
+            for (let i = 0; i < captureListeners.length; i++) {
+                const listener = captureListeners[i];
                 if (this.node === listener) {
                     if (event.target && (event.target as Node).getComponent(ViewGroup)) {
                         return true;
@@ -1198,7 +1203,7 @@ export class ScrollView extends ViewGroup {
         const targetDelta = deltaMove.clone();
         targetDelta.normalize();
         if (this._content && this.view) {
-            const contentSize = this._content._uiProps.uiTransformComp!.contentSize;
+            const contentSize = this._content._getUITransformComp()!.contentSize;
             const scrollViewSize = this.view.contentSize;
 
             const totalMoveWidth = contentSize.width - scrollViewSize.width;
@@ -1315,7 +1320,7 @@ export class ScrollView extends ViewGroup {
             return -1;
         }
         const contentPos = this._getContentPosition();
-        const uiTrans = this._content._uiProps.uiTransformComp!;
+        const uiTrans = this._content._getUITransformComp()!;
         return contentPos.x - uiTrans.anchorX * uiTrans.width;
     }
 
@@ -1323,7 +1328,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const uiTrans = this._content._uiProps.uiTransformComp!;
+        const uiTrans = this._content._getUITransformComp()!;
         return this._getContentLeftBoundary() + uiTrans.width;
     }
 
@@ -1331,7 +1336,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const uiTrans = this._content._uiProps.uiTransformComp!;
+        const uiTrans = this._content._getUITransformComp()!;
         return this._getContentBottomBoundary() + uiTrans.height;
     }
 
@@ -1340,7 +1345,7 @@ export class ScrollView extends ViewGroup {
             return -1;
         }
         const contentPos = this._getContentPosition();
-        const uiTrans = this._content._uiProps.uiTransformComp!;
+        const uiTrans = this._content._getUITransformComp()!;
         return contentPos.y - uiTrans.anchorY * uiTrans.height;
     }
 
@@ -1464,7 +1469,7 @@ export class ScrollView extends ViewGroup {
             return;
         }
         const viewTrans = self.view;
-        const uiTrans = self._content._uiProps.uiTransformComp!;
+        const uiTrans = self._content._getUITransformComp()!;
 
         const verticalScrollBar = self._verticalScrollBar;
         if (verticalScrollBar && verticalScrollBar.isValid) {
@@ -1519,7 +1524,7 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _getLocalAxisAlignDelta (out: Vec3, touch: Touch): void {
-        const uiTransformComp = this.node._uiProps.uiTransformComp;
+        const uiTransformComp = this.node._getUITransformComp();
 
         if (uiTransformComp) {
             touch.getUILocation(_tempVec2);
@@ -1554,7 +1559,7 @@ export class ScrollView extends ViewGroup {
         let verticalScrollEventType: ScrollViewEventType = ScrollViewEventType.NONE;
         let horizontalScrollEventType: ScrollViewEventType = ScrollViewEventType.NONE;
         if (self._content) {
-            const { anchorX, anchorY, width, height } = self._content._uiProps.uiTransformComp!;
+            const { anchorX, anchorY, width, height } = self._content._getUITransformComp()!;
             const pos = self._content.position || Vec3.ZERO;
 
             if (self.vertical) {
@@ -1627,7 +1632,7 @@ export class ScrollView extends ViewGroup {
     protected _clampDelta (out: Vec3): void {
         if (this._content && this.view) {
             const scrollViewSize = this.view.contentSize;
-            const uiTrans = this._content._uiProps.uiTransformComp!;
+            const uiTrans = this._content._getUITransformComp()!;
             if (uiTrans.width < scrollViewSize.width) {
                 out.x = 0;
             }
@@ -1847,7 +1852,7 @@ export class ScrollView extends ViewGroup {
         const moveDelta = new Vec3();
         if (self._content && self.view) {
             let totalScrollDelta = 0;
-            const uiTrans = self._content._uiProps.uiTransformComp!;
+            const uiTrans = self._content._getUITransformComp()!;
             const contentSize = uiTrans.contentSize;
             const scrollSize = self.view.contentSize;
             if (applyToHorizontal) {
@@ -1877,7 +1882,7 @@ export class ScrollView extends ViewGroup {
 
         // 是否限制在上视区上边
         if (self._content) {
-            const uiTrans = self._content._uiProps.uiTransformComp!;
+            const uiTrans = self._content._getUITransformComp()!;
             const contentSize = uiTrans.contentSize;
             if (contentSize.height < scrollViewSize.height) {
                 totalScrollDelta = contentSize.height - scrollViewSize.height;
@@ -1903,6 +1908,7 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _xrHoverEnter (event: XrUIPressEvent): void {
+        if (!USE_XR) return;
         if (event.deviceType === DeviceType.Left) {
             this._hoverIn = XrhoverType.LEFT;
         } else if (event.deviceType === DeviceType.Right) {
@@ -1911,6 +1917,7 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _xrHoverExit (event: XrUIPressEvent): void {
+        if (!USE_XR) return;
         this._hoverIn = XrhoverType.NONE;
     }
 
@@ -1922,18 +1929,21 @@ export class ScrollView extends ViewGroup {
             handleInputDevice = event.handleInputDevice;
         }
         let value: Vec2;
-        if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
+        if (!this.enabledInHierarchy || (USE_XR && this._hoverIn === XrhoverType.NONE)) {
             return;
         }
-        if (this._hoverIn === XrhoverType.LEFT) {
-            value = handleInputDevice.leftStick.getValue();
-            if (!value.equals(Vec2.ZERO)) {
-                this._xrThumbStickMove(value);
-            }
-        } else if (this._hoverIn === XrhoverType.RIGHT) {
-            value = handleInputDevice.rightStick.getValue();
-            if (!value.equals(Vec2.ZERO)) {
-                this._xrThumbStickMove(value);
+
+        if (USE_XR) {
+            if (this._hoverIn === XrhoverType.LEFT) {
+                value = handleInputDevice.leftStick.getValue();
+                if (!value.equals(Vec2.ZERO)) {
+                    this._xrThumbStickMove(value);
+                }
+            } else if (this._hoverIn === XrhoverType.RIGHT) {
+                value = handleInputDevice.rightStick.getValue();
+                if (!value.equals(Vec2.ZERO)) {
+                    this._xrThumbStickMove(value);
+                }
             }
         }
     }

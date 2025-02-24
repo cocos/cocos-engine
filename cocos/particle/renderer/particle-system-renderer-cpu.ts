@@ -26,10 +26,10 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool, warn, Color } from '../../core';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool, warn, Color, v3 } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
-import { AlignmentSpace, RenderMode, Space } from '../enum';
+import { ParticleAlignmentSpace, ParticleRenderMode, ParticleSpace } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Camera } from '../../render-scene/scene/camera';
@@ -41,11 +41,10 @@ import type { ParticleSystem } from '../particle-system';
 import type ParticleSystemRenderer from './particle-system-renderer-data';
 
 const _tempNodeScale = new Vec4();
-const _tempAttribUV = new Vec3();
+const _tempAttribUV = v3();
 const _tempWorldTrans = new Mat4();
 const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
-const _node_euler = new Vec3();
 
 const _animModule = [
     '_colorOverLifetimeModule',
@@ -76,60 +75,74 @@ const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
 const RENDER_MODE_VERTICAL_BILLBOARD = 3;
 const RENDER_MODE_MESH = 4;
 
+const ATTR_POSITION = AttributeName.ATTR_POSITION;
+const ATTR_NORMAL = AttributeName.ATTR_NORMAL;
+const ATTR_COLOR = AttributeName.ATTR_COLOR;
+const ATTR_COLOR1 = AttributeName.ATTR_COLOR1;
+const ATTR_TEX_COORD = AttributeName.ATTR_TEX_COORD;
+const ATTR_TEX_COORD1 = AttributeName.ATTR_TEX_COORD1;
+const ATTR_TEX_COORD2 = AttributeName.ATTR_TEX_COORD2;
+const ATTR_TEX_COORD3 = AttributeName.ATTR_TEX_COORD3;
+const ATTR_TEX_COORD4 = AttributeName.ATTR_TEX_COORD4;
+
+function createAttribute (name: AttributeName, format: Format, isNormalized = false, stream = 0, isInstanced = false, location = 0): Attribute {
+    return new Attribute(name, format, isNormalized, stream, isInstanced, location);
+}
+
 const _vertex_attrs = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // position
-    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
-    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
-    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
-    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // color
+    createAttribute(ATTR_POSITION, Format.RGB32F),       // position
+    createAttribute(ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    createAttribute(ATTR_TEX_COORD1, Format.RGB32F),     // size
+    createAttribute(ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    createAttribute(ATTR_COLOR, Format.RGBA8, true),     // color
 ];
 
 const _vertex_attrs_stretch = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // position
-    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
-    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
-    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
-    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // color
-    new Attribute(AttributeName.ATTR_COLOR1, Format.RGB32F),         // particle velocity
+    createAttribute(ATTR_POSITION, Format.RGB32F),       // position
+    createAttribute(ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    createAttribute(ATTR_TEX_COORD1, Format.RGB32F),     // size
+    createAttribute(ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    createAttribute(ATTR_COLOR, Format.RGBA8, true),     // color
+    createAttribute(ATTR_COLOR1, Format.RGB32F),         // particle velocity
 ];
 
 const _vertex_attrs_mesh = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // particle position
-    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
-    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
-    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
-    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // particle color
-    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
-    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
-    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
+    createAttribute(ATTR_POSITION, Format.RGB32F),       // particle position
+    createAttribute(ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    createAttribute(ATTR_TEX_COORD1, Format.RGB32F),     // size
+    createAttribute(ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    createAttribute(ATTR_COLOR, Format.RGBA8, true),     // particle color
+    createAttribute(ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
+    createAttribute(ATTR_NORMAL, Format.RGB32F),         // mesh normal
+    createAttribute(ATTR_COLOR1, Format.RGBA8, true),    // mesh color
 ];
 
 const _vertex_attrs_ins = [
-    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
-    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
-    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
-    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
-    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
+    createAttribute(ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
+    createAttribute(ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    createAttribute(ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    createAttribute(ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
+    createAttribute(ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
 ];
 
 const _vertex_attrs_stretch_ins = [
-    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
-    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
-    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
-    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
-    new Attribute(AttributeName.ATTR_COLOR1, Format.RGB32F, false, 0, true),         // particle velocity
-    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
+    createAttribute(ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
+    createAttribute(ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    createAttribute(ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    createAttribute(ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
+    createAttribute(ATTR_COLOR1, Format.RGB32F, false, 0, true),         // particle velocity
+    createAttribute(ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
 ];
 
 const _vertex_attrs_mesh_ins = [
-    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // particle position,frame idx
-    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
-    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
-    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // particle color
-    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // mesh uv
-    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),           // mesh position
-    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),               // mesh normal
-    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true, 1),                 // mesh color
+    createAttribute(ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // particle position,frame idx
+    createAttribute(ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    createAttribute(ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    createAttribute(ATTR_COLOR, Format.RGBA8, true, 0, true),            // particle color
+    createAttribute(ATTR_TEX_COORD, Format.RGB32F, false, 1),            // mesh uv
+    createAttribute(ATTR_TEX_COORD3, Format.RGB32F, false, 1),           // mesh position
+    createAttribute(ATTR_NORMAL, Format.RGB32F, false, 1),               // mesh normal
+    createAttribute(ATTR_COLOR1, Format.RGBA8, true, 1),                 // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -147,10 +160,10 @@ export class PVData {
     public velocity: Vec3 | null;
 
     constructor () {
-        this.position = new Vec3();
-        this.texcoord = new Vec3();
-        this.size = new Vec3();
-        this.rotation = new Vec3();
+        this.position = v3();
+        this.texcoord = v3();
+        this.size = v3();
+        this.rotation = v3();
         this.color = 0;
         this.velocity = null;
     }
@@ -168,12 +181,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _defaultTrailMat: Material | null = null;
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
-    private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
+    private _runAnimateList: IParticleModule[] = [];
     private _fillDataFunc: ((p: Particle, idx: number, fi: number) => void) | null = null;
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
     private _uNodeRotHandle = 0;
-    private _alignSpace = AlignmentSpace.View;
+    private _alignSpace = ParticleAlignmentSpace.View;
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
@@ -185,7 +198,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
-        this._node_scale = new Vec3();
+        this._node_scale = v3();
         this._particleVertexData = new PVData();
         this._defines = {
             CC_USE_WORLD_SPACE: true,
@@ -243,7 +256,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.add();
     }
 
-    public getDefaultTrailMaterial (): any {
+    public getDefaultTrailMaterial (): Material | null {
         return this._defaultTrailMat;
     }
 
@@ -318,15 +331,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private doUpdateRotation (pass: Pass): void {
         const mode = this._renderInfo!.renderMode;
-        if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
+        if (mode !== ParticleRenderMode.Mesh && this._alignSpace === ParticleAlignmentSpace.View) {
             return;
         }
 
-        if (this._alignSpace === AlignmentSpace.Local) {
+        if (this._alignSpace === ParticleAlignmentSpace.Local) {
             this._particleSystem?.node.getRotation(_node_rot);
-        } else if (this._alignSpace === AlignmentSpace.World) {
+        } else if (this._alignSpace === ParticleAlignmentSpace.World) {
             this._particleSystem?.node.getWorldRotation(_node_rot);
-        } else if (this._alignSpace === AlignmentSpace.View) {
+        } else if (this._alignSpace === ParticleAlignmentSpace.View) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
             const cameraLst: Camera[] | undefined = this._particleSystem?.node.scene.renderScene?.cameras;
@@ -356,10 +369,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private doUpdateScale (pass): void {
         const nodeScale = this._node_scale;
         switch (this._particleSystem?.scaleSpace) {
-        case Space.Local:
+        case ParticleSpace.Local:
             this._particleSystem?.node.getScale(nodeScale);
             break;
-        case Space.World:
+        case ParticleSpace.World:
             this._particleSystem?.node.getWorldScale(nodeScale);
             break;
         default:
@@ -399,14 +412,14 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         const useGravity = !ps.gravityModifier.isZero();
         if (useGravity) {
-            if (ps.simulationSpace === Space.Local) {
+            if (ps.simulationSpace === ParticleSpace.Local) {
                 const r: Quat = ps.node.getRotation();
                 Mat4.fromQuat(this._localMat, r);
                 this._localMat.transpose(); // just consider rotation, use transpose as invert
             }
 
             if (ps.node.parent) {
-                const r: Quat = ps.node.parent.getWorldRotation();
+                const r: Quat = ps.node.parent.worldRotation;
                 Mat4.fromQuat(_tempParentInverse, r);
                 _tempParentInverse.transpose();
             }
@@ -429,7 +442,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             // apply gravity when both the mode is not Constant and the value is not 0.
             if (useGravity) {
                 const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
-                if (ps.simulationSpace === Space.Local) {
+                if (ps.simulationSpace === ParticleSpace.Local) {
                     const time = 1 - p.remainingLifetime / p.startLifetime;
                     const gravityFactor = -ps.gravityModifier.evaluate(time, rand)! * 9.8 * dt;
                     this._gravity.x = 0.0;
@@ -525,9 +538,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private _setFillFunc (): void {
-        if (this._renderInfo!.renderMode === RenderMode.Mesh) {
+        if (this._renderInfo!.renderMode === ParticleRenderMode.Mesh) {
             this._fillDataFunc = this._fillMeshData;
-        } else if (this._renderInfo!.renderMode === RenderMode.StrecthedBillboard) {
+        } else if (this._renderInfo!.renderMode === ParticleRenderMode.StrecthedBillboard) {
             this._fillDataFunc = this._fillStrecthedData;
         } else {
             this._fillDataFunc = this._fillNormalData;
@@ -535,29 +548,31 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private _fillMeshData (p: Particle, idx: number, fi: number): void {
+        const particleVertexData = this._particleVertexData;
         const i = idx / 4;
-        Vec3.copy(this._particleVertexData.position, p.position);
+        Vec3.copy(particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
-        Vec3.copy(this._particleVertexData.size, p.size);
-        Vec3.copy(this._particleVertexData.rotation, p.rotation);
-        this._particleVertexData.color = Color.toUint32(p.color);
-        this._model!.addParticleVertexData(i, this._particleVertexData);
+        Vec3.copy(particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(particleVertexData.size, p.size);
+        Vec3.copy(particleVertexData.rotation, p.rotation);
+        particleVertexData.color = Color.toUint32(p.color);
+        this._model!.addParticleVertexData(i, particleVertexData);
     }
 
     private _fillStrecthedData (p: Particle, idx: number, fi: number): void {
+        const particleVertexData = this._particleVertexData;
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
-                Vec3.copy(this._particleVertexData.position, p.position);
+                Vec3.copy(particleVertexData.position, p.position);
                 _tempAttribUV.x = _uvs[2 * j];
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
-                Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
-                Vec3.copy(this._particleVertexData.size, p.size);
-                Vec3.copy(this._particleVertexData.rotation, p.rotation);
-                this._particleVertexData.color = Color.toUint32(p.color);
-                this._particleVertexData.velocity = p.ultimateVelocity;
-                this._model!.addParticleVertexData(idx++, this._particleVertexData);
+                Vec3.copy(particleVertexData.texcoord, _tempAttribUV);
+                Vec3.copy(particleVertexData.size, p.size);
+                Vec3.copy(particleVertexData.rotation, p.rotation);
+                particleVertexData.color = Color.toUint32(p.color);
+                particleVertexData.velocity = p.ultimateVelocity;
+                this._model!.addParticleVertexData(idx++, particleVertexData);
             }
         } else {
             this._fillStrecthedDataIns(p, idx, fi);
@@ -565,29 +580,31 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private _fillStrecthedDataIns (p: Particle, idx: number, fi: number): void {
+        const particleVertexData = this._particleVertexData;
         const i = idx / 4;
-        Vec3.copy(this._particleVertexData.position, p.position);
+        Vec3.copy(particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
-        Vec3.copy(this._particleVertexData.size, p.size);
-        Vec3.copy(this._particleVertexData.rotation, p.rotation);
-        this._particleVertexData.color = Color.toUint32(p.color);
-        this._particleVertexData.velocity = p.ultimateVelocity;
-        this._model!.addParticleVertexData(i, this._particleVertexData);
+        Vec3.copy(particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(particleVertexData.size, p.size);
+        Vec3.copy(particleVertexData.rotation, p.rotation);
+        particleVertexData.color = Color.toUint32(p.color);
+        particleVertexData.velocity = p.ultimateVelocity;
+        this._model!.addParticleVertexData(i, particleVertexData);
     }
 
     private _fillNormalData (p: Particle, idx: number, fi: number): void {
+        const particleVertexData = this._particleVertexData;
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
-                Vec3.copy(this._particleVertexData.position, p.position);
+                Vec3.copy(particleVertexData.position, p.position);
                 _tempAttribUV.x = _uvs[2 * j];
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
-                Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
-                Vec3.copy(this._particleVertexData.size, p.size);
-                Vec3.copy(this._particleVertexData.rotation, p.rotation);
+                Vec3.copy(particleVertexData.texcoord, _tempAttribUV);
+                Vec3.copy(particleVertexData.size, p.size);
+                Vec3.copy(particleVertexData.rotation, p.rotation);
                 this._particleVertexData.color = Color.toUint32(p.color);
-                this._model!.addParticleVertexData(idx++, this._particleVertexData);
+                this._model!.addParticleVertexData(idx++, particleVertexData);
             }
         } else {
             this._fillNormalDataIns(p, idx, fi);
@@ -595,18 +612,19 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private _fillNormalDataIns (p: Particle, idx: number, fi: number): void {
+        const particleVertexData = this._particleVertexData;
         const i = idx / 4;
-        Vec3.copy(this._particleVertexData.position, p.position);
+        Vec3.copy(particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
-        Vec3.copy(this._particleVertexData.size, p.size);
-        Vec3.copy(this._particleVertexData.rotation, p.rotation);
+        Vec3.copy(particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(particleVertexData.size, p.size);
+        Vec3.copy(particleVertexData.rotation, p.rotation);
         this._particleVertexData.color = Color.toUint32(p.color);
-        this._model!.addParticleVertexData(i, this._particleVertexData);
+        this._model!.addParticleVertexData(i, particleVertexData);
     }
 
     public updateVertexAttrib (): void {
-        if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
+        if (this._renderInfo!.renderMode !== ParticleRenderMode.Mesh) {
             return;
         }
         if (this._renderInfo!.mesh) {
@@ -619,10 +637,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                         break;
                     }
                 }
-                this._vertAttrs[7] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
+                this._vertAttrs[7] = createAttribute(ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
             } else { // mesh without vertex color
                 const type = Format.RGBA8;
-                this._vertAttrs[7] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
+                this._vertAttrs[7] = createAttribute(ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
             }
         }
     }
@@ -630,10 +648,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _setVertexAttrib (): void {
         if (!this._useInstance) {
             switch (this._renderInfo!.renderMode) {
-            case RenderMode.StrecthedBillboard:
+            case ParticleRenderMode.StrecthedBillboard:
                 this._vertAttrs = _vertex_attrs_stretch.slice();
                 break;
-            case RenderMode.Mesh:
+            case ParticleRenderMode.Mesh:
                 this._vertAttrs = _vertex_attrs_mesh.slice();
                 break;
             default:
@@ -646,10 +664,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _setVertexAttribIns (): void {
         switch (this._renderInfo!.renderMode) {
-        case RenderMode.StrecthedBillboard:
+        case ParticleRenderMode.StrecthedBillboard:
             this._vertAttrs = _vertex_attrs_stretch_ins.slice();
             break;
-        case RenderMode.Mesh:
+        case ParticleRenderMode.Mesh:
             this._vertAttrs = _vertex_attrs_mesh_ins.slice();
             break;
         default:
@@ -681,7 +699,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
         }
         const mat: Material = ps.getMaterialInstance(0) || this._defaultMat!;
-        if (ps.simulationSpace === Space.World) {
+        if (ps.simulationSpace === ParticleSpace.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
@@ -694,17 +712,17 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         const renderMode = this._renderInfo!.renderMode;
         const vlenScale = this._frameTile_velLenScale;
-        if (renderMode === RenderMode.Billboard) {
+        if (renderMode === ParticleRenderMode.Billboard) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_BILLBOARD;
-        } else if (renderMode === RenderMode.StrecthedBillboard) {
+        } else if (renderMode === ParticleRenderMode.StrecthedBillboard) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_STRETCHED_BILLBOARD;
             vlenScale.z = this._renderInfo!.velocityScale;
             vlenScale.w = this._renderInfo!.lengthScale;
-        } else if (renderMode === RenderMode.HorizontalBillboard) {
+        } else if (renderMode === ParticleRenderMode.HorizontalBillboard) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_HORIZONTAL_BILLBOARD;
-        } else if (renderMode === RenderMode.VerticalBillboard) {
+        } else if (renderMode === ParticleRenderMode.VerticalBillboard) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_VERTICAL_BILLBOARD;
-        } else if (renderMode === RenderMode.Mesh) {
+        } else if (renderMode === ParticleRenderMode.Mesh) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
             warn(`particle system renderMode ${renderMode} not support.`);
@@ -737,7 +755,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const ps = this._particleSystem;
         const trailModule = ps._trailModule;
         if (trailModule && trailModule.enable) {
-            if (ps.simulationSpace === Space.World || trailModule.space === Space.World) {
+            if (ps.simulationSpace === ParticleSpace.World || trailModule.space === ParticleSpace.World) {
                 this._trailDefines[CC_USE_WORLD_SPACE] = true;
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;

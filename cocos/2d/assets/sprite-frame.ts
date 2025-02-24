@@ -45,6 +45,9 @@ const INSET_BOTTOM = 3;
 const temp_vec3 = v3();
 const temp_matrix = mat4();
 
+const vec3TransformMat4 = Vec3.transformMat4;
+const vec3ToArray = Vec3.toArray;
+
 enum MeshType {
     RECT = 0,
     POLYGON = 1, // Todo: Polygon mode need add
@@ -643,8 +646,8 @@ export class SpriteFrame extends Asset {
     protected _minPos = v3();
     protected _maxPos = v3();
 
-    constructor () {
-        super();
+    constructor (name?: string) {
+        super(name);
 
         if (EDITOR) {
             // Atlas asset uuid
@@ -946,23 +949,27 @@ export class SpriteFrame extends Asset {
     /**
      * Calculate UV for sliced
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
+     * @mangle
      */
     public _calculateSlicedUV (): void {
-        const rect = this._rect;
-        // const texture = this._getCalculateTarget()!;
-        const tex = this.texture;
+        const self = this;
+        const rect = self._rect;
+        // const texture = self._getCalculateTarget()!;
+        const tex = self.texture;
+        const capInsets = self._capInsets;
         const atlasWidth = tex.width;
         const atlasHeight = tex.height;
-        const leftWidth = this._capInsets[INSET_LEFT];
-        const rightWidth = this._capInsets[INSET_RIGHT];
+        const leftWidth = capInsets[INSET_LEFT];
+        const rightWidth = capInsets[INSET_RIGHT];
         const centerWidth = rect.width - leftWidth - rightWidth;
-        const topHeight = this._capInsets[INSET_TOP];
-        const bottomHeight = this._capInsets[INSET_BOTTOM];
+        const topHeight = capInsets[INSET_TOP];
+        const bottomHeight = capInsets[INSET_BOTTOM];
         const centerHeight = rect.height - topHeight - bottomHeight;
 
-        const uvSliced = this.uvSliced;
+        const uvSliced = self.uvSliced;
         uvSliced.length = 0;
-        if (this._rotated) {
+        if (self._rotated) {
             temp_uvs[0].u = rect.x / atlasWidth;
             temp_uvs[1].u = (rect.x + bottomHeight) / atlasWidth;
             temp_uvs[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
@@ -1012,6 +1019,8 @@ export class SpriteFrame extends Asset {
     /**
      * Calculate UV
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
+     * @mangle
      */
     public _calculateUV (): void {
         const arrayFill = js.array.fillItems;
@@ -1126,6 +1135,8 @@ export class SpriteFrame extends Asset {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
+     * @mangle
      */
     public _setDynamicAtlasFrame (frame): void {
         if (!frame) return;
@@ -1144,6 +1155,8 @@ export class SpriteFrame extends Asset {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
+     * @mangle
      */
     public _resetDynamicAtlasFrame (): void {
         if (!this._original) return;
@@ -1156,6 +1169,8 @@ export class SpriteFrame extends Asset {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
+     * @mangle
      */
     public _checkPackable (): void {
         const dynamicAtlas = dynamicAtlasManager;
@@ -1202,7 +1217,7 @@ export class SpriteFrame extends Asset {
                 const posArray = [];
                 for (let i = 0; i < this.vertices.rawPosition.length; i++) {
                     const pos = this.vertices.rawPosition[i];
-                    Vec3.toArray(posArray, pos, 3 * i);
+                    vec3ToArray(posArray, pos, 3 * i);
                 }
                 vertices = {
                     rawPosition: posArray,
@@ -1520,11 +1535,11 @@ export class SpriteFrame extends Asset {
 
         for (let i = 0; i < vertices.rawPosition.length; i++) {
             const pos = vertices.rawPosition[i];
-            Vec3.transformMat4(temp_vec3, pos, temp_matrix);
-            Vec3.toArray(vertices.positions, temp_vec3, 3 * i);
+            vec3TransformMat4(temp_vec3, pos, temp_matrix);
+            vec3ToArray(vertices.positions, temp_vec3, 3 * i);
         }
-        Vec3.transformMat4(this._minPos, vertices.minPos, temp_matrix);
-        Vec3.transformMat4(this._maxPos, vertices.maxPos, temp_matrix);
+        vec3TransformMat4(this._minPos, vertices.minPos, temp_matrix);
+        vec3TransformMat4(this._maxPos, vertices.maxPos, temp_matrix);
     }
 
     protected _createMesh (): void {

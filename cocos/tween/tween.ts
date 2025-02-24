@@ -36,6 +36,7 @@ import { IInternalTweenOption, TweenAction } from './tween-action';
 import { SetAction } from './set-action';
 import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph';
+import type { ActionManager } from './actions/action-manager';
 
 // https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
 type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Type ? never : Key };
@@ -80,6 +81,10 @@ type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 export type TweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
 export type TweenUpdateUntilCallback<T extends object, Args extends any[]> = (target: T, dt: number, ...args: Args) => boolean;
+
+function getActionManager (): ActionManager {
+    return TweenSystem.instance.ActionManager;
+}
 
 /**
  * @en
@@ -309,7 +314,7 @@ export class Tween<T extends object = any> {
             return this;
         }
         if (this._finalAction) {
-            TweenSystem.instance.ActionManager.removeAction(this._finalAction);
+            getActionManager().removeAction(this._finalAction);
         }
         const final = this._unionForStart();
         this._finalAction = final;
@@ -318,7 +323,7 @@ export class Tween<T extends object = any> {
             final.setSpeed(this._timeScale);
             final.setStartTime(time);
             final.setPaused(false); // If a tween was paused, starting the tween again should clear the 'paused' flag for the final action.
-            TweenSystem.instance.ActionManager.addAction(final, this._target, false);
+            getActionManager().addAction(final, this._target, false);
         } else {
             warnID(16393);
         }
@@ -336,7 +341,7 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             // ActionManager.removeAction will not stop action, so stop it before removeAction.
             this._finalAction.stop();
-            TweenSystem.instance.ActionManager.removeAction(this._finalAction);
+            getActionManager().removeAction(this._finalAction);
             this._finalAction = null;
         }
         return this;
@@ -376,7 +381,7 @@ export class Tween<T extends object = any> {
      */
     get running (): boolean {
         if (this._finalAction) {
-            return TweenSystem.instance.ActionManager.isActionRunning(this._finalAction);
+            return getActionManager().isActionRunning(this._finalAction);
         }
         return false;
     }
@@ -779,7 +784,7 @@ export class Tween<T extends object = any> {
      *         @zh 目标对象关联的正在运行的缓动实例的个数。
      */
     static getRunningCount<U extends object = any> (target: U): number {
-        return TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(target);
+        return getActionManager().getNumberOfRunningActionsInTarget(target);
     }
 
     /**
@@ -789,7 +794,7 @@ export class Tween<T extends object = any> {
      * 停止所有缓动实例
      */
     static stopAll (): void {
-        TweenSystem.instance.ActionManager.removeAllActions();
+        getActionManager().removeAllActions();
     }
     /**
      * @en
@@ -798,7 +803,7 @@ export class Tween<T extends object = any> {
      * 停止指定标签关联的所有缓动实例。
      */
     static stopAllByTag<U extends object = any> (tag: number, target?: U): void {
-        TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target);
+        getActionManager().removeAllActionsByTag(tag, target);
     }
     /**
      * @en
@@ -807,7 +812,7 @@ export class Tween<T extends object = any> {
      * 停止指定对象的关联的所有缓动实例。
      */
     static stopAllByTarget<U extends object = any> (target?: U): void {
-        TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
+        getActionManager().removeAllActionsFromTarget(target);
     }
 
     /**
@@ -816,7 +821,7 @@ export class Tween<T extends object = any> {
      * @param target @en The target object whose tweens should be paused. @zh 要暂停缓动的目标对象。
      */
     static pauseAllByTarget<U extends object = any> (target: U): void {
-        TweenSystem.instance.ActionManager.pauseTarget(target);
+        getActionManager().pauseTarget(target);
     }
 
     /**
@@ -825,7 +830,7 @@ export class Tween<T extends object = any> {
      * @param target @en The target object whose tweens should be resumed. @zh 要恢复缓动的目标对象。
      */
     static resumeAllByTarget<U extends object = any> (target: U): void {
-        TweenSystem.instance.ActionManager.resumeTarget(target);
+        getActionManager().resumeTarget(target);
     }
 
     private _union (needUpdateOwner: boolean): Sequence | null {

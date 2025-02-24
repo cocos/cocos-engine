@@ -27,6 +27,8 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
+// NOLINTBEGIN(misc-include-cleaner)
+#include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphSerialization.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
@@ -101,6 +103,7 @@ void save(OutputArchive& ar, const DescriptorGroupBlockIndex& v) {
     save(ar, v.visibility);
     save(ar, v.accessType);
     save(ar, v.viewDimension);
+    save(ar, v.sampleType);
     save(ar, v.format);
 }
 
@@ -111,29 +114,18 @@ void load(InputArchive& ar, DescriptorGroupBlockIndex& v) {
     load(ar, v.visibility);
     load(ar, v.accessType);
     load(ar, v.viewDimension);
+    load(ar, v.sampleType);
     load(ar, v.format);
-}
-
-void save(OutputArchive& ar, const DescriptorGroupBlock& v) {
-    save(ar, v.descriptors);
-    save(ar, v.uniformBlocks);
-    save(ar, v.capacity);
-    save(ar, v.count);
-}
-
-void load(InputArchive& ar, DescriptorGroupBlock& v) {
-    load(ar, v.descriptors);
-    load(ar, v.uniformBlocks);
-    load(ar, v.capacity);
-    load(ar, v.count);
 }
 
 void save(OutputArchive& ar, const DescriptorDB& v) {
     save(ar, v.blocks);
+    save(ar, v.groupBlocks);
 }
 
 void load(InputArchive& ar, DescriptorDB& v) {
     load(ar, v.blocks);
+    load(ar, v.groupBlocks);
 }
 
 void save(OutputArchive& ar, const RenderPhase& v) {
@@ -274,6 +266,10 @@ void save(OutputArchive& ar, const DescriptorBlockData& v) {
     save(ar, v.visibility);
     save(ar, v.offset);
     save(ar, v.capacity);
+    save(ar, v.accessType);
+    save(ar, v.viewDimension);
+    save(ar, v.sampleType);
+    save(ar, v.format);
     save(ar, v.descriptors);
 }
 
@@ -282,6 +278,10 @@ void load(InputArchive& ar, DescriptorBlockData& v) {
     load(ar, v.visibility);
     load(ar, v.offset);
     load(ar, v.capacity);
+    load(ar, v.accessType);
+    load(ar, v.viewDimension);
+    load(ar, v.sampleType);
+    load(ar, v.format);
     load(ar, v.descriptors);
 }
 
@@ -317,56 +317,6 @@ void load(InputArchive& ar, DescriptorSetData& v) {
     load(ar, v.descriptorSetLayoutInfo);
     // skip, descriptorSetLayout: IntrusivePtr<gfx::DescriptorSetLayout>
     // skip, descriptorSet: IntrusivePtr<gfx::DescriptorSet>
-}
-
-void save(OutputArchive& ar, const DescriptorGroupBlockData& v) {
-    save(ar, v.type);
-    save(ar, v.visibility);
-    save(ar, v.accessType);
-    save(ar, v.viewDimension);
-    save(ar, v.format);
-    save(ar, v.offset);
-    save(ar, v.capacity);
-    save(ar, v.descriptors);
-}
-
-void load(InputArchive& ar, DescriptorGroupBlockData& v) {
-    load(ar, v.type);
-    load(ar, v.visibility);
-    load(ar, v.accessType);
-    load(ar, v.viewDimension);
-    load(ar, v.format);
-    load(ar, v.offset);
-    load(ar, v.capacity);
-    load(ar, v.descriptors);
-}
-
-void save(OutputArchive& ar, const DescriptorGroupLayoutData& v) {
-    save(ar, v.slot);
-    save(ar, v.capacity);
-    save(ar, v.uniformBlockCapacity);
-    save(ar, v.samplerTextureCapacity);
-    save(ar, v.descriptorGroupBlocks);
-    save(ar, v.uniformBlocks);
-    save(ar, v.bindingMap);
-}
-
-void load(InputArchive& ar, DescriptorGroupLayoutData& v) {
-    load(ar, v.slot);
-    load(ar, v.capacity);
-    load(ar, v.uniformBlockCapacity);
-    load(ar, v.samplerTextureCapacity);
-    load(ar, v.descriptorGroupBlocks);
-    load(ar, v.uniformBlocks);
-    load(ar, v.bindingMap);
-}
-
-void save(OutputArchive& ar, const DescriptorGroupData& v) {
-    save(ar, v.descriptorGroupLayoutData);
-}
-
-void load(InputArchive& ar, DescriptorGroupData& v) {
-    load(ar, v.descriptorGroupLayoutData);
 }
 
 void save(OutputArchive& ar, const PipelineLayoutData& v) {
@@ -544,3 +494,4 @@ void load(InputArchive& ar, LayoutGraphData& g) {
 } // namespace render
 
 } // namespace cc
+// NOLINTEND(misc-include-cleaner)

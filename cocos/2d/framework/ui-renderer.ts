@@ -208,6 +208,7 @@ export class UIRenderer extends Renderer {
     /**
      * As can not set setter internal individually, so add setRenderData();
      * @engineInternal
+     * @mangle
      */
     setRenderData (renderData: RenderData | null): void {
         this._renderData = renderData;
@@ -277,6 +278,7 @@ export class UIRenderer extends Renderer {
     public _internalId = -1;
     /**
      * @engineInternal
+     * @mangle
      */
     public _flagChangedVersion = -1;
 
@@ -327,14 +329,14 @@ export class UIRenderer extends Renderer {
         this.updateMaterial();
         this._colorDirty();
         uiRendererManager.addRenderer(this);
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     // For Redo, Undo
     public onRestore (): void {
         this.updateMaterial();
         // restore render data
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     public onDisable (): void {
@@ -369,6 +371,17 @@ export class UIRenderer extends Renderer {
      * @param enable Marked necessary to update or not
      */
     public markForUpdateRenderData (enable = true): void {
+        this._markForUpdateRenderData(enable);
+    }
+
+    /**
+     * An internal method that marks the render data of the current component as modified so that the render data is recalculated.
+     * Adding this method is to minify the function name by `@mangle` since this method is frequently used in the engine.
+     * To keep the compatibility, the original method is still kept.
+     * @engineInternal
+     * @mangle
+     */
+    public _markForUpdateRenderData (enable = true): void {
         if (enable) {
             const renderData = this._renderData;
             if (renderData) {
@@ -377,7 +390,6 @@ export class UIRenderer extends Renderer {
             uiRendererManager.markDirtyRenderer(this);
         }
     }
-
     /**
      * @en Request new render data object.
      * @zh 请求新的渲染数据对象。
@@ -407,8 +419,9 @@ export class UIRenderer extends Renderer {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public updateRenderer (): void {
-        if (this._assembler) {
-            this._assembler.updateRenderData(this);
+        const assembler = this._assembler;
+        if (assembler && assembler.updateRenderData) {
+            assembler.updateRenderData(this);
         }
         this._renderFlag = this._canRender();
         this._renderEntity.enabled = this._renderFlag;
@@ -459,6 +472,10 @@ export class UIRenderer extends Renderer {
     }
 
     /**
+     * cocos-test-projects/assets/cases/rendertexture depends on this method, so it should not be marked as `@mangle` now.
+     * FIXME(cjh): `protected` is not equal to `@engineInternal + public`, because `protected` methods are also APIs exposed to developers,
+     * For example, developers could implement a class which extends `UIRenderer` and call this method.
+     * The mistake was merged in https://github.com/cocos/cocos-engine/pull/14572 , and it needs to be fixed in the future.
      * @engineInternal
      */
     public updateMaterial (): void {
@@ -482,8 +499,11 @@ export class UIRenderer extends Renderer {
         this.setEntityColor(this._color);
         this.setEntityOpacity(this.node._uiProps.localOpacity);
 
-        if (this._assembler) {
-            this._assembler.updateColor(this);
+        const assembler = this._assembler;
+        if (assembler) {
+            if (assembler.updateColor) {
+                assembler.updateColor(this);
+            }
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             const renderFlag = this._renderFlag;
             this._renderFlag = this._canRender();
@@ -569,14 +589,14 @@ export class UIRenderer extends Renderer {
     // pos, rot, scale changed
     protected _nodeStateChange (transformType: TransformBit): void {
         if (this._renderData) {
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
 
         for (let i = 0; i < this.node.children.length; ++i) {
             const child = this.node.children[i];
             const renderComp = child.getComponent(UIRenderer);
             if (renderComp) {
-                renderComp.markForUpdateRenderData();
+                renderComp._markForUpdateRenderData();
             }
         }
     }
@@ -588,7 +608,7 @@ export class UIRenderer extends Renderer {
 
     protected _onMaterialModified (idx: number, material: Material | null): void {
         if (this._renderData) {
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
             this._renderData.passDirty = true;
         }
         super._onMaterialModified(idx, material);

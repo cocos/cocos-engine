@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { TEST } from 'internal:constants';
+import { TEST, USE_XR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
 import { Material } from '../asset/assets/material';
@@ -33,7 +33,7 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, settings, warnID, SettingsCategory } from '../core';
+import { preTransforms, System, sys, cclegacy, settings, warnID, SettingsCategory, CCObjectFlags } from '../core';
 import { Root } from '../root';
 import { director, DirectorEvent, game } from '../game';
 import { ccwindow } from '../core/global-exports';
@@ -216,19 +216,21 @@ export class Profiler extends System {
         }
 
         const { textureWidth, textureHeight } = _constants;
+        const canvas = this._canvas;
+        const ctx = this._ctx;
 
-        if (!this._ctx || !this._canvas) {
+        if (!ctx || !canvas) {
             return;
         }
 
-        this._canvas.width = textureWidth;
-        this._canvas.height = textureHeight;
-        this._canvas.style.width = `${this._canvas.width}`;
-        this._canvas.style.height = `${this._canvas.height}`;
+        canvas.width = textureWidth;
+        canvas.height = textureHeight;
+        canvas.style.width = `${canvas.width}`;
+        canvas.style.height = `${canvas.height}`;
 
-        this._ctx.font = `${_constants.fontSize}px Arial`;
-        this._ctx.textBaseline = 'top';
-        this._ctx.fillStyle = '#fff';
+        ctx.font = `${_constants.fontSize}px Arial`;
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = '#fff';
 
         this._texture = this._device!.createTexture(new TextureInfo(
             TextureType.TEX2D,
@@ -238,8 +240,9 @@ export class Profiler extends System {
             textureHeight,
         ));
 
-        this._region.texExtent.width = textureWidth;
-        this._region.texExtent.height = textureHeight;
+        const texExtent = this._region.texExtent;
+        texExtent.width = textureWidth;
+        texExtent.height = textureHeight;
     }
 
     public generateStats (): void {
@@ -280,7 +283,7 @@ export class Profiler extends System {
         }
 
         this._rootNode = new Node('PROFILER_NODE');
-        this._rootNode._objFlags = cclegacy.Object.Flags.DontSave | cclegacy.Object.Flags.HideInHierarchy;
+        this._rootNode._objFlags = CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
         game.addPersistRootNode(this._rootNode);
 
         const managerNode = new Node('Profiler_Root');
@@ -402,7 +405,7 @@ export class Profiler extends System {
         if (surfaceTransform !== this.offsetData[3]) {
             const preTransform = preTransforms[surfaceTransform];
             let x = -0.9; let y = -0.9 * clipSpaceSignY;
-            if (sys.isXR) {
+            if (USE_XR && sys.isXR) {
                 x = -0.5; y = -0.5 * clipSpaceSignY;
             }
             this.offsetData[0] = x * preTransform[0] + y * preTransform[2];

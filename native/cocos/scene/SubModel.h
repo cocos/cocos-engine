@@ -56,31 +56,31 @@ public:
     gfx::Shader *getShader(uint32_t) const;
     Pass *getPass(uint32_t) const;
 
-    inline void setWorldBoundDescriptorSet(gfx::DescriptorSet *descriptorSet) { _worldBoundDescriptorSet = descriptorSet; }
-    inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }
-    inline void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
-    inline void setShaders(const ccstd::vector<IntrusivePtr<gfx::Shader>> &shaders) { _shaders = shaders; }
+    void setWorldBoundDescriptorSet(gfx::DescriptorSet *descriptorSet) { _worldBoundDescriptorSet = descriptorSet; }
+    void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }
+    void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
+    void setShaders(const ccstd::vector<IntrusivePtr<gfx::Shader>> &shaders) { _shaders = shaders; }
     void setPasses(const SharedPassArray &passes);
-    inline void setPriority(pipeline::RenderPriority priority) { _priority = priority; }
-    inline void setOwner(Model *model) { _owner = model; }
+    void setPriority(pipeline::RenderPriority priority) { _priority = priority; }
+    void setOwner(Model *model) { _owner = model; }
     void setSubMesh(RenderingSubMesh *subMesh);
-    inline void setInstancedWorldMatrixIndex(int32_t worldMatrixIndex) { _instancedWorldMatrixIndex = worldMatrixIndex; }
-    inline void setInstancedSHIndex(int32_t index) { _instancedSHIndex = index; }
+    void setInstancedWorldMatrixIndex(int32_t worldMatrixIndex) { _instancedWorldMatrixIndex = worldMatrixIndex; }
+    void setInstancedSHIndex(int32_t index) { _instancedSHIndex = index; }
     void setInstancedAttribute(const ccstd::string &name, const TypedArray &value);
 
-    inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
-    inline gfx::DescriptorSet *getWorldBoundDescriptorSet() const { return _worldBoundDescriptorSet; }
-    inline gfx::InputAssembler *getInputAssembler() const { return _inputAssembler; }
-    inline const ccstd::vector<IntrusivePtr<gfx::Shader>> &getShaders() const { return _shaders; }
-    inline const SharedPassArray &getPasses() const { return _passes; }
-    inline const ccstd::vector<IMacroPatch> &getPatches() const { return _patches; }
-    inline pipeline::RenderPriority getPriority() const { return _priority; }
-    inline RenderingSubMesh *getSubMesh() const { return _subMesh; }
-    inline Model *getOwner() const { return _owner; }
-    inline uint32_t getId() const { return _id; }
-    inline InstancedAttributeBlock &getInstancedAttributeBlock() { return _instancedAttributeBlock; }
-    inline int32_t getInstancedWorldMatrixIndex() const { return _instancedWorldMatrixIndex; }
-    inline int32_t getInstancedSHIndex() const { return _instancedSHIndex; }
+    gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
+    gfx::DescriptorSet *getWorldBoundDescriptorSet() const { return _worldBoundDescriptorSet; }
+    gfx::InputAssembler *getInputAssembler() const { return _inputAssembler; }
+    const ccstd::vector<IntrusivePtr<gfx::Shader>> &getShaders() const { return _shaders; }
+    const SharedPassArray &getPasses() const { return _passes; }
+    const ccstd::vector<IMacroPatch> &getPatches() const { return _patches; }
+    pipeline::RenderPriority getPriority() const { return _priority; }
+    RenderingSubMesh *getSubMesh() const { return _subMesh; }
+    Model *getOwner() const { return _owner; }
+    uint32_t getId() const { return _id; }
+    InstancedAttributeBlock &getInstancedAttributeBlock() { return _instancedAttributeBlock; }
+    int32_t getInstancedWorldMatrixIndex() const { return _instancedWorldMatrixIndex; }
+    int32_t getInstancedSHIndex() const { return _instancedSHIndex; }
     int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
 
     void initialize(RenderingSubMesh *subMesh, const SharedPassArray &passes, const ccstd::vector<IMacroPatch> &patches);
@@ -91,7 +91,7 @@ public:
     void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes);
     void updateInstancedWorldMatrix(const Mat4 &mat, int32_t idx);
     void updateInstancedSH(const Float32Array &data, int32_t idx);
-    inline int32_t getReflectionProbeType() const { return _reflectionProbeType; }
+    int32_t getReflectionProbeType() const { return _reflectionProbeType; }
     void setReflectionProbeType(int32_t val) { _reflectionProbeType = val; }
 
 protected:
@@ -105,12 +105,10 @@ protected:
 
     gfx::Device *_device{nullptr};
     Model *_owner{nullptr};
-    gfx::Sampler *_reflectionSampler{nullptr};
 
     IntrusivePtr<gfx::InputAssembler> _inputAssembler;
     IntrusivePtr<gfx::DescriptorSet> _descriptorSet;
     IntrusivePtr<gfx::DescriptorSet> _worldBoundDescriptorSet;
-    IntrusivePtr<gfx::Texture> _reflectionTex;
     IntrusivePtr<RenderingSubMesh> _subMesh;
 
     InstancedAttributeBlock _instancedAttributeBlock{};
@@ -124,7 +122,7 @@ protected:
     int32_t _reflectionProbeType{0};
 
 private:
-    static inline int32_t generateId() {
+    static int32_t generateId() {
         static int32_t generator = 0;
         return generator++;
     }

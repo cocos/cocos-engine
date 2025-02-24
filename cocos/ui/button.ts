@@ -25,7 +25,7 @@
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin,
     rangeMax, serializable, executeInEditMode } from 'cc.decorator';
-import { DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW, USE_XR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { UITransform, UIRenderer } from '../2d/framework';
@@ -673,9 +673,9 @@ export class Button extends Component {
         if (!this.target) {
             return;
         }
-        const targetTrans = this.target._uiProps.uiTransformComp;
+        const targetTrans = this.target._getUITransformComp();
         if (EDITOR && targetTrans) {
-            this.node._uiProps.uiTransformComp!.setContentSize(targetTrans.contentSize);
+            this.node._getUITransformComp()!.setContentSize(targetTrans.contentSize);
         }
     }
 
@@ -700,18 +700,22 @@ export class Button extends Component {
     }
 
     protected _registerNodeEvent (): void {
-        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMove, this);
-        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(NodeEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+        const self = this;
+        const node = self.node;
+        node.on(NodeEventType.TOUCH_START, self._onTouchBegan, self);
+        node.on(NodeEventType.TOUCH_MOVE, self._onTouchMove, self);
+        node.on(NodeEventType.TOUCH_END, self._onTouchEnded, self);
+        node.on(NodeEventType.TOUCH_CANCEL, self._onTouchCancel, self);
 
-        this.node.on(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-        this.node.on(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        node.on(NodeEventType.MOUSE_ENTER, self._onMouseMoveIn, self);
+        node.on(NodeEventType.MOUSE_LEAVE, self._onMouseMoveOut, self);
 
-        this.node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
-        this.node.on(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
-        this.node.on(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
-        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
+        if (USE_XR) {
+            node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
+            node.on(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+            node.on(XrUIPressEventType.XRUI_CLICK, self._xrClick, self);
+            node.on(XrUIPressEventType.XRUI_UNCLICK, self._xrUnClick, self);
+        }
     }
 
     protected _registerTargetEvent (target): void {
@@ -723,18 +727,23 @@ export class Button extends Component {
     }
 
     protected _unregisterNodeEvent (): void {
-        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMove, this);
-        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.off(NodeEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+        const self = this;
+        const node = self.node;
 
-        this.node.off(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-        this.node.off(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        node.off(NodeEventType.TOUCH_START, self._onTouchBegan, self);
+        node.off(NodeEventType.TOUCH_MOVE, self._onTouchMove, self);
+        node.off(NodeEventType.TOUCH_END, self._onTouchEnded, self);
+        node.off(NodeEventType.TOUCH_CANCEL, self._onTouchCancel, self);
 
-        this.node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
-        this.node.off(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
-        this.node.off(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
-        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
+        node.off(NodeEventType.MOUSE_ENTER, self._onMouseMoveIn, self);
+        node.off(NodeEventType.MOUSE_LEAVE, self._onMouseMoveOut, self);
+
+        if (USE_XR) {
+            node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, self._xrHoverEnter, self);
+            node.off(XrUIPressEventType.XRUI_HOVER_EXITED, self._xrHoverExit, self);
+            node.off(XrUIPressEventType.XRUI_CLICK, self._xrClick, self);
+            node.off(XrUIPressEventType.XRUI_UNCLICK, self._xrUnClick, self);
+        }
     }
 
     protected _unregisterTargetEvent (target): void {
@@ -849,7 +858,7 @@ export class Button extends Component {
             return;
         }
 
-        const hit = this.node._uiProps.uiTransformComp!.hitTest(touch.getLocation(), event.windowId);
+        const hit = this.node._getUITransformComp()!.hitTest(touch.getLocation(), event.windowId);
 
         if (this._transition === Transition.SCALE && this.target && this._originalScale) {
             if (hit) {
@@ -1044,11 +1053,13 @@ export class Button extends Component {
     }
 
     private _xrHoverEnter (): void {
+        if (!USE_XR) return;
         this._onMouseMoveIn();
         this._updateState();
     }
 
     private _xrHoverExit (): void {
+        if (!USE_XR) return;
         this._onMouseMoveOut();
         if (this._pressed) {
             this._pressed = false;
@@ -1057,12 +1068,14 @@ export class Button extends Component {
     }
 
     private _xrClick (): void {
+        if (!USE_XR) return;
         if (!this._interactable || !this.enabledInHierarchy) { return; }
         this._pressed = true;
         this._updateState();
     }
 
     private _xrUnClick (): void {
+        if (!USE_XR) return;
         if (!this._interactable || !this.enabledInHierarchy) {
             return;
         }

@@ -40,17 +40,20 @@ export class BuiltinResMgr {
     protected _resources: Record<string, Asset> = {};
     protected _materialsToBeCompiled: Material[] = [];
 
+    constructor () {}
+
     // this should be called after renderer initialized
     public init (): void {
         const resources = this._resources;
         const len = 2;
         const numChannels = 4;
+        const byteLength = len * len * numChannels;
 
-        const blackValueView   = new Uint8Array(len * len * numChannels);
-        const emptyValueView   = new Uint8Array(len * len * numChannels);
-        const greyValueView    = new Uint8Array(len * len * numChannels);
-        const whiteValueView   = new Uint8Array(len * len * numChannels);
-        const normalValueView  = new Uint8Array(len * len * numChannels);
+        const blackValueView   = new Uint8Array(byteLength);
+        const emptyValueView   = new Uint8Array(byteLength);
+        const greyValueView    = new Uint8Array(byteLength);
+        const whiteValueView   = new Uint8Array(byteLength);
+        const normalValueView  = new Uint8Array(byteLength);
 
         let offset = 0;
         for (let i = 0; i < len * len; i++) {

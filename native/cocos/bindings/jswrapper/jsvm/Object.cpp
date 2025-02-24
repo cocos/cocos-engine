@@ -42,6 +42,9 @@ Object::~Object() {
     if (__objectMap) {
         __objectMap->erase(this);
     }
+
+    delete _privateObject;
+    _privateObject = nullptr;
 }
 
 Object* Object::createObjectWithClass(Class* cls) {
@@ -646,7 +649,6 @@ std::string Object::toString() const {
 }
 
 void Object::root() {
-    JSVM_Status status;
     if (_rootCount == 0) {
         uint32_t result = 0;
         _objRef.incRef(_env);
@@ -655,7 +657,6 @@ void Object::root() {
 }
 
 void Object::unroot() {
-    JSVM_Status status;
     if (_rootCount > 0) {
         --_rootCount;
         if (_rootCount == 0) {
@@ -698,8 +699,10 @@ void Object::weakCallback(JSVM_Env env, void* nativeObject, void* finalizeHint /
         }
         void* rawPtr = reinterpret_cast<Object*>(finalizeHint)->_privateData;
         Object* seObj = reinterpret_cast<Object*>(finalizeHint);
-        Object* rawPtrObj = reinterpret_cast<Object*>(rawPtr);
         if (seObj->_onCleaingPrivateData) { //called by cleanPrivateData, not release seObj;
+            return;
+        }
+        if(!NativePtrToObjectMap::isValid()) {
             return;
         }
         if (seObj->_clearMappingInFinalizer && rawPtr != nullptr) {
@@ -738,11 +741,11 @@ void Object::cleanup() {
         obj = e.second;
 
         if (obj->_finalizeCb != nullptr) {
-            obj->_finalizeCb(ScriptEngine::getEnv(), nativeObj, nullptr);
+            obj->_finalizeCb(ScriptEngine::getEnv(), obj, nullptr);
         } else {
             if (obj->_getClass() != nullptr) {
                 if (obj->_getClass()->_getFinalizeFunction() != nullptr) {
-                    obj->_getClass()->_getFinalizeFunction()(ScriptEngine::getEnv(), nativeObj, nullptr);
+                    obj->_getClass()->_getFinalizeFunction()(ScriptEngine::getEnv(), obj, nullptr);
                 }
             }
         }
@@ -843,6 +846,15 @@ void Object::clearPrivateData(bool clearMapping) {
         _privateData = nullptr;
         _onCleaingPrivateData = false;
     }
+}
+
+JSVM_Value ObjectRef::getValue(JSVM_Env env) const {
+    JSVM_Value  result;
+    JSVM_Status status;
+    NODE_API_CALL(status, env, OH_JSVM_GetReferenceValue(env, _ref, &result));
+    assert(status == JSVM_OK);
+    assert(result != nullptr);
+    return result;
 }
 
 Object* Object::createUTF8String(const std::string& str) {

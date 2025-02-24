@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+/** @mangle */
 class Aim {
     // vertex index in coordinates array
     public declare i: number;
@@ -317,7 +318,7 @@ function compareX (a, b): number {
     return a.x - b.x;
 }
 
-// find a bridge between vertices that connects hole with an outer ring and and link it
+// find a bridge between vertices that connects hole with an outer ring and link it
 function eliminateHole (hole: Aim, outerNode: Aim | null): void {
     outerNode = findHoleBridge(hole, outerNode!);
     if (outerNode) {

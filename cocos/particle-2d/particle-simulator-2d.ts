@@ -25,8 +25,9 @@
 import { Vec2, Color, js, random, IColorLike, Vec4, clamp, toRadian, toDegree } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
-import { ParticleSystem2D } from './particle-system-2d';
-import { MeshRenderData } from '../2d/renderer/render-data';
+import type { ParticleSystem2D } from './particle-system-2d';
+import type { MeshRenderData } from '../2d/renderer/render-data';
+import type { Particle2DAssembler } from './particle-system-2d-assembler';
 
 const _pos = new Vec2();
 const _tpa = new Vec2();
@@ -105,7 +106,7 @@ export class Simulator {
     public active = false;
     public uvFilled = 0;
     public finished = false;
-    public declare renderData: MeshRenderData;
+    public renderData: MeshRenderData | null = null;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
@@ -329,7 +330,7 @@ export class Simulator {
     }
 
     public step (dt: number): void {
-        const assembler = this.sys.assembler!;
+        const assembler = this.sys.assembler as Particle2DAssembler;
         const psys = this.sys;
         const node = psys.node;
         const particles = this.particles;
@@ -368,6 +369,7 @@ export class Simulator {
 
         // Request buffer for particles
         const renderData = this.renderData;
+        if (!renderData) return;
         const particleCount = particles.length;
         renderData.reset();
         this.requestData(particleCount * 4, particleCount * 6);
@@ -467,8 +469,8 @@ export class Simulator {
             }
         }
 
-        this.renderData.material = this.sys.getRenderMaterial(0); // hack
-        this.renderData.frame = this.sys._renderSpriteFrame; // hack
+        renderData.material = this.sys.getRenderMaterial(0); // hack
+        renderData.frame = this.sys._renderSpriteFrame; // hack
         renderData.setRenderDrawInfoAttributes();
 
         if (particles.length === 0 && !this.active && !this.readyToPlay) {
@@ -478,6 +480,7 @@ export class Simulator {
     }
 
     requestData (vertexCount: number, indexCount: number): void {
+        if (!this.renderData) return;
         let offset = this.renderData.indexCount;
         this.renderData.request(vertexCount, indexCount);
         const count = this.renderData.indexCount / 6;
@@ -494,7 +497,6 @@ export class Simulator {
     }
 
     public initDrawInfo (): void {
-        const renderData = this.renderData;
-        renderData.setRenderDrawInfoAttributes();
+        this.renderData?.setRenderDrawInfoAttributes();
     }
 }

@@ -1,6 +1,7 @@
 import { ContextType } from '../../../ets/common/Constants';
+import resourceManager from '@ohos.resourceManager';
 
-interface context {
+export interface context {
   onPageShow: () => void;
   onPageHide: () => void;
   workerInit: () => void;
@@ -21,10 +22,11 @@ interface context {
   onDestroy: () => void;
   onShow: () => void;
   onHide: () => void;
-  resourceManagerInit: (resourceManager: any) => void;
+  resourceManagerInit: (resourceManager: resourceManager.ResourceManager) => void;
   writablePathInit: (cacheDir: string) => void;
   onVideoEvent: (param: string) => void;
   registerFunction: (name:string ,fun:Function) => void;
 }
 
 export const getContext: (type: ContextType) => context;
+export const evalString: (value: string) => any;

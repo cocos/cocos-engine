@@ -24,12 +24,13 @@
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, override, displayOrder, editable, visible } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
-import { error, logID, warn } from '../core/platform/debug';
+import { error, errorID, logID, warn } from '../core/platform/debug';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node, NodeEventType } from '../scene-graph';
-import { CCObject, Color, RecyclePool, js } from '../core';
+import { CCObjectFlags, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
-import { Graphics, UIRenderer } from '../2d';
+import type { Graphics } from '../2d/components/graphics';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
 import { MaterialInstance } from '../render-scene';
@@ -43,6 +44,7 @@ import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame, SkeletonCacheItemInfo } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
+import { RenderData } from '../2d/renderer/render-data';
 
 const CachedFrameTime = 1 / 60;
 
@@ -297,16 +299,19 @@ export class Skeleton extends UIRenderer {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _debugRenderer: Graphics | null = null;
     /**
      * @engineInternal
+     * @mangle
      */
-    public _startSlotIndex;
+    public _startSlotIndex: number;
     /**
      * @engineInternal
+     * @mangle
      */
-    public _endSlotIndex;
+    public _endSlotIndex: number;
 
     private _customMaterialInstance: MaterialInstance | null = null;
     _vLength = 0;
@@ -410,7 +415,7 @@ export class Skeleton extends UIRenderer {
             this.defaultSkin = String(skinName);
             this.setSkin(this.defaultSkin);
             this._refreshInspector();
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         } else {
             error(`${this.name} skin enums are invalid`);
         }
@@ -489,7 +494,7 @@ export class Skeleton extends UIRenderer {
         if (v !== this._premultipliedAlpha) {
             this._premultipliedAlpha = v;
             this._instance!.setPremultipliedAlpha(v);
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
     }
 
@@ -571,7 +576,7 @@ export class Skeleton extends UIRenderer {
         if (v !== this._debugSlots) {
             this._debugSlots = v;
             this._updateDebugDraw();
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
     }
 
@@ -585,7 +590,7 @@ export class Skeleton extends UIRenderer {
         if (v !== this._debugBones) {
             this._debugBones = v;
             this._updateDebugDraw();
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
     }
 
@@ -599,7 +604,7 @@ export class Skeleton extends UIRenderer {
         if (value !== this._debugMesh) {
             this._debugMesh = value;
             this._updateDebugDraw();
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
     }
     get socketNodes (): Map<number, Node> | null { return this._socketNodes; }
@@ -633,7 +638,7 @@ export class Skeleton extends UIRenderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this.updateMaterial();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     get customMaterialInstance (): MaterialInstance | null {
@@ -665,7 +670,7 @@ export class Skeleton extends UIRenderer {
      */
     public onRestore (): void {
         this.updateMaterial();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -947,7 +952,7 @@ export class Skeleton extends UIRenderer {
             this._animationName = name;
             trackEntry = this._instance!.setAnimation(trackIndex, name, loop);
         }
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
         return trackEntry;
     }
     /**
@@ -1040,7 +1045,7 @@ export class Skeleton extends UIRenderer {
      * @param dt @en delta time. @zh 时间差。
      */
     public updateAnimation (dt: number): void {
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
         if (this.paused) return;
         if (this.isAnimationCached()) {
             // On realTime mode, dt is multiplied at native side.
@@ -1141,9 +1146,9 @@ export class Skeleton extends UIRenderer {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._skeleton && this._assembler) {
-            this._renderData = this._assembler.createData(this);
-            this.markForUpdateRenderData();
+        if (this._skeleton && this._assembler && this._assembler.createData) {
+            this._renderData = this._assembler.createData(this) as RenderData;
+            this._markForUpdateRenderData();
             this._updateColor();
         }
     }
@@ -1189,7 +1194,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @engineInternal
      */
-    public updateMaterial (): void {
+    public override updateMaterial (): void {
         let mat: Material;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
@@ -1312,9 +1317,9 @@ export class Skeleton extends UIRenderer {
      * @zh 标记重新更新渲染数据，一般用于强制刷新显示。
      */
     public markForUpdateRenderData (enable = true): void {
-        super.markForUpdateRenderData(enable);
+        super._markForUpdateRenderData(enable);
         if (this._debugRenderer) {
-            this._debugRenderer.markForUpdateRenderData(enable);
+            this._debugRenderer._markForUpdateRenderData(enable);
         }
     }
 
@@ -1353,7 +1358,7 @@ export class Skeleton extends UIRenderer {
                 this._instance.isCache = this.isAnimationCached();
             }
             this._updateSkeletonData();
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
     }
 
@@ -1597,31 +1602,40 @@ export class Skeleton extends UIRenderer {
                 this._instance!.setUseTint(this._useTint);
             }
         }
-        if (this._assembler && this._skeleton) {
-            this._renderData = this._assembler.createData(this);
-            this.markForUpdateRenderData();
+        const assembler = this._assembler;
+        if (assembler && assembler.createData && this._skeleton) {
+            this._renderData = assembler.createData(this) as RenderData;
+            this._markForUpdateRenderData();
         }
     }
 
     // if change use batch mode, just clear material cache
     protected _updateBatch (): void {
         this._cleanMaterialCache();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     protected _updateDebugDraw (): void {
         if (this.debugBones || this.debugSlots || this.debugMesh) {
             if (!this._debugRenderer) {
-                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                let debugDrawNode: Node | null = new Node('DEBUG_DRAW_NODE');
                 debugDrawNode.layer = this.node.layer;
-                debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-                const debugDraw = debugDrawNode.addComponent(Graphics);
-                debugDraw.lineWidth = 5;
-                debugDraw.strokeColor = new Color(255, 0, 0, 255);
+                debugDrawNode.hideFlags |= CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
+                let debugDraw: Graphics | null = null;
 
-                this._debugRenderer = debugDraw;
-                debugDrawNode.parent = this.node;
-                this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
+                try {
+                    debugDraw = debugDrawNode.addComponent('cc.Graphics') as Graphics;
+                    debugDraw.lineWidth = 5;
+                    debugDraw.strokeColor = new Color(255, 0, 0, 255);
+
+                    this._debugRenderer = debugDraw;
+                    debugDrawNode.parent = this.node;
+                    this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
+                } catch (e: any) {
+                    errorID(4501, e.message as string);
+                    debugDrawNode.destroy();
+                    debugDrawNode = null;
+                }
             }
             if (this.isAnimationCached()) {
                 warn('Debug bones or slots is invalid in cached mode');
@@ -1641,7 +1655,7 @@ export class Skeleton extends UIRenderer {
     }
 
     private _updateUITransform (): void {
-        const uiTrans = this.node._uiProps.uiTransformComp!;
+        const uiTrans = this.node._getUITransformComp()!;
         const skeletonData = this._runtimeData;
         if (!skeletonData) {
             uiTrans.setContentSize(100, 100);

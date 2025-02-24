@@ -35,6 +35,7 @@ import { Orientation } from '../../pal/screen-adapter/enum-type';
 import { director } from '../game/director';
 import { settings, SettingsCategory } from '../core/settings';
 import type { Root } from '../root';
+import type { Game } from '../game';
 
 /**
  * @en View represents the game window.<br/>
@@ -580,6 +581,7 @@ export class View extends Eventify(System) {
     /**
      * Convert location in Cocos screen coordinate to location in UI space
      * @engineInternal
+     * @mangle
      */
     public _convertToUISpace (point: Vec2): void {
         const viewport = this._viewportRect;
@@ -590,9 +592,10 @@ export class View extends Eventify(System) {
     private _updateAdaptResult (width: number, height: number, windowId?: number): void {
         // The default invalid windowId is 0
         (cclegacy.director.root as Root).resize(width, height, (windowId === undefined || windowId === 0) ? 1 : windowId);
+        const designResolutionSize = this._designResolutionSize;
         // Frame size changed, do resize works
-        const w = this._designResolutionSize.width;
-        const h = this._designResolutionSize.height;
+        const w = designResolutionSize.width;
+        const h = designResolutionSize.height;
 
         if (width > 0 && height > 0) {
             this.setDesignResolutionSize(w, h, this._resolutionPolicy);
@@ -601,7 +604,7 @@ export class View extends Eventify(System) {
         }
 
         this.emit('canvas-resize');
-        this._resizeCallback?.();
+        if (this._resizeCallback) this._resizeCallback();
     }
 }
 
@@ -659,7 +662,7 @@ class ContainerStrategy {
 
     protected _setupCanvas (): void {
         // TODO: need to figure out why set width and height of canvas
-        const locCanvas = cclegacy.game.canvas;
+        const locCanvas = (cclegacy.game as Game).canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
             if (locCanvas.width !== windowSize.width) {
@@ -756,9 +759,10 @@ class ContentStrategy {
             contentH,
         );
 
-        this._result.scale = [scaleX, scaleY];
-        this._result.viewport = viewport;
-        return this._result;
+        const result = this._result;
+        result.scale = [scaleX, scaleY];
+        result.viewport = viewport;
+        return result;
     }
 }
 
@@ -791,7 +795,7 @@ class ProportionalToFrame extends ContainerStrategy {
         super();
     }
 
-    public apply (_view, designedResolution): void {
+    public apply (_view: View, designedResolution: Size): void {
         screenAdapter.isProportionalToFrame = true;
         this._setupCanvas();
     }
@@ -830,7 +834,7 @@ class ShowAll extends ContentStrategy {
         this._strategy = ResolutionPolicy.SHOW_ALL;
     }
 
-    public apply (_view, designedResolution): AdaptResult {
+    public apply (_view: View, designedResolution: Size): AdaptResult {
         const windowSize = screen.windowSize;
         const containerW = windowSize.width;
         const containerH = windowSize.height;
@@ -898,7 +902,7 @@ class FixedHeight extends ContentStrategy {
         this._strategy = ResolutionPolicy.FIXED_HEIGHT;
     }
 
-    public apply (_view, designedResolution): AdaptResult {
+    public apply (_view: View, designedResolution: Size): AdaptResult {
         const windowSize = screen.windowSize;
         const containerW = windowSize.width;
         const containerH = windowSize.height;
@@ -919,7 +923,7 @@ class FixedWidth extends ContentStrategy {
         this._strategy = ResolutionPolicy.FIXED_WIDTH;
     }
 
-    public apply (_view, designedResolution): AdaptResult {
+    public apply (_view: View, designedResolution: Size): AdaptResult {
         const windowSize = screen.windowSize;
         const containerW = windowSize.width;
         const containerH = windowSize.height;
