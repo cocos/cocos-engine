@@ -39,7 +39,6 @@
       "./native/external/emscripten/spine/spine",
       "./native/external/emscripten/meshopt/meshopt_decoder",
       "./native/external/emscripten/box2d/box2d",
-      "./native/external/emscripten/box2d/box2d-jsb",
 
       // pal
       "./@types/pal/system-info",
@@ -50,6 +49,7 @@
       "./@types/pal/env",
       "./@types/pal/pacer",
       "./@types/pal/wasm",
+      "./@types/box2d-jsb",
     ]
   },
   "include": [
