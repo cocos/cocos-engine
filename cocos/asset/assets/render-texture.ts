@@ -61,8 +61,8 @@ const _windowInfo: IRenderWindowInfo = {
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends TextureBase {
     private _window: RenderWindow | null = null;
-    constructor () {
-        super();
+    constructor (name?: string) {
+        super(name);
     }
 
     /**
@@ -167,6 +167,7 @@ export class RenderTexture extends TextureBase {
      * @zh 初始化渲染贴图的具体实现。
      * @param info @en The create info of render texture. @zh 渲染贴图的创建信息。
      * @engineInternal
+     * @mangle
      */
     protected _initWindow (info?: IRenderTextureCreateInfo): void {
         const root = cclegacy.director.root as Root;

@@ -78,6 +78,11 @@ public:
     ScriptEngine();
     ~ScriptEngine();
     /**
+	     *  @brief Shut down the JSVM engine, because cleanup doesn't destroy all objects immediately.
+	     */
+	void closeEngine();
+	
+    /**
          *  @brief Sets the delegate for file operation.
          *  @param delegate[in] The delegate instance for file operation.
          */
@@ -120,6 +125,10 @@ public:
          *  @param[in] cb The callback function to notify that an exception is fired.
          */
     void setExceptionCallback(const ExceptionCallback &cb);
+
+     ExceptionCallback& getExceptionCallback() {
+          return _exceptionCallback;
+     }
 
     /**
          * @brief Grab a snapshot of the current JavaScript execution stack.
@@ -300,6 +309,7 @@ private:
     JSVM_VM _vm         = nullptr;
     JSVM_VMScope _vmScope = nullptr;
     JSVM_EnvScope _envScope = nullptr;
+    ExceptionCallback _exceptionCallback;
 
     bool _isValid{false};
     bool _isGarbageCollecting{false};

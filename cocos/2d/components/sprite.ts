@@ -27,14 +27,14 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame, SpriteFrameEvent } from '../assets/sprite-frame';
-import { Vec2, cclegacy, ccenum, clamp, warnID, error } from '../../core';
+import { Vec2, cclegacy, ccenum, clamp, warnID } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { Material, RenderTexture } from '../../asset/assets';
 import { NodeEventType } from '../../scene-graph/node-event';
-import assetManager from '../../asset/asset-manager/asset-manager';
+import type { RenderData } from '../renderer/render-data';
 
 /**
  * @en
@@ -181,7 +181,6 @@ export class Sprite extends UIRenderer {
      */
     @type(SpriteAtlas)
     @displayOrder(4)
-    @tooltip('i18n:sprite.atlas')
     get spriteAtlas (): SpriteAtlas | null {
         return this._atlas;
     }
@@ -201,7 +200,6 @@ export class Sprite extends UIRenderer {
      */
     @type(SpriteFrame)
     @displayOrder(5)
-    @tooltip('i18n:sprite.sprite_frame')
     get spriteFrame (): SpriteFrame | null {
         return this._spriteFrame;
     }
@@ -212,7 +210,7 @@ export class Sprite extends UIRenderer {
 
         const lastSprite = this._spriteFrame;
         this._spriteFrame = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
         this._applySpriteFrame(lastSprite);
         if (EDITOR) {
             this.node.emit(SpriteEventType.SPRITE_FRAME_CHANGED, this);
@@ -234,7 +232,6 @@ export class Sprite extends UIRenderer {
      */
     @type(SpriteType)
     @displayOrder(6)
-    @tooltip('i18n:sprite.type')
     get type (): SpriteType {
         return this._type;
     }
@@ -269,7 +266,7 @@ export class Sprite extends UIRenderer {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 this.destroyRenderData();
             } else if (this.renderData) {
-                this.markForUpdateRenderData(true);
+                this._markForUpdateRenderData(true);
             }
         }
 
@@ -299,7 +296,7 @@ export class Sprite extends UIRenderer {
         this._fillCenter.x = value.x;
         this._fillCenter.y = value.y;
         if (this._type === SpriteType.FILLED && this.renderData) {
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
     }
 
@@ -326,7 +323,7 @@ export class Sprite extends UIRenderer {
     set fillStart (value) {
         this._fillStart = clamp(value, 0, 1);
         if (this._type === SpriteType.FILLED && this.renderData) {
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
             this._updateUVs();
         }
     }
@@ -354,7 +351,7 @@ export class Sprite extends UIRenderer {
         // positive: counterclockwise, negative: clockwise
         this._fillRange = clamp(value, -1, 1);
         if (this._type === SpriteType.FILLED && this.renderData) {
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
             this._updateUVs();
         }
     }
@@ -374,7 +371,6 @@ export class Sprite extends UIRenderer {
         return this._type === SpriteType.SIMPLE;
     })
     @displayOrder(8)
-    @tooltip('i18n:sprite.trim')
     get trim (): boolean {
         return this._isTrimmedMode;
     }
@@ -387,7 +383,7 @@ export class Sprite extends UIRenderer {
         this._isTrimmedMode = value;
         if ((this._type === SpriteType.SIMPLE /* || this._type === SpriteType.MESH */)
             && this.renderData) {
-            this.markForUpdateRenderData(true);
+            this._markForUpdateRenderData(true);
         }
     }
 
@@ -397,7 +393,6 @@ export class Sprite extends UIRenderer {
      */
     @editable
     @displayOrder(5)
-    @tooltip('i18n:sprite.gray_scale')
     get grayscale (): boolean {
         return this._useGrayscale;
     }
@@ -425,7 +420,6 @@ export class Sprite extends UIRenderer {
      */
     @type(SizeMode)
     @displayOrder(5)
-    @tooltip('i18n:sprite.size_mode')
     get sizeMode (): SizeMode {
         return this._sizeMode;
     }
@@ -488,7 +482,6 @@ export class Sprite extends UIRenderer {
 
         if (EDITOR) {
             this._resized();
-            this._applyAtlas(this._spriteFrame);
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
     }
@@ -606,11 +599,11 @@ export class Sprite extends UIRenderer {
 
         if (!self._renderData) {
             if (assembler && assembler.createData) {
-                const rd = self._renderData = assembler.createData(self);
+                const rd = self._renderData = assembler.createData(self) as RenderData;
                 rd.material = self.getRenderMaterial(0);
-                self.markForUpdateRenderData();
+                self._markForUpdateRenderData();
                 if (self.spriteFrame) {
-                    assembler.updateUVs(self);
+                    assembler.updateUVs!(self);
                 }
                 self._updateColor();
             }
@@ -650,7 +643,7 @@ export class Sprite extends UIRenderer {
         }
 
         if (this._spriteFrame) {
-            const actualSize = this.node._uiProps.uiTransformComp!.contentSize;
+            const actualSize = this.node._getUITransformComp()!.contentSize;
             let expectedW = actualSize.width;
             let expectedH = actualSize.height;
             if (this._sizeMode === SizeMode.RAW) {
@@ -674,7 +667,7 @@ export class Sprite extends UIRenderer {
         const material = this.getRenderMaterial(0);
         if (spriteFrame) {
             if (material) {
-                this.markForUpdateRenderData();
+                this._markForUpdateRenderData();
             }
         }
 
@@ -685,7 +678,7 @@ export class Sprite extends UIRenderer {
 
     private _updateUVs (): void {
         if (this._assembler) {
-            this._assembler.updateUVs(this);
+            this._assembler.updateUVs!(this);
         }
     }
 
@@ -716,32 +709,6 @@ export class Sprite extends UIRenderer {
             if (self._type === SpriteType.SLICED) {
                 spriteFrame.on(SpriteFrameEvent.UV_UPDATED, self._updateUVs, self);
             }
-        }
-
-        if (EDITOR) {
-            self._applyAtlas(spriteFrame);
-        }
-    }
-
-    private _applyAtlas (spriteFrame: SpriteFrame | null): void {
-        if (!EDITOR) return;
-
-        if (!spriteFrame) return;
-
-        if (spriteFrame.atlasUuid.length === 0) {
-            this.spriteAtlas = null;
-            return;
-        }
-
-        if (!this.spriteAtlas || this.spriteAtlas.uuid !== spriteFrame.atlasUuid) {
-            assetManager.loadAny(spriteFrame.atlasUuid, (err: Error, asset: SpriteAtlas) => {
-                if (err) {
-                    this.spriteAtlas = null;
-                    error(err);
-                } else {
-                    this.spriteAtlas = asset;
-                }
-            });
         }
     }
 }

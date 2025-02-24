@@ -27,10 +27,11 @@ import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, edit
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { UIRenderer } from '../2d/framework';
 import { Texture2D } from '../asset/assets/texture-2d';
-import { IBatcher } from '../2d/renderer/i-batcher';
+import type { IBatcher } from '../2d/renderer/i-batcher';
 import { Vec2 } from '../core';
+import type { RenderData } from '../2d/renderer/render-data';
 
-class Point {
+export class Point {
     public point = new Vec2();
     public dir = new Vec2();
     public distance = 0;
@@ -41,12 +42,12 @@ class Point {
         if (dir) this.dir.set(dir);
     }
 
-    public setPoint (x, y): void {
+    public setPoint (x: number, y: number): void {
         this.point.x = x;
         this.point.y = y;
     }
 
-    public setDir (x, y): void {
+    public setDir (x: number, y: number): void {
         this.dir.x = x;
         this.dir.y = y;
     }
@@ -192,8 +193,8 @@ export class MotionStreak extends UIRenderer {
 
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.material;
+                this._renderData = this._assembler.createData(this) as RenderData;
+                this._renderData.material = this.material;
                 this._updateColor();
             }
         }
@@ -223,9 +224,11 @@ export class MotionStreak extends UIRenderer {
         if (this._renderData) this._renderData.clear();
     }
 
-    public lateUpdate (dt): void {
+    public lateUpdate (dt: number): void {
         if (EDITOR_NOT_IN_PREVIEW && !this._preview) return;
-        if (this._assembler) this._assembler.update(this, dt);
+        if (this._assembler && this._assembler.update) {
+            this._assembler.update(this, dt);
+        }
     }
 
     /**

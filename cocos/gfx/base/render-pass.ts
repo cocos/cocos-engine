@@ -37,9 +37,13 @@ import {
  * @zh GFX 渲染过程。
  */
 export abstract class RenderPass extends GFXObject {
+    /** @mangle */
     protected _colorInfos: ColorAttachment[] = [];
+    /** @mangle */
     protected _depthStencilInfo: DepthStencilAttachment | null = null;
+    /** @mangle */
     protected _subpasses: SubpassInfo[] = [];
+    /** @mangle */
     protected _hash = 0;
 
     get colorAttachments (): Readonly<ColorAttachment[]> { return this._colorInfos; }
@@ -66,8 +70,8 @@ export abstract class RenderPass extends GFXObject {
                 }
                 if (subpass.colors.length) {
                     res += 'ca';
-                    for (let j = 0; j < subpass.inputs.length; ++j) {
-                        const ca = this._colorInfos[subpass.inputs[j]];
+                    for (let j = 0; j < subpass.colors.length; ++j) {
+                        const ca = this._colorInfos[subpass.colors[j]];
                         res += `,${ca.format},${ca.sampleCount}`;
                     }
                 }

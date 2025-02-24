@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, HUAWEI, OPPO, VIVO, MIGU, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, HUAWEI, OPPO, VIVO, MIGU, HONOR, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -54,6 +54,8 @@ if (WECHAT) {
     currentPlatform = Platform.HUAWEI_QUICK_GAME;
 } else if (MIGU) {
     currentPlatform = Platform.MIGU_MINI_GAME;
+} else if (HONOR) {
+    currentPlatform = Platform.HONOR_MINI_GAME;
 }
 
 let isVersionGreaterOrEqualTo;
@@ -125,7 +127,7 @@ class SystemInfo extends EventTarget {
 
         // init languageCode and language
         this.nativeLanguage = minigameSysInfo.language;
-        this.language = minigameSysInfo.language.substr(0, 2) as Language;
+        this.language = minigameSysInfo.language.substring(0, 2) as Language;
 
         // init os, osVersion and osMainVersion
         const minigamePlatform = minigameSysInfo.platform.toLocaleLowerCase();

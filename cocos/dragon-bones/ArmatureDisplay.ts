@@ -25,14 +25,14 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Armature, Bone, EventObject, AnimationState } from '@cocos/dragonbones-js';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy, _decorator, warn } from '../core';
+import { Color, Enum, ccenum, errorID, RecyclePool, js, EventTarget, cclegacy, _decorator, warn, CCObjectFlags } from '../core';
 import { BlendFactor } from '../gfx';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
 import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
-import { Graphics } from '../2d/components';
+import type { Graphics } from '../2d/components/graphics';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MaterialInstance } from '../render-scene/core/material-instance';
 import { ArmatureSystem } from './ArmatureSystem';
@@ -43,6 +43,7 @@ import { Material, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager';
 import { setPropertyEnumType } from '../core/internal-index';
+import type { RenderData } from '../2d/renderer/render-data';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -304,7 +305,7 @@ export class ArmatureDisplay extends UIRenderer {
         } else {
             errorID(7401, this.name);
         }
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -582,7 +583,7 @@ export class ArmatureDisplay extends UIRenderer {
     */
     public maxIndexCount = 0;
 
-    protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
+    protected _materialCache: { [key: string]: MaterialInstance } = {};
 
     protected _enumArmatures: any = Enum({});
     protected _enumAnimations: any = Enum({});
@@ -705,17 +706,17 @@ export class ArmatureDisplay extends UIRenderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this.updateMaterial();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
      * @engineInternal
      */
-    public updateMaterial (): void {
-        let mat;
+    public override updateMaterial (): void {
+        let mat: Material;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
-        this.setSharedMaterial(mat as Material, 0);
+        this.setSharedMaterial(mat, 0);
         this._cleanMaterialCache();
     }
 
@@ -759,8 +760,7 @@ export class ArmatureDisplay extends UIRenderer {
      */
     _init (): void {
         if (EDITOR_NOT_IN_PREVIEW) {
-            const Flags = CCObject.Flags;
-            this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
+            this._objFlags |= (CCObjectFlags.IsAnchorLocked | CCObjectFlags.IsSizeLocked);
             // this._refreshInspector();
         }
 
@@ -826,7 +826,7 @@ export class ArmatureDisplay extends UIRenderer {
                 this._factory!._dragonBones.clock.add(this._armature);
             }
             this._updateSocketBindings();
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
     }
 
@@ -888,7 +888,7 @@ export class ArmatureDisplay extends UIRenderer {
      * @param dt @en Delta time, unit is second. @zh 时间差，单位为秒。
      */
     updateAnimation (dt): void {
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
         if (!this.isAnimationCached()) return;
         if (!this._frameCache) return;
 
@@ -997,20 +997,26 @@ export class ArmatureDisplay extends UIRenderer {
     _updateDebugDraw (): void {
         if (this.debugBones) {
             if (!this._debugDraw) {
-                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
-                debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-                const debugDraw = debugDrawNode.addComponent(Graphics);
-                debugDraw.lineWidth = 1;
-                debugDraw.strokeColor = new Color(255, 0, 0, 255);
+                let debugDrawNode: Node | null = new Node('DEBUG_DRAW_NODE');
+                debugDrawNode.hideFlags |= CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
+                let debugDraw: Graphics | undefined;
+                try {
+                    debugDraw = debugDrawNode.addComponent('cc.Graphics') as Graphics;
+                    debugDraw.lineWidth = 1;
+                    debugDraw.strokeColor = new Color(255, 0, 0, 255);
 
-                this._debugDraw = debugDraw;
+                    this._debugDraw = debugDraw;
+                    this._debugDraw.node.parent = this.node;
+                } catch (e: any) {
+                    errorID(4501, e.message as string);
+                    debugDrawNode.destroy();
+                    debugDrawNode = null;
+                }
             }
-
-            this._debugDraw.node.parent = this.node;
         } else if (this._debugDraw) {
             this._debugDraw.node.parent = null;
         }
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
     /**
      * @en Update related data due to batching settings.
@@ -1018,7 +1024,7 @@ export class ArmatureDisplay extends UIRenderer {
      */
     protected _updateBatch (): void {
         this._cleanMaterialCache();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
     /**
      * @en Building data of armature.
@@ -1089,7 +1095,7 @@ export class ArmatureDisplay extends UIRenderer {
         if (this._armature) {
             const armatureData = this._armature.armatureData;
             const aabb = armatureData.aabb;
-            this.node._uiProps.uiTransformComp!.setContentSize(aabb.width, aabb.height);
+            this.node._getUITransformComp()!.setContentSize(aabb.width, aabb.height);
         }
         this.attachUtil.init(this);
 
@@ -1148,7 +1154,7 @@ export class ArmatureDisplay extends UIRenderer {
             this._updateCacheModeEnum();
             // Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
         }
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     private _cacheModeEnum: any;
@@ -1283,7 +1289,7 @@ export class ArmatureDisplay extends UIRenderer {
         } else if (this._armature) {
             return this._armature.animation.play(animName, this.playTimes);
         }
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
         return null;
     }
 
@@ -1470,12 +1476,12 @@ export class ArmatureDisplay extends UIRenderer {
             this._assembler = assembler;
         }
         if (this._armature && this._assembler) {
-            this._renderData = this._assembler.createData(this);
+            this._renderData = this._assembler.createData!(this) as RenderData;
             if (this._renderData) {
                 this.maxVertexCount = this._renderData.vertexCount;
                 this.maxIndexCount = this._renderData.indexCount;
             }
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
             this._updateColor();
         }
     }
@@ -1526,9 +1532,9 @@ export class ArmatureDisplay extends UIRenderer {
      * @zh 标记组件渲染数据更新。
      */
     public markForUpdateRenderData (enable = true): void {
-        super.markForUpdateRenderData(enable);
+        super._markForUpdateRenderData(enable);
         if (this._debugDraw) {
-            this._debugDraw.markForUpdateRenderData(enable);
+            this._debugDraw._markForUpdateRenderData(enable);
         }
     }
 

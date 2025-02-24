@@ -475,6 +475,7 @@ export class NodeEventProcessor {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _handleEventMouse (eventMouse: EventMouse): boolean {
         switch (eventMouse.type) {
@@ -497,7 +498,7 @@ export class NodeEventProcessor {
 
     private _handleMouseDown (event: EventMouse): boolean {
         const node = this._node;
-        const uiTransformComp = node._uiProps.uiTransformComp;
+        const uiTransformComp = node._getUITransformComp();
         if (!node || !uiTransformComp) {
             return false;
         }
@@ -516,7 +517,7 @@ export class NodeEventProcessor {
 
     private _handleMouseMove (event: EventMouse): boolean {
         const node = this._node;
-        const uiTransformComp = node._uiProps.uiTransformComp;
+        const uiTransformComp = node._getUITransformComp();
         if (!node || !uiTransformComp || this._isMouseLeaveWindow) {
             return false;
         }
@@ -553,7 +554,7 @@ export class NodeEventProcessor {
 
     private _handleMouseUp (event: EventMouse): boolean {
         const node = this._node;
-        const uiTransformComp = node._uiProps.uiTransformComp;
+        const uiTransformComp = node._getUITransformComp();
         if (!node || !uiTransformComp) {
             return false;
         }
@@ -572,7 +573,7 @@ export class NodeEventProcessor {
 
     private _handleMouseWheel (event: EventMouse): boolean {
         const node = this._node;
-        const uiTransformComp = node._uiProps.uiTransformComp;
+        const uiTransformComp = node._getUITransformComp();
         if (!node || !uiTransformComp) {
             return false;
         }
@@ -612,6 +613,7 @@ export class NodeEventProcessor {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _handleEventTouch (eventTouch: EventTouch): boolean | void {
         try {
@@ -635,7 +637,7 @@ export class NodeEventProcessor {
 
     private _handleTouchStart (event: EventTouch): boolean {
         const node = this.node;
-        const uiTransformComp = node._uiProps.uiTransformComp;
+        const uiTransformComp = node._getUITransformComp();
         if (!node || !uiTransformComp) {
             return false;
         }
@@ -655,7 +657,7 @@ export class NodeEventProcessor {
 
     private _handleTouchMove (event: EventTouch): boolean {
         const node = this.node;
-        if (!node || !node._uiProps.uiTransformComp) {
+        if (!node || !node._getUITransformComp()) {
             return false;
         }
 
@@ -668,7 +670,7 @@ export class NodeEventProcessor {
 
     private _handleTouchEnd (event: EventTouch): void {
         const node = this.node;
-        const uiTransformComp = node._uiProps.uiTransformComp;
+        const uiTransformComp = node._getUITransformComp();
         if (!node || !uiTransformComp) {
             return;
         }
@@ -687,7 +689,7 @@ export class NodeEventProcessor {
 
     private _handleTouchCancel (event: EventTouch): void {
         const node = this.node;
-        if (!node || !node._uiProps.uiTransformComp) {
+        if (!node || !node._getUITransformComp()) {
             return;
         }
 

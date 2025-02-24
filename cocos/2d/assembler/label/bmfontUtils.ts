@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { IConfig, FontAtlas } from '../../assets/bitmap-font';
+import { IConfig, FontAtlas, type BitmapFont } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Rect, errorID } from '../../../core';
 import { Label, Overflow, CacheMode } from '../../components/label';
@@ -43,11 +43,10 @@ let _comp: Label | null = null;
 let _uiTrans: UITransform | null = null;
 
 let _fntConfig: IConfig | null = null;
-let _spriteFrame: SpriteFrame|null = null;
+let _spriteFrame: SpriteFrame | null = null;
 let QUAD_INDICES: Uint16Array | null = null;
 
-export const bmfontUtils = {
-
+export class BmfontUtils {
     updateProcessingData (
         style: TextStyle,
         layout: TextLayout,
@@ -91,7 +90,7 @@ export const bmfontUtils = {
         style.fontFamily = shareLabelInfo.fontFamily;
 
         style.color.set(comp.color);
-    },
+    }
 
     updateRenderData (comp: Label): void {
         if (!comp.renderData) {
@@ -102,7 +101,7 @@ export const bmfontUtils = {
 
         if (comp.renderData.vertDirty) {
             _comp = comp;
-            _uiTrans = _comp.node._uiProps.uiTransformComp!;
+            _uiTrans = _comp.node._getUITransformComp()!;
             const renderData = comp.renderData;
 
             const processing = TextProcessing.instance;
@@ -170,21 +169,22 @@ export const bmfontUtils = {
             const renderData = comp.renderData;
             renderData.updateRenderData(comp, comp.spriteFrame);
         }
-    },
+    }
 
     updateUVs (label: Label): void {
         const renderData = label.renderData!;
         const vData = renderData.chunk.vb;
         const vertexCount = renderData.vertexCount;
+        const stride = renderData.floatStride;
         const dataList = renderData.data;
         let vertexOffset = 3;
         for (let i = 0; i < vertexCount; i++) {
             const vert = dataList[i];
             vData[vertexOffset] = vert.u;
             vData[vertexOffset + 1] = vert.v;
-            vertexOffset += 9;
+            vertexOffset += stride;
         }
-    },
+    }
 
     updateColor (label: Label): void {
         if (JSB) {
@@ -207,16 +207,16 @@ export const bmfontUtils = {
                 colorOffset += stride;
             }
         }
-    },
+    }
 
-    resetRenderData (comp: Label): void {
+    protected resetRenderData (comp: Label): void {
         const renderData = comp.renderData!;
         renderData.dataLength = 0;
         renderData.resize(0, 0);
-    },
+    }
 
     // callBack function
-    generateVertexData (
+    protected generateVertexData (
         style: TextStyle,
         outputLayoutData: TextOutputLayoutData,
         outputRenderData: TextOutputRenderData,
@@ -279,10 +279,10 @@ export const bmfontUtils = {
         dataList[dataOffset + 2].y = y;
         dataList[dataOffset + 3].x = x + rectWidth * scale;
         dataList[dataOffset + 3].y = y;
-    },
+    }
 
-    _updateFontFamily (comp): void {
-        const fontAsset = comp.font;
+    protected _updateFontFamily (comp: Label): void {
+        const fontAsset = comp.font as BitmapFont;
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset.fntConfig;
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
@@ -296,22 +296,22 @@ export const bmfontUtils = {
 
         dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
         // TODO update material and uv
-    },
+    }
 
-    _updateLabelInfo (comp): void {
+    protected _updateLabelInfo (comp: Label): void {
         // clear
         shareLabelInfo.hash = '';
         shareLabelInfo.margin = 0;
-    },
+    }
 
-    _resetProperties (): void {
+    protected _resetProperties (): void {
         _fntConfig = null;
         _spriteFrame = null;
         shareLabelInfo.hash = '';
         shareLabelInfo.margin = 0;
-    },
+    }
 
-    createQuadIndices (indexCount: number): void {
+    protected createQuadIndices (indexCount: number): void {
         if (indexCount % 6 !== 0) {
             errorID(16308);
             return;
@@ -327,7 +327,5 @@ export const bmfontUtils = {
             QUAD_INDICES[offset++] = 3 + i * 4;
             QUAD_INDICES[offset++] = 2 + i * 4;
         }
-    },
-};
-
-export default bmfontUtils;
+    }
+}

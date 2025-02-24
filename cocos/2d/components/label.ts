@@ -39,6 +39,9 @@ import { BlendFactor } from '../../gfx';
 import { TextStyle } from '../assembler/label/text-style';
 import { TextLayout } from '../assembler/label/text-layout';
 import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
+import type { RenderData } from '../renderer/render-data';
+import type { LetterFont } from '../assembler/label/letter-font';
+import type { TTF } from '../assembler/label/ttf';
 
 const tempColor = Color.WHITE.clone();
 /**
@@ -228,7 +231,7 @@ export class Label extends UIRenderer {
         }
 
         this._string = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -249,7 +252,7 @@ export class Label extends UIRenderer {
         }
 
         this._horizontalAlign = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -270,7 +273,7 @@ export class Label extends UIRenderer {
         }
 
         this._verticalAlign = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -304,7 +307,7 @@ export class Label extends UIRenderer {
         }
 
         this._fontSize = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -324,7 +327,7 @@ export class Label extends UIRenderer {
         }
 
         this._lineHeight = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -347,7 +350,7 @@ export class Label extends UIRenderer {
         }
 
         this._spacingX = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -368,7 +371,7 @@ export class Label extends UIRenderer {
         }
 
         this._overflow = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -388,7 +391,7 @@ export class Label extends UIRenderer {
         }
 
         this._enableWrapText = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -422,7 +425,7 @@ export class Label extends UIRenderer {
             this.font = null;
         }
         this._flushAssembler();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -443,7 +446,7 @@ export class Label extends UIRenderer {
         }
 
         this._fontFamily = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -496,15 +499,17 @@ export class Label extends UIRenderer {
         return this._cacheMode;
     }
     set cacheMode (value) {
-        if (this._cacheMode === value) {
+        const oldCacheMode = this._cacheMode;
+        if (oldCacheMode === value) {
             return;
         }
 
-        if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
+        if (oldCacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
             this._ttfSpriteFrame._resetDynamicAtlasFrame();
         }
-        if (this._cacheMode === CacheMode.CHAR) {
+        if (oldCacheMode === CacheMode.CHAR) {
             this._ttfSpriteFrame = null;
+            this.destroyLetterTexture();
         }
 
         this._cacheMode = value;
@@ -528,7 +533,7 @@ export class Label extends UIRenderer {
         }
 
         this._isBold = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -548,7 +553,7 @@ export class Label extends UIRenderer {
         }
 
         this._isItalic = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -568,7 +573,7 @@ export class Label extends UIRenderer {
         }
 
         this._isUnderline = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -584,7 +589,7 @@ export class Label extends UIRenderer {
     set underlineHeight (value) {
         if (this._underlineHeight === value) return;
         this._underlineHeight = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -603,7 +608,7 @@ export class Label extends UIRenderer {
     set enableOutline (value) {
         if (this._enableOutline === value) return;
         this._enableOutline = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -622,7 +627,7 @@ export class Label extends UIRenderer {
     set outlineColor (value: Readonly<Color>) {
         if (this._outlineColor === value) return;
         this._outlineColor.set(value);
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -641,7 +646,7 @@ export class Label extends UIRenderer {
     set outlineWidth (value) {
         if (this._outlineWidth === value) return;
         this._outlineWidth = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -657,7 +662,7 @@ export class Label extends UIRenderer {
     set enableShadow (value) {
         if (this._enableShadow === value) return;
         this._enableShadow = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -676,7 +681,7 @@ export class Label extends UIRenderer {
     set shadowColor (value: Readonly<Color>) {
         if (this._shadowColor === value) return;
         this._shadowColor.set(value);
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -695,7 +700,7 @@ export class Label extends UIRenderer {
     set shadowOffset (value) {
         if (this._shadowOffset === value) return;
         this._shadowOffset.set(value);
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -714,7 +719,7 @@ export class Label extends UIRenderer {
     set shadowBlur (value) {
         if (this._shadowBlur === value) return;
         this._shadowBlur = value;
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -932,10 +937,20 @@ export class Label extends UIRenderer {
         // this._textRenderData = null;
         // this._textLayoutData = null;
 
-        // texture cannot be destroyed in here, lettertexture image source is public.
-        this._letterTexture = null;
+        this.destroyLetterTexture();
 
         super.onDestroy();
+    }
+
+    private destroyLetterTexture (): void {
+        const letterTexture = this._letterTexture;
+        if (letterTexture) {
+            letterTexture.decRef(false);
+            if (letterTexture.refCount <= 0) {
+                letterTexture.destroy();
+            }
+        }
+        this._letterTexture = null;
     }
 
     /**
@@ -952,7 +967,7 @@ export class Label extends UIRenderer {
             this._applyFontTexture();
         }
         if (this._assembler) {
-            this._assembler.updateRenderData(this);
+            this._assembler.updateRenderData!(this);
         }
     }
 
@@ -963,7 +978,7 @@ export class Label extends UIRenderer {
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
     protected _updateColor (): void {
         super._updateColor();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -1011,7 +1026,7 @@ export class Label extends UIRenderer {
 
         if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
+                this._renderData = this._assembler.createData(this) as RenderData;
                 this.renderData!.material = this.material;
                 this._updateColor();
             }
@@ -1019,7 +1034,7 @@ export class Label extends UIRenderer {
     }
 
     protected _applyFontTexture (): void {
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
         const font = this._font;
         if (font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
@@ -1030,17 +1045,24 @@ export class Label extends UIRenderer {
                 }
                 this.changeMaterialForDefine();
                 if (this._assembler) {
-                    this._assembler.updateRenderData(this);
+                    this._assembler.updateRenderData!(this);
                 }
             }
         } else {
             if (this.cacheMode === CacheMode.CHAR) {
-                this._letterTexture = this._assembler!.getAssemblerData();
-                this._texture = this._letterTexture;
+                const oldLetterTexture = this._letterTexture;
+                const letterTexture = (this._assembler as LetterFont).getAssemblerData();
+                if (letterTexture !== oldLetterTexture) {
+                    this.destroyLetterTexture();
+                    if (letterTexture) {
+                        letterTexture.addRef();
+                    }
+                }
+                this._texture = this._letterTexture = letterTexture;
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
-                this._assemblerData = this._assembler!.getAssemblerData();
-                const image = new ImageAsset(this._assemblerData!.canvas);
+                this._assemblerData = (this._assembler as TTF).getAssemblerData();
+                const image = new ImageAsset(this._assemblerData.canvas);
                 const texture = new Texture2D();
                 texture.image = image;
                 this._ttfSpriteFrame.texture = texture;
@@ -1077,6 +1099,7 @@ export class Label extends UIRenderer {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _updateBlendFunc (): void {
         // override for BYTEDANCE

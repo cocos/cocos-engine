@@ -3425,6 +3425,7 @@ if(OPENHARMONY)
         libace_ndk.z.so 
         libz.so 
         librawfile.z.so
+        libohsensor.so
         ${CC_EXTERNAL_LIBS}
     )
     if(USE_SE_JSVM)
@@ -3467,7 +3468,6 @@ if(APPLE)
     )
     if(MACOSX)
         target_link_libraries(${ENGINE_NAME} PUBLIC
-            "-framework OpenGL"
             "-framework AppKit"
         )
         target_compile_definitions(${ENGINE_NAME} PUBLIC
@@ -3482,8 +3482,6 @@ if(APPLE)
         endif()
 
         target_link_libraries(${ENGINE_NAME} PUBLIC
-            "-framework QuartzCore"
-            "-framework MetalPerformanceShaders"
             "-framework UIKit"
             "-framework AVKit"
             "-framework WebKit"
@@ -3495,8 +3493,6 @@ if(APPLE)
             "-framework CoreGraphics"
             "-framework AVFoundation"
             "-lz"
-            "-framework OpenGLES"
-            "-framework JavaScriptCore"
         )
         set_property(TARGET ${ENGINE_NAME} PROPERTY XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${TARGET_IOS_VERSION})
         set_property(TARGET ${ENGINE_NAME} PROPERTY XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")

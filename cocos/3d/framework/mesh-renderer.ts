@@ -44,6 +44,7 @@ import { SubModel } from '../../render-scene/scene';
 import { isEnableEffect } from '../../rendering/define';
 import type { Model } from '../../render-scene/scene';
 import type { ReflectionProbeManager } from '../reflection-probe';
+import { getPipelineSceneData } from '../../rendering/pipeline-scene-data-utils';
 
 const { ccclass, help, executeInEditMode, executionOrder, menu, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
@@ -541,12 +542,13 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     set isGlobalStandardSkinObject (val) {
-        (cclegacy.director.root as Root).pipeline.pipelineSceneData.standardSkinMeshRenderer = val ? this : null;
+        getPipelineSceneData().standardSkinMeshRenderer = val ? this : null;
         this._enabledGlobalStandardSkinObject = val;
     }
 
     /**
      * @engineInternal
+     * @mangle
      */
     public clearGlobalStandardSkinObjectFlag (): void {
         this._enabledGlobalStandardSkinObject = false;
@@ -950,13 +952,13 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight.node) { return; }
 
         if (mainLight.node.mobility === MobilityMode.Static) {
+            const sceneGlobals = this.node.scene.globals;
+            const lightProbeInfoData = sceneGlobals.lightProbeInfo.data;
             let forceClose = false;
-            if (this.bakeSettings.texture && !this.node.scene.globals.disableLightmap) {
+            if (this.bakeSettings.texture && !sceneGlobals.disableLightmap) {
                 forceClose = true;
             }
-            if (this.node.scene.globals.lightProbeInfo.data
-                && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
-                && this._model.useLightProbe) {
+            if (lightProbeInfoData && lightProbeInfoData.hasCoefficients() && this._model.useLightProbe) {
                 forceClose = true;
             }
 
@@ -999,6 +1001,7 @@ export class MeshRenderer extends ModelRenderer {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _detachFromScene (): void {
         if (this._model && this._model.scene) {
@@ -1087,7 +1090,7 @@ export class MeshRenderer extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public _onRebuildPSO (idx: number, material: Material): void {
+    public override _onRebuildPSO (idx: number, material: Material): void {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
@@ -1308,7 +1311,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     private _updateStandardSkin (): void {
-        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
+        const pipelineSceneData = getPipelineSceneData();
         if (this._enabledGlobalStandardSkinObject) {
             pipelineSceneData.standardSkinMeshRenderer = this;
             pipelineSceneData.standardSkinModel = this.model;

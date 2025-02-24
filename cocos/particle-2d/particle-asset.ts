@@ -24,7 +24,7 @@
 */
 
 import { Asset } from '../asset/assets/asset';
-import { SpriteFrame } from '../2d/assets/sprite-frame';
+import type { SpriteFrame } from '../2d/assets/sprite-frame';
 import { cclegacy, _decorator } from '../core';
 
 const { ccclass, serializable, editable } = _decorator;
@@ -39,7 +39,7 @@ const { ccclass, serializable, editable } = _decorator;
 export class ParticleAsset extends Asset {
     @serializable
     @editable
-    public spriteFrame: SpriteFrame | null= null;
+    public spriteFrame: SpriteFrame | null = null;
 }
 
 cclegacy.ParticleAsset = ParticleAsset;

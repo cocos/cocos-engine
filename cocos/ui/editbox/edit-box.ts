@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { EDITOR_NOT_IN_PREVIEW, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, JSB, MINIGAME, RUNTIME_BASED, USE_XR } from 'internal:constants';
 import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../scene-graph/component';
@@ -651,11 +651,11 @@ export class EditBox extends Component {
     }
 
     protected _syncSize (): void {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const size = trans.contentSize;
 
         if (this._background) {
-            const bgTrans = this._background.node._uiProps.uiTransformComp!;
+            const bgTrans = this._background.node._getUITransformComp()!;
             bgTrans.anchorPoint = trans.anchorPoint;
             bgTrans.setContentSize(size);
         }
@@ -716,19 +716,27 @@ export class EditBox extends Component {
     }
 
     protected _registerEvent (): void {
-        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        const self = this;
+        const node = self.node;
+        node.on(NodeEventType.TOUCH_START, self._onTouchBegan, self);
+        node.on(NodeEventType.TOUCH_END, self._onTouchEnded, self);
 
-        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
-        this.node.on(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
+        if (USE_XR) {
+            node.on(XrUIPressEventType.XRUI_UNCLICK, self._xrUnClick, self);
+            node.on(XrKeyboardEventType.XR_KEYBOARD_INPUT, self._xrKeyBoardInput, self);
+        }
     }
 
     protected _unregisterEvent (): void {
-        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        const self = this;
+        const node = self.node;
+        node.off(NodeEventType.TOUCH_START, self._onTouchBegan, self);
+        node.off(NodeEventType.TOUCH_END, self._onTouchEnded, self);
 
-        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
-        this.node.off(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
+        if (USE_XR) {
+            node.off(XrUIPressEventType.XRUI_UNCLICK, self._xrUnClick, self);
+            node.off(XrKeyboardEventType.XR_KEYBOARD_INPUT, self._xrKeyBoardInput, self);
+        }
     }
 
     private _onBackgroundSpriteFrameChanged (): void {
@@ -749,14 +757,14 @@ export class EditBox extends Component {
     }
 
     protected _updateLabelPosition (size: Size): void {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const offX = -trans.anchorX * trans.width;
         const offY = -trans.anchorY * trans.height;
 
         const placeholderLabel = this._placeholderLabel;
         const textLabel = this._textLabel;
         if (textLabel) {
-            textLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
+            textLabel.node._getUITransformComp()!.setContentSize(size.width - LEFT_PADDING, size.height);
             textLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, textLabel.node.position.z);
             if (this._inputMode === InputMode.ANY) {
                 textLabel.verticalAlign = VerticalTextAlignment.TOP;
@@ -765,37 +773,39 @@ export class EditBox extends Component {
         }
 
         if (placeholderLabel) {
-            placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
+            placeholderLabel.node._getUITransformComp()!.setContentSize(size.width - LEFT_PADDING, size.height);
             placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
             placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY;
         }
     }
 
     protected _resizeChildNodes (): void {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const textLabelNode = this._textLabel && this._textLabel.node;
         if (textLabelNode) {
             textLabelNode.setPosition(-trans.width / 2, trans.height / 2, textLabelNode.position.z);
-            textLabelNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
+            textLabelNode._getUITransformComp()!.setContentSize(trans.contentSize);
         }
         const placeholderLabelNode = this._placeholderLabel && this._placeholderLabel.node;
         if (placeholderLabelNode) {
             placeholderLabelNode.setPosition(-trans.width / 2, trans.height / 2, placeholderLabelNode.position.z);
-            placeholderLabelNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
+            placeholderLabelNode._getUITransformComp()!.setContentSize(trans.contentSize);
         }
         const backgroundNode = this._background && this._background.node;
         if (backgroundNode) {
-            backgroundNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
+            backgroundNode._getUITransformComp()!.setContentSize(trans.contentSize);
         }
 
         this._syncSize();
     }
 
     protected _xrUnClick (): void {
+        if (!USE_XR) return;
         this.node.emit(EditBoxEventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
     }
 
     protected _xrKeyBoardInput (str: string): void {
+        if (!USE_XR) return;
         this.string = str;
     }
 }

@@ -25,7 +25,7 @@
 import { Pass } from '../render-scene';
 import { SubModel } from '../render-scene/scene';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING,
-    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from './define';
+    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, ENABLE_PROBE_BLEND } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
 
@@ -42,7 +42,7 @@ export interface IInstancedItem {
     reflectionProbeCubemap: Texture;
     reflectionProbePlanarMap: Texture;
     useReflectionProbeType: number;
-    reflectionProbeBlendCubemap: Texture;
+    reflectionProbeBlendCubemap: Texture | null;
 }
 
 const INITIAL_CAPACITY = 32;
@@ -61,11 +61,10 @@ export class InstancedBuffer {
     }
 
     public destroy (): void {
-        for (let i = 0; i < this.instances.length; ++i) {
-            const instance = this.instances[i];
+        this.instances.forEach((instance) => {
             instance.vb.destroy();
             instance.ia.destroy();
-        }
+        });
         this.instances.length = 0;
     }
 
@@ -74,10 +73,13 @@ export class InstancedBuffer {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
-        const lightingMap = subModel.descriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
-        const reflectionProbeCubemap = subModel.descriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING);
-        const reflectionProbePlanarMap = subModel.descriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING);
-        const reflectionProbeBlendCubemap = subModel.descriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING);
+        const subModelDescriptorSet = subModel.descriptorSet;
+        const lightingMap = subModelDescriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
+        const reflectionProbeCubemap = subModelDescriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING);
+        const reflectionProbePlanarMap = subModelDescriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING);
+        const reflectionProbeBlendCubemap = ENABLE_PROBE_BLEND
+            ? subModelDescriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING)
+            : null;
         const useReflectionProbeType = subModel.useReflectionProbeType;
         let shader = shaderImplant;
         if (!shader) {
@@ -102,7 +104,7 @@ export class InstancedBuffer {
             if (instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
                 continue;
             }
-            if (instance.reflectionProbeBlendCubemap.objectID !== reflectionProbeBlendCubemap.objectID) {
+            if (ENABLE_PROBE_BLEND && instance.reflectionProbeBlendCubemap!.objectID !== reflectionProbeBlendCubemap!.objectID) {
                 continue;
             }
 
@@ -163,10 +165,9 @@ export class InstancedBuffer {
     }
 
     public clear (): void {
-        for (let i = 0; i < this.instances.length; ++i) {
-            const instance = this.instances[i];
+        this.instances.forEach((instance) => {
             instance.count = 0;
-        }
+        });
         this.hasPendingModels = false;
     }
 }
