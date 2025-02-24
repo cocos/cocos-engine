@@ -773,8 +773,12 @@ export class Skeleton extends UIRenderer {
         this._textures = skeletonData.textures;
 
         this._refreshInspector();
-        if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
+        /* The animation must be configured after the skin because the animation depends on the skin.
+           If the animation is set before the skin,
+           it will cause rendering issues when a prefab with Spine assets is added to the scene node tree.
+        */
         if (this.defaultSkin && this.defaultSkin !== '') this.setSkin(this.defaultSkin);
+        if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
         this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();
@@ -1660,9 +1664,11 @@ export class Skeleton extends UIRenderer {
     public _updateColor (): void {
         const self = this;
         const uiProps = self.node._uiProps;
-        const a = uiProps.opacity;
         const tempColor = self._tempColor;
         const color = self._color;
+        const parentOpacity = self.node.parent ? self.node.parent._uiProps.opacity : 1.0;
+        //Calculate the final opacity here, because the first frame affected by parent's opacity
+        const a = uiProps.localOpacity * parentOpacity * color.a / 255;
 
         if (tempColor.r === color.r && tempColor.g === color.g && tempColor.b === color.b && tempColor.a === a) {
             return;

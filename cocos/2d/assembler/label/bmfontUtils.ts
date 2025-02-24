@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { IConfig, FontAtlas } from '../../assets/bitmap-font';
+import { IConfig, FontAtlas, BitmapFont } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Rect, errorID } from '../../../core';
 import { Label, Overflow, CacheMode } from '../../components/label';
@@ -43,7 +43,7 @@ let _comp: Label | null = null;
 let _uiTrans: UITransform | null = null;
 
 let _fntConfig: IConfig | null = null;
-let _spriteFrame: SpriteFrame|null = null;
+let _spriteFrame: SpriteFrame | null = null;
 let QUAD_INDICES: Uint16Array | null = null;
 
 export const bmfontUtils = {
@@ -176,13 +176,14 @@ export const bmfontUtils = {
         const renderData = label.renderData!;
         const vData = renderData.chunk.vb;
         const vertexCount = renderData.vertexCount;
+        const stride = renderData.floatStride;
         const dataList = renderData.data;
         let vertexOffset = 3;
         for (let i = 0; i < vertexCount; i++) {
             const vert = dataList[i];
             vData[vertexOffset] = vert.u;
             vData[vertexOffset + 1] = vert.v;
-            vertexOffset += 9;
+            vertexOffset += stride;
         }
     },
 
@@ -281,8 +282,8 @@ export const bmfontUtils = {
         dataList[dataOffset + 3].y = y;
     },
 
-    _updateFontFamily (comp): void {
-        const fontAsset = comp.font;
+    _updateFontFamily (comp: Label): void {
+        const fontAsset = comp.font as BitmapFont;
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset.fntConfig;
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
@@ -298,7 +299,7 @@ export const bmfontUtils = {
         // TODO update material and uv
     },
 
-    _updateLabelInfo (comp): void {
+    _updateLabelInfo (comp: Label): void {
         // clear
         shareLabelInfo.hash = '';
         shareLabelInfo.margin = 0;
