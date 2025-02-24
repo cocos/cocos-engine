@@ -49,8 +49,7 @@
       "./@types/pal/input",
       "./@types/pal/env",
       "./@types/pal/pacer",
-      "./@types/pal/wasm",
-      "./@types/box2d-jsb",
+      "./@types/pal/wasm"
     ]
   },
   "include": [
