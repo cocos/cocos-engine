@@ -521,6 +521,10 @@ module.exports = {
         node: 'Node Menu',
         component: 'Component Menu',
 
+        copy_property_path: 'Copy Property Path',
+        copy_property_value: 'Copy Property Value',
+        paste_property_value: 'Paste Property Value',
+
         remove_component: 'Remove',
         reset_component: 'Reset',
         move_up_component: 'Move Up',

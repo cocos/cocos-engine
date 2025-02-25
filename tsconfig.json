@@ -24,6 +24,7 @@
       "./@types/globals",
       "./@types/consts",
       "./@types/jsb",
+      "./@types/box2d-jsb",
       "./@types/editor-extends",
       "./@types/webGL.extras",
       "./@types/webGL2.extras",
@@ -48,7 +49,7 @@
       "./@types/pal/input",
       "./@types/pal/env",
       "./@types/pal/pacer",
-      "./@types/pal/wasm",
+      "./@types/pal/wasm"
     ]
   },
   "include": [

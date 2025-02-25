@@ -49,7 +49,7 @@ const classIdTag = '__cid__';
  * isNumber(obj); // returns true
  * ```
  */
-export function isNumber (object: any): boolean {
+export function isNumber (object: any): object is number {
     return typeof object === 'number' || object instanceof Number;
 }
 
@@ -70,7 +70,7 @@ export function isNumber (object: any): boolean {
  * isString(obj); // returns true
  * ```
  */
-export function isString (object: any): boolean {
+export function isString (object: any): object is string {
     return typeof object === 'string' || object instanceof String;
 }
 
