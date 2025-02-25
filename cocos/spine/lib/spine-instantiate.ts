@@ -22,11 +22,6 @@
  THE SOFTWARE.
 */
 
-// Defining the following import to make ts compiler know these files
-// spine-version.ts will be overriden by spine-version-3.8.ts or spine-version-4.2.ts while building engine.
-// See 'moduleOverrides' section in cc.config.json.
-// Uncomment the following two lines while trying update the code in spine-version-[3.8 | 4.2].ts.
-// import './spine-version-3.8';
-// import './spine-version-4.2';
-
-export const SPINE_VERSION = '3.8';
+export function waitForSpineWasmInstantiation (): Promise<void> {
+    return null!;
+}

@@ -448,14 +448,16 @@
             "test": "context.buildTimeConstants.SPINE_3_8",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-3.8.ts"
+                "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-3.8.ts",
+                "cocos/spine/lib/spine-instantiate.ts": "cocos/spine/lib/spine-instantiate-3.8.ts"
             }
         },
         {
             "test": "context.buildTimeConstants.SPINE_4_2",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-4.2.ts"
+                "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-4.2.ts",
+                "cocos/spine/lib/spine-instantiate.ts": "cocos/spine/lib/spine-instantiate-4.2.ts"
             }
         }
     ],

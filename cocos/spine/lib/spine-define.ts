@@ -25,9 +25,8 @@
 /* eslint @typescript-eslint/no-unsafe-argument: "off" */
 
 import spine from './spine-core';
+import { SPINE_VERSION } from './spine-version';
 import { js } from '../../core';
-
-let SPINE_VERSION;
 
 function resizeArray (array: any[], newSize: number): any[] {
     if (!array) return new Array(newSize);
@@ -327,7 +326,6 @@ function overrideProperty_Skeleton (): void {
 }
 
 export function overrideSpineDefine (wasm): void {
-    SPINE_VERSION = (spine as any).SPINE_VERSION;
     overrideClass(wasm);
     overrideProperty_IkConstraintData();
     overrideProperty_PathConstraintData();

@@ -21,33 +21,5 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import spine from './spine-core';
-import { ensureWasmModuleReady } from 'pal/wasm';
-import { error } from '../../core';
-import { shouldUseWasmModule, initWasm, initAsmJS } from './spine-wasm-utils';
 
-(spine as any).SPINE_VERSION = '3.8';
-
-export function waitForSpineWasmInstantiation (): Promise<void> {
-    const errorReport = (msg: any): void => { error(msg); };
-    return ensureWasmModuleReady().then((): Promise<void> => {
-        //We should use static code here, import operation will cause file copy to cache folder.
-        if (shouldUseWasmModule()) {
-            return Promise.all([
-                import('external:emscripten/spine/3.8/spine.wasm.js'),
-                import('external:emscripten/spine/3.8/spine.wasm'),
-            ]).then(([
-                { default: wasmFactory },
-                { default: spineWasmUrl },
-            ]) => initWasm(wasmFactory, spineWasmUrl));
-        } else {
-            return Promise.all([
-                import('external:emscripten/spine/3.8/spine.asm.js'),
-                import('external:emscripten/spine/3.8/spine.js.mem'),
-            ]).then(([
-                { default: asmFactory },
-                { default: asmJsMemUrl },
-            ]) => initAsmJS(asmFactory, asmJsMemUrl));
-        }
-    }).catch(errorReport);
-}
+export const SPINE_VERSION = '3.8';
