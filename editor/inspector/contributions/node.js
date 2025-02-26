@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 module.paths.push(path.join(Editor.App.path, 'node_modules'));
+const { clipboard } = require('electron');
 const Profile = require('@base/electron-profile');
 const { throttle } = require('lodash');
 const utils = require('./utils');
@@ -1169,6 +1170,59 @@ const Elements = {
 
             panel.i18nChangeBind = Elements.node.i18nChange.bind(panel);
             Editor.Message.addBroadcastListener('i18n:change', panel.i18nChangeBind);
+
+            // 针对layer节点属性的右键菜单
+            panel.$.nodeLayer && panel.$.nodeLayer.addEventListener('contextmenu', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+
+                if (!panel.dump || !panel.dump.layer) { return; }
+                const layer = panel.dump.layer;
+
+                const store = Elements.node.getAndParseClipboard();
+                const pasteEnable = Elements.node.validatePasteEnable(layer, store);
+
+                Editor.Menu.popup({
+                    menu: [
+                        {
+                            label: Editor.I18n.t('ENGINE.menu.copy_property_path'),
+                            async click() {
+                                if (layer.path) { clipboard.writeText(layer.path); }
+                            },
+                        },
+                        { type: 'separator' },
+                        {
+                            label: Editor.I18n.t('ENGINE.menu.copy_property_value'),
+                            click() {
+                                const { type = '', value, enumList } = layer;
+                                const storeData = {
+                                    type,
+                                    value,
+                                    enumList,
+                                };
+
+                                clipboard.writeText(JSON.stringify(storeData));
+                            },
+                        },
+                        {
+                            label: Editor.I18n.t('ENGINE.menu.paste_property_value'),
+                            enabled: pasteEnable,
+                            click() {
+                                const select = panel.$.nodeLayerSelect.querySelector('ui-select');
+                                if (select) {
+                                    select.value = store.value;
+                                    layer.value = store.value;
+                                    if (layer.values) {
+                                        layer.values.forEach((val, index) => dump.values[index] = store.value);
+                                    }
+                                    select.dispatch('change');
+                                    select.dispatch('confirm');
+                                }
+                            },
+                        },
+                    ],
+                });
+            });
         },
         async update() {
             const panel = this;
@@ -1421,6 +1475,39 @@ const Elements = {
 
             const $links = panel.$.container.querySelectorAll('ui-link');
             $links.forEach($link => panel.setHelpUrl($link));
+        },
+        getAndParseClipboard() {
+            const store = clipboard.readText();
+            if (!store) { return; }
+
+            try {
+                return JSON.parse(store);
+            } catch (err) {
+                return;
+            }
+        },
+        validatePasteEnable(dump, store) {
+            if (!store) { return false; }
+
+            const { type, value, enumList = [], bitmaskList = [] } = store;
+
+            if (typeof type === 'undefined' || typeof value === 'undefined') { return false; }
+
+            if (type !== dump.type || Boolean(dump.isArray) !== Array.isArray(value) || dump.readonly) { return false; }
+
+            switch (type) {
+                case 'BitMask': {
+                    return bitmaskList.length === dump.bitmaskList?.length && bitmaskList.every((item, index) => {
+                        return item.name === dump.bitmaskList?.[index].name && item.value === dump.bitmaskList?.[index].value;
+                    });
+                }
+                case 'Enum': {
+                    return enumList.length === dump.enumList?.length && enumList.every((item, index) => {
+                        return item.name === dump.enumList?.[index].name && item.value === dump.enumList?.[index].value;
+                    }) && enumList.some(item => item.value === value);
+                }
+                default: return true;
+            }
         },
     },
     missingComponent: {
