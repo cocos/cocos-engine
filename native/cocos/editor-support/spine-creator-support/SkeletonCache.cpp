@@ -33,7 +33,7 @@
 
 USING_NS_MW;        // NOLINT(google-build-using-namespace)
 using namespace cc; // NOLINT(google-build-using-namespace)
-
+using namespace spine;
 namespace cc {
 
 float SkeletonCache::FrameTime = 1.0F / 60.0F;

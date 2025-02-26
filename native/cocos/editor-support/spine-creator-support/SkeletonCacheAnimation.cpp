@@ -43,6 +43,7 @@ USING_NS_MW; // NOLINT(google-build-using-namespace)
 
 using namespace cc;      // NOLINT(google-build-using-namespace)
 using namespace cc::gfx; // NOLINT(google-build-using-namespace)
+using namespace spine;
 static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 

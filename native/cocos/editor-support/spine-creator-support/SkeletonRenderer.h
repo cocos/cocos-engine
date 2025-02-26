@@ -55,15 +55,15 @@ class AttachmentVertices;
 class SkeletonRenderer : public cc::RefCounted, public cc::middleware::IMiddleware {
 public:
     static SkeletonRenderer *create();
-    static SkeletonRenderer *createWithSkeleton(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
-    static SkeletonRenderer *createWithData(SkeletonData *skeletonData, bool ownsSkeletonData = false);
+    static SkeletonRenderer *createWithSkeleton(spine::Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
+    static SkeletonRenderer *createWithData(spine::SkeletonData *skeletonData, bool ownsSkeletonData = false);
     static SkeletonRenderer *createWithFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
     void update(float deltaTime) override {}
     void render(float deltaTime) override;
     virtual cc::Rect getBoundingBox() const;
 
-    Skeleton *getSkeleton() const;
+    spine::Skeleton *getSkeleton() const;
 
     void setTimeScale(float scale);
     float getTimeScale() const;
@@ -76,9 +76,9 @@ public:
     void paused(bool value);
 
     /* Returns 0 if the bone was not found. */
-    Bone *findBone(const std::string &boneName) const;
+    spine::Bone *findBone(const std::string &boneName) const;
     /* Returns 0 if the slot was not found. */
-    Slot *findSlot(const std::string &slotName) const;
+    spine::Slot *findSlot(const std::string &slotName) const;
 
     /* Sets the skin used to look up attachments not found in the SkeletonData defaultSkin. Attachments from the new skin are
          * attached if the corresponding attachment from the old skin was attached.
@@ -88,7 +88,7 @@ public:
     void setSkin(const char *skinName);
 
     /* Returns 0 if the slot or attachment was not found. */
-    Attachment *getAttachment(const std::string &slotName, const std::string &attachmentName) const;
+    spine::Attachment *getAttachment(const std::string &slotName, const std::string &attachmentName) const;
     /* Returns false if the slot or attachment was not found.
          * @param attachmentName May be empty string ("") for no attachment. */
     bool setAttachment(const std::string &slotName, const std::string &attachmentName);
@@ -131,18 +131,18 @@ public:
     void onDisable();
 
     SkeletonRenderer();
-    explicit SkeletonRenderer(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
-    explicit SkeletonRenderer(SkeletonData *skeletonData, bool ownsSkeletonData = false);
+    explicit SkeletonRenderer(spine::Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
+    explicit SkeletonRenderer(spine::SkeletonData *skeletonData, bool ownsSkeletonData = false);
     SkeletonRenderer(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
     ~SkeletonRenderer() override;
 
     void initWithUUID(const std::string &uuid);
-    void initWithSkeleton(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
-    void initWithData(SkeletonData *skeletonData, bool ownsSkeletonData = false);
-    void initWithJsonFile(const std::string &skeletonDataFile, Atlas *atlas, float scale = 1);
+    void initWithSkeleton(spine::Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
+    void initWithData(spine::SkeletonData *skeletonData, bool ownsSkeletonData = false);
+    void initWithJsonFile(const std::string &skeletonDataFile, spine::Atlas *atlas, float scale = 1);
     void initWithJsonFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
-    void initWithBinaryFile(const std::string &skeletonDataFile, Atlas *atlas, float scale = 1);
+    void initWithBinaryFile(const std::string &skeletonDataFile, spine::Atlas *atlas, float scale = 1);
     void initWithBinaryFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
     virtual void initialize();
@@ -154,14 +154,14 @@ public:
     void setSlotTexture(const std::string &slotName, cc::Texture2D *tex2d, bool createAttachment);
 
 protected:
-    void setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData);
+    void setSkeletonData(spine::SkeletonData *skeletonData, bool ownsSkeletonData);
 
     bool _ownsSkeletonData = false;
     bool _ownsSkeleton = false;
     bool _ownsAtlas = false;
-    Atlas *_atlas = nullptr;
-    AttachmentLoader *_attachmentLoader = nullptr;
-    Skeleton *_skeleton = nullptr;
+    spine::Atlas *_atlas = nullptr;
+    spine::AttachmentLoader *_attachmentLoader = nullptr;
+    spine::Skeleton *_skeleton = nullptr;
 #if CC_USE_SPINE_3_8
     VertexEffectDelegate *_effectDelegate = nullptr;
 #endif
