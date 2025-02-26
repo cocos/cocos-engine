@@ -14,19 +14,22 @@
             "label": "i18n:ENGINE.features.gfx_webgl.label",
             "description": "i18n:ENGINE.features.gfx_webgl.description",
             "category": "graphics",
-            "enginePlugin": true
+            "enginePlugin": true,
+            "envCondition": "$HTML5 || $MINIGAME"
         },
         "gfx-webgl2": {
             "label": "i18n:ENGINE.features.gfx_webgl2.label",
             "description": "i18n:ENGINE.features.gfx_webgl2.description",
             "category": "graphics",
-            "enginePlugin": true
+            "enginePlugin": true,
+            "envCondition": "$HTML5 || $MINIGAME"
         },
         "gfx-webgpu": {
             "label": "i18n:ENGINE.features.gfx_webgpu.label",
             "description": "i18n:ENGINE.features.gfx_webgpu.description",
             "category": "graphics",
-            "enginePlugin": false
+            "enginePlugin": false,
+            "envCondition": "$HTML5"
         },
         "animation": {
             "label": "i18n:ENGINE.features.animation.label",
@@ -209,7 +212,6 @@
                             "default": false
                         }
                     }
-
                 },
                 "physics-2d-builtin": {
                     "label": "i18n:ENGINE.features.physics_2d_builtin.label",
@@ -219,7 +221,9 @@
                     "isNativeModule": true,
                     "cmakeConfig": "USE_BOX2D_JSB",
                     "label": "i18n:ENGINE.features.physics_2d_box2d_jsb.label",
-                    "description": "i18n:ENGINE.features.physics_2d_box2d_jsb.description"
+                    "description": "i18n:ENGINE.features.physics_2d_box2d_jsb.description",
+                    "envCondition": "$NATIVE",
+                    "fallback": "physics-2d-box2d-wasm"
                 }
             }
         },
