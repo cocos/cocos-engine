@@ -109,9 +109,15 @@ public:
         _drawInfoAttrs._dataHash = dataHash;
     }
 
-    inline bool getIsMeshBuffer() const { return _drawInfoAttrs._isMeshBuffer; }
+    inline bool getIsMeshBuffer() const {
+        return _drawInfoAttrs._isMeshBuffer != 0;
+    }
     inline void setIsMeshBuffer(bool isMeshBuffer) {
-        _drawInfoAttrs._isMeshBuffer = isMeshBuffer;
+        _drawInfoAttrs._isMeshBuffer = isMeshBuffer ? 1 : 0;
+    }
+    
+    inline bool isVertexPositionInWorld() const {
+        return _drawInfoAttrs._isVertexPositionInWorld != 0;
     }
 
     inline uint8_t getStride() const { return _drawInfoAttrs._stride; }
@@ -256,7 +262,9 @@ private:
     struct DrawInfoAttrs {
         RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
         bool _vertDirty{false};
-        bool _isMeshBuffer{false};
+        uint8_t _isMeshBuffer: 1;
+        uint8_t _isVertexPositionInWorld: 1;
+        uint8_t _padding: 6;
         uint8_t _stride{0};
         uint16_t _bufferId{0};
         uint16_t _accId{0};

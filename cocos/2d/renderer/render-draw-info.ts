@@ -30,10 +30,13 @@ import { Sampler, Texture } from '../../gfx';
 import { Model } from '../../render-scene/scene';
 import { Material } from '../../asset/assets';
 
+const bitIndexForIsMeshBuffer = 0;
+const bitIndexForIsVertexPositionInWorld = 1;
+
 export enum AttrUInt8ArrayView {
     DrawInfoType,
     VertDirty,
-    IsMeshBuffer,
+    BooleanValues, // 0 index bit: for IsMeshBuffer, 1 index bit: for isVertexPositionInWorld, remain 6 bits are reserved.
     Stride,
     Count
 }
@@ -58,6 +61,14 @@ export enum RenderDrawInfoType {
     MODEL,
     MIDDLEWARE,
     SUB_NODE,
+}
+
+function setBitInTypedArray (arr: TypedArray, index: number, bitPosition: number): void {
+    arr[index] |= (1 << bitPosition);
+}
+
+function clearBitInTypedArray (arr: TypedArray, index: number, bitPosition: number): void {
+    arr[index] &= ~(1 << bitPosition);
 }
 
 /** @mangle */
@@ -130,7 +141,7 @@ export class RenderDrawInfo {
         this._vertDirty = false;
     }
 
-    public setAccId (accId): void {
+    public setAccId (accId: number): void {
         if (JSB) {
             if (this._accId !== accId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
@@ -139,7 +150,7 @@ export class RenderDrawInfo {
         this._accId = accId;
     }
 
-    public setBufferId (bufferId): void {
+    public setBufferId (bufferId: number): void {
         if (JSB) {
             if (this._bufferId !== bufferId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.BufferID] = bufferId;
@@ -149,7 +160,7 @@ export class RenderDrawInfo {
         this._bufferId = bufferId;
     }
 
-    public setAccAndBuffer (accId, bufferId): void {
+    public setAccAndBuffer (accId: number, bufferId: number): void {
         if (JSB) {
             if (this._accId !== accId || this._bufferId !== bufferId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
@@ -161,14 +172,14 @@ export class RenderDrawInfo {
         this._accId = accId;
     }
 
-    public setVertexOffset (vertexOffset): void {
+    public setVertexOffset (vertexOffset: number): void {
         this._vertexOffset = vertexOffset;
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.VertexOffset] = vertexOffset;
         }
     }
 
-    public setIndexOffset (indexOffset): void {
+    public setIndexOffset (indexOffset: number): void {
         this._indexOffset = indexOffset;
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.IndexOffset] = indexOffset;
@@ -199,14 +210,14 @@ export class RenderDrawInfo {
         }
     }
 
-    public setVBCount (vbCount): void {
+    public setVBCount (vbCount: number): void {
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.VBCount] = vbCount;
         }
         this._vbCount = vbCount;
     }
 
-    public setIBCount (ibCount): void {
+    public setIBCount (ibCount: number): void {
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.IBCount] = ibCount;
         }
@@ -228,9 +239,23 @@ export class RenderDrawInfo {
 
     public setIsMeshBuffer (isMeshBuffer: boolean): void {
         if (JSB) {
-            this._uint8SharedBuffer[AttrUInt8ArrayView.IsMeshBuffer] = isMeshBuffer ? 1 : 0;
+            if (isMeshBuffer) {
+                setBitInTypedArray(this._uint8SharedBuffer, AttrUInt8ArrayView.BooleanValues, bitIndexForIsMeshBuffer);
+            } else {
+                clearBitInTypedArray(this._uint8SharedBuffer, AttrUInt8ArrayView.BooleanValues, bitIndexForIsMeshBuffer);
+            }
         }
         this._isMeshBuffer = isMeshBuffer;
+    }
+
+    public setVertexPositionInWorld (isVertexPositionInWorld: boolean): void {
+        if (JSB) {
+            if (isVertexPositionInWorld) {
+                setBitInTypedArray(this._uint8SharedBuffer, AttrUInt8ArrayView.BooleanValues, bitIndexForIsVertexPositionInWorld);
+            } else {
+                clearBitInTypedArray(this._uint8SharedBuffer, AttrUInt8ArrayView.BooleanValues, bitIndexForIsVertexPositionInWorld);
+            }
+        }
     }
 
     public setMaterial (material: Material): void {
