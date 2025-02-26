@@ -519,6 +519,7 @@ using namespace spine;
 // Note: 
 //   %import "your_header_file.h" will not generate code for that header file
 //
+#define CC_USE_SPINE_4_2 1
 %import "base/Macros.h"
 %import "base/RefCounted.h"
 %import "editor-support/spine/4.2/spine/dll.h"
