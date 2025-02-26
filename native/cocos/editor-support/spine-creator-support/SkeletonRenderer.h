@@ -48,7 +48,6 @@ class RenderEntity;
 class RenderDrawInfo;
 class Material;
 
-using namespace spine;
 class AttachmentVertices;
 
 /** Draws a skeleton.
