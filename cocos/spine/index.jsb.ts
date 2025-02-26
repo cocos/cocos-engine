@@ -25,6 +25,7 @@
 import { ccenum } from '../core';
 import { legacyCC } from '../core/global-exports';
 import spineLib from './lib/spine-core';
+import { SPINE_VERSION } from './lib/spine-version';
 
 /**
  * @en
@@ -112,6 +113,7 @@ export enum AnimationEventType {
 ccenum(AnimationEventType);
 
 legacyCC.internal.SpineAnimationEventType = AnimationEventType;
+legacyCC.internal.SPINE_VERSION = SPINE_VERSION;
 
 export function loadWasmModuleSpine (): Promise<void> {
     return Promise.resolve();

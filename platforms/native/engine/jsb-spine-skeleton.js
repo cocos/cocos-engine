@@ -174,8 +174,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._target = target;
         this._callback = callback;
 
-        // eslint-disable-next-line no-undef
-        const AnimationEventType = legacyCC.internal.SpineAnimationEventType;
+        const AnimationEventType = cc.internal.SpineAnimationEventType;
 
         this.setStartListener(function (trackEntry) {
             if (this._target && this._callback) {
@@ -405,7 +404,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setVertexEffectDelegate = function (effectDelegate) {
-        if (cc.sp.SPINE_VERSION === '4.2') {
+        if (cc.internal.SPINE_VERSION === '4.2') {
             cc.warn('setVertexEffectDelegate is deprecated since spine 4.2');
             return;
         }
