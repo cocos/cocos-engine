@@ -22,13 +22,12 @@
  THE SOFTWARE.
 */
 
-import { fetchBuffer, ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
+import { fetchBuffer, ensureWasmModuleReady, instantiateWasm, fetchUrl } from 'pal/wasm';
 import { NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 import { error, sys } from '../../core';
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 import { WebGPUWasm } from './webgpu-core';
 import { overrideWebGPUDefine } from './define';
-// import { overrideSpineDefine } from './spine-define';
 
 const PAGESIZE = 65536; // 64KiB
 
@@ -46,21 +45,14 @@ function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const errorMessage = (err: any): string => `[WebGPU]: WebGPU wasm load failed: ${err}`;
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        wasmFactory({
-            instantiateWasm (
-                importObject: WebAssembly.Imports,
-                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
-            ) {
-                instantiateWasm(wasmUrl, importObject).then((result) => {
-                    receiveInstance(result.instance, result.module);
-                }).catch((err) => reject(errorMessage(err)));
-            },
-        }).then((Instance: any) => {
-            wasmInstance = Instance;
-            registerList.forEach((cb) => {
-                cb(wasmInstance);
-            });
-        }).then(resolve).catch((err: any) => reject(errorMessage(err)));
+        fetchUrl(wasmUrl).then((currUrl) => {
+            wasmFactory(currUrl).then((Instance: any) => {
+                wasmInstance = Instance;
+                registerList.forEach((cb) => {
+                    cb(wasmInstance);
+                });
+            }).then(resolve).catch((err: any) => reject(errorMessage(err)));
+        });
     });
 }
 

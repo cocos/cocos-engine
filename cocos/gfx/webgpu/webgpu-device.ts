@@ -475,7 +475,6 @@ export class WebGPUDevice extends Device {
         defaultResource.descSet = this.createDescriptorSet(descInfo);
         defaultResource.descSet.bindBuffer(0, defaultResource.buffer);
         defaultResource.descSet.update();
-        // (defaultResource.descSet as WebGPUDescriptorSet).prepare(DescUpdateFrequency.NORMAL, [0]);
     }
 
     private async initDevice (info: Readonly<DeviceInfo>): Promise<boolean> {
@@ -557,7 +556,6 @@ export class WebGPUDevice extends Device {
         this._features[Feature.ELEMENT_INDEX_UINT] = true;
         this._features[Feature.INSTANCED_ARRAYS] = true;
         this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
-        // this._features[Feature.BLEND_MINMAX] = true;
         this.initFormatFeatures(features);
 
         this._queue = this.createQueue(new QueueInfo(QueueType.GRAPHICS));

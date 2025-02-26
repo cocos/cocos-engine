@@ -48,12 +48,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
 
     private _gpuDescriptorSet: IWebGPUGPUDescriptorSet | null = null;
     private _bindGroupEntries: Map<number, GPUBindGroupEntry> = new Map<number, GPUBindGroupEntry>();
-    private _prepareEntries: GPUBindGroupEntry[] = [];
-    // private _currBinds: number[] = [];
-    // private _needUpdate: boolean = false;
-    // private _prepareDynOffsets: number[] = [];
     private _dynamicOffsets: number[] = [];
-    private _dynamicOffsetNum: number = 0;
 
     get dynamicOffsets (): number[] {
         return this._dynamicOffsets;
@@ -65,7 +60,6 @@ export class WebGPUDescriptorSet extends DescriptorSet {
 
     public initialize (info: Readonly<DescriptorSetInfo>): void {
         const layout = this._layout = info.layout as WebGPUDescriptorSetLayout;
-        // layout.addRef(this);
         const { bindings, descriptorIndices, descriptorCount } = layout.gpuDescriptorSetLayout!;
 
         this._buffers = Array(descriptorCount).fill(null);
@@ -105,7 +99,6 @@ export class WebGPUDescriptorSet extends DescriptorSet {
         if (destBind) {
             destBind.gpuBuffer = buffer.gpuBuffer;
         }
-        // const layout = this._layout as WebGPUDescriptorSetLayout;
         const nativeBuffer = buffer.gpuBuffer.gpuBuffer;
         const bindGrpEntry: GPUBindGroupEntry = {
             binding: bind.binding,

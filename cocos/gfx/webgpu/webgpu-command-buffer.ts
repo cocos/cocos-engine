@@ -630,7 +630,6 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             }
         }
         this._curWebGPUPipelineState!.prepare(this._curGPUInputAssembler!);
-        const { dynamicOffsetIndices } = gpuPipelineLayout;
         // ----------------------------wgpu pipline state-----------------------------
         const wgpuPipeline = this._curGPUPipelineState.nativePipeline as GPURenderPipeline;
         const pplFunc = (passEncoder: GPURenderPassEncoder): void => {
