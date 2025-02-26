@@ -22,6 +22,12 @@
  THE SOFTWARE.
 */
 
+// Defining the following import to make ts compiler know these files
+// spine-instantiate.ts will be overriden by spine-instantiate-3.8.ts or spine-instantiate-4.2.ts while building engine.
+// See 'moduleOverrides' section in cc.config.json.
+import './spine-instantiate-3.8';
+import './spine-instantiate-4.2';
+
 export function waitForSpineWasmInstantiation (): Promise<void> {
     return null!;
 }

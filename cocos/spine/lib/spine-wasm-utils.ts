@@ -1,8 +1,8 @@
-import spine from './spine-core';
 import { instantiateWasm, fetchBuffer } from 'pal/wasm';
 import { NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 import { sys } from '../../core';
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
+import { overrideSpineDefine } from './spine-define';
 
 const PAGESIZE = 65536; // 64KiB
 
@@ -72,4 +72,4 @@ export function shouldUseWasmModule (): boolean {
     }
 }
 
-registerList.push(spine._overrideSpineDefine);
+registerList.push(overrideSpineDefine);

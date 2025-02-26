@@ -26,7 +26,6 @@ import { ensureWasmModuleReady } from 'pal/wasm';
 import { error } from '../../core';
 import { shouldUseWasmModule, initWasm, initAsmJS } from './spine-wasm-utils';
 
-
 export function waitForSpineWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then((): Promise<void> => {
