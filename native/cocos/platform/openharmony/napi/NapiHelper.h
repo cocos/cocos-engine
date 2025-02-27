@@ -36,12 +36,12 @@ namespace cc {
 using CallbackParamType = std::variant<std::string, double, bool>;
 
 struct CallParam {
+    bool isSync;
     std::function<void(CallbackParamType)> cb;
     std::string paramStr;
     char *module_info;
     const char *clsPath;
     const char *method;
-    napi_ref executeFuncRef;
 };
 
 class NapiHelper {
@@ -56,122 +56,56 @@ public:
 
 class JSFunction {
 public:
-    napi_ref funcRef;
     napi_env env;
-    char *name = nullptr;
+    napi_threadsafe_function saveFunc;
 
 public:
     static std::unordered_map<std::string, JSFunction> jsFunctionMap;
 
-    explicit JSFunction(char *name, napi_env env, napi_ref funcRef)
-    : name(name), env(env), funcRef(funcRef) {}
-
-    explicit JSFunction(char *name, napi_env env)
-    : name(name), env(env) {}
-
-    explicit JSFunction(char *name)
-    : name(name) {}
+    explicit JSFunction(napi_env env, napi_threadsafe_function save_func)
+    : env(env), saveFunc(save_func) {}
 
     static JSFunction getFunction(std::string functionName) {
         return jsFunctionMap.at(functionName);
     }
 
-    static void addFunction(std::string name, JSFunction *jsFunction) {
-        jsFunctionMap.emplace(name, *jsFunction);
+    static void addFunction(std::string name, JSFunction jsFunction) {
+        jsFunctionMap.emplace(name, jsFunction);
     }
 
-    template <typename ReturnType, typename... Args>
-    typename std::enable_if<!std::is_same<ReturnType, void>::value, ReturnType>::type
-    invoke(Args... args) {
-        napi_value global;
-        napi_status status = napi_get_global(env, &global);
-        // if (status != napi_ok) return;
-
-        napi_value func;
-        status = napi_get_reference_value(env, funcRef, &func);
-
-        napi_value jsArgs[sizeof...(Args)] = {NapiValueConverter::ToNapiValue(env, args)...};
-        napi_value return_val;
-        status = napi_call_function(env, global, func, sizeof...(Args), jsArgs, &return_val);
-
-        ReturnType value;
-        if (!NapiValueConverter::ToCppValue(env, return_val, value)) {
-            // Handle error here
-        }
-        return value;
-    }
-
-    template <typename ReturnType, typename... Args>
-    typename std::enable_if<std::is_same<ReturnType, void>::value, void>::type
-    invoke(Args... args) {
-        napi_value global;
-        napi_status status = napi_get_global(env, &global);
-        if (status != napi_ok) return;
-
-        napi_value func;
-        status = napi_get_reference_value(env, funcRef, &func);
-
-        napi_value jsArgs[sizeof...(Args)] = {NapiValueConverter::ToNapiValue(env, args)...};
-        napi_value return_val;
-        status = napi_call_function(env, global, func, sizeof...(Args), jsArgs, &return_val);
-    }
-
-    void invoke(CallParam *callParam, bool isSync) {
-        callParam->executeFuncRef = funcRef;
-
+    void invoke(CallParam *callParam) {
         napi_status status;
-        napi_value func;
-        status = napi_get_reference_value(env, funcRef, &func);
-        if (status != napi_ok) {
-            CC_LOG_WARNING("invokeAsync napi_get_reference_value fail,status=%{public}d", status);
-            return;
-        }
-
-        napi_value workName;
-        status = napi_create_string_utf8(env, "Thread-safe call from async work", NAPI_AUTO_LENGTH, &workName);
-        if (status != napi_ok) {
-            CC_LOG_WARNING("invokeAsync napi_create_string_utf8 fail,status=%{public}d", status);
-            return;
-        }
-
-        napi_threadsafe_function save_func;
-        if (isSync) {
-            status = napi_create_threadsafe_function(
-                env, func, nullptr, workName, 0, 1, nullptr, [](napi_env env, void *raw, void *hint) {}, callParam,
-                CallJsSync, &save_func);
-        } else {
-            status = napi_create_threadsafe_function(
-                env, func, nullptr, workName, 0, 1, nullptr, [](napi_env env, void *raw, void *hint) {}, callParam,
-                CallJsAsync, &save_func);
-        }
-
-        status = napi_acquire_threadsafe_function(save_func);
+        status = napi_acquire_threadsafe_function(saveFunc);
         if (status != napi_ok) {
             CC_LOG_WARNING("invokeAsync napi_acquire_threadsafe_function fail,status=%{public}d", status);
             return;
         }
 
-        status = napi_call_threadsafe_function(save_func, NULL, napi_tsfn_blocking);
+        status = napi_call_threadsafe_function(saveFunc, callParam, napi_tsfn_blocking);
         if (status != napi_ok) {
             CC_LOG_WARNING("invokeAsync napi_call_threadsafe_function fail,status=%{public}d", status);
             return;
         }
     }
-
+    
+    static void CallJS(napi_env env, napi_value js_cb, void *context, void *data) {
+        CallParam *callParam = (CallParam*) (data);
+        if(callParam->isSync){
+            CallJsSync(env, js_cb, context, data);
+        } else{
+            CallJsAsync(env, js_cb, context, data);
+        }
+    }
+    
     static void CallJsAsync(napi_env env, napi_value js_cb, void *context, void *data) {
-        CallParam *callParam = (CallParam *)(context);
+        CallParam *callParam = (CallParam *)(data);
         if (callParam == nullptr) {
             CC_LOG_WARNING("CallJS CallParam callParam is null");
             return;
         }
 
         napi_status status;
-        status = napi_get_reference_value(env, callParam->executeFuncRef, &js_cb);
-        if (status != napi_ok) {
-            CC_LOG_WARNING("CallJS napi_get_reference_value fail,status=%{public}d", status);
-            return;
-        }
-
+        
         auto callback = [](napi_env env, napi_callback_info info) -> napi_value {
             size_t argc = 1;
             napi_value args[1] = {};
@@ -248,19 +182,13 @@ public:
     }
 
     static void CallJsSync(napi_env env, napi_value js_cb, void *context, void *data) {
-        CallParam *callParam = (CallParam *)(context);
+        CallParam *callParam = (CallParam *)(data);
         if (callParam == nullptr) {
             CC_LOG_WARNING("CallJS CallParam callParam is null");
             return;
         }
 
         napi_status status;
-        status = napi_get_reference_value(env, callParam->executeFuncRef, &js_cb);
-        if (status != napi_ok) {
-            CC_LOG_WARNING("CallJS napi_get_reference_value fail,status=%{public}d", status);
-            return;
-        }
-
         napi_value result;
         status = napi_load_module_with_info(env, callParam->clsPath, callParam->module_info, &result);
         if (status != napi_ok) {
