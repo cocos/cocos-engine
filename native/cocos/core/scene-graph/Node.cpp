@@ -33,7 +33,7 @@
 #include "math/Utils.h"
 
 namespace cc {
-
+//
 // static variables
 
 uint32_t Node::clearFrame{0};
