@@ -698,11 +698,18 @@ const cacheManager = require('./jsb-cache-manager');
             this.attachUtil.init(this);
             this._preCacheMode = this._cacheMode;
 
-            this.defaultSkin && this._nativeSkeleton.setSkin(this.defaultSkin);
+            if (this.defaultSkin && this.defaultSkin !== '') {
+                this._nativeSkeleton.setSkin(this.defaultSkin);
+            } else if (this._skinName && this._skinName !== '') {
+                this._nativeSkeleton.setSkin(this._skinName);
+                this.setSkin(this._skinName);
+            }
             if (this.defaultAnimation) {
                 this.animation = this.defaultAnimation;
             } else if (this._animationName) {
                 this.animation = this._animationName;
+            } else {
+                this.animation = '';
             }
         } else if (this._nativeSkeleton) {
             this._nativeSkeleton.stopSchedule();

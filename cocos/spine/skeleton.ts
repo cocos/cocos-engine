@@ -783,11 +783,17 @@ export class Skeleton extends UIRenderer {
            If the animation is set before the skin,
            it will cause rendering issues when a prefab with Spine assets is added to the scene node tree.
         */
-        if (this.defaultSkin && this.defaultSkin !== '') this.setSkin(this.defaultSkin);
+        if (this.defaultSkin && this.defaultSkin !== '') {
+            this.setSkin(this.defaultSkin);
+        } else if (this._skinName && this._skinName !== '') {
+            this.setSkin(this._skinName);
+        }
         if (this.defaultAnimation) {
             this.animation = this.defaultAnimation.toString();
         } else if (this._animationName) {
             this.animation = this._animationName;
+        } else {
+            this.animation = '';
         }
 
         this._updateUseTint();
@@ -832,6 +838,9 @@ export class Skeleton extends UIRenderer {
             const skeletonInfo = this._skeletonCache!.getSkeletonInfo(this._skeletonData!);
             if (this._skeletonInfo !== skeletonInfo) {
                 this._destroySkeletonInfo(this._skeletonCache);
+                if (!skeletonInfo && this._cacheMode === SpineAnimationCacheMode.PRIVATE_CACHE) {
+                    this._animCache = this._skeletonCache!.initAnimationCache(this.skeletonData!.uuid, this._skeletonData!, this._animationName);
+                }
                 this._skeletonInfo = this._skeletonCache!.createSkeletonInfo(this._skeletonData!);
             }
             if (this._skeletonInfo) {
