@@ -35,7 +35,6 @@ if (USE_SPINE_3_8 OR USE_SPINE_4_2)
 else()
     cc_set_if_undefined(USE_SPINE            OFF)
 endif()
-cc_set_if_undefined(USE_SPINE                ON)
 cc_set_if_undefined(USE_WEBSOCKET_SERVER     OFF)
 cc_set_if_undefined(USE_JOB_SYSTEM_TASKFLOW  OFF)
 cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
@@ -229,6 +228,7 @@ cc_inspect_values(
     USE_WEBVIEW
     USE_MIDDLEWARE
     USE_DRAGONBONES
+    USE_SPINE
     USE_SPINE_3_8
     USE_SPINE_4_2
     USE_WEBSOCKET_SERVER
@@ -2661,23 +2661,23 @@ if(USE_MIDDLEWARE)
     if(USE_SPINE)
         cocos_source_files(
             NO_WERROR                cocos/editor-support/spine-creator-support/AttachmentVertices.cpp
-                                        cocos/editor-support/spine-creator-support/AttachmentVertices.h
+                                     cocos/editor-support/spine-creator-support/AttachmentVertices.h
             NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonAnimation.cpp
-                                        cocos/editor-support/spine-creator-support/SkeletonAnimation.h
+                                     cocos/editor-support/spine-creator-support/SkeletonAnimation.h
             NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonCache.cpp
-                                        cocos/editor-support/spine-creator-support/SkeletonCache.h
+                                     cocos/editor-support/spine-creator-support/SkeletonCache.h
             NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonCacheAnimation.cpp
-                                        cocos/editor-support/spine-creator-support/SkeletonCacheAnimation.h
+                                     cocos/editor-support/spine-creator-support/SkeletonCacheAnimation.h
             NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonCacheMgr.cpp
-                                        cocos/editor-support/spine-creator-support/SkeletonCacheMgr.h
+                                     cocos/editor-support/spine-creator-support/SkeletonCacheMgr.h
             NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonDataMgr.cpp
-                                        cocos/editor-support/spine-creator-support/SkeletonDataMgr.h
+                                     cocos/editor-support/spine-creator-support/SkeletonDataMgr.h
             NO_WERROR   NO_UBUILD    cocos/editor-support/spine-creator-support/SkeletonRenderer.cpp
-                                        cocos/editor-support/spine-creator-support/SkeletonRenderer.h
+                                     cocos/editor-support/spine-creator-support/SkeletonRenderer.h
             NO_WERROR                cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
-                                        cocos/editor-support/spine-creator-support/spine-cocos2dx.h
+                                     cocos/editor-support/spine-creator-support/spine-cocos2dx.h
             NO_WERROR                cocos/editor-support/spine-creator-support/Vector2.cpp
-                                        cocos/editor-support/spine-creator-support/Vector2.h
+                                     cocos/editor-support/spine-creator-support/Vector2.h
         )
     endif()
 

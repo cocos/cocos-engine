@@ -561,17 +561,6 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
             }
 
-        } else if (slot->getAttachment()->getRTTI().isExactly(PathAttachment::rtti)) {
-            auto *pathAttachment = dynamic_cast<spine::PathAttachment *>(slot->getAttachment());
-#if CC_USE_SPINE_4_2
-            if (pathAttachment->getColor().a == 0) {
-                _clipper->clipEnd(*slot);
-                continue;
-            }
-#endif
-
-            // TODO: implement PathAttachment
-            //auto &transform = slot->getBone().getWorldTransform();
         } else if (slot->getAttachment()->getRTTI().isExactly(ClippingAttachment::rtti)) {
             auto *clip = dynamic_cast<ClippingAttachment *>(slot->getAttachment());
             _clipper->clipStart(*slot, clip);
