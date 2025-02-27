@@ -493,6 +493,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setSkin = function (skinName) {
+        this._skinName = skinName;
         if (this._nativeSkeleton) return this._nativeSkeleton.setSkin(skinName);
         return null;
     };
@@ -702,7 +703,6 @@ const cacheManager = require('./jsb-cache-manager');
                 this._nativeSkeleton.setSkin(this.defaultSkin);
             } else if (this._skinName && this._skinName !== '') {
                 this._nativeSkeleton.setSkin(this._skinName);
-                this.setSkin(this._skinName);
             }
             if (this.defaultAnimation) {
                 this.animation = this.defaultAnimation;
