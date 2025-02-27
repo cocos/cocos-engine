@@ -378,7 +378,7 @@
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
             "isNativeModule": true,
-            "enginePlugin": false,
+            "enginePlugin": true,
             "category": "2d",
             "dependencies": [
                 "2d"
