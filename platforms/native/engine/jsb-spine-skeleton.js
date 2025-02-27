@@ -700,9 +700,9 @@ const cacheManager = require('./jsb-cache-manager');
             this._preCacheMode = this._cacheMode;
 
             if (this.defaultSkin && this.defaultSkin !== '') {
-                this._nativeSkeleton.setSkin(this.defaultSkin);
+                this.setSkin(this.defaultSkin);
             } else if (this._skinName && this._skinName !== '') {
-                this._nativeSkeleton.setSkin(this._skinName);
+                this.setSkin(this._skinName);
             }
             if (this.defaultAnimation) {
                 this.animation = this.defaultAnimation;
