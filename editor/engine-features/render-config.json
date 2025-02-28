@@ -384,6 +384,9 @@
                     "default": true,
                     "label": "i18n:ENGINE.features.spine_38.label",
                     "description": "i18n:ENGINE.features.spine_38.description",
+                    "dependencies": [
+                        "2d"
+                    ],
                     "flags": {
                         "LOAD_SPINE_MANUALLY": {
                             "label": "i18n:ENGINE.features.flags.spine.loadManual.label",
@@ -399,6 +402,9 @@
                     "default": false,
                     "label": "i18n:ENGINE.features.spine_42.label",
                     "description": "i18n:ENGINE.features.spine_42.description",
+                    "dependencies": [
+                        "2d"
+                    ],
                     "flags": {
                         "LOAD_SPINE_MANUALLY": {
                             "label": "i18n:ENGINE.features.flags.spine.loadManual.label",
