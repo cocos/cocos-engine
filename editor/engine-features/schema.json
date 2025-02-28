@@ -22,14 +22,7 @@
         },
         "Features": {
             "additionalProperties": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/IFeatureItem"
-                    },
-                    {
-                        "$ref": "#/definitions/IFeatureGroup"
-                    }
-                ]
+                "$ref": "#/definitions/IModuleItem"
             },
             "type": "object"
         },
@@ -41,6 +34,12 @@
                 },
                 "default": {
                     "type": "boolean"
+                },
+                "dependencies": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
                 },
                 "description": {
                     "type": "string"
@@ -138,6 +137,16 @@
                 }
             },
             "type": "object"
+        },
+        "IModuleItem": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/IFeatureItem"
+                },
+                {
+                    "$ref": "#/definitions/IFeatureGroup"
+                }
+            ]
         }
     },
     "properties": {

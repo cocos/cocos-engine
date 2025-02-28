@@ -26,8 +26,10 @@ export interface Migration {
     migrate(moduleCache: Record<string, boolean>): Record<string, boolean>;
 }
 
+export type IModuleItem = IFeatureItem | IFeatureGroup;
+
 export interface Features {
-    [feature: string]: IFeatureItem | IFeatureGroup;
+    [feature: string]: IModuleItem;
 };
 
 export interface BaseItem {
@@ -72,15 +74,15 @@ export interface BaseItem {
      * @en Whether it is a required module. When adding a new module, the old version will be forced to select this module after the upgrade, otherwise it will not be selected.
      */
     required?: boolean;
-}
 
-export interface IFeatureItem extends BaseItem {
     /**
      * @zh 该模块依赖的其他模块，如果依赖了其他模块，则此模块勾选后，依赖模块也会被自动勾选。反过来，依赖的模块被移除勾选，此模块也会被一并移除。
      * @en The other modules that this module depends on. If the module depends on other modules, the dependent modules will be automatically selected. In addition, if the dependent module is removed, this module will also be removed.
      */
     dependencies?: string[];
+}
 
+export interface IFeatureItem extends BaseItem {
     /**
      * @zh 是否默认以及允许包含在上传的各个小游戏引擎插件内，目前由于部分引擎模块包体较大，默认不会打包在官方的微信引擎分离插件内。（临时方案）
      * @en Whether it is included in the upload of the various engine plugins by default. Currently, because some engine modules are packaged in a large package, the official WeChat engine separation plugin does not package them by default. (Temporary solution)
