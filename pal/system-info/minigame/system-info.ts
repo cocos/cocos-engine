@@ -189,6 +189,14 @@ class SystemInfo extends EventTarget {
                 }
             }
 
+            if (RUNTIME_BASED) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error ral.WebAssembly is defined if runtime based platform supports wasm.
+                if (typeof ral.WebAssembly === 'object') {
+                    return true;
+                }
+            }
+
             return false;
         })();
 
