@@ -2,79 +2,6 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "definitions": {
-        "BaseItem": {
-            "additionalProperties": false,
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "cmakeConfig": {
-                    "type": "string"
-                },
-                "default": {
-                    "type": "boolean"
-                },
-                "dependencies": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "enginePlugin": {
-                    "type": "boolean"
-                },
-                "envCondition": {
-                    "type": "string"
-                },
-                "fallback": {
-                    "type": "string"
-                },
-                "flags": {
-                    "additionalProperties": {
-                        "additionalProperties": false,
-                        "properties": {
-                            "default": {
-                                "type": "boolean"
-                            },
-                            "description": {
-                                "type": "string"
-                            },
-                            "label": {
-                                "type": "string"
-                            },
-                            "ui-type": {
-                                "enum": [
-                                    "checkbox",
-                                    "select"
-                                ],
-                                "type": "string"
-                            }
-                        },
-                        "type": "object"
-                    },
-                    "type": "object"
-                },
-                "hidden": {
-                    "type": "boolean"
-                },
-                "isNativeModule": {
-                    "type": "boolean"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "readonly": {
-                    "type": "boolean"
-                },
-                "required": {
-                    "type": "boolean"
-                }
-            },
-            "type": "object"
-        },
         "CategoryInfo": {
             "additionalProperties": false,
             "properties": {
@@ -95,7 +22,47 @@
         },
         "Features": {
             "additionalProperties": {
-                "$ref": "#/definitions/IFeatureItem"
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/IFeatureItem"
+                    },
+                    {
+                        "$ref": "#/definitions/IFeatureGroup"
+                    }
+                ]
+            },
+            "type": "object"
+        },
+        "IFeatureGroup": {
+            "additionalProperties": false,
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hidden": {
+                    "type": "boolean"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "options": {
+                    "additionalProperties": {
+                        "$ref": "#/definitions/IFeatureItem"
+                    },
+                    "type": "object"
+                },
+                "readonly": {
+                    "type": "boolean"
+                },
+                "required": {
+                    "type": "boolean"
+                }
             },
             "type": "object"
         },
@@ -162,12 +129,6 @@
                 },
                 "label": {
                     "type": "string"
-                },
-                "options": {
-                    "additionalProperties": {
-                        "$ref": "#/definitions/BaseItem"
-                    },
-                    "type": "object"
                 },
                 "readonly": {
                     "type": "boolean"

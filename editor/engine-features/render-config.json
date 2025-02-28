@@ -209,7 +209,6 @@
                             "default": false
                         }
                     }
-
                 },
                 "physics-2d-builtin": {
                     "label": "i18n:ENGINE.features.physics_2d_builtin.label",
@@ -377,11 +376,7 @@
         "spine": {
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
-            "isNativeModule": true,
             "category": "2d",
-            "dependencies": [
-                "2d"
-            ],
             "options": {
                 "spine-3.8": {
                     "enginePlugin": true,
