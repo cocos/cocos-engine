@@ -382,6 +382,7 @@
                     "enginePlugin": true,
                     "cmakeConfig": "USE_SPINE_3_8",
                     "default": true,
+                    "isNativeModule": true,
                     "label": "i18n:ENGINE.features.spine_38.label",
                     "description": "i18n:ENGINE.features.spine_38.description",
                     "dependencies": [
@@ -400,6 +401,7 @@
                     "enginePlugin": true,
                     "cmakeConfig": "USE_SPINE_4_2",
                     "default": false,
+                    "isNativeModule": true,
                     "label": "i18n:ENGINE.features.spine_42.label",
                     "description": "i18n:ENGINE.features.spine_42.description",
                     "dependencies": [
