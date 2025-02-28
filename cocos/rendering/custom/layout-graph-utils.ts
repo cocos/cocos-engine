@@ -23,7 +23,6 @@
 ****************************************************************************/
 
 /* eslint-disable max-len */
-import { HTML5 } from 'internal:constants';
 import { EffectAsset } from '../../asset/assets';
 import { assert, error, warn } from '../../core';
 import { API, DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, Feature, Format, FormatFeatureBit, GetTypeSize, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, SampleType, ShaderStageFlagBit, Type, Uniform, UniformBlock, ViewDimension } from '../../gfx';
@@ -344,7 +343,7 @@ export function makeDescriptorSetLayoutData (
 
     for (let i = 0; i < descriptors.blocks.length; i++) {
         const cb = descriptors.blocks[i];
-        const block = HTML5 && Layout.isWebGPU
+        const block = Layout.isWebGPU
             ? getDescriptorGroupBlockData(map, {
                 updateFrequency: rate,
                 parameterType: ParameterType.TABLE,
@@ -368,7 +367,7 @@ export function makeDescriptorSetLayoutData (
     }
     for (let i = 0; i < descriptors.samplerTextures.length; i++) {
         const samplerTexture = descriptors.samplerTextures[i];
-        const block = HTML5 && Layout.isWebGPU
+        const block = Layout.isWebGPU
             ? getDescriptorGroupBlockData(map, {
                 updateFrequency: rate,
                 parameterType: ParameterType.TABLE,
@@ -390,7 +389,7 @@ export function makeDescriptorSetLayoutData (
     }
     for (let i = 0; i < descriptors.samplers.length; i++) {
         const sampler = descriptors.samplers[i];
-        const block = HTML5 && Layout.isWebGPU
+        const block = Layout.isWebGPU
             ? getDescriptorGroupBlockData(map, {
                 updateFrequency: rate,
                 parameterType: ParameterType.TABLE,
@@ -412,7 +411,7 @@ export function makeDescriptorSetLayoutData (
     }
     for (let i = 0; i < descriptors.textures.length; i++) {
         const texture = descriptors.textures[i];
-        const block = HTML5 && Layout.isWebGPU
+        const block = Layout.isWebGPU
             ? getDescriptorGroupBlockData(map, {
                 updateFrequency: rate,
                 parameterType: ParameterType.TABLE,
@@ -434,7 +433,7 @@ export function makeDescriptorSetLayoutData (
     }
     for (let i = 0; i < descriptors.buffers.length; i++) {
         const buffer = descriptors.buffers[i];
-        const block = HTML5 && Layout.isWebGPU
+        const block = Layout.isWebGPU
             ? getDescriptorGroupBlockData(map, {
                 updateFrequency: rate,
                 parameterType: ParameterType.TABLE,
@@ -456,7 +455,7 @@ export function makeDescriptorSetLayoutData (
     }
     for (let i = 0; i < descriptors.images.length; i++) {
         const image = descriptors.images[i];
-        const block = HTML5 && Layout.isWebGPU
+        const block = Layout.isWebGPU
             ? getDescriptorGroupBlockData(map, {
                 updateFrequency: rate,
                 parameterType: ParameterType.TABLE,
@@ -478,7 +477,7 @@ export function makeDescriptorSetLayoutData (
     }
     for (let i = 0; i < descriptors.subpassInputs.length; i++) {
         const subpassInput = descriptors.subpassInputs[i];
-        const block = HTML5 && Layout.isWebGPU
+        const block = Layout.isWebGPU
             ? getDescriptorGroupBlockData(map, {
                 updateFrequency: rate,
                 parameterType: ParameterType.TABLE,
@@ -500,7 +499,7 @@ export function makeDescriptorSetLayoutData (
     }
 
     // sort blocks
-    const flattenedBlocks = HTML5 && Layout.isWebGPU
+    const flattenedBlocks = Layout.isWebGPU
         ? Array.from(map).sort(sortDescriptorGroupBlocks)
         : Array.from(map).sort(sortDescriptorBlocks);
 
