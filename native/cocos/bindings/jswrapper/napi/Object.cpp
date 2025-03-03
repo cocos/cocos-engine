@@ -529,10 +529,6 @@ void Object::setPrivateObject(PrivateObjectBase* data) {
     NODE_API_CALL(status, _env,
                   napi_wrap(_env, tmpThis, this, weakCallback,
                             (void*)this /* finalize_hint */, &result));
-    //_objRef.setWeakref(_env, result);
-    setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
-
-    return;
 }
 
 bool Object::attachObject(Object* obj) {

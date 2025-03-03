@@ -109,9 +109,6 @@ void Object::setPrivateObject(PrivateObjectBase* data) {
     NODE_API_CALL(status, _env,
                   OH_JSVM_Wrap(_env, tmpThis, this, weakCallback,
                                (void*)this /* finalize_hint */, &result));
-    //_objRef.setWeakref(_env, result);
-    setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
-    return;
 }
 
 bool Object::deleteProperty(const char* name) {
@@ -564,22 +561,6 @@ void Object::_setFinalizeCallback(JSVM_Finalize finalizeCb) {
     _finalizeCb = finalizeCb;
 }
 
-// void Object::setPrivateData(void* data){
-//     assert(_privateData == nullptr);
-//     assert(NativePtrToObjectMap::find(data) == NativePtrToObjectMap::end());
-//     JSVM_Status status;
-//     NativePtrToObjectMap::emplace(data, this);
-//     _privateData = data;
-//     //issue https://github.com/nodejs/node/issues/23999
-//     auto tmpThis = _objRef.getValue(_env);
-//     //_objRef.deleteRef();
-//     NODE_API_CALL(status, _env,
-//                   OH_JSVM_Wrap(_env, tmpThis, data, sendWeakCallback,
-//                             (void*)this /* finalize_hint */, nullptr));
-//     //_objRef.setWeakref(_env, result);
-//     setProperty("__native_ptr__", se::Value(static_cast<long>(reinterpret_cast<uintptr_t>(data))));
-// }
-
 void* Object::getPrivateData() const {
     return _privateData;
 }
@@ -828,6 +809,7 @@ Object* Object::createProxyTarget(se::Object* proxy) {
     // v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
     // Object *obj = Object::_createJSObject(nullptr, jsobj);
     // return obj;
+    assert(false); // NOT SUPPORTED NOW.
     return nullptr;
 }
 
