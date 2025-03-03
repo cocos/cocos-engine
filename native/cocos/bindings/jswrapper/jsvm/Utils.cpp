@@ -102,12 +102,11 @@ void jsToSeValue(const target_value& value, Value* v) {
         case JSVM_ValueType::JSVM_OBJECT:
         case JSVM_ValueType::JSVM_FUNCTION:
             status = OH_JSVM_Unwrap(env, value, &privateObjPtr);
-             if (status == JSVM_OK && privateObjPtr) {
-                nativePtr = reinterpret_cast<Object*>(privateObjPtr)->getPrivateData();
+            if (status == JSVM_OK && privateObjPtr) {
+                obj = reinterpret_cast<Object*>(privateObjPtr);
+                obj->incRef();
             }
-            if(nativePtr) {
-                obj = Object::getObjectWithPtr(nativePtr);
-            }
+            
             if (obj == nullptr) {
                 obj = Object::_createJSObject(env, value, nullptr);
             }
