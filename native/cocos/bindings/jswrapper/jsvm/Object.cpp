@@ -37,8 +37,15 @@
 namespace se {
 std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
 
-Object::Object() {}
+Object::Object(): _objRef(this) {}
 Object::~Object() {
+    if (!_destructInFinalizer && _cls != nullptr) {
+        // Remove wrap will ensure that we release the underlying `v8impl::Reference` that the private wrap associates with.
+        // This could avoid memory leaks of `v8impl::Reference`.
+        // We just do this if `_cls` is not null since only JSB objects get wrapped,
+        OH_JSVM_RemoveWrap(_env, _objRef.getValue(_env), nullptr);
+    }
+    
     if (__objectMap) {
         __objectMap->erase(this);
     }
@@ -105,10 +112,17 @@ void Object::setPrivateObject(PrivateObjectBase* data) {
 
     JSVM_Status status;
     auto tmpThis = _objRef.getValue(_env);
-    JSVM_Ref result = nullptr;
+
+    // Passing nullptr to the `result` parameter to make JSVM mangle the lifecycle of `v8impl::Reference`
     NODE_API_CALL(status, _env,
                   OH_JSVM_Wrap(_env, tmpThis, this, weakCallback,
-                               (void*)this /* finalize_hint */, &result));
+                               (void*)this /* finalize_hint */, nullptr));
+    
+    // WORKAROUND: See the explain in `ObjectRef::deleteRef` about why we need to `decRef` here.
+    _objRef.decRef(_env);
+    //
+    
+    
     //_objRef.setWeakref(_env, result);
     setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
     return;
@@ -528,7 +542,7 @@ bool Object::init(JSVM_Env env, JSVM_Value js_object, Class* cls) {
     assert(env);
     _cls = cls;
     _env = env;
-    _objRef.initWeakref(env, js_object);
+    _objRef.init(env, js_object);
 
     if (__objectMap) {
         assert(__objectMap->find(this) == __objectMap->end());
@@ -722,6 +736,7 @@ void Object::weakCallback(JSVM_Env env, void* nativeObject, void* finalizeHint /
                 seObj->_getClass()->_getFinalizeFunction()(env, finalizeHint, finalizeHint);
             }
         }
+        seObj->_destructInFinalizer = true;
         seObj->decRef();
     }
 }
@@ -848,15 +863,6 @@ void Object::clearPrivateData(bool clearMapping) {
     }
 }
 
-JSVM_Value ObjectRef::getValue(JSVM_Env env) const {
-    JSVM_Value  result;
-    JSVM_Status status;
-    NODE_API_CALL(status, env, OH_JSVM_GetReferenceValue(env, _ref, &result));
-    assert(status == JSVM_OK);
-    assert(result != nullptr);
-    return result;
-}
-
 Object* Object::createUTF8String(const std::string& str) {
     JSVM_Status status;
     JSVM_Value result;
@@ -865,4 +871,139 @@ Object* Object::createUTF8String(const std::string& str) {
     return obj;
 }
 
+static JSVM_Value gRefMap = nullptr;
+static uint32_t gRefKeyCounter = 0;
+
+ObjectRef::ObjectRef(Object *parent)
+: _parent(parent) {
+
+}
+
+ObjectRef::~ObjectRef() {
+    deleteRef();
+}
+    
+void ObjectRef::init(JSVM_Env env, JSVM_Value obj) {
+    assert(_ref == nullptr);
+    _obj = obj;
+    _env = env;
+    
+    // There is a bug in JSVM implementation:
+    // If we initialize the reference to 0 which means weak reference in JSVM,
+    // then we call the JSVM API in the following order:
+    // OH_JSVM_ReferenceRef -> OH_JSVM_ReferenceUnref -> OH_JSVM_ReferenceRef ( strong ref ) -> OH_JSVM_DeleteReference ( delete v8impl::Reference directly )
+    // The v8impl::Reference::WeakCallback will still be invoked which will cause invalid memory reading.
+    //
+    // WORKAROUND:
+    // Set the reference to 1 to make it to a strong reference in the lifecycle of `se::Object` until it is destructed or be wrapped with a private data.
+    //
+    OH_JSVM_CreateReference(_env, _obj, 1, &_ref);
+}
+    
+JSVM_Value ObjectRef::getValue(JSVM_Env env) const {
+    JSVM_Value r = nullptr;
+    OH_JSVM_GetReferenceValue(_env, _ref, &r);
+    return r;
+}
+
+void ObjectRef::incRef(JSVM_Env env) {
+    OH_JSVM_ReferenceRef(_env, _ref, nullptr);
+}
+
+void ObjectRef::decRef(JSVM_Env env) {
+    OH_JSVM_ReferenceUnref(_env, _ref, nullptr);
+}
+
+void ObjectRef::deleteRef() {
+    if (!_ref) {
+        return;
+    }
+
+    /*
+    BUG Analyze:
+     
+    Before invoking `OH_JSVM_DeleteReference`, if the reference count is 0, the object will be set to weak state.
+     
+    OH_JSVM_ReferenceUnref calls v8impl::Reference::Unref
+
+    https://gitee.com/openharmony/third_party_node/blob/OpenHarmony-v5.0.2-Release/src/js_native_api_v8.cc#L1284
+
+    ```c++
+    uint32_t Reference::Unref() {
+      if (persistent_.IsEmpty()) {
+        return 0;
+      }
+      uint32_t old_refcount = RefCount();
+      uint32_t refcount = RefBase::Unref();
+      if (old_refcount == 1 && refcount == 0) {
+        SetWeak(); // --> If the reference count gets to 0, the object will be set to weak state.
+      }
+      return refcount;
+    }
+
+    ```
+    v8impl::Reference::SetWeak
+
+    https://gitee.com/openharmony/third_party_node/blob/OpenHarmony-v5.0.2-Release/src/js_native_api_v8.cc#L1320
+
+    ```c++
+    void Reference::SetWeak() {
+      if (can_be_weak_) {
+        wait_callback = true;
+
+        // --> BUG: Set a weak callback to release `v8impl::Reference` in it.
+        persistent_.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
+      } else {
+        persistent_.Reset();
+      }
+    }
+    ```
+
+    The bug is that `v8impl::Reference` will only be released in WeakCallback, but if we create a reference for an object that is always held,
+    for example, global variables or singleton's properties, `v8impl::Reference` will never get a chance to be released which will cause memory leaks heavily.
+
+    OH_JSVM_DeleteReference calls Reference::Delete
+
+    https://gitee.com/openharmony/third_party_node/blob/OpenHarmony-v5.0.2-Release/src/js_native_api_v8.cc#L3886
+
+    Reference::Delete
+
+    https://gitee.com/openharmony/third_party_node/blob/OpenHarmony-v5.0.2-Release/src/js_native_api_v8.cc#L1302
+
+    ```c++
+    void Reference::Delete() {
+      assert(Ownership() == kUserland);
+      if (!wait_callback) {
+        delete this;
+      } else {
+        deleted_by_user = true; // --> BUG: If the reference count is 0, just set the deleted_by_user to true.
+      }
+    }
+    ```
+
+    It just sets `deleted_by_user` flag to true and wait the WeakCallback to come to release `v8impl::Reference`
+    which will never be invoked if the reference target is held forever.
+
+    According the source code in JSVM, we make a workaround to avoid this memory leaks. It's we call `OH_JSVM_ReferenceRef`
+    to ensure the object is not weak, then `wait_callback` is false. So while we invoke `OH_JSVM_DeleteReference`,
+    v8impl::Reference instance will be deleted in `Reference::Delete`.
+    
+    There also should be another workaround to be cooperated with this workaround.
+     
+    In `se::Object::setPrivateObject`, after invoking `OH_JSVM_Wrap`, we need to call `ObjectRef::decRef` to reset
+    the object state to weak, which makes sure that weak callback get called.
+    */
+    
+    // If we have already been in the weak callback ( finalizer ), no need to apply this workaround fix.
+    if (!_parent->_destructInFinalizer) {
+        // WORKAROUND HERE
+        OH_JSVM_ReferenceRef(_env, _ref, nullptr);
+    }
+    //
+
+    OH_JSVM_DeleteReference(_env, _ref);
+    _ref = nullptr;
+}
+
 } // namespace se
+
