@@ -290,12 +290,17 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    skeleton.setSkeletonData = function (skeletonData) {
+    skeleton._updateUITransform = function () {
+        const skeletonData = this._skeletonData;
+        if (!skeletonData) return;
+
         if (skeletonData.width != null && skeletonData.height != null) {
             const uiTrans = this.node._uiProps.uiTransformComp;
             uiTrans.setContentSize(skeletonData.width, skeletonData.height);
         }
+    };
 
+    skeleton.setSkeletonData = function (skeletonData) {
         const uuid = skeletonData._uuid;
         if (!uuid) {
             cc.errorID(7504);
