@@ -352,7 +352,7 @@ void PhysicsConstraint::update(Physics physics) {
 					}
 					if (a >= t) {
 						float d = MathUtil::pow(_damping, 60 * t);
-						float m = _massInverse * t, e = _strength, w = _wind * f, g = _gravity * f * (Bone::yDown ? -1 : 1);
+						float m = _massInverse * t, e = _strength, w = _wind * f * _skeleton.getScaleX(), g = _gravity * f * _skeleton.getScaleY();
 						do {
 							if (x) {
 								_xVelocity += (w - _xOffset * e) * m;

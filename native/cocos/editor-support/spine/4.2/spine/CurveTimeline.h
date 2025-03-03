@@ -102,10 +102,11 @@ namespace spine {
 
 		void setFrame(size_t frame, float time, float value1, float value2);
 
+		float getCurveValue(float time);
 	#ifndef __EMSCRIPTEN__
 	protected:
 	#endif
-		static const int ENTRIES;
+		static const int ENTRIES = 3;
 		static const int VALUE1 = 1;
 		static const int VALUE2 = 2;
 	};

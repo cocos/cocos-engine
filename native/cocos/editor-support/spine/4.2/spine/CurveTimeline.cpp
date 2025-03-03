@@ -233,7 +233,6 @@ float CurveTimeline1::getScaleValue(float time, float alpha, MixBlend blend, Mix
 	return current + (value - setup) * alpha;
 }
 
-const int CurveTimeline2::ENTRIES = 3;
 
 RTTI_IMPL(CurveTimeline2, CurveTimeline)
 
