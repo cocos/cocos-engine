@@ -102,7 +102,6 @@ namespace spine {
 
 		void setFrame(size_t frame, float time, float value1, float value2);
 
-		float getCurveValue(float time);
 	#ifndef __EMSCRIPTEN__
 	protected:
 	#endif
