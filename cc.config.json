@@ -613,6 +613,13 @@
             "ccGlobal": true,
             "internal": false
         },
+        "COCOS_RUNTIME": {
+            "comment": "Running in the cocos runtime.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
         "EDITOR": {
             "comment": "Running in the editor.",
             "type": "boolean",
@@ -685,7 +692,7 @@
         "RUNTIME_BASED": {
             "comment": "Running in runtime based environment.",
             "type": "boolean",
-            "value": "$OPPO || $VIVO || $HUAWEI || $MIGU || $HONOR",
+            "value": "$OPPO || $VIVO || $HUAWEI || $MIGU || $HONOR || $COCOS_RUNTIME",
             "ccGlobal": true,
             "internal": false
         },
