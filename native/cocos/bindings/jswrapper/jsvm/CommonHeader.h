@@ -24,7 +24,12 @@
 ****************************************************************************/
 
 #pragma once
+
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
 #include "ark_runtime/jsvm.h"
+#else
+#include "jsvm.h"
+#endif
 #include "platform/openharmony/napi/native_common.h"
 
 // Empty value so that macros here are able to return NULL or void

@@ -30,7 +30,12 @@
 #include "State.h"
 #include "Utils.h"
 #include "CommonHeader.h"
+
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
 #include "ark_runtime/jsvm.h"
+#else
+#include "jsvm.h"
+#endif
 
 #define _EXPOSE_GC "__jsb_gc__"
 
@@ -191,7 +196,7 @@ bool ScriptEngine::evalString(const char *scriptStr, ssize_t length, Value *ret,
     JSVM_Value  jsvmStr;
     NODE_API_CALL(status, _env, OH_JSVM_CreateStringUtf8(_env, scriptStr, length, &jsvmStr));
     if(status != JSVM_OK) {
-        SE_LOGE("ScriptEngine::evalString, create string failed, fileName = %{public}s", fileName);
+        CC_LOG_ERROR("ScriptEngine::evalString, create string failed, fileName = %s", fileName);
         return false;
     }
 
@@ -211,14 +216,14 @@ bool ScriptEngine::evalString(const char *scriptStr, ssize_t length, Value *ret,
                   OH_JSVM_CompileScriptWithOrigin(_env, jsvmStr, cachedData, cacheLength, false, &cacheRejected,&scriptOrigin, &compiledScript));
     
     if(status != JSVM_OK) {
-       SE_LOGE("ScriptEngine::evalSting, compile failed, fileName = %{public}s", fileName);
+       CC_LOG_ERROR("ScriptEngine::evalSting, compile failed, fileName = %s", fileName);
        return false;
     }
 
     JSVM_Value result;
     NODE_API_CALL(status, _env, OH_JSVM_RunScript(_env, compiledScript, &result));
     if(status != JSVM_OK) {
-       SE_LOGE("ScriptEngine::evelSting, run failed, fileName = %{public}s", fileName);
+       CC_LOG_ERROR("ScriptEngine::evelSting, run failed, fileName = %s", fileName);
        return false;
     }
 
@@ -248,6 +253,10 @@ bool ScriptEngine::init() {
     NODE_API_CALL(status, _env, OH_JSVM_OpenEnvScope(_env, &_envScope));
 
     se::AutoHandleScope hs;
+    
+    uint32_t jsvmVersion = 0;
+    NODE_API_CALL(status, _env, OH_JSVM_GetVersion(_env, &jsvmVersion));
+    SE_LOGD("Initializing JSVM, version: %u\n", jsvmVersion);
 
     Object::setup();
     NativePtrToObjectMap::init();
@@ -439,13 +448,18 @@ bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string
     return true;
 }
 
+bool ScriptEngine::runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */) {
+    // TO BE IMPLEMENTED
+    return false;
+}
+
 void ScriptEngine::clearException() {
     //not impl
     return;
 }
 
 void ScriptEngine::garbageCollect() {
-    SE_LOGD("GC begin ..., (js->native map) size: %{public}d",(int)NativePtrToObjectMap::size());
+    CC_LOG_DEBUG("GC begin ..., (js->native map) size: %d",(int)NativePtrToObjectMap::size());
 
     if(_gcFunc == nullptr) {
         JSVM_Status status;
@@ -454,7 +468,7 @@ void ScriptEngine::garbageCollect() {
         _gcFunc->call({}, nullptr);
     }
     
-    SE_LOGD("GC end ..., (js->native map) size: %{public}d",(int)NativePtrToObjectMap::size());
+    CC_LOG_DEBUG("GC end ..., (js->native map) size: %d",(int)NativePtrToObjectMap::size());
 }
 
 bool ScriptEngine::isGarbageCollecting() const {

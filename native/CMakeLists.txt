@@ -16,9 +16,7 @@ cc_set_if_undefined(CC_DEBUG_FORCE           OFF)
 cc_set_if_undefined(USE_SE_V8                ON)
 cc_set_if_undefined(USE_SE_SM                OFF)
 cc_set_if_undefined(USE_SE_NAPI              OFF)
-if(OPENHARMONY)
-    cc_set_if_undefined(USE_SE_JSVM          OFF)
-endif()
+cc_set_if_undefined(USE_SE_JSVM              OFF)
 cc_set_if_undefined(USE_V8_DEBUGGER          ON)
 cc_set_if_undefined(USE_V8_DEBUGGER_FORCE    OFF)
 cc_set_if_undefined(USE_SOCKET               ON)
@@ -218,6 +216,7 @@ cc_inspect_values(
     CC_USE_VULKAN
     CC_DEBUG_FORCE
     USE_SE_V8
+    USE_SE_JSVM
     USE_V8_DEBUGGER
     USE_V8_DEBUGGER_FORCE
     USE_SE_SM
@@ -2884,14 +2883,14 @@ elseif(LINUX)
 endif()
 
 ############# module bindings
-cocos_source_files(MODULE ccbindings
-    cocos/bindings/sebind/intl/common.h
-    cocos/bindings/sebind/intl/common.cpp
-    cocos/bindings/sebind/class.inl
-    cocos/bindings/sebind/sebind.h
-)
-
 if(USE_SE_V8)
+    cocos_source_files(MODULE ccbindings
+        cocos/bindings/sebind/intl/common.h
+        cocos/bindings/sebind/intl/common.cpp
+        cocos/bindings/sebind/class.inl
+        cocos/bindings/sebind/sebind.h
+    )
+
     cocos_source_files(MODULE ccbindings
                      cocos/bindings/sebind/class_v8.h
                      cocos/bindings/sebind/class_v8.cpp
@@ -2978,7 +2977,7 @@ endif()
 
 
 
-if(OPENHARMONY AND USE_SE_JSVM)
+if(USE_SE_JSVM)
     cocos_source_files(MODULE ccbindings
         cocos/bindings/jswrapper/jsvm/Class.cpp
         cocos/bindings/jswrapper/jsvm/Class.h
@@ -2993,6 +2992,21 @@ if(OPENHARMONY AND USE_SE_JSVM)
         cocos/bindings/jswrapper/jsvm/Utils.h
         cocos/bindings/jswrapper/jsvm/CommonHeader.h
     )
+
+    if (NOT OPENHARMONY)
+        include_directories(${CWD}/cocos/bindings/jswrapper/jsvm-v8-backend)
+        cocos_source_files(MODULE ccbindings 
+            cocos/bindings/jswrapper/jsvm-v8-backend/js_native_api_v8.cc
+            cocos/bindings/jswrapper/jsvm-v8-backend/js_native_api_v8.h
+            cocos/bindings/jswrapper/jsvm-v8-backend/js_native_api_v8_internals.h
+            cocos/bindings/jswrapper/jsvm-v8-backend/jsvm.h
+            cocos/bindings/jswrapper/jsvm-v8-backend/jsvm_types.h
+            cocos/bindings/jswrapper/jsvm-v8-backend/util.h
+            cocos/bindings/jswrapper/jsvm-v8-backend/callback_queue-inl.h
+            cocos/bindings/jswrapper/jsvm-v8-backend/callback_queue.h
+        )
+    endif()
+
 endif()
 
 cocos_source_files(MODULE ccbindings

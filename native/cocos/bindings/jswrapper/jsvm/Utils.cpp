@@ -227,10 +227,10 @@ void logJsException(JSVM_Env env, const char *file, int line) {
     std::string stackStr = jsToString(stack);
     std::string messageStr = jsToString(message);
 
-    SE_LOGE("JS exception occurred at %{public}s:%{public}d\n\
-            [name]: %{public}s\n\
-            [message]: %{public}s\n\
-            [stack]: %{public}s",
+    CC_LOG_ERROR("JS exception occurred at %s:%d\n\
+            [name]: %s\n\
+            [message]: %s\n\
+            [stack]: %s",
             file, line, nameStr.c_str(), messageStr.c_str(), stackStr.c_str());
     auto exceptionCallback = ScriptEngine::getInstance()->getExceptionCallback();
     exceptionCallback("", messageStr.c_str(), stackStr.c_str());
