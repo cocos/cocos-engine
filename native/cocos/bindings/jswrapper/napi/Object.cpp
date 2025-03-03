@@ -123,6 +123,7 @@ Object* Object::createProxyTarget(se::Object* proxy) {
     // v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
     // Object *obj = Object::_createJSObject(nullptr, jsobj);
     // return obj;
+    assert(false);
     return nullptr;
 }
 
