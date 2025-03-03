@@ -428,6 +428,8 @@ jobs:
           echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_GLES3 OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
+          # Test JSVM v8 backend on macOS.
+          echo "set(USE_SE_JSVM ON)" >> build-mac/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-mac/proj/cfg.cmake
