@@ -782,60 +782,28 @@ void Object::cleanup() {
 
 Object* Object::createJSONObject(const std::string& jsonStr) {
     auto _env = ScriptEngine::getEnv();
-    JSVM_Status status;
-    JSVM_Value global;
-    // 获取js全局对象
-    NODE_API_CALL(status, _env, OH_JSVM_GetGlobal(_env, &global));
-    assert(status == JSVM_OK);
+    JSVM_Status status = JSVM_OK;
 
-    // 获取js对象中的JSON对象
-    JSVM_Value globalJsonObj;
-    NODE_API_CALL(status, _env, OH_JSVM_GetNamedProperty(_env, global, "JSON", &globalJsonObj));
-
-    // 获取js对象中的parse方法
-    JSVM_Value parseFunc;
-    NODE_API_CALL(status, _env, OH_JSVM_GetNamedProperty(_env, globalJsonObj, "parse", &parseFunc));
-
-    // 创建一个js的string，字符源于输入的std::string jsonStr
-    JSVM_Value jsJsonStr;
+    JSVM_Value jsJsonStr = nullptr;
     NODE_API_CALL(status, _env, OH_JSVM_CreateStringUtf8(_env, jsonStr.c_str(), jsonStr.length(), &jsJsonStr));
 
-    // 调用js中的JSON.parse将jsJsonStr转换成js对象
-    JSVM_Value jsObj;
-    NODE_API_CALL(status, _env, OH_JSVM_CallFunction(_env, globalJsonObj, parseFunc, 1, &jsJsonStr, &jsObj));
+    JSVM_Value jsObj = nullptr;
+    NODE_API_CALL(status, _env, OH_JSVM_JsonParse(_env, jsJsonStr, &jsObj));
 
-    Object* obj = nullptr;
-    obj = Object::_createJSObject(_env, jsObj, nullptr);
-    return obj;
+    return Object::_createJSObject(_env, jsObj, nullptr);
 }
 
 Object* Object::createJSONObject(std::u16string&& jsonStr) {
     auto _env = ScriptEngine::getEnv();
-    JSVM_Status status;
-    JSVM_Value global;
-    // 获取js全局对象
-    NODE_API_CALL(status, _env, OH_JSVM_GetGlobal(_env, &global));
-    assert(status == JSVM_OK);
+    JSVM_Status status = JSVM_OK;
 
-    // 获取js对象中的JSON对象
-    JSVM_Value globalJsonObj;
-    NODE_API_CALL(status, _env, OH_JSVM_GetNamedProperty(_env, global, "JSON", &globalJsonObj));
-
-    // 获取js对象中的parse方法
-    JSVM_Value parseFunc;
-    NODE_API_CALL(status, _env, OH_JSVM_GetNamedProperty(_env, globalJsonObj, "parse", &parseFunc));
-
-    // 创建一个js的string，字符源于输入的std::string jsonStr
-    JSVM_Value jsJsonStr;
+    JSVM_Value jsJsonStr = nullptr;
     NODE_API_CALL(status, _env, OH_JSVM_CreateStringUtf16(_env, jsonStr.c_str(), jsonStr.length(), &jsJsonStr));
+    
+    JSVM_Value jsObj = nullptr;
+    NODE_API_CALL(status, _env, OH_JSVM_JsonParse(_env, jsJsonStr, &jsObj));
 
-    // 调用js中的JSON.parse将jsJsonStr转换成js对象
-    JSVM_Value jsObj;
-    NODE_API_CALL(status, _env, OH_JSVM_CallFunction(_env, globalJsonObj, parseFunc, 1, &jsJsonStr, &jsObj));
-
-    Object* obj = nullptr;
-    obj = Object::_createJSObject(_env, jsObj, nullptr);
-    return obj;
+    return Object::_createJSObject(_env, jsObj, nullptr);
 }
 
 Object* Object::createProxyTarget(se::Object* proxy) {
