@@ -491,9 +491,10 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
     }
 
     ValueArray argv;
+    argv.resize(argc);
 
     for (size_t i = 0; i < argc; ++i) {
-        argv.push_back(args[i]);
+        argv[i] = args[i];
     }
 
     objFunc.toObject()->call(argv, targetObj, rval);
