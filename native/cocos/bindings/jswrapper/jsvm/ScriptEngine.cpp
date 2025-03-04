@@ -161,19 +161,12 @@ const ScriptEngine::FileOperationDelegate &ScriptEngine::getFileOperationDelegat
 }
 
 ScriptEngine *ScriptEngine::getInstance() {
-    if (gSriptEngineInstance == nullptr) {
-        gSriptEngineInstance = new ScriptEngine();
-    }
-
     return gSriptEngineInstance;
 }
 
 void ScriptEngine::destroyInstance() {
-    if (gSriptEngineInstance) {
-        gSriptEngineInstance->cleanup();
-        delete gSriptEngineInstance;
-        gSriptEngineInstance = nullptr;
-    }
+    // ScriptEngine instance is managed in Engine.cpp, it will be deleted in `Engine::~Engine()`
+    // So doesn't need to implement this method now.
 }
 
 bool ScriptEngine::runScript(const std::string &path, Value *ret /* = nullptr */) {
@@ -227,10 +220,12 @@ bool ScriptEngine::evalString(const char *scriptStr, ssize_t length, Value *ret,
        return false;
     }
 
-    if(!cachedData || cacheRejected) {
-        NODE_API_CALL(status, _env,
-                      OH_JSVM_CreateCodeCache(_env, compiledScript, (const uint8_t **)&cachedData, &cacheLength));
-    }
+    // NOTE: Currently, we don't support JSVM code cache saving/loading.
+    // So creating code cache here is useless and wastes memory.
+//    if(!cachedData || cacheRejected) {
+//        NODE_API_CALL(status, _env,
+//                      OH_JSVM_CreateCodeCache(_env, compiledScript, (const uint8_t **)&cachedData, &cacheLength));
+//    }
     
     if(ret) {
         internal::jsToSeValue(result, ret);
