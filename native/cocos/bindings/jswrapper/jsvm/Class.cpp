@@ -231,6 +231,8 @@ void Class::destroy() {
         }
         _ctor.reset();
     }
+    
+    OH_JSVM_DeleteReference(ScriptEngine::getEnv(), _constructor);
 }
 
 void Class::cleanup() {
