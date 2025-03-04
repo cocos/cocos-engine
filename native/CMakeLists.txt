@@ -2088,6 +2088,7 @@ cocos_source_files(
 cocos_source_files(
     cocos/core/Any.h
     cocos/core/ArrayBuffer.h
+    cocos/core/ArrayBuffer.cpp
 
     cocos/core/DataView.h
     cocos/core/DataView.cpp
