@@ -1196,7 +1196,11 @@ export class Skeleton extends UIRenderer {
     public requestDrawData (material: Material, textureUUID: string, indexOffset: number, indexCount: number): SkeletonDrawData {
         const draw = this._drawList.add();
         draw.material = material;
-        draw.texture = assetManager.assets.get(textureUUID) as Texture2D;
+        let tex: Texture2D = assetManager.assets.get(textureUUID) as Texture2D;
+        if (!tex) {
+            tex = this.skeletonData?.textures.find((t) => t.getId() === textureUUID) as Texture2D;
+        }
+        draw.texture = tex;
         draw.indexOffset = indexOffset;
         draw.indexCount = indexCount;
         return draw;

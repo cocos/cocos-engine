@@ -216,7 +216,8 @@ export class SkeletonData extends Asset {
             const size = this.textures.length;
             const textureUUIDs: string[] = [];
             for (let i = 0; i < size; ++i) {
-                textureUUIDs.push(this.textures[i].uuid);
+                const tex = this.textures[i];
+                textureUUIDs.push(tex.uuid || tex.getId());
             }
             if (this._skeletonJson) {
                 this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(this.skeletonJsonStr, this._atlasText, this.textureNames, textureUUIDs);
