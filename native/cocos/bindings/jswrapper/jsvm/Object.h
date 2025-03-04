@@ -213,7 +213,7 @@ public:
     /**
      * @brief Sets whether to clear the mapping of native object & se::Object in finalizer
      */
-    void setClearMappingInFinalizer(bool v) { _clearMappingInFinalizer = v; }
+    void setClearMappingInFinalizer(bool v);
 
     /**
          *  @brief Tests whether an object is an array.

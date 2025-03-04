@@ -25,7 +25,7 @@
 
 #include "Object.h"
 #include <memory>
-#include <unordered_map>
+#include <unordered_set>
 #include "../MappingUtils.h"
 #include "Class.h"
 #include "ScriptEngine.h"
@@ -35,7 +35,8 @@
 #define MAX_STRING_LEN 512
 
 namespace se {
-std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
+std::unique_ptr<std::unordered_set<Object*>> __objectSet;
+std::unordered_set<Object*> __objectSetToBeReleasedInCleanup;
 
 Object::Object(): _objRef(this) {}
 Object::~Object() {
@@ -46,8 +47,8 @@ Object::~Object() {
         OH_JSVM_RemoveWrap(_env, _objRef.getValue(_env), nullptr);
     }
     
-    if (__objectMap) {
-        __objectMap->erase(this);
+    if (__objectSet) {
+        __objectSet->erase(this);
     }
 
     delete _privateObject;
@@ -114,9 +115,7 @@ void Object::setPrivateObject(PrivateObjectBase* data) {
     auto tmpThis = _objRef.getValue(_env);
 
     // Passing nullptr to the `result` parameter to make JSVM mangle the lifecycle of `v8impl::Reference`
-    NODE_API_CALL(status, _env,
-                  OH_JSVM_Wrap(_env, tmpThis, this, weakCallback,
-                               (void*)this /* finalize_hint */, nullptr));
+    NODE_API_CALL(status, _env, OH_JSVM_Wrap(_env, tmpThis, this, weakCallback, this /* finalize_hint */, nullptr));
     
     // WORKAROUND: See the explain in `ObjectRef::deleteRef` about why we need to `decRef` here.
     _objRef.decRef(_env);
@@ -539,9 +538,9 @@ bool Object::init(JSVM_Env env, JSVM_Value js_object, Class* cls) {
     _env = env;
     _objRef.init(env, js_object);
 
-    if (__objectMap) {
-        assert(__objectMap->find(this) == __objectMap->end());
-        __objectMap->emplace(this, nullptr);
+    if (__objectSet) {
+        assert(__objectSet->find(this) == __objectSet->end());
+        __objectSet->emplace(this);
     }
     return true;
 }
@@ -685,6 +684,22 @@ void Object::sendWeakCallback(JSVM_Env env, void* nativeObject, void* finalizeHi
     CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(cb);
 }
 
+void Object::setClearMappingInFinalizer(bool v) {
+    _clearMappingInFinalizer = v;
+    
+    // The lifecycle of Spine and Dragonbones c++ objects are controlled by their runtime.
+    // See the `cc::setSpineObjectDisposeCallback` invocation in jsb_spine_manuall.cpp.
+    // It listens on spine C++ objects's destruction and when the callback comes,
+    // the `native raw ptr -> se::Object` mapping will be erased which will cause memory leak
+    // while restart or shutdown the engine. This is because the JSVM's implementation of `se::Object::cleanup`
+    // will not know this hung `se::Object`, so its `decRef` will not be invoked.
+    // The following code is a workaround for JSVM backend. We use a set to cache the hung `se::Object` instances
+    // and release them in `se::Object::cleanup`.
+    if (!v) {
+        __objectSetToBeReleasedInCleanup.emplace(this);
+    }
+}
+
 void Object::weakCallback(JSVM_Env env, void* nativeObject, void* finalizeHint /*finalize_hint*/) {
     if (finalizeHint) {
         if (nativeObject == nullptr) {
@@ -715,13 +730,16 @@ void Object::weakCallback(JSVM_Env env, void* nativeObject, void* finalizeHint /
                 seObj->_getClass()->_getFinalizeFunction()(env, finalizeHint, finalizeHint);
             }
         }
+        
+        __objectSetToBeReleasedInCleanup.erase(seObj);
+        
         seObj->_destructInFinalizer = true;
         seObj->decRef();
     }
 }
 
 void Object::setup() {
-    __objectMap = std::make_unique<std::unordered_map<Object*, void*>>();
+    __objectSet = std::make_unique<std::unordered_set<Object*>>();
 }
 
 void Object::cleanup() {
@@ -745,18 +763,22 @@ void Object::cleanup() {
         }
         obj->decRef();
     }
+    
+    for (auto *obj : __objectSetToBeReleasedInCleanup) {
+        obj->decRef();
+    }
+    __objectSetToBeReleasedInCleanup.clear();
 
     NativePtrToObjectMap::clear();
-
-    if (__objectMap) {
-        for (const auto& e : *__objectMap) {
-            obj = e.first;
+    
+    if (__objectSet) {
+        for (const auto& obj : *__objectSet) {
             cls = obj->_getClass();
             obj->_rootCount = 0;
         }
     }
 
-    __objectMap.reset();
+    __objectSet.reset();
 }
 
 Object* Object::createJSONObject(const std::string& jsonStr) {
@@ -818,9 +840,6 @@ Object* Object::createUTF8String(const std::string& str) {
     Object* obj = _createJSObject(ScriptEngine::getEnv(), result, nullptr);
     return obj;
 }
-
-static JSVM_Value gRefMap = nullptr;
-static uint32_t gRefKeyCounter = 0;
 
 ObjectRef::ObjectRef(Object *parent)
 : _parent(parent) {
