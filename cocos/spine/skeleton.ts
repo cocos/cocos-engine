@@ -1201,10 +1201,10 @@ export class Skeleton extends UIRenderer {
         draw.material = material;
         let tex: Texture2D = assetManager.assets.get(textureUUID) as Texture2D;
         if (!tex) {
-            //read from skeleton's texture map
+            // read from skeleton's texture map
             tex = this.skeletonData?.textures.find((t) => t.getId() === textureUUID) as Texture2D;
             if (!tex) {
-                //read from setSlotTexture's cache
+                // read from setSlotTexture's cache
                 tex = this._slotTextures?.get(textureUUID) as Texture2D;
             }
         }
@@ -1918,7 +1918,7 @@ export class Skeleton extends UIRenderer {
         const createNewAttachment = createNew || false;
         this._instance!.resizeSlotRegion(slotName, width, height, createNewAttachment);
         let uuid = tex2d.uuid;
-        if (!uuid || uuid === '') {
+        if (!uuid) {
             uuid = tex2d.getId();
         }
         this._instance!.setSlotTexture(slotName, uuid);
