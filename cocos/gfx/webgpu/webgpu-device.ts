@@ -477,6 +477,10 @@ export class WebGPUDevice extends Device {
         defaultResource.descSet.update();
     }
 
+    get FloatFilterable (): boolean {
+        return this._adapter!.features.has('float32-filterable');
+    }
+
     private async initDevice (info: Readonly<DeviceInfo>): Promise<boolean> {
         const gpu = navigator.gpu;
         this._adapter = await gpu?.requestAdapter();

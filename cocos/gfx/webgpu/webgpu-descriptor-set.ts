@@ -130,7 +130,8 @@ export class WebGPUDescriptorSet extends DescriptorSet {
         const currTexture = (this._textures[bind.binding] || device.defaultResource.texture) as WebGPUTexture;
         const levelCount = currTexture.levelCount;
         const texFormat = currTexture.format;
-        const isUnFilter = FormatToWGPUFormatType(texFormat) === 'unfilterable-float';
+        const isUnFilter = FormatToWGPUFormatType(texFormat) === 'unfilterable-float'
+        || (FormatToWGPUFormatType(texFormat) === 'float' && !device.FloatFilterable);
         if (isUnFilter) {
             sampler.gpuSampler.minFilter = Filter.POINT;
             sampler.gpuSampler.magFilter = Filter.POINT;

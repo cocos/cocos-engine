@@ -66,6 +66,7 @@ import {
     IWebGPUGPUShaderStage,
 } from './webgpu-gpu-objects';
 import { error, log, warn } from '../../core';
+import { WebGPUDeviceManager } from './define';
 
 const WebGPUAdressMode: GPUAddressMode[] = [
     'repeat', // WRAP,
@@ -1402,8 +1403,10 @@ export function createBindGroupLayoutEntry (currBind: DescriptorSetLayoutBinding
         visibility: gpuVisibility,
     };
     entrys.push(entry);
+    const device = WebGPUDeviceManager.instance;
     let entrySampler: GPUBindGroupLayoutEntry | null = null;
-    const samplerType = GFXSampleTypeToGPUTextureSampleType[currBind.sampleType];
+    let samplerType = GFXSampleTypeToGPUTextureSampleType[currBind.sampleType];
+    if (samplerType === 'float' && !device.FloatFilterable) { samplerType = 'unfilterable-float'; }
     const isTexUnFilter = samplerType === 'unfilterable-float';
     const viewDimension = GFXViewDimensionToGPUViewDimension[currBind.viewDimension];
     const type = currBind.descriptorType;
