@@ -322,6 +322,8 @@ export class Skeleton extends UIRenderer {
     _model: any;
     _tempColor: TempColor = { r: 0, g: 0, b: 0, a: 0 };
     private _eventListenerID: number = -1;
+    private _slotTextures: Map<string, Texture2D> | null = null;
+
 
     constructor () {
         super();
@@ -719,6 +721,8 @@ export class Skeleton extends UIRenderer {
         this._vBuffer = null;
         this._iBuffer = null;
         this.attachUtil.reset();
+        this._slotTextures?.clear();
+        this._slotTextures = null;
         this._cachedSockets.clear();
         this._socketNodes.clear();
         //if (this._cacheMode == SpineAnimationCacheMode.PRIVATE_CACHE) this._animCache?.destroy();
@@ -1198,7 +1202,12 @@ export class Skeleton extends UIRenderer {
         draw.material = material;
         let tex: Texture2D = assetManager.assets.get(textureUUID) as Texture2D;
         if (!tex) {
+            //read from skeleton's texture map
             tex = this.skeletonData?.textures.find((t) => t.getId() === textureUUID) as Texture2D;
+            if (!tex) {
+                //read from setSlotTexture's cache
+                tex = this._slotTextures?.get(textureUUID) as Texture2D;
+            }
         }
         draw.texture = tex;
         draw.indexOffset = indexOffset;
@@ -1909,7 +1918,14 @@ export class Skeleton extends UIRenderer {
         const height = tex2d.height;
         const createNewAttachment = createNew || false;
         this._instance!.resizeSlotRegion(slotName, width, height, createNewAttachment);
-        this._instance!.setSlotTexture(slotName, tex2d.uuid);
+        let uuid = tex2d.uuid;
+        if (!uuid || uuid == "") {
+            uuid = tex2d.getId();   
+        }
+        this._instance!.setSlotTexture(slotName, uuid);
+
+        if (!this._slotTextures) this._slotTextures = new Map<string, Texture2D>();
+        this._slotTextures.set(uuid, tex2d);
     }
 
     private _destroySkeletonInfo (skeletonCache: SkeletonCache | null): void {
