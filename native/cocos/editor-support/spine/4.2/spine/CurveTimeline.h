@@ -105,7 +105,7 @@ namespace spine {
 	#ifndef __EMSCRIPTEN__
 	protected:
 	#endif
-		static const int ENTRIES;
+		static const int ENTRIES = 3;
 		static const int VALUE1 = 1;
 		static const int VALUE2 = 2;
 	};

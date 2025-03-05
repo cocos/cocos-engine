@@ -95,6 +95,7 @@ void PhysicsConstraintResetTimeline::apply(Skeleton &skeleton, float lastTime, f
 		else {
 			Vector<PhysicsConstraint *> &physicsConstraints = skeleton.getPhysicsConstraints();
 			for (size_t i = 0; i < physicsConstraints.size(); i++) {
+				constraint = physicsConstraints[i];
 				if (constraint->_active) constraint->reset();
 			}
 		}

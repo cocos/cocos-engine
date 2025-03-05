@@ -59,7 +59,7 @@ namespace spine {
 	#endif
 		int _constraintIndex;
 
-		static const int ENTRIES;
+		static const int ENTRIES = 6;
 		static const int MIX = 1;
 		static const int SOFTNESS = 2;
 		static const int BEND_DIRECTION = 3;

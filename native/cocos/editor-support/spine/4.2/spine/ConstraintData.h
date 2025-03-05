@@ -59,7 +59,9 @@ namespace spine {
 
 		void setSkinRequired(bool inValue);
 
-	public:
+#ifndef __EMSCRIPTEN__
+	private:
+#endif
 		const String _name;
 		size_t _order;
 		bool _skinRequired;

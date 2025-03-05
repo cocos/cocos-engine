@@ -40,7 +40,6 @@
 #include <spine/SlotData.h>
 
 using namespace spine;
-const int PathConstraintMixTimeline::ENTRIES = 4;
 
 RTTI_IMPL(PathConstraintMixTimeline, CurveTimeline)
 

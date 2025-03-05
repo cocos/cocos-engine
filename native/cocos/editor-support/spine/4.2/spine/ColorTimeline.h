@@ -60,7 +60,7 @@ namespace spine {
 	#endif
 		int _slotIndex;
 
-		static const int ENTRIES;
+		static const int ENTRIES = 5;
 		static const int R = 1;
 		static const int G = 2;
 		static const int B = 3;

@@ -1415,3 +1415,9 @@ EMSCRIPTEN_BINDINGS(cocos_spine) {
     .class_function("getCurrentTrackEntry", &SpineWasmUtil::getCurrentTrackEntry, allow_raw_pointers())
     .class_function("getCurrentEvent", &SpineWasmUtil::getCurrentEvent, allow_raw_pointers());
 }
+
+const int spine::CurveTimeline2::ENTRIES;
+const int spine::RGBATimeline::ENTRIES;
+const int spine::IkConstraintTimeline::ENTRIES;
+const int spine::TransformConstraintTimeline::ENTRIES;
+const int spine::PathConstraintMixTimeline::ENTRIES;

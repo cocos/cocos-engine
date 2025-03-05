@@ -56,18 +56,17 @@ namespace spine {
 	};
 }
 
+#define RTTI_DECL \
+public: \
+static const spine::RTTI rtti; \
+virtual const spine::RTTI& getRTTI() const;
 
-#define RTTI_DECL                  \
-public:                            \
-    static const spine::RTTI rtti; \
-    virtual const spine::RTTI &getRTTI() const;
+#define RTTI_IMPL_NOPARENT(name) \
+const spine::RTTI name::rtti(#name); \
+const spine::RTTI& name::getRTTI() const { return rtti; }
 
-#define RTTI_IMPL_NOPARENT(name)         \
-    const spine::RTTI name::rtti(#name); \
-    const spine::RTTI &name::getRTTI() const { return rtti; }
-
-#define RTTI_IMPL(name, parent)                        \
-    const spine::RTTI name::rtti(#name, parent::rtti); \
-    const spine::RTTI &name::getRTTI() const { return rtti; }
+#define RTTI_IMPL(name, parent) \
+const spine::RTTI name::rtti(#name, parent::rtti); \
+const spine::RTTI& name::getRTTI() const { return rtti; }
 
 #endif /* Spine_RTTI_h */

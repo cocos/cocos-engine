@@ -2516,8 +2516,6 @@ if(USE_MIDDLEWARE)
                                      cocos/editor-support/spine/4.2/spine/Color.h
             NO_WERROR                cocos/editor-support/spine/4.2/spine/ColorTimeline.cpp
                                      cocos/editor-support/spine/4.2/spine/ColorTimeline.h
-            NO_WERROR                cocos/editor-support/spine/4.2/spine/Constraint.cpp
-                                     cocos/editor-support/spine/4.2/spine/Constraint.h
             NO_WERROR   NO_UBUILD    cocos/editor-support/spine/4.2/spine/ConstraintData.cpp
                                      cocos/editor-support/spine/4.2/spine/ConstraintData.h
                                      cocos/editor-support/spine/4.2/spine/ContainerUtil.h

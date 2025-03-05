@@ -40,7 +40,6 @@
 #include <spine/SlotData.h>
 
 using namespace spine;
-const int IkConstraintTimeline::ENTRIES = 6;
 
 RTTI_IMPL(IkConstraintTimeline, CurveTimeline)
 

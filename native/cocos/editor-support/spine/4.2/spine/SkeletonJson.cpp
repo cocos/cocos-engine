@@ -1278,7 +1278,7 @@ Animation *SkeletonJson::readAnimation(Json *root, SkeletonData *skeletonData) {
 			mixY = mixY2;
 			mixScaleX = mixScaleX2;
 			mixScaleY = mixScaleY2;
-			mixScaleX = mixScaleX2;
+			mixShearY = mixShearY2;
 			keyMap = nextMap;
 		}
 

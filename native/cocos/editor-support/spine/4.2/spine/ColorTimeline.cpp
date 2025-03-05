@@ -40,8 +40,6 @@
 
 using namespace spine;
 
-const int RGBATimeline::ENTRIES = 5;
-
 RTTI_IMPL(RGBATimeline, CurveTimeline)
 
 RGBATimeline::RGBATimeline(size_t frameCount, size_t bezierCount, int slotIndex) : CurveTimeline(frameCount,
