@@ -324,7 +324,6 @@ export class Skeleton extends UIRenderer {
     private _eventListenerID: number = -1;
     private _slotTextures: Map<string, Texture2D> | null = null;
 
-
     constructor () {
         super();
         this._useVertexOpacity = true;
@@ -1919,8 +1918,8 @@ export class Skeleton extends UIRenderer {
         const createNewAttachment = createNew || false;
         this._instance!.resizeSlotRegion(slotName, width, height, createNewAttachment);
         let uuid = tex2d.uuid;
-        if (!uuid || uuid == "") {
-            uuid = tex2d.getId();   
+        if (!uuid || uuid === '') {
+            uuid = tex2d.getId();
         }
         this._instance!.setSlotTexture(slotName, uuid);
 
