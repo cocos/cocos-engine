@@ -1202,7 +1202,7 @@ export class Skeleton extends UIRenderer {
         let tex: Texture2D = assetManager.assets.get(textureUUID) as Texture2D;
         if (!tex) {
             // read from skeleton's texture map
-            tex = this.skeletonData?.textures.find((t) => t.getId() === textureUUID) as Texture2D;
+            tex = this.skeletonData?.textures.find((t) => (t.uuid === textureUUID || t.getId() === textureUUID)) as Texture2D;
             if (!tex) {
                 // read from setSlotTexture's cache
                 tex = this._slotTextures?.get(textureUUID) as Texture2D;
