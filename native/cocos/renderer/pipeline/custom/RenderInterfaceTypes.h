@@ -1945,6 +1945,28 @@ enum class DataType : uint32_t { // NOLINT(performance-enum-size)
     FLOAT32_QUAT_IJKW = 2017,
 };
 
+struct Parameter {
+    ccstd::string name;
+    DataType type{DataType::UNKNOWN};
+};
+
+enum class WaitMask : uint32_t { // NOLINT(performance-enum-size)
+    NO_WAIT,
+    WAIT,
+};
+
+class RenderObject {
+public:
+    RenderObject() noexcept = default;
+    RenderObject(RenderObject&& rhs) = delete;
+    RenderObject(RenderObject const& rhs) = delete;
+    RenderObject& operator=(RenderObject&& rhs) = delete;
+    RenderObject& operator=(RenderObject const& rhs) = delete;
+    virtual ~RenderObject() noexcept = default;
+
+    virtual void destroy() noexcept = 0;
+};
+
 class Factory {
 public:
     static RenderingModule* init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);

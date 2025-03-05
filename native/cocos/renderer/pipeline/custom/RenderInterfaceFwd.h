@@ -64,6 +64,11 @@ class RenderingModule;
 
 enum class DataType : uint32_t;
 
+struct Parameter;
+
+enum class WaitMask : uint32_t;
+
+class RenderObject;
 class Factory;
 
 } // namespace render

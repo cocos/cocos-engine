@@ -1855,3 +1855,17 @@ export const enum DataType {
     FLOAT32_MAT3x4 = 2016,
     FLOAT32_QUAT_IJKW = 2017,
 }
+
+export class Parameter {
+    name = '';
+    type: DataType = DataType.UNKNOWN;
+}
+
+export const enum WaitMask {
+    NO_WAIT,
+    WAIT,
+}
+
+export interface RenderObject {
+    destroy (): void;
+}
