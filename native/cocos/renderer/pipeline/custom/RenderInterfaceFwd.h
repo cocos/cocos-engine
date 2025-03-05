@@ -30,7 +30,7 @@
 #pragma once
 // clang-format off
 // IWYU pragma: begin_exports
-#include "cocos/renderer/pipeline/custom/CustomFwd.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 // IWYU pragma: end_exports
 
 namespace cc {
@@ -61,6 +61,9 @@ class Pipeline;
 class PipelinePassBuilder;
 class PipelineBuilder;
 class RenderingModule;
+
+enum class DataType : uint32_t;
+
 class Factory;
 
 } // namespace render
