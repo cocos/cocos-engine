@@ -218,6 +218,7 @@ const Elements = {
                 Elements.control.updateState(panel);
             });
             panel.$.duration.addEventListener('confirm', (event) => {
+                panel.preview.callPreviewFunction('stop');
                 panel.preview.callPreviewFunction('setCurrentTime', Number(event.target.value));
             });
             panel.$.resetTimeScale.addEventListener('click', (event) => {
