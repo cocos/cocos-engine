@@ -44,7 +44,7 @@ public:
     const std::string& getLocalizedMessage() const {
         return getMessage();
     }
-
+    void printStackTrace();
 private:
     friend class PlayTask;
     int _exceptionId{0};

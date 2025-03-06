@@ -28,23 +28,23 @@
 extern "C" {
 
 // NOLINTNEXTLINE
-JNIEXPORT void JNICALL Java_google_play_TaskManager_onTaskCanceled(JNIEnv *env, jclass clazz, jint taskId, jint listenerId) {
+JNIEXPORT void JNICALL Java_google_play_TaskManager_onTaskCanceledNative(JNIEnv *env, jclass clazz, jint taskId, jint listenerId) {
     cc::PlayTaskManager::getInstance()->onTaskCanceled(taskId, listenerId);
 }
 
-JNIEXPORT void JNICALL Java_google_play_TaskManager_onTaskComplete(JNIEnv *env, jclass clazz, jint taskId, jint listenerId, jint nextTaskId) {
+JNIEXPORT void JNICALL Java_google_play_TaskManager_onTaskCompleteNative(JNIEnv *env, jclass clazz, jint taskId, jint listenerId, jint nextTaskId) {
     cc::PlayTaskManager::getInstance()->onTaskComplete(taskId, listenerId, nextTaskId);
 }
 
-JNIEXPORT void JNICALL Java_google_play_TaskManager_onTaskFailure(JNIEnv *env, jclass clazz, jint taskId, jint listenerId, jobject obj, jint exceptionId) {
+JNIEXPORT void JNICALL Java_google_play_TaskManager_onTaskFailureNative(JNIEnv *env, jclass clazz, jint taskId, jint listenerId, jobject obj, jint exceptionId) {
     cc::PlayTaskManager::getInstance()->onTaskFailure(taskId, listenerId, reinterpret_cast<void*>(obj), exceptionId);
 }
 
-JNIEXPORT void JNICALL Java_google_play_TaskManager_onTaskSuccess(JNIEnv *env, jclass clazz, jint taskId, jint listenerId, jobject obj) {
+JNIEXPORT void JNICALL Java_google_play_TaskManager_onTaskSuccessNative(JNIEnv *env, jclass clazz, jint taskId, jint listenerId, jobject obj) {
     cc::PlayTaskManager::getInstance()->onTaskSucess(taskId, listenerId, reinterpret_cast<void*>(obj));
 }
 
-JNIEXPORT jobject JNICALL Java_google_play_TaskManager_onContinueWith(JNIEnv *env, jclass clazz, jint taskId, jint listenerId, jint nextTaskId) {
+JNIEXPORT jobject JNICALL Java_google_play_TaskManager_onContinueWithNative(JNIEnv *env, jclass clazz, jint taskId, jint listenerId, jint nextTaskId) {
     return reinterpret_cast<jobject>(cc::PlayTaskManager::getInstance()->onContinueWith(taskId, listenerId, nextTaskId));
 }
 }

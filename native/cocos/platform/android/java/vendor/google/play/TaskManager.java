@@ -41,12 +41,11 @@ public final class TaskManager {
     private static int _nextTaskId = 0;
     private static int _nextExceptionId = 0;
 
-    private static native void onTaskCanceled(int taskId, int listenerId);
-    private static native void onTaskComplete(int taskId, int listenerId, int nextTaskId);
-    private static native void onTaskFailure(int taskId, int listenerId, Object obj, int nextExceptionId);
-    private static native void onTaskSuccess(int taskId, int listenerId, Object obj);
-
-    private static native Object onContinueWith(int taskId, int listenerId, int nextTaskId);
+    private static native void onTaskCanceledNative(int taskId, int listenerId);
+    private static native void onTaskCompleteNative(int taskId, int listenerId, int nextTaskId);
+    private static native void onTaskFailureNative(int taskId, int listenerId, Object obj, int nextExceptionId);
+    private static native void onTaskSuccessNative(int taskId, int listenerId, Object obj);
+    private static native Object onContinueWithNative(int taskId, int listenerId, int nextTaskId);
 
     static int putTask(Task<?> task) {
         int taskId = ++_nextTaskId;
@@ -63,6 +62,12 @@ public final class TaskManager {
     static void removeTaskException(int exceptionId) {
         if(_exceptionsMap.containsKey(exceptionId)) {
             _exceptionsMap.remove(exceptionId);
+        }
+    }
+
+    static void printExceptStackTrace(int exceptionId) {
+        if(_exceptionsMap.containsKey(exceptionId)) {
+            _exceptionsMap.get(exceptionId).printStackTrace();
         }
     }
 
@@ -106,7 +111,7 @@ public final class TaskManager {
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
-                    onTaskCanceled(taskId, listenerId);
+                    onTaskCanceledNative(taskId, listenerId);
                 }
             });
         });
@@ -124,7 +129,7 @@ public final class TaskManager {
                 @Override
                 public void run() {
                     int nextTaskId = putTask(var);
-                    onTaskComplete(taskId, listenerId, nextTaskId);
+                    onTaskCompleteNative(taskId, listenerId, nextTaskId);
                 }
             });
         });
@@ -142,7 +147,7 @@ public final class TaskManager {
                 public void run() {
                     int nextExceptionId = ++_nextExceptionId;
                     _exceptionsMap.put(nextExceptionId, var);
-                    onTaskFailure(taskId, listenerId, var, nextExceptionId);
+                    onTaskFailureNative(taskId, listenerId, var, nextExceptionId);
                 }
             });
         });
@@ -157,7 +162,7 @@ public final class TaskManager {
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
-                    onTaskSuccess(taskId, listenerId, var);
+                    onTaskSuccessNative(taskId, listenerId, var);
                 }
             });
         });
@@ -192,7 +197,7 @@ public final class TaskManager {
                         @Override
                         public void run() {
                             int calllbackTaksId = putTask(task);
-                            resultHolder.set(onContinueWith(taskId, listenerId, calllbackTaksId));
+                            resultHolder.set(onContinueWithNative(taskId, listenerId, calllbackTaksId));
                             latch.countDown();
                         }
                     });

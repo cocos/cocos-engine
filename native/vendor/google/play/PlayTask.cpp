@@ -47,6 +47,10 @@ TaskException::~TaskException() {
     JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_TASK_MANAGER, "removeTaskException", _exceptionId);
 }
 
+void TaskException::printStackTrace() {
+    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_TASK_MANAGER, "printExceptStackTrace", _exceptionId);
+}
+
 int PlayTask::_nextListnerId = 0;
 
 PlayTask::PlayTask(int taskId) : _taskId(taskId) {
