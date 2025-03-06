@@ -29,7 +29,7 @@
             "description": "i18n:ENGINE.features.gfx_webgpu.description",
             "category": "graphics",
             "enginePlugin": false,
-            "envCondition": "$HTML5"
+            "envCondition": "$HTML5 || $COCOS_RUNTIME"
         },
         "animation": {
             "label": "i18n:ENGINE.features.animation.label",
