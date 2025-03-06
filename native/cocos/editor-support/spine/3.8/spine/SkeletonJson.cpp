@@ -131,6 +131,10 @@ SkeletonData *SkeletonJson::readSkeletonData(const char *json) {
     if (skeleton) {
         skeletonData->_hash = Json::getString(skeleton, "hash", 0);
         skeletonData->_version = Json::getString(skeleton, "spine", 0);
+        if (skeletonData->_version.isEmpty()) {
+			setError(NULL, "Skeleton version is null does not match runtime version, please update your resource", "");
+			return NULL;
+		}
         skeletonData->_x = Json::getFloat(skeleton, "x", 0);
         skeletonData->_y = Json::getFloat(skeleton, "y", 0);
         skeletonData->_width = Json::getFloat(skeleton, "width", 0);
