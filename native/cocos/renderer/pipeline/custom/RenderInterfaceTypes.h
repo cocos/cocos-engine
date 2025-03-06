@@ -30,7 +30,9 @@
 // clang-format off
 // NOLINTBEGIN(misc-include-cleaner, bugprone-easily-swappable-parameters)
 #pragma once
+#include "cocos/base/Ptr.h"
 #include "cocos/core/ArrayBuffer.h"
+#include "cocos/core/TypedArray.h"
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
@@ -1955,6 +1957,13 @@ enum class WaitMask : uint32_t { // NOLINT(performance-enum-size)
     WAIT,
 };
 
+struct BufferView {
+    IntrusivePtr<gfx::Buffer> buffer;
+    uint64_t bufferOffset{0};
+    uint64_t sizeInBytes{0};
+    uint64_t strideInBytes{0};
+};
+
 class RenderObject {
 public:
     RenderObject() noexcept = default;
@@ -1965,6 +1974,111 @@ public:
     virtual ~RenderObject() noexcept = default;
 
     virtual void destroy() noexcept = 0;
+};
+
+class RenderGeometry : public RenderObject {
+public:
+    RenderGeometry() noexcept = default;
+
+    virtual void setPrimitiveColor(DataType type, const BufferView &color) = 0;
+    virtual void setPrimitiveAttribute0(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveAttribute1(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveAttribute2(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveAttribute3(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveId(Uint32Array id) = 0;
+};
+
+class RenderGeometryCone : public RenderGeometry {
+public:
+    RenderGeometryCone() noexcept = default;
+
+    virtual void setVertexPosition(const BufferView &position) = 0;
+    virtual void setVertexRadius(const BufferView &radius) = 0;
+    virtual void setVertexCap(const BufferView &cap) = 0;
+    virtual void setVertexColor(DataType type, const BufferView &color) = 0;
+    virtual void setVertexAttribute0(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute1(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute2(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute3(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveIndex(Uint32Array index) = 0;
+    virtual void setCaps(const ccstd::string &caps) = 0;
+};
+
+class RenderGeometryCurve : public RenderGeometry {
+public:
+    RenderGeometryCurve() noexcept = default;
+
+    virtual void setVertexPosition(const BufferView &position) = 0;
+    virtual void setVertexRadius(const BufferView &radius) = 0;
+    virtual void setVertexColor(DataType type, const BufferView &color) = 0;
+    virtual void setVertexAttribute0(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute1(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute2(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute3(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveIndex(Uint32Array index) = 0;
+    virtual void setRadius(float radius) = 0;
+};
+
+class RenderGeometryCylinder : public RenderGeometry {
+public:
+    RenderGeometryCylinder() noexcept = default;
+
+    virtual void setVertexPosition(const BufferView &position) = 0;
+    virtual void setVertexCap(const BufferView &cap) = 0;
+    virtual void setVertexColor(DataType type, const BufferView &color) = 0;
+    virtual void setVertexAttribute0(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute1(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute2(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute3(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveIndex(Uint32Array index) = 0;
+    virtual void setPrimitiveRadius(const BufferView &radius) = 0;
+    virtual void setRadius(float radius) = 0;
+    virtual void setCaps(const ccstd::string &caps) = 0;
+};
+
+class RenderGeometryQuad : public RenderGeometry {
+public:
+    RenderGeometryQuad() noexcept = default;
+
+    virtual void setVertexPosition(const BufferView &position) = 0;
+    virtual void setVertexNormal(DataType type, const BufferView &normal) = 0;
+    virtual void setVertexTangent(DataType type, const BufferView &tangent) = 0;
+    virtual void setVertexColor(DataType type, const BufferView &color) = 0;
+    virtual void setVertexAttribute0(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute1(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute2(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute3(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveIndex(Uint32Array index) = 0;
+};
+
+class RenderGeometrySphere : public RenderGeometry {
+public:
+    RenderGeometrySphere() noexcept = default;
+
+    virtual void setVertexPosition(const BufferView &position) = 0;
+    virtual void setVertexRadius(const BufferView &radius) = 0;
+    virtual void setVertexColor(DataType type, const BufferView &color) = 0;
+    virtual void setVertexAttribute0(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute1(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute2(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute3(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveIndex(Uint32Array index) = 0;
+    virtual void setRadius(float radius) = 0;
+};
+
+class RenderGeometryTriangle : public RenderGeometry {
+public:
+    RenderGeometryTriangle() noexcept = default;
+
+    virtual void setVertexPosition(const BufferView &position) = 0;
+    virtual void setVertexNormal(DataType type, const BufferView &normal) = 0;
+    virtual void setVertexTangent(DataType type, const BufferView &tangent) = 0;
+    virtual void setVertexColor(DataType type, const BufferView &color) = 0;
+    virtual void setVertexAttribute0(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute1(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute2(DataType type, const BufferView &attribute) = 0;
+    virtual void setVertexAttribute3(DataType type, const BufferView &attribute) = 0;
+    virtual void setPrimitiveIndex(const BufferView &index) = 0;
 };
 
 class Factory {

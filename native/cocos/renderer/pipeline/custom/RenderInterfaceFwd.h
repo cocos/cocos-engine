@@ -68,7 +68,15 @@ struct Parameter;
 
 enum class WaitMask : uint32_t;
 
+struct BufferView;
 class RenderObject;
+class RenderGeometry;
+class RenderGeometryCone;
+class RenderGeometryCurve;
+class RenderGeometryCylinder;
+class RenderGeometryQuad;
+class RenderGeometrySphere;
+class RenderGeometryTriangle;
 class Factory;
 
 } // namespace render

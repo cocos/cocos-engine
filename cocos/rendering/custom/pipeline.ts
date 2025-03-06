@@ -1866,6 +1866,97 @@ export const enum WaitMask {
     WAIT,
 }
 
+export class BufferView {
+    /*refcount*/ buffer: Buffer | null = null;
+    bufferOffset = 0;
+    sizeInBytes = 0;
+    strideInBytes = 0;
+}
+
 export interface RenderObject {
     destroy (): void;
+}
+
+export interface RenderGeometry extends RenderObject {
+    setPrimitiveColor (type: DataType, color: BufferView): void;
+    setPrimitiveAttribute0 (type: DataType, attribute: BufferView): void;
+    setPrimitiveAttribute1 (type: DataType, attribute: BufferView): void;
+    setPrimitiveAttribute2 (type: DataType, attribute: BufferView): void;
+    setPrimitiveAttribute3 (type: DataType, attribute: BufferView): void;
+    setPrimitiveId (id: Uint32Array): void;
+}
+
+export interface RenderGeometryCone extends RenderGeometry {
+    setVertexPosition (position: BufferView): void;
+    setVertexRadius (radius: BufferView): void;
+    setVertexCap (cap: BufferView): void;
+    setVertexColor (type: DataType, color: BufferView): void;
+    setVertexAttribute0 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute1 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute2 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute3 (type: DataType, attribute: BufferView): void;
+    setPrimitiveIndex (index: Uint32Array): void;
+    setCaps (caps: string): void;
+}
+
+export interface RenderGeometryCurve extends RenderGeometry {
+    setVertexPosition (position: BufferView): void;
+    setVertexRadius (radius: BufferView): void;
+    setVertexColor (type: DataType, color: BufferView): void;
+    setVertexAttribute0 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute1 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute2 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute3 (type: DataType, attribute: BufferView): void;
+    setPrimitiveIndex (index: Uint32Array): void;
+    setRadius (radius: number): void;
+}
+
+export interface RenderGeometryCylinder extends RenderGeometry {
+    setVertexPosition (position: BufferView): void;
+    setVertexCap (cap: BufferView): void;
+    setVertexColor (type: DataType, color: BufferView): void;
+    setVertexAttribute0 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute1 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute2 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute3 (type: DataType, attribute: BufferView): void;
+    setPrimitiveIndex (index: Uint32Array): void;
+    setPrimitiveRadius (radius: BufferView): void;
+    setRadius (radius: number): void;
+    setCaps (caps: string): void;
+}
+
+export interface RenderGeometryQuad extends RenderGeometry {
+    setVertexPosition (position: BufferView): void;
+    setVertexNormal (type: DataType, normal: BufferView): void;
+    setVertexTangent (type: DataType, tangent: BufferView): void;
+    setVertexColor (type: DataType, color: BufferView): void;
+    setVertexAttribute0 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute1 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute2 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute3 (type: DataType, attribute: BufferView): void;
+    setPrimitiveIndex (index: Uint32Array): void;
+}
+
+export interface RenderGeometrySphere extends RenderGeometry {
+    setVertexPosition (position: BufferView): void;
+    setVertexRadius (radius: BufferView): void;
+    setVertexColor (type: DataType, color: BufferView): void;
+    setVertexAttribute0 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute1 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute2 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute3 (type: DataType, attribute: BufferView): void;
+    setPrimitiveIndex (index: Uint32Array): void;
+    setRadius (radius: number): void;
+}
+
+export interface RenderGeometryTriangle extends RenderGeometry {
+    setVertexPosition (position: BufferView): void;
+    setVertexNormal (type: DataType, normal: BufferView): void;
+    setVertexTangent (type: DataType, tangent: BufferView): void;
+    setVertexColor (type: DataType, color: BufferView): void;
+    setVertexAttribute0 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute1 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute2 (type: DataType, attribute: BufferView): void;
+    setVertexAttribute3 (type: DataType, attribute: BufferView): void;
+    setPrimitiveIndex (index: BufferView): void;
 }
