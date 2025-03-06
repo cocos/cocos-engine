@@ -132,9 +132,17 @@ SkeletonData *SkeletonJson::readSkeletonData(const char *json) {
         skeletonData->_hash = Json::getString(skeleton, "hash", 0);
         skeletonData->_version = Json::getString(skeleton, "spine", 0);
         if (skeletonData->_version.isEmpty()) {
-			setError(NULL, "Skeleton version is null does not match runtime version, please update your resource", "");
+			setError(NULL, "Unsupported skeleton data, please export with a newer version of Spine.", "");
 			return NULL;
 		}
+        const char* pszVersion = skeletonData->_version.buffer();
+        if (!strstr(pszVersion, "3.8")) {
+            char errorMsg[255] = {0};
+            snprintf(errorMsg, 255, "Skeleton version %s does not match runtime version %s", pszVersion, "3.8.99");
+            delete skeletonData;
+            setError(NULL, errorMsg, "");
+            return NULL;
+        }
         skeletonData->_x = Json::getFloat(skeleton, "x", 0);
         skeletonData->_y = Json::getFloat(skeleton, "y", 0);
         skeletonData->_width = Json::getFloat(skeleton, "width", 0);

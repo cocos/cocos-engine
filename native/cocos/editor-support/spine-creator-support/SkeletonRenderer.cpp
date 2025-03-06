@@ -363,7 +363,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         auto *material = requestMaterial(curBlendSrc, curBlendDst);
         curDrawInfo->setMaterial(material);
         gfx::Texture *texture = curTexture ? curTexture->getGFXTexture() : nullptr;
-        gfx::Sampler *sampler = curTexture? curTexture->getGFXSampler() : nullptr;
+        gfx::Sampler *sampler = curTexture ? curTexture->getGFXSampler() : nullptr;
         curDrawInfo->setTexture(texture);
         curDrawInfo->setSampler(sampler);
         auto *uiMeshBuffer = mb->getUIMeshBuffer();
