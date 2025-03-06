@@ -53,8 +53,8 @@ cc_set_if_undefined(USE_WEBP                 ON)
 cc_set_if_undefined(NET_MODE                  0) # 0 is client
 cc_set_if_undefined(USE_REMOTE_LOG           OFF)
 cc_set_if_undefined(USE_ADPF                 OFF)
-cc_set_if_undefined(USE_GOOGLE_BILLING  OFF)
-cc_set_if_undefined(USE_GOOGLE_PLAY     OFF)
+cc_set_if_undefined(USE_GOOGLE_BILLING       OFF)
+cc_set_if_undefined(USE_GOOGLE_PLAY_GAMES    OFF)
 
 if(ANDROID AND NOT DEFINED USE_CCACHE)
     if("$ENV{COCOS_USE_CCACHE}" STREQUAL "1")
@@ -772,7 +772,7 @@ elseif(ANDROID OR OHOS)
 endif()
 
 
-if(USE_GOOGLE_BILLING OR USE_GOOGLE_PLAY)
+if(USE_GOOGLE_BILLING OR USE_GOOGLE_PLAY_GAMES)
     cocos_source_files(
         vendor/google/common/ScopedListener.cpp
         vendor/google/common/ScopedListener.h
@@ -816,7 +816,7 @@ if(USE_GOOGLE_BILLING)
     )
 endif()
 
-if(USE_GOOGLE_PLAY)
+if(USE_GOOGLE_PLAY_GAMES)
 cocos_source_files(
     vendor/google/play/PlayTask.h
     vendor/google/play/PlayTask.cpp
@@ -1145,7 +1145,7 @@ if(USE_GOOGLE_BILLING)
     cc_gen_swig_files(${CMAKE_CURRENT_LIST_DIR}/tools/swig-config/android/google/billing ${SWIG_OUTPUT})
 endif()
 
-if(USE_GOOGLE_PLAY)
+if(USE_GOOGLE_PLAY_GAMES)
     cc_gen_swig_files(${CMAKE_CURRENT_LIST_DIR}/tools/swig-config/android/google/play ${SWIG_OUTPUT})
 endif()
 ##### platform
@@ -1271,7 +1271,7 @@ if(USE_GOOGLE_BILLING)
     list(APPEND CC_JNI_SRC_FILES ${CWD}/cocos/platform/java/jni/JniGoogleBillingHandler.cpp)
 endif()
 
-if(USE_GOOGLE_PLAY)
+if(USE_GOOGLE_PLAY_GAMES)
     list(APPEND CC_JNI_SRC_FILES ${CWD}/cocos/platform/java/jni/JniGooglePlayHandler.cpp)
 endif()
 
@@ -2333,7 +2333,7 @@ if(USE_GOOGLE_BILLING)
     )
 endif()
 
-if(USE_GOOGLE_PLAY)
+if(USE_GOOGLE_PLAY_GAMES)
     cocos_source_files(
         NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_google_play_auto.cpp
                                 ${SWIG_OUTPUT}/jsb_google_play_auto.h
@@ -3440,7 +3440,7 @@ function(cc_apply_definations target)
         $<$<OR:$<CONFIG:Debug>,$<BOOL:${CC_DEBUG_FORCE}>>:CC_DEBUG=1>
         $<IF:$<BOOL:${USE_ADPF}>,CC_USE_ADPF=1,CC_USE_ADPF=0>
         $<IF:$<BOOL:${USE_GOOGLE_BILLING}>,CC_USE_GOOGLE_BILLING=1,CC_USE_GOOGLE_BILLING=0>
-        $<IF:$<BOOL:${USE_GOOGLE_PLAY}>,CC_USE_GOOGLE_PLAY=1,CC_USE_GOOGLE_PLAY=0>
+        $<IF:$<BOOL:${USE_GOOGLE_PLAY_GAMES}>,CC_USE_GOOGLE_PLAY_GAMES=1,CC_USE_GOOGLE_PLAY_GAMES=0>
         $<IF:$<BOOL:${USE_BOX2D_JSB}>,CC_USE_BOX2D_JSB=1,CC_USE_BOX2D_JSB=0>
         
     )

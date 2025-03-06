@@ -18,12 +18,19 @@ android {
     sourceSets.main {
         aidl.srcDir "../java/src"
         java.srcDirs = ["../java/src"]
+        java.srcDirs += ["../java/vendor"]
         manifest.srcFile "AndroidManifest.xml"
+
+        if(!(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean())) {
+            exclude("../vendor/google/billing/**")
+        }
+
+        if(!(project.hasProperty("PROP_ENABLE_GOOGLE_PLAY_GAMES") && project.PROP_ENABLE_GOOGLE_PLAY_GAMES.toBoolean())) {
+            exclude("../vendor/google/play/**")
+        }
     }
 
-    if(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean()) {
-        sourceSets.main.java.srcDirs += ["../java/vendor"]
-    }
+
     buildDir = new File(rootProject.buildDir, project.name)
 
     buildTypes {
@@ -43,5 +50,7 @@ dependencies {
     if(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean()) {
         implementation "com.android.billingclient:billing:7.1.0"
     }
-    implementation "com.google.android.gms:play-services-games-v2:+"
+    if(project.hasProperty("PROP_ENABLE_GOOGLE_PLAY_GAMES") && project.PROP_ENABLE_GOOGLE_PLAY_GAMES.toBoolean()) {
+        implementation "com.google.android.gms:play-services-games-v2:+"
+    }
 }

@@ -101,7 +101,7 @@ void PlayTask::getResult(se::Object* listener) {
     cc::JniMethodInfo t;
     if (cc::JniHelper::getStaticMethodInfo(t, JCLS_GOOGLE_PLAY_TASK_MANAGER, "getResult", "(I)Ljava/lang/Object;")) {
         jobject obj = t.env->CallStaticObjectMethod(t.classID, t.methodID, _taskId);
-        callJSfunc(listener, "onSuccess", reinterpret_cast<void*>(obj));
+        callJSfuncWithJObject(listener, "onSuccess", reinterpret_cast<void*>(obj));
     }
     return;
 }
@@ -163,7 +163,7 @@ void PlayTask::onTaskFailure(int listerId, void* obj, int exceptionId) {
 void PlayTask::onTaskSuccess(int listerId, void* obj) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
-        callJSfunc(it->second.get(), "onSuccess", obj);
+        callJSfuncWithJObject(it->second.get(), "onSuccess", obj);
         _listeners.erase(it);
     }
 }
