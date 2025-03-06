@@ -1,4 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
 #include "vendor/google/play/PlayTask.h"
 #include "base/UTF8.h"
 #include "bindings/jswrapper/SeApi.h"
@@ -19,9 +41,6 @@ namespace {
 #ifndef JCLS_GOOGLE_PLAY_TASK_MANAGER
     #define JCLS_GOOGLE_PLAY_TASK_MANAGER "google/play/TaskManager"
 #endif
-
-
-
 } // namespace
 
 TaskException::~TaskException() {
@@ -149,7 +168,7 @@ void* PlayTask::onTaskContinueWith(int listerId, int nextTaskId) {
     void * ptr = nullptr;
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
-        se::Value r = callJSfunc(it->second.get(), "onThen");
+        se::Value r = callJSfunc(it->second.get(), "then");
 
         if(r.isNumber()) {
             ptr = reinterpret_cast<void*>(intToJObject(JniHelper::getEnv(), r.toInt32()));

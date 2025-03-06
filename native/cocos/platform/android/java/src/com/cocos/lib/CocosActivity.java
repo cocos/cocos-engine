@@ -40,7 +40,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.google.androidgamesdk.GameActivity;
-import com.google.android.gms.games.PlayGamesSdk;
 
 
 import java.lang.reflect.Field;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 /****************************************************************************
  Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
 
@@ -53,15 +52,4 @@ export interface TaskHelper<TResult, TContinuationResult = void> {
     isCanceled(): boolean;
     isComplete(): boolean;
     isSuccessful(): boolean;
-}
-
-export interface Runnable {
-    run(): void;
-}
-
-export interface Executor {
-    /**
-     * execute
-     */
-    execute(var1: Runnable): void;
 }

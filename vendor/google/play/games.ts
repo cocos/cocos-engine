@@ -23,62 +23,28 @@
  THE SOFTWARE.
 *****************************************************************************/
 
-import { JSB } from 'internal:constants';
-import { type } from '../../../cocos/core/data/class-decorator';
 import { TaskHelper, ContinuationHelper, OnCompleteListener, Executor, Runnable, OnCanceledListener, OnFailureListener, OnSuccessListener } from './task';
-import Task from '../../../cocos/asset/asset-manager/task';
-import { js } from '../../../typedoc-index';
-//import Task from '../../../cocos/asset/asset-manager/task';
 
-// type cb = (result: Task<jsb.AuthenticationResult>) => void;
-// export class GamesSignInClientTask implements Task<jsb.AuthenticationResult> {
-//     private _callbackId: number = 0;
-//     private _tasks: Map<number, Task<jsb.AuthenticationResult>>;
-
-//     constructor () {
-//         this._tasks = new Map();
-//     }
-
-//     addOnCompleteListener (activityOrExecutor: Executor | number | null, listener: OnCompleteListener<jsb.AuthenticationResult> | cb)  {
-//         if (activityOrExecutor == null) {
-//             jsb.PlayGames.getGamesSignInClient().isAuthenticatedCompleteCallback((result: jsb.AuthenticationResult) => {
-//                 const task = new Task<jsb.AuthenticationResult>();
-//                 if (typeof listener === 'function') {
-//                     listener(task);
-//                 } else {
-//                     listener.onComplete(task);
-//                 }
-//             });
-//         } else if (typeof activityOrExecutor === 'number') {
-//             jsb.PlayGames.getGamesSignInClient().isAuthenticatedActivityCompleteCallback((result: jsb.AuthenticationResult) => {
-//                 const task = new Task<jsb.AuthenticationResult>();
-//                 if (typeof listener === 'function') {
-//                     listener(task);
-//                 } else {
-//                     listener.onComplete(task);
-//                 }
-//             });
-//         } else {
-//             jsb.PlayGames.getGamesSignInClient().isAuthenticatedExecutorCompleteCallback((result: jsb.AuthenticationResult) => {
-//                 activityOrExecutor.execute({
-//                     run (): void {
-//                         const task = new Task<jsb.AuthenticationResult>();
-//                         if (typeof listener === 'function') {
-//                             listener(task);
-//                         } else {
-//                             listener.onComplete(task);
-//                         }
-//                     },
-//                 });
-//             });
-//         }
-//     }
-// }
-
+/**
+ * TaskManager is responsible for managing the lifecycle of tasks.
+ *
+ * Example usage in TypeScript:
+ *
+ * task.addOnSuccessListener({
+ *     onSuccess: (result: google.play.AuthenticationResult): void => {
+ *         console.log('Authenticated: ', result.isAuthenticated());
+ *     },
+ * });
+ *
+ * Ideally, after invoking this function, the callback should be awaited.
+ * However, in TypeScript, if the task object is not stored, it may be released
+ * before the callback is executed. To prevent this, a class is needed to manage
+ * the tasks being listened to.
+ */
 class TaskManager<TResult, TContinuationResult = void> {
-    private tasks: Map<number, CocosTask<TResult, TContinuationResult>> = new Map<number, CocosTask<TResult, TContinuationResult>>();
+    private tasks: Map<number, GooglePlayTask<TResult, TContinuationResult>> = new Map<number, GooglePlayTask<TResult, TContinuationResult>>();
     private nextTaskId: number = 0;
-    addTask (task: CocosTask<TResult, TContinuationResult>, taskId: number | null = null): void {
+    addTask (task: GooglePlayTask<TResult, TContinuationResult>, taskId: number | null = null): void {
         if (typeof taskId === 'number') {
             this.tasks.set(taskId, task);
         } else {
@@ -95,80 +61,80 @@ class TaskManager<TResult, TContinuationResult = void> {
     }
 }
 
-export class CocosTask<TResult, TContinuationResult = void> implements TaskHelper<TResult, TContinuationResult> {
+export class GooglePlayTask<TResult, TContinuationResult = void> implements TaskHelper<TResult, TContinuationResult> {
     private _nativeTask: jsb.PlayTask;
-    public static taskMgr:  TaskManager<any, any> = new TaskManager<any, any>();
+    public static taskMgr: TaskManager<any, any> = new TaskManager<any, any>();
     constructor (task: jsb.PlayTask) {
         this._nativeTask = task;
     }
 
-    addOnCanceledListener (var1: OnCanceledListener): TaskHelper<TResult, TContinuationResult> {
-        const taskId = CocosTask.taskMgr.getNextTaskId();
+    addOnCanceledListener (listener: OnCanceledListener): TaskHelper<TResult, TContinuationResult> {
+        const taskId = GooglePlayTask.taskMgr.getNextTaskId();
         const newNativeTask = this._nativeTask.addOnCanceledListener({
             onCanceled: (): void => {
-                var1.onCanceled();
-                CocosTask.taskMgr.removeTask(taskId);
+                listener.onCanceled();
+                GooglePlayTask.taskMgr.removeTask(taskId);
             },
         });
-        const newTask = new CocosTask<TResult, TContinuationResult>(newNativeTask);
-        CocosTask.taskMgr.addTask(newTask, taskId);
+        const newTask = new GooglePlayTask<TResult, TContinuationResult>(newNativeTask);
+        GooglePlayTask.taskMgr.addTask(newTask, taskId);
         return newTask;
     }
 
-    addOnCompleteListener (var1: OnCompleteListener<TResult, TContinuationResult>): TaskHelper<TResult, TContinuationResult> {
-        const taskId = CocosTask.taskMgr.getNextTaskId();
+    addOnCompleteListener (listener: OnCompleteListener<TResult, TContinuationResult>): TaskHelper<TResult, TContinuationResult> {
+        const taskId = GooglePlayTask.taskMgr.getNextTaskId();
         const newNativeTask = this._nativeTask.addOnCompleteListener({
             onComplete: (result: jsb.PlayTask): void => {
-                var1.onComplete(new CocosTask<TResult, TContinuationResult>(result));
-                CocosTask.taskMgr.removeTask(taskId);
+                listener.onComplete(new GooglePlayTask<TResult, TContinuationResult>(result));
+                GooglePlayTask.taskMgr.removeTask(taskId);
             },
         });
-        const newTask = new CocosTask<TResult, TContinuationResult>(newNativeTask);
-        CocosTask.taskMgr.addTask(newTask, taskId);
+        const newTask = new GooglePlayTask<TResult, TContinuationResult>(newNativeTask);
+        GooglePlayTask.taskMgr.addTask(newTask, taskId);
         return newTask;
     }
 
-    addOnFailureListener (var1: OnFailureListener): TaskHelper<TResult, TContinuationResult> {
-        const taskId = CocosTask.taskMgr.getNextTaskId();
+    addOnFailureListener (listener: OnFailureListener): TaskHelper<TResult, TContinuationResult> {
+        const taskId = GooglePlayTask.taskMgr.getNextTaskId();
         const newNativeTask = this._nativeTask.addOnFailureListener({
             onFailure: (result: jsb.PlayException): void => {
-                var1.onFailure(result);
-                CocosTask.taskMgr.removeTask(taskId);
+                listener.onFailure(result);
+                GooglePlayTask.taskMgr.removeTask(taskId);
             },
         });
 
-        const newTask = new CocosTask<TResult, TContinuationResult>(newNativeTask);
-        CocosTask.taskMgr.addTask(newTask, taskId);
+        const newTask = new GooglePlayTask<TResult, TContinuationResult>(newNativeTask);
+        GooglePlayTask.taskMgr.addTask(newTask, taskId);
         return newTask;
     }
 
-    addOnSuccessListener (var1: OnSuccessListener<TResult>): TaskHelper<TResult, TContinuationResult> {
-        const taskId = CocosTask.taskMgr.getNextTaskId();
+    addOnSuccessListener (continuation: OnSuccessListener<TResult>): TaskHelper<TResult, TContinuationResult> {
+        const taskId = GooglePlayTask.taskMgr.getNextTaskId();
         const newNativeTask = this._nativeTask.addOnSuccessListener({
             onSuccess: (result: any): void => {
-                var1.onSuccess(result as TResult);
-                CocosTask.taskMgr.removeTask(taskId);
+                continuation.onSuccess(result as TResult);
+                GooglePlayTask.taskMgr.removeTask(taskId);
             },
         });
-        const newTask = new CocosTask<TResult, TContinuationResult>(newNativeTask);
-        CocosTask.taskMgr.addTask(newTask, taskId);
+        const newTask = new GooglePlayTask<TResult, TContinuationResult>(newNativeTask);
+        GooglePlayTask.taskMgr.addTask(newTask, taskId);
         return newTask;
     }
 
-    continueWith (var1: ContinuationHelper<TResult, TContinuationResult>): TaskHelper<TContinuationResult> {
+    continueWith (continuation: ContinuationHelper<TResult, TContinuationResult>): TaskHelper<TContinuationResult> {
         const newNativeTask = this._nativeTask.continueWith({
-            onThen: (result: jsb.PlayTask): TContinuationResult => {
-                const newTask = new CocosTask<TResult, TContinuationResult>(result);
-                CocosTask.taskMgr.addTask(newTask);
-                return var1.then(newTask);
+            then: (result: jsb.PlayTask): TContinuationResult => {
+                const newTask = new GooglePlayTask<TResult, TContinuationResult>(result);
+                GooglePlayTask.taskMgr.addTask(newTask);
+                return continuation.then(newTask);
             },
         });
-        const newTask = new CocosTask<TContinuationResult>(newNativeTask);
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<TContinuationResult>(newNativeTask);
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
 
-    continueWithTask (result: TaskHelper<TContinuationResult, CocosTask<TContinuationResult>>): TaskHelper<TContinuationResult> {
+    continueWithTask (continuation: TaskHelper<TContinuationResult, GooglePlayTask<TContinuationResult>>): TaskHelper<TContinuationResult> {
         throw new Error('Method not implemented.');
     }
 
@@ -199,20 +165,20 @@ export class CocosTask<TResult, TContinuationResult = void> implements TaskHelpe
 
 export class GamesSignInClientHelper {
     isAuthenticated (): TaskHelper<jsb.AuthenticationResult> {
-        const newTask = new CocosTask<jsb.AuthenticationResult>(jsb.PlayGames.getGamesSignInClient().isAuthenticated());
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<jsb.AuthenticationResult>(jsb.PlayGames.getGamesSignInClient().isAuthenticated());
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
 
     requestServerSideAccess (var1: string, var2: boolean): TaskHelper<string> {
-        const newTask = new CocosTask<string>(jsb.PlayGames.getGamesSignInClient().requestServerSideAccess(var1, var2));
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<string>(jsb.PlayGames.getGamesSignInClient().requestServerSideAccess(var1, var2));
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
 
     signIn (): TaskHelper<jsb.AuthenticationResult> {
-        const newTask = new CocosTask<jsb.AuthenticationResult>(jsb.PlayGames.getGamesSignInClient().signIn());
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<jsb.AuthenticationResult>(jsb.PlayGames.getGamesSignInClient().signIn());
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
 }
@@ -223,28 +189,28 @@ export class AchievementsClient {
     }
 
     incrementImmediate (var1: string, var2: number): TaskHelper<boolean> {
-        const newTask = new CocosTask<boolean>(jsb.PlayGames.getAchievementsClient().incrementImmediate(var1, var2));
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().incrementImmediate(var1, var2));
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
     load (var1: boolean): TaskHelper<boolean> {
-        const newTask = new CocosTask<boolean>(jsb.PlayGames.getAchievementsClient().load(var1));
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().load(var1));
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
     revealImmediate (var1: string): TaskHelper<void> {
-        const newTask = new CocosTask<void>(jsb.PlayGames.getAchievementsClient().revealImmediate(var1));
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<void>(jsb.PlayGames.getAchievementsClient().revealImmediate(var1));
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
     setStepsImmediate (var1: string, var2: number): TaskHelper<boolean> {
-        const newTask = new CocosTask<boolean>(jsb.PlayGames.getAchievementsClient().setStepsImmediate(var1, var2));
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().setStepsImmediate(var1, var2));
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
     unlockImmediate (var1: string): TaskHelper<void> {
-        const newTask = new CocosTask<void>(jsb.PlayGames.getAchievementsClient().unlockImmediate(var1));
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<void>(jsb.PlayGames.getAchievementsClient().unlockImmediate(var1));
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
     increment (var1: string, var2: number): void {
@@ -266,8 +232,8 @@ export class AchievementsClient {
 
 export class RecallClient {
     requestRecallAccess (): TaskHelper<jsb.RecallAccess> {
-        const newTask = new CocosTask<jsb.RecallAccess>(jsb.PlayGames.getRecallClient().requestRecallAccess());
-        CocosTask.taskMgr.addTask(newTask);
+        const newTask = new GooglePlayTask<jsb.RecallAccess>(jsb.PlayGames.getRecallClient().requestRecallAccess());
+        GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
 }

@@ -27,9 +27,6 @@
 #include <unordered_map>
 #include "base/RefCounted.h"
 
-namespace se {
-class Object;
-}
 namespace cc {
 class PlayTask;
 class AchievementsClient {

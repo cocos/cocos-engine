@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -27,23 +27,16 @@ package google.play;
 import static androidx.core.app.ActivityCompat.startActivityForResult;
 
 import android.content.Intent;
-import android.util.Log;
-
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
 import com.cocos.lib.GlobalObject;
 import com.google.android.gms.games.AchievementsClient;
 import com.google.android.gms.games.AnnotatedData;
-import com.google.android.gms.games.AuthenticationResult;
-import com.google.android.gms.games.GamesSignInClient;
 import com.google.android.gms.games.PlayGames;
 import com.google.android.gms.games.achievement.AchievementBuffer;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.core.app.ActivityCompat;
 
 public final class AchievementsClientHelper {
     public static void showAchievements() {

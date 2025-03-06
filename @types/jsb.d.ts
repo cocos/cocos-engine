@@ -1440,11 +1440,11 @@ declare namespace jsb {
     }
 
     export interface OnContinueWithListener {
-        onThen(var1: any): void;
+        then(var1: any): void;
     }
 
     export interface OnContinueWithTaskListener {
-        onThen(var1: any): void;
+        then(var1: any): void;
     }
 
     export class PlayTask {

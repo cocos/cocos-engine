@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 /*
  Copyright (c) 2024-2025 Xiamen Yaji Software Co., Ltd.
 
@@ -23,7 +24,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import './billing/billing';
+import './billing/billing-enum';
 import { PlayGamesHelper, GamesSignInClientHelper } from './play/games';
 import { TaskHelper, ContinuationHelper } from './play/task';
 
@@ -51,6 +52,7 @@ export namespace google {
         export const GamesSignInClient = GamesSignInClientHelper;
         export const AuthenticationResult = ns.AuthenticationResult;
         export const RecallAccess = ns.RecallAccess;
+        export const PlayException = ns.PlayException;
     }
 }
 export declare namespace google {
@@ -172,5 +174,6 @@ export declare namespace google {
         export type Continuation<T, K = void> = ContinuationHelper<T, K>;
         export type Task<T, K = void> = TaskHelper<T, K>;
         export type RecallAccess = jsb.RecallAccess;
+        export type PlayException = jsb.PlayException;
     }
 }

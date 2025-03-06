@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -25,28 +25,14 @@
 package google.play;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.cocos.lib.CocosHelper;
-import com.cocos.lib.GlobalObject;
-import com.google.android.gms.games.AuthenticationResult;
-import com.google.android.gms.games.GamesSignInClient;
-import com.google.android.gms.games.PlayGames;
-
-import com.google.android.gms.games.GamesSignInClient;
-import com.google.android.gms.games.PlayGames;
-import com.google.android.gms.games.PlayGamesSdk;
 import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
-
-import google.billing.GoogleBilling;
 
 public final class TaskManager {
     private static final String TAG = TaskManager.class.getSimpleName();
@@ -221,41 +207,3 @@ public final class TaskManager {
         return putTask(newTask);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

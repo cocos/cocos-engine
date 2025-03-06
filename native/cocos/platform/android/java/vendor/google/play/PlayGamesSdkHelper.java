@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
+Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
 http://www.cocos2d-x.org
 
@@ -23,11 +23,6 @@ THE SOFTWARE.
  ****************************************************************************/
 
 package google.play;
-
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-
 import com.cocos.lib.GlobalObject;
 import com.google.android.gms.games.PlayGamesSdk;
 

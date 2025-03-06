@@ -55,7 +55,7 @@ public:
     }
 private:
     friend class PlayTask;
-    int _hashCode;
+    int _hashCode{0};
     std::string _sessionId;
 };
 

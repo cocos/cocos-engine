@@ -30,12 +30,7 @@
 #include "vendor/google/play/GamesSignInClient.h"
 #include "vendor/google/play/RecallClient.h"
 
-namespace se {
-class Object;
-}
 namespace cc {
-class PlayTask;
-
 class PlayGamesSdk {
 public:
     static void initialize();
