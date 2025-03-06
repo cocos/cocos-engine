@@ -280,7 +280,7 @@ export class SkeletonData extends Asset {
     }
 
     private mergedUUID (): string {
-        // merge txture's id and atlas content
+        // merge texture's id and atlas content
         const hashContent = [
             this._atlasText,
             ...this.textures.map((texture) => texture.getId()),
