@@ -135,10 +135,17 @@ SkeletonData *SkeletonJson::readSkeletonData(const char *json) {
 			setError(NULL, "Unsupported skeleton data, please export with a newer version of Spine.", "");
 			return NULL;
 		}
-        const char* pszVersion = skeletonData->_version.buffer();
-        if (!strstr(pszVersion, "3.8")) {
+        const auto& version = skeletonData->_version;
+        int versionLength = version.length();
+        const char* spineVersion = version.buffer();
+        if (versionLength < 3 || spineVersion[0] != '3' || spineVersion[1] != '.' || spineVersion[2] != '8') {
             char errorMsg[255] = {0};
-            snprintf(errorMsg, 255, "Skeleton version %s does not match runtime version %s", pszVersion, "3.8.99");
+            char skeletonVersion[] = "Skeleton version ";
+            int skeletonVersionLength = strlen(skeletonVersion);
+            memcpy(errorMsg, skeletonVersion, skeletonVersionLength);
+            memcpy(errorMsg + skeletonVersionLength, spineVersion, versionLength);
+            char info[] = " does not match runtime version 3.8.99";
+            memcpy(errorMsg + skeletonVersionLength + versionLength, info, strlen(info));
             delete skeletonData;
             setError(NULL, errorMsg, "");
             return NULL;

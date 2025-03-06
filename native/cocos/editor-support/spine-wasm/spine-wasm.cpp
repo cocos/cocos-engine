@@ -12,11 +12,11 @@
 using namespace spine;
 
 namespace {
-static const int LOG_LEVEL_ERROR = 3;
-static const int LOG_LEVEL_WARN = 2;
-static const int LOG_LEVEL_INFO = 1;
+const int LOG_LEVEL_ERROR = 3;
+const int LOG_LEVEL_WARN = 2;
+const int LOG_LEVEL_INFO = 1;
 
-static void logToConsole(const char* message, int logLevel = LOG_LEVEL_INFO) {
+void logToConsole(const char* message, int logLevel = LOG_LEVEL_INFO) {
     if (logLevel == LOG_LEVEL_INFO) {
         EM_ASM({
             console.log('[Spine]', UTF8ToString($0));
@@ -34,7 +34,7 @@ static void logToConsole(const char* message, int logLevel = LOG_LEVEL_INFO) {
 
 HashMap<String, SkeletonData*> skeletonDataMap{};
 
-static void updateAttachmentVerticesTextureId(SkeletonData* skeletonData, const spine::Vector<spine::String>& textureNames, const spine::Vector<spine::String>& textureUUIDs) {
+void updateAttachmentVerticesTextureId(SkeletonData* skeletonData, const spine::Vector<spine::String>& textureNames, const spine::Vector<spine::String>& textureUUIDs) {
     spine::HashMap<spine::String, spine::String> textureMap{};
     int textureSize = textureNames.size();
     for (int i = 0; i < textureSize; ++i) {
