@@ -579,14 +579,14 @@ const Elements = {
                     additional.push({ value, type });
                 }
 
-                // Todo
-                // await beginRecording(panel.uuidList);
+                const undoID = await Editor.Message.request('scene', 'begin-recording', panel.uuidList);
                 for (const info of additional) {
                     const config = panel.dropConfig[info.type];
                     if (config) {
                         await Editor.Message.request(config.package, config.message, info, panel.dumps, panel.uuidList);
                     }
                 }
+                await Editor.Message.request('scene', 'end-recording', undoID);
             });
 
             panel._readyToUpdate = true;
