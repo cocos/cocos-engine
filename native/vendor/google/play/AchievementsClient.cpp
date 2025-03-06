@@ -37,44 +37,44 @@ void AchievementsClient::showAchievements() {
     JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "showAchievements");
 }
 
-PlayTask* AchievementsClient::load(bool var1) {
-    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "load", var1);
+PlayTask* AchievementsClient::load(bool forceReload) {
+    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "load", forceReload);
     return PlayTaskManager::getInstance()->addTask(taskId);
 }
 
-PlayTask* AchievementsClient::incrementImmediate(const std::string& var1, int var2) {
-    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "incrementImmediate", var1, var2);
+PlayTask* AchievementsClient::incrementImmediate(const std::string& id, int numSteps) {
+    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "incrementImmediate", id, numSteps);
     return PlayTaskManager::getInstance()->addTask(taskId);
 }
 
-PlayTask* AchievementsClient::revealImmediate(const std::string& var1) {
-    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "revealImmediate", var1);
+PlayTask* AchievementsClient::revealImmediate(const std::string& id) {
+    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "revealImmediate", id);
     return PlayTaskManager::getInstance()->addTask(taskId);
 }
 
-PlayTask* AchievementsClient::setStepsImmediate(const std::string& var1, int var2) {
-    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "setStepsImmediate", var1, var2);
+PlayTask* AchievementsClient::setStepsImmediate(const std::string& id, int numSteps) {
+    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "setStepsImmediate", id, numSteps);
     return PlayTaskManager::getInstance()->addTask(taskId);
 }
 
-PlayTask* AchievementsClient::unlockImmediate(const std::string& var1) {
-    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "unlockImmediate", var1);
+PlayTask* AchievementsClient::unlockImmediate(const std::string& id) {
+    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "unlockImmediate", id);
     return PlayTaskManager::getInstance()->addTask(taskId);
 }
 
-void AchievementsClient::increment(const std::string& var1, int var2) {
-    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "increment", var1, var2);
+void AchievementsClient::increment(const std::string& id, int numSteps) {
+    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "increment", id, numSteps);
 }
 
-void AchievementsClient::reveal(const std::string& var1) {
-    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "reveal", var1);
+void AchievementsClient::reveal(const std::string& id) {
+    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "reveal", id);
 }
 
-void AchievementsClient::setSteps(const std::string& var1, int var2) {
-    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "setSteps", var1, var2);
+void AchievementsClient::setSteps(const std::string& id, int numSteps) {
+    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "setSteps", id, numSteps);
 }
 
-void AchievementsClient::unlock(const std::string& var1) {
-    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "unlock", var1);
+void AchievementsClient::unlock(const std::string& id) {
+    JniHelper::callStaticVoidMethod(JCLS_GOOGLE_PLAY_ACHIEVEMENTS_CLIENT, "unlock", id);
 }
 } // namespace cc

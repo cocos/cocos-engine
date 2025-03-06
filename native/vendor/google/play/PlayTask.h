@@ -35,13 +35,13 @@ namespace cc {
 class TaskException : public RefCounted {
 public:
     ~TaskException();
-    std::string getMessage() const {
+    const std::string& getMessage() const {
         return _detailMessage;
     }
-    std::string toString() const {
+    const std::string& toString() const {
         return _toString;
     }
-    std::string getLocalizedMessage() const {
+    const std::string& getLocalizedMessage() const {
         return getMessage();
     }
 

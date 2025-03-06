@@ -39,8 +39,6 @@ public:
         static PlayTaskManager mgr;
         return &mgr;
     }
-    PlayTaskManager(/* args */) = default;
-    ~PlayTaskManager() = default;
 
     void onTaskCanceled(int taskId, int listenerId);
     void onTaskComplete(int taskId, int listenerId, int nextTaskId);
@@ -52,6 +50,10 @@ public:
 private:
   int getNextListenerId();
   int addListener(se::Object* listener);
+
+  PlayTaskManager(/* args */) = default;
+  ~PlayTaskManager() = default;
+
 private:
   std::unordered_map<int, PlayTask*> _tasks;
 };

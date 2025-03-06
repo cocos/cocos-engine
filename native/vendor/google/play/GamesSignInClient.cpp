@@ -39,8 +39,8 @@ PlayTask* GamesSignInClient::isAuthenticated() {
     return PlayTaskManager::getInstance()->addTask(taskId);
 }
 
-PlayTask* GamesSignInClient::requestServerSideAccess(const std::string& var1, bool var2) {
-    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_GAMES_SIGNIN_CLIENT, "requestServerSideAccess", var1, var2);
+PlayTask* GamesSignInClient::requestServerSideAccess(const std::string& serverClientId, bool forceRefreshToken) {
+    int taskId = JniHelper::callStaticIntMethod(JCLS_GOOGLE_PLAY_GAMES_SIGNIN_CLIENT, "requestServerSideAccess", serverClientId, forceRefreshToken);
     return PlayTaskManager::getInstance()->addTask(taskId);
 }
 

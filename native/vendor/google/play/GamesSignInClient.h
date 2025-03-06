@@ -32,7 +32,7 @@ class PlayTask;
 class GamesSignInClient {
 public:
     PlayTask* isAuthenticated();
-    PlayTask* requestServerSideAccess(const std::string& var1, bool var2);
+    PlayTask* requestServerSideAccess(const std::string& serverClientId, bool forceRefreshToken);
     PlayTask* signIn();
 };
 } // namespace cc

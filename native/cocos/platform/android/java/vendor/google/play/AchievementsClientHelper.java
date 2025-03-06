@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -54,52 +54,52 @@ public final class AchievementsClientHelper {
             }
         });
     }
-    public static int incrementImmediate(@NonNull String var1, @IntRange(from = 0L) int var2) {
+    public static int incrementImmediate(@NonNull String id, @IntRange(from = 0L) int numSteps) {
         AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        Task<Boolean> task = achievementsClient.incrementImmediate(var1, var2);
+        Task<Boolean> task = achievementsClient.incrementImmediate(id, numSteps);
         return TaskManager.putTask(task);
     }
 
-    public static int load(boolean var1) {
+    public static int load(boolean forceReload) {
         AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        Task<AnnotatedData<AchievementBuffer>> task = achievementsClient.load(var1);
+        Task<AnnotatedData<AchievementBuffer>> task = achievementsClient.load(forceReload);
         return TaskManager.putTask(task);
     }
-    public static int revealImmediate(@NonNull String var1) {
+    public static int revealImmediate(@NonNull String id) {
         AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        Task<Void> task = achievementsClient.revealImmediate(var1);
-        return TaskManager.putTask(task);
-    }
-
-    public static int setStepsImmediate(@NonNull String var1, @IntRange(from = 0L) int var2) {
-        AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        Task<Boolean> task = achievementsClient.setStepsImmediate(var1, var2);
+        Task<Void> task = achievementsClient.revealImmediate(id);
         return TaskManager.putTask(task);
     }
 
-    public static int unlockImmediate(@NonNull String var1) {
+    public static int setStepsImmediate(@NonNull String id, @IntRange(from = 0L) int numSteps) {
         AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        Task<Void> task = achievementsClient.unlockImmediate(var1);
+        Task<Boolean> task = achievementsClient.setStepsImmediate(id, numSteps);
         return TaskManager.putTask(task);
     }
 
-    public static void increment(@NonNull String var1, @IntRange(from = 0L) int var2) {
+    public static int unlockImmediate(@NonNull String id) {
         AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        achievementsClient.increment(var1, var2);
+        Task<Void> task = achievementsClient.unlockImmediate(id);
+        return TaskManager.putTask(task);
     }
 
-    public static void reveal(@NonNull String var1) {
+    public static void increment(@NonNull String id, @IntRange(from = 0L) int numSteps) {
         AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        achievementsClient.reveal(var1);
+        achievementsClient.increment(id, numSteps);
     }
 
-    public static void setSteps(@NonNull String var1, @IntRange(from = 0L) int var2) {
+    public static void reveal(@NonNull String id) {
         AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        achievementsClient.setSteps(var1, var2);
+        achievementsClient.reveal(id);
     }
 
-    public static void unlock(@NonNull String var1) {
+    public static void setSteps(@NonNull String id, @IntRange(from = 0L) int numSteps) {
         AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
-        achievementsClient.unlock(var1);
+        achievementsClient.setSteps(id, numSteps);
+    }
+
+    public static void unlock(@NonNull String id) {
+        AchievementsClient achievementsClient = PlayGames.getAchievementsClient(GlobalObject.getActivity());
+        achievementsClient.unlock(id);
     }
 }

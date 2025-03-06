@@ -23,7 +23,7 @@
  THE SOFTWARE.
 *****************************************************************************/
 
-import { TaskHelper, ContinuationHelper, OnCompleteListener, Executor, Runnable, OnCanceledListener, OnFailureListener, OnSuccessListener } from './task';
+import { TaskHelper, ContinuationHelper, OnCompleteListener, OnCanceledListener, OnFailureListener, OnSuccessListener } from './task';
 
 /**
  * TaskManager is responsible for managing the lifecycle of tasks.

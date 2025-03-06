@@ -32,16 +32,16 @@ class PlayTask;
 class AchievementsClient {
 public:
     void showAchievements();
-    PlayTask* load(bool var1);
-    PlayTask* incrementImmediate(const std::string& var1, int var2);
-    PlayTask* revealImmediate(const std::string& var1);
-    PlayTask* setStepsImmediate(const std::string& var1, int var2);
-    PlayTask* unlockImmediate(const std::string& var1);
+    PlayTask* load(bool forceReload);
+    PlayTask* incrementImmediate(const std::string& id, int numSteps);
+    PlayTask* revealImmediate(const std::string& id);
+    PlayTask* setStepsImmediate(const std::string& id, int numSteps);
+    PlayTask* unlockImmediate(const std::string& id);
 
-    void increment(const std::string& var1, int var2);
-    void reveal(const std::string& var1);
-    void setSteps(const std::string& var1, int var2);
-    void unlock(const std::string& var1);
+    void increment(const std::string& id, int numSteps);
+    void reveal(const std::string& id);
+    void setSteps(const std::string& id, int numSteps);
+    void unlock(const std::string& id);
 };
 
 } // namespace cc

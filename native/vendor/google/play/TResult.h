@@ -43,7 +43,7 @@ public:
         return _hashCode;
     }
     
-    std::string getSessionId() const {
+    const std::string& getSessionId() const {
         return _sessionId;
     }
 

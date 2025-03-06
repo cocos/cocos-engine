@@ -1,7 +1,7 @@
 /****************************************************************************
 Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+https://www.cocos.com/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -39,9 +39,9 @@ public final class GamesSignInClientHelper {
         return TaskManager.putTask(task);
     }
 
-    public static int requestServerSideAccess(@NonNull String var1, boolean var2) {
+    public static int requestServerSideAccess(@NonNull String serverClientId, boolean forceRefreshToken) {
         GamesSignInClient gamesSignInClient = PlayGames.getGamesSignInClient(GlobalObject.getActivity());
-        Task<String> task = gamesSignInClient.requestServerSideAccess(var1, var2);
+        Task<String> task = gamesSignInClient.requestServerSideAccess(serverClientId, forceRefreshToken);
         return TaskManager.putTask(task);
     }
 
