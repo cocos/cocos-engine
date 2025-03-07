@@ -191,13 +191,12 @@ public final class TaskManager {
             public Object then(Task<Object> task) throws Exception {
                 final CountDownLatch latch = new CountDownLatch(1);
                 final AtomicReference<Object> resultHolder = new AtomicReference<>();
-                int calllbackTaksId = putTask(task);
                 if (task.isSuccessful()) {
                     CocosHelper.runOnGameThread(new Runnable() {
                         @Override
                         public void run() {
-                            int calllbackTaksId = putTask(task);
-                            resultHolder.set(onContinueWithNative(taskId, listenerId, calllbackTaksId));
+                            int calllbackTaskId = putTask(task);
+                            resultHolder.set(onContinueWithNative(taskId, listenerId, calllbackTaskId));
                             latch.countDown();
                         }
                     });
