@@ -22,11 +22,11 @@ android {
     }
 
     if(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean()) {
-        sourceSets.main.java.srcDirs += ['../java/vendor/billing']
+        sourceSets.main.java.srcDirs += ["../java/vendor/billing"]
     }
 
     if(project.hasProperty("PROP_ENABLE_GOOGLE_PLAY_GAMES") && project.PROP_ENABLE_GOOGLE_PLAY_GAMES.toBoolean()) {
-        sourceSets.main.java.srcDirs += ['../java/vendor/play']
+        sourceSets.main.java.srcDirs += ["../java/vendor/play"]
     }
 
     buildDir = new File(rootProject.buildDir, project.name)

@@ -16,7 +16,6 @@
 #include "vendor/google/play/PlayTask.h"
 #include "vendor/google/play/TResult.h"
 #include "vendor/google/play/PlayGames.h"
-#include "vendor/google/play/GamesSignInClient.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -25,7 +24,6 @@
 #include "vendor/google/play/PlayTaskManager.h"
 #include "vendor/google/play/PlayTask.h"
 #include "vendor/google/play/TResult.h"
-#include "vendor/google/play/GamesSignInClient.h"
 %}
 
 // ----- Import Section ------
