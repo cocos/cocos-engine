@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 /****************************************************************************
- Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -170,8 +169,8 @@ export class GamesSignInClientHelper {
         return newTask;
     }
 
-    requestServerSideAccess (var1: string, var2: boolean): TaskHelper<string> {
-        const newTask = new GooglePlayTask<string>(jsb.PlayGames.getGamesSignInClient().requestServerSideAccess(var1, var2));
+    requestServerSideAccess (serverClientId: string, forceRefreshToken: boolean): TaskHelper<string> {
+        const newTask = new GooglePlayTask<string>(jsb.PlayGames.getGamesSignInClient().requestServerSideAccess(serverClientId, forceRefreshToken));
         GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
@@ -188,45 +187,45 @@ export class AchievementsClient {
         jsb.PlayGames.getAchievementsClient().showAchievements();
     }
 
-    incrementImmediate (var1: string, var2: number): TaskHelper<boolean> {
-        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().incrementImmediate(var1, var2));
+    incrementImmediate (id: string, numSteps: number): TaskHelper<boolean> {
+        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().incrementImmediate(id, numSteps));
         GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
-    load (var1: boolean): TaskHelper<boolean> {
-        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().load(var1));
+    load (id: boolean): TaskHelper<boolean> {
+        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().load(id));
         GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
-    revealImmediate (var1: string): TaskHelper<void> {
-        const newTask = new GooglePlayTask<void>(jsb.PlayGames.getAchievementsClient().revealImmediate(var1));
+    revealImmediate (id: string): TaskHelper<void> {
+        const newTask = new GooglePlayTask<void>(jsb.PlayGames.getAchievementsClient().revealImmediate(id));
         GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
-    setStepsImmediate (var1: string, var2: number): TaskHelper<boolean> {
-        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().setStepsImmediate(var1, var2));
+    setStepsImmediate (id: string, numSteps: number): TaskHelper<boolean> {
+        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().setStepsImmediate(id, numSteps));
         GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
-    unlockImmediate (var1: string): TaskHelper<void> {
-        const newTask = new GooglePlayTask<void>(jsb.PlayGames.getAchievementsClient().unlockImmediate(var1));
+    unlockImmediate (id: string): TaskHelper<void> {
+        const newTask = new GooglePlayTask<void>(jsb.PlayGames.getAchievementsClient().unlockImmediate(id));
         GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
-    increment (var1: string, var2: number): void {
-        jsb.PlayGames.getAchievementsClient().increment(var1, var2);
+    increment (id: string, numSteps: number): void {
+        jsb.PlayGames.getAchievementsClient().increment(id, numSteps);
     }
 
-    reveal (var1: string): void {
-        jsb.PlayGames.getAchievementsClient().reveal(var1);
+    reveal (id: string): void {
+        jsb.PlayGames.getAchievementsClient().reveal(id);
     }
 
-    setSteps (var1: string, var2: number): void {
-        jsb.PlayGames.getAchievementsClient().setSteps(var1, var2);
+    setSteps (id: string, numSteps: number): void {
+        jsb.PlayGames.getAchievementsClient().setSteps(id, numSteps);
     }
 
-    unlock (var1: string): void {
-        jsb.PlayGames.getAchievementsClient().unlock(var1);
+    unlock (id: string): void {
+        jsb.PlayGames.getAchievementsClient().unlock(id);
     }
 }
 

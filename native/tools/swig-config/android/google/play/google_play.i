@@ -12,7 +12,6 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
-#include "vendor/google/play/PlayTaskManager.h"
 #include "vendor/google/play/PlayTask.h"
 #include "vendor/google/play/TResult.h"
 #include "vendor/google/play/PlayGames.h"
@@ -21,7 +20,6 @@
 // Insert code at the beginning of generated source file (.cpp)
 %{
 #include "bindings/auto/jsb_google_play_auto.h"
-#include "vendor/google/play/PlayTaskManager.h"
 #include "vendor/google/play/PlayTask.h"
 #include "vendor/google/play/TResult.h"
 %}
@@ -35,9 +33,7 @@
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
-//%include "vendor/google/play/GooglePlayHelper.h"
 %include "vendor/google/play/TResult.h"
-%include "vendor/google/play/PlayTaskManager.h"
 %include "vendor/google/play/PlayTask.h"
 %include "vendor/google/play/GamesSignInClient.h"
 %include "vendor/google/play/RecallClient.h"

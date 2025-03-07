@@ -203,7 +203,6 @@ public final class TaskManager {
                     });
                     latch.await();
                 } else {
-                    // 失败时的处理
                     resultHolder.set(null);
                 }
                 return resultHolder.get();

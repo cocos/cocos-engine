@@ -1428,32 +1428,32 @@ declare namespace jsb {
     }
 
     export interface OnCompleteListener {
-        onComplete(var1: any): void;
+        onComplete(task: any): void;
     }
 
     export interface OnFailureListener {
-        onFailure(var1: PlayException): void;
+        onFailure(e: PlayException): void;
     }
 
     export interface OnSuccessListener {
-        onSuccess(var1: any): void;
+        onSuccess(result: any): void;
     }
 
     export interface OnContinueWithListener {
-        then(var1: any): void;
+        then(result: any): void;
     }
 
     export interface OnContinueWithTaskListener {
-        then(var1: any): void;
+        then(result: any): void;
     }
 
     export class PlayTask {
-        public addOnCanceledListener(var1: OnCanceledListener): PlayTask;
-        public addOnCompleteListener(var1: OnCompleteListener): PlayTask;
-        public addOnFailureListener(var1: OnFailureListener): PlayTask;
-        public addOnSuccessListener(var1: OnSuccessListener): PlayTask;
-        public continueWith(var1: OnContinueWithListener): PlayTask;
-        public getResult(var1: OnSuccessListener): any;
+        public addOnCanceledListener(listener: OnCanceledListener): PlayTask;
+        public addOnCompleteListener(listener: OnCompleteListener): PlayTask;
+        public addOnFailureListener(listener: OnFailureListener): PlayTask;
+        public addOnSuccessListener(listener: OnSuccessListener): PlayTask;
+        public continueWith(listener: OnContinueWithListener): PlayTask;
+        public getResult(listener: OnSuccessListener): any;
         public isCanceled(): boolean;
         public isComplete(): boolean;
         public isSuccessful(): boolean;
@@ -1470,20 +1470,20 @@ declare namespace jsb {
     }
     export class GamesSignInClient {
         public isAuthenticated(): PlayTask;
-        public requestServerSideAccess(var1: string, var2: boolean): PlayTask;
+        public requestServerSideAccess(serverClientId: string, forceRefreshToken: boolean): PlayTask;
         public signIn(): PlayTask;
     }
     export class AchievementsClient {
         public showAchievements(): void;
-        public incrementImmediate(var1: string, var2: number): PlayTask;
-        public load(var1: boolean): PlayTask;
-        public revealImmediate(var1: string): PlayTask;
-        public setStepsImmediate(var1: string, var2: number): PlayTask;
-        public unlockImmediate(var1: string): PlayTask;
-        public increment(var1: string, var2: number): void;
-        public reveal(var1: string): void;
-        public setSteps(var1: string, var2: number): void;
-        public unlock(var1: string): void;
+        public incrementImmediate(id: string, numSteps: number): PlayTask;
+        public load(forceReload: boolean): PlayTask;
+        public revealImmediate(id: string): PlayTask;
+        public setStepsImmediate(id: string, numSteps: number): PlayTask;
+        public unlockImmediate(id: string): PlayTask;
+        public increment(id: string, numSteps: number): void;
+        public reveal(id: string): void;
+        public setSteps(id: string, numSteps: number): void;
+        public unlock(id: string): void;
     }
 
     export class RecallClient {

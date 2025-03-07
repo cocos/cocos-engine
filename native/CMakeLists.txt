@@ -823,7 +823,6 @@ cocos_source_files(
     vendor/google/play/PlayTaskManager.h
     vendor/google/play/PlayTaskManager.cpp
     vendor/google/play/TResult.h
-    vendor/google/play/TResult.cpp
 
     vendor/google/play/PlayGames.h
     vendor/google/play/PlayGames.cpp

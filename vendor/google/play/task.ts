@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,15 +26,15 @@ export interface OnCanceledListener {
 }
 
 export interface OnCompleteListener<TResult, TContinuationResult = void> {
-    onComplete(var1: TaskHelper<TResult, TContinuationResult>): void;
+    onComplete(result: TaskHelper<TResult, TContinuationResult>): void;
 }
 
 export interface OnFailureListener {
-    onFailure(var1: jsb.PlayException): void;
+    onFailure(e: jsb.PlayException): void;
 }
 
 export interface OnSuccessListener<TResult> {
-    onSuccess(var1: TResult): void;
+    onSuccess(result: TResult): void;
 }
 
 export interface ContinuationHelper<TResult, TContinuationResult> {
@@ -42,10 +42,10 @@ export interface ContinuationHelper<TResult, TContinuationResult> {
 }
 
 export interface TaskHelper<TResult, TContinuationResult = void> {
-    addOnCanceledListener(var1: OnCanceledListener): TaskHelper<TResult, TContinuationResult>;
-    addOnCompleteListener(var1: OnCompleteListener<TResult, TContinuationResult>): TaskHelper<TResult, TContinuationResult>;
-    addOnFailureListener(var1: OnFailureListener): TaskHelper<TResult, TContinuationResult>;
-    addOnSuccessListener(var1: OnSuccessListener<TResult>): TaskHelper<TResult, TContinuationResult>;
+    addOnCanceledListener(listener: OnCanceledListener): TaskHelper<TResult, TContinuationResult>;
+    addOnCompleteListener(listener: OnCompleteListener<TResult, TContinuationResult>): TaskHelper<TResult, TContinuationResult>;
+    addOnFailureListener(listener: OnFailureListener): TaskHelper<TResult, TContinuationResult>;
+    addOnSuccessListener(listener: OnSuccessListener<TResult>): TaskHelper<TResult, TContinuationResult>;
     continueWith(result: ContinuationHelper<TResult, TContinuationResult>): TaskHelper<TContinuationResult>;
     continueWithTask (result: TaskHelper<TContinuationResult, TaskHelper<TContinuationResult>>): TaskHelper<TContinuationResult>;
     getResult(): TResult | null;
