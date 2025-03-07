@@ -131,7 +131,7 @@ SkeletonData *SkeletonBinary::readSkeletonData(const unsigned char *binary, cons
     if ("3.8.75" == skeletonData->_version) {
         delete input;
         delete skeletonData;
-        setError("Unsupported skeleton data, please export with a newer version of Spine.", "");
+        setError("Since spine 3.8 runtime only support assets exported from Spine 3.8.99.", "");
         return NULL;
     }
 

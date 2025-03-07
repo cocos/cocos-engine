@@ -132,7 +132,7 @@ SkeletonData *SkeletonJson::readSkeletonData(const char *json) {
         skeletonData->_hash = Json::getString(skeleton, "hash", 0);
         skeletonData->_version = Json::getString(skeleton, "spine", 0);
         if (skeletonData->_version.isEmpty()) {
-			setError(NULL, "Unsupported skeleton data, please export with a newer version of Spine.", "");
+			setError(NULL, "Since spine 3.8 runtime only support assets exported from Spine 3.8.99.", "");
 			return NULL;
 		}
         const auto& version = skeletonData->_version;
