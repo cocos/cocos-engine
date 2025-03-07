@@ -1964,21 +1964,22 @@ struct BufferView {
     uint64_t strideInBytes{0};
 };
 
-class RenderObject {
+class RenderObject : public RefCounted {
 public:
-    RenderObject() noexcept = default;
+    RenderObject() = default;
     RenderObject(RenderObject&& rhs) = delete;
     RenderObject(RenderObject const& rhs) = delete;
     RenderObject& operator=(RenderObject&& rhs) = delete;
     RenderObject& operator=(RenderObject const& rhs) = delete;
-    virtual ~RenderObject() noexcept = default;
+    ~RenderObject() noexcept override = default;
 
     virtual void destroy() noexcept = 0;
 };
 
 class RenderGeometry : public RenderObject {
 public:
-    RenderGeometry() noexcept = default;
+    RenderGeometry() = default;
+    ~RenderGeometry() noexcept override = default;
 
     virtual void setPrimitiveColor(DataType type, const BufferView &color) = 0;
     virtual void setPrimitiveAttribute0(DataType type, const BufferView &attribute) = 0;
@@ -1990,7 +1991,8 @@ public:
 
 class RenderGeometryCone : public RenderGeometry {
 public:
-    RenderGeometryCone() noexcept = default;
+    RenderGeometryCone() = default;
+    ~RenderGeometryCone() noexcept override = default;
 
     virtual void setVertexPosition(const BufferView &position) = 0;
     virtual void setVertexRadius(const BufferView &radius) = 0;
@@ -2006,7 +2008,8 @@ public:
 
 class RenderGeometryCurve : public RenderGeometry {
 public:
-    RenderGeometryCurve() noexcept = default;
+    RenderGeometryCurve() = default;
+    ~RenderGeometryCurve() noexcept override = default;
 
     virtual void setVertexPosition(const BufferView &position) = 0;
     virtual void setVertexRadius(const BufferView &radius) = 0;
@@ -2021,7 +2024,8 @@ public:
 
 class RenderGeometryCylinder : public RenderGeometry {
 public:
-    RenderGeometryCylinder() noexcept = default;
+    RenderGeometryCylinder() = default;
+    ~RenderGeometryCylinder() noexcept override = default;
 
     virtual void setVertexPosition(const BufferView &position) = 0;
     virtual void setVertexCap(const BufferView &cap) = 0;
@@ -2038,7 +2042,8 @@ public:
 
 class RenderGeometryQuad : public RenderGeometry {
 public:
-    RenderGeometryQuad() noexcept = default;
+    RenderGeometryQuad() = default;
+    ~RenderGeometryQuad() noexcept override = default;
 
     virtual void setVertexPosition(const BufferView &position) = 0;
     virtual void setVertexNormal(DataType type, const BufferView &normal) = 0;
@@ -2053,7 +2058,8 @@ public:
 
 class RenderGeometrySphere : public RenderGeometry {
 public:
-    RenderGeometrySphere() noexcept = default;
+    RenderGeometrySphere() = default;
+    ~RenderGeometrySphere() noexcept override = default;
 
     virtual void setVertexPosition(const BufferView &position) = 0;
     virtual void setVertexRadius(const BufferView &radius) = 0;
@@ -2068,7 +2074,8 @@ public:
 
 class RenderGeometryTriangle : public RenderGeometry {
 public:
-    RenderGeometryTriangle() noexcept = default;
+    RenderGeometryTriangle() = default;
+    ~RenderGeometryTriangle() noexcept override = default;
 
     virtual void setVertexPosition(const BufferView &position) = 0;
     virtual void setVertexNormal(DataType type, const BufferView &normal) = 0;
@@ -2079,6 +2086,413 @@ public:
     virtual void setVertexAttribute2(DataType type, const BufferView &attribute) = 0;
     virtual void setVertexAttribute3(DataType type, const BufferView &attribute) = 0;
     virtual void setPrimitiveIndex(const BufferView &index) = 0;
+};
+
+class RenderSampler : public RenderObject {
+public:
+    RenderSampler() = default;
+    ~RenderSampler() noexcept override = default;
+};
+
+class RenderSamplerImage1D : public RenderSampler {
+public:
+    RenderSamplerImage1D() = default;
+    ~RenderSamplerImage1D() noexcept override = default;
+
+    virtual void setInAttribute(const ccstd::string &inAttribute) = 0;
+    virtual void setInTransform(const Mat4 &inTransform) = 0;
+    virtual void setInOffset(const Vec4 &inOffset) = 0;
+    virtual void setImage(DataType type, IntrusivePtr<gfx::Texture> image) = 0;
+    virtual void setFilter(const ccstd::string &filter) = 0;
+    virtual void setWrapMode(const ccstd::string &wrapMode) = 0;
+    virtual void setOutTransform(const Mat4 &outTransform) = 0;
+    virtual void setOutOffset(const Vec4 &outOffset) = 0;
+};
+
+class RenderSamplerImage2D : public RenderSampler {
+public:
+    RenderSamplerImage2D() = default;
+    ~RenderSamplerImage2D() noexcept override = default;
+
+    virtual void setInAttribute(const ccstd::string &inAttribute) = 0;
+    virtual void setInTransform(const Mat4 &inTransform) = 0;
+    virtual void setInOffset(const Vec4 &inOffset) = 0;
+    virtual void setImage(DataType type, IntrusivePtr<gfx::Texture> image) = 0;
+    virtual void setFilter(const ccstd::string &filter) = 0;
+    virtual void setWrapMode1(const ccstd::string &wrapMode) = 0;
+    virtual void setWrapMode2(const ccstd::string &wrapMode) = 0;
+    virtual void setOutTransform(const Mat4 &outTransform) = 0;
+    virtual void setOutOffset(const Vec4 &outOffset) = 0;
+};
+
+class RenderSamplerImage3D : public RenderSampler {
+public:
+    RenderSamplerImage3D() = default;
+    ~RenderSamplerImage3D() noexcept override = default;
+
+    virtual void setInAttribute(const ccstd::string &inAttribute) = 0;
+    virtual void setInTransform(const Mat4 &inTransform) = 0;
+    virtual void setInOffset(const Vec4 &inOffset) = 0;
+    virtual void setImage(DataType type, IntrusivePtr<gfx::Texture> image) = 0;
+    virtual void setFilter(const ccstd::string &filter) = 0;
+    virtual void setWrapMode1(const ccstd::string &wrapMode) = 0;
+    virtual void setWrapMode2(const ccstd::string &wrapMode) = 0;
+    virtual void setWrapMode3(const ccstd::string &wrapMode) = 0;
+    virtual void setOutTransform(const Mat4 &outTransform) = 0;
+    virtual void setOutOffset(const Vec4 &outOffset) = 0;
+};
+
+class RenderSamplerPrimitive : public RenderSampler {
+public:
+    RenderSamplerPrimitive() = default;
+    ~RenderSamplerPrimitive() noexcept override = default;
+
+    virtual void setArray(DataType type, Uint8Array array) = 0;
+    virtual void setInOffset(uint64_t inOffset) = 0;
+};
+
+class RenderSamplerTransform : public RenderSampler {
+public:
+    RenderSamplerTransform() = default;
+    ~RenderSamplerTransform() noexcept override = default;
+
+    virtual void setInAttribute(const ccstd::string &inAttribute) = 0;
+    virtual void setOutTransform(const Mat4 &outTransform) = 0;
+    virtual void setOutOffset(const Vec4 &outOffset) = 0;
+};
+
+class RenderMaterial : public RenderObject {
+public:
+    RenderMaterial() = default;
+    ~RenderMaterial() noexcept override = default;
+};
+
+class RenderMaterialMatte : public RenderMaterial {
+public:
+    RenderMaterialMatte() = default;
+    ~RenderMaterialMatte() noexcept override = default;
+
+    virtual void setColor(IntrusivePtr<RenderSampler> color) = 0;
+    virtual void setColorValue(const Vec3 &color) = 0;
+    virtual void setOpacity(IntrusivePtr<RenderSampler> opacity) = 0;
+    virtual void setOpacityValue(float opacity) = 0;
+    virtual void setAlphaMode(const ccstd::string &alphaMode) = 0;
+    virtual void setAlphaCutoff(float alphaCutoff) = 0;
+};
+
+class RenderMaterialPhysicallyBased : public RenderMaterial {
+public:
+    RenderMaterialPhysicallyBased() = default;
+    ~RenderMaterialPhysicallyBased() noexcept override = default;
+
+    virtual void setBaseColor(IntrusivePtr<RenderSampler> baseColor) = 0;
+    virtual void setBaseColorValue(const Vec3 &baseColor) = 0;
+    virtual void setOpacity(IntrusivePtr<RenderSampler> opacity) = 0;
+    virtual void setOpacityValue(float opacity) = 0;
+    virtual void setMetallic(IntrusivePtr<RenderSampler> metallic) = 0;
+    virtual void setMetallicValue(float metallic) = 0;
+    virtual void setRoughness(IntrusivePtr<RenderSampler> roughness) = 0;
+    virtual void setRoughnessValue(float roughness) = 0;
+    virtual void setNormal(const IntrusivePtr<RenderSampler> &normal) = 0;
+    virtual void setEmissive(IntrusivePtr<RenderSampler> emissive) = 0;
+    virtual void setEmissiveValue(const Vec3 &emissive) = 0;
+    virtual void setOcclusion(const IntrusivePtr<RenderSampler> &occlusion) = 0;
+    virtual void setAlphaMode(const ccstd::string &alphaMode) = 0;
+    virtual void setAlphaCutoff(float alphaCutoff) = 0;
+    virtual void setSpecular(IntrusivePtr<RenderSampler> specular) = 0;
+    virtual void setSpecularValue(float specular) = 0;
+    virtual void setSpecularColor(IntrusivePtr<RenderSampler> specular) = 0;
+    virtual void setSpecularColorValue(const Vec3 &specular) = 0;
+    virtual void setClearcoat(IntrusivePtr<RenderSampler> clearcoat) = 0;
+    virtual void setClearcoatValue(float clearcoat) = 0;
+    virtual void setClearcoatRoughness(IntrusivePtr<RenderSampler> clearcoatRoughness) = 0;
+    virtual void setClearcoatRoughnessValue(float clearcoatRoughness) = 0;
+    virtual void setClearcoatNormal(const IntrusivePtr<RenderSampler> &clearcoatNormal) = 0;
+    virtual void setTransmission(IntrusivePtr<RenderSampler> transmission) = 0;
+    virtual void setTransmissionValue(float transmission) = 0;
+    virtual void setIor(float ior) = 0;
+    virtual void setThickness(IntrusivePtr<RenderSampler> thickness) = 0;
+    virtual void setThicknessValue(float thickness) = 0;
+    virtual void setAttenuationDistance(float attenuationDistance) = 0;
+    virtual void setAttenuationColor(const Vec3 &attenuationColor) = 0;
+    virtual void setSheenColor(IntrusivePtr<RenderSampler> sheenColor) = 0;
+    virtual void setSheenColorValue(const Vec3 &sheenColor) = 0;
+    virtual void setSheenRoughness(IntrusivePtr<RenderSampler> sheenRoughness) = 0;
+    virtual void setSheenRoughnessValue(float sheenRoughness) = 0;
+    virtual void setIridescence(IntrusivePtr<RenderSampler> iridescence) = 0;
+    virtual void setIridescenceValue(float iridescence) = 0;
+    virtual void setIridescenceIor(float iridescenceIor) = 0;
+    virtual void setIridescenceThickness(IntrusivePtr<RenderSampler> iridescenceThickness) = 0;
+    virtual void setIridescenceThicknessValue(float iridescenceThickness) = 0;
+};
+
+class RenderVolume : public RenderObject {
+public:
+    RenderVolume() = default;
+    ~RenderVolume() noexcept override = default;
+};
+
+class RenderSpatialField : public RenderObject {
+public:
+    RenderSpatialField() = default;
+    ~RenderSpatialField() noexcept override = default;
+};
+
+class RenderSpatialFieldStructuredRegular : public RenderSpatialField {
+public:
+    RenderSpatialFieldStructuredRegular() = default;
+    ~RenderSpatialFieldStructuredRegular() noexcept override = default;
+
+    virtual void setData(DataType type, IntrusivePtr<gfx::Texture> data) = 0;
+    virtual void setOrigin(const Vec3 &origin) = 0;
+    virtual void setSpacing(const Vec3 &spacing) = 0;
+    virtual void setFilter(const ccstd::string &filter) = 0;
+};
+
+class RenderVolumeTransferFunction1D : public RenderVolume {
+public:
+    RenderVolumeTransferFunction1D() = default;
+    ~RenderVolumeTransferFunction1D() noexcept override = default;
+
+    virtual void setValue(const IntrusivePtr<RenderSpatialField> &value) = 0;
+    virtual void setValueRange(float rangeMin, float rangeMax) = 0;
+    virtual void setColor(DataType type, IntrusivePtr<gfx::Texture> color) = 0;
+    virtual void setOpacity(Float32Array opacity) = 0;
+    virtual void setOpacityValue(float opacity) = 0;
+    virtual void setUnitDistance(float unitDistance) = 0;
+};
+
+class RenderLight : public RenderObject {
+public:
+    RenderLight() = default;
+    ~RenderLight() noexcept override = default;
+
+    virtual void setColor(const Vec3 &color) = 0;
+    virtual void setVisible(bool visible) = 0;
+};
+
+class RenderLightDirectional : public RenderLight {
+public:
+    RenderLightDirectional() = default;
+    ~RenderLightDirectional() noexcept override = default;
+
+    virtual void setDirection(const Vec3 &direction) = 0;
+    virtual void setIrradiance(float irradiance) = 0;
+    virtual void setAngularDiameter(float angularDiameter) = 0;
+    virtual void setRadiance(float radiance) = 0;
+};
+
+class RenderLightHDRI : public RenderLight {
+public:
+    RenderLightHDRI() = default;
+    ~RenderLightHDRI() noexcept override = default;
+
+    virtual void setUp(const Vec3 &up) = 0;
+    virtual void setDirection(const Vec3 &direction) = 0;
+    virtual void setRadiance(Float32Array radiance) = 0;
+    virtual void setLayout(const ccstd::string &layout) = 0;
+    virtual void setScale(float scale) = 0;
+};
+
+class RenderLightPoint : public RenderLight {
+public:
+    RenderLightPoint() = default;
+    ~RenderLightPoint() noexcept override = default;
+
+    virtual void setPosition(const Vec3 &position) = 0;
+    virtual void setIntensity(float intensity) = 0;
+    virtual void setPower(float power) = 0;
+    virtual void setRadius(float radius) = 0;
+    virtual void setRadiance(float radiance) = 0;
+};
+
+class RenderLightQuad : public RenderLight {
+public:
+    RenderLightQuad() = default;
+    ~RenderLightQuad() noexcept override = default;
+
+    virtual void setPosition(const Vec3 &position) = 0;
+    virtual void setEdge1(const Vec3 &edge1) = 0;
+    virtual void setEdge2(const Vec3 &edge2) = 0;
+    virtual void setIntensity(float intensity) = 0;
+    virtual void setPower(float power) = 0;
+    virtual void setRadiance(float radiance) = 0;
+    virtual void setSide(const ccstd::string &side) = 0;
+    virtual void setIntensityDistribution(DataType type, Float32Array intensityDistribution) = 0;
+};
+
+class RenderLightRing : public RenderLight {
+public:
+    RenderLightRing() = default;
+    ~RenderLightRing() noexcept override = default;
+
+    virtual void setPosition(const Vec3 &position) = 0;
+    virtual void setDirection(const Vec3 &direction) = 0;
+    virtual void setOpeningAngle(float openingAngle) = 0;
+    virtual void setFalloffAngle(float falloffAngle) = 0;
+    virtual void setIntensity(float intensity) = 0;
+    virtual void setPower(float power) = 0;
+    virtual void setRadius(float radius) = 0;
+    virtual void setInnerRadius(float innerRadius) = 0;
+    virtual void setRadiance(float radiance) = 0;
+    virtual void setIntensityDistribution(DataType type, Float32Array intensityDistribution) = 0;
+    virtual void setC0(const Vec3 &c0) = 0;
+};
+
+class RenderSurface : public RenderObject {
+public:
+    RenderSurface() = default;
+    ~RenderSurface() noexcept override = default;
+
+    virtual void setGeometry(const IntrusivePtr<RenderGeometry> &geometry) = 0;
+    virtual void setMaterial(const IntrusivePtr<RenderMaterial> &material) = 0;
+    virtual void setId(uint32_t id) = 0;
+};
+
+class RenderGroup : public RenderObject {
+public:
+    RenderGroup() = default;
+    ~RenderGroup() noexcept override = default;
+
+    virtual void setSurface(ccstd::vector<IntrusivePtr<RenderSurface>> &&surface) = 0;
+    virtual void setVolume(ccstd::vector<IntrusivePtr<RenderVolume>> &&volume) = 0;
+    virtual void setLight(ccstd::vector<IntrusivePtr<RenderLight>> &&light) = 0;
+    virtual geometry::AABB getBounds(WaitMask waitMask) const = 0;
+};
+
+class RenderInstance : public RenderObject {
+public:
+    RenderInstance() = default;
+    ~RenderInstance() noexcept override = default;
+
+    virtual void setGroup(const IntrusivePtr<RenderGroup> &group) = 0;
+    virtual void setTransform(const Mat4 &transform) = 0;
+    virtual geometry::AABB getBounds(WaitMask waitMask) const = 0;
+};
+
+class RenderInstanceTransform : public RenderInstance {
+public:
+    RenderInstanceTransform() = default;
+    ~RenderInstanceTransform() noexcept override = default;
+};
+
+class RenderInstanceMotionTransform : public RenderInstance {
+public:
+    RenderInstanceMotionTransform() = default;
+    ~RenderInstanceMotionTransform() noexcept override = default;
+
+    virtual void setMotionTransform(Float32Array transform) = 0;
+    virtual void setTime(float timeMin, float timeMax) = 0;
+};
+
+class RenderInstanceMotionScaleRotationTranslation : public RenderInstance {
+public:
+    RenderInstanceMotionScaleRotationTranslation() = default;
+    ~RenderInstanceMotionScaleRotationTranslation() noexcept override = default;
+
+    virtual void setMotionScale(Float32Array scale) = 0;
+    virtual void setMotionRotation(Float32Array rotation) = 0;
+    virtual void setMotionTranslation(Float32Array translation) = 0;
+    virtual void setTime(float timeMin, float timeMax) = 0;
+};
+
+class RenderWorld : public RenderObject {
+public:
+    RenderWorld() = default;
+    ~RenderWorld() noexcept override = default;
+
+    virtual bool isEmpty() const = 0;
+    virtual void setInstance(ccstd::vector<IntrusivePtr<RenderInstance>> &&instance) = 0;
+    virtual void setSurface(ccstd::vector<IntrusivePtr<RenderSurface>> &&surface) = 0;
+    virtual void setVolume(ccstd::vector<IntrusivePtr<RenderVolume>> &&volume) = 0;
+    virtual void setLight(ccstd::vector<IntrusivePtr<RenderLight>> &&light) = 0;
+    virtual void addInstance(const IntrusivePtr<RenderInstance> &instance) = 0;
+    virtual void addSurface(const IntrusivePtr<RenderSurface> &surface) = 0;
+    virtual void removeInstance(const IntrusivePtr<RenderInstance> &instance) = 0;
+    virtual void removeSurface(const IntrusivePtr<RenderSurface> &surface) = 0;
+    virtual void addInstances(ccstd::vector<IntrusivePtr<RenderInstance>> &&instance) = 0;
+    virtual void addSurfaces(ccstd::vector<IntrusivePtr<RenderSurface>> &&surface) = 0;
+    virtual void removeInstances(const ccstd::vector<IntrusivePtr<RenderInstance>> &instance) = 0;
+    virtual void removeSurfaces(const ccstd::vector<IntrusivePtr<RenderSurface>> &surface) = 0;
+    virtual geometry::AABB getBounds(WaitMask waitMask) const = 0;
+};
+
+class RenderCamera : public RenderObject {
+public:
+    RenderCamera() = default;
+    ~RenderCamera() noexcept override = default;
+
+    virtual void setPosition(const Vec3 &position) = 0;
+    virtual void setDirection(const Vec3 &direction) = 0;
+    virtual void setUp(const Vec3 &up) = 0;
+    virtual void setImageRegion(const Vec4 &imageRegion) = 0;
+    virtual void setApertureRadius(float apertureRadius) = 0;
+    virtual void setFocusDistance(float focusDistance) = 0;
+    virtual void setShutter(const Vec2 &shutter) = 0;
+};
+
+class RenderCameraPerspective : public RenderCamera {
+public:
+    RenderCameraPerspective() = default;
+    ~RenderCameraPerspective() noexcept override = default;
+
+    virtual void setFovy(float fovy) = 0;
+    virtual void setAspect(float aspect) = 0;
+    virtual void setNear(float near) = 0;
+    virtual void setFar(float far) = 0;
+};
+
+class RenderCameraOmnidirectional : public RenderCamera {
+public:
+    RenderCameraOmnidirectional() = default;
+    ~RenderCameraOmnidirectional() noexcept override = default;
+
+    virtual void setLayout(const ccstd::string &layout) = 0;
+};
+
+class RenderCameraOrthographic : public RenderCamera {
+public:
+    RenderCameraOrthographic() = default;
+    ~RenderCameraOrthographic() noexcept override = default;
+
+    virtual void setAspect(float aspect) = 0;
+    virtual void setHeight(float height) = 0;
+    virtual void setNear(float near) = 0;
+    virtual void setFar(float far) = 0;
+};
+
+class Renderer : public RenderObject {
+public:
+    Renderer() = default;
+    ~Renderer() noexcept override = default;
+
+    virtual void setBackground(const Vec4 &background) = 0;
+    virtual void setAmbientColor(const Vec3 &ambientColor) = 0;
+    virtual void setAmbientRadiance(float ambientRadiance) = 0;
+    virtual const ccstd::vector<ccstd::string> &getExtension(WaitMask waitMask) const = 0;
+};
+
+class RenderDevice : public RenderObject {
+public:
+    RenderDevice() = default;
+    ~RenderDevice() noexcept override = default;
+
+    virtual int32_t getVersion() const noexcept = 0;
+    virtual uint64_t getGeometryMaxIndex() const = 0;
+    virtual ccstd::vector<ccstd::string> getExtension() const = 0;
+    virtual ccstd::vector<ccstd::string> getObjectSubtypes(DataType objectType) const = 0;
+    virtual IntrusivePtr<RenderCamera> createCamera(const ccstd::string &subtype) = 0;
+    virtual IntrusivePtr<Renderer> createRenderer(const ccstd::string &subtype) = 0;
+    virtual IntrusivePtr<RenderWorld> createWorld() = 0;
+    virtual IntrusivePtr<RenderInstance> createInstance(const ccstd::string &subtype) = 0;
+    virtual IntrusivePtr<RenderGroup> createGroup() = 0;
+    virtual IntrusivePtr<RenderLight> createLight(const ccstd::string &subtype) = 0;
+    virtual IntrusivePtr<RenderSurface> createSurface() = 0;
+    virtual IntrusivePtr<RenderGeometry> createGeometry(const ccstd::string &subtype) = 0;
+    virtual IntrusivePtr<RenderSampler> createSampler(const ccstd::string &subtype) = 0;
+    virtual IntrusivePtr<RenderMaterial> createMaterial(const ccstd::string &subtype) = 0;
+    virtual IntrusivePtr<RenderVolume> createVolume(const ccstd::string &subtype) = 0;
+    virtual IntrusivePtr<RenderSpatialField> createSpatialField(const ccstd::string &subtype) = 0;
 };
 
 class Factory {

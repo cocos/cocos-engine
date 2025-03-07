@@ -28,13 +28,14 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
+import type { AABB } from '../../core/geometry/aabb';
 import type { Material } from '../../asset/assets';
 import type { Camera } from '../../render-scene/scene/camera';
 import type { DirectionalLight } from '../../render-scene/scene/directional-light';
 import type { GeometryRenderer } from '../geometry-renderer';
 import type { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, TextureType, Viewport } from '../../gfx';
 import type { GlobalDSManager } from '../global-descriptor-set-manager';
-import type { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
+import type { Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core/math';
 import type { MacroRecord } from '../../render-scene/core/pass-utils';
 import type { PipelineSceneData } from '../pipeline-scene-data';
 import type { PointLight } from '../../render-scene/scene/point-light';
@@ -1959,4 +1960,288 @@ export interface RenderGeometryTriangle extends RenderGeometry {
     setVertexAttribute2 (type: DataType, attribute: BufferView): void;
     setVertexAttribute3 (type: DataType, attribute: BufferView): void;
     setPrimitiveIndex (index: BufferView): void;
+}
+
+export interface RenderSampler extends RenderObject {
+}
+
+export interface RenderSamplerImage1D extends RenderSampler {
+    setInAttribute (inAttribute: string): void;
+    setInTransform (inTransform: Mat4): void;
+    setInOffset (inOffset: Vec4): void;
+    setImage (type: DataType, image: Texture): void;
+    setFilter (filter: string): void;
+    setWrapMode (wrapMode: string): void;
+    setOutTransform (outTransform: Mat4): void;
+    setOutOffset (outOffset: Vec4): void;
+}
+
+export interface RenderSamplerImage2D extends RenderSampler {
+    setInAttribute (inAttribute: string): void;
+    setInTransform (inTransform: Mat4): void;
+    setInOffset (inOffset: Vec4): void;
+    setImage (type: DataType, image: Texture): void;
+    setFilter (filter: string): void;
+    setWrapMode1 (wrapMode: string): void;
+    setWrapMode2 (wrapMode: string): void;
+    setOutTransform (outTransform: Mat4): void;
+    setOutOffset (outOffset: Vec4): void;
+}
+
+export interface RenderSamplerImage3D extends RenderSampler {
+    setInAttribute (inAttribute: string): void;
+    setInTransform (inTransform: Mat4): void;
+    setInOffset (inOffset: Vec4): void;
+    setImage (type: DataType, image: Texture): void;
+    setFilter (filter: string): void;
+    setWrapMode1 (wrapMode: string): void;
+    setWrapMode2 (wrapMode: string): void;
+    setWrapMode3 (wrapMode: string): void;
+    setOutTransform (outTransform: Mat4): void;
+    setOutOffset (outOffset: Vec4): void;
+}
+
+export interface RenderSamplerPrimitive extends RenderSampler {
+    setArray (type: DataType, array: Uint8Array): void;
+    setInOffset (inOffset: number): void;
+}
+
+export interface RenderSamplerTransform extends RenderSampler {
+    setInAttribute (inAttribute: string): void;
+    setOutTransform (outTransform: Mat4): void;
+    setOutOffset (outOffset: Vec4): void;
+}
+
+export interface RenderMaterial extends RenderObject {
+}
+
+export interface RenderMaterialMatte extends RenderMaterial {
+    setColor (color: RenderSampler): void;
+    setColorValue (color: Vec3): void;
+    setOpacity (opacity: RenderSampler): void;
+    setOpacityValue (opacity: number): void;
+    setAlphaMode (alphaMode: string): void;
+    setAlphaCutoff (alphaCutoff: number): void;
+}
+
+export interface RenderMaterialPhysicallyBased extends RenderMaterial {
+    setBaseColor (baseColor: RenderSampler): void;
+    setBaseColorValue (baseColor: Vec3): void;
+    setOpacity (opacity: RenderSampler): void;
+    setOpacityValue (opacity: number): void;
+    setMetallic (metallic: RenderSampler): void;
+    setMetallicValue (metallic: number): void;
+    setRoughness (roughness: RenderSampler): void;
+    setRoughnessValue (roughness: number): void;
+    setNormal (normal: RenderSampler): void;
+    setEmissive (emissive: RenderSampler): void;
+    setEmissiveValue (emissive: Vec3): void;
+    setOcclusion (occlusion: RenderSampler): void;
+    setAlphaMode (alphaMode: string): void;
+    setAlphaCutoff (alphaCutoff: number): void;
+    setSpecular (specular: RenderSampler): void;
+    setSpecularValue (specular: number): void;
+    setSpecularColor (specular: RenderSampler): void;
+    setSpecularColorValue (specular: Vec3): void;
+    setClearcoat (clearcoat: RenderSampler): void;
+    setClearcoatValue (clearcoat: number): void;
+    setClearcoatRoughness (clearcoatRoughness: RenderSampler): void;
+    setClearcoatRoughnessValue (clearcoatRoughness: number): void;
+    setClearcoatNormal (clearcoatNormal: RenderSampler): void;
+    setTransmission (transmission: RenderSampler): void;
+    setTransmissionValue (transmission: number): void;
+    setIor (ior: number): void;
+    setThickness (thickness: RenderSampler): void;
+    setThicknessValue (thickness: number): void;
+    setAttenuationDistance (attenuationDistance: number): void;
+    setAttenuationColor (attenuationColor: Vec3): void;
+    setSheenColor (sheenColor: RenderSampler): void;
+    setSheenColorValue (sheenColor: Vec3): void;
+    setSheenRoughness (sheenRoughness: RenderSampler): void;
+    setSheenRoughnessValue (sheenRoughness: number): void;
+    setIridescence (iridescence: RenderSampler): void;
+    setIridescenceValue (iridescence: number): void;
+    setIridescenceIor (iridescenceIor: number): void;
+    setIridescenceThickness (iridescenceThickness: RenderSampler): void;
+    setIridescenceThicknessValue (iridescenceThickness: number): void;
+}
+
+export interface RenderVolume extends RenderObject {
+}
+
+export interface RenderSpatialField extends RenderObject {
+}
+
+export interface RenderSpatialFieldStructuredRegular extends RenderSpatialField {
+    setData (type: DataType, data: Texture): void;
+    setOrigin (origin: Vec3): void;
+    setSpacing (spacing: Vec3): void;
+    setFilter (filter: string): void;
+}
+
+export interface RenderVolumeTransferFunction1D extends RenderVolume {
+    setValue (value: RenderSpatialField): void;
+    setValueRange (rangeMin: number, rangeMax: number): void;
+    setColor (type: DataType, color: Texture): void;
+    setOpacity (opacity: Float32Array): void;
+    setOpacityValue (opacity: number): void;
+    setUnitDistance (unitDistance: number): void;
+}
+
+export interface RenderLight extends RenderObject {
+    setColor (color: Vec3): void;
+    setVisible (visible: boolean): void;
+}
+
+export interface RenderLightDirectional extends RenderLight {
+    setDirection (direction: Vec3): void;
+    setIrradiance (irradiance: number): void;
+    setAngularDiameter (angularDiameter: number): void;
+    setRadiance (radiance: number): void;
+}
+
+export interface RenderLightHDRI extends RenderLight {
+    setUp (up: Vec3): void;
+    setDirection (direction: Vec3): void;
+    setRadiance (radiance: Float32Array): void;
+    setLayout (layout: string): void;
+    setScale (scale: number): void;
+}
+
+export interface RenderLightPoint extends RenderLight {
+    setPosition (position: Vec3): void;
+    setIntensity (intensity: number): void;
+    setPower (power: number): void;
+    setRadius (radius: number): void;
+    setRadiance (radiance: number): void;
+}
+
+export interface RenderLightQuad extends RenderLight {
+    setPosition (position: Vec3): void;
+    setEdge1 (edge1: Vec3): void;
+    setEdge2 (edge2: Vec3): void;
+    setIntensity (intensity: number): void;
+    setPower (power: number): void;
+    setRadiance (radiance: number): void;
+    setSide (side: string): void;
+    setIntensityDistribution (type: DataType, intensityDistribution: Float32Array): void;
+}
+
+export interface RenderLightRing extends RenderLight {
+    setPosition (position: Vec3): void;
+    setDirection (direction: Vec3): void;
+    setOpeningAngle (openingAngle: number): void;
+    setFalloffAngle (falloffAngle: number): void;
+    setIntensity (intensity: number): void;
+    setPower (power: number): void;
+    setRadius (radius: number): void;
+    setInnerRadius (innerRadius: number): void;
+    setRadiance (radiance: number): void;
+    setIntensityDistribution (type: DataType, intensityDistribution: Float32Array): void;
+    setC0 (c0: Vec3): void;
+}
+
+export interface RenderSurface extends RenderObject {
+    setGeometry (geometry: RenderGeometry): void;
+    setMaterial (material: RenderMaterial): void;
+    setId (id: number): void;
+}
+
+export interface RenderGroup extends RenderObject {
+    setSurface (surface: RenderSurface[]): void;
+    setVolume (volume: RenderVolume[]): void;
+    setLight (light: RenderLight[]): void;
+    getBounds (waitMask: WaitMask): AABB;
+}
+
+export interface RenderInstance extends RenderObject {
+    setGroup (group: RenderGroup): void;
+    setTransform (transform: Mat4): void;
+    getBounds (waitMask: WaitMask): AABB;
+}
+
+export interface RenderInstanceTransform extends RenderInstance {
+}
+
+export interface RenderInstanceMotionTransform extends RenderInstance {
+    setMotionTransform (transform: Float32Array): void;
+    setTime (timeMin: number, timeMax: number): void;
+}
+
+export interface RenderInstanceMotionScaleRotationTranslation extends RenderInstance {
+    setMotionScale (scale: Float32Array): void;
+    setMotionRotation (rotation: Float32Array): void;
+    setMotionTranslation (translation: Float32Array): void;
+    setTime (timeMin: number, timeMax: number): void;
+}
+
+export interface RenderWorld extends RenderObject {
+    isEmpty (): boolean;
+    setInstance (instance: RenderInstance[]): void;
+    setSurface (surface: RenderSurface[]): void;
+    setVolume (volume: RenderVolume[]): void;
+    setLight (light: RenderLight[]): void;
+    addInstance (instance: RenderInstance): void;
+    addSurface (surface: RenderSurface): void;
+    removeInstance (instance: RenderInstance): void;
+    removeSurface (surface: RenderSurface): void;
+    addInstances (instance: RenderInstance[]): void;
+    addSurfaces (surface: RenderSurface[]): void;
+    removeInstances (instance: RenderInstance[]): void;
+    removeSurfaces (surface: RenderSurface[]): void;
+    getBounds (waitMask: WaitMask): AABB;
+}
+
+export interface RenderCamera extends RenderObject {
+    setPosition (position: Vec3): void;
+    setDirection (direction: Vec3): void;
+    setUp (up: Vec3): void;
+    setImageRegion (imageRegion: Vec4): void;
+    setApertureRadius (apertureRadius: number): void;
+    setFocusDistance (focusDistance: number): void;
+    setShutter (shutter: Vec2): void;
+}
+
+export interface RenderCameraPerspective extends RenderCamera {
+    setFovy (fovy: number): void;
+    setAspect (aspect: number): void;
+    setNear (near: number): void;
+    setFar (far: number): void;
+}
+
+export interface RenderCameraOmnidirectional extends RenderCamera {
+    setLayout (layout: string): void;
+}
+
+export interface RenderCameraOrthographic extends RenderCamera {
+    setAspect (aspect: number): void;
+    setHeight (height: number): void;
+    setNear (near: number): void;
+    setFar (far: number): void;
+}
+
+export interface Renderer extends RenderObject {
+    setBackground (background: Vec4): void;
+    setAmbientColor (ambientColor: Vec3): void;
+    setAmbientRadiance (ambientRadiance: number): void;
+    getExtension (waitMask: WaitMask): string[];
+}
+
+export interface RenderDevice extends RenderObject {
+    readonly version: number;
+    readonly geometryMaxIndex: number;
+    readonly extension: string[];
+    getObjectSubtypes (objectType: DataType): string[];
+    createCamera (subtype: string): RenderCamera;
+    createRenderer (subtype: string): Renderer;
+    createWorld (): RenderWorld;
+    createInstance (subtype: string): RenderInstance;
+    createGroup (): RenderGroup;
+    createLight (subtype: string): RenderLight;
+    createSurface (): RenderSurface;
+    createGeometry (subtype: string): RenderGeometry;
+    createSampler (subtype: string): RenderSampler;
+    createMaterial (subtype: string): RenderMaterial;
+    createVolume (subtype: string): RenderVolume;
+    createSpatialField (subtype: string): RenderSpatialField;
 }

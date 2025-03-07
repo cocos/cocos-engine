@@ -118,6 +118,9 @@ using namespace cc::render;
 %attribute(cc::render::BasicPipeline, cc::render::PipelineCapabilities, capabilities, getCapabilities);
 %attribute(cc::render::BasicPipeline, bool, enableCpuLightCulling, getEnableCpuLightCulling, setEnableCpuLightCulling);
 %attribute(cc::render::RenderSubpassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
+%attribute(cc::render::RenderDevice, int32_t, version, getVersion);
+%attribute(cc::render::RenderDevice, uint64_t, geometryMaxIndex, getGeometryMaxIndex);
+%attribute(cc::render::RenderDevice, ccstd::vector<ccstd::string>, extension, getExtension);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
