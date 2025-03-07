@@ -124,11 +124,11 @@ public final class TaskManager {
             Log.e(TAG, "Called task id does not exist");
             return -1;
         }
-        Task<?> newTask = _taskMap.get(taskId).addOnCompleteListener((var)->{
+        Task<?> newTask = _taskMap.get(taskId).addOnCompleteListener((task)->{
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
-                    int nextTaskId = putTask(var);
+                    int nextTaskId = putTask(task);
                     onTaskCompleteNative(taskId, listenerId, nextTaskId);
                 }
             });
@@ -141,13 +141,13 @@ public final class TaskManager {
             Log.e(TAG, "Called task id does not exist");
             return -1;
         }
-        Task<?> newTask = _taskMap.get(taskId).addOnFailureListener((var)->{
+        Task<?> newTask = _taskMap.get(taskId).addOnFailureListener((e)->{
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
                     int nextExceptionId = ++_nextExceptionId;
-                    _exceptionsMap.put(nextExceptionId, var);
-                    onTaskFailureNative(taskId, listenerId, var, nextExceptionId);
+                    _exceptionsMap.put(nextExceptionId, e);
+                    onTaskFailureNative(taskId, listenerId, e, nextExceptionId);
                 }
             });
         });
@@ -158,11 +158,11 @@ public final class TaskManager {
             Log.e(TAG, "Called task id does not exist");
             return -1;
         }
-        Task<?> newTask = _taskMap.get(taskId).addOnSuccessListener((var)->{
+        Task<?> newTask = _taskMap.get(taskId).addOnSuccessListener((result)->{
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
-                    onTaskSuccessNative(taskId, listenerId, var);
+                    onTaskSuccessNative(taskId, listenerId, result);
                 }
             });
         });
