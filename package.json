@@ -12,7 +12,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "postinstall": "npm run build:debug-infos && npm run build:declaration && npm run build:adapter && npm run fetch-ral && npm run build:native-pack-tool",
+    "postinstall": "npm run build:debug-infos && npm run build:declaration && npm run build:adapter && npm run build:native-pack-tool",
     "build": "npm run build:min && npm run build:declaration",
     "build:adapter": "node ./scripts/build-adapter.js",
     "build:const": "node ./scripts/build-const.js",
@@ -23,7 +23,6 @@
     "build:native-pack-tool": "cd ./scripts/native-pack-tool && npm install && npm run build",
     "clear": "node ./scripts/clear-cache.js",
     "clear:platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
-    "fetch-ral": "node ./scripts/fetch-ral.js",
     "test": "tsc --noEmit && jest",
     "test:dts": "npx tsc ./scripts/test-declarations/test.d.ts",
     "update:engine-version": "node ./scripts/checkout-engine-version.js",
