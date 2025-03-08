@@ -18,6 +18,13 @@ jobs:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { buildtype: Debug }
+          - { buildtype: Release }
+
     steps:
       - uses: actions/checkout@v4
       - name: Download external libraries
@@ -53,8 +60,8 @@ jobs:
           RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win64
           COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
           cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
-          cmake --build . --config Release
-          echo "Compile Win64 Release Done!"
+          cmake --build . --config ${{ matrix.config.buildtype }}
+          echo "Compile Win64 ${{ matrix.config.buildtype }} Done!"
 
   compile_android_minimal:
     name: "Android Minimal"
@@ -248,7 +255,6 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { arch: armeabi-v7a }
           - { arch: arm64-v8a }
     steps:
       - name: Show PATH env
