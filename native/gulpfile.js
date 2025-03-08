@@ -114,7 +114,11 @@ gulp.task('gen-simulator', async function () {
         if (!isWin32) {
             makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet']);
         } else {
-            makeArgs = makeArgs.concat(['--config', 'Release']);
+            if (process.env.ARCH && process.env.ARCH.length > 0) {
+                makeArgs = makeArgs.concat(['--config', 'Release', '--', '-arch', process.env.ARCH]);
+            } else {
+                makeArgs = makeArgs.concat(['--config', 'Release']);
+            }
         }
         const newEnv = {};
         Object.assign(newEnv, process.env);

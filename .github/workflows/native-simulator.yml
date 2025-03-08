@@ -50,6 +50,12 @@ jobs:
   mac_gen_simulator:
     runs-on: macos-latest
     name: MacOS
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: x86_64 }
+          - { arch: arm64 }
     defaults:
       run:
         working-directory: ${{github.workspace}}/native
@@ -66,7 +72,7 @@ jobs:
 
       - name: gen simulator
         run: |
-          npx gulp gen-simulator-release
+          ARCH=${{ matrix.config.arch }} npx gulp gen-simulator-release
       - name: check result
         run: |
           find ./ -name SimulatorApp-Mac
