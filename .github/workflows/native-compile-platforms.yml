@@ -41,6 +41,7 @@ jobs:
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-win64/proj
           touch build-win64/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_USE_VULKAN ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-win64/proj/cfg.cmake
@@ -185,6 +186,7 @@ jobs:
           cd $GITHUB_WORKSPACE/templates/android/build
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
@@ -356,6 +358,7 @@ jobs:
 
           mkdir -p build-oh/proj
           touch build-oh/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-oh/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-oh/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-oh/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-oh/proj/cfg.cmake
@@ -424,6 +427,7 @@ jobs:
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-mac/proj
           touch build-mac/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_GLES3 OFF)" >> build-mac/proj/cfg.cmake
@@ -473,6 +477,7 @@ jobs:
           cd  $GITHUB_WORKSPACE/templates/mac
           mkdir -p build-mac/proj
           touch build-mac/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_GLES3 OFF)" >> build-mac/proj/cfg.cmake
@@ -522,6 +527,7 @@ jobs:
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-ios/proj
           touch build-ios/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_GLES3 OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_GLES2 OFF)" >> build-ios/proj/cfg.cmake

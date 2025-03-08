@@ -1,8 +1,8 @@
 {
     "from": {
         "type": "github",
-        "owner": "cocos-creator",
-        "name": "engine-native-external",
-        "checkout": "v3.8.6-8"
+        "owner": "dumganhar",
+        "name": "cocos-engine-external",
+        "checkout": "386-update-physx-4.1.2"
     }
 }
