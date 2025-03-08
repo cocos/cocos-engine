@@ -1,7 +1,7 @@
 {
     "from": {
         "type": "github",
-        "owner": "dumganhar",
+        "owner": "cocos",
         "name": "cocos-engine-external",
         "checkout": "386-update-physx-4.1.2"
     }
