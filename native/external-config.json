@@ -3,6 +3,6 @@
         "type": "github",
         "owner": "cocos",
         "name": "cocos-engine-external",
-        "checkout": "386-update-physx-4.1.2"
+        "checkout": "v3.8.6-9"
     }
 }

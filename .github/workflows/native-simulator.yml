@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
 
       - name: Install deps
         uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
@@ -68,7 +68,7 @@ jobs:
       - name: Download external libraries
         run: |
           EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
 
       - name: gen simulator
         run: |

@@ -100,7 +100,7 @@ jobs:
           PRECLONE_EXTERNAL="E:/preclone/cocos-engine-external"
           if [ ! -d $PRECLONE_EXTERNAL ]; then
               mkdir -p $PRECLONE_EXTERNAL
-              git clone https://github.com/dumganhar/cocos-engine-external $PRECLONE_EXTERNAL
+              git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           else
               echo "directory $PRECLONE_EXTERNAL is ready"
           fi
@@ -258,7 +258,7 @@ jobs:
               # remove all sub-folders
               rm -rf /Users/admin/Documents/actions-runner/preclone
               mkdir -p $PRECLONE_EXTERNAL
-              git clone https://github.com/dumganhar/cocos-engine-external $PRECLONE_EXTERNAL
+              git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           else
               echo "directory $PRECLONE_EXTERNAL is ready"
           fi
@@ -429,7 +429,7 @@ jobs:
           PRECLONE_EXTERNAL="E:/preclone/cocos-engine-external"
           if [ ! -d $PRECLONE_EXTERNAL ]; then
               mkdir -p $PRECLONE_EXTERNAL
-              git clone https://github.com/dumganhar/cocos-engine-external $PRECLONE_EXTERNAL
+              git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           else
               echo "directory $PRECLONE_EXTERNAL is ready"
           fi
@@ -586,7 +586,7 @@ jobs:
               # remove all sub-folders
               rm -rf /Users/admin/Documents/actions-runner/preclone
               mkdir -p $PRECLONE_EXTERNAL
-              git clone https://github.com/dumganhar/cocos-engine-external $PRECLONE_EXTERNAL
+              git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           else
               echo "directory $PRECLONE_EXTERNAL is ready"
           fi

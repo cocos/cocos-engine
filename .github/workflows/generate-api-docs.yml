@@ -106,7 +106,7 @@ jobs:
       run: |
         EXT_VERSION=`grep checkout native/external-config.json | awk -F'"' '{print $4}'`
         echo "EXT_VERSION: ${EXT_VERSION}"
-        git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
+        git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
 
     - name: Install Cocos Engine
       run: |
