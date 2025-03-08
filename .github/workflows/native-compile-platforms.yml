@@ -132,6 +132,15 @@ jobs:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: armeabi-v7a }
+          - { arch: arm64-v8a }
+          - { arch: x86 }
+          - { arch: x86_64 }
+          
     steps:
       - name: Before free space
         run: |
@@ -218,16 +227,16 @@ jobs:
           # To speedup CI, compile arm64-v8a only
           # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
           df -h
-          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
+          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=${{ matrix.config.arch }}@g" gradle.properties
 
           echo "Compile Android - cmake ..."
           echo "ANDROID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
-          ./gradlew :CocosGame:assembleDebug --quiet
+          ./gradlew :CocosGame:assembleDebug # --quiet
           df -h
-          ./gradlew clean
-          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a@g" gradle.properties
-          ./gradlew :CocosGame:assembleDebug --quiet
-          df -h
+          # ./gradlew clean
+          # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a@g" gradle.properties
+          # ./gradlew :CocosGame:assembleDebug --quiet
+          # df -h
           echo "Compile Android Debug Done!"
 
   compile_openharmony:
@@ -235,6 +244,12 @@ jobs:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: armeabi-v7a }
+          - { arch: arm64-v8a }
     steps:
       - name: Show PATH env
         run: |
@@ -381,7 +396,7 @@ jobs:
           sed -i "s@[^-]DRES_DIR[^=]@$ASSET_DIR@g" ./entry/build-profile.json5
           sed -i "s@[^-]DCOMMON_DIR[^=]@$GITHUB_WORKSPACE/templates/common@g" ./entry/build-profile.json5
           # To speedup CI, compile arm64-v8a only
-          sed -i "s@\"armeabi-v7a\",@@g" ./entry/build-profile.json5
+          sed -i "s@arm64-v8a@${{ matrix.config.arch }}@g" ./entry/build-profile.json5
 
           echo "entry/build-profile.json5: "
           cat ./entry/build-profile.json5
@@ -401,12 +416,17 @@ jobs:
           #./hvigorw default@ProcessLibs -p debuggable=true --no-daemon -d
           echo "=============== EXECUTE hvigorw DONE ==============="
 
-
-  compile_mac_x86_64:
-    name: "MacOS x86_64"
+  compile_mac:
+    name: "MacOS"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: x86_64 }
+          - { arch: arm64 }
     steps:
       - uses: actions/checkout@v4
       - name: Download external libraries
@@ -442,71 +462,23 @@ jobs:
 
           RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
           cd build-mac
-          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
+          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=${{ matrix.config.arch }} -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
           set +e
-          cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
-          retcode=$?
-          set -e
-          if [ $retcode -ne 0 ]; then
-              echo "-----------------------------------------------------------------------------------------------"
-              echo "------------------------------------ recompile without `-quiet` -------------------------------"
-              echo "-----------------------------------------------------------------------------------------------"
-              cmake --build . --config Release -- -jobs $NUM_OF_CORES -arch x86_64
-          fi
-          echo "Compile MacOSX x86_64 Release Done!"
-
-  compile_mac_arm64:
-    name: "MacOS arm64"
-    if: 
-      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download external libraries
-        shell: bash
-        run: |
-          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - name: Compile
-        env:
-          COCOS_ENGINE_DEV: 1
-        run: |
-          NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
-          NATIVE_ROOT=$GITHUB_WORKSPACE/native
-          echo "Compiling MacOSX ... "
-          cd  $GITHUB_WORKSPACE/templates/mac
-          mkdir -p build-mac/proj
-          touch build-mac/proj/cfg.cmake
-          echo "set(USE_PHYSICS_PHYSX ON)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_GLES3 OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
-          echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-mac/proj/cfg.cmake
-          mkdir build-mac/assets
-
-          RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
-          cd build-mac
-          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
-          set +e
-          cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch arm64
-          retcode=$?
-          set -e
-          if [ $retcode -ne 0 ]; then
-              echo "-----------------------------------------------------------------------------------------------"
-              echo "------------------------------------ recompile without `-quiet` -------------------------------"
-              echo "-----------------------------------------------------------------------------------------------"
-              cmake --build . --config Release -- -jobs $NUM_OF_CORES -arch arm64
-          fi
-          echo "Compile MacOSX ARM64 Release Done!"
+          cmake --build . --config Release -- -jobs $NUM_OF_CORES -arch ${{ matrix.config.arch }}
+          echo "Compile MacOSX Release Done!"
 
   compile_iOS:
     name: "iOS"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { sdk: iphoneos, arch: arm64, toolchain: OS64 }
+          - { sdk: iphonesimulator, arch: x86_64, toolchain: SIMULATOR64 }
+          - { sdk: iphonesimulator, arch: arm64, toolchain: SIMULATORARM64 }
     steps:
       - uses: actions/checkout@v4
       - name: Download external libraries
@@ -542,19 +514,11 @@ jobs:
           cd build-ios
           RES_DIR=$GITHUB_WORKSPACE/templates/ios/build-ios
           cmake ../ -GXcode -DCMAKE_SYSTEM_NAME=iOS \
-              -DCMAKE_OSX_SYSROOT=iphoneos \
-              -DCMAKE_OSX_ARCHITECTURES=arm64 \
+              -DCMAKE_OSX_SYSROOT=${{ matrix.config.sdk }} \
+              -DCMAKE_OSX_ARCHITECTURES=${{ matrix.config.arch }} \
               -DRES_DIR=$RES_DIR \
               -DCOCOS_X_PATH=$NATIVE_ROOT
           set +e
           #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          retcode=$?
-          set -e
-          if [ $retcode -ne 0 ]; then
-              echo "-----------------------------------------------------------------------------------------------"
-              echo "------------------------------------ recompile without `-quiet` -------------------------------"
-              echo "-----------------------------------------------------------------------------------------------"
-              cmake --build . --config Debug --  -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          fi
+          cmake --build . --config Debug -- -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           echo "Compile iOS Done!"
