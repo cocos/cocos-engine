@@ -113,7 +113,7 @@ jobs:
       - uses: actions/checkout@v4
         name: Download external
         with:
-          repository: cocos/cocos-engine-external
+          repository: dumganhar/cocos-engine-external
           path: './engine/native/external'
           ref: "${{ env.EXT_VERSION }}"
           fetch-depth: 1
@@ -245,7 +245,7 @@ jobs:
       - uses: actions/checkout@v4
         name: Download external
         with:
-          repository: cocos/cocos-engine-external
+          repository: dumganhar/cocos-engine-external
           path: './engine-HEAD/native/external'
           ref: "${{ env.EXT_VERSION_HEAD }}"
           fetch-depth: 1
