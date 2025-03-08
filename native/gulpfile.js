@@ -112,13 +112,15 @@ gulp.task('gen-simulator', async function () {
     await new Promise((resolve, reject) => {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
-            makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet']);
-        } else {
             if (process.env.ARCH && process.env.ARCH.length > 0) {
+                console.info(`==> Found ARCH env: ${process.env.ARCH}`);
                 makeArgs = makeArgs.concat(['--config', 'Release', '--', '-arch', process.env.ARCH]);
             } else {
+                console.info(`==> No ARCH env found, build fat binary`);
                 makeArgs = makeArgs.concat(['--config', 'Release']);
             }
+        } else {
+            makeArgs = makeArgs.concat(['--config', 'Release']);
         }
         const newEnv = {};
         Object.assign(newEnv, process.env);
