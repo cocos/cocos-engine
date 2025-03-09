@@ -127,94 +127,94 @@ jobs:
           echo "--------------------------------- Apply patches DONE! ---------------------------------"
           cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
-      # - name: Build Spine 3.8 WASM (BASE)
-      #   run: |
-      #     cd ./engine/native/cocos/editor-support/spine-wasm
-      #     rm -rf build-wasm
-      #     mkdir build-wasm
-      #     cd build-wasm
-      #     emcmake cmake .. -GNinja
-      #     ninja
-      #     ls -l
+      - name: Build Spine 3.8 WASM (BASE)
+        run: |
+          cd ./engine/native/cocos/editor-support/spine-wasm
+          rm -rf build-wasm
+          mkdir build-wasm
+          cd build-wasm
+          emcmake cmake .. -GNinja
+          ninja
+          ls -l
 
-      # - name: Build Spine 3.8 ASMJS (BASE)
-      #   run: |
-      #     cd ./engine/native/cocos/editor-support/spine-wasm
-      #     sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
-      #     rm -rf build-asmjs
-      #     mkdir build-asmjs
-      #     cd build-asmjs
-      #     emcmake cmake .. -GNinja
-      #     ninja
-      #     ls -l
+      - name: Build Spine 3.8 ASMJS (BASE)
+        run: |
+          cd ./engine/native/cocos/editor-support/spine-wasm
+          sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
+          rm -rf build-asmjs
+          mkdir build-asmjs
+          cd build-asmjs
+          emcmake cmake .. -GNinja
+          ninja
+          ls -l
           
-      # - name: Copy Spine 3.8 files to external directory (BASE)
-      #   run: |
-      #     if [[ $FOUND_SPINE_VERSION_BASE ]]; then
-      #       SPINE_VERSION="3.8"
-      #     fi
-      #     DIST_PATH="dist/3.8"
-      #     rm -rf $DIST_PATH
-      #     mkdir -p $DIST_PATH
-      #     cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
-      #     cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
-      #     cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
-      #     cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
-      #     mkdir -p ./engine/native/external/emscripten/spine/$SPINE_VERSION
-      #     echo "-------- Before replace spine wasm -----------"
-      #     ls -l ./engine/native/external/emscripten/spine/$SPINE_VERSION
-      #     cp -f ./$DIST_PATH/* ./engine/native/external/emscripten/spine/$SPINE_VERSION
-      #     echo "-------- After replace spine wasm ------------"
-      #     ls -l ./engine/native/external/emscripten/spine/$SPINE_VERSION
-      #     echo "-----------------------------------------------"
-      #     cd ./engine/native/external
-      #     git status
+      - name: Copy Spine 3.8 files to external directory (BASE)
+        run: |
+          if [[ $FOUND_SPINE_VERSION_BASE ]]; then
+            SPINE_VERSION="3.8"
+          fi
+          DIST_PATH="dist/3.8"
+          rm -rf $DIST_PATH
+          mkdir -p $DIST_PATH
+          cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
+          cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
+          cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
+          cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
+          mkdir -p ./engine/native/external/emscripten/spine/$SPINE_VERSION
+          echo "-------- Before replace spine wasm -----------"
+          ls -l ./engine/native/external/emscripten/spine/$SPINE_VERSION
+          cp -f ./$DIST_PATH/* ./engine/native/external/emscripten/spine/$SPINE_VERSION
+          echo "-------- After replace spine wasm ------------"
+          ls -l ./engine/native/external/emscripten/spine/$SPINE_VERSION
+          echo "-----------------------------------------------"
+          cd ./engine/native/external
+          git status
 
-      # - name: Build Spine 4.2 WASM (BASE)
-      #   if: env.FOUND_SPINE_VERSION_BASE == 'true'
-      #   run: |
-      #     cd ./engine/native/cocos/editor-support/spine-wasm
-      #     sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
-      #     sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
-      #     rm -rf build-wasm
-      #     mkdir build-wasm
-      #     cd build-wasm
-      #     emcmake cmake .. -GNinja
-      #     ninja
-      #     ls -l
+      - name: Build Spine 4.2 WASM (BASE)
+        if: env.FOUND_SPINE_VERSION_BASE == 'true'
+        run: |
+          cd ./engine/native/cocos/editor-support/spine-wasm
+          sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
+          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
+          rm -rf build-wasm
+          mkdir build-wasm
+          cd build-wasm
+          emcmake cmake .. -GNinja
+          ninja
+          ls -l
 
-      # - name: Build Spine 4.2 ASMJS (BASE)
-      #   if: env.FOUND_SPINE_VERSION_BASE == 'true'
-      #   run: |
-      #     cd ./engine/native/cocos/editor-support/spine-wasm
-      #     sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
-      #     sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
-      #     rm -rf build-asmjs
-      #     mkdir build-asmjs
-      #     cd build-asmjs
-      #     emcmake cmake .. -GNinja
-      #     ninja
-      #     ls -l
+      - name: Build Spine 4.2 ASMJS (BASE)
+        if: env.FOUND_SPINE_VERSION_BASE == 'true'
+        run: |
+          cd ./engine/native/cocos/editor-support/spine-wasm
+          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
+          sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
+          rm -rf build-asmjs
+          mkdir build-asmjs
+          cd build-asmjs
+          emcmake cmake .. -GNinja
+          ninja
+          ls -l
           
-      # - name: Copy Spine 4.2 files to external directory (BASE)
-      #   if: env.FOUND_SPINE_VERSION_BASE == 'true'
-      #   run: |
-      #     DIST_PATH="dist/4.2"
-      #     rm -rf $DIST_PATH
-      #     mkdir -p $DIST_PATH
-      #     cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
-      #     cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
-      #     cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
-      #     cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
-      #     mkdir -p ./engine/native/external/emscripten/spine/4.2/
-      #     echo "-------- Before replace spine wasm -----------"
-      #     ls -l ./engine/native/external/emscripten/spine/4.2/
-      #     cp -f ./$DIST_PATH/* ./engine/native/external/emscripten/spine/4.2/
-      #     echo "-------- After replace spine wasm ------------"
-      #     ls -l ./engine/native/external/emscripten/spine/4.2/
-      #     echo "-----------------------------------------------"
-      #     cd ./engine/native/external
-      #     git status
+      - name: Copy Spine 4.2 files to external directory (BASE)
+        if: env.FOUND_SPINE_VERSION_BASE == 'true'
+        run: |
+          DIST_PATH="dist/4.2"
+          rm -rf $DIST_PATH
+          mkdir -p $DIST_PATH
+          cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
+          cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
+          cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
+          cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
+          mkdir -p ./engine/native/external/emscripten/spine/4.2/
+          echo "-------- Before replace spine wasm -----------"
+          ls -l ./engine/native/external/emscripten/spine/4.2/
+          cp -f ./$DIST_PATH/* ./engine/native/external/emscripten/spine/4.2/
+          echo "-------- After replace spine wasm ------------"
+          ls -l ./engine/native/external/emscripten/spine/4.2/
+          echo "-----------------------------------------------"
+          cd ./engine/native/external
+          git status
 
       - name: Build Base Declarations
         working-directory: .
