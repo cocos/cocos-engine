@@ -138,7 +138,7 @@ async function buildEngineForFeatures(options) {
         noDeprecatedFeatures: false,
         platform: "WECHAT",
         nativeCodeBundleMode: "wasm",
-        wasmCompressionMode: 'brotli',
+        // wasmCompressionMode: 'brotli',
     });
 
     await buildEngineForFeatures({
@@ -154,7 +154,7 @@ async function buildEngineForFeatures(options) {
         noDeprecatedFeatures: true,
         platform: "WECHAT",
         nativeCodeBundleMode: "wasm",
-        wasmCompressionMode: 'brotli',
+        // wasmCompressionMode: 'brotli',
     });
 
     await buildEngineForFeatures({
@@ -163,7 +163,7 @@ async function buildEngineForFeatures(options) {
         noDeprecatedFeatures: true,
         platform: "WECHAT",
         nativeCodeBundleMode: "wasm",
-        wasmCompressionMode: 'brotli',
+        // wasmCompressionMode: 'brotli',
     });
     
     await buildEngineForFeatures({
@@ -172,6 +172,6 @@ async function buildEngineForFeatures(options) {
         noDeprecatedFeatures: true,
         platform: "WECHAT",
         nativeCodeBundleMode: "wasm",
-        wasmCompressionMode: 'brotli',
+        // wasmCompressionMode: 'brotli',
     });
 })();
