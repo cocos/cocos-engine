@@ -32,12 +32,15 @@ import com.google.android.gms.tasks.Task;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class TaskManager {
     private static final String TAG = TaskManager.class.getSimpleName();
     private static Map<Integer, Task<?>> _taskMap = new HashMap<>();
     private static Map<Integer, Exception> _exceptionsMap = new HashMap<>();
+    private static ExecutorService executor = Executors.newFixedThreadPool(1);
     private static int _nextTaskId = 0;
     private static int _nextExceptionId = 0;
 
@@ -107,7 +110,7 @@ public final class TaskManager {
             Log.e(TAG, "Called task id does not exist");
             return -1;
         }
-        Task<?> newTask = _taskMap.get(taskId).addOnCanceledListener(()->{
+        Task<?> newTask = _taskMap.get(taskId).addOnCanceledListener(executor, ()->{
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
@@ -124,7 +127,7 @@ public final class TaskManager {
             Log.e(TAG, "Called task id does not exist");
             return -1;
         }
-        Task<?> newTask = _taskMap.get(taskId).addOnCompleteListener((task)->{
+        Task<?> newTask = _taskMap.get(taskId).addOnCompleteListener(executor, (task)->{
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
@@ -141,7 +144,7 @@ public final class TaskManager {
             Log.e(TAG, "Called task id does not exist");
             return -1;
         }
-        Task<?> newTask = _taskMap.get(taskId).addOnFailureListener((e)->{
+        Task<?> newTask = _taskMap.get(taskId).addOnFailureListener(executor, (e)->{
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
@@ -158,7 +161,7 @@ public final class TaskManager {
             Log.e(TAG, "Called task id does not exist");
             return -1;
         }
-        Task<?> newTask = _taskMap.get(taskId).addOnSuccessListener((result)->{
+        Task<?> newTask = _taskMap.get(taskId).addOnSuccessListener(executor, (result)->{
             CocosHelper.runOnGameThread(new Runnable() {
                 @Override
                 public void run() {
@@ -169,24 +172,13 @@ public final class TaskManager {
         return putTask(newTask);
     }
 
-
-    private static <TResult, TContinuationResult> Task<TContinuationResult> continueWithTaskForAny(
-        Task<TResult> task, final Continuation<TResult, TContinuationResult> continuation) {
-
-        return task.continueWith(new Continuation<TResult, TContinuationResult>() {
-            @Override
-            public TContinuationResult then(Task<TResult> task) throws Exception {
-                return continuation.then(task);
-            }
-        });
-    }
     static int continueWith(int taskId, int listenerId) {
         if(!_taskMap.containsKey(taskId)) {
             Log.e(TAG, "Called task id does not exist");
             return -1;
         }
         Task<Object> task = (Task<Object>)_taskMap.get(taskId);
-        Task<?> newTask = task.continueWith(new Continuation<Object, Object>() {
+        Task<?> newTask = task.continueWith(executor, new Continuation<Object, Object>() {
             @Override
             public Object then(Task<Object> task) throws Exception {
                 final CountDownLatch latch = new CountDownLatch(1);
