@@ -76,6 +76,7 @@ jobs:
       - name: Apply emscripten patches (base)
         if: ${{ matrix.config.target == 'base' }}
         run: |
+          ls -l $EMSDK/upstream/emscripten/system/lib/embind
           echo "--------------------------------- Save bind.cpp ---------------------------------"
           cp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp.bak
           echo "--------------------------------- Apply embind bind.cpp patches ---------------------------------"
@@ -86,6 +87,7 @@ jobs:
       - name: Apply emscripten patches (head)
         if: ${{ matrix.config.target == 'head' }}
         run: |
+          ls -l $EMSDK/upstream/emscripten/system/lib/embind
           echo "--------------------------------- Save bind.cpp ---------------------------------"
           cp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp.bak
           echo "--------------------------------- Apply embind bind.cpp patches ---------------------------------"
