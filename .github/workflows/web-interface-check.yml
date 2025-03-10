@@ -118,12 +118,12 @@ jobs:
           ref: "${{ env.EXT_VERSION }}"
           fetch-depth: 1
 
-      - name: Apply emscripten patches (BASE)
+      - name: Apply emscripten patches (HEAD)
         run: |
           echo "--------------------------------- Save bind.cpp ---------------------------------"
           cp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp.bak
           echo "--------------------------------- Apply embind bind.cpp patches ---------------------------------"
-          cp -f ./engine/.github/workflows/emscripten-patches/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/
+          cp -f ./engine-HEAD/.github/workflows/emscripten-patches/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/
           echo "--------------------------------- Apply patches DONE! ---------------------------------"
           cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
@@ -227,14 +227,6 @@ jobs:
           # Use package-size-check.js in HEAD
           node .github/workflows/package-size-check.js "$ROOT_DIR/engine"
 
-      - name: Restore patches (BASE)
-        run: |
-          echo "-------------------------- Restore patches ---------------------------------"
-          rm $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
-          mv $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp.bak $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
-          echo "-------------------------- Restore patches DONE! ---------------------------------"
-          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
-
       - name: Clear npm Cache
         run: |
           npm cache clean --force
@@ -249,15 +241,6 @@ jobs:
           path: './engine-HEAD/native/external'
           ref: "${{ env.EXT_VERSION_HEAD }}"
           fetch-depth: 1
-
-      - name: Apply emscripten patches (HEAD)
-        run: |
-          echo "--------------------------------- Save bind.cpp ---------------------------------"
-          cp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp.bak
-          echo "--------------------------------- Apply embind bind.cpp patches ---------------------------------"
-          cp -f ./engine-HEAD/.github/workflows/emscripten-patches/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/
-          echo "--------------------------------- Apply patches DONE! ---------------------------------"
-          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
       - name: Build Spine 3.8 WASM (HEAD)
         run: |
