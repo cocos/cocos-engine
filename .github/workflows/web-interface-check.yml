@@ -167,6 +167,7 @@ jobs:
           sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
           sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           cat CMakeLists.txt
+          git status
           rm -rf build-wasm
           mkdir build-wasm
           cd build-wasm
@@ -180,6 +181,7 @@ jobs:
           sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
           cat CMakeLists.txt
+          git status
           rm -rf build-asmjs
           mkdir build-asmjs
           cd build-asmjs
@@ -279,6 +281,7 @@ jobs:
           sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
           cat CMakeLists.txt
+          git status
           rm -rf build-wasm
           mkdir build-wasm
           cd build-wasm
@@ -292,6 +295,7 @@ jobs:
           sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
           cat CMakeLists.txt
+          git status
           rm -rf build-asmjs
           mkdir build-asmjs
           cd build-asmjs
