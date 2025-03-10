@@ -15,6 +15,13 @@ jobs:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { target: base }
+          - { target: head }
+
     steps:
       - uses: actions/setup-node@v4
         with:
@@ -44,88 +51,55 @@ jobs:
 
       - uses: actions/checkout@v4
         name: Checkout Base Ref
+        if: ${{ matrix.config.target == 'base' }}
         with:
           repository: ${{ github.event.pull_request.base.repo.full_name }}
           ref: ${{ github.base_ref }}
-          path: './engine'
 
       - name: Get Base Ref
-        working-directory: ./engine
         run: |
           echo "BASE_REF=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
-        name: Checkout Head Ref
+        name: Checkout Head Ref for using the latest .github/workflows for base
+        if: ${{ matrix.config.target == 'base' }}
         with:
-          ref: 'refs/pull/${{ github.event.pull_request.number }}/head'
-          path: './engine-HEAD'
-          fetch-depth: 0
+          path: '../engine-HEAD'
 
-      - name: Head merges base
-        working-directory: ./engine-HEAD
-        run: |
-          git config user.name "Cocos CI"
-          git config user.email "cocos-ci@cocos.com"
-          echo "BASE_REF: ${{ env.BASE_REF }}"
-          HEAD_REF=$(git rev-parse HEAD)
-          echo "HEAD_REF: $HEAD_REF"
-          echo "--------------------------------------------------------"
-          echo "HEAD LOG:"
-          git --no-pager log -3
-          echo "--------------------------------------------------------"
-          git fetch origin ${{ env.BASE_REF }}
-          git reset --hard ${{ env.BASE_REF }}
-          echo "--------------------------------------------------------"
-          echo "BASE LOG:"
-          git --no-pager log -3
-          echo "--------------------------------------------------------"
-          CURRENT_REF=$(git rev-parse HEAD)
-          echo "---- $CURRENT_REF merges $HEAD_REF ----"
-          git merge $HEAD_REF
-          echo "--------------------------------------------------------"
-          echo "MERGED LOG:"
-          git --no-pager log -5
-          echo "--------------------------------------------------------"
+      - uses: actions/checkout@v4
+        name: Checkout Head Ref
+        if: ${{ matrix.config.target == 'head' }}
 
       - name: Show Refs
         run: |
-          cd ./engine
-          echo "BASE LOG:"
+          echo "Commit log:"
           git --no-pager log -3
-          cd ../engine-HEAD
-          echo "HEAD LOG:"
-          git --no-pager log -3
-
-      - name: Show Spine Diff
-        run: |
-          echo "------------------- DIFF in spine-wasm -------------------"
-          diff -r ./engine/native/cocos/editor-support/spine-wasm ./engine-HEAD/native/cocos/editor-support/spine-wasm
-          echo "------------------- DIFF in spine -------------------"
-          diff -r ./engine/native/cocos/editor-support/spine ./engine-HEAD/native/cocos/editor-support/spine
+          echo "git status"
+          git status
 
       - run: |
-          echo "EXT_VERSION=$(node ./engine/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
+          echo "EXT_VERSION=$(node .github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
         name: Download external
         with:
           repository: cocos/cocos-engine-external
-          path: './engine/native/external'
+          path: './native/external'
           ref: "${{ env.EXT_VERSION }}"
           fetch-depth: 1
 
-      - name: Apply emscripten patches (HEAD)
+      - name: Apply emscripten patches
         run: |
           echo "--------------------------------- Save bind.cpp ---------------------------------"
           cp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp.bak
           echo "--------------------------------- Apply embind bind.cpp patches ---------------------------------"
-          cp -f ./engine-HEAD/.github/workflows/emscripten-patches/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/
+          cp -f ../engine-HEAD/.github/workflows/emscripten-patches/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/
           echo "--------------------------------- Apply patches DONE! ---------------------------------"
           cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
-      - name: Build Spine 3.8 WASM (BASE)
+      - name: Build Spine 3.8 WASM
         run: |
-          cd ./engine/native/cocos/editor-support/spine-wasm
+          cd ./native/cocos/editor-support/spine-wasm
           sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
           sed -i 's/set(SPINE_VERSION "4.2")/set(SPINE_VERSION "3.8")/g' CMakeLists.txt
           cat CMakeLists.txt
@@ -136,9 +110,9 @@ jobs:
           ninja
           ls -l
 
-      - name: Build Spine 3.8 ASMJS (BASE)
+      - name: Build Spine 3.8 ASMJS
         run: |
-          cd ./engine/native/cocos/editor-support/spine-wasm
+          cd ./native/cocos/editor-support/spine-wasm
           sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
           sed -i 's/set(SPINE_VERSION "4.2")/set(SPINE_VERSION "3.8")/g' CMakeLists.txt
           cat CMakeLists.txt
@@ -149,33 +123,28 @@ jobs:
           ninja
           ls -l
           
-      - name: Copy Spine 3.8 files to external directory (BASE)
+      - name: Copy Spine 3.8 files to external directory
         run: |
           SPINE_VERSION="3.8"
-          DIST_PATH="dist-base/3.8"
+          DIST_PATH="dist-${{ matrix.config.target }}/3.8"
           mkdir -p $DIST_PATH
-          cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
-          cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
-          cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
-          cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
-          mkdir -p ./engine/native/external/emscripten/spine/$SPINE_VERSION
+          cp ./native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
+          cp ./native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
+          cp ./native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
+          cp ./native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
+          mkdir -p ./native/external/emscripten/spine/$SPINE_VERSION
           echo "-------- Before replace spine wasm -----------"
-          ls -l ./engine/native/external/emscripten/spine/$SPINE_VERSION
-          cp -f ./$DIST_PATH/* ./engine/native/external/emscripten/spine/$SPINE_VERSION
+          ls -l ./native/external/emscripten/spine/$SPINE_VERSION
+          cp -f ./$DIST_PATH/* ./native/external/emscripten/spine/$SPINE_VERSION
           echo "-------- After replace spine wasm ------------"
-          ls -l ./engine/native/external/emscripten/spine/$SPINE_VERSION
+          ls -l ./native/external/emscripten/spine/$SPINE_VERSION
           echo "-----------------------------------------------"
-          cd ./engine/native/external
+          cd ./native/external
           git status
 
-      - name: Show embind.cpp
+      - name: Build Spine 4.2 WASM
         run: |
-          echo "--------------------------------- Show embind.cpp ---------------------------------"
-          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
-
-      - name: Build Spine 4.2 WASM (BASE)
-        run: |
-          cd ./engine/native/cocos/editor-support/spine-wasm
+          cd ./native/cocos/editor-support/spine-wasm
           sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
           sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           cat CMakeLists.txt
@@ -187,14 +156,9 @@ jobs:
           ninja
           ls -l
 
-      - name: Show embind.cpp
+      - name: Build Spine 4.2 ASMJS
         run: |
-          echo "--------------------------------- Show embind.cpp ---------------------------------"
-          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
-
-      - name: Build Spine 4.2 ASMJS (BASE)
-        run: |
-          cd ./engine/native/cocos/editor-support/spine-wasm
+          cd ./native/cocos/editor-support/spine-wasm
           sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
           sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
           cat CMakeLists.txt
@@ -206,29 +170,29 @@ jobs:
           ninja
           ls -l
           
-      - name: Copy Spine 4.2 files to external directory (BASE)
+      - name: Copy Spine 4.2 files to external directory
         run: |
-          DIST_PATH="dist-base/4.2"
+          DIST_PATH="dist-${{ matrix.config.target }}/4.2"
           mkdir -p $DIST_PATH
-          cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
-          cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
-          cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
-          cp ./engine/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
-          mkdir -p ./engine/native/external/emscripten/spine/4.2/
+          cp ./native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
+          cp ./native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
+          cp ./native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
+          cp ./native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
+          mkdir -p ./native/external/emscripten/spine/4.2/
           echo "-------- Before replace spine wasm -----------"
-          ls -l ./engine/native/external/emscripten/spine/4.2/
-          cp -f ./$DIST_PATH/* ./engine/native/external/emscripten/spine/4.2/
+          ls -l ./native/external/emscripten/spine/4.2/
+          cp -f ./$DIST_PATH/* ./native/external/emscripten/spine/4.2/
           echo "-------- After replace spine wasm ------------"
-          ls -l ./engine/native/external/emscripten/spine/4.2/
+          ls -l ./native/external/emscripten/spine/4.2/
           echo "-----------------------------------------------"
-          cd ./engine/native/external
+          cd ./native/external
           git status
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with: 
-          name: spine-emscripten-base
-          path: dist-base
+          name: spine-emscripten-${{ matrix.config.target }}
+          path: dist-${{ matrix.config.target }}
 
       # - name: Build Base Declarations
       #   working-directory: .
@@ -241,120 +205,120 @@ jobs:
       #     # Use package-size-check.js in HEAD
       #     node .github/workflows/package-size-check.js "$ROOT_DIR/engine"
 
-      - run: |
-          echo "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
+      # - run: |
+      #     echo "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v4
-        name: Download external
-        with:
-          repository: cocos/cocos-engine-external
-          path: './engine-HEAD/native/external'
-          ref: "${{ env.EXT_VERSION_HEAD }}"
-          fetch-depth: 1
+      # - uses: actions/checkout@v4
+      #   name: Download external
+      #   with:
+      #     repository: cocos/cocos-engine-external
+      #     path: './engine-HEAD/native/external'
+      #     ref: "${{ env.EXT_VERSION_HEAD }}"
+      #     fetch-depth: 1
 
-      - name: Build Spine 3.8 WASM (HEAD)
-        run: |
-          cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(SPINE_VERSION "4.2")/set(SPINE_VERSION "3.8")/g' CMakeLists.txt
-          sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
-          cat CMakeLists.txt
-          mkdir build-wasm
-          cd build-wasm
-          emcmake cmake .. -GNinja
-          ninja
-          ls -l
+      # - name: Build Spine 3.8 WASM (HEAD)
+      #   run: |
+      #     cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
+      #     sed -i 's/set(SPINE_VERSION "4.2")/set(SPINE_VERSION "3.8")/g' CMakeLists.txt
+      #     sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
+      #     cat CMakeLists.txt
+      #     mkdir build-wasm
+      #     cd build-wasm
+      #     emcmake cmake .. -GNinja
+      #     ninja
+      #     ls -l
 
-      - name: Build Spine 3.8 ASMJS (HEAD)
-        run: |
-          cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(SPINE_VERSION "4.2")/set(SPINE_VERSION "3.8")/g' CMakeLists.txt
-          sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
-          cat CMakeLists.txt
-          mkdir build-asmjs
-          cd build-asmjs
-          emcmake cmake .. -GNinja
-          ninja
-          ls -l
+      # - name: Build Spine 3.8 ASMJS (HEAD)
+      #   run: |
+      #     cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
+      #     sed -i 's/set(SPINE_VERSION "4.2")/set(SPINE_VERSION "3.8")/g' CMakeLists.txt
+      #     sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
+      #     cat CMakeLists.txt
+      #     mkdir build-asmjs
+      #     cd build-asmjs
+      #     emcmake cmake .. -GNinja
+      #     ninja
+      #     ls -l
           
-      - name: Copy Spine 3.8 files to external directory (HEAD)
-        run: |
-          DIST_PATH="dist-head/3.8"
-          mkdir -p $DIST_PATH
-          cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH
-          cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
-          cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
-          cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
-          echo "-------- Before replace spine wasm -----------"
-          mkdir -p ./engine-HEAD/native/external/emscripten/spine/3.8
-          ls -l ./engine-HEAD/native/external/emscripten/spine/3.8
-          cp -f ./$DIST_PATH/* ./engine-HEAD/native/external/emscripten/spine/3.8
-          echo "-------- After replace spine wasm ------------"
-          ls -l ./engine-HEAD/native/external/emscripten/spine/3.8
-          echo "-----------------------------------------------"
-          cd ./engine-HEAD/native/external
-          git status
+      # - name: Copy Spine 3.8 files to external directory (HEAD)
+      #   run: |
+      #     DIST_PATH="dist-head/3.8"
+      #     mkdir -p $DIST_PATH
+      #     cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH
+      #     cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
+      #     cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
+      #     cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
+      #     echo "-------- Before replace spine wasm -----------"
+      #     mkdir -p ./engine-HEAD/native/external/emscripten/spine/3.8
+      #     ls -l ./engine-HEAD/native/external/emscripten/spine/3.8
+      #     cp -f ./$DIST_PATH/* ./engine-HEAD/native/external/emscripten/spine/3.8
+      #     echo "-------- After replace spine wasm ------------"
+      #     ls -l ./engine-HEAD/native/external/emscripten/spine/3.8
+      #     echo "-----------------------------------------------"
+      #     cd ./engine-HEAD/native/external
+      #     git status
 
-      - name: Show embind.cpp
-        run: |
-          echo "--------------------------------- Show embind.cpp ---------------------------------"
-          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
+      # - name: Show embind.cpp
+      #   run: |
+      #     echo "--------------------------------- Show embind.cpp ---------------------------------"
+      #     cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
-      - name: Build Spine 4.2 WASM (HEAD)
-        run: |
-          cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
-          sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
-          cat CMakeLists.txt
-          git status
-          rm -rf build-wasm
-          mkdir build-wasm
-          cd build-wasm
-          emcmake cmake .. -GNinja
-          ninja
-          ls -l
+      # - name: Build Spine 4.2 WASM (HEAD)
+      #   run: |
+      #     cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
+      #     sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
+      #     sed -i 's/set(BUILD_WASM 0)/set(BUILD_WASM 1)/g' CMakeLists.txt
+      #     cat CMakeLists.txt
+      #     git status
+      #     rm -rf build-wasm
+      #     mkdir build-wasm
+      #     cd build-wasm
+      #     emcmake cmake .. -GNinja
+      #     ninja
+      #     ls -l
 
-      - name: Show embind.cpp
-        run: |
-          echo "--------------------------------- Show embind.cpp ---------------------------------"
-          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
+      # - name: Show embind.cpp
+      #   run: |
+      #     echo "--------------------------------- Show embind.cpp ---------------------------------"
+      #     cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
-      - name: Build Spine 4.2 ASMJS (HEAD)
-        run: |
-          cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
-          sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
-          sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
-          cat CMakeLists.txt
-          git status
-          rm -rf build-asmjs
-          mkdir build-asmjs
-          cd build-asmjs
-          emcmake cmake .. -GNinja
-          ninja
-          ls -l
+      # - name: Build Spine 4.2 ASMJS (HEAD)
+      #   run: |
+      #     cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
+      #     sed -i 's/set(SPINE_VERSION "3.8")/set(SPINE_VERSION "4.2")/g' CMakeLists.txt
+      #     sed -i 's/set(BUILD_WASM 1)/set(BUILD_WASM 0)/g' CMakeLists.txt
+      #     cat CMakeLists.txt
+      #     git status
+      #     rm -rf build-asmjs
+      #     mkdir build-asmjs
+      #     cd build-asmjs
+      #     emcmake cmake .. -GNinja
+      #     ninja
+      #     ls -l
           
-      - name: Copy Spine 4.2 files to external directory (HEAD)
-        run: |
-          DIST_PATH="dist-head/4.2"
-          mkdir -p $DIST_PATH
-          cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH
-          cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
-          cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
-          cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
-          echo "-------- Before replace spine wasm -----------"
-          mkdir -p ./engine-HEAD/native/external/emscripten/spine/4.2/
-          ls -l ./engine-HEAD/native/external/emscripten/spine/4.2/
-          cp -f ./$DIST_PATH/* ./engine-HEAD/native/external/emscripten/spine/4.2/
-          echo "-------- After replace spine wasm ------------"
-          ls -l ./engine-HEAD/native/external/emscripten/spine/4.2/
-          echo "-----------------------------------------------"
-          cd ./engine-HEAD/native/external
-          git status
+      # - name: Copy Spine 4.2 files to external directory (HEAD)
+      #   run: |
+      #     DIST_PATH="dist-head/4.2"
+      #     mkdir -p $DIST_PATH
+      #     cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH
+      #     cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
+      #     cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js.mem ./$DIST_PATH/
+      #     cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-asmjs/spine.js ./$DIST_PATH/spine.asm.js
+      #     echo "-------- Before replace spine wasm -----------"
+      #     mkdir -p ./engine-HEAD/native/external/emscripten/spine/4.2/
+      #     ls -l ./engine-HEAD/native/external/emscripten/spine/4.2/
+      #     cp -f ./$DIST_PATH/* ./engine-HEAD/native/external/emscripten/spine/4.2/
+      #     echo "-------- After replace spine wasm ------------"
+      #     ls -l ./engine-HEAD/native/external/emscripten/spine/4.2/
+      #     echo "-----------------------------------------------"
+      #     cd ./engine-HEAD/native/external
+      #     git status
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with: 
-          name: spine-emscripten-head
-          path: dist-head
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with: 
+      #     name: spine-emscripten-head
+      #     path: dist-head
 
       # - name: Build Head Declarations
       #   working-directory: ./engine-HEAD
@@ -362,7 +326,7 @@ jobs:
       #     npm install
       #     node ./.github/workflows/package-size-check.js "$(pwd)"
 
-      - name: Restore patches (HEAD)
+      - name: Restore patches
         run: |
           echo "-------------------------- Restore patches ---------------------------------"
           rm $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
