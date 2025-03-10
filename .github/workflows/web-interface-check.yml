@@ -31,7 +31,7 @@ jobs:
         uses: dumganhar/setup-emsdk@997d2cde2deabda085a11f98e86e842915b0e846
         with:
           version: 3.1.41
-          actions-cache-folder: 'emsdk-cache-3.1.41'
+          # actions-cache-folder: 'emsdk-cache-3.1.41'
 
       - name: Verify
         run: |
@@ -55,10 +55,6 @@ jobs:
         with:
           repository: ${{ github.event.pull_request.base.repo.full_name }}
           ref: ${{ github.base_ref }}
-
-      - name: Get Base Ref
-        run: |
-          echo "BASE_REF=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
         name: Checkout Head Ref for using the latest .github/workflows for base
