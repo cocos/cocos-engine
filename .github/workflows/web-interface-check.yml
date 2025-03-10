@@ -11,7 +11,7 @@ env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
 
 jobs:
-  generate-dts-and-check-package-size:
+  dts-and-size:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
         uses: dumganhar/setup-emsdk@997d2cde2deabda085a11f98e86e842915b0e846
         with:
           version: 3.1.41
-          # actions-cache-folder: 'emsdk-cache-3.1.41'
+          actions-cache-folder: 'emsdk-cache-3.1.41'
 
       - name: Verify
         run: |
@@ -246,7 +246,7 @@ jobs:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
-    needs: generate-dts-and-check-package-size
+    needs: dts-and-size
 
     steps:
       - uses: actions/setup-node@v4
