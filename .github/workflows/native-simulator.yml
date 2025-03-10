@@ -38,7 +38,7 @@ jobs:
         with:
           vulkan-query-version: 1.2.189.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+          vulkan-use-cache: false
       - name: gen simulator
         run: |
           npx gulp gen-simulator

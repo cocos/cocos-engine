@@ -37,7 +37,7 @@ jobs:
         with:
           vulkan-query-version: 1.2.189.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+          vulkan-use-cache: false
       - name: Compile win64
         shell: bash
         env:
@@ -332,7 +332,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 14
-          cache: 'npm'
 
       - if: ${{ steps.cache-oh-sdk.outputs.cache-hit != 'true' }}
         name: No Cache found, install oh sdk
