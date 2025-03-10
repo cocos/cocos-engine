@@ -207,6 +207,12 @@ jobs:
           cd ./engine/native/external
           git status
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: spine-emscripten-base
+          path: engine/dist
+
       # - name: Build Base Declarations
       #   working-directory: .
       #   run: |
@@ -217,10 +223,6 @@ jobs:
       #     npm install --ignore-scripts
       #     # Use package-size-check.js in HEAD
       #     node .github/workflows/package-size-check.js "$ROOT_DIR/engine"
-
-      - name: Clear npm Cache
-        run: |
-          npm cache clean --force
 
       - run: |
           echo "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
@@ -324,7 +326,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with: 
-          name: spine-emscripten
+          name: spine-emscripten-head
           path: engine-HEAD/dist
 
       # - name: Build Head Declarations
