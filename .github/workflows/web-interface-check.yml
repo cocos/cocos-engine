@@ -11,7 +11,7 @@ env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
 
 jobs:
-  interface-check:
+  generate-dts-and-check-package-size:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
@@ -92,6 +92,17 @@ jobs:
           cp -f .github/workflows/emscripten-patches/embind/bind.cpp $EMSDK/upstream/emscripten/system/lib/embind/
           echo "--------------------------------- Apply patches DONE! ---------------------------------"
           cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
+
+      - run: |
+          echo "EXT_VERSION=$(node .github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        name: Download external
+        with:
+          repository: cocos/cocos-engine-external
+          path: './native/external'
+          ref: "${{ env.EXT_VERSION }}"
+          fetch-depth: 1
 
       - name: Build Spine 3.8 WASM
         run: |
@@ -184,22 +195,11 @@ jobs:
           cd ./native/external
           git status
 
-      - name: Upload Artifact
+      - name: Upload Spine Artifact
         uses: actions/upload-artifact@v4
         with: 
           name: spine-emscripten-${{ matrix.config.target }}
           path: dist-${{ matrix.config.target }}
-
-      - run: |
-          echo "EXT_VERSION=$(node .github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
-
-      - uses: actions/checkout@v4
-        name: Download external
-        with:
-          repository: cocos/cocos-engine-external
-          path: './native/external'
-          ref: "${{ env.EXT_VERSION }}"
-          fetch-depth: 1
 
       - name: Build Declarations (base)
         if: ${{ matrix.config.target == 'base' }}
@@ -218,6 +218,22 @@ jobs:
           npm install
           node .github/workflows/package-size-check.js "$ROOT_DIR"
 
+      - name: Pack for compare
+        run: |
+          mkdir package-for-compare
+          cp ./bin/.declarations/cc.d.ts ./package-for-compare
+          cp -r build-cc-out-2d-empty-legacy-pipline ./package-for-compare
+          cp -r build-cc-out-2d-legacy-pipline ./package-for-compare
+          cp -r build-cc-out-2d-new-pipline ./package-for-compare
+          cp -r build-cc-out-all ./package-for-compare
+          cp -r build-cc-out-all-web ./package-for-compare
+
+      - name: Upload Declarations Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: package-for-compare-${{ matrix.config.target }}
+          path: package-for-compare
+
       - name: Restore patches
         run: |
           echo "-------------------------- Restore patches ---------------------------------"
@@ -226,134 +242,141 @@ jobs:
           echo "-------------------------- Restore patches DONE! ---------------------------------"
           cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
-  # interface_check:
-  #   if: 
-  #     (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       config:
-  #         - { target: base }
-  #         - { target: head }
+  interface_check:
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    runs-on: ubuntu-latest
+    needs: generate-dts-and-check-package-size
 
-  #   steps:
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '18.x'
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
 
-      # - uses: LouisBrunner/diff-action@v2.0.0
-      #   with:
-      #     old: ./engine/bin/.declarations/cc.d.ts
-      #     new: ./engine-HEAD/bin/.declarations/cc.d.ts
-      #     mode: addition
-      #     tolerance: worse
-      #     output: ./engine-HEAD/interface-diff.txt
+      - uses: actions/checkout@v4
 
-      # - name: optimize interface check report
-      #   working-directory: ./engine-HEAD
-      #   run: |
-      #     cat ./interface-diff.txt
-      #     node ./.github/workflows/interface-check-report.js
+      - name: Download Artifacts (base)
+        uses: actions/download-artifact@v4
+        with:
+          name: package-for-compare-base
+          path: artifacts/package-for-compare-base
 
-      # - name: After optimize interface check report
-      #   working-directory: ./engine-HEAD
-      #   run: |
-      #     cat ./interface-diff.txt
+      - name: Download Artifacts (head)
+        uses: actions/download-artifact@v4
+        with:
+          name: package-for-compare-head
+          path: artifacts/package-for-compare-head
 
-      # - name: Check Package Size
-      #   run: |
-      #     PACKAGE_SIZE_INFO="## Code Size Check Report
-      #     | Wechat (WASM) | Before | After | Diff |
-      #     |:-:|:-:|:-:|:-:|"
+      - uses: LouisBrunner/diff-action@v2.0.0
+        with:
+          old: ./artifacts/package-for-compare-base/cc.d.ts
+          new: ./artifacts/package-for-compare-head/cc.d.ts
+          mode: addition
+          tolerance: worse
+          output: ./interface-diff.txt
 
-      #     BASE_SIZE=0
-      #     HEAD_SIZE=0
-      #     DIFF_SIZE=0
-      #     ICON="✅ "
+      - name: optimize interface check report
+        run: |
+          cat ./interface-diff.txt
+          node ./.github/workflows/interface-check-report.js
 
-      #     reset_diff_vars() {
-      #       BASE_SIZE=0
-      #       HEAD_SIZE=0
-      #       DIFF_SIZE=0
-      #       ICON="✅ "
-      #     }
+      - name: After optimize interface check report
+        run: |
+          cat ./interface-diff.txt
 
-      #     check_diff() {
-      #       ccbuild_out_folder_name="$1"
-      #       if [ -d ./engine/$ccbuild_out_folder_name ]; then
-      #         BASE_SIZE=$(du -sb ./engine/$ccbuild_out_folder_name | awk '{print $1}')
-      #       fi
-      #       HEAD_SIZE=$(du -sb ./engine-HEAD/$ccbuild_out_folder_name | awk '{print $1}')
-      #       DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
-      #       if [ "$DIFF_SIZE" -gt 0 ]; then
-      #         ICON="⚠️ +"
-      #       elif [ "$DIFF_SIZE" -lt 0 ]; then
-      #         ICON="👍 "
-      #       else
-      #         ICON="✅ "
-      #       fi
-      #     }
+      - name: Check Package Size
+        run: |
+          PACKAGE_SIZE_INFO="## Code Size Check Report
+          | Wechat (WASM) | Before | After | Diff |
+          |:-:|:-:|:-:|:-:|"
 
-      #     # Check Wechat platform
-      #     check_diff "build-cc-out-2d-empty-legacy-pipline"
-      #     PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D Empty (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
-      #     reset_diff_vars
+          BASE_SIZE=0
+          HEAD_SIZE=0
+          DIFF_SIZE=0
+          ICON="✅ "
 
-      #     check_diff "build-cc-out-2d-legacy-pipline"
-      #     PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D All (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
-      #     reset_diff_vars
+          reset_diff_vars() {
+            BASE_SIZE=0
+            HEAD_SIZE=0
+            DIFF_SIZE=0
+            ICON="✅ "
+          }
 
-      #     check_diff "build-cc-out-2d-new-pipline"
-      #     PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D All (new pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
-      #     reset_diff_vars
+          check_diff() {
+            ccbuild_out_folder_name="$1"
+            if [ -d ./artifacts/package-for-compare-base/$ccbuild_out_folder_name ]; then
+              BASE_SIZE=$(du -sb ./artifacts/package-for-compare-base/$ccbuild_out_folder_name | awk '{print $1}')
+            fi
+            HEAD_SIZE=$(du -sb ./artifacts/package-for-compare-head/$ccbuild_out_folder_name | awk '{print $1}')
+            DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
+            if [ "$DIFF_SIZE" -gt 0 ]; then
+              ICON="⚠️ +"
+            elif [ "$DIFF_SIZE" -lt 0 ]; then
+              ICON="👍 "
+            else
+              ICON="✅ "
+            fi
+          }
 
-      #     check_diff "build-cc-out-all"
-      #     PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| (2D + 3D) All | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
-      #     reset_diff_vars
+          # Check Wechat platform
+          check_diff "build-cc-out-2d-empty-legacy-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D Empty (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
 
-      #     PACKAGE_SIZE_INFO=$(printf "%s\n" "${PACKAGE_SIZE_INFO}")
+          check_diff "build-cc-out-2d-legacy-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D All (legacy pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
 
-      #     # Check Web platform
-      #     WEB_PLATFORM_TABLE_HEADER="| Web (WASM + ASMJS) | Before | After | Diff |
-      #     |:-:|:-:|:-:|:-:|"
-      #     PACKAGE_SIZE_INFO=$(printf "%s\n\n\n%s\n" "${PACKAGE_SIZE_INFO}" "$WEB_PLATFORM_TABLE_HEADER")
+          check_diff "build-cc-out-2d-new-pipline"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| 2D All (new pipeline) | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
 
-      #     check_diff "build-cc-out-all-web"
-      #     PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| (2D + 3D) All | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
-      #     reset_diff_vars
+          check_diff "build-cc-out-all"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| (2D + 3D) All | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
 
-      #     printf "%s\n" "$PACKAGE_SIZE_INFO"
+          PACKAGE_SIZE_INFO=$(printf "%s\n" "${PACKAGE_SIZE_INFO}")
 
-      #     DIFF_FILE_PATH=./engine-HEAD/interface-diff.txt
-      #     ORIGINAL_DIFF_CONTENT=$(cat ${DIFF_FILE_PATH})
-      #     echo "Original Diff: "
-      #     printf "%s\n" "$ORIGINAL_DIFF_CONTENT"
+          # Check Web platform
+          WEB_PLATFORM_TABLE_HEADER="| Web (WASM + ASMJS) | Before | After | Diff |
+          |:-:|:-:|:-:|:-:|"
+          PACKAGE_SIZE_INFO=$(printf "%s\n\n\n%s\n" "${PACKAGE_SIZE_INFO}" "$WEB_PLATFORM_TABLE_HEADER")
 
-      #     # Use printf to avoid \n missing
-      #     printf "%s\n" "$PACKAGE_SIZE_INFO" > ${DIFF_FILE_PATH}
-      #     printf "%s\n" "$ORIGINAL_DIFF_CONTENT" >> ${DIFF_FILE_PATH}
+          check_diff "build-cc-out-all-web"
+          PACKAGE_SIZE_INFO=$(printf "%s\n%s\n" "${PACKAGE_SIZE_INFO}" "| (2D + 3D) All | $BASE_SIZE bytes | $HEAD_SIZE bytes | $ICON$DIFF_SIZE bytes |")
+          reset_diff_vars
 
-      #     echo "Diff after merge: "
-      #     cat ${DIFF_FILE_PATH}
+          printf "%s\n" "$PACKAGE_SIZE_INFO"
 
-      # - name: Write PR number to file
-      #   uses: actions/github-script@v7
-      #   with:
-      #     script: |
-      #       const fs = require('fs');
-      #       fs.writeFileSync('interface-check-pr.txt', process.env.PR_NUMBER);
+          DIFF_FILE_PATH=./interface-diff.txt
+          ORIGINAL_DIFF_CONTENT=$(cat ${DIFF_FILE_PATH})
+          echo "Original Diff: "
+          printf "%s\n" "$ORIGINAL_DIFF_CONTENT"
 
-      # - name: Upload PR number artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: interface-check-pr.txt
-      #     path: |
-      #       interface-check-pr.txt
+          # Use printf to avoid \n missing
+          printf "%s\n" "$PACKAGE_SIZE_INFO" > ${DIFF_FILE_PATH}
+          printf "%s\n" "$ORIGINAL_DIFF_CONTENT" >> ${DIFF_FILE_PATH}
 
-      # - name: Upload interface diff artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: interface-diff.txt
-      #     path: |
-      #       ./engine-HEAD/interface-diff.txt
+          echo "Diff after merge: "
+          cat ${DIFF_FILE_PATH}
+
+      - name: Write PR number to file
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            fs.writeFileSync('interface-check-pr.txt', process.env.PR_NUMBER);
+
+      - name: Upload PR number artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: interface-check-pr.txt
+          path: |
+            interface-check-pr.txt
+
+      - name: Upload interface diff artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: interface-diff.txt
+          path: |
+            ./interface-diff.txt
