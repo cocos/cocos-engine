@@ -96,6 +96,13 @@ jobs:
           echo "HEAD LOG:"
           git --no-pager log -3
 
+      - name: Show Spine Diff
+        run: |
+          echo "------------------- DIFF in spine-wasm -------------------"
+          diff -r ./engine/native/cocos/editor-support/spine-wasm ./engine-HEAD/native/cocos/editor-support/spine-wasm
+          echo "------------------- DIFF in spine -------------------"
+          diff -r ./engine/native/cocos/editor-support/spine ./engine-HEAD/native/cocos/editor-support/spine
+
       - run: |
           echo "EXT_VERSION=$(node ./engine/.github/workflows/get-native-external-version.js)" >> $GITHUB_ENV
 
@@ -145,7 +152,7 @@ jobs:
       - name: Copy Spine 3.8 files to external directory (BASE)
         run: |
           SPINE_VERSION="3.8"
-          DIST_PATH="engine/dist/3.8"
+          DIST_PATH="dist-base/3.8"
           mkdir -p $DIST_PATH
           cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
           cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
@@ -161,6 +168,11 @@ jobs:
           cd ./engine/native/external
           git status
 
+      - name: Show embind.cpp
+        run: |
+          echo "--------------------------------- Show embind.cpp ---------------------------------"
+          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
+
       - name: Build Spine 4.2 WASM (BASE)
         run: |
           cd ./engine/native/cocos/editor-support/spine-wasm
@@ -174,6 +186,11 @@ jobs:
           emcmake cmake .. -GNinja
           ninja
           ls -l
+
+      - name: Show embind.cpp
+        run: |
+          echo "--------------------------------- Show embind.cpp ---------------------------------"
+          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
       - name: Build Spine 4.2 ASMJS (BASE)
         run: |
@@ -191,7 +208,7 @@ jobs:
           
       - name: Copy Spine 4.2 files to external directory (BASE)
         run: |
-          DIST_PATH="engine/dist/4.2"
+          DIST_PATH="dist-base/4.2"
           mkdir -p $DIST_PATH
           cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH/
           cp ./engine/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
@@ -211,7 +228,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with: 
           name: spine-emscripten-base
-          path: engine/dist
+          path: dist-base
 
       # - name: Build Base Declarations
       #   working-directory: .
@@ -261,7 +278,7 @@ jobs:
           
       - name: Copy Spine 3.8 files to external directory (HEAD)
         run: |
-          DIST_PATH="engine-HEAD/dist/3.8"
+          DIST_PATH="dist-head/3.8"
           mkdir -p $DIST_PATH
           cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH
           cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
@@ -277,6 +294,11 @@ jobs:
           cd ./engine-HEAD/native/external
           git status
 
+      - name: Show embind.cpp
+        run: |
+          echo "--------------------------------- Show embind.cpp ---------------------------------"
+          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
+
       - name: Build Spine 4.2 WASM (HEAD)
         run: |
           cd ./engine-HEAD/native/cocos/editor-support/spine-wasm
@@ -290,6 +312,11 @@ jobs:
           emcmake cmake .. -GNinja
           ninja
           ls -l
+
+      - name: Show embind.cpp
+        run: |
+          echo "--------------------------------- Show embind.cpp ---------------------------------"
+          cat $EMSDK/upstream/emscripten/system/lib/embind/bind.cpp
 
       - name: Build Spine 4.2 ASMJS (HEAD)
         run: |
@@ -307,7 +334,7 @@ jobs:
           
       - name: Copy Spine 4.2 files to external directory (HEAD)
         run: |
-          DIST_PATH="engine-HEAD/dist/4.2"
+          DIST_PATH="dist-head/4.2"
           mkdir -p $DIST_PATH
           cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.wasm ./$DIST_PATH
           cp ./engine-HEAD/native/cocos/editor-support/spine-wasm/build-wasm/spine.js ./$DIST_PATH/spine.wasm.js
@@ -327,7 +354,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with: 
           name: spine-emscripten-head
-          path: engine-HEAD/dist
+          path: dist-head
 
       # - name: Build Head Declarations
       #   working-directory: ./engine-HEAD
