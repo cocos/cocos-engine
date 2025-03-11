@@ -59,10 +59,6 @@ export class b2Joint implements IJoint2D {
         PhysicsSystem2D.instance._callAfterStep(this, this._init);
     }
 
-    onDestroy (): void {
-        // empty
-    }
-
     apply (): void {
         PhysicsSystem2D.instance._callAfterStep(this, this._destroy);
         if (this.comp!.enabledInHierarchy) {
