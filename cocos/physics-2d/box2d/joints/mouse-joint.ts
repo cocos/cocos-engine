@@ -78,7 +78,9 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
 
     override initialize (comp: Joint2D): void {
         super.initialize(comp);
+    }
 
+    override onEnable (): void {
         const canvas = find('Canvas');
         if (canvas) {
             canvas.on(NodeEventType.TOUCH_START, this.onTouchBegan, this);
@@ -88,16 +90,12 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         }
     }
 
-    override onEnable (): void {
-        // empty
-    }
-
     override start (): void {
         // empty
     }
 
-    override onDestroy (): void {
-        super.onDestroy();
+    override onDisable (): void {
+        super.onDisable();
         const canvas = find('Canvas');
         if (canvas) {
             canvas.off(NodeEventType.TOUCH_START, this.onTouchBegan, this);
