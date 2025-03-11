@@ -73,32 +73,23 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         return def;
     }
 
-    override initialize (comp: Joint2D): void {
-        super.initialize(comp);
-    }
-
     override onEnable (): void {
-        const canvas = find('Canvas');
-        if (canvas) {
-            canvas.on(NodeEventType.TOUCH_START, this.onTouchBegan, this);
-            canvas.on(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
-            canvas.on(NodeEventType.TOUCH_END, this.onTouchEnd, this);
-            canvas.on(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
-        }
-    }
-
-    override start (): void {
-        // empty
+        this._enableTouch(true);
     }
 
     override onDisable (): void {
         super.onDisable();
+        this._enableTouch(false);
+    }
+
+    private _enableTouch (v: boolean): void {
         const canvas = find('Canvas');
         if (canvas) {
-            canvas.off(NodeEventType.TOUCH_START, this.onTouchBegan, this);
-            canvas.off(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
-            canvas.off(NodeEventType.TOUCH_END, this.onTouchEnd, this);
-            canvas.off(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
+            const cb = v ? canvas.on : canvas.off;
+            cb.call(canvas, NodeEventType.TOUCH_START, this.onTouchBegan, this);
+            cb.call(canvas, NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
+            cb.call(canvas, NodeEventType.TOUCH_END, this.onTouchEnd, this);
+            cb.call(canvas, NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
         }
     }
 
