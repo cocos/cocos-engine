@@ -56,7 +56,6 @@
 
 #if CC_USE_BOX2D_JSB
 #include "bindings/auto/jsb_box2d_auto.h"
-#include "box2d/box2d.h"
 #endif
 
 ///////////////////////// utils /////////////////////////
