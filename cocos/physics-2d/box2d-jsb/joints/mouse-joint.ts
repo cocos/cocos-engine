@@ -73,6 +73,10 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         return def;
     }
 
+    override start (): void {
+        // empty implementation to override its parent's start, so don't remove it.
+    }
+
     override onEnable (): void {
         this._enableTouch(true);
     }
