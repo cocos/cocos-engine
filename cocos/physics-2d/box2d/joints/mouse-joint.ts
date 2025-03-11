@@ -63,7 +63,7 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         }
     }
 
-    _createJointDef (): any {
+    override _createJointDef (): any {
         const def = new b2.MouseJointDef();
         const comp = this._jointComp as MouseJoint2D;
         def.target.Set(
@@ -76,7 +76,7 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         return def;
     }
 
-    initialize (comp: Joint2D): void {
+    override initialize (comp: Joint2D): void {
         super.initialize(comp);
 
         const canvas = find('Canvas');
@@ -88,12 +88,23 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         }
     }
 
-    onEnable (): void {
-        //empty
+    override onEnable (): void {
+        // empty
     }
 
-    start (): void {
-        //empty
+    override start (): void {
+        // empty
+    }
+
+    override onDestroy (): void {
+        super.onDestroy();
+        const canvas = find('Canvas');
+        if (canvas) {
+            canvas.off(NodeEventType.TOUCH_START, this.onTouchBegan, this);
+            canvas.off(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
+            canvas.off(NodeEventType.TOUCH_END, this.onTouchEnd, this);
+            canvas.off(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
+        }
     }
 
     onTouchBegan (event: Touch): void {
@@ -124,17 +135,6 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     onTouchEnd (event: Touch): void {
         this._destroy();
         this._isTouched = false;
-    }
-
-    override _destroy (): void {
-        super._destroy();
-        const canvas = find('Canvas');
-        if (canvas) {
-            canvas.off(NodeEventType.TOUCH_START, this.onTouchBegan, this);
-            canvas.off(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
-            canvas.off(NodeEventType.TOUCH_END, this.onTouchEnd, this);
-            canvas.off(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
-        }
     }
 
     update (): void {

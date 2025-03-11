@@ -63,7 +63,7 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         }
     }
 
-    _createJointDef (): any {
+    override _createJointDef (): any {
         const def = new B2.MouseJointDef();
         const comp = this._jointComp as MouseJoint2D;
         def.target = { x: this._touchPoint.x / PHYSICS_2D_PTM_RATIO, y: this._touchPoint.y / PHYSICS_2D_PTM_RATIO };
@@ -73,7 +73,7 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         return def;
     }
 
-    initialize (comp: Joint2D): void {
+    override initialize (comp: Joint2D): void {
         super.initialize(comp);
 
         const canvas = find('Canvas');
@@ -85,12 +85,23 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         }
     }
 
-    onEnable (): void {
+    override onEnable (): void {
         //empty
     }
 
-    start (): void {
+    override start (): void {
         //empty
+    }
+
+    override onDestroy (): void {
+        super.onDestroy();
+        const canvas = find('Canvas');
+        if (canvas) {
+            canvas.off(NodeEventType.TOUCH_START, this.onTouchBegan, this);
+            canvas.off(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
+            canvas.off(NodeEventType.TOUCH_END, this.onTouchEnd, this);
+            canvas.off(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
+        }
     }
 
     onTouchBegan (event: Touch): void {
@@ -123,16 +134,6 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         this._isTouched = false;
     }
 
-    override destroy (): void {
-        super.destroy();
-        const canvas = find('Canvas');
-        if (canvas) {
-            canvas.off(NodeEventType.TOUCH_START, this.onTouchBegan, this);
-            canvas.off(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
-            canvas.off(NodeEventType.TOUCH_END, this.onTouchEnd, this);
-            canvas.off(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
-        }
-    }
     update (): void {
         if (!this._isTouched || !this.isValid()) {
             return;
