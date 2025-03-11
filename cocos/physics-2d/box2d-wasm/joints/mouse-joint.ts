@@ -119,11 +119,11 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
     }
 
     onTouchEnd (event: Touch): void {
-        
         this.destroy();
         this._isTouched = false;
     }
-    destroy (): void {
+
+    override destroy (): void {
         super.destroy();
         const canvas = find('Canvas');
         if (canvas) {

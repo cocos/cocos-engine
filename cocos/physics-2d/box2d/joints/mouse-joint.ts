@@ -88,9 +88,13 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         }
     }
 
-    onEnable (): void {}
+    onEnable (): void {
+        //empty
+    }
 
-    start (): void {}
+    start (): void {
+        //empty
+    }
 
     onTouchBegan (event: Touch): void {
         this._isTouched = true;
@@ -118,12 +122,11 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     }
 
     onTouchEnd (event: Touch): void {
-     
         this._destroy();
         this._isTouched = false;
     }
 
-    _destroy (): void {
+    override _destroy (): void {
         super._destroy();
         const canvas = find('Canvas');
         if (canvas) {
@@ -147,5 +150,4 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         this.setTarget(this._touchPoint);
         // }
     }
-    
 }
