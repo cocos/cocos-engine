@@ -70,13 +70,13 @@ const cacheManager = require('./jsb-cache-manager');
     spine.skeletonCacheMgr = skeletonCacheMgr;
     skeletonDataProto.destroy = function () {
         this.reset();
-        skeletonCacheMgr.removeSkeletonCache(this._uuid);
+        skeletonCacheMgr.removeSkeletonCache(this.mergedUUID());
         cc.Asset.prototype.destroy.call(this);
     };
 
     skeletonDataProto.reset = function () {
         if (this._skeletonCache) {
-            spine.disposeSkeletonData(this._uuid);
+            spine.disposeSkeletonData(this.mergedUUID());
             this._jsbTextures = null;
             this._skeletonCache = null;
         }
@@ -93,7 +93,7 @@ const cacheManager = require('./jsb-cache-manager');
     skeletonDataProto.init = function () {
         if (this._skeletonCache) return;
 
-        const uuid = this._uuid;
+        const uuid = this.mergedUUID();
         if (!uuid) {
             cc.errorID(7504);
             return;
