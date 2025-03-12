@@ -23,7 +23,7 @@
 */
 
 import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
-import { minigame } from 'pal/minigame';
+import { minigame, SystemInfo } from 'pal/minigame';
 import { IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { getError, warnID } from '../../../cocos/core/platform/debug';
@@ -60,6 +60,7 @@ try {
 class ScreenAdapter extends EventTarget {
     public isFrameRotated = false;
     public handleResizeEvent = true;
+    private _sysInfo: SystemInfo = null!;
 
     public get supportFullScreen (): boolean {
         return false;
@@ -69,12 +70,11 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get devicePixelRatio (): number {
-        const sysInfo = minigame.getSystemInfoSync();
-        return sysInfo.pixelRatio;
+        return this._sysInfo.pixelRatio;
     }
 
     public get windowSize (): Size {
-        const sysInfo = minigame.getSystemInfoSync();
+        const sysInfo = this._sysInfo;
         const dpr = this.devicePixelRatio;
         let screenWidth = sysInfo.windowWidth;
         let screenHeight = sysInfo.windowHeight;
@@ -151,11 +151,14 @@ class ScreenAdapter extends EventTarget {
     constructor () {
         super();
         minigame.onWindowResize?.(() => {
-            this.emit('window-resize', this.windowSize.width, this.windowSize.height);
+            this._sysInfo = minigame.getSystemInfoSync();
+            const windowSize = this.windowSize;
+            this.emit('window-resize', windowSize.width, windowSize.height);
         });
     }
 
     public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void): void {
+        this._sysInfo = minigame.getSystemInfoSync();
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this._cbToUpdateFrameBuffer();
     }
