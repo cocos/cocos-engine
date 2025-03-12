@@ -241,8 +241,7 @@ const Elements = {
         },
         update() {
             
-            this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInWeb ? this.meta.userData.loadPluginInEditor : false;
-            this.$.loadPluginInEditorCheckBox.disabled = this.meta.userData.loadPluginInWeb ? false : true;
+            this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInEditor ?? false;
             updateElementInvalid.call(this, this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
             updateElementReadonly.call(this, this.$.loadPluginInEditorCheckBox);
         },
