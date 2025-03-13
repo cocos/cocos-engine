@@ -140,14 +140,14 @@ public:
         release();
     }
     bool isClosed() const {
-        CC_LOG_WARNING("interface not implemented");
-        return false;
+        return _isClosed;
     }
     void release() const {
         CC_LOG_WARNING("interface not implemented");
     }
 private:
     friend class PlayTask;
+    bool _isClosed{false};
     std::vector<Achievement*> _achievements;
 };
 

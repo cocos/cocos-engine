@@ -253,6 +253,8 @@ void PlayTask::callJSfuncWithJObject(se::Object* listener, const char* functionN
                         ccDeleteLocalRef(env, achievementObj);
                     }
                 }
+                callVoidMethod(env, achievementBufferObjClass, achievementBufferObj, "release");
+                achievementBuffer._isClosed = callBooleanMethod(env, achievementBufferObjClass, achievementBufferObj, "isClosed");
                 ccDeleteLocalRef(env, achievementBufferObjClass);
                 ccDeleteLocalRef(env, achievementBufferObj);
             }

@@ -26,6 +26,11 @@
 #include "base/UTF8.h"
 
 namespace cc {
+void callVoidMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName) {
+    jmethodID methodId = env->GetMethodID(clazz, methodName, "()V");
+    return env->CallVoidMethod(obj, methodId);
+}
+
 std::string callStringMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName) {
     jmethodID methodId = env->GetMethodID(clazz, methodName, "()Ljava/lang/String;");
     jobject jStringObj = env->CallObjectMethod(obj, methodId);

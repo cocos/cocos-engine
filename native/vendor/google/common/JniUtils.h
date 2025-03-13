@@ -27,6 +27,7 @@
 #include "platform/java/jni/JniHelper.h"
 
 namespace cc {
+void callVoidMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName);
 std::string callStringMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName);
 jobject callObjectMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName, const char* returnType);
 int callIntMethod(JNIEnv* env, jclass clazz, jobject obj, const char* methodName);
