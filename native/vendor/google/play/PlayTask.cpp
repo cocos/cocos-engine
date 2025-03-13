@@ -102,6 +102,8 @@ void PlayTask::getResult(se::Object* listener) {
     if (cc::JniHelper::getStaticMethodInfo(t, JCLS_GOOGLE_PLAY_TASK_MANAGER, "getResult", "(I)Ljava/lang/Object;")) {
         jobject obj = t.env->CallStaticObjectMethod(t.classID, t.methodID, _taskId);
         callJSfuncWithJObject(listener, "onSuccess", reinterpret_cast<void*>(obj));
+    } else {
+        callJSfuncWithJObject(listener, "onSuccess", nullptr);
     }
     return;
 }

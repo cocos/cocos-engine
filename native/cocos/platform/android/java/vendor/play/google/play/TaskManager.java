@@ -81,8 +81,12 @@ public final class TaskManager {
         return null;
     }
     static Object getResult(int taskId) {
-        if(_taskMap.containsKey(taskId)) {
-            return _taskMap.get(taskId).getResult();
+        try {
+            if(_taskMap.containsKey(taskId)) {
+                return _taskMap.get(taskId).getResult();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, e.getMessage());
         }
         return null;
     }
