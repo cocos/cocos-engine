@@ -129,23 +129,31 @@ int PlayTask::addListener(se::Object* listener) {
 void PlayTask::onTaskCanceled(int listerId) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
-        cc::callJSfunc(it->second.get(), "onCanceled");
+        scopedListener listener(it->second.get());
         _listeners.erase(it);
+        cc::callJSfunc(listener.get(), "onCanceled");
     }
 }
 
 void PlayTask::onTaskComplete(int listerId, int nextTaskId) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
-        PlayTask* newTask = PlayTaskManager::getInstance()->addTask(nextTaskId);
-        cc::callJSfunc(it->second.get(), "onComplete", newTask);
+        // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
+        // Therefore, it should be removed first."
+        scopedListener listener(it->second.get());
         _listeners.erase(it);
+        PlayTask* newTask = PlayTaskManager::getInstance()->addTask(nextTaskId);
+        cc::callJSfunc(listener.get(), "onComplete", newTask);
     }
 }
 
 void PlayTask::onTaskFailure(int listerId, void* obj, int exceptionId) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
+        // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
+        // Therefore, it should be removed first."
+        scopedListener listener(it->second.get());
+        _listeners.erase(it);
         auto* env = JniHelper::getEnv();
         jobject jobj = reinterpret_cast<jobject>(obj);
         jclass objClass = env->GetObjectClass(jobj);
@@ -156,17 +164,19 @@ void PlayTask::onTaskFailure(int listerId, void* obj, int exceptionId) {
             auto* taskException = new TaskException;
             taskException->_detailMessage = callStringMethod(env, objClass, jobj, "getMessage");
             taskException->_toString = callStringMethod(env, objClass, jobj, "toString");
-            cc::callJSfunc(it->second.get(), "onFailure", taskException);
+            cc::callJSfunc(listener.get(), "onFailure", taskException);
         }
-        _listeners.erase(it);
     }
 }
 
 void PlayTask::onTaskSuccess(int listerId, void* obj) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
-        callJSfuncWithJObject(it->second.get(), "onSuccess", obj);
+        // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
+        // Therefore, it should be removed first."
+        scopedListener listener(it->second.get());
         _listeners.erase(it);
+        callJSfuncWithJObject(it->second.get(), "onSuccess", obj);
     }
 }
 
@@ -174,15 +184,19 @@ void* PlayTask::onTaskContinueWith(int listerId, int nextTaskId) {
     void * ptr = nullptr;
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
-        se::Value r = callJSfunc(it->second.get(), "then");
+        // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
+        // Therefore, it should be removed first."
+        scopedListener listener(it->second.get());
+        _listeners.erase(it);
 
-        if(r.isNumber()) {
-            ptr = reinterpret_cast<void*>(intToJObject(JniHelper::getEnv(), r.toInt32()));
-        } else if(r.isBoolean()) {
-            ptr = reinterpret_cast<void*>(boolToJObject(JniHelper::getEnv(), r.toBoolean()));
-        } else if(r.isString()) {
-            ptr = reinterpret_cast<void*>(stringToJString(JniHelper::getEnv(), r.toString()));
-        } else if(r.isObject()) {
+        se::Value result = callJSfunc(listener.get(), "then");
+        if(result.isNumber()) {
+            ptr = reinterpret_cast<void*>(intToJObject(JniHelper::getEnv(), result.toInt32()));
+        } else if(result.isBoolean()) {
+            ptr = reinterpret_cast<void*>(boolToJObject(JniHelper::getEnv(), result.toBoolean()));
+        } else if(result.isString()) {
+            ptr = reinterpret_cast<void*>(stringToJString(JniHelper::getEnv(), result.toString()));
+        } else if(result.isObject()) {
             // Currently, there is no need to parse objects, and the implemented functional objects (such as AuthenticationResult) do not provide constructors.
             // If needed in the future, they can be parsed as follows :
             // se::Object* obj = r.toObject();
@@ -191,7 +205,6 @@ void* PlayTask::onTaskContinueWith(int listerId, int nextTaskId) {
             //     auto* result = reinterpret_cast<cc::AuthenticationResult*>(obj->getPrivateData());
             // }
         }
-        _listeners.erase(it);
     }
     return ptr;
 }
