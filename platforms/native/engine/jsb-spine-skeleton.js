@@ -301,7 +301,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setSkeletonData = function (skeletonData) {
-        const uuid = skeletonData._uuid;
+        const uuid = skeletonData.mergedUUID();
         if (!uuid) {
             cc.errorID(7504);
             return;
