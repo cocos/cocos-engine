@@ -61,7 +61,7 @@ private:
 
 class Achievement {
 public:
-    
+
     int getCurrentSteps() const {
         return _currentSteps;
     }
@@ -122,28 +122,40 @@ private:
 class AchievementBuffer {
 public:
     ~AchievementBuffer() {
-        for(auto* achievement : _achievements) {
-            delete achievement;
-        }
-        _achievements.clear();
+        release();
     }
+
+    Achievement* createAchievement() {
+        auto* achievement = new Achievement(); // --> new elements also in AchievementBuffer class
+        _achievements.emplace_back(achievement);
+        return achievement;
+    }
+
     size_t getCount() const {
         return _achievements.size();
     }
+
     const Achievement* get(int i) const {
         if(i >= 0 && i < _achievements.size()) {
             return _achievements[i];
         }
         return nullptr;
     }
-    void close() const {
+
+    void close() {
         release();
     }
+
     bool isClosed() const {
         return _isClosed;
     }
-    void release() const {
-        CC_LOG_WARNING("interface not implemented");
+
+    void release() {
+        for(auto* achievement : _achievements) {
+            delete achievement;
+        }
+        _achievements.clear();
+        _isClosed = true;
     }
 private:
     friend class PlayTask;

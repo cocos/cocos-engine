@@ -225,7 +225,7 @@ void PlayTask::callJSfuncWithJObject(se::Object* listener, const char* functionN
                     jobject achievementObj = env->CallObjectMethod(achievementBufferObj, methodId, i);
                     jclass achievementObjClass = env->GetObjectClass(achievementObj);
                     if (achievementObj != nullptr) {
-                        auto* achievement = new Achievement;
+                        auto* achievement = achievementBuffer.createAchievement();
                         achievement->_type = callIntMethod(env, achievementObjClass, achievementObj, "getType");
                         if(achievement->_type == Achievement::TYPE_INCREMENTAL) {
                             // Incremental achievements
@@ -254,7 +254,6 @@ void PlayTask::callJSfuncWithJObject(se::Object* listener, const char* functionN
                     }
                 }
                 callVoidMethod(env, achievementBufferObjClass, achievementBufferObj, "release");
-                achievementBuffer._isClosed = callBooleanMethod(env, achievementBufferObjClass, achievementBufferObj, "isClosed");
                 ccDeleteLocalRef(env, achievementBufferObjClass);
                 ccDeleteLocalRef(env, achievementBufferObj);
             }
