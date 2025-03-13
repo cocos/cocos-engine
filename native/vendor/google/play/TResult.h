@@ -108,8 +108,8 @@ private:
     int  _state{0};
     int _totalSteps{0};
     int _type{0};
-    long _lastUpdatedTimestamp;
-    long _xpValue;
+    long _lastUpdatedTimestamp{0};
+    long _xpValue{0};
     std::string _achievementId;
     std::string _description;
     std::string _formattedCurrentSteps;
@@ -131,16 +131,20 @@ public:
         return _achievements.size();
     }
     const Achievement* get(int i) {
-        return _achievements[i];
+        if(i >= 0 && i < _achievements.size()) {
+            return _achievements[i];
+        }
+        return nullptr;
     }
     void close() {
         release();
     }
     bool isCloseed() {
+        CC_LOG_WARNING("interface not implemented");
         return false;
     }
     void release() {
-
+        CC_LOG_WARNING("interface not implemented");
     }
 private:
     friend class PlayTask;
