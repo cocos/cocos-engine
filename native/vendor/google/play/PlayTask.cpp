@@ -129,6 +129,8 @@ int PlayTask::addListener(se::Object* listener) {
 void PlayTask::onTaskCanceled(int listerId) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
+        // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
+        // Therefore, it should be removed first.
         scopedListener listener(it->second.get());
         _listeners.erase(it);
         cc::callJSfunc(listener.get(), "onCanceled");
@@ -139,7 +141,7 @@ void PlayTask::onTaskComplete(int listerId, int nextTaskId) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
         // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
-        // Therefore, it should be removed first."
+        // Therefore, it should be removed first.
         scopedListener listener(it->second.get());
         _listeners.erase(it);
         PlayTask* newTask = PlayTaskManager::getInstance()->addTask(nextTaskId);
@@ -151,7 +153,7 @@ void PlayTask::onTaskFailure(int listerId, void* obj, int exceptionId) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
         // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
-        // Therefore, it should be removed first."
+        // Therefore, it should be removed first.
         scopedListener listener(it->second.get());
         _listeners.erase(it);
         auto* env = JniHelper::getEnv();
@@ -173,7 +175,7 @@ void PlayTask::onTaskSuccess(int listerId, void* obj) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
         // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
-        // Therefore, it should be removed first."
+        // Therefore, it should be removed first.
         scopedListener listener(it->second.get());
         _listeners.erase(it);
         callJSfuncWithJObject(it->second.get(), "onSuccess", obj);
@@ -185,7 +187,7 @@ void* PlayTask::onTaskContinueWith(int listerId, int nextTaskId) {
     auto it = _listeners.find(listerId);
     if (it != _listeners.end()) {
         // When calling the JavaScript onComplete function, there is a possibility that PlayTask might be garbage collected.
-        // Therefore, it should be removed first."
+        // Therefore, it should be removed first.
         scopedListener listener(it->second.get());
         _listeners.erase(it);
 
