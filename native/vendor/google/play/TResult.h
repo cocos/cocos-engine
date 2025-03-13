@@ -105,7 +105,7 @@ private:
     friend class PlayTask;
     static const char TYPE_INCREMENTAL{1};
     int _currentSteps{0};
-    int  _state{0};
+    int _state{0};
     int _totalSteps{0};
     int _type{0};
     long _lastUpdatedTimestamp{0};
@@ -130,20 +130,20 @@ public:
     size_t getCount() const {
         return _achievements.size();
     }
-    const Achievement* get(int i) {
+    const Achievement* get(int i) const {
         if(i >= 0 && i < _achievements.size()) {
             return _achievements[i];
         }
         return nullptr;
     }
-    void close() {
+    void close() const {
         release();
     }
-    bool isCloseed() {
+    bool isClosed() const {
         CC_LOG_WARNING("interface not implemented");
         return false;
     }
-    void release() {
+    void release() const {
         CC_LOG_WARNING("interface not implemented");
     }
 private:
@@ -156,7 +156,7 @@ public:
     bool isStale() const  {
         return _isStale;
     }
-    const AchievementBuffer* get() {
+    const AchievementBuffer* get() const {
         return &_achievementBuffer;
     }
 private:

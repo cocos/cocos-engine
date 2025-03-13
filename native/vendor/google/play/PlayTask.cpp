@@ -249,8 +249,8 @@ void PlayTask::callJSfuncWithJObject(se::Object* listener, const char* functionN
                         achievement->_revealedImageUrl = callStringMethod(env, achievementObjClass, achievementObj, "getRevealedImageUrl");
                         achievement->_unlockedImageUrl = callStringMethod(env, achievementObjClass, achievementObj, "getUnlockedImageUrl");
                         achievementBuffer._achievements.push_back(achievement);
-                        env->DeleteLocalRef(achievementObjClass);
-                        env->DeleteLocalRef(achievementObj);
+                        ccDeleteLocalRef(env, achievementObjClass);
+                        ccDeleteLocalRef(env, achievementObj);
                     }
                 }
                 ccDeleteLocalRef(env, achievementBufferObjClass);
