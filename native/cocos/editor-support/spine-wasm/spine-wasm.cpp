@@ -128,7 +128,7 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const String& jsonS
     SkeletonData* skeletonData = json.readSkeletonData(jsonStr.buffer());
     auto& errorMsg = json.getError();
     if (!errorMsg.isEmpty()) {
-        logToConsole(errorMsg.buffer(), LOG_LEVEL_ERROR);
+        logToConsole(errorMsg.buffer(), LOG_LEVEL_WARN);
     }
 
     updateAttachmentVerticesTextureId(skeletonData, textureNames, textureUUIDs);
@@ -155,7 +155,7 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize
     SkeletonData* skeletonData = binary.readSkeletonData(s_mem, byteSize);
     auto& errorMsg = binary.getError();
     if (!errorMsg.isEmpty()) {
-        logToConsole(errorMsg.buffer(), LOG_LEVEL_ERROR);
+        logToConsole(errorMsg.buffer(), LOG_LEVEL_WARN);
     }
 
     updateAttachmentVerticesTextureId(skeletonData, textureNames, textureUUIDs);

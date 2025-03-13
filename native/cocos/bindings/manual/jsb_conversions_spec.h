@@ -39,9 +39,7 @@
 #endif
 
 #if CC_USE_BOX2D_JSB
-class b2Vec2;
-class b2Vec3;
-class b2Color;
+#include "box2d/box2d.h"
 #endif
 
 namespace cc {
