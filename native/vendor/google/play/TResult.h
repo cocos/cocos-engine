@@ -126,7 +126,7 @@ public:
     }
 
     Achievement* createAchievement() {
-        auto* achievement = new Achievement(); // --> new elements also in AchievementBuffer class
+        auto* achievement = new Achievement(); 
         _achievements.emplace_back(achievement);
         return achievement;
     }
