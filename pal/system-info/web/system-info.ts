@@ -264,9 +264,9 @@ class SystemInfo extends EventTarget {
             const promise = createImageBitmap(canvas);
             if (promise instanceof Promise) {
                 return promise.then((imageBitmap) => {
-                    if(imageBitmap["close"]) {
+                    if (imageBitmap && imageBitmap.close) {
                         this._setFeature(Feature.IMAGE_BITMAP, true);
-                        imageBitmap?.close();
+                        imageBitmap.close();
                     }
                 });
             } else if (DEBUG) {
