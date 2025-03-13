@@ -26,6 +26,8 @@ jobs:
       - uses: lukka/get-cmake@latest
         with:
           cmakeVersion: 3.28.3
+          useLocalCache: true
+          useCloudCache: false
 
       - name: Check cmake version
         run: |
