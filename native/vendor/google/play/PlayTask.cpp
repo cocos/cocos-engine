@@ -211,7 +211,54 @@ void PlayTask::callJSfuncWithJObject(se::Object* listener, const char* functionN
             recallAccess->_hashCode = callIntMethod(env, objClass, jobj, "hashCode");
             recallAccess->_sessionId = callStringMethod(env, objClass, jobj, "getSessionId");
             cc::callJSfunc(listener, functionName, recallAccess);
-        } else if(name == "java.lang.Integer") {
+        } else if(name == "com.google.android.gms.games.AnnotatedData") {
+            auto* annotatedData = new AnnotatedData;
+            annotatedData->_isStale = callBooleanMethod(env,  objClass, jobj, "isStale");
+            jmethodID methodId = env->GetMethodID(objClass, "get", "()Ljava/lang/Object;");
+            jobject achievementBufferObj = env->CallObjectMethod(jobj, methodId);
+            if (achievementBufferObj != nullptr) {
+                auto& achievementBuffer = annotatedData->_achievementBuffer;
+                jclass achievementBufferObjClass = env->GetObjectClass(achievementBufferObj);
+                int count = callIntMethod(env,  achievementBufferObjClass, achievementBufferObj, "getCount");
+                jmethodID methodId = env->GetMethodID(achievementBufferObjClass, "get", "(I)Ljava/lang/Object;");
+                for(int i = 0; i < count; ++i) {
+                    jobject achievementObj = env->CallObjectMethod(achievementBufferObj, methodId, i);
+                    jclass achievementObjClass = env->GetObjectClass(achievementObj);
+                    if (achievementObj != nullptr) {
+                        auto* achievement = new Achievement;
+                        achievement->_type = callIntMethod(env, achievementObjClass, achievementObj, "getType");
+                        if(achievement->_type == Achievement::TYPE_INCREMENTAL) {
+                            // Incremental achievements
+                            achievement->_currentSteps = callIntMethod(env, achievementObjClass, achievementObj, "getCurrentSteps");
+                            achievement->_totalSteps = callIntMethod(env, achievementObjClass, achievementObj, "getTotalSteps");
+                            achievement->_formattedCurrentSteps = callStringMethod(env, achievementObjClass, achievementObj, "getFormattedCurrentSteps");
+                            achievement->_formattedTotalSteps = callStringMethod(env, achievementObjClass, achievementObj, "getFormattedTotalSteps");
+                        } else {
+                            // Standard achievements
+                            achievement->_currentSteps = 0;
+                            achievement->_totalSteps = 0;
+                            achievement->_formattedCurrentSteps = "";
+                            achievement->_formattedTotalSteps = "";
+                        }
+                        achievement->_state = callIntMethod(env, achievementObjClass, achievementObj, "getState");
+                        achievement->_lastUpdatedTimestamp = callLongMethod(env, achievementObjClass, achievementObj, "getLastUpdatedTimestamp");
+                        achievement->_xpValue = callLongMethod(env, achievementObjClass, achievementObj, "getXpValue");
+                        achievement->_achievementId = callStringMethod(env, achievementObjClass, achievementObj, "getAchievementId");
+                        achievement->_description = callStringMethod(env, achievementObjClass, achievementObj, "getDescription");
+                        achievement->_name = callStringMethod(env, achievementObjClass, achievementObj, "getName");
+                        achievement->_revealedImageUrl = callStringMethod(env, achievementObjClass, achievementObj, "getRevealedImageUrl");
+                        achievement->_unlockedImageUrl = callStringMethod(env, achievementObjClass, achievementObj, "getUnlockedImageUrl");
+                        achievementBuffer._achievements.push_back(achievement);
+                        env->DeleteLocalRef(achievementObjClass);
+                        env->DeleteLocalRef(achievementObj);
+                    }
+                }
+                ccDeleteLocalRef(env, achievementBufferObjClass);
+                ccDeleteLocalRef(env, achievementBufferObj);
+            }
+            cc::callJSfunc(listener, functionName, annotatedData);
+        }
+        else if(name == "java.lang.Integer") {
             int value = integerObjectToInt(env, objClass, jobj);
             cc::callJSfunc(listener, functionName, value);
         } else if(name == "java.lang.Double") {
