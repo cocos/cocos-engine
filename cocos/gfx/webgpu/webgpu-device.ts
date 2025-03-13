@@ -477,7 +477,7 @@ export class WebGPUDevice extends Device {
         defaultResource.descSet.update();
     }
 
-    get FloatFilterable (): boolean {
+    get floatFilterable (): boolean {
         return this._adapter!.features.has('float32-filterable');
     }
 

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { BufferFlagBit, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../base/define';
+import { BufferFlagBit, BufferInfo, BufferUsageBit, Format, MemoryUsageBit, SampleCount, TextureFlagBit, TextureInfo, TextureType, TextureUsageBit } from '../base/define';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { WebGPUBuffer } from './webgpu-buffer';
@@ -85,6 +85,7 @@ export class DefaultResources {
     buffersDescLayout: Map<number, WebGPUBuffer> = new Map<number, WebGPUBuffer>();
     texturesDescLayout: Map<number, WebGPUTexture> = new Map<number, WebGPUTexture>();
     samplersDescLayout: Map<number, WebGPUSampler> = new Map<number, WebGPUSampler>();
+    dsTextures: Map<string, WebGPUTexture> = new Map<string, WebGPUTexture>();
     buffer!: WebGPUBuffer;
     storageBuffers: WebGPUBuffer[] = [];
     texture!: WebGPUTexture;
@@ -92,6 +93,31 @@ export class DefaultResources {
     sampler!: WebGPUSampler;
     setLayout!: DescriptorSetLayout;
     descSet!: DescriptorSet;
+    getDefaultDSInfo (width: number, height: number): TextureInfo {
+        const texInfo = new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.SAMPLED | TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+            Format.DEPTH_STENCIL,
+            width,
+            height,
+            TextureFlagBit.NONE,
+            1,
+            1,
+            SampleCount.X1,
+            1,
+        );
+        return texInfo;
+    }
+    getDefaultDSTex (width: number, height: number):  WebGPUTexture {
+        const key = `${width}:${height}`;
+        let defaultTex = this.dsTextures.get(key);
+        if (!defaultTex) {
+            defaultTex = WebGPUDeviceManager.instance.createTexture(this.getDefaultDSInfo(width, height)) as WebGPUTexture;
+            this.dsTextures.set(key, defaultTex);
+        }
+        return defaultTex;
+    }
+
     getStorageBuffer (idx: number): WebGPUBuffer {
         if (this.storageBuffers[idx]) {
             return this.storageBuffers[idx];

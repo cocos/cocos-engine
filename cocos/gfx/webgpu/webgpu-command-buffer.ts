@@ -233,7 +233,11 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         }
 
         if (this._wgpuRenderPass.depthStencilAttachment) {
-            const tex = gpuFramebuffer.gpuDepthStencilTexture?.gpuTexture;
+            let tex = gpuFramebuffer.gpuDepthStencilTexture?.gpuTexture;
+            if (gpuFramebuffer.isOffscreen && !tex) {
+                const defaultDSTex = device.defaultResource.getDefaultDSTex(gpuFramebuffer.width, gpuFramebuffer.height);
+                tex = defaultDSTex.gpuTexture.gpuTexture;
+            }
             const depthTex = tex ? tex.createView() : swapchain.gpuDepthStencilTextureView;
             const depthStencilAttachment = this._nativePassDesc.depthStencilAttachment!;
             depthStencilAttachment.view = depthTex;
