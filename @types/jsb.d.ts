@@ -1473,6 +1473,40 @@ declare namespace jsb {
         public requestServerSideAccess(serverClientId: string, forceRefreshToken: boolean): PlayTask;
         public signIn(): PlayTask;
     }
+    export class Achievement {
+        public static STATE_UNLOCKED: number;
+        public static STATE_REVEALED: number;
+        public static STATE_HIDDEN: number;
+        public static TYPE_STANDARD: number;
+        public static TYPE_INCREMENTAL: number;
+        public getCurrentSteps(): number;
+        public getState(): number;
+        public getTotalSteps(): number;
+        public getType(): number;
+        public getLastUpdatedTimestamp(): number;
+        public getXpValue(): number;
+        public getAchievementId(): string;
+        public getDescription(): string;
+        public getFormattedCurrentSteps(): string;
+        public getFormattedTotalSteps(): string;
+        public getName(): string;
+        public getRevealedImageUrl(): string;
+        public getUnlockedImageUrl(): string;
+    }
+
+    export class AchievementBuffer {
+        public getCount(): number;
+        public get(i: number): Achievement;
+        public close(): void;
+        public release(): void;
+        public isClosed(): boolean;
+    }
+
+    export class AnnotatedData {
+        public isStale(): boolean;
+        public get(): AchievementBuffer;
+    }
+
     export class AchievementsClient {
         public showAchievements(): void;
         public incrementImmediate(id: string, numSteps: number): PlayTask;

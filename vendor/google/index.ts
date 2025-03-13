@@ -25,6 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import './billing/billing-enum';
+import './play/play-enum';
 import { PlayGamesHelper, GamesSignInClientHelper } from './play/games';
 import { TaskHelper, ContinuationHelper } from './play/task';
 
@@ -53,6 +54,9 @@ export namespace google {
         export const AuthenticationResult = ns.AuthenticationResult;
         export const RecallAccess = ns.RecallAccess;
         export const PlayException = ns.PlayException;
+        export const AnnotatedData = ns.AnnotatedData;
+        export const AchievementBuffer = ns.AchievementBuffer;
+        export const Achievement = ns.Achievement;
     }
 }
 export declare namespace google {
@@ -175,5 +179,8 @@ export declare namespace google {
         export type Task<T, K = void> = TaskHelper<T, K>;
         export type RecallAccess = jsb.RecallAccess;
         export type PlayException = jsb.PlayException;
+        export type AnnotatedData = jsb.AnnotatedData;
+        export type AchievementBuffer = jsb.AchievementBuffer;
+        export type Achievement = jsb.Achievement;
     }
 }

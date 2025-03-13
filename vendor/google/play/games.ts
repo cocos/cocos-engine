@@ -192,8 +192,8 @@ export class AchievementsClient {
         GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
-    load (id: boolean): TaskHelper<boolean> {
-        const newTask = new GooglePlayTask<boolean>(jsb.PlayGames.getAchievementsClient().load(id));
+    load (forceReload: boolean): TaskHelper<jsb.AnnotatedData> {
+        const newTask = new GooglePlayTask<jsb.AnnotatedData>(jsb.PlayGames.getAchievementsClient().load(forceReload));
         GooglePlayTask.taskMgr.addTask(newTask);
         return newTask;
     }
