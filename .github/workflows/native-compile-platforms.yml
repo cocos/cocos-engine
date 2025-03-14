@@ -48,6 +48,7 @@ jobs:
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-win64/proj
           touch build-win64/proj/cfg.cmake
+          echo "set(USE_BOX2D_JSB ON)" >> build-win64/proj/cfg.cmake
           echo "set(USE_PHYSICS_PHYSX ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_USE_VULKAN ON)" >> build-win64/proj/cfg.cmake
@@ -202,6 +203,8 @@ jobs:
           cd $GITHUB_WORKSPACE/templates/android/build
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
+          echo "set(USE_GOOGLE_BILLING ON)" >> build-android/proj/cfg.cmake
+          echo "set(USE_GOOGLE_PLAY_GAMES ON)" >> build-android/proj/cfg.cmake
           echo "set(USE_PHYSICS_PHYSX ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
