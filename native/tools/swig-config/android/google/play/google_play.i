@@ -24,6 +24,8 @@
 #include "vendor/google/play/TResult.h"
 %}
 
+%ignore cc::AchievementBuffer::createAchievement;
+
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note: 

@@ -158,7 +158,6 @@ public:
         _isClosed = true;
     }
 private:
-    friend class PlayTask;
     bool _isClosed{false};
     std::vector<Achievement*> _achievements;
 };
