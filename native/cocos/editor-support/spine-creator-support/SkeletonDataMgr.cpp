@@ -30,13 +30,13 @@
 #include "SkeletonDataMgr.h"
 #include <algorithm>
 #include <vector>
+#include "AttachmentVertices.h"
 
 using namespace spine; //NOLINT
 using namespace cc; //NOLINT
 
 namespace cc {
 
-class AttachmentVertices;
 
 class SkeletonDataInfo {
 public:
@@ -51,7 +51,7 @@ public:
         if (atlas) {
 #if CC_USE_SPINE_4_2
             auto &regions = atlas->getRegions();
-            int size = regions.size();
+            auto size = regions.size();
             for (int i = 0; i < size; i++) {
                 auto *region = regions[i];
                 if (region->rendererObject) {
