@@ -19,7 +19,9 @@ option(USE_VIDEO        "Enable VideoPlayer Component"      ON)
 option(USE_WEBVIEW      "Enable WebView Component"          OFF)
 option(USE_MIDDLEWARE   "Enable Middleware"                 ON)
 option(USE_DRAGONBONES  "Enable Dragonbones"                ON)
-option(USE_SPINE        "Enable Spine"                      ON)
+# NOTE: Could only enable spine 3.8 or spine 4.2, should not enable them both.
+option(USE_SPINE_3_8   "Enable Spine 3.8"                   ON)
+option(USE_SPINE_4_2   "Enable Spine 4.2"                   OFF)
 option(USE_PHYSICS_PHYSX "USE PhysX Physics"                ON)
 option(USE_BOX2D_JSB     "USE Box2D JSB"                    ON)
 
