@@ -59,7 +59,7 @@ function hasImplementedInstantiate (original: any): original is { _instantiate (
     return typeof original._instantiate === 'function';
 }
 
-// 用于检测当前节点是否是一个 PrefabInstance 中的 Mounted 的节点
+// Used to detect whether the current node is a Mounted node in a PrefabInstance
 function isMountedChild (node: Node): boolean {
     const editorExtras = node[editorExtrasTag];
     if (typeof editorExtras === 'object') {
