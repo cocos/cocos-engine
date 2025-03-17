@@ -52,7 +52,9 @@ RenderFlowInfo ShadowFlow::initInfo = {
 const RenderFlowInfo &ShadowFlow::getInitializeInfo() { return ShadowFlow::initInfo; }
 
 ShadowFlow::ShadowFlow() = default;
-ShadowFlow::~ShadowFlow() = default;
+ShadowFlow::~ShadowFlow() {
+    destroy();
+}
 
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
@@ -345,8 +347,10 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline *pipeline, const sce
 }
 
 void ShadowFlow::destroy() {
-    _pipeline->getGlobalDSManager()->bindTexture(SHADOWMAP::BINDING, nullptr);
-    _pipeline->getGlobalDSManager()->bindTexture(SPOTSHADOWMAP::BINDING, nullptr);
+    if (_pipeline != nullptr && _pipeline->getGlobalDSManager() != nullptr) {
+        _pipeline->getGlobalDSManager()->bindTexture(SHADOWMAP::BINDING, nullptr);
+        _pipeline->getGlobalDSManager()->bindTexture(SPOTSHADOWMAP::BINDING, nullptr);
+    }
 
     _renderPass = nullptr;
     renderPassHashMap.clear();

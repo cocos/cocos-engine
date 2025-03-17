@@ -42,7 +42,9 @@ RenderFlowInfo ReflectionProbeFlow::initInfo = {
 const RenderFlowInfo &ReflectionProbeFlow::getInitializeInfo() { return ReflectionProbeFlow::initInfo; }
 
 ReflectionProbeFlow::ReflectionProbeFlow() = default;
-ReflectionProbeFlow::~ReflectionProbeFlow() = default;
+ReflectionProbeFlow::~ReflectionProbeFlow() {
+    destroy();
+}
 
 bool ReflectionProbeFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
