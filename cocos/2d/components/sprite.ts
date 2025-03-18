@@ -35,6 +35,7 @@ import { TextureBase } from '../../asset/assets/texture-base';
 import { Material, RenderTexture } from '../../asset/assets';
 import { NodeEventType } from '../../scene-graph/node-event';
 import type { RenderData } from '../renderer/render-data';
+import { assetManager } from '../../asset/asset-manager';
 
 /**
  * @en
@@ -216,6 +217,47 @@ export class Sprite extends UIRenderer {
             this.node.emit(SpriteEventType.SPRITE_FRAME_CHANGED, this);
         }
     }
+
+    /**
+    * @en
+    * The preview sprite frame of the sprite in the editor.
+    *
+    * @zh
+    * 精灵在编辑器内的预览精灵帧。
+    */
+    @type(SpriteFrame)
+    @displayOrder(5.5)
+    get previewSprite(): SpriteFrame | null {
+        return this._previewSprite;
+    }
+    set previewSprite(value) {
+        if (!EDITOR || this._previewSprite === value) {
+            return;
+        }
+        const oldSP = this._previewSprite || this._spriteFrame;
+        this._previewSprite = value;
+
+        if (value) {
+            this._previewUUID = value.uuid;
+            this._spriteFrame = value;
+            this.markForUpdateRenderData();
+            this._applySpriteFrame(oldSP);
+            this.node.emit(SpriteEventType.SPRITE_FRAME_CHANGED, this);
+            setTimeout(() => {
+                this._spriteFrame = oldSP;
+            }, 20);
+        } else {
+            this._previewUUID = "";
+            this.markForUpdateRenderData();
+            this._applySpriteSize();
+            this.node.emit(SpriteEventType.SPRITE_FRAME_CHANGED, this);
+        }
+    }
+
+    protected _previewSprite: SpriteFrame | null = null;
+
+    @serializable
+    protected _previewUUID: string = "";
 
     /**
      * @en
@@ -480,6 +522,10 @@ export class Sprite extends UIRenderer {
         this.changeMaterialForDefine();
         super.__preload();
 
+        if (!EDITOR && this._previewUUID) {
+            this._applySpriteSize();
+        }
+
         if (EDITOR) {
             this._resized();
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
@@ -571,8 +617,24 @@ export class Sprite extends UIRenderer {
         return mat;
     }
 
+    onLoad(): void {
+        super.onLoad();
+
+        if (EDITOR && this._previewUUID) {
+            assetManager.loadAny(this._previewUUID, (err, as) => {
+                if (as) {
+                    this.previewSprite = as as SpriteFrame;
+                }
+            });
+        }
+    }
+
     protected _render (render: IBatcher): void {
-        render.commitComp(this, this.renderData, this._spriteFrame, this._assembler, null);
+        if (EDITOR && this._previewSprite) {
+            render.commitComp(this, this.renderData, this._previewSprite, this._assembler, null);
+        } else {
+            render.commitComp(this, this.renderData, this._spriteFrame, this._assembler, null);
+        }
     }
 
     protected _canRender (): boolean {
@@ -620,7 +682,7 @@ export class Sprite extends UIRenderer {
         }
     }
 
-    private _applySpriteSize (): void {
+    protected _applySpriteSize(): void {
         const self = this;
         const spriteFrame = self._spriteFrame;
         if (spriteFrame) {
@@ -638,7 +700,7 @@ export class Sprite extends UIRenderer {
     }
 
     private _resized (): void {
-        if (!EDITOR) {
+        if (!EDITOR || (this._previewUUID || this._previewSprite)) {
             return;
         }
 
