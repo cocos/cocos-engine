@@ -176,6 +176,26 @@ export class RichText extends Component {
 
     /**
      * @en
+     * Preview content of RichText in the editor.
+     *
+     * @zh
+     * 富文本在编辑器里的预览文本内容。
+     */
+    @multiline
+    get preview(): string {
+        return this._preview;
+    }
+    set preview(value) {
+        if (this._preview === value) {
+            return;
+        }
+
+        this._preview = value;
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
      * Horizontal Alignment of each line in RichText.
      *
      * @zh
@@ -464,6 +484,8 @@ export class RichText extends Component {
 
     @serializable
     protected _lineHeight = 40;
+    @serializable
+    protected _preview = '';
     @serializable
     protected _string = '<color=#00ff00>Rich</color><color=#0fffff>Text</color>';
     // protected _updateRichTextStatus =
@@ -1069,7 +1091,12 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
             return;
         }
 
-        const newTextArray = _htmlTextParser.parse(this._string);
+        let showStr = this._string;
+        if (EDITOR && this._preview) {
+            showStr = this._preview;
+        }
+
+        const newTextArray = _htmlTextParser.parse(showStr);
         if (!this._needsUpdateTextLayout(newTextArray)) {
             this._textArray = newTextArray.slice();
             this._updateLabelSegmentTextAttributes();
