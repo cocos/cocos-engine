@@ -2255,6 +2255,8 @@ export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER_TEXTURE | Descript
 
 export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
 
+export const DESCRIPTOR_STORAGE_BUFFER_TYPE = DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
+
 export const DRAW_INFO_SIZE = 28;
 
 export type BufferSource = ArrayBuffer | IndirectBuffer;

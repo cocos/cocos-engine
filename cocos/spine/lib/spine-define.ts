@@ -25,6 +25,7 @@
 /* eslint @typescript-eslint/no-unsafe-argument: "off" */
 
 import spine from './spine-core';
+import { SPINE_VERSION } from './spine-version';
 import { js } from '../../core';
 
 function resizeArray (array: any[], newSize: number): any[] {
@@ -272,9 +273,16 @@ function overrideProperty_ColorTimeline (): void {
     overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
 }
 
+function overrideProperty_Timeline (): void {
+    const prototype = spine.Timeline.prototype as any;
+    overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
+}
+
 function overrideProperty_AttachmentTimeline (): void {
     const prototype = spine.AttachmentTimeline.prototype as any;
-    overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
+    if (SPINE_VERSION === '3.8') {
+        overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
+    }
     overrideDefineArrayProp(prototype, prototype.getAttachmentNames, 'attachmentNames');
 }
 
@@ -335,7 +343,11 @@ export function overrideSpineDefine (wasm): void {
     overrideProperty_SkinEntry();
     overrideProperty_SkeletonData();
     overrideProperty_RotateTimeline();
-    overrideProperty_ColorTimeline();
+    if (SPINE_VERSION === '3.8') {
+        overrideProperty_ColorTimeline();
+    } else if (SPINE_VERSION === '4.2') {
+        overrideProperty_Timeline();
+    }
     overrideProperty_AttachmentTimeline();
     overrideProperty_DeformTimeline();
     overrideProperty_EventTimeline();

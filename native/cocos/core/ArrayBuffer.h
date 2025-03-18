@@ -36,70 +36,28 @@ class ArrayBuffer : public RefCounted {
 public:
     using Ptr = IntrusivePtr<ArrayBuffer>;
 
-    explicit ArrayBuffer(uint32_t length) : _byteLength{length} {
-        _jsArrayBuffer = se::Object::createArrayBufferObject(nullptr, length);
-        _jsArrayBuffer->root();
-        _jsArrayBuffer->getArrayBufferData(static_cast<uint8_t **>(&_data), nullptr);
-        memset(_data, 0x00, _byteLength);
-    }
+    explicit ArrayBuffer(uint32_t length);
+    ArrayBuffer(const uint8_t *data, uint32_t length);
 
-    ArrayBuffer(const uint8_t *data, uint32_t length) {
-        reset(data, length);
-    }
+    ArrayBuffer();
+    ~ArrayBuffer() override;
 
-    ArrayBuffer() = default;
-
-    ~ArrayBuffer() override {
-        if (_jsArrayBuffer) {
-            _jsArrayBuffer->unroot();
-            _jsArrayBuffer->decRef();
-        }
-    }
-
-    inline void setJSArrayBuffer(se::Object *arrayBuffer) {
-        if (_jsArrayBuffer) {
-            _jsArrayBuffer->unroot();
-            _jsArrayBuffer->decRef();
-        }
-
-        _jsArrayBuffer = arrayBuffer;
-        _jsArrayBuffer->incRef();
-        _jsArrayBuffer->root();
-        size_t length{0};
-        _jsArrayBuffer->getArrayBufferData(static_cast<uint8_t **>(&_data), &length);
-        _byteLength = static_cast<uint32_t>(length);
-    }
+    void setJSArrayBuffer(se::Object *arrayBuffer);
     inline se::Object *getJSArrayBuffer() const { return _jsArrayBuffer; }
 
     inline uint32_t byteLength() const { return _byteLength; }
 
-    Ptr slice(uint32_t begin) {
+    inline Ptr slice(uint32_t begin) {
         return slice(begin, _byteLength);
     }
 
-    Ptr slice(uint32_t begin, uint32_t end) {
-        CC_ASSERT_GT(end, begin);
-        CC_ASSERT_LT(begin, _byteLength);
-        CC_ASSERT_LE(end, _byteLength);
-        uint32_t newBufByteLength = (end - begin);
-        Ptr buffer = ccnew ArrayBuffer(newBufByteLength);
-        memcpy(buffer->getData(), _data + begin, newBufByteLength);
-        return buffer;
-    }
+    Ptr slice(uint32_t begin, uint32_t end);
 
     // Just use it to copy data. Use TypedArray to get/set data.
     inline const uint8_t *getData() const { return _data; }
     inline uint8_t *getData() { return _data; }
 
-    inline void reset(const uint8_t *data, uint32_t length) {
-        if (_jsArrayBuffer != nullptr) {
-            _jsArrayBuffer->unroot();
-            _jsArrayBuffer->decRef();
-        }
-        _jsArrayBuffer = se::Object::createArrayBufferObject(data, length);
-        _jsArrayBuffer->getArrayBufferData(static_cast<uint8_t **>(&_data), nullptr);
-        _byteLength = length;
-    }
+    void reset(const uint8_t *data, uint32_t length);
 
 private:
     se::Object *_jsArrayBuffer{nullptr};

@@ -506,6 +506,10 @@ module.exports = {
         node: '节点菜单',
         component: '组件菜单',
 
+        copy_property_path: '复制属性路径',
+        copy_property_value: '复制值',
+        paste_property_value: '粘贴值',
+
         remove_component: '删除组件',
         reset_component: '重置组件',
         move_up_component: '向上移动',

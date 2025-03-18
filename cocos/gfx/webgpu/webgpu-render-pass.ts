@@ -69,8 +69,7 @@ export class WebGPURenderPass extends RenderPass {
             colorAttachments: originalColorDesc,
         };
 
-        if (info.depthStencilAttachment) {
-            if (info.depthStencilAttachment.format === Format.UNKNOWN) info.depthStencilAttachment.format = Format.DEPTH_STENCIL;
+        if (info.depthStencilAttachment.format !== Format.UNKNOWN) {
             const depthStencilDescriptor = this._generateDSAttachment(info.depthStencilAttachment);
             const originalDepthStencilDesc = this._generateDSAttachment(info.depthStencilAttachment);
             renderPassDesc.depthStencilAttachment = depthStencilDescriptor;

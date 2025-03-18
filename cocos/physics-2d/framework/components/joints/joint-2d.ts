@@ -100,7 +100,7 @@ export class Joint2D extends Component {
      */
     TYPE = EJoint2DType.None;
 
-    protected onLoad (): void {
+    protected override onLoad (): void {
         if (!EDITOR_NOT_IN_PREVIEW) {
             this._joint = createJoint(this.TYPE);
             this._joint.initialize(this);
@@ -109,25 +109,25 @@ export class Joint2D extends Component {
         }
     }
 
-    protected onEnable (): void {
+    protected override onEnable (): void {
         if (this._joint && this._joint.onEnable) {
             this._joint.onEnable();
         }
     }
 
-    protected onDisable (): void {
+    protected override onDisable (): void {
         if (this._joint && this._joint.onDisable) {
             this._joint.onDisable();
         }
     }
 
-    protected start (): void {
+    protected override start (): void {
         if (this._joint && this._joint.start) {
             this._joint.start();
         }
     }
 
-    protected onDestroy (): void {
+    protected override onDestroy (): void {
         if (this._joint && this._joint.onDestroy) {
             this._joint.onDestroy();
         }

@@ -28,7 +28,8 @@
  *****************************************************************************/
 
 #include "VertexEffectDelegate.h"
-namespace spine {
+
+namespace cc {
 
 VertexEffectDelegate::VertexEffectDelegate() {
 }
@@ -51,23 +52,23 @@ void VertexEffectDelegate::clear() {
 
 JitterVertexEffect *VertexEffectDelegate::initJitter(float jitterX, float jitterY) {
     clear();
-    _vertexEffect = new JitterVertexEffect(jitterX, jitterY);
+    _vertexEffect = new spine::JitterVertexEffect(jitterX, jitterY);
     _effectType = "jitter";
     return (JitterVertexEffect *)_vertexEffect;
 }
 
 SwirlVertexEffect *VertexEffectDelegate::initSwirlWithPow(float radius, int power) {
     clear();
-    _interpolation = new PowInterpolation(power);
-    _vertexEffect = new SwirlVertexEffect(radius, *_interpolation);
+    _interpolation = new spine::PowInterpolation(power);
+    _vertexEffect = new spine::SwirlVertexEffect(radius, *_interpolation);
     _effectType = "swirl";
     return (SwirlVertexEffect *)_vertexEffect;
 }
 
 SwirlVertexEffect *VertexEffectDelegate::initSwirlWithPowOut(float radius, int power) {
     clear();
-    _interpolation = new PowOutInterpolation(power);
-    _vertexEffect = new SwirlVertexEffect(radius, *_interpolation);
+    _interpolation = new spine::PowOutInterpolation(power);
+    _vertexEffect = new spine::SwirlVertexEffect(radius, *_interpolation);
     _effectType = "swirl";
     return (SwirlVertexEffect *)_vertexEffect;
 }
@@ -81,4 +82,4 @@ SwirlVertexEffect *VertexEffectDelegate::getSwirlVertexEffect() {
     SwirlVertexEffect *swirl = dynamic_cast<SwirlVertexEffect *>(_vertexEffect);
     return swirl;
 }
-} // namespace spine
+} // namespace cc

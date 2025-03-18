@@ -277,7 +277,7 @@ Failed to initialize render pipeline.
 
 ### 1223
 
-Custom pipeline and legacy pipeline are all culled. 
+Custom pipeline and legacy pipeline are all culled.
 
 ### 1300
 
@@ -3471,7 +3471,7 @@ The shadow visible distance is so small that CSM stratification is not effective
 
 ### 15004
 
-The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade.
+The native folder may be generated from older versions, please refer <https://docs.cocos.com/creator/manual/en/release-notes/> to upgrade.
 
 ### 15100
 
@@ -3495,11 +3495,11 @@ Camera '%s' clear flag is skybox, but skybox is disabled,  may cause strange bac
 
 ### 16101
 
-The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html
+The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to <https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html>
 
 ### 16201
 
-The asset replacing failed, can not found override asset('%s') for '%s' 
+The asset replacing failed, can not found override asset('%s') for '%s'
 
 ### 16301
 
@@ -3932,3 +3932,47 @@ Spline error: invalid mode
 ### 16408
 
 [Physics2D] b2PolygonShape failed to decompose polygon into convex polygons, node name: %s
+
+### 16409
+
+setVertexEffectDelegate is deprecated since spine 4.2.
+
+### 16410
+
+Debug bones or slots is invalid in cached mode.
+
+### 16411
+
+Slots visible range can not be modified in cached mode.
+
+### 16412
+
+Track index can not greater than 0 in cached mode.
+
+### 16413
+
+Track index can not greater than 0 in cached mode.
+
+### 16414
+
+'getCurrent' interface can not be invoked in cached mode.
+
+### 16415
+
+cached mode not support setMix!!!
+
+### 16416
+
+'clearTracks' interface can not be invoked in cached mode.
+
+### 16417
+
+'clearTrack' interface can not be invoked in cached mode.
+
+### 16418
+
+Debug bones or slots is invalid in cached mode.
+
+### 16419
+
+Spine version not supported.

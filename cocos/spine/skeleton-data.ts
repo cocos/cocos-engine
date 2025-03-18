@@ -216,7 +216,8 @@ export class SkeletonData extends Asset {
             const size = this.textures.length;
             const textureUUIDs: string[] = [];
             for (let i = 0; i < size; ++i) {
-                textureUUIDs.push(this.textures[i].uuid);
+                const tex = this.textures[i];
+                textureUUIDs.push(tex.uuid || tex.getId());
             }
             if (this._skeletonJson) {
                 this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(this.skeletonJsonStr, this._atlasText, this.textureNames, textureUUIDs);
@@ -279,7 +280,14 @@ export class SkeletonData extends Asset {
     }
 
     private mergedUUID (): string {
-        return this._uuid + murmurhash2_32_gc(this._atlasText, 668).toString();
+        // merge texture's id and atlas content
+        const hashContent = [
+            this._atlasText,
+            ...this.textures.map((texture) => texture.getId()),
+        ].join('');
+
+        // merge asset's uuid & hashContent
+        return `${this._uuid}${murmurhash2_32_gc(hashContent, 668)}`;
     }
 
     /**

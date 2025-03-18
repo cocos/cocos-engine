@@ -22,8 +22,13 @@ android {
     }
 
     if(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean()) {
-        sourceSets.main.java.srcDirs += ["../java/vendor"]
+        sourceSets.main.java.srcDirs += ["../java/vendor/billing"]
     }
+
+    if(project.hasProperty("PROP_ENABLE_GOOGLE_PLAY_GAMES") && project.PROP_ENABLE_GOOGLE_PLAY_GAMES.toBoolean()) {
+        sourceSets.main.java.srcDirs += ["../java/vendor/play"]
+    }
+
     buildDir = new File(rootProject.buildDir, project.name)
 
     buildTypes {
@@ -42,5 +47,8 @@ dependencies {
     api fileTree(include: ['*.jar'], dir: '../java/libs')
     if(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean()) {
         implementation "com.android.billingclient:billing:7.1.0"
+    }
+    if(project.hasProperty("PROP_ENABLE_GOOGLE_PLAY_GAMES") && project.PROP_ENABLE_GOOGLE_PLAY_GAMES.toBoolean()) {
+        implementation "com.google.android.gms:play-services-games-v2:+"
     }
 }

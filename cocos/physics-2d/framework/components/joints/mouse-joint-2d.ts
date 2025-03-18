@@ -100,7 +100,7 @@ export class MouseJoint2D extends Joint2D {
         }
     }
 
-    update (dt): void {
+    update (dt: number): void {
         this._joint!.update!(dt);
     }
 

@@ -28,6 +28,7 @@
 #include <vector>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
+#include "vendor/google/common/ScopedListener.h"
 
 namespace se {
 class Object;
@@ -46,22 +47,6 @@ class BillingResult;
 
 class CC_DLL BillingClient : public cc::RefCounted {
 private:
-    class scopedListener {
-    public:
-        scopedListener() = default;
-        scopedListener(se::Object* obj);
-        ~scopedListener();
-        se::Object* get() const {
-            return _obj;
-        }
-        void reset(se::Object* obj);
-        operator bool() const {
-            return _obj != nullptr;
-        }
-
-    private:
-        se::Object* _obj{nullptr};
-    };
 
 public:
     class Builder {

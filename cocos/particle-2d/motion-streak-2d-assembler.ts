@@ -218,16 +218,6 @@ class MotionStreakAssembler implements IAssembler {
         }
     }
 
-    updateRenderData (comp: MotionStreak): void {
-        if (JSB) {
-            // A dirty hack
-            // The world matrix was updated in advance and needs to be avoided at the cpp level
-            // Need a flag to explicitly not update the world transform to solve this problem
-            comp.renderData!.renderDrawInfo.setVertDirty(false);
-            comp.node.hasChangedFlags = 0;
-        }
-    }
-
     fillBuffers (comp: MotionStreak, renderer: IBatcher): void {
         const renderData = comp.renderData!;
         const chunk = renderData.chunk;

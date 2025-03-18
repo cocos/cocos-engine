@@ -579,7 +579,6 @@ export function getContactNormal (pxContactOrOffset: any, out: IVec3Like, buf: a
 export function getContactDataOrByteOffset (index: number, offset: number): any {
     const gc = PX.getGContacts();
     const data = gc.get(index + offset);
-    gc.delete();
     return data;
 }
 

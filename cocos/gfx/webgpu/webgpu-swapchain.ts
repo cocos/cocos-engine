@@ -67,7 +67,7 @@ export class WebGPUSwapchain extends Swapchain {
         this._depthStencilTexture = this._createDepthStencilTexture(width, height);
         this.nullTex2D = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
-            TextureUsageBit.SAMPLED,
+            TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             Format.RGBA8,
             2,
             2,
@@ -75,7 +75,7 @@ export class WebGPUSwapchain extends Swapchain {
         ))  as WebGPUTexture;
         this.nullTexCube = device.createTexture(new TextureInfo(
             TextureType.CUBE,
-            TextureUsageBit.SAMPLED,
+            TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             Format.RGBA8,
             2,
             2,

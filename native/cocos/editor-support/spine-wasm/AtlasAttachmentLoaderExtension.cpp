@@ -3,15 +3,26 @@
 //#include "LogUtil.h"
 using namespace spine;
 
+#include <emscripten/emscripten.h>
+#include <emscripten/val.h>
+using namespace spine;
+
+static void wasmLog(const char* message) {
+    EM_ASM({
+        console.log(UTF8ToString($0));
+    }, message);
+}
+
+
 static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
 
-AttachmentVertices::AttachmentVertices(int verticesCount, uint16_t *triangles, int trianglesCount, const spine::String& textureUUID) {
+AttachmentVertices::AttachmentVertices(int verticesCount, uint16_t *triangles, int trianglesCount, const spine::String& textureName) {
     _triangles = new Triangles();
     _triangles->verts = new V3F_T2F_C4B[verticesCount];
     _triangles->vertCount = verticesCount;
     _triangles->indices = triangles;
     _triangles->indexCount = trianglesCount;
-    _textureId = textureUUID;
+    _textureName = textureName;
 }
 
 AttachmentVertices::~AttachmentVertices() {
@@ -20,13 +31,16 @@ AttachmentVertices::~AttachmentVertices() {
 }
 
 AttachmentVertices *AttachmentVertices::copy() {
-    AttachmentVertices *atv = new AttachmentVertices(_triangles->vertCount, _triangles->indices, _triangles->indexCount, _textureId);
+    AttachmentVertices *atv = new AttachmentVertices(_triangles->vertCount, _triangles->indices, _triangles->indexCount, _textureName);
+    atv->_textureUUID = _textureUUID;
     return atv;
 }
 
+#ifdef CC_SPINE_VERSION_3_8
 static void deleteAttachmentVertices(void *vertices) {
     delete static_cast<AttachmentVertices *>(vertices);
 }
+#endif
 
 AtlasAttachmentLoaderExtension::AtlasAttachmentLoaderExtension(Atlas *atlas) : AtlasAttachmentLoader(atlas), _atlasCache(atlas) {
 }
@@ -37,7 +51,11 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
     if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
         auto *regionAttachment = static_cast<RegionAttachment *>(attachment);
         auto &pages = _atlasCache->getPages();
+#ifdef CC_SPINE_VERSION_3_8
         auto *region = static_cast<AtlasRegion *>(regionAttachment->getRendererObject());
+#else
+        auto *region = static_cast<AtlasRegion *>(regionAttachment->getRegion());
+#endif
         auto *attachmentVertices = new AttachmentVertices(4, quadTriangles, 6, region->page->name);
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
         const auto &uvs = regionAttachment->getUVs();
@@ -45,11 +63,19 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
             vertices[i].texCoord.u = uvs[ii];
             vertices[i].texCoord.v = uvs[ii + 1];
         }
+#ifdef CC_SPINE_VERSION_3_8
         regionAttachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
+#else
+        regionAttachment->getRegion()->rendererObject = attachmentVertices;
+#endif
     } else if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
         auto *meshAttachment = static_cast<MeshAttachment *>(attachment);
         auto &pages = _atlasCache->getPages();
+#ifdef CC_SPINE_VERSION_3_8
         auto *region = static_cast<AtlasRegion *>(meshAttachment->getRendererObject());
+#else
+        auto *region = static_cast<AtlasRegion *>(meshAttachment->getRegion());
+#endif
         auto *attachmentVertices = new AttachmentVertices(
             static_cast<int32_t>(meshAttachment->getWorldVerticesLength() >> 1), meshAttachment->getTriangles().buffer(), static_cast<int32_t>(meshAttachment->getTriangles().size()), region->page->name);
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
@@ -58,6 +84,12 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
             vertices[i].texCoord.u = uvs[ii];
             vertices[i].texCoord.v = uvs[ii + 1];
         }
+#ifdef CC_SPINE_VERSION_3_8
         meshAttachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
+#else
+        meshAttachment->getRegion()->rendererObject = attachmentVertices;
+#endif
+    } else {
+        wasmLog(attachment->getName().buffer());
     }
 }

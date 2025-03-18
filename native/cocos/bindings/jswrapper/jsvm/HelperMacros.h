@@ -26,7 +26,7 @@
 #pragma once
 
 #include "CommonHeader.h"
-#if !defined(_WIN)
+#if !defined(_WIN) && CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     #include <hilog/log.h>
 
     #ifndef LOGI
@@ -36,9 +36,9 @@
         #define LOGD(...) ((void) OH_LOG_Print(LOG_APP, LOG_DEBUG, LOG_DOMAIN, "HMG_LOG", __VA_ARGS__))
     #endif
 #else
-    #define LOGI
-    #define LOGW
-    #define LOGE
+    #define LOGI CC_LOG_INFO
+    #define LOGW CC_LOG_WARNING
+    #define LOGE CC_LOG_ERROR
 #endif
 namespace se {
 class Class;

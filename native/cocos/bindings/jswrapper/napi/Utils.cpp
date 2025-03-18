@@ -102,11 +102,10 @@ void jsToSeValue(const target_value& value, Value* v) {
         case napi_valuetype::napi_function:
             status = napi_unwrap(ScriptEngine::getEnv(), value, &privateObjPtr);
             if ((status == napi_ok) && privateObjPtr) {
-                nativePtr = reinterpret_cast<Object*>(privateObjPtr)->getPrivateData();
+                obj = reinterpret_cast<Object*>(privateObjPtr);
+                obj->incRef();
             }
-            if (nativePtr) {
-                obj = Object::getObjectWithPtr(nativePtr);
-            }
+
             if (obj == nullptr) {
                 obj = Object::_createJSObject(ScriptEngine::getEnv(), value, nullptr);
             }

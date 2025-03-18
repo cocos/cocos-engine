@@ -30,6 +30,10 @@ export interface IJoint2D extends ILifecycle {
     readonly impl: any;
     apply (): void;
     initialize (v: Joint2D): void;
+    onEnable? (): void;
+    onDisable? (): void;
+    start? (): void;
+    onDestroy? (): void;
 }
 
 export interface IDistanceJoint extends IJoint2D {

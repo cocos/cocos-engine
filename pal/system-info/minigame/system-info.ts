@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, HUAWEI, OPPO, VIVO, MIGU, HONOR, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, HUAWEI, OPPO, RUNTIME_BASED, VIVO, MIGU, HONOR, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -185,6 +185,14 @@ class SystemInfo extends EventTarget {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-expect-error TTWebAssembly is defined if bytedance client supports wasm.
                 if (isVersionGreaterOrEqualTo(minigameSysInfo.SDKVersion, minSDKVersionSupportWasm) && typeof TTWebAssembly === 'object') {
+                    return true;
+                }
+            }
+
+            if (RUNTIME_BASED) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error ral.WebAssembly is defined if runtime based platform supports wasm.
+                if (typeof ral.WebAssembly === 'object') {
                     return true;
                 }
             }

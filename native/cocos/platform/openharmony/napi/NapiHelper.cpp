@@ -271,12 +271,22 @@ static void registerFunction(const Napi::CallbackInfo &info) {
         return;
     }
     Napi::Function jsFunction = info[1].As<Napi::Function>();
-    napi_ref fucRef;
-    napi_create_reference(env, jsFunction, 1, &fucRef);
-    char *name = new char[functionName.length() + 1];
-    strcpy(name, functionName.c_str());
-    JSFunction *jsFunctionPtr = new JSFunction(name, env, fucRef);
-    JSFunction::addFunction(name, jsFunctionPtr);
+    napi_status status;
+    napi_value workName;
+    status = napi_create_string_utf8(env, "Thread-safe call from async work", NAPI_AUTO_LENGTH, &workName);
+    if (status != napi_ok) {
+        CC_LOG_WARNING("invokeAsync napi_create_string_utf8 fail,status=%{public}d", status);
+        return;
+    }
+
+    napi_threadsafe_function save_func;
+
+    status = napi_create_threadsafe_function(
+                env, jsFunction, nullptr, workName, 0, 1, nullptr, [](napi_env env, void *raw, void *hint) {}, nullptr,
+               JSFunction::CallJS, &save_func);
+
+    JSFunction JSFunction(env, save_func);
+    JSFunction::addFunction(functionName, JSFunction);
     return;
 }
 

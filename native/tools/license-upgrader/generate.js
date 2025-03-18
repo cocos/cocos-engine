@@ -12,7 +12,8 @@ const ignoreList = [
     'cocos/platform/win32/inet_pton_mingw.cpp',
     // directories
     'cocos/editor-support/dragonbones',
-    'cocos/editor-support/spine',
+    'cocos/editor-support/spine/3.8',
+    'cocos/editor-support/spine/4.2',
     'cocos/audio/android/',
     'cocos/math/',
     'cocos/renderer/pipeline/deferred/',
