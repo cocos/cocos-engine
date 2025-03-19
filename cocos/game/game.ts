@@ -888,13 +888,20 @@ export class Game extends EventTarget {
                     }
                     if (EDITOR && !EDITOR_NOT_IN_PREVIEW) {
                         const server = querySettings<string[]>(SettingsCategory.ASSETS, 'server');
-                        return `${server}plugins`;
+                        if (server) {
+                            return `${server}plugins`;
+                        }
                     }
                     return 'src';
                 };
                 const rootPath = getRootPath();
-                const loadPromises = jsList.map((jsListFile): Promise<void> => loadJsFile(`${rootPath}/${jsListFile}`).then(() => {}));
-                return Promise.all(loadPromises).then(() => {});
+                let promise = Promise.resolve();
+                if (jsList) {
+                    jsList.forEach((jsListFile): void => {
+                        promise = promise.then((): any => loadJsFile(`${rootPath}/${jsListFile}`));
+                    });
+                }
+                return promise;
             })
             .then((): Promise<any[]> => this._loadProjectBundles())
             .then((): Promise<void> => this._loadCCEScripts())
