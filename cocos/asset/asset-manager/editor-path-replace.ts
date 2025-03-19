@@ -81,6 +81,7 @@ if ((EDITOR || PREVIEW) && !TEST) {
             let text = '';
             if (EDITOR) {
                 const info: {library: {['.bin']: any}} = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
+                // Current rule: If an asset has only one .bin file, then it is in CCON format.
                 if (info && info.library['.bin'] && Object.keys(info.library).length === 1) {
                     text = '.cconb';
                 }
