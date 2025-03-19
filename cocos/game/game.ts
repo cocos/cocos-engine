@@ -887,7 +887,7 @@ export class Game extends EventTarget {
                         return 'plugins';
                     }
                     if (EDITOR && !EDITOR_NOT_IN_PREVIEW) {
-                        const server = querySettings<string[]>(SettingsCategory.ASSETS, 'server');
+                        const server: string | null = querySettings<string>(SettingsCategory.ASSETS, 'server');
                         if (server) {
                             return `${server}plugins`;
                         }
