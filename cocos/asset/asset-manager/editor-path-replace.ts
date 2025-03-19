@@ -80,7 +80,7 @@ if ((EDITOR || PREVIEW) && !TEST) {
         try {
             let text = '';
             if (EDITOR) {
-                const info = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
+                const info: {library: {['.bin']: any}} = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
                 if (info && info.library['.bin'] && Object.keys(info.library).length === 1) {
                     text = '.cconb';
                 }
