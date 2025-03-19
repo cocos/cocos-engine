@@ -880,13 +880,21 @@ export class Game extends EventTarget {
                     console.time('Init Project');
                 }
                 const jsList = querySettings<string[]>(SettingsCategory.PLUGINS, 'jsList');
-                let promise = Promise.resolve();
-                if (jsList) {
-                    jsList.forEach((jsListFile): void => {
-                        promise = promise.then((): any => loadJsFile(`${PREVIEW ? 'plugins' : 'src'}/${jsListFile}`));
-                    });
-                }
-                return promise;
+                if (!jsList) return Promise.resolve();
+
+                const getRootPath = (): string => {
+                    if (PREVIEW) {
+                        return 'plugins';
+                    }
+                    if (EDITOR && !EDITOR_NOT_IN_PREVIEW) {
+                        const server = querySettings<string[]>(SettingsCategory.ASSETS, 'server');
+                        return `${server}plugins`;
+                    }
+                    return 'src';
+                };
+                const rootPath = getRootPath();
+                const loadPromises = jsList.map((jsListFile): Promise<void> => loadJsFile(`${rootPath}/${jsListFile}`).then(() => {}));
+                return Promise.all(loadPromises).then(() => {});
             })
             .then((): Promise<any[]> => this._loadProjectBundles())
             .then((): Promise<void> => this._loadCCEScripts())
