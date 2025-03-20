@@ -20,7 +20,6 @@ export * from './exports/particle-2d';
 export * from './exports/particle';
 export * from './exports/physics-2d-framework';
 export * from './exports/physics-framework';
-export * from './exports/physics-physx';
 export * from './exports/primitive';
 export * from './exports/profiler';
 export * from './exports/rich-text';
