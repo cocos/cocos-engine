@@ -96,10 +96,9 @@ SystemWindow::Size SystemWindow::getViewSize() const {
         auto *nativeWindow = static_cast<ANativeWindow *>(_windowHandle);
         return Size{static_cast<float>(ANativeWindow_getWidth(nativeWindow)),
                     static_cast<float>(ANativeWindow_getHeight(nativeWindow))};
-    } else {
-        // windowHandle may be nullptr when the surfaceView is destroyed.
-        return Size{static_cast<float>(_width), static_cast<float>(_height)};
     }
+    // windowHandle may be nullptr when the surfaceView is destroyed.
+    return Size{static_cast<float>(_width), static_cast<float>(_height)};
 #else
     return Size{static_cast<float>(JNI_NATIVE_GLUE()->getWidth()),
                 static_cast<float>(JNI_NATIVE_GLUE()->getHeight())};
