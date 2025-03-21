@@ -1362,7 +1362,7 @@ void Reference::Finalize() {
 void Reference::SetWeak() {
   if (can_be_weak_) {
     wait_callback = true;
-      persistent_.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
+    persistent_.SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
   } else {
     persistent_.Reset();
   }
@@ -1374,12 +1374,9 @@ void Reference::SetWeak() {
 void Reference::WeakCallback(const v8::WeakCallbackInfo<Reference>& data) {
   Reference* reference = data.GetParameter();
   // The reference must be reset during the weak callback as the API protocol.
-    assert(!reference->deleted);
   reference->persistent_.Reset();
   assert(reference->wait_callback);
-    if (!reference->createStack.empty()) {
-        int a = 0;
-    }
+
   // For owership == kRuntime, deleted_by_user is always false.
   // Due to reference may be free in InvokeFinalizerFromGC, the status of
   // reference should be set before finalize call.
@@ -1389,8 +1386,6 @@ void Reference::WeakCallback(const v8::WeakCallbackInfo<Reference>& data) {
 
   if (need_delete) {
     delete reference;
-  } else {
-      int a = 0;
   }
 }
 
