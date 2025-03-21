@@ -161,7 +161,7 @@ class SystemInfo extends EventTarget {
         // init isMobile and platform
         this.platform = currentPlatform;
         // Some minigame platforms don't support getting the platform, such as runtime and Xiaomi, so this.os returns UNKNOWN.
-        // Set unknown as to mobile.
+        // Most platforms are mobile, so set UNKNOWN to mobile.
         this.isMobile = this.os === OS.ANDROID || this.os === OS.IOS || this.os === OS.UNKNOWN;
 
         // init browserType and browserVersion
