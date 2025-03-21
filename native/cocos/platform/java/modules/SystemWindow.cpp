@@ -59,8 +59,13 @@ void SystemWindow::setWindowHandle(void *handle) {
     bool lockSuccess = _handleMutex.try_lock();
     bool needNotify = _windowHandle == nullptr;
     _windowHandle = handle;
-    if (needNotify) {
+    if (needNotify && !lockSuccess) {
         _windowHandlePromise.set_value();
+    }
+    if (_windowHandle) {
+        auto *nativeWindow = static_cast<ANativeWindow *>(_windowHandle);
+        _width = ANativeWindow_getWidth(nativeWindow);
+        _height = ANativeWindow_getHeight(nativeWindow);
     }
     if (lockSuccess) {
         _handleMutex.unlock();
@@ -87,10 +92,14 @@ uintptr_t SystemWindow::getWindowHandle() const {
 
 SystemWindow::Size SystemWindow::getViewSize() const {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    CC_ASSERT(_windowHandle);
-    auto *nativeWindow = static_cast<ANativeWindow *>(_windowHandle);
-    return Size{static_cast<float>(ANativeWindow_getWidth(nativeWindow)),
-                static_cast<float>(ANativeWindow_getHeight(nativeWindow))};
+    if (_windowHandle) {
+        auto *nativeWindow = static_cast<ANativeWindow *>(_windowHandle);
+        return Size{static_cast<float>(ANativeWindow_getWidth(nativeWindow)),
+                    static_cast<float>(ANativeWindow_getHeight(nativeWindow))};
+    } else {
+        // windowHandle may be nullptr when the surfaceView is destroyed.
+        return Size{static_cast<float>(_width), static_cast<float>(_height)};
+    }
 #else
     return Size{static_cast<float>(JNI_NATIVE_GLUE()->getWidth()),
                 static_cast<float>(JNI_NATIVE_GLUE()->getHeight())};

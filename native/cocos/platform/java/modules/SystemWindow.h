@@ -56,6 +56,8 @@ private:
     std::promise<void> _windowHandlePromise;
     uint32_t _windowId{0};
     void *_windowHandle{nullptr};
+    uint32_t _width{0};
+    uint32_t _height{0};
 };
 
 } // namespace cc
