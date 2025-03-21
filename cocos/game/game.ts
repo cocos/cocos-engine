@@ -880,25 +880,10 @@ export class Game extends EventTarget {
                     console.time('Init Project');
                 }
                 const jsList = querySettings<string[]>(SettingsCategory.PLUGINS, 'jsList');
-                if (!jsList) return Promise.resolve();
-
-                const getRootPath = (): string => {
-                    if (PREVIEW) {
-                        return 'plugins';
-                    }
-                    if (EDITOR && !EDITOR_NOT_IN_PREVIEW) {
-                        const server: string | null = querySettings<string>(SettingsCategory.ASSETS, 'server');
-                        if (server) {
-                            return `${server}plugins`;
-                        }
-                    }
-                    return 'src';
-                };
-                const rootPath = getRootPath();
                 let promise = Promise.resolve();
                 if (jsList) {
                     jsList.forEach((jsListFile): void => {
-                        promise = promise.then((): any => loadJsFile(`${rootPath}/${jsListFile}`));
+                        promise = promise.then((): any => loadJsFile(`${PREVIEW ? 'plugins' : 'src'}/${jsListFile}`));
                     });
                 }
                 return promise;
