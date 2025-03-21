@@ -73,6 +73,8 @@ export class CanvasPool {
                 if (c && c._destroy) {
                     c._destroy();
                 }
+                canvas.canvas = null!;
+                canvas.context = null;
             }
             return;
         }
