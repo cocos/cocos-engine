@@ -823,7 +823,7 @@ public:
  * 资源在注册后，不能更改驻留属性。
  * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
-class BasicPipeline : public PipelineRuntime {
+class BasicPipeline : public PipelineRuntime, public Setter {
 public:
     BasicPipeline() noexcept = default;
 

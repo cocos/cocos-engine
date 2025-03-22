@@ -39,7 +39,10 @@
 #include "cocos/scene/ReflectionProbeManager.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "cocos/scene/SpotLight.h"
+#include "cocos/scene/DirectionalLight.h"
 #include "bindings/jswrapper/SeApi.h"
+#include "cocos/renderer/pipeline/custom/NativeUtils.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -1647,6 +1650,135 @@ void NativePipeline::setCustomContext(std::string_view name) {
     if (iter != custom.contexts.end()) {
         custom.currentContext = iter->second;
     }
+}
+
+ccstd::string NativePipeline::getName() const {
+    return {};
+}
+
+void NativePipeline::setName(const ccstd::string &name) {
+    std::ignore = name;
+}
+
+void NativePipeline::setCustomBehavior(const ccstd::string &name) {
+    std::ignore = name;
+}
+
+void NativePipeline::setMat4(const ccstd::string &name, const Mat4 &mat) {
+    setMat4Impl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, mat);
+}
+
+void NativePipeline::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
+    setQuaternionImpl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, quat);
+}
+
+void NativePipeline::setColor(const ccstd::string &name, const gfx::Color &color) {
+    setColorImpl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, color);
+}
+
+void NativePipeline::setVec4(const ccstd::string &name, const Vec4 &vec) {
+    setVec4Impl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, vec);
+}
+
+void NativePipeline::setVec2(const ccstd::string &name, const Vec2 &vec) {
+    setVec2Impl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, vec);
+}
+
+void NativePipeline::setFloat(const ccstd::string &name, float v) {
+    setFloatImpl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, v);
+}
+
+void NativePipeline::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) {
+    setArrayBufferImpl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, *arrayBuffer);
+}
+
+void NativePipeline::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+    setBufferImpl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, buffer);
+}
+
+void NativePipeline::setTexture(const ccstd::string &name, gfx::Texture *texture) {
+    setTextureImpl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, texture);
+}
+
+void NativePipeline::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
+    setSamplerImpl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, sampler);
+}
+
+void NativePipeline::setBuiltinCameraConstants(const scene::Camera *camera) {
+    const auto* scene = camera->getScene();
+    setCameraUBOValues(
+        *camera,
+        programLibrary->layoutGraph,
+        *getPipelineSceneData(),
+        scene ? scene->getMainLight() : nullptr,
+        renderGraph.globalRenderData);
+}
+
+void NativePipeline::setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) {
+    std::ignore = camera;
+    CC_EXPECTS(light);
+    auto *device = getDevice();
+    const auto &sceneData = *getPipelineSceneData();
+    auto &data = renderGraph.globalRenderData;
+    setShadowUBOView(*device, programLibrary->layoutGraph, sceneData, *light, data);
+}
+
+void NativePipeline::setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) {
+    CC_EXPECTS(light);
+    const auto &sceneData = *getPipelineSceneData();
+    const auto &shadowInfo = *sceneData.getShadows();
+
+    auto &data = renderGraph.globalRenderData;
+    setPunctualLightShadowUBO(
+        getDevice(), programLibrary->layoutGraph, sceneData,
+        camera->getScene()->getMainLight(), *light, data);
+}
+
+void NativePipeline::setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) {
+    CC_EXPECTS(light);
+    const auto &sceneData = *this->getPipelineSceneData();
+    const auto &shadowInfo = *sceneData.getShadows();
+
+    auto &data = renderGraph.globalRenderData;
+    setPunctualLightShadowUBO(
+        getDevice(), programLibrary->layoutGraph, sceneData,
+        camera->getScene()->getMainLight(), *light, data);
+}
+
+void NativePipeline::setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) {
+    CC_EXPECTS(light);
+    const auto &sceneData = *this->getPipelineSceneData();
+    const auto &shadowInfo = *sceneData.getShadows();
+
+    auto &data = renderGraph.globalRenderData;
+    setPunctualLightShadowUBO(
+        getDevice(), programLibrary->layoutGraph, sceneData,
+        camera->getScene()->getMainLight(), *light, data);
+}
+
+void NativePipeline::setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) {
+    // TODO(zhouzhenglong): implement
+}
+
+void NativePipeline::setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t csmLevel) {
+    CC_EXPECTS(light);
+    // if csm is actually activated, csm is not nullptr
+    // update and get csm
+    const auto *csm = getBuiltinShadowCSM(*this, *camera, light);
+
+    // set data
+    auto *device = getDevice();
+    const auto &sceneData = *getPipelineSceneData();
+    auto &data = renderGraph.globalRenderData;
+    setShadowUBOLightView(device, programLibrary->layoutGraph, sceneData, csm, *light, csmLevel, data);
+}
+
+void NativePipeline::setBuiltinSpotLightFrustumConstants(const scene::SpotLight *light) {
+    CC_EXPECTS(light);
+    auto *device = getDevice();
+    const auto &sceneData = *getPipelineSceneData();
+    auto &data = renderGraph.globalRenderData;
+    setShadowUBOLightView(device, programLibrary->layoutGraph, sceneData, nullptr, *light, 0, data);
 }
 
 } // namespace render

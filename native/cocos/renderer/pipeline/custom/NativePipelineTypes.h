@@ -1561,6 +1561,29 @@ public:
     void resetRenderQueue(bool reset) override;
     bool isRenderQueueReset() const override;
 
+    ccstd::string getName() const override;
+    void setName(const ccstd::string &name) override;
+    void setCustomBehavior(const ccstd::string &name) override;
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
+    void setColor(const ccstd::string &name, const gfx::Color &color) override;
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
+    void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+    void setBuiltinCameraConstants(const scene::Camera *camera) override;
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override;
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override;
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override;
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override;
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override;
+    void setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t csmLevel) override;
+    void setBuiltinSpotLightFrustumConstants(const scene::SpotLight *light) override;
+
     PipelineType getType() const override;
     PipelineCapabilities getCapabilities() const override;
     void beginSetup() override;
