@@ -100,6 +100,8 @@ struct NativeRenderQueueQuery;
 struct LightBoundsCullingResult;
 struct SceneCulling;
 struct LightResource;
+struct DescriptorSetKey;
+struct DescriptorSetContext;
 struct NativeRenderContext;
 class NativeProgramLibrary;
 struct PipelineCustomization;
@@ -139,6 +141,11 @@ struct hash<cc::render::LightBoundsCullingKey> {
 template <>
 struct hash<cc::render::NativeRenderQueueKey> {
     hash_t operator()(const cc::render::NativeRenderQueueKey& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::DescriptorSetKey> {
+    hash_t operator()(const cc::render::DescriptorSetKey& val) const noexcept;
 };
 
 } // namespace ccstd

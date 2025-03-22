@@ -1402,6 +1402,41 @@ struct LightResource {
     PmrFlatMap<const scene::Light*, uint32_t> lightIndex;
 };
 
+struct DescriptorSetKey {
+    DescriptorSetKey(uint32_t nodeIDIn, UpdateFrequency frequencyIn) noexcept
+    : nodeID(nodeIDIn),
+      frequency(frequencyIn) {}
+
+    uint32_t nodeID{0xFFFFFFFF};
+    UpdateFrequency frequency{UpdateFrequency::PER_INSTANCE};
+};
+
+inline bool operator==(const DescriptorSetKey& lhs, const DescriptorSetKey& rhs) noexcept {
+    return std::forward_as_tuple(lhs.nodeID, lhs.frequency) ==
+           std::forward_as_tuple(rhs.nodeID, rhs.frequency);
+}
+
+inline bool operator!=(const DescriptorSetKey& lhs, const DescriptorSetKey& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+inline bool operator<(const DescriptorSetKey& lhs, const DescriptorSetKey& rhs) noexcept {
+    return std::forward_as_tuple(lhs.nodeID, lhs.frequency) <
+           std::forward_as_tuple(rhs.nodeID, rhs.frequency);
+}
+
+struct DescriptorSetContext {
+    DescriptorSetContext() = default;
+    DescriptorSetContext(IntrusivePtr<gfx::DescriptorSet> descriptorSetIn) noexcept // NOLINT
+    : descriptorSet(std::move(descriptorSetIn)) {}
+    DescriptorSetContext(DescriptorSetContext&& rhs) noexcept = default;
+    DescriptorSetContext(DescriptorSetContext const& rhs) = delete;
+    DescriptorSetContext& operator=(DescriptorSetContext&& rhs) noexcept = default;
+    DescriptorSetContext& operator=(DescriptorSetContext const& rhs) = delete;
+
+    IntrusivePtr<gfx::DescriptorSet> descriptorSet;
+};
+
 struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -1424,6 +1459,7 @@ struct NativeRenderContext {
     QuadResource fullscreenQuad;
     SceneCulling sceneCulling;
     LightResource lightResources;
+    ccstd::pmr::unordered_map<DescriptorSetKey, DescriptorSetContext> graphNodeContexts;
 };
 
 class NativeProgramLibrary final : public ProgramLibrary {
@@ -1737,6 +1773,13 @@ inline hash_t hash<cc::render::NativeRenderQueueKey>::operator()(const cc::rende
     hash_combine(seed, val.frustumCulledResultID);
     hash_combine(seed, val.lightBoundsCulledResultID);
     hash_combine(seed, val.queueLayoutID);
+    return seed;
+}
+
+inline hash_t hash<cc::render::DescriptorSetKey>::operator()(const cc::render::DescriptorSetKey& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.nodeID);
+    hash_combine(seed, val.frequency);
     return seed;
 }
 
