@@ -61,7 +61,7 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         }
     }
 
-    _createJointDef (): any {
+    override _createJointDef (): any {
         const def = new b2jsb.MouseJointDef();
         const comp = this._jointComp as MouseJoint2D;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -73,22 +73,28 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         return def;
     }
 
-    initialize (comp: Joint2D): void {
-        super.initialize(comp);
+    override start (): void {
+        // empty implementation to override its parent's start, so don't remove it.
+    }
 
+    override onEnable (): void {
+        this._enableTouch(true);
+    }
+
+    override onDisable (): void {
+        super.onDisable();
+        this._enableTouch(false);
+    }
+
+    private _enableTouch (v: boolean): void {
         const canvas = find('Canvas');
         if (canvas) {
-            canvas.on(NodeEventType.TOUCH_START, this.onTouchBegan, this);
-            canvas.on(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
-            canvas.on(NodeEventType.TOUCH_END, this.onTouchEnd, this);
-            canvas.on(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
+            const cb = v ? canvas.on : canvas.off;
+            cb.call(canvas, NodeEventType.TOUCH_START, this.onTouchBegan, this);
+            cb.call(canvas, NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
+            cb.call(canvas, NodeEventType.TOUCH_END, this.onTouchEnd, this);
+            cb.call(canvas, NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
         }
-    }
-
-    onEnable (): void {
-    }
-
-    start (): void {
     }
 
     onTouchBegan (event: Touch): void {

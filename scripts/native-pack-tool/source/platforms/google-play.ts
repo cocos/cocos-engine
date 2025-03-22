@@ -50,6 +50,7 @@ export interface IAndroidParams {
     appBundle: boolean;
     resizeableActivity: boolean;
     googleBilling: boolean;
+    playGames: boolean;
     customIconInfo: ICustomIconInfo,
 }
 
@@ -404,7 +405,7 @@ export class GooglePlayPackTool extends NativePackTool {
             content = content.replace(/NATIVE_DIR=.*/, `NATIVE_DIR=${cchelper.fixPath(this.paths.platformTemplateDirInPrj)}`);
 
             content = content.replace(/PROP_ENABLE_GOOGLE_BILLING=.*/, `PROP_ENABLE_GOOGLE_BILLING=${options.googleBilling ? "true" : "false"}`);
-            
+            content = content.replace(/PROP_ENABLE_GOOGLE_PLAY_GAMES=.*/, `PROP_ENABLE_GOOGLE_PLAY_GAMES=${options.playGames ? "true" : "false"}`);
 
 
             if (process.platform === 'win32') {

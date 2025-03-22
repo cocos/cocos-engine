@@ -51,10 +51,13 @@ export class AudioManager {
             audioInfoList[idx].playTime = performance.now();
             return false;
         }
-        audioInfoList.push({
+
+        const audioInfo: AudioInfo<ManagedAudio> = {
             audio,
             playTime: performance.now(),
-        });
+        };
+
+        audioInfoList.push(audioInfo);
         return true;
     }
     public addPlaying (audio: ManagedAudio): void {

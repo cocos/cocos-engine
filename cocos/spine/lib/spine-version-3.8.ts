@@ -21,5 +21,39 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
+import { DataInput, SkeletonBinary } from "./spine-binary";
+import { BUILD } from 'internal:constants';
 export const SPINE_VERSION = '3.8';
+
+function isVersionCompatible(version: string | null): boolean {
+    if (!BUILD) {
+        if (!version || version === '3.8.75' || !version.startsWith('3.8.')) {
+            return false;
+        }
+    }
+    return true;
+};
+
+/**
+ * @internal Used only by editor.
+ */
+export function isBinaryCompatible (buffer: Uint8Array): boolean {
+    if (!BUILD) {
+        const input = new DataInput(buffer);
+        SkeletonBinary.readString(input);// read hash
+        const version = SkeletonBinary.readString(input);
+
+        return isVersionCompatible(version);
+    }
+    return false;
+}
+
+/**
+ * @internal Used only by editor.
+ */
+export function isJsonCompatible (json: JSON): boolean {
+    if (!BUILD) {
+        return isVersionCompatible(json['skeleton']['spine']);
+    }
+    return false;
+}

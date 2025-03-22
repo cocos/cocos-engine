@@ -11,61 +11,75 @@
 
 using namespace spine;
 
-static void logToConsole(const char* message) {
-    EM_ASM({
-        console.log(UTF8ToString($0));
-    }, message);
+namespace {
+const int LOG_LEVEL_ERROR = 3;
+const int LOG_LEVEL_WARN = 2;
+const int LOG_LEVEL_INFO = 1;
+
+void logToConsole(const char* message, int logLevel = LOG_LEVEL_INFO) {
+    if (logLevel == LOG_LEVEL_INFO) {
+        EM_ASM({
+            console.log('[Spine]', UTF8ToString($0));
+        }, message);
+    } else if (logLevel == LOG_LEVEL_WARN) {
+        EM_ASM({
+            console.warn('[Spine]', UTF8ToString($0));
+        }, message);
+    } else if (logLevel == LOG_LEVEL_ERROR) {
+        EM_ASM({
+            console.error('[Spine]', UTF8ToString($0));
+        }, message);
+    }
 }
 
-namespace {
-    HashMap<String, SkeletonData*> skeletonDataMap{};
+HashMap<String, SkeletonData*> skeletonDataMap{};
 
-    static void updateAttachmentVerticesTextureId(SkeletonData* skeletonData, const spine::Vector<spine::String>& textureNames, const spine::Vector<spine::String>& textureUUIDs) {
-        spine::HashMap<spine::String, spine::String> textureMap{};
-        int textureSize = textureNames.size();
-        for (int i = 0; i < textureSize; ++i) {
-            textureMap.put(textureNames[i], textureUUIDs[i]);
-        }
+void updateAttachmentVerticesTextureId(SkeletonData* skeletonData, const spine::Vector<spine::String>& textureNames, const spine::Vector<spine::String>& textureUUIDs) {
+    spine::HashMap<spine::String, spine::String> textureMap{};
+    int textureSize = textureNames.size();
+    for (int i = 0; i < textureSize; ++i) {
+        textureMap.put(textureNames[i], textureUUIDs[i]);
+    }
 
-        auto& skins = skeletonData->getSkins();
-        auto skinSize = skins.size();
-        for (int i = 0; i < skinSize; ++i) {
-            auto* skin = skins[i];
-            auto entries = skin->getAttachments();
-            while (entries.hasNext()) {
-                Skin::AttachmentMap::Entry& entry = entries.next();
-                AttachmentVertices* attachmentVertices;
-                auto* attachment = entry._attachment;
-                if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
-                    auto* meshAttachment = static_cast<MeshAttachment*>(attachment);
+    auto& skins = skeletonData->getSkins();
+    auto skinSize = skins.size();
+    for (int i = 0; i < skinSize; ++i) {
+        auto* skin = skins[i];
+        auto entries = skin->getAttachments();
+        while (entries.hasNext()) {
+            Skin::AttachmentMap::Entry& entry = entries.next();
+            AttachmentVertices* attachmentVertices;
+            auto* attachment = entry._attachment;
+            if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
+                auto* meshAttachment = static_cast<MeshAttachment*>(attachment);
 #ifdef CC_SPINE_VERSION_3_8
-                    attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRendererObject());
+                attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRendererObject());
 #else
-                    attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRegion()->rendererObject);
+                attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRegion()->rendererObject);
 #endif
-                } else if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
-                    auto* regionAttachment = static_cast<RegionAttachment*>(attachment);
+            } else if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
+                auto* regionAttachment = static_cast<RegionAttachment*>(attachment);
 #ifdef CC_SPINE_VERSION_3_8
-                    attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRendererObject());
+                attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRendererObject());
 #else
-                    attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRegion()->rendererObject);
+                attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRegion()->rendererObject);
 #endif
-                }
-                if (attachmentVertices) {
-                    auto& textureName = attachmentVertices->_textureName;
-                    if (textureMap.containsKey(textureName)) {
-                        attachmentVertices->_textureUUID = textureMap[textureName];
-                    } else {
-                        spine::String logInfo(textureName);
-                        logInfo.append(" attachment's texture doesn`t exist ");
-                        logInfo.append(textureName);
-                        logToConsole(logInfo.buffer());
-                    }
+            }
+            if (attachmentVertices) {
+                auto& textureName = attachmentVertices->_textureName;
+                if (textureMap.containsKey(textureName)) {
+                    attachmentVertices->_textureUUID = textureMap[textureName];
+                } else {
+                    spine::String logInfo(textureName);
+                    logInfo.append(" attachment's texture doesn`t exist ");
+                    logInfo.append(textureName);
+                    logToConsole(logInfo.buffer(), LOG_LEVEL_WARN);
                 }
             }
         }
     }
 }
+} // namespace
 
 uint32_t SpineWasmUtil::s_listenerID = 0;
 EventType SpineWasmUtil::s_currentType = EventType_Event;
@@ -114,7 +128,7 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const String& jsonS
     SkeletonData* skeletonData = json.readSkeletonData(jsonStr.buffer());
     auto& errorMsg = json.getError();
     if (!errorMsg.isEmpty()) {
-        logToConsole(errorMsg.buffer());
+        logToConsole(errorMsg.buffer(), LOG_LEVEL_WARN);
     }
 
     updateAttachmentVerticesTextureId(skeletonData, textureNames, textureUUIDs);
@@ -141,7 +155,7 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize
     SkeletonData* skeletonData = binary.readSkeletonData(s_mem, byteSize);
     auto& errorMsg = binary.getError();
     if (!errorMsg.isEmpty()) {
-        logToConsole(errorMsg.buffer());
+        logToConsole(errorMsg.buffer(), LOG_LEVEL_WARN);
     }
 
     updateAttachmentVerticesTextureId(skeletonData, textureNames, textureUUIDs);

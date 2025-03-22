@@ -1406,7 +1406,7 @@ export function createBindGroupLayoutEntry (currBind: DescriptorSetLayoutBinding
     const device = WebGPUDeviceManager.instance;
     let entrySampler: GPUBindGroupLayoutEntry | null = null;
     let samplerType = GFXSampleTypeToGPUTextureSampleType[currBind.sampleType];
-    if (samplerType === 'float' && !device.FloatFilterable) { samplerType = 'unfilterable-float'; }
+    if (samplerType === 'float' && !device.floatFilterable) { samplerType = 'unfilterable-float'; }
     const isTexUnFilter = samplerType === 'unfilterable-float';
     const viewDimension = GFXViewDimensionToGPUViewDimension[currBind.viewDimension];
     const type = currBind.descriptorType;

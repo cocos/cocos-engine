@@ -138,6 +138,10 @@
     #include "cocos/bindings/auto/jsb_google_billing_auto.h"
 #endif
 
+#if CC_USE_GOOGLE_PLAY_GAMES
+    #include "cocos/bindings/auto/jsb_google_play_auto.h"
+#endif
+
 bool jsb_register_all_modules() {
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
@@ -209,6 +213,10 @@ bool jsb_register_all_modules() {
 
 #if CC_USE_GOOGLE_BILLING
     se->addRegisterCallback(register_all_billing);
+#endif
+
+#if CC_USE_GOOGLE_PLAY_GAMES
+    se->addRegisterCallback(register_all_play);
 #endif
 
 #if CC_USE_MIDDLEWARE

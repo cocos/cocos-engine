@@ -26,7 +26,7 @@ import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { IWebGPUGPUInputAssembler, IWebGPUGPUPipelineState } from './webgpu-gpu-objects';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUShader } from './webgpu-shader';
-import { BlendOp, CullMode, DynamicStateFlagBit, FormatInfos, PrimitiveMode, ShaderStageFlagBit } from '../base/define';
+import { BlendOp, CullMode, DynamicStateFlagBit, Format, FormatInfos, PrimitiveMode, ShaderStageFlagBit } from '../base/define';
 import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 import {
     GFXFormatToWGPUFormat,
@@ -148,9 +148,9 @@ export class WebGPUPipelineState extends PipelineState {
 
         // depthstencil states
         let stencilRef = 0;
-        if (this._renderPass.depthStencilAttachment) {
+        if (this._renderPass.depthStencilAttachment?.format !== Format.UNKNOWN) {
             const dssDesc = {} as GPUDepthStencilState;
-            dssDesc.format = GFXFormatToWGPUFormat(this._renderPass.depthStencilAttachment.format);
+            dssDesc.format = GFXFormatToWGPUFormat(this._renderPass.depthStencilAttachment!.format);
             dssDesc.depthWriteEnabled = this._dss.depthWrite;
             dssDesc.depthCompare = this._dss.depthTest ? WebGPUCompereFunc[this._dss.depthFunc] : 'always';
             let stencilReadMask = 0;

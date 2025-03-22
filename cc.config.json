@@ -816,6 +816,7 @@
             "cocos/core/utils/jsb-utils.ts",
             "cocos/asset/asset-manager/weak-cache.ts",
             "cocos/2d/framework/ui-skew-utils.ts",
+            "cocos/spine/lib/spine-binary.ts",
             "pal/input/minigame/gamepad-input.ts",
             "pal/input/minigame/handheld-input.ts",
             "pal/input/minigame/handle-input.ts",

@@ -2,7 +2,7 @@
 #include "bindings/auto/jsb_box2d_auto.h"
 #include "bindings/manual/jsb_global.h"
 
-#define GET_THIS(name) \
+#define GET_THIS() \
 do {\
     if (_thisObject != nullptr) { \
         _thisObject->decRef(); \

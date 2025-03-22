@@ -619,8 +619,8 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Convert a screen space (left-top origin) point to a ray.
-     * @zh 将一个屏幕空间（左上角为原点）坐标转换为射线。
+     * @en Convert a screen space (left-bottom origin) point to a ray.
+     * @zh 将一个屏幕空间（左下角为原点）坐标转换为射线。
      * @param x The x axis position on screen.
      * @param y The y axis position on screen.
      * @param out The output ray object.
@@ -633,8 +633,8 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Convert a world position to a screen space (left-top origin) position.
-     * @zh 将一个世界空间坐标转换为屏幕空间（左上角为原点）坐标。
+     * @en Convert a world position to a screen space (left-bottom origin) position.
+     * @zh 将一个世界空间坐标转换为屏幕空间（左下角为原点）坐标。
      * @param worldPos The position in world space coordinates
      * @param out The output position in screen space coordinates.
      * @returns Return the output position object.
@@ -646,8 +646,8 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Convert a screen space (left-top origin) position to a world space position.
-     * @zh 将一个屏幕空间（左上角为原点）转换为世界空间坐标。
+     * @en Convert a screen space (left-bottom origin) position to a world space position.
+     * @zh 将一个屏幕空间（左下角为原点）转换为世界空间坐标。
      * @param screenPos The position in screen space coordinates
      * @param out The output position in world space coordinates
      * @returns Return the output position object.

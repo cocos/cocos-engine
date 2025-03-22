@@ -88,6 +88,10 @@ public:
             for (size_t i = oldSize; i < _size; i++) {
                 construct(_buffer + i, defaultValue);
             }
+        } else {
+            for (size_t i = _size; i < oldSize; i++) {
+                destroy(_buffer + i);
+            }
         }
     }
 

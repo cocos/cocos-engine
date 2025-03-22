@@ -42,7 +42,9 @@ RenderFlowInfo ForwardFlow::initInfo = {
 };
 const RenderFlowInfo &ForwardFlow::getInitializeInfo() { return ForwardFlow::initInfo; }
 
-ForwardFlow::~ForwardFlow() = default;
+ForwardFlow::~ForwardFlow() {
+    destroy();
+}
 
 bool ForwardFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);

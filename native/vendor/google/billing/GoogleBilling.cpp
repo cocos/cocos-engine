@@ -39,31 +39,6 @@
 #include "vendor/google/billing/result-values/BillingResult.h"
 
 namespace cc {
-BillingClient::scopedListener::scopedListener(se::Object* obj) : _obj(obj) {
-    if (_obj) {
-        _obj->root();
-        _obj->incRef();
-    }
-}
-
-BillingClient::scopedListener::~scopedListener() {
-    if (_obj) {
-        _obj->unroot();
-        _obj->decRef();
-    }
-}
-
-void BillingClient::scopedListener::reset(se::Object* obj) {
-    if (_obj) {
-        _obj->unroot();
-        _obj->decRef();
-    }
-    _obj = obj;
-    if (_obj) {
-        _obj->root();
-        _obj->incRef();
-    }
-}
 
 BillingClient::Builder& BillingClient::Builder::enableUserChoiceBilling(se::Object* listener) {
     if (!listener) {
