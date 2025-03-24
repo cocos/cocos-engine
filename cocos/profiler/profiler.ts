@@ -1,5 +1,3 @@
-/* eslint-disable function-paren-newline */
-/* eslint-disable function-call-argument-newline */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
@@ -332,21 +330,45 @@ export class Profiler extends System {
         ];
 
         vertexPos.push(
-            0,      height, 0, // top-left
-            lWidth, height, 0, // top-right
-            lWidth,      0, 0, // bottom-right
-            0,           0, 0, // bottom-left
+            0,
+            height,
+            0, // top-left
+            lWidth,
+            height,
+            0, // top-right
+            lWidth,
+            0,
+            0, // bottom-right
+            0,
+            0,
+            0, // bottom-left
         );
 
         vertexindices.push(
-            0 + 4, 2 + 4, 1 + 4,
-            0 + 4, 3 + 4, 2 + 4,
+            0 + 4,
+            2 + 4,
+            1 + 4,
+            0 + 4,
+            3 + 4,
+            2 + 4,
         );
         vertexUV.push(
-            0, 0, -1, 0,
-            1, 0, -1, 0,
-            1, this._wordHeight, -1, 0,
-            0, this._wordHeight, -1, 0,
+            0,
+            0,
+            -1,
+            0,
+            1,
+            0,
+            -1,
+            0,
+            1,
+            this._wordHeight,
+            -1,
+            0,
+            0,
+            this._wordHeight,
+            -1,
+            0,
         );
 
         let offset = 0;
@@ -367,26 +389,6 @@ export class Profiler extends System {
                 vertexUV.push(0, 1, z, w); // bl
             }
         }
-
-        // offset = vertexPos.length / 3;
-
-        // vertexPos.push(0, 1, 0); // tl
-        // vertexPos.push(1, 1, 0); // tr
-        // vertexPos.push(1, 0, 0); // br
-        // vertexPos.push(0, 0, 0); // bl
-
-        // const i = this._totalLines - 1;
-        // const j = _constants.segmentsPerLine - 1;
-
-        // vertexindices.push(0 + offset, 2 + offset, 1 + offset, 0 + offset, 3 + offset, 2 + offset);
-
-        // const z = -1;
-        // const w = 0;
-
-        // vertexUV.push(0, this._wordHeight, z, w);
-        // vertexUV.push(this._eachNumWidth, this._wordHeight, z, w);
-        // vertexUV.push(this._eachNumWidth, 1, z, w);
-        // vertexUV.push(0, 1, z, w);
 
         this._meshRenderer = managerNode.addComponent(MeshRenderer);
         this._meshRenderer.mesh = createMesh({
