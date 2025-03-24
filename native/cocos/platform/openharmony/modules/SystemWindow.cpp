@@ -27,6 +27,7 @@
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"
+#include "platform/openharmony/napi/NapiHelper.h"
 
 namespace cc {
 
@@ -74,6 +75,10 @@ void SystemWindow::setWindowHandle(void* window) {
 void SystemWindow::setViewSize(uint32_t width, uint32_t height) {
     _width = width;
     _height = height;
+}
+
+void SystemWindow::closeWindow() {
+    NapiHelper::napiCallFunction("terminateProcess");
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {

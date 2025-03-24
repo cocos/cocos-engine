@@ -554,9 +554,6 @@ class Reference : public RefBase {
   bool can_be_weak_;
   bool deleted_by_user;
   bool wait_callback;
-    bool deleted = false;
-    int counter = 0;
-    std::string createStack;
 };
 
 typedef JSVM_Value (* GetterCallback)(JSVM_Env, JSVM_Value, JSVM_Value, JSVM_Value);

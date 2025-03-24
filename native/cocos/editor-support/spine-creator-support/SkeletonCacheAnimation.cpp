@@ -460,6 +460,9 @@ void SkeletonCacheAnimation::beginSchedule() {
 void SkeletonCacheAnimation::stopSchedule() {
     MiddlewareManager::getInstance()->removeTimer(this);
 
+    if (_entity != nullptr) {
+        _entity->clearDynamicRenderDrawInfos();
+    }
     if (_sharedBufferOffset) {
         _sharedBufferOffset->reset();
         _sharedBufferOffset->clear();
