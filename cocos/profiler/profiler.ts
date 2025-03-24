@@ -1,3 +1,5 @@
+/* eslint-disable function-paren-newline */
+/* eslint-disable function-call-argument-newline */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
@@ -263,17 +265,24 @@ export class Profiler extends System {
         }
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
-        for (let j = 0; j < _characters.length; ++j) {
+        let j = 0;
+        for (j = 0; j < _characters.length; ++j) {
             const offset = this._ctx.measureText(_characters[j]).width;
             this._eachNumWidth = Math.max(this._eachNumWidth, offset);
         }
-        for (let j = 0; j < _characters.length; ++j) {
+        for (j = 0; j < _characters.length; ++j) {
             this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
-        this._eachNumWidth /= this._canvas.width;
+
+        this._ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        // this._ctx.fillStyle = 'green';
+        const canvas = this._canvas;
+        this._ctx.fillRect(canvas.width - 4, canvas.height - 4, 4, 4);
+
+        this._eachNumWidth /= canvas.width;
 
         this._profilerStats = _profileInfo as IProfilerState;
-        this._canvasArr[0] = this._canvas;
+        this._canvasArr[0] = canvas;
         this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
@@ -281,6 +290,8 @@ export class Profiler extends System {
         if (this._rootNode && this._rootNode.isValid) {
             return;
         }
+
+        const canvas = this._canvas!;
 
         this._rootNode = new Node('PROFILER_NODE');
         this._rootNode._objFlags = CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
@@ -293,23 +304,51 @@ export class Profiler extends System {
         const rowHeight = height / this._totalLines;
         const lWidth = height / this._wordHeight;
         const scale = rowHeight / _constants.fontSize;
-        const columnWidth = this._eachNumWidth * this._canvas!.width * scale;
+        const columnWidth = this._eachNumWidth * canvas.width * scale;
+
+        const right = lWidth + _constants.segmentsPerLine * columnWidth;
+
         const vertexPos: number[] = [
-            0,      height, 0, // top-left
-            lWidth, height, 0, // top-right
-            lWidth,      0, 0, // bottom-right
-            0,           0, 0, // bottom-left
+            0, height, 0, // top-left
+            right, height, 0, // top-right
+            right, 0, 0, // bottom-right
+            0, 0, 0, // bottom-left
         ];
         const vertexindices: number[] = [
             0, 2, 1,
             0, 3, 2,
         ];
+
+        const bgUvOriginX = (canvas.width - 3) / canvas.width;
+        const bgUvOriginY = (canvas.height - 3) / canvas.height;
+        const bgUvRight = (canvas.width - 1) / canvas.width;
+        const bgUvTop = (canvas.height - 1) / canvas.width;
+
         const vertexUV: number[] = [
+            bgUvOriginX, bgUvOriginY, -1, 0,
+            bgUvRight, bgUvOriginY, -1, 0,
+            bgUvRight, bgUvTop, -1, 0,
+            bgUvOriginX, bgUvTop, -1, 0,
+        ];
+
+        vertexPos.push(
+            0,      height, 0, // top-left
+            lWidth, height, 0, // top-right
+            lWidth,      0, 0, // bottom-right
+            0,           0, 0, // bottom-left
+        );
+
+        vertexindices.push(
+            0 + 4, 2 + 4, 1 + 4,
+            0 + 4, 3 + 4, 2 + 4,
+        );
+        vertexUV.push(
             0, 0, -1, 0,
             1, 0, -1, 0,
             1, this._wordHeight, -1, 0,
             0, this._wordHeight, -1, 0,
-        ];
+        );
+
         let offset = 0;
         for (let i = 0; i < this._totalLines; i++) {
             for (let j = 0; j < _constants.segmentsPerLine; j++) {
@@ -317,7 +356,7 @@ export class Profiler extends System {
                 vertexPos.push(lWidth + (j + 1) * columnWidth, height - i * rowHeight, 0); // tr
                 vertexPos.push(lWidth + (j + 1) * columnWidth, height - (i + 1) * rowHeight, 0); // br
                 vertexPos.push(lWidth + j * columnWidth, height - (i + 1) * rowHeight, 0); // bl
-                offset = (i * _constants.segmentsPerLine + j + 1) * 4;
+                offset = (i * _constants.segmentsPerLine + j + 2) * 4;
                 vertexindices.push(0 + offset, 2 + offset, 1 + offset, 0 + offset, 3 + offset, 2 + offset);
                 const idx = i * _constants.segmentsPerLine + j;
                 const z = Math.floor(idx / 4);
@@ -328,6 +367,26 @@ export class Profiler extends System {
                 vertexUV.push(0, 1, z, w); // bl
             }
         }
+
+        // offset = vertexPos.length / 3;
+
+        // vertexPos.push(0, 1, 0); // tl
+        // vertexPos.push(1, 1, 0); // tr
+        // vertexPos.push(1, 0, 0); // br
+        // vertexPos.push(0, 0, 0); // bl
+
+        // const i = this._totalLines - 1;
+        // const j = _constants.segmentsPerLine - 1;
+
+        // vertexindices.push(0 + offset, 2 + offset, 1 + offset, 0 + offset, 3 + offset, 2 + offset);
+
+        // const z = -1;
+        // const w = 0;
+
+        // vertexUV.push(0, this._wordHeight, z, w);
+        // vertexUV.push(this._eachNumWidth, this._wordHeight, z, w);
+        // vertexUV.push(this._eachNumWidth, 1, z, w);
+        // vertexUV.push(0, 1, z, w);
 
         this._meshRenderer = managerNode.addComponent(MeshRenderer);
         this._meshRenderer.mesh = createMesh({
@@ -355,25 +414,27 @@ export class Profiler extends System {
     }
 
     public beforeUpdate (): void {
-        if (!this._profilerStats) {
+        const profilerStats = this._profilerStats;
+        if (!profilerStats) {
             return;
         }
 
         const now = performance.now();
-        (this._profilerStats.frame.counter as PerfCounter).start(now);
-        (this._profilerStats.logic.counter as PerfCounter).start(now);
+        (profilerStats.frame.counter as PerfCounter).start(now);
+        (profilerStats.logic.counter as PerfCounter).start(now);
     }
 
     public afterUpdate (): void {
-        if (!this._profilerStats) {
+        const profilerStats = this._profilerStats;
+        if (!profilerStats) {
             return;
         }
 
         const now = performance.now();
         if (director.isPaused()) {
-            (this._profilerStats.frame.counter as PerfCounter).start(now);
+            (profilerStats.frame.counter as PerfCounter).start(now);
         } else {
-            (this._profilerStats.logic.counter as PerfCounter).end(now);
+            (profilerStats.logic.counter as PerfCounter).end(now);
         }
     }
 
@@ -427,23 +488,25 @@ export class Profiler extends System {
     }
 
     public afterRender (): void {
-        if (!this._profilerStats || !this._inited) {
+        const profilerStats = this._profilerStats;
+        if (!profilerStats || !this._inited) {
             return;
         }
         const now = performance.now();
-        (this._profilerStats.render.counter as PerfCounter).end(now);
-        (this._profilerStats.present.counter as PerfCounter).start(now);
+        (profilerStats.render.counter as PerfCounter).end(now);
+        (profilerStats.present.counter as PerfCounter).start(now);
     }
 
     public afterPresent (): void {
-        if (!this._profilerStats || !this._inited) {
+        const profilerStats = this._profilerStats;
+        if (!profilerStats || !this._inited) {
             return;
         }
 
         const now = performance.now();
-        (this._profilerStats.frame.counter as PerfCounter).end(now);
-        (this._profilerStats.fps.counter as PerfCounter).frame(now);
-        (this._profilerStats.present.counter as PerfCounter).end(now);
+        (profilerStats.frame.counter as PerfCounter).end(now);
+        (profilerStats.fps.counter as PerfCounter).frame(now);
+        (profilerStats.present.counter as PerfCounter).end(now);
 
         if (now - this.lastTime < _average) {
             return;
@@ -451,21 +514,22 @@ export class Profiler extends System {
         this.lastTime = now;
 
         const device = this._device!;
-        (this._profilerStats.draws.counter as PerfCounter).value = device.numDrawCalls;
-        (this._profilerStats.instances.counter as PerfCounter).value = device.numInstances;
-        (this._profilerStats.bufferMemory.counter as PerfCounter).value = device.memoryStatus.bufferSize / (1024 * 1024);
-        (this._profilerStats.textureMemory.counter as PerfCounter).value = device.memoryStatus.textureSize / (1024 * 1024);
-        (this._profilerStats.tricount.counter as PerfCounter).value = device.numTris;
+        (profilerStats.draws.counter as PerfCounter).value = device.numDrawCalls;
+        (profilerStats.instances.counter as PerfCounter).value = device.numInstances;
+        (profilerStats.bufferMemory.counter as PerfCounter).value = device.memoryStatus.bufferSize / (1024 * 1024);
+        (profilerStats.textureMemory.counter as PerfCounter).value = device.memoryStatus.textureSize / (1024 * 1024);
+        (profilerStats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
         const view = this.digitsData;
-        for (const id in this._profilerStats) {
-            const stat = this._profilerStats[id] as ICounterOption;
+        const segmentsPerLine = _constants.segmentsPerLine;
+        for (const id in profilerStats) {
+            const stat = profilerStats[id] as ICounterOption;
             stat.counter.sample(now);
             const result = stat.counter.human().toString();
-            for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
-                const index = i * _constants.segmentsPerLine + j;
-                const character = result[result.length - (_constants.segmentsPerLine - j)];
+            for (let j = segmentsPerLine - 1; j >= 0; j--) {
+                const index = i * segmentsPerLine + j;
+                const character = result[result.length - (segmentsPerLine - j)];
                 let offset = _string2offset[character];
                 if (offset === undefined) { offset = 11; }
                 view[index] = offset;
