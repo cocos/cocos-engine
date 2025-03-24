@@ -1603,6 +1603,7 @@ if (rendering) {
         ) {
             const window = camera.window;
             const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!window.swapchain;
+            const isGameView = isMainGameWindow || camera.cameraUsage === CameraUsage.GAME_VIEW;
 
             // Window
             cameraConfigs.isMainGameWindow = isMainGameWindow;
@@ -1614,7 +1615,7 @@ if (rendering) {
 
             // Pipeline
             cameraConfigs.enableFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
-            cameraConfigs.enableProfiler = ppl.profiler && isMainGameWindow;
+            cameraConfigs.enableProfiler = ppl.profiler && isGameView;
             cameraConfigs.remainingPasses = 0;
 
             // Shading scale
