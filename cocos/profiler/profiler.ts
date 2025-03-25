@@ -35,7 +35,7 @@ import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
 import { preTransforms, System, sys, cclegacy, settings, warnID, SettingsCategory, CCObjectFlags } from '../core';
 import { Root } from '../root';
-import { director, DirectorEvent, game } from '../game';
+import { director, DirectorEvent, Game, game } from '../game';
 import { ccwindow } from '../core/global-exports';
 
 const _characters = '0123456789. ';
@@ -179,6 +179,7 @@ export class Profiler extends System {
     }
 
     public showStats (): void {
+        const game: Game = cclegacy.game;
         if (!this._showFPS) {
             if (!this._device) {
                 const root = cclegacy.director.root as Root;
@@ -188,8 +189,8 @@ export class Profiler extends System {
 
             this.generateCanvas();
             this.generateStats();
-            cclegacy.game.once(cclegacy.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-            cclegacy.game.on(cclegacy.Game.EVENT_RESTART, this.generateNode, this);
+            game.once(Game.EVENT_ENGINE_INITED, this.generateNode, this);
+            game.on(Game.EVENT_RESTART, this.generateNode, this);
 
             if (this._rootNode) {
                 this._rootNode.active = true;
@@ -206,10 +207,11 @@ export class Profiler extends System {
             this._showFPS = true;
             this._canvasDone = true;
             this._statsDone = true;
-            cclegacy.game.config.showFPS = true;
+            game.config.showFPS = true;
         }
     }
 
+    /** @mangle */
     public generateCanvas (): void {
         if (this._canvasDone) {
             return;
@@ -245,20 +247,22 @@ export class Profiler extends System {
         texExtent.height = textureHeight;
     }
 
+    /** @mangle */
     public generateStats (): void {
         const canvas = this._canvas;
-        if (this._statsDone || !this._ctx || !canvas) {
+        const ctx = this._ctx;
+        if (this._statsDone || !ctx || !canvas) {
             return;
         }
 
         this._profilerStats = null;
         const now = performance.now();
 
-        this._ctx.textAlign = 'left';
+        ctx.textAlign = 'left';
         let i = 0;
         for (const id in _profileInfo) {
             const element = _profileInfo[id] as ICounterOption;
-            this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
@@ -270,11 +274,10 @@ export class Profiler extends System {
             this._eachNumWidth = Math.max(this._eachNumWidth, offset);
         }
         for (j = 0; j < _characters.length; ++j) {
-            this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
+            ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
 
         this._ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-
         this._ctx.fillRect(canvas.width - 4, canvas.height - 4, 4, 4);
 
         this._eachNumWidth /= canvas.width;
@@ -284,6 +287,7 @@ export class Profiler extends System {
         this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
+    /** @mangle */
     public generateNode (): void {
         if (this._rootNode && this._rootNode.isValid) {
             return;
@@ -333,43 +337,43 @@ export class Profiler extends System {
         vertexPos.push(
             0,
             height,
-            0, // top-left
+            0, // tl
             lWidth,
             height,
-            0, // top-right
+            0, // tr
             lWidth,
             0,
-            0, // bottom-right
+            0, // br
             0,
             0,
-            0, // bottom-left
+            0, // bl
         );
 
         vertexindices.push(
-            0 + 4,
-            2 + 4,
-            1 + 4,
-            0 + 4,
-            3 + 4,
-            2 + 4,
+            4,
+            6,
+            5,
+            4,
+            7,
+            6,
         );
         vertexUV.push(
             0,
             0,
             -1,
-            0,
+            0, // tl
             1,
             0,
             -1,
-            0,
+            0, // tr
             1,
             this._wordHeight,
             -1,
-            0,
+            0, // br
             0,
             this._wordHeight,
             -1,
-            0,
+            0, // bl
         );
 
         let offset = 0;
@@ -416,6 +420,7 @@ export class Profiler extends System {
         this._inited = true;
     }
 
+    /** @mangle */
     public beforeUpdate (): void {
         const profilerStats = this._profilerStats;
         if (!profilerStats) {
@@ -427,6 +432,7 @@ export class Profiler extends System {
         (profilerStats.logic.counter as PerfCounter).start(now);
     }
 
+    /** @mangle */
     public afterUpdate (): void {
         const profilerStats = this._profilerStats;
         if (!profilerStats) {
@@ -441,6 +447,7 @@ export class Profiler extends System {
         }
     }
 
+    /** @mangle */
     public beforePhysics (): void {
         if (!this._profilerStats) {
             return;
@@ -450,6 +457,7 @@ export class Profiler extends System {
         (this._profilerStats.physics.counter as PerfCounter).start(now);
     }
 
+    /** @mangle */
     public afterPhysics (): void {
         if (!this._profilerStats) {
             return;
@@ -459,6 +467,7 @@ export class Profiler extends System {
         (this._profilerStats.physics.counter as PerfCounter).end(now);
     }
 
+    /** @mangle */
     public beforeDraw (): void {
         if (!this._profilerStats || !this._inited) {
             return;
@@ -490,6 +499,7 @@ export class Profiler extends System {
         (this._profilerStats.render.counter as PerfCounter).start(now);
     }
 
+    /** @mangle */
     public afterRender (): void {
         const profilerStats = this._profilerStats;
         if (!profilerStats || !this._inited) {
@@ -500,6 +510,7 @@ export class Profiler extends System {
         (profilerStats.present.counter as PerfCounter).start(now);
     }
 
+    /** @mangle */
     public afterPresent (): void {
         const profilerStats = this._profilerStats;
         if (!profilerStats || !this._inited) {
