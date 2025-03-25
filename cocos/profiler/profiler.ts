@@ -304,13 +304,14 @@ export class Profiler extends System {
         const scale = rowHeight / _constants.fontSize;
         const columnWidth = this._eachNumWidth * canvas.width * scale;
 
-        const right = lWidth + _constants.segmentsPerLine * columnWidth;
+        const bgRight = lWidth + _constants.segmentsPerLine * columnWidth;
+        const bgPadding = columnWidth;
 
         const vertexPos: number[] = [
-            0, height, 0, // top-left
-            right, height, 0, // top-right
-            right, 0, 0, // bottom-right
-            0, 0, 0, // bottom-left
+            -bgPadding, height + bgPadding, 0, // top-left
+            bgRight + bgPadding, height + bgPadding, 0, // top-right
+            bgRight + bgPadding, -bgPadding, 0, // bottom-right
+            -bgPadding, -bgPadding, 0, // bottom-left
         ];
         const vertexindices: number[] = [
             0, 2, 1,
