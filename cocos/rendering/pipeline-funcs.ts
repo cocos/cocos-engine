@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { CommandBuffer, Device, Rect, RenderPass, Viewport } from '../gfx';
 import { IVec4Like } from '../core';
 import { PipelineStateManager } from './pipeline-state-manager';
@@ -88,7 +88,7 @@ export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff:
         return;
     }
 
-    if (EDITOR) {
+    if (EDITOR && EDITOR_NOT_IN_PREVIEW) {
         if (!(camera.visibility & Layers.Enum.PROFILER)) {
             return;
         }
