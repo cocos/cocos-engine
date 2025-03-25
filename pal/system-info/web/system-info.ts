@@ -261,11 +261,13 @@ class SystemInfo extends EventTarget {
         if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
             const canvas = document.createElement('canvas');
             canvas.width = canvas.height = 2;
-            const promise = createImageBitmap(canvas, {});
+            const promise = createImageBitmap(canvas);
             if (promise instanceof Promise) {
                 return promise.then((imageBitmap) => {
-                    this._setFeature(Feature.IMAGE_BITMAP, true);
-                    imageBitmap?.close();
+                    if (imageBitmap && imageBitmap.close) {
+                        this._setFeature(Feature.IMAGE_BITMAP, true);
+                        imageBitmap.close();
+                    }
                 });
             } else if (DEBUG) {
                 warn('The return value of createImageBitmap is not Promise.');

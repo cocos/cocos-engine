@@ -26,7 +26,7 @@ import { JSB } from 'internal:constants';
 
 declare const jsb: any;
 
-if (JSB) {
+if (JSB && jsb.BillingClient) {
     jsb.BillingClient.ConnectionState = {
         DISCONNECTED: 0,
         CONNECTING: 1,

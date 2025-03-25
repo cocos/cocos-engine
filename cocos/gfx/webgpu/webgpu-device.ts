@@ -22,11 +22,6 @@
  THE SOFTWARE.
 */
 
-import { fetchUrl } from 'pal/wasm';
-import glslangUrl from 'external:emscripten/webgpu/glslang.wasm';
-import twgslUrl from 'external:emscripten/webgpu/twgsl.wasm';
-import glslangLoader from 'external:emscripten/webgpu/glslang.js';
-import twgslLoader from 'external:emscripten/webgpu/twgsl.js';
 import { DescriptorSet } from '../base/descriptor-set';
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
@@ -55,11 +50,11 @@ import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUShader } from './webgpu-shader';
 import { WebGPUStateCache } from './webgpu-state-cache';
 import { WebGPUTexture } from './webgpu-texture';
-import { DefaultResources, DescUpdateFrequency, hashCombineNum, hashCombineStr, WebGPUDeviceManager } from './define';
+import { DefaultResources, hashCombineNum, hashCombineStr, webGPU, WebGPUDeviceManager } from './define';
 import {
     Filter, Format,
     QueueType, Feature, BufferTextureCopy, Rect, DescriptorSetInfo,
-    BufferInfo, BufferViewInfo, CommandBufferInfo, DeviceInfo, BindingMappingInfo,
+    BufferInfo, BufferViewInfo, CommandBufferInfo, DeviceInfo,
     FramebufferInfo, InputAssemblerInfo, QueueInfo, RenderPassInfo, SamplerInfo,
     ShaderInfo, PipelineLayoutInfo, DescriptorSetLayoutInfo, TextureInfo, TextureViewInfo, GeneralBarrierInfo, TextureBarrierInfo,
     SwapchainInfo,
@@ -89,6 +84,16 @@ import { IWebGPUBindingMapping, IWebGPUGPUBuffer as IWebGPUBuffer, IWebGPUGPUSam
 import { debug, warn } from '../../core';
 import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture,
     WebGPUCmdFuncCopyTextureToBuffer, WGPUFormatToGFXFormat } from './webgpu-commands';
+import { waitForWebGPUWasmInstantiation } from './instantiated';
+
+let loadWebGPUPromise: Promise<void> | undefined;
+
+export function loadWebGPUWasmModule (): Promise<void> {
+    if (loadWebGPUPromise) return loadWebGPUPromise;
+    loadWebGPUPromise = Promise.resolve()
+        .then(() => waitForWebGPUWasmInstantiation());
+    return loadWebGPUPromise;
+}
 
 export class WebGPUDevice extends Device {
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
@@ -470,7 +475,10 @@ export class WebGPUDevice extends Device {
         defaultResource.descSet = this.createDescriptorSet(descInfo);
         defaultResource.descSet.bindBuffer(0, defaultResource.buffer);
         defaultResource.descSet.update();
-        (defaultResource.descSet as WebGPUDescriptorSet).prepare(DescUpdateFrequency.NORMAL, [0]);
+    }
+
+    get floatFilterable (): boolean {
+        return this._adapter!.features.has('float32-filterable');
     }
 
     private async initDevice (info: Readonly<DeviceInfo>): Promise<boolean> {
@@ -492,9 +500,9 @@ export class WebGPUDevice extends Device {
             },
             requiredFeatures: submitFeatures,
         });
-
-        this._glslang = await glslangLoader(await fetchUrl(glslangUrl));
-        this._twgsl = await twgslLoader(await fetchUrl(twgslUrl));
+        await loadWebGPUWasmModule();
+        this._glslang = webGPU.glslang;
+        this._twgsl = webGPU.twgsl;
 
         this._gfxAPI = API.WEBGPU;
         this._swapchainFormat = WGPUFormatToGFXFormat(navigator.gpu.getPreferredCanvasFormat());
@@ -552,7 +560,6 @@ export class WebGPUDevice extends Device {
         this._features[Feature.ELEMENT_INDEX_UINT] = true;
         this._features[Feature.INSTANCED_ARRAYS] = true;
         this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
-        this._features[Feature.BLEND_MINMAX] = true;
         this.initFormatFeatures(features);
 
         this._queue = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
@@ -560,7 +567,7 @@ export class WebGPUDevice extends Device {
 
         const texInfo = new TextureInfo(
             TextureType.TEX2D,
-            TextureUsageBit.NONE,
+            TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             Format.RGBA8,
             16,
             16,
@@ -572,21 +579,32 @@ export class WebGPUDevice extends Device {
         );
         const defaultDescTexResc = this.createTexture(texInfo);
 
+        const cubeTexInfo = new TextureInfo(
+            TextureType.CUBE,
+            TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+            Format.RGBA8,
+            16,
+            16,
+            TextureFlagBit.NONE,
+            6,
+        );
+        const defaultDescCubeTexResc = this.createTexture(cubeTexInfo);
+
         const bufferInfo = new BufferInfo(
-            BufferUsageBit.NONE,
-            MemoryUsageBit.NONE,
+            BufferUsageBit.UNIFORM,
+            MemoryUsageBit.DEVICE,
             16,
             16, // in bytes
             BufferFlagBit.NONE,
         );
         const defaultDescBuffResc = this.createBuffer(bufferInfo);
-
         const samplerInfo = new SamplerInfo();
         const defaultDescSmplResc = this.getSampler(samplerInfo);
         const defaultResource = this.defaultResource;
         defaultResource.buffer = defaultDescBuffResc as WebGPUBuffer;
         defaultResource.texture = defaultDescTexResc as WebGPUTexture;
         defaultResource.sampler = defaultDescSmplResc as WebGPUSampler;
+        defaultResource.cubeTexture = defaultDescCubeTexResc as WebGPUTexture;
         this._createDefaultDescSet();
 
         let compressedFormat = '';

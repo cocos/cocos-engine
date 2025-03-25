@@ -37,7 +37,8 @@
 #include "spine/SkeletonData.h"
 #include "spine/spine.h"
 
-namespace spine {
+using namespace spine;
+namespace cc {
 
 class SkeletonDataInfo;
 
@@ -81,4 +82,4 @@ private:
     std::map<std::string, SkeletonDataInfo *> _dataMap;
 };
 
-} // namespace spine
+} // namespace cc

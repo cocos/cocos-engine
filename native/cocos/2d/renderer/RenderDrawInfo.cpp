@@ -37,6 +37,9 @@ void mat4ToFloatArray(const cc::Mat4& mat, float* out, index_t ofs = 0) {
 }
 
 RenderDrawInfo::RenderDrawInfo() {
+    _drawInfoAttrs._isMeshBuffer = 0;
+    _drawInfoAttrs._isVertexPositionInWorld = 0;
+    _drawInfoAttrs._padding = 0;
     _attrSharedBufferActor.initialize(&_drawInfoAttrs, sizeof(_drawInfoAttrs));
 }
 

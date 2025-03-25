@@ -37,7 +37,7 @@
 #include "spine-creator-support/SkeletonRenderer.h"
 #include "spine/spine.h"
 
-namespace spine {
+namespace cc {
 typedef cc::middleware::Texture2D *(*CustomTextureLoader)(const char *path);
 // set custom texture loader for _spAtlasPage_createTexture
 void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader);
@@ -74,4 +74,4 @@ protected:
 
 typedef void (*SpineObjectDisposeCallback)(void *);
 void setSpineObjectDisposeCallback(SpineObjectDisposeCallback callback);
-} // namespace spine
+} // namespace cc

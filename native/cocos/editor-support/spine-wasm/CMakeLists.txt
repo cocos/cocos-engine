@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME "spine")
+set(SPINE_VERSION "3.8")
+# set(SPINE_VERSION "4.2")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,6 +14,7 @@ set(BUILD_WASM 1)
 set(ENABLE_JSON_PARSER 1)
 set(ENABLE_BINARY_PARSER 1)
 # set(ENABLE_PROFILING "--profiling")
+# set(ENABLE_MEMORY_PROFILING "--memoryprofiler -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$demangleAll")
 set(VERBOSE_LOG 0)
 
 set(CMAKE_BUILD_TYPE "MinSizeRel")
@@ -43,6 +46,7 @@ message(">>> ENABLE_CLOSURE_COMPILER: ${ENABLE_CLOSURE_COMPILER}")
 message(">>> ENABLE_JSON_PARSER: ${ENABLE_JSON_PARSER}")
 message(">>> ENABLE_BINARY_PARSER: ${ENABLE_BINARY_PARSER}")
 message(">>> ENABLE_PROFILING: ${ENABLE_PROFILING}")
+message(">>> ENABLE_MEMORY_PROFILING: ${ENABLE_MEMORY_PROFILING}")
 message(">>> SPINE_EXTRA_FLAGS: ${SPINE_EXTRA_FLAGS}")
 message(">>> EVAL_CTOR_FLAG: ${EVAL_CTOR_FLAG}")
 message(">>> --------------------------------------------------------------")
@@ -56,14 +60,33 @@ message(">>> CMAKE_C_COMPILE_FEATURES is ${CMAKE_C_COMPILE_FEATURES}")
 message(">>> CMAKE_CXX_COMPILE_FEATURES is ${CMAKE_CXX_COMPILE_FEATURES}")
 message(">>> --------------------------------------------------------------")
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/..)
-file(GLOB SPINE_CORE_SRC "${CMAKE_CURRENT_LIST_DIR}/../spine/*.cpp")
-file(GLOB COCOS_ADAPTER_SRC "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
+
+
+
+if(SPINE_VERSION STREQUAL "3.8")
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/../spine/3.8/)
+    file(GLOB SPINE_CORE_SRC "${CMAKE_CURRENT_LIST_DIR}/../spine/3.8/spine/*.cpp")
+    file(GLOB COCOS_ADAPTER_SRC 
+        "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/3.8/*.cpp"
+    )
+    add_definitions(-DCC_SPINE_VERSION_3_8)
+elseif(SPINE_VERSION STREQUAL "4.2")
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/../spine/4.2/)
+    file(GLOB SPINE_CORE_SRC "${CMAKE_CURRENT_LIST_DIR}/../spine/4.2/spine/*.cpp")
+    file(GLOB COCOS_ADAPTER_SRC 
+        "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/4.2/*.cpp"
+    )
+    add_definitions(-DCC_SPINE_VERSION_4_2)
+else()
+    message(FATAL_ERROR "Unsupported SPINE_VERSION: ${SPINE_VERSION}")
+endif()
 
 add_executable(${APP_NAME} ${SPINE_CORE_SRC} ${COCOS_ADAPTER_SRC})
 
 # -s EMBIND_AOT=0 -s MALLOC=emmalloc
-set(EMS_LINK_FLAGS "${SPINE_EXTRA_FLAGS} ${EVAL_CTOR_FLAG} -s VERBOSE=${VERBOSE_LOG} -s WASM=${BUILD_WASM} -s INITIAL_MEMORY=33554432 -s ALLOW_MEMORY_GROWTH=1 -s DYNAMIC_EXECUTION=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+set(EMS_LINK_FLAGS "${SPINE_EXTRA_FLAGS} ${EVAL_CTOR_FLAG} -s VERBOSE=${VERBOSE_LOG} -s WASM=${BUILD_WASM} -s INITIAL_MEMORY=33554432 -s ALLOW_MEMORY_GROWTH=1 -s DYNAMIC_EXECUTION=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 ${ENABLE_MEMORY_PROFILING} \
         -flto --no-entry --bind -s USE_ES6_IMPORT_META=0 -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='spineWasm' \
         -s ENVIRONMENT=web -s FILESYSTEM=0 -s NO_EXIT_RUNTIME=1 -s LLD_REPORT_UNDEFINED \
         -s MIN_SAFARI_VERSION=110000 \

@@ -114,6 +114,14 @@ bool setCanvasCallback(se::Object *global) {
 
 namespace cc {
 
+/** static */
+bool Engine::isValid() {
+    return CC_CURRENT_APPLICATION() 
+        && CC_CURRENT_ENGINE() 
+        && se::ScriptEngine::getInstance()
+        && se::ScriptEngine::getInstance()->isValid();
+}
+
 Engine::Engine() {
     _scriptEngine = ccnew se::ScriptEngine();
 
@@ -192,7 +200,7 @@ void Engine::destroy() {
 #endif
 
 #if CC_USE_SPINE
-    spine::SkeletonCacheMgr::destroyInstance();
+    cc::SkeletonCacheMgr::destroyInstance();
 #endif
 
 #if CC_USE_MIDDLEWARE
@@ -207,7 +215,7 @@ void Engine::destroy() {
     if (cc::render::getRenderingModule()) {
         cc::render::Factory::destroy(cc::render::getRenderingModule());
     }
-    #if(CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSVM)
+    #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSVM)
         // When using JSVM, not all objects are destroyed during cleanup, so we need to close JSVM at the end.
         _scriptEngine->closeEngine();
     #endif

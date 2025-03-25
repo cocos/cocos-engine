@@ -30,6 +30,7 @@
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"
+#include "engine/Engine.h"
 
 #ifdef JAVA_CLASS_WEBSOCKET
     #error "JAVA_CLASS_WEBSOCKET is already defined"
@@ -358,6 +359,7 @@ JNI_PATH(nativeOnStringMessage)(JNIEnv * /*env*/,
                                 jstring msg,
                                 jlong /*identifier*/,
                                 jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     std::string msgStr = JniHelper::jstring2string(msg);
     wsOkHttp3->onStringMessage(msgStr);
@@ -369,6 +371,7 @@ JNI_PATH(nativeOnBinaryMessage)(JNIEnv *env,
                                 jbyteArray msg,
                                 jlong /*identifier*/,
                                 jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     auto len = env->GetArrayLength(static_cast<jbyteArray>(msg));
     jboolean isCopy = JNI_FALSE;
@@ -384,6 +387,7 @@ JNI_PATH(nativeOnOpen)(JNIEnv * /*env*/,
                        jstring header,
                        jlong /*identifier*/,
                        jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     auto protocolStr = JniHelper::jstring2string(protocol);
     auto headerStr = JniHelper::jstring2string(header);
@@ -397,6 +401,7 @@ JNI_PATH(nativeOnClosed)(JNIEnv * /*env*/,
                          jstring reason,
                          jlong /*identifier*/,
                          jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     auto closeReason = JniHelper::jstring2string(reason);
     wsOkHttp3->onClose(static_cast<int>(code), closeReason, true);
@@ -408,6 +413,7 @@ JNI_PATH(nativeOnError)(JNIEnv * /*env*/,
                         jstring reason,
                         jlong /*identifier*/,
                         jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     int unknownError = static_cast<int>(cc::network::WebSocket::ErrorCode::UNKNOWN);
     auto errorReason = JniHelper::jstring2string(reason);

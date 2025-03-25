@@ -514,7 +514,7 @@ class DeviceComputeQueue implements RecordingInterface {
             ? layoutGraph.j<RenderPhaseData>(value)
             : null;
         const layout = layoutGraph.getLayout(value);
-        this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
+        this._descSetData = layout.getSet(UpdateFrequency.PER_PHASE)!;
     }
     get layoutID (): number { return this._layoutID; }
     get descSetData (): DescriptorSetData | null { return this._descSetData; }
@@ -567,7 +567,7 @@ class DeviceRenderQueue implements RecordingInterface {
             ? layoutGraph.j<RenderPhaseData>(value)
             : null;
         const layout = layoutGraph.getLayout(value);
-        this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
+        this._descSetData = layout.getSet(UpdateFrequency.PER_PHASE)!;
     }
     get layoutID (): number { return this._layoutID; }
     get descSetData (): DescriptorSetData | null { return this._descSetData; }
@@ -659,7 +659,7 @@ class RenderPassLayoutInfo {
         this._stage = lg.j<RenderStageData>(layoutId);
         this._layout = lg.getLayout(layoutId);
 
-        const layoutData = this._layout.descriptorSets.get(UpdateFrequency.PER_PASS);
+        const layoutData = this._layout.getSet(UpdateFrequency.PER_PASS);
         if (!layoutData) {
             return;
         }
@@ -697,21 +697,22 @@ class RenderPassLayoutInfo {
         samplerInfo: SamplerInfo,
         accessType: AccessType,
     ): void {
-        const layoutData = this._layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
+        const layoutData = this._layout.getSet(UpdateFrequency.PER_PASS)!;
         const desc = context.resourceGraph.getDesc(this._resID);
         for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
             for (let i = 0; i < block.descriptors.length; ++i) {
                 if (descriptorID === block.descriptors[i].descriptorID) {
+                    const offset = block.offset;
                     if (gfxTex) {
-                        layoutDesc.bindTexture(block.offset + i, gfxTex);
+                        layoutDesc.bindTexture(offset + i, gfxTex);
                         const renderData = context.renderGraph.getData(this._vertID);
                         const sampler = renderData.samplers.get(descriptorID) || context.device.getSampler(samplerInfo);
-                        layoutDesc.bindSampler(block.offset + i, sampler);
+                        layoutDesc.bindSampler(offset + i, sampler);
                     } else if (desc.flags & ResourceFlags.STORAGE) {
                         const access = accessType !== AccessType.READ ? AccessFlagBit.COMPUTE_SHADER_WRITE : AccessFlagBit.COMPUTE_SHADER_READ_OTHER;
                         (layoutDesc as any).bindBuffer(block.offset + i, gfxBuf, 0, access);
                     } else {
-                        layoutDesc.bindBuffer(block.offset + i, gfxBuf);
+                        layoutDesc.bindBuffer(offset + i, gfxBuf);
                     }
                     if (!this._descriptorSet) {
                         this._descriptorSet = layoutDesc;
@@ -759,7 +760,6 @@ class DeviceRenderPass implements RecordingInterface {
         let depthTex: Texture | null = null;
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
-        this._processRenderLayout(rasterPass);
         for (const [resName, rasterV] of rasterPass.rasterViews) {
             let resTex = context.deviceTextures.get(resName);
             if (!resTex) {
@@ -874,7 +874,7 @@ class DeviceRenderPass implements RecordingInterface {
     getGlobalDescData (): DescriptorSetData {
         const stageId = context.layoutGraph.locateChild(context.layoutGraph.N, 'default');
         const layout = context.layoutGraph.getLayout(stageId);
-        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
+        const layoutData = layout.getSet(UpdateFrequency.PER_PASS)!;
         return layoutData;
     }
 
@@ -969,6 +969,10 @@ class DeviceRenderPass implements RecordingInterface {
         }
     }
 
+    public processRenderLayout (): void {
+        this._processRenderLayout(this._rasterPass);
+    }
+
     private _createFramebuffer (fbo: Framebuffer | null, cols: Texture[], depthTex: Texture | null): void {
         if (!fbo && !cols.length) return;
         if (this._framebuffer && fbo !== this._framebuffer) this._framebuffer.destroy();
@@ -991,7 +995,6 @@ class DeviceRenderPass implements RecordingInterface {
         const currFramebuffer = this._framebuffer;
         const currFBDepthTex = currFramebuffer?.depthStencilTexture ?? null;
         let depTexture = currFramebuffer ? currFBDepthTex : null;
-        this._processRenderLayout(pass);
         const currentWidth = currFramebuffer?.width ?? 0;
         const currentHeight = currFramebuffer?.height ?? 0;
 
@@ -1102,7 +1105,7 @@ class DeviceComputePass implements RecordingInterface {
     getGlobalDescData (): DescriptorSetData {
         const stageId = context.layoutGraph.locateChild(context.layoutGraph.N, 'default');
         const layout = context.layoutGraph.getLayout(stageId);
-        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
+        const layoutData = layout.getSet(UpdateFrequency.PER_PASS)!;
         return layoutData;
     }
 
@@ -1231,6 +1234,7 @@ class DeviceRenderScene implements RecordingInterface {
         this._updateGlobal(queueRenderData, sceneId);
         const sceneRenderData = context.renderGraph.getData(sceneId)!;
         if (sceneRenderData) this._updateGlobal(sceneRenderData, sceneId);
+        devicePass.processRenderLayout();
         context.passDescriptorSet?.update();
         this._currentQueue.isUpdateUBO = true;
     }

@@ -55,7 +55,7 @@ using std::min;
 static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 
-static spine::Cocos2dTextureLoader textureLoader;
+static Cocos2dTextureLoader textureLoader;
 static std::vector<middleware::Texture2D *> _slotTextureSet{};
 
 enum DebugType {
@@ -64,6 +64,8 @@ enum DebugType {
     MESH,
     BONES
 };
+
+namespace cc {
 SkeletonRenderer *SkeletonRenderer::create() {
     return new SkeletonRenderer();
 }
@@ -91,7 +93,11 @@ void SkeletonRenderer::initialize() {
     }
 
     _skeleton->setToSetupPose();
+#if CC_USE_SPINE_3_8
     _skeleton->updateWorldTransform();
+#else
+    _skeleton->updateWorldTransform(spine::Physics::Physics_Pose);
+#endif
 }
 
 void SkeletonRenderer::beginSchedule() {
@@ -108,6 +114,9 @@ void SkeletonRenderer::onDisable() {
 
 void SkeletonRenderer::stopSchedule() {
     MiddlewareManager::getInstance()->removeTimer(this);
+    if (_entity != nullptr) {
+        _entity->clearDynamicRenderDrawInfos();
+    }
     if (_sharedBufferOffset) {
         _sharedBufferOffset->reset();
         _sharedBufferOffset->clear();
@@ -138,7 +147,9 @@ SkeletonRenderer::SkeletonRenderer(const std::string &skeletonDataFile, const st
 }
 
 SkeletonRenderer::~SkeletonRenderer() {
+#if CC_USE_SPINE_3_8
     CC_SAFE_RELEASE(_effectDelegate);
+#endif
     if (_ownsSkeletonData) delete _skeleton->getData();
     if (_ownsSkeleton) delete _skeleton;
     if (_ownsAtlas && _atlas) delete _atlas;
@@ -354,8 +365,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         }
         auto *material = requestMaterial(curBlendSrc, curBlendDst);
         curDrawInfo->setMaterial(material);
-        gfx::Texture *texture = curTexture->getGFXTexture();
-        gfx::Sampler *sampler = curTexture->getGFXSampler();
+        gfx::Texture *texture = curTexture ? curTexture->getGFXTexture() : nullptr;
+        gfx::Sampler *sampler = curTexture ? curTexture->getGFXSampler() : nullptr;
         curDrawInfo->setTexture(texture);
         curDrawInfo->setSampler(sampler);
         auto *uiMeshBuffer = mb->getUIMeshBuffer();
@@ -371,6 +382,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         materialLen++;
     };
 
+#if CC_USE_SPINE_3_8
     VertexEffect *effect = nullptr;
     if (_effectDelegate) {
         effect = _effectDelegate->getVertexEffect();
@@ -379,6 +391,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     if (effect) {
         effect->begin(*_skeleton);
     }
+#else
+   void *effect = nullptr;
+#endif
 
     auto &drawOrder = _skeleton->getDrawOrder();
     for (size_t i = 0, n = drawOrder.size(); i < n; ++i) {
@@ -412,7 +427,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
         if (slot->getAttachment()->getRTTI().isExactly(RegionAttachment::rtti)) {
             auto *attachment = dynamic_cast<RegionAttachment *>(slot->getAttachment());
+#if CC_USE_SPINE_3_8
             attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
+#else
+            attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+#endif
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -426,7 +445,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 isFull |= vb.checkSpace(vbSize, true);
                 triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
                 memcpy(static_cast<void *>(triangles.verts), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
+#if CC_USE_SPINE_3_8
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
+#else
+                attachment->computeWorldVertices(*slot, reinterpret_cast<float *>(triangles.verts), 0, vs1);
+#endif
 
                 triangles.indexCount = attachmentVertices->_triangles->indexCount;
                 ibSize = triangles.indexCount * sizeof(uint16_t);
@@ -441,7 +464,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                     trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
+#if CC_USE_SPINE_3_8
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
+#else
+                attachment->computeWorldVertices(*slot, reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
+#endif
 
                 trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
                 ibSize = trianglesTwoColor.indexCount * sizeof(uint16_t);
@@ -469,7 +496,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             }
         } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
             auto *attachment = dynamic_cast<MeshAttachment *>(slot->getAttachment());
+#if CC_USE_SPINE_3_8
             attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
+#else
+            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+#endif
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -600,6 +631,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 float *uvs = _clipper->getClippedUVs().buffer();
 
                 if (effect) {
+#if CC_USE_SPINE_3_8
                     for (int v = 0, vn = triangles.vertCount, vv = 0; v < vn; ++v, vv += 2) {
                         V3F_T2F_C4B *vertex = triangles.verts + v;
                         vertex->vertex.x = verts[vv];
@@ -609,6 +641,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                         effect->transform(vertex->vertex.x, vertex->vertex.y);
                         vertex->color = light;
                     }
+#endif
                 } else {
                     for (int v = 0, vn = triangles.vertCount, vv = 0; v < vn; ++v, vv += 2) {
                         V3F_T2F_C4B *vertex = triangles.verts + v;
@@ -622,11 +655,13 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 // No cliping logic
             } else {
                 if (effect) {
+#if CC_USE_SPINE_3_8
                     for (int v = 0, vn = triangles.vertCount; v < vn; ++v) {
                         V3F_T2F_C4B *vertex = triangles.verts + v;
                         effect->transform(vertex->vertex.x, vertex->vertex.y);
                         vertex->color = light;
                     }
+#endif
                 } else {
                     for (int v = 0, vn = triangles.vertCount; v < vn; ++v) {
                         V3F_T2F_C4B *vertex = triangles.verts + v;
@@ -669,6 +704,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 float *uvs = _clipper->getClippedUVs().buffer();
 
                 if (effect) {
+#if CC_USE_SPINE_3_8
                     for (int v = 0, vn = trianglesTwoColor.vertCount, vv = 0; v < vn; ++v, vv += 2) {
                         V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
                         vertex->vertex.x = verts[vv];
@@ -679,6 +715,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                         vertex->color = light;
                         vertex->color2 = dark;
                     }
+#endif
                 } else {
                     for (int v = 0, vn = trianglesTwoColor.vertCount, vv = 0; v < vn; ++v, vv += 2) {
                         V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
@@ -692,12 +729,14 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
             } else {
                 if (effect) {
+#if CC_USE_SPINE_3_8
                     for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
                         V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
                         effect->transform(vertex->vertex.x, vertex->vertex.y);
                         vertex->color = light;
                         vertex->color2 = dark;
                     }
+#endif
                 } else {
                     for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
                         V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
@@ -708,7 +747,12 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             }
         }
 
-        curTexture = (cc::Texture2D *)attachmentVertices->_texture->getRealTexture();
+        if (attachmentVertices) {
+            curTexture = (cc::Texture2D *)attachmentVertices->_texture->getRealTexture();
+        } else {
+            curTexture = nullptr;
+        }
+        
         // If texture or blendMode change,will change material.
         if (preTexture != curTexture || preBlendMode != slot->getData().getBlendMode() || isFull) {
             flush();
@@ -742,7 +786,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
     _clipper->clipEnd();
 
+#if CC_USE_SPINE_3_8
     if (effect) effect->end();
+#endif
 
     if (curDrawInfo) curDrawInfo->setIbCount(curISegLen);
 
@@ -807,7 +853,11 @@ cc::Rect SkeletonRenderer::getBoundingBox() const {
             auto *attachment = dynamic_cast<RegionAttachment *>(slot->getAttachment());
             buffer.checkSpace(8 * sizeof(float));
             worldVertices = reinterpret_cast<float *>(buffer.getCurBuffer());
+#if CC_USE_SPINE_3_8
             attachment->computeWorldVertices(slot->getBone(), worldVertices, 0, 2);
+#else
+            attachment->computeWorldVertices(*slot, worldVertices, 0, 2);
+#endif
             verticesCount = 8;
         } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
             auto *mesh = dynamic_cast<MeshAttachment *>(slot->getAttachment());
@@ -833,7 +883,11 @@ cc::Rect SkeletonRenderer::getBoundingBox() const {
 
 void SkeletonRenderer::updateWorldTransform() {
     if (_skeleton) {
+#if CC_USE_SPINE_3_8
         _skeleton->updateWorldTransform();
+#else
+        _skeleton->updateWorldTransform(Physics::Physics_Update);
+#endif
     }
 }
 
@@ -912,6 +966,7 @@ void SkeletonRenderer::setUseTint(bool enabled) {
     _useTint = enabled;
 }
 
+#if CC_USE_SPINE_3_8
 void SkeletonRenderer::setVertexEffectDelegate(VertexEffectDelegate *effectDelegate) {
     if (_effectDelegate == effectDelegate) {
         return;
@@ -920,6 +975,7 @@ void SkeletonRenderer::setVertexEffectDelegate(VertexEffectDelegate *effectDeleg
     _effectDelegate = effectDelegate;
     CC_SAFE_ADD_REF(_effectDelegate);
 }
+#endif
 
 void SkeletonRenderer::setSlotsRange(int startSlotIndex, int endSlotIndex) {
     this->_startSlotIndex = startSlotIndex;
@@ -1059,6 +1115,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
     AttachmentVertices *attachmentVertices = nullptr;
     if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
         auto region = static_cast<RegionAttachment *>(attachment);
+#if CC_USE_SPINE_3_8
         region->setRegionWidth(width);
         region->setRegionHeight(height);
         region->setRegionOriginalWidth(width);
@@ -1072,6 +1129,32 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
             attachmentVertices = attachmentVertices->copy();
             region->setRendererObject(attachmentVertices);
         }
+#else
+        auto *textureRegion = region->getRegion();
+        if (textureRegion) {
+            textureRegion->width = width;
+            textureRegion->height = height;
+            textureRegion->originalWidth = width;
+            textureRegion->originalHeight = height;
+        }
+        region->setWidth(width);
+        region->setHeight(height);
+        auto &uvs = region->getUVs();
+        uvs[2] = 0;
+        uvs[3] = 1;
+        uvs[4] = 0;
+        uvs[5] = 0;
+        uvs[6] = 1;
+        uvs[7] = 0;
+        uvs[0] = 1;
+        uvs[1] = 1;
+        region->updateRegion();
+        attachmentVertices = static_cast<AttachmentVertices *>(textureRegion->rendererObject);
+        if (createAttachment) {
+            attachmentVertices = attachmentVertices->copy();
+            textureRegion->rendererObject = attachmentVertices;
+        }
+#endif
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
         const auto &UVs = region->getUVs();
         for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
@@ -1080,6 +1163,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         }
     } else if (attachment->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
         auto mesh = static_cast<MeshAttachment *>(attachment);
+#if CC_USE_SPINE_3_8
         mesh->setRegionWidth(width);
         mesh->setRegionHeight(height);
         mesh->setRegionOriginalWidth(width);
@@ -1098,6 +1182,28 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
             attachmentVertices = attachmentVertices->copy();
             mesh->setRendererObject(attachmentVertices);
         }
+#else
+        auto *region = mesh->getRegion();
+        if (region) {
+            region->width = width;
+            region->height = height;
+            region->originalWidth = width;
+            region->originalHeight = height;
+            region->u = 0;
+            region->v = 0;
+            region->u2 = 1.0f;
+            region->v2 = 1.0f;
+            region->degrees = 0;
+        }
+        mesh->setWidth(width);
+        mesh->setHeight(height);
+        mesh->updateRegion();
+        attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRegion()->rendererObject);
+        if (createAttachment) {
+            attachmentVertices = attachmentVertices->copy();
+            mesh->getRegion()->rendererObject = attachmentVertices;
+        }
+#endif
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
         const auto &UVs = mesh->getUVs();
         for (size_t i = 0, ii = 0, nn = mesh->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
@@ -1123,3 +1229,4 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
     }
     attachmentVertices->_texture = middlewareTexture;
 }
+} // namespace cc

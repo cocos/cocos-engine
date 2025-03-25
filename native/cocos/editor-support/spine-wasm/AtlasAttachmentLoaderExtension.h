@@ -9,7 +9,8 @@ public:
     virtual ~AttachmentVertices();
     AttachmentVertices *copy();
     Triangles *_triangles = nullptr;
-    spine::String _textureId;
+    spine::String _textureUUID;
+    spine::String _textureName;
 };
 
 class AtlasAttachmentLoaderExtension : public spine::AtlasAttachmentLoader {

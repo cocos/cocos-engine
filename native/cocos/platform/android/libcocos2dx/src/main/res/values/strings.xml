@@ -7,4 +7,5 @@
     <string name="go" translatable="false">Go</string>
     <string name="send" translatable="false">Send</string>
     <string name="tip_disable_safe_input_type" translatable="false">Please go to the system settings to turn off the security keyboard!</string>
+    <string name="game_services_project_id" translatable="false"></string>
 </resources>

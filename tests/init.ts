@@ -79,7 +79,8 @@ jest.mock(
     'external:emscripten/webgpu/webgpu_wasm.wasm',
     'external:emscripten/webgpu/glslang.wasm',
     'external:emscripten/physx/physx.release.wasm.wasm',
-    'external:emscripten/spine/spine.wasm',
+    'external:emscripten/spine/3.8/spine.wasm',
+    'external:emscripten/spine/4.2/spine.wasm',
     'external:emscripten/box2d/box2d.release.wasm.wasm',
     'external:emscripten/meshopt/meshopt_decoder.wasm.wasm',
 ].forEach(mockModuleId => {

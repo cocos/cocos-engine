@@ -57,7 +57,7 @@ exports.template = /* html */`
                     <ui-label slot="label" value="Track"></ui-label>
                     <ui-radio-group slot="content" class="track-group"></ui-radio-group>
                 </ui-prop>
-                
+
             </div>
             <inspector-resize-preview></inspector-resize-preview>
             <div class="buttons-group">
@@ -85,7 +85,7 @@ exports.template = /* html */`
                     </ui-button>
                 </div>
             </div>
-            <ui-scale-plate class="duration"></ui-scale-plate>    
+            <ui-scale-plate class="duration" pan-limit></ui-scale-plate>
         </div>
     </div>
 </ui-section>
@@ -96,7 +96,7 @@ exports.style = /* css */`
     margin-top: 0px;
     .preview {
         border-top: 1px solid var(--color-normal-border);
-        
+
         & > .content {
             display: flex;
             padding-top: 4px;
@@ -104,33 +104,33 @@ exports.style = /* css */`
             padding-right: 8px;
             padding-left: 8px;
             flex-direction: column;
-            
+
             & > .content[hidden] {
                display: none;
             }
-            
+
             & > .attribute {
                padding-bottom: 4px;
-               
+
                & > .time-scale-prop [slot="content"] {
                     display: flex;
-                    
+
                     & > .timeScale {
                         flex: 1;
                     }
                 }
             }
-            
+
             & > .duration[disabled] {
                 pointer-events: none;
             }
-            
+
             & > .buttons-group {
                 padding: 6px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                    
+
                 & > .play-buttons {
                     & > ui-button[disabled] {
                        pointer-events: none;
@@ -213,10 +213,12 @@ const Elements = {
             });
             panel.$.animation.addEventListener('confirm', async (event) => {
                 panel.animationIndex = Number(event.detail);
+                Elements.spine.resetConfig(panel);
                 await panel.preview.callPreviewFunction('setAnimationIndex', panel.animationIndex);
                 Elements.control.updateState(panel);
             });
             panel.$.duration.addEventListener('confirm', (event) => {
+                panel.preview.callPreviewFunction('stop');
                 panel.preview.callPreviewFunction('setCurrentTime', Number(event.target.value));
             });
             panel.$.resetTimeScale.addEventListener('click', (event) => {
@@ -249,12 +251,25 @@ const Elements = {
             Elements.control.update(panel, false);
             Elements.control.updateInfo(panel, info);
         },
-        updateDuration(panel, time, duration) {
+        resetConfig(panel) {
             panel.$.duration.setConfig({
                 min: 0,
-                max: duration,
+                max: -1,
                 minStep: 0.1,
             });
+        },
+        updateConfig(panel, duration) {
+            const config = panel.$.duration.config;
+            if (config.max === -1) {
+                panel.$.duration.setConfig({
+                    min: 0,
+                    max: duration,
+                    minStep: 0.1,
+                });
+            }
+        },
+        updateDuration(panel, time, duration) {
+            this.updateConfig(panel, duration);
             panel.$.duration.setAttribute('value', time);
         },
     },

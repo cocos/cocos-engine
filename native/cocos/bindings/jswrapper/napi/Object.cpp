@@ -123,6 +123,7 @@ Object* Object::createProxyTarget(se::Object* proxy) {
     // v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
     // Object *obj = Object::_createJSObject(nullptr, jsobj);
     // return obj;
+    assert(false);
     return nullptr;
 }
 
@@ -529,10 +530,6 @@ void Object::setPrivateObject(PrivateObjectBase* data) {
     NODE_API_CALL(status, _env,
                   napi_wrap(_env, tmpThis, this, weakCallback,
                             (void*)this /* finalize_hint */, &result));
-    //_objRef.setWeakref(_env, result);
-    setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
-
-    return;
 }
 
 bool Object::attachObject(Object* obj) {

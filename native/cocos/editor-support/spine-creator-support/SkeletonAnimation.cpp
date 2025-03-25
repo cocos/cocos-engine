@@ -34,7 +34,7 @@
 #include "spine-creator-support/spine-cocos2dx.h"
 #include "spine/Extension.h"
 
-namespace spine {
+namespace cc {
 
 struct TrackEntryListeners {
     StartListener startListener;
@@ -53,7 +53,7 @@ void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry
     (static_cast<SkeletonAnimation *>(state->getRendererObject()))->onTrackEntryEvent(entry, type, event);
     if (type == EventType_Dispose) {
         if (entry->getRendererObject()) {
-            delete static_cast<spine::TrackEntryListeners *>(entry->getRendererObject());
+            delete static_cast<TrackEntryListeners *>(entry->getRendererObject());
             entry->setRendererObject(nullptr);
         }
     }
@@ -61,7 +61,7 @@ void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry
 
 static TrackEntryListeners *getListeners(TrackEntry *entry) {
     if (!entry->getRendererObject()) {
-        entry->setRendererObject(new spine::TrackEntryListeners());
+        entry->setRendererObject(new TrackEntryListeners());
         entry->setListener(trackEntryCallback);
     }
     return static_cast<TrackEntryListeners *>(entry->getRendererObject());
@@ -127,7 +127,11 @@ void SkeletonAnimation::update(float deltaTime) {
         if (_ownsSkeleton) _skeleton->update(deltaTime);
         _state->update(deltaTime);
         _state->apply(*_skeleton);
+#if CC_USE_SPINE_3_8
         _skeleton->updateWorldTransform();
+#else
+        _skeleton->updateWorldTransform(Physics::Physics_Update);
+#endif
     }
 }
 
@@ -323,4 +327,4 @@ AnimationState *SkeletonAnimation::getState() const {
     return _state;
 }
 
-} // namespace spine
+} // namespace cc

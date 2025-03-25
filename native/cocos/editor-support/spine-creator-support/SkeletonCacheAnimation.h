@@ -41,7 +41,7 @@ class RenderDrawInfo;
 class Material;
 };
 
-namespace spine {
+namespace cc {
 
 class SkeletonCacheAnimation : public cc::RefCounted, public cc::middleware::IMiddleware {
 public:
@@ -51,20 +51,20 @@ public:
     void update(float dt) override;
     void render(float dt) override;
 
-    Skeleton *getSkeleton() const;
+    spine::Skeleton *getSkeleton() const;
 
     void setTimeScale(float scale);
     float getTimeScale() const;
 
     void paused(bool value);
 
-    Bone *findBone(const std::string &boneName) const;
-    Slot *findSlot(const std::string &slotName) const;
+    spine::Bone *findBone(const std::string &boneName) const;
+    spine::Slot *findSlot(const std::string &slotName) const;
 
     void setSkin(const std::string &skinName);
     void setSkin(const char *skinName);
 
-    Attachment *getAttachment(const std::string &slotName, const std::string &attachmentName) const;
+    spine::Attachment *getAttachment(const std::string &slotName, const std::string &attachmentName) const;
     bool setAttachment(const std::string &slotName, const std::string &attachmentName);
     bool setAttachment(const std::string &slotName, const char *attachmentName);
     void setColor(float r, float g, float b, float a);
@@ -82,7 +82,7 @@ public:
 
     void setAnimation(const std::string &name, bool loop);
     void addAnimation(const std::string &name, bool loop, float delay = 0);
-    Animation *findAnimation(const std::string &name) const;
+    spine::Animation *findAnimation(const std::string &name) const;
 
     using CacheFrameEvent = std::function<void(std::string)>;
     void setStartListener(const CacheFrameEvent &listener);
@@ -143,4 +143,4 @@ private:
     ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
     bool _needClearMaterialCaches = false;
 };
-} // namespace spine
+} // namespace cc
