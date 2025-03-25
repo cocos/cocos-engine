@@ -270,15 +270,15 @@ export class Profiler extends System {
         this._wordHeight = this._totalLines * this._lineHeight / canvas.height;
         let j = 0;
         for (j = 0; j < _characters.length; ++j) {
-            const offset = this._ctx.measureText(_characters[j]).width;
+            const offset = ctx.measureText(_characters[j]).width;
             this._eachNumWidth = Math.max(this._eachNumWidth, offset);
         }
         for (j = 0; j < _characters.length; ++j) {
             ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
 
-        this._ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this._ctx.fillRect(canvas.width - 4, canvas.height - 4, 4, 4);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(canvas.width - 4, canvas.height - 4, 4, 4);
 
         this._eachNumWidth /= canvas.width;
 
