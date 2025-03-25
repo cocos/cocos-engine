@@ -383,7 +383,7 @@ export class Profiler extends System {
                 vertexPos.push(lWidth + (j + 1) * columnWidth, height - i * rowHeight, 0); // tr
                 vertexPos.push(lWidth + (j + 1) * columnWidth, height - (i + 1) * rowHeight, 0); // br
                 vertexPos.push(lWidth + j * columnWidth, height - (i + 1) * rowHeight, 0); // bl
-                offset = (i * _constants.segmentsPerLine + j + 2) * 4;
+                offset = (i * _constants.segmentsPerLine + j + 2) * 4; // + 2 means there are 2 quads offset before
                 vertexindices.push(0 + offset, 2 + offset, 1 + offset, 0 + offset, 3 + offset, 2 + offset);
                 const idx = i * _constants.segmentsPerLine + j;
                 const z = Math.floor(idx / 4);
