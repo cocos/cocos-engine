@@ -23,6 +23,8 @@
 */
 
 import { getError, cclegacy } from '../core';
+import { notepackDecode } from './notepack_decode';
+import { notepackEncode } from './notepack_encode';
 
 const VERSION = 1;
 
@@ -77,8 +79,7 @@ export function parseCCONJson (json: unknown): {
 export function encodeCCONBinary (ccon: CCON): Uint8Array {
     const { document, chunks } = ccon;
 
-    const jsonString = JSON.stringify(document);
-    const jsonBytes = encodeJson(jsonString);
+    const jsonBytes = new Uint8Array(notepackEncode(document));
     const ccobBuilder = new BufferBuilder();
 
     const header = new ArrayBuffer(12);
@@ -140,10 +141,9 @@ export function decodeCCONBinary (bytes: Uint8Array): CCON {
     chunksStart += 4;
     const jsonData = new Uint8Array(dataView.buffer, chunksStart + dataView.byteOffset, jsonDataLength);
     chunksStart += jsonDataLength;
-    const jsonString = decodeJson(jsonData);
     let json: unknown;
     try {
-        json = JSON.parse(jsonString);
+        json = notepackDecode(jsonData);
     } catch (err) {
         throw new InvalidCCONError(err as string);
     }
@@ -181,34 +181,6 @@ interface BufferConstructor {
     from(input: string, encoding: 'utf8'): Buffer;
 
     from(buffer: ArrayBuffer, byteOffset?: number, byteLength?: number): Buffer;
-}
-
-function encodeJson (input: string): Uint8Array {
-    if (typeof TextEncoder !== 'undefined') {
-        return new TextEncoder().encode(input);
-    } else if ('Buffer' in globalThis) {
-        const { Buffer } = (globalThis as unknown as { Buffer: BufferConstructor });
-        const buffer = Buffer.from(input, 'utf8');
-        return new Uint8Array(
-            buffer.buffer,
-            buffer.byteOffset,
-            buffer.length,
-        );
-    } else {
-        throw new Error(getError(13103));
-    }
-}
-
-function decodeJson (data: Uint8Array): string {
-    if (typeof TextDecoder !== 'undefined') {
-        return new TextDecoder().decode(data);
-    } else if ('Buffer' in globalThis) {
-        const { Buffer } = (globalThis as unknown as { Buffer: BufferConstructor });
-        // eslint-disable-next-line no-buffer-constructor
-        return Buffer.from(data.buffer, data.byteOffset, data.byteLength).toString();
-    } else {
-        throw new Error(getError(13104));
-    }
 }
 
 export class InvalidCCONError extends Error { }
