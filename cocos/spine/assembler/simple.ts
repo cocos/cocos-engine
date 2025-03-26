@@ -27,7 +27,7 @@ import { IAssembler } from '../../2d/renderer/base';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../../2d/renderer/vertex-format';
 import { type Skeleton, SpineMaterialType } from '../skeleton';
-import { BlendFactor } from '../../gfx';
+import { Attribute, BlendFactor } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
@@ -35,6 +35,7 @@ import spine from '../lib/spine-core';
 import { Color, EPSILON, Vec3 } from '../../core';
 import type { MaterialInstance } from '../../render-scene';
 import type { IBatcher } from '../../2d/renderer/i-batcher';
+import { AnimationCache } from '../skeleton-cache';
 
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
@@ -51,8 +52,10 @@ let _tintAccessor: StaticVBAccessor = null!;
 let _premultipliedAlpha = false;
 let _useTint = false;
 
-const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
-const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
+let vfmtOneColor = vfmtPosUvColor4B;
+let vfmtTwoColor = vfmtPosUvTwoColor4B;
+let _byteStrideOneColor = getAttributeStride(vfmtOneColor);
+let _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
 
 const DEBUG_TYPE_REGION = 0;
 const DEBUG_TYPE_MESH = 1;
@@ -86,12 +89,21 @@ function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance 
 
 class Simple implements IAssembler {
     vCount = 32767;
+    
+    customVfmts(customizedOneColorVfmt: Attribute[], customizedTwoColorVfmt: Attribute[]) {
+        vfmtOneColor = customizedOneColorVfmt;
+        vfmtTwoColor = customizedTwoColorVfmt;
+        _byteStrideOneColor = getAttributeStride(vfmtOneColor);
+        _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
+        AnimationCache.customVfmts(customizedOneColorVfmt, customizedTwoColorVfmt);
+    }
+    
     private ensureAccessor (useTint: boolean): StaticVBAccessor {
         let accessor = useTint ? _tintAccessor : _accessor;
         if (!accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
-            const attributes = useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B;
+            const attributes = useTint ? vfmtTwoColor : vfmtOneColor;
             if (useTint) {
                 accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
                 // Register to batcher so that batcher can upload buffers after batching process
@@ -110,7 +122,7 @@ class Simple implements IAssembler {
         if (!rd) {
             const useTint = comp.useTint || comp.isAnimationCached();
             const accessor = this.ensureAccessor(useTint);
-            rd = RenderData.add(useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B, accessor);
+            rd = RenderData.add(useTint ? vfmtTwoColor : vfmtOneColor, accessor);
         }
         return rd;
     }

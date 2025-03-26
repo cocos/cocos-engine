@@ -28,12 +28,15 @@ import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d
 import spine from './lib/spine-core';
 import { SkeletonData } from './skeleton-data';
 import { warn } from '../core/platform/debug';
+import { Attribute } from '../gfx';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
 const _useTint = true;
-const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
-const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
+let vfmtOneColor = vfmtPosUvColor4B;
+let vfmtTwoColor = vfmtPosUvTwoColor4B;
+let _byteStrideOneColor = getAttributeStride(vfmtOneColor);
+let _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
 
 export class FrameBoneInfo {
     a = 0;
@@ -74,6 +77,12 @@ export interface AnimationFrame {
 }
 
 export class AnimationCache {
+    public static customVfmts(customizedOneColorVfmt: Attribute[], customizedTwoColorVfmt: Attribute[]) {
+        vfmtOneColor = customizedOneColorVfmt;
+        vfmtTwoColor = customizedTwoColorVfmt;
+        _byteStrideOneColor = getAttributeStride(vfmtOneColor);
+        _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
+    }
     protected _instance: spine.SkeletonInstance | null = null;
     protected _state: spine.AnimationState = null!;
     protected _skeletonData: spine.SkeletonData = null!;

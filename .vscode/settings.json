@@ -33,5 +33,6 @@
         "vector": "cpp",
         "istream": "c"
     },
+    "editor.formatOnSave": false,
     "cmake.configureOnOpen": false,
 }
