@@ -102,9 +102,9 @@ public:
 
     void setAttachment(Attachment *inValue);
 
-	int getAttachmentState();
+    int getAttachmentState();
 
-	void setAttachmentState(int state);
+    void setAttachmentState(int state);
     float getAttachmentTime();
 
     void setAttachmentTime(float inValue);
