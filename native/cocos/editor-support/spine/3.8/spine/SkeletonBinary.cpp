@@ -280,34 +280,43 @@ SkeletonData *SkeletonBinary::readSkeletonData(const unsigned char *binary, cons
         skeletonData->_skins.add(defaultSkin);
     }
 
-    /* Skins. */
-    for (size_t i = 0, n = (size_t)readVarint(input, true); i < n; ++i)
-        skeletonData->_skins.add(readSkin(input, false, skeletonData, nonessential));
+	/* Skins. */
+	for (size_t i = 0, n = (size_t)readVarint(input, true); i < n; ++i) {
+		Skin* skin = readSkin(input, false, skeletonData, nonessential);
+		if (skin)
+			skeletonData->_skins.add(skin);
+		else {
+			delete input;
+			delete skeletonData;
+			return NULL;
+		}
+	}
 
-    /* Linked meshes. */
-    for (int i = 0, n = _linkedMeshes.size(); i < n; ++i) {
-        LinkedMesh *linkedMesh = _linkedMeshes[i];
-        Skin *skin = linkedMesh->_skin.length() == 0 ? skeletonData->getDefaultSkin() : skeletonData->findSkin(linkedMesh->_skin);
-        if (skin == NULL) {
-            delete input;
-            delete skeletonData;
-            setError("Skin not found: ", linkedMesh->_skin.buffer());
-            return NULL;
-        }
-        Attachment *parent = skin->getAttachment(linkedMesh->_slotIndex, linkedMesh->_parent);
-        if (parent == NULL) {
-            delete input;
-            delete skeletonData;
-            setError("Parent mesh not found: ", linkedMesh->_parent.buffer());
-            return NULL;
-        }
-        linkedMesh->_mesh->_deformAttachment = linkedMesh->_inheritDeform ? static_cast<VertexAttachment *>(parent) : linkedMesh->_mesh;
-        linkedMesh->_mesh->setParentMesh(static_cast<MeshAttachment *>(parent));
-        linkedMesh->_mesh->updateUVs();
-        _attachmentLoader->configureAttachment(linkedMesh->_mesh);
-    }
-    ContainerUtil::cleanUpVectorOfPointers(_linkedMeshes);
-    _linkedMeshes.clear();
+	/* Linked meshes. */
+	for (int i = 0, n = _linkedMeshes.size(); i < n; ++i) {
+		LinkedMesh *linkedMesh = _linkedMeshes[i];
+		Skin *skin = linkedMesh->_skin.length() == 0 ? skeletonData->getDefaultSkin() : skeletonData->findSkin(
+			linkedMesh->_skin);
+		if (skin == NULL) {
+			delete input;
+			delete skeletonData;
+			setError("Skin not found: ", linkedMesh->_skin.buffer());
+			return NULL;
+		}
+		Attachment *parent = skin->getAttachment(linkedMesh->_slotIndex, linkedMesh->_parent);
+		if (parent == NULL) {
+			delete input;
+			delete skeletonData;
+			setError("Parent mesh not found: ", linkedMesh->_parent.buffer());
+			return NULL;
+		}
+		linkedMesh->_mesh->_deformAttachment = linkedMesh->_inheritDeform ? static_cast<VertexAttachment*>(parent) : linkedMesh->_mesh;
+		linkedMesh->_mesh->setParentMesh(static_cast<MeshAttachment *>(parent));
+		linkedMesh->_mesh->updateUVs();
+		_attachmentLoader->configureAttachment(linkedMesh->_mesh);
+	}
+	ContainerUtil::cleanUpVectorOfPointers(_linkedMeshes);
+	_linkedMeshes.clear();
 
     /* Events. */
     int eventsCount = readVarint(input, true);
@@ -377,9 +386,9 @@ char *SkeletonBinary::readString(DataInput *input) {
     return string;
 }
 
-char *SkeletonBinary::readStringRef(DataInput *input, SkeletonData *skeletonData) {
-    int index = readVarint(input, true);
-    return index == 0 ? nullptr : skeletonData->_strings[index - 1];
+char* SkeletonBinary::readStringRef(DataInput* input, SkeletonData* skeletonData) {
+	int index = readVarint(input, true);
+	return index == 0 ? NULL : skeletonData->_strings[index - 1];
 }
 
 float SkeletonBinary::readFloat(DataInput *input) {
@@ -464,15 +473,20 @@ Skin *SkeletonBinary::readSkin(DataInput *input, bool defaultSkin, SkeletonData 
         slotCount = readVarint(input, true);
     }
 
-    for (int i = 0; i < slotCount; ++i) {
-        int slotIndex = readVarint(input, true);
-        for (int ii = 0, nn = readVarint(input, true); ii < nn; ++ii) {
-            String name(readStringRef(input, skeletonData));
-            Attachment *attachment = readAttachment(input, skin, slotIndex, name, skeletonData, nonessential);
-            if (attachment) skin->setAttachment(slotIndex, String(name), attachment);
-        }
-    }
-    return skin;
+	for (int i = 0; i < slotCount; ++i) {
+		int slotIndex = readVarint(input, true);
+		for (int ii = 0, nn = readVarint(input, true); ii < nn; ++ii) {
+			String name(readStringRef(input, skeletonData));
+			Attachment *attachment = readAttachment(input, skin, slotIndex, name, skeletonData, nonessential);
+			if (attachment)
+				skin->setAttachment(slotIndex, String(name), attachment);
+			else {
+				delete skin;
+				return nullptr;
+			}
+		}
+	}
+	return skin;
 }
 
 Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slotIndex, const String &attachmentName,
@@ -533,8 +547,8 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 
             mesh = _attachmentLoader->newMeshAttachment(*skin, String(name), String(path));
             if (!mesh) {
-                mesh = new MeshAttachment(name);
-                needDelete = true;
+			setError("Error reading attachment: ", name.buffer());
+			return nullptr;
             }
             mesh->_path = path;
             readColor(input, mesh->getColor());
@@ -551,14 +565,7 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
             } else {
                 mesh->_width = 0;
                 mesh->_height = 0;
-            }
-            // mesh should not be added to skin, just delete it. While it still needs to read
-            // all bytes to make sure next readAttachment read back right data.
-            if (needDelete) {
-                delete mesh;
-                mesh = nullptr;
-                return nullptr;
-            }
+		    }
             _attachmentLoader->configureAttachment(mesh);
             return mesh;
         }
@@ -566,16 +573,20 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
             String path(readStringRef(input, skeletonData));
             if (path.isEmpty()) path = name;
 
-            MeshAttachment *mesh = _attachmentLoader->newMeshAttachment(*skin, String(name), String(path));
-            mesh->_path = path;
-            readColor(input, mesh->getColor());
-            String skinName(readStringRef(input, skeletonData));
-            String parent(readStringRef(input, skeletonData));
-            bool inheritDeform = readBoolean(input);
-            if (nonessential) {
-                mesh->_width = readFloat(input) * _scale;
-                mesh->_height = readFloat(input) * _scale;
-            }
+		MeshAttachment *mesh = _attachmentLoader->newMeshAttachment(*skin, String(name), String(path));
+		if (!mesh) {
+			setError("Error reading attachment: ", name.buffer());
+			return nullptr;
+		}
+		mesh->_path = path;
+		readColor(input, mesh->getColor());
+		String skinName(readStringRef(input, skeletonData));
+		String parent(readStringRef(input, skeletonData));
+		bool inheritDeform = readBoolean(input);
+		if (nonessential) {
+			mesh->_width = readFloat(input) * _scale;
+			mesh->_height = readFloat(input) * _scale;
+		}
 
             LinkedMesh *linkedMesh = spine_new LinkedMesh(mesh, String(skinName), slotIndex,
                                                                          String(parent), inheritDeform);
@@ -584,6 +595,10 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
         }
         case AttachmentType_Path: {
             PathAttachment *path = _attachmentLoader->newPathAttachment(*skin, String(name));
+		if (!path) {
+			setError("Error reading attachment: ", name.buffer());
+			return nullptr;
+		}
             path->_closed = readBoolean(input);
             path->_constantSpeed = readBoolean(input);
             int vertexCount = readVarint(input, true);
@@ -602,6 +617,10 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
         }
         case AttachmentType_Point: {
             PointAttachment *point = _attachmentLoader->newPointAttachment(*skin, String(name));
+		if (!point) {
+			setError("Error reading attachment: ", name.buffer());
+			return nullptr;
+		}
             point->_rotation = readFloat(input);
             point->_x = readFloat(input) * _scale;
             point->_y = readFloat(input) * _scale;
@@ -617,17 +636,21 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
             int endSlotIndex = readVarint(input, true);
             int vertexCount = readVarint(input, true);
             ClippingAttachment *clip = _attachmentLoader->newClippingAttachment(*skin, name);
-            readVertices(input, static_cast<VertexAttachment *>(clip), vertexCount);
-            clip->_endSlot = skeletonData->_slots[endSlotIndex];
-            if (nonessential) {
-                /* Skip color. */
-                readInt(input);
-            }
-            _attachmentLoader->configureAttachment(clip);
-            return clip;
-        }
-    }
-    return NULL;
+		if (!clip) {
+			setError("Error reading attachment: ", name.buffer());
+			return nullptr;
+		}
+		readVertices(input, static_cast<VertexAttachment *>(clip), vertexCount);
+		clip->_endSlot = skeletonData->_slots[endSlotIndex];
+		if (nonessential) {
+			/* Skip color. */
+			readInt(input);
+		}
+		_attachmentLoader->configureAttachment(clip);
+		return clip;
+	}
+	}
+	return nullptr;
 }
 
 void SkeletonBinary::readVertices(DataInput *input, VertexAttachment *attachment, int vertexCount) {

@@ -30,8 +30,9 @@
 #ifndef Spine_SkeletonBounds_h
 #define Spine_SkeletonBounds_h
 
-#include <spine/SpineObject.h>
 #include <spine/Vector.h>
+#include <spine/Pool.h>
+#include <spine/SpineObject.h>
 
 namespace spine {
 class Skeleton;
@@ -43,6 +44,7 @@ class Polygon;
 class SP_API SkeletonBounds : public SpineObject {
 public:
     SkeletonBounds();
+    ~SkeletonBounds();
 
     /// Clears any previous polygons, finds all visible bounding box attachments,
     /// and computes the world vertices for each bounding box's polygon.
@@ -82,7 +84,7 @@ public:
     float getHeight();
 
 private:
-    Vector<Polygon*> _polygonPool;
+    Pool<Polygon> _polygonPool;
     Vector<BoundingBoxAttachment*> _boundingBoxes;
     Vector<Polygon*> _polygons;
     float _minX, _minY, _maxX, _maxY;

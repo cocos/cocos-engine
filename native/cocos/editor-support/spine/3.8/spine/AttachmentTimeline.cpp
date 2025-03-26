@@ -57,6 +57,10 @@ AttachmentTimeline::AttachmentTimeline(int frameCount) : Timeline(), _slotIndex(
     }
 }
 
+void AttachmentTimeline::setAttachment(Skeleton& skeleton, Slot& slot, String* attachmentName) {
+    slot.setAttachment(attachmentName == NULL || attachmentName->isEmpty() ? NULL : skeleton.getAttachment(_slotIndex, *attachmentName));
+}
+
 void AttachmentTimeline::apply(Skeleton &skeleton, float lastTime, float time, Vector<Event *> *pEvents, float alpha,
                                MixBlend blend, MixDirection direction) {
     SP_UNUSED(lastTime);
@@ -70,20 +74,18 @@ void AttachmentTimeline::apply(Skeleton &skeleton, float lastTime, float time, V
     Slot &slot = *slotP;
     if (!slot._bone.isActive()) return;
 
-    if (direction == MixDirection_Out && blend == MixBlend_Setup) {
-        attachmentName = &slot._data._attachmentName;
-        slot.setAttachment(attachmentName->length() == 0 ? NULL : skeleton.getAttachment(_slotIndex, *attachmentName));
-        return;
-    }
+	if (direction == MixDirection_Out) {
+	    if (blend == MixBlend_Setup) setAttachment(skeleton, slot, &slot._data._attachmentName);
+		return;
+	}
 
-    if (time < _frames[0]) {
-        // Time is before first frame.
-        if (blend == MixBlend_Setup || blend == MixBlend_First) {
-            attachmentName = &slot._data._attachmentName;
-            slot.setAttachment(attachmentName->length() == 0 ? NULL : skeleton.getAttachment(_slotIndex, *attachmentName));
-        }
-        return;
-    }
+	if (time < _frames[0]) {
+		// Time is before first frame.
+		if (blend == MixBlend_Setup || blend == MixBlend_First) {
+            setAttachment(skeleton, slot, &slot._data._attachmentName);
+		}
+		return;
+	}
 
     size_t frameIndex;
     if (time >= _frames[_frames.size() - 1]) {
