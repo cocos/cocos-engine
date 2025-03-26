@@ -77,7 +77,7 @@ export interface AnimationFrame {
 }
 
 export class AnimationCache {
-    public static customVfmts(customizedOneColorVfmt: Attribute[], customizedTwoColorVfmt: Attribute[]) {
+    public static customVfmts (customizedOneColorVfmt: Attribute[], customizedTwoColorVfmt: Attribute[]): void {
         vfmtOneColor = customizedOneColorVfmt;
         vfmtTwoColor = customizedTwoColorVfmt;
         _byteStrideOneColor = getAttributeStride(vfmtOneColor);
@@ -175,7 +175,7 @@ export class AnimationCache {
     private updateRenderData (index: number, model: any): void {
         const vc: number = model.vCount;
         const ic: number = model.iCount;
-        const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
+        const floatStride = (_useTint ? _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
         const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * floatStride * vc);
         const iUint16Buf = new Uint16Array(ic);
 
@@ -183,13 +183,13 @@ export class AnimationCache {
         const vPtr = model.vPtr;
         const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        vUint8Buf.set(HEAPU8.subarray(vPtr, vPtr + vLength));
+        vUint8Buf.set(HEAPU8.subarray(vPtr as number, vPtr + vLength as number));
 
         const iPtr = model.iPtr;
         const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         const iUint8Buf = new Uint8Array(iUint16Buf.buffer);
-        iUint8Buf.set(HEAPU8.subarray(iPtr, iPtr + iLength));
+        iUint8Buf.set(HEAPU8.subarray(iPtr as number, iPtr + iLength as number));
 
         const modelData = new SpineModel();
         modelData.vCount = vc;
@@ -441,7 +441,7 @@ class SkeletonCache {
         return animationsCache[animationName];
     }
 
-    public initAnimationCache (uuid: string, data: SkeletonData,  animationName: string): null | AnimationCache {
+    public initAnimationCache (uuid: string, data: SkeletonData, animationName: string): null | AnimationCache {
         const spData = data.getRuntimeData();
         if (!spData) return null;
         const skeletonInfo = this._skeletonCache[uuid];
