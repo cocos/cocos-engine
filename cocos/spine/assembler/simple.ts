@@ -54,8 +54,10 @@ let _useTint = false;
 
 let vfmtOneColor = vfmtPosUvColor4B;
 let vfmtTwoColor = vfmtPosUvTwoColor4B;
-let _byteStrideOneColor = getAttributeStride(vfmtOneColor);
-let _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
+const _byteStrideOneColor = getAttributeStride(vfmtOneColor);
+const _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
+let _byteStrideOneColorCustomized = _byteStrideOneColor;
+let _byteStrideTwoColorCustomized = _byteStrideTwoColor;
 
 const DEBUG_TYPE_REGION = 0;
 const DEBUG_TYPE_MESH = 1;
@@ -93,8 +95,8 @@ class Simple implements IAssembler {
     public static customVfmts (customizedOneColorVfmt: Attribute[], customizedTwoColorVfmt: Attribute[]): void {
         vfmtOneColor = customizedOneColorVfmt;
         vfmtTwoColor = customizedTwoColorVfmt;
-        _byteStrideOneColor = getAttributeStride(vfmtOneColor);
-        _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
+        _byteStrideOneColorCustomized = getAttributeStride(vfmtOneColor);
+        _byteStrideTwoColorCustomized = getAttributeStride(vfmtTwoColor);
         AnimationCache.customVfmts(customizedOneColorVfmt, customizedTwoColorVfmt);
     }
 
@@ -155,7 +157,10 @@ function updateComponentRenderData (comp: Skeleton): void {
 }
 
 function realTimeTraverse (comp: Skeleton): void {
-    const floatStride = (comp.useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
+    const byteStride = (_useTint ? _byteStrideTwoColor : _byteStrideOneColor);
+    const floatStride = byteStride / Float32Array.BYTES_PER_ELEMENT;
+    const customizedByteStride = (_useTint ? _byteStrideTwoColorCustomized : _byteStrideOneColorCustomized);
+    const customizedFloatStride = customizedByteStride / Float32Array.BYTES_PER_ELEMENT;
     const model = comp.updateRenderData();
     const vc = model.vCount as number;
     const ic = model.iCount as number;
@@ -165,7 +170,7 @@ function realTimeTraverse (comp: Skeleton): void {
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
-        comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
+        comp._vLength = vc * customizedByteStride;
         comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, Float32Array.BYTES_PER_ELEMENT * rd.chunk.vb.length);
         comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         comp._iBuffer = new Uint8Array(rd.indices.buffer);
@@ -177,7 +182,17 @@ function realTimeTraverse (comp: Skeleton): void {
     const ibuf = rd.indices!;
     const HEAPU8: Uint8Array = spine.wasmUtil.wasm.HEAPU8;
 
-    comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
+    //comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
+    const temp = HEAPU8.subarray(vPtr, vPtr + comp._vLength);
+    let start = 0;
+    let end = start + byteStride;
+    let customizedFloatOffset = 0;
+    for (let i = 0; i < vc; i++) {
+        comp._vBuffer?.set(temp.subarray(start, end), customizedFloatOffset);
+        start = end;
+        end += byteStride;
+        customizedFloatOffset += customizedByteStride;
+    }
     comp._iBuffer?.set(HEAPU8.subarray(iPtr, iPtr + comp._iLength), 0);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) ibuf[i] += chunkOffset;
@@ -199,7 +214,7 @@ function realTimeTraverse (comp: Skeleton): void {
         const worldMat = comp.node.worldMatrix;
         let index = 0;
         for (let i = 0; i < vc; i++) {
-            index = i * floatStride;
+            index = i * customizedFloatStride;
             tempVecPos.x = vbuf[index];
             tempVecPos.y = vbuf[index + 1];
             tempVecPos.z = 0;
@@ -300,7 +315,7 @@ function cacheTraverse (comp: Skeleton): void {
         _nodeB = nodeColor.b / 255;
         _nodeA = opacity;
         for (let i = 0; i < vc; i++) {
-            const index = i * _byteStrideTwoColor + 5 * Float32Array.BYTES_PER_ELEMENT;
+            const index = i * _byteStrideTwoColorCustomized + 5 * Float32Array.BYTES_PER_ELEMENT;
             const R = vUint8Buf[index];
             const G = vUint8Buf[index + 1];
             const B = vUint8Buf[index + 2];
@@ -339,7 +354,7 @@ function cacheTraverse (comp: Skeleton): void {
         indexOffset += indexCount;
     }
 
-    const floatStride = _byteStrideTwoColor / Float32Array.BYTES_PER_ELEMENT;
+    const floatStride = _byteStrideTwoColorCustomized / Float32Array.BYTES_PER_ELEMENT;
     if (comp.enableBatch) {
         const worldMat = comp.node.worldMatrix;
         let index = 0;

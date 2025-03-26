@@ -33,10 +33,10 @@ import { Attribute } from '../gfx';
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
 const _useTint = true;
-let vfmtOneColor = vfmtPosUvColor4B;
-let vfmtTwoColor = vfmtPosUvTwoColor4B;
-let _byteStrideOneColor = getAttributeStride(vfmtOneColor);
-let _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
+const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
+const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
+let _byteStrideOneColorCustomized = _byteStrideOneColor;
+let _byteStrideTwoColorCustomized = _byteStrideTwoColor;
 
 export class FrameBoneInfo {
     a = 0;
@@ -78,10 +78,8 @@ export interface AnimationFrame {
 
 export class AnimationCache {
     public static customVfmts (customizedOneColorVfmt: Attribute[], customizedTwoColorVfmt: Attribute[]): void {
-        vfmtOneColor = customizedOneColorVfmt;
-        vfmtTwoColor = customizedTwoColorVfmt;
-        _byteStrideOneColor = getAttributeStride(vfmtOneColor);
-        _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
+        _byteStrideOneColorCustomized = getAttributeStride(customizedOneColorVfmt);
+        _byteStrideTwoColorCustomized = getAttributeStride(customizedTwoColorVfmt);
     }
     protected _instance: spine.SkeletonInstance | null = null;
     protected _state: spine.AnimationState = null!;
@@ -175,15 +173,28 @@ export class AnimationCache {
     private updateRenderData (index: number, model: any): void {
         const vc: number = model.vCount;
         const ic: number = model.iCount;
-        const floatStride = (_useTint ? _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
-        const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * floatStride * vc);
+        const byteStride = (_useTint ? _byteStrideTwoColor : _byteStrideOneColor);
+        const floatStride = byteStride / Float32Array.BYTES_PER_ELEMENT;
+        const customizedByteStride = (_useTint ? _byteStrideTwoColorCustomized : _byteStrideOneColorCustomized);
+        const customizedFloatStride = customizedByteStride / Float32Array.BYTES_PER_ELEMENT;
+        const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * customizedFloatStride * vc);
         const iUint16Buf = new Uint16Array(ic);
 
         const HEAPU8: Uint8Array = spine.wasmUtil.wasm.HEAPU8;
         const vPtr = model.vPtr;
         const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        vUint8Buf.set(HEAPU8.subarray(vPtr as number, vPtr + vLength as number));
+        //vUint8Buf.set(HEAPU8.subarray(vPtr as number, vPtr + vLength as number));
+        const temp = HEAPU8.subarray(vPtr as number, vPtr + vLength as number);
+        let start = 0;
+        let end = start + byteStride;
+        let customizedFloatOffset = 0;
+        for (let i = 0; i < vc; i++) {
+            vUint8Buf.set(temp.subarray(start, end), customizedFloatOffset);
+            start = end;
+            end += byteStride;
+            customizedFloatOffset += customizedByteStride;
+        }
 
         const iPtr = model.iPtr;
         const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
