@@ -1547,7 +1547,7 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerE
 
 bool nativevalue_to_se(const ccstd::vector<cc::physics::ContactPoint> &from, se::Value &to, se::Object * /*ctx*/) {
     const auto contactCount = from.size();
-    se::HandleObject array(se::Object::createArrayObject(contactCount));
+    se::HandleObject array(se::Object::createArrayObject(contactCount * cc::physics::ContactPoint::COUNT));
     for (size_t i = 0; i < contactCount; i++) {
         auto t = i * cc::physics::ContactPoint::COUNT;
         uint32_t j = 0;
@@ -1587,7 +1587,7 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactE
 
 bool nativevalue_to_se(const ccstd::vector<cc::physics::CharacterControllerContact> &from, se::Value &to, se::Object * /*ctx*/) {
     const auto contactCount = from.size();
-    se::HandleObject array(se::Object::createArrayObject(contactCount));
+    se::HandleObject array(se::Object::createArrayObject(contactCount * cc::physics::CharacterControllerContact::COUNT));
     for (size_t i = 0; i < contactCount; i++) {
         auto t = i * cc::physics::CharacterControllerContact::COUNT;
         uint32_t j = 0;

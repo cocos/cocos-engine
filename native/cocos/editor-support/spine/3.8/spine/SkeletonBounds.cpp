@@ -46,13 +46,19 @@ using namespace spine;
 SkeletonBounds::SkeletonBounds() : _minX(0), _minY(0), _maxX(0), _maxY(0) {
 }
 
+SkeletonBounds::~SkeletonBounds() {
+    for (size_t i = 0, n = _polygons.size(); i < n; i++)
+        _polygonPool.free(_polygons[i]);
+    _polygons.clear();
+}
+
 void SkeletonBounds::update(Skeleton &skeleton, bool updateAabb) {
-    Vector<Slot *> &slots = skeleton._slots;
+    Vector<Slot *> &slots = skeleton.getSlots();
     size_t slotCount = slots.size();
 
     _boundingBoxes.clear();
     for (size_t i = 0, n = _polygons.size(); i < n; ++i) {
-        _polygonPool.add(_polygons[i]);
+        _polygonPool.free(_polygons[i]);
     }
 
     _polygons.clear();
@@ -66,13 +72,7 @@ void SkeletonBounds::update(Skeleton &skeleton, bool updateAabb) {
         BoundingBoxAttachment *boundingBox = static_cast<BoundingBoxAttachment *>(attachment);
         _boundingBoxes.add(boundingBox);
 
-        spine::Polygon *polygonP = NULL;
-        size_t poolCount = _polygonPool.size();
-        if (poolCount > 0) {
-            polygonP = _polygonPool[poolCount - 1];
-            _polygonPool.removeAt(poolCount - 1);
-        } else
-            polygonP = spine_new Polygon();
+        spine::Polygon *polygonP = _polygonPool.obtain();
 
         _polygons.add(polygonP);
 
