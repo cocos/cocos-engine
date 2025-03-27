@@ -60,12 +60,14 @@ Label._canvasPool = {
     },
     put (canvas) {
         if (this.pool.length >= 32) {
-            const c = canvas.canvas;
-            if (c && c._destroy) {
-                c._destroy();
+            if(CC_JSB) {
+                const c = canvas.canvas;
+                if (c && c._destroy) {
+                    c._destroy();
+                }
+                canvas.canvas = null;
+                canvas.context = null;
             }
-            canvas.canvas = null;
-            canvas.context = null;
             return;
         }
         this.pool.push(canvas);
