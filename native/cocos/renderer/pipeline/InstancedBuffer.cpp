@@ -77,7 +77,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     auto passPriority = static_cast<uint32_t>(subModel->getPass(passIdx)->getPriority());
     auto modelPriority = static_cast<uint32_t>(subModel->getPriority());
     auto shaderId = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(subModel->getShader(passIdx)));
-    const auto hash = (0 << 30) | (passPriority << 16) | (modelPriority << 8) | passIdx;
+    const auto hash = (passPriority << 16) | (modelPriority << 8) | passIdx;
     _sortRender.hash = hash;
     _sortRender.shaderID = shaderId;
     _sortRender.passIndex = passIdx;

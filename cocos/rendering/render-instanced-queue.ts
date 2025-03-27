@@ -56,16 +56,16 @@ export class RenderInstancedQueue {
 
     public sort (): void {
         const sortedArray = Array.from(this.queue).sort(instancingCompareFn);
-        for (const item of sortedArray) {
+        sortedArray.forEach((item) => {
             if (!item.pass.blendState.targets[0]?.blend) {
                 this._renderQueue.push(item);
             }
-        }
-        for (const item of sortedArray) {
+        });
+        sortedArray.forEach((item) => {
             if (item.pass.blendState.targets[0]?.blend) {
                 this._renderQueue.push(item);
             }
-        }
+        });
     }
 
     public uploadBuffers (cmdBuff: CommandBuffer): void {

@@ -42,28 +42,16 @@ void RenderInstancedQueue::clear() {
 }
 
 void RenderInstancedQueue::sort() {
-    std::vector<InstancedBuffer*> tempSorted;
-    tempSorted.reserve(_queues.size());
-    std::copy(_queues.begin(), _queues.end(), std::back_inserter(tempSorted));
-    const auto instancingCompare = [](const InstancedBuffer* left, const InstancedBuffer* right) {
-        const auto& leftSort = left->getSortRender();
-        const auto& rightSort = right->getSortRender();
-        if (leftSort.hash != rightSort.hash) {
-            return leftSort.hash < rightSort.hash;
-        }
-        return leftSort.shaderID < rightSort.shaderID;
+    _renderQueues.assign(_queues.begin(), _queues.end());
+    const auto compare = [](const InstancedBuffer *left, const InstancedBuffer *right) {
+        const auto &leftSort = left->getSortRender();
+        const auto &rightSort = right->getSortRender();
+        const auto leftBlend = left->getPass()->getBlendState()->targets[0].blend;
+        const auto rightBlend = right->getPass()->getBlendState()->targets[0].blend;
+        return std::forward_as_tuple(leftBlend, leftSort.hash, leftSort.shaderID) <
+               std::forward_as_tuple(rightBlend, rightSort.hash, rightSort.shaderID);
     };
-    std::sort(tempSorted.begin(), tempSorted.end(), instancingCompare);
-    for (const auto& item : tempSorted) {
-        if (item->getPass()->getBlendState()->targets[0].blend == 0) {
-            _renderQueues.emplace_back(item);
-        }
-    }
-    for (const auto& item : tempSorted) {
-        if (item->getPass()->getBlendState()->targets[0].blend != 0) {
-            _renderQueues.emplace_back(item);
-        }
-    }
+    std::sort(_renderQueues.begin(), _renderQueues.end(), compare);
 }
 
 void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {

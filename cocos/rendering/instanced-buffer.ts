@@ -101,7 +101,7 @@ export class InstancedBuffer {
             shader = subModel.shaders[passIdx];
         }
         const descriptorSet = subModel.descriptorSet;
-        const hash = (0 << 30) | (subModel.passes[passIdx].priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
+        const hash = (subModel.passes[passIdx].priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
 
         this.sortRender.hash = hash;
         this.sortRender.shaderId = shader.typedID;
