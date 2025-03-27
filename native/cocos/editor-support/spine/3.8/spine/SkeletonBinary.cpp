@@ -564,7 +564,7 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
             } else {
                 mesh->_width = 0;
                 mesh->_height = 0;
-		    }
+            }
             _attachmentLoader->configureAttachment(mesh);
             return mesh;
         }
