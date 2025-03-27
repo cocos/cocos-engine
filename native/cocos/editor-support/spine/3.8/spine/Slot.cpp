@@ -40,22 +40,21 @@
 
 using namespace spine;
 
-Slot::Slot(SlotData &data, Bone &bone) :
-		_data(data),
-		_bone(bone),
-		_skeleton(bone.getSkeleton()),
-		_color(1, 1, 1, 1),
-		_darkColor(0, 0, 0, 0),
-		_hasDarkColor(data.hasDarkColor()),
-		_attachment(NULL),
-		_attachmentState(0),
-		_attachmentTime(0) {
-	setToSetupPose();
+Slot::Slot(SlotData &data, Bone &bone) : _data(data),
+                                         _bone(bone),
+                                         _skeleton(bone.getSkeleton()),
+                                         _color(1, 1, 1, 1),
+                                         _darkColor(0, 0, 0, 0),
+                                         _hasDarkColor(data.hasDarkColor()),
+                                         _attachment(NULL),
+                                         _attachmentState(0),
+                                         _attachmentTime(0) {
+    setToSetupPose();
 }
 
 void Slot::setToSetupPose() {
-	_color.set(_data.getColor());
-	if  (_hasDarkColor) _darkColor.set(_data.getDarkColor());
+    _color.set(_data.getColor());
+    if (_hasDarkColor) _darkColor.set(_data.getDarkColor());
 
     const String &attachmentName = _data.getAttachmentName();
     if (attachmentName.length() > 0) {
