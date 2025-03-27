@@ -75,7 +75,7 @@ private:
 #endif
     SpineModel *_model = nullptr;
     uint32_t _eventListenerID = 0;
-    uint32_t _trackEntryListenerID = 0;
+    spine::HashMap<spine::TrackEntry *, uint32_t> _trackListenerSet{};
     UserData _userData;
     spine::Vector<SpineDebugShape> _debugShapes{};
     spine::HashMap<spine::Slot*, spine::String> _slotTextureSet{};
