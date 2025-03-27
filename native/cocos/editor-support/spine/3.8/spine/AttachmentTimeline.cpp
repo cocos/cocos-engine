@@ -74,18 +74,18 @@ void AttachmentTimeline::apply(Skeleton &skeleton, float lastTime, float time, V
     Slot &slot = *slotP;
     if (!slot._bone.isActive()) return;
 
-	if (direction == MixDirection_Out) {
-	    if (blend == MixBlend_Setup) setAttachment(skeleton, slot, &slot._data._attachmentName);
-		return;
-	}
+    if (direction == MixDirection_Out) {
+        if (blend == MixBlend_Setup) setAttachment(skeleton, slot, &slot._data._attachmentName);
+        return;
+    }
 
-	if (time < _frames[0]) {
-		// Time is before first frame.
-		if (blend == MixBlend_Setup || blend == MixBlend_First) {
+    if (time < _frames[0]) {
+        // Time is before first frame.
+        if (blend == MixBlend_Setup || blend == MixBlend_First) {
             setAttachment(skeleton, slot, &slot._data._attachmentName);
-		}
-		return;
-	}
+        }
+        return;
+    }
 
     size_t frameIndex;
     if (time >= _frames[_frames.size() - 1]) {

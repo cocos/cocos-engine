@@ -53,13 +53,13 @@ SkeletonBounds::~SkeletonBounds() {
 }
 
 void SkeletonBounds::update(Skeleton &skeleton, bool updateAabb) {
-	Vector<Slot *> &slots = skeleton.getSlots();
-	size_t slotCount = slots.size();
+    Vector<Slot *> &slots = skeleton.getSlots();
+    size_t slotCount = slots.size();
 
-	_boundingBoxes.clear();
-	for (size_t i = 0, n = _polygons.size(); i < n; ++i) {
-		_polygonPool.free(_polygons[i]);
-	}
+    _boundingBoxes.clear();
+    for (size_t i = 0, n = _polygons.size(); i < n; ++i) {
+        _polygonPool.free(_polygons[i]);
+    }
 
     _polygons.clear();
 
@@ -72,7 +72,7 @@ void SkeletonBounds::update(Skeleton &skeleton, bool updateAabb) {
         BoundingBoxAttachment *boundingBox = static_cast<BoundingBoxAttachment *>(attachment);
         _boundingBoxes.add(boundingBox);
 
-		spine::Polygon *polygonP = _polygonPool.obtain();
+        spine::Polygon *polygonP = _polygonPool.obtain();
 
         _polygons.add(polygonP);
 
