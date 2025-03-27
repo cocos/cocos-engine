@@ -87,5 +87,3 @@ ninja
    Ensure EMSdk, CMake, and Spine versions are compatible.
 2. **Path Validity**:  
    Verify that all paths (e.g., `emsdk_env`, output directory) are correct.
-3. **File Conflicts**:  
-   Avoid overwriting existing files when renaming or copying.
