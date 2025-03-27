@@ -60,7 +60,7 @@ Label._canvasPool = {
     },
     put (canvas) {
         if (this.pool.length >= 32) {
-            if(CC_JSB) {
+            if (CC_JSB) {
                 const c = canvas.canvas;
                 if (c && c._destroy) {
                     c._destroy();
