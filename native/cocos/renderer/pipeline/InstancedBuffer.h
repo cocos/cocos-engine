@@ -71,6 +71,7 @@ public:
     void setDynamicOffset(uint32_t idx, uint32_t value);
 
     inline const InstancedItemList &getInstances() const { return _instances; }
+    inline const RenderPass &getSortRender() const { return _sortRender; }
     inline const scene::Pass *getPass() const { return _pass; }
     inline void setPass(const scene::Pass *pass) noexcept { _pass = pass; }
     inline bool hasPendingModels() const { return _hasPendingModels; }
@@ -78,6 +79,7 @@ public:
 
 private:
     InstancedItemList _instances;
+    RenderPass _sortRender;
     // weak reference
     const scene::Pass *_pass{nullptr};
     bool _hasPendingModels{false};

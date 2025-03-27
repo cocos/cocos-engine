@@ -42,11 +42,28 @@ void RenderInstancedQueue::clear() {
 }
 
 void RenderInstancedQueue::sort() {
-    std::copy(_queues.cbegin(), _queues.cend(), std::back_inserter(_renderQueues));
-    auto isOpaque = [](const InstancedBuffer *instance) {
-        return instance->getPass()->getBlendState()->targets[0].blend == 0;
+    std::vector<InstancedBuffer*> tempSorted;
+    tempSorted.reserve(_queues.size());
+    std::copy(_queues.begin(), _queues.end(), std::back_inserter(tempSorted));
+    const auto instancingCompare = [](const InstancedBuffer* left, const InstancedBuffer* right) {
+        const auto& leftSort = left->getSortRender();
+        const auto& rightSort = right->getSortRender();
+        if (leftSort.hash != rightSort.hash) {
+            return leftSort.hash < rightSort.hash;
+        }
+        return leftSort.shaderID < rightSort.shaderID;
     };
-    std::stable_partition(_renderQueues.begin(), _renderQueues.end(), isOpaque);
+    std::sort(tempSorted.begin(), tempSorted.end(), instancingCompare);
+    for (const auto& item : tempSorted) {
+        if (item->getPass()->getBlendState()->targets[0].blend == 0) {
+            _renderQueues.emplace_back(item);
+        }
+    }
+    for (const auto& item : tempSorted) {
+        if (item->getPass()->getBlendState()->targets[0].blend != 0) {
+            _renderQueues.emplace_back(item);
+        }
+    }
 }
 
 void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
