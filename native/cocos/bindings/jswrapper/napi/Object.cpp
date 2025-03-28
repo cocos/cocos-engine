@@ -535,6 +535,8 @@ void Object::setPrivateObject(PrivateObjectBase* data) {
     NODE_API_CALL(status, _env,
                   napi_wrap(_env, tmpThis, this, weakCallback,
                             (void*)this /* finalize_hint */, nullptr));
+    // Similar to the JSVM engine, see comments related to JSVM.
+    _objRef.decRef(_env);
 }
 
 bool Object::attachObject(Object* obj) {
