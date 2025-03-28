@@ -37,66 +37,20 @@ namespace se {
 class Class;
 class ObjectRef {
 private:
-    napi_ref   _ref       = nullptr;
-    int        _refCounts = 0;
-    napi_env   _env       = nullptr;
-    napi_value _obj       = nullptr;
+    napi_ref   _ref{nullptr};
+    napi_env   _env{nullptr};
+    napi_value _obj{nullptr};
+    Object* _parent{nullptr};
 
 public:
-    ~ObjectRef() {
-        deleteRef();
-    }
-    napi_value getValue(napi_env env) const {
-        napi_value  result;
-        napi_status status;
-        NODE_API_CALL(status, env, napi_get_reference_value(env, _ref, &result));
-        assert(status == napi_ok);
-        assert(result != nullptr);
-        return result;
-    }
-    void initWeakref(napi_env env, napi_value obj) {
-        assert(_ref == nullptr);
-        _obj = obj;
-        _env = env;
-        napi_create_reference(env, obj, 0, &_ref);
-    }
-    void setWeakref(napi_env env, napi_ref ref) {
-        assert(_ref == nullptr);
-        _ref = ref;
-    }
-    void initStrongRef(napi_env env, napi_value obj) {
-        assert(_ref == nullptr);
-        _refCounts = 1;
-        _obj       = obj;
-        napi_create_reference(env, obj, _refCounts, &_ref);
-        _env = env;
-    }
-    void incRef(napi_env env) {
-        assert(_refCounts == 0);
-        if (_refCounts == 0) {
-            uint32_t result = 0;
-            _refCounts      = 1;
-            napi_reference_ref(env, _ref, &result);
-        }
-    }
-    void decRef(napi_env env) {
-        assert(_refCounts == 1);
-        uint32_t result = 0;
-        if (_refCounts > 0) {
-            _refCounts--;
-            if (_refCounts == 0) {
-               napi_reference_unref(env, _ref, &result);
-            }
-        }
-    }
-    void deleteRef() {
-        _refCounts = 0;
-        if (!_ref) {
-            return;
-        }
-        napi_delete_reference(_env, _ref);
-        _ref = nullptr;
-    }
+    ObjectRef(Object *parent);
+    ~ObjectRef();
+
+    napi_value getValue(napi_env env) const;
+    void init(napi_env env, napi_value obj);
+    void incRef(napi_env env);
+    void decRef(napi_env env);
+    void deleteRef();
 };
 
 class Object;
@@ -481,6 +435,7 @@ private:
     ObjectRef     _objRef;
     napi_finalize _finalizeCb  = nullptr;
     bool _clearMappingInFinalizer = true;
+    bool _destructInFinalizer = false;
     void *_privateData = nullptr;
     PrivateObjectBase *_privateObject = nullptr;
     napi_env      _env         = nullptr;
@@ -488,6 +443,7 @@ private:
     uint32_t      _rootCount   = 0;
     bool          _onCleaingPrivateData = false;
 
+    friend class ObjectRef;
     friend class ScriptEngine;
 };
 }; // namespace se
