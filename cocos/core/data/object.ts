@@ -60,13 +60,17 @@ export enum CCObjectFlags {
 
     // var Hide = HideInGame | HideInEditor,
     // should not clone or serialize these flags
-    PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating
-                           | IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled
-                           | IsOnEnableCalled | IsEditorOnEnableCalled
-                           | IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
-    /* RegisteredInEditor */),
+    // All flags representing non-persistent (temporary, runtime-only) states.
+    NonPersistentMask = ToDestroy | Dirty | Destroying | DontDestroy | Deactivating
+                      | IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled
+                      | IsOnEnableCalled | IsEditorOnEnableCalled
+                      | IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
+                      /* RegisteredInEditor */,
 
-    // all the hideFlags
+    // PersistentMask includes all flags except those explicitly marked as NonPersistentMask.
+    PersistentMask = ~NonPersistentMask,
+
+    // All flags related to hiding objects in the editor or hierarchy
     AllHideMasks = DontSave | EditorOnly | LockedInEditor | HideInHierarchy,
 }
 
