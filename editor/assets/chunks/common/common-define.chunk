@@ -50,7 +50,7 @@ vec4 saturate(vec4 value) { return clamp(value, vec4(0.0), vec4(1.0)); }
 // When sampling RTs, Y-flip is needed if the screen space sign Y is positive (pointing upwards)
 #pragma define CC_HANDLE_RT_SAMPLE_FLIP(uv) uv = cc_cameraPos.w > 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 #pragma define CC_HANDLE_GET_CLIP_FLIP(uv) uv = cc_cameraPos.w == 0.0 ? vec2(uv.x, -uv.y) : uv
-
+#pragma define CC_HANDLE_CLIP_FLIP_FROM_VAL(uv, flip) uv = flip == 0.0 ? vec2(uv.x, -uv.y) : uv
 // CC_USE_LIGHTMAP Values
 #define LIGHT_MAP_TYPE_DISABLED 0
 #define LIGHT_MAP_TYPE_ALL_IN_ONE 1

@@ -1111,6 +1111,7 @@ export class WebPipeline implements BasicPipeline {
             const resDesc = this.resourceGraph.getDesc(tarVerId);
             const currRaster = this.addRenderPass(resDesc.width, resDesc.height, 'copy-pass');
             currRaster.addRenderTarget(targetName, LoadOp.CLEAR, StoreOp.STORE, pipelinePool.createColor());
+            currRaster.setFloat('flip', this.getCombineSignY());
             currRaster.addTexture(pair.source, 'outputResultMap');
             currRaster.addQueue(QueueHint.NONE).addFullscreenQuad(this._copyPassMat, 0, SceneFlags.NONE);
         }
