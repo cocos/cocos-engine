@@ -56,8 +56,6 @@ let vfmtOneColor = vfmtPosUvColor4B;
 let vfmtTwoColor = vfmtPosUvTwoColor4B;
 const _byteStrideOneColor = getAttributeStride(vfmtOneColor);
 const _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
-let _byteStrideOneColorCustomized = _byteStrideOneColor;
-let _byteStrideTwoColorCustomized = _byteStrideTwoColor;
 
 const DEBUG_TYPE_REGION = 0;
 const DEBUG_TYPE_MESH = 1;
@@ -95,8 +93,6 @@ class Simple implements IAssembler {
     public static customVfmts (customizedOneColorVfmt: Attribute[], customizedTwoColorVfmt: Attribute[]): void {
         vfmtOneColor = customizedOneColorVfmt;
         vfmtTwoColor = customizedTwoColorVfmt;
-        _byteStrideOneColorCustomized = getAttributeStride(vfmtOneColor);
-        _byteStrideTwoColorCustomized = getAttributeStride(vfmtTwoColor);
         AnimationCache.customVfmts(customizedOneColorVfmt, customizedTwoColorVfmt);
     }
 
@@ -159,14 +155,14 @@ function updateComponentRenderData (comp: Skeleton): void {
 function realTimeTraverse (comp: Skeleton): void {
     const byteStride = (_useTint ? _byteStrideTwoColor : _byteStrideOneColor);
     const floatStride = byteStride / Float32Array.BYTES_PER_ELEMENT;
-    const customizedByteStride = (_useTint ? _byteStrideTwoColorCustomized : _byteStrideOneColorCustomized);
-    const customizedFloatStride = customizedByteStride / Float32Array.BYTES_PER_ELEMENT;
     const model = comp.updateRenderData();
     const vc = model.vCount as number;
     const ic = model.iCount as number;
     if (vc < 1 || ic < 1) return;
 
     const rd = comp.renderData!;
+    const customizedByteStride = rd.accessor.vertexFormatBytes;
+    const customizedFloatStride = rd.accessor.floatsPerVertex;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
@@ -298,6 +294,7 @@ function cacheTraverse (comp: Skeleton): void {
     const ic = model.iCount as number;
     if (vc < 1 || ic < 1) return;
     const rd = comp.renderData!;
+    const _byteStrideTwoColorCustomized = _useTint ? rd.accessor.vertexFormatBytes : rd.accessor.vertexFormatBytes + 4;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
