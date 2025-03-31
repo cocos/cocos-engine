@@ -727,6 +727,7 @@ export class Camera extends Component {
             this._camera.iso = this._iso;
             this._camera.postProcess = this._postProcess;
             this._camera.usePostProcess = this._usePostProcess;
+            this._camera.update();
         }
 
         this._updateTargetTexture();

@@ -85,6 +85,7 @@ SkeletonCacheAnimation::~SkeletonCacheAnimation() {
     for (auto &item : _materialCaches) {
         CC_SAFE_DELETE(item.second);
     }
+    _entity = nullptr;
     stopSchedule();
 }
 
@@ -460,6 +461,9 @@ void SkeletonCacheAnimation::beginSchedule() {
 void SkeletonCacheAnimation::stopSchedule() {
     MiddlewareManager::getInstance()->removeTimer(this);
 
+    if (_entity != nullptr) {
+        _entity->clearDynamicRenderDrawInfos();
+    }
     if (_sharedBufferOffset) {
         _sharedBufferOffset->reset();
         _sharedBufferOffset->clear();

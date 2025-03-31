@@ -1596,12 +1596,14 @@ if (rendering) {
         }
 
         private _setupBuiltinCameraConfigs(
+            ppl: rendering.BasicPipeline,
             camera: renderer.scene.Camera,
             pipelineConfigs: PipelineConfigs,
             cameraConfigs: CameraConfigs
         ) {
             const window = camera.window;
             const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!window.swapchain;
+            const isGameView = isMainGameWindow || camera.cameraUsage === CameraUsage.GAME_VIEW;
 
             // Window
             cameraConfigs.isMainGameWindow = isMainGameWindow;
@@ -1613,7 +1615,7 @@ if (rendering) {
 
             // Pipeline
             cameraConfigs.enableFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
-            cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
+            cameraConfigs.enableProfiler = ppl.profiler && isGameView;
             cameraConfigs.remainingPasses = 0;
 
             // Shading scale
@@ -1645,6 +1647,7 @@ if (rendering) {
         }
 
         private _setupCameraConfigs(
+            ppl: rendering.BasicPipeline,
             camera: renderer.scene.Camera,
             pipelineConfigs: PipelineConfigs,
             cameraConfigs: CameraConfigs
@@ -1655,7 +1658,7 @@ if (rendering) {
 
             sortPipelinePassBuildersByConfigOrder(this._passBuilders);
 
-            this._setupBuiltinCameraConfigs(camera, pipelineConfigs, cameraConfigs);
+            this._setupBuiltinCameraConfigs(ppl, camera, pipelineConfigs, cameraConfigs);
 
             for (const builder of this._passBuilders) {
                 if (builder.configCamera) {
@@ -1676,7 +1679,7 @@ if (rendering) {
         ): void {
             setupPipelineConfigs(ppl, this._configs);
 
-            this._setupCameraConfigs(camera, this._configs, this._cameraConfigs);
+            this._setupCameraConfigs(ppl, camera, this._configs, this._cameraConfigs);
 
             // Render Window (UI)
             const id = window.renderWindowId;
@@ -1723,7 +1726,7 @@ if (rendering) {
                     continue;
                 }
                 // Setup camera configs
-                this._setupCameraConfigs(camera, this._configs, this._cameraConfigs);
+                this._setupCameraConfigs(ppl, camera, this._configs, this._cameraConfigs);
                 // log(`Setup camera: ${camera.node!.name}, window: ${camera.window.renderWindowId}, isFull: ${this._cameraConfigs.enableFullPipeline}, `
                 //     + `size: ${camera.window.width}x${camera.window.height}`);
 

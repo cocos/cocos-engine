@@ -195,10 +195,21 @@ void RenderInstancingQueue::add(
 }
 
 void RenderInstancingQueue::sort() {
-    sortedBatches.reserve(passInstances.size());
-    for (const auto &[pass, bufferID] : passInstances) {
-        sortedBatches.emplace_back(instanceBuffers[bufferID]);
+    const auto instancingCompare = [](const pipeline::InstancedBuffer* a, 
+                                      const pipeline::InstancedBuffer* b) {
+        const auto& aSort = a->getSortRender();
+        const auto& bSort = b->getSortRender();
+        if (aSort.hash != bSort.hash) {
+            return aSort.hash < bSort.hash;
+        }
+        return aSort.shaderID < bSort.shaderID;
+    };
+    
+    sortedBatches.reserve(instanceBuffers.size());
+    for (const auto& buffer : instanceBuffers) {
+        sortedBatches.emplace_back(buffer.get());
     }
+    std::sort(sortedBatches.begin(), sortedBatches.end(), instancingCompare);
 }
 
 void RenderInstancingQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) const {

@@ -42,11 +42,16 @@ void RenderInstancedQueue::clear() {
 }
 
 void RenderInstancedQueue::sort() {
-    std::copy(_queues.cbegin(), _queues.cend(), std::back_inserter(_renderQueues));
-    auto isOpaque = [](const InstancedBuffer *instance) {
-        return instance->getPass()->getBlendState()->targets[0].blend == 0;
+    _renderQueues.assign(_queues.begin(), _queues.end());
+    const auto compare = [](const InstancedBuffer *left, const InstancedBuffer *right) {
+        const auto &leftSort = left->getSortRender();
+        const auto &rightSort = right->getSortRender();
+        const auto leftBlend = left->getPass()->getBlendState()->targets[0].blend;
+        const auto rightBlend = right->getPass()->getBlendState()->targets[0].blend;
+        return std::forward_as_tuple(leftBlend, leftSort.hash, leftSort.shaderID) <
+               std::forward_as_tuple(rightBlend, rightSort.hash, rightSort.shaderID);
     };
-    std::stable_partition(_renderQueues.begin(), _renderQueues.end(), isOpaque);
+    std::sort(_renderQueues.begin(), _renderQueues.end(), compare);
 }
 
 void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {

@@ -102,6 +102,9 @@ public:
 
     void setAttachment(Attachment *inValue);
 
+    int getAttachmentState();
+
+    void setAttachmentState(int state);
     float getAttachmentTime();
 
     void setAttachmentTime(float inValue);
@@ -116,6 +119,7 @@ private:
     Color _darkColor;
     bool _hasDarkColor;
     Attachment *_attachment;
+    int _attachmentState;
     float _attachmentTime;
     Vector<float> _deform;
 };

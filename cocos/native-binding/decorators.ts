@@ -371,7 +371,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   apply(() => { $.tooltip('i18n:lights.csmLayersTransition')(DirectionalLight.prototype, 'csmLayersTransition',  csmLayersTransitionDescriptor); }, 'tooltip', 'csmLayersTransition');
   apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'type', 'csmTransitionRange');
   apply(() => { $.slide(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'slide', 'csmTransitionRange');
-  apply(() => { $.range([0.0, 0.1, 0.01])(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'range', 'csmTransitionRange');
+  apply(() => { $.range([0.0, 1.0, 0.01])(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'range', 'csmTransitionRange');
   apply(() => { $.editable(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'editable', 'csmTransitionRange');
   apply(() => { $.property({
   group: {

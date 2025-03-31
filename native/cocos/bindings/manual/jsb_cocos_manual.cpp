@@ -391,7 +391,7 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                     thisObj->unroot();
                 }
                 jsFunc.toObject()->unroot();
-                arg0 = lambda;
+                arg0 = std::move(lambda);
             } else {
                 arg0 = nullptr;
             }
