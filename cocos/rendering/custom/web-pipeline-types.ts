@@ -7,7 +7,7 @@ import { Camera, CSMLevel, DirectionalLight, Light, LightType, Model, PCFType, P
     RangedDirectionalLight, Shadows, ShadowType, SphereLight, SpotLight, SubModel } from '../../render-scene/scene';
 import { Root } from '../../root';
 import { SetIndex, supportsR32FloatTexture } from '../define';
-import { InstancedBuffer } from '../instanced-buffer';
+import { InstancedBuffer, instancingCompareFn } from '../instanced-buffer';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { LayoutGraphData } from './layout-graph';
 import { RenderData } from './render-graph';
@@ -903,7 +903,6 @@ export class RenderDrawQueue {
 export class RenderInstancingQueue {
     passInstances: Map<Pass, number> = new Map<Pass, number>();
     instanceBuffers: Array<InstancedBuffer> = new Array<InstancedBuffer>();
-
     empty (): boolean {
         return this.passInstances.size === 0;
     }
@@ -935,7 +934,9 @@ export class RenderInstancingQueue {
         });
     }
 
-    sort (): void {}
+    sort (): void {
+        this.instanceBuffers = this.instanceBuffers.sort(instancingCompareFn);
+    }
 
     uploadBuffers (cmdBuffer: CommandBuffer): void {
         for (const [pass, bufferID] of this.passInstances.entries()) {

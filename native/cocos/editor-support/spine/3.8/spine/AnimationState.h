@@ -36,6 +36,7 @@
 #include <spine/SpineObject.h>
 #include <spine/SpineString.h>
 #include <spine/Vector.h>
+#include "Slot.h"
 
 #ifdef SPINE_USE_STD_FUNCTION
     #include <functional>
@@ -46,8 +47,8 @@ enum EventType {
     EventType_Start,
     EventType_Interrupt,
     EventType_End,
-    EventType_Dispose,
     EventType_Complete,
+    EventType_Dispose,
     EventType_Event
 };
 
@@ -59,6 +60,7 @@ class Event;
 class AnimationStateData;
 class Skeleton;
 class RotateTimeline;
+class AttachmentTimeline;
 
 #ifdef SPINE_USE_STD_FUNCTION
 typedef std::function<void(AnimationState* state, EventType type, TrackEntry* entry, Event* event)> AnimationStateListener;
@@ -400,11 +402,14 @@ private:
     AnimationStateListener _listener;
     AnimationStateListenerObject* _listenerObject;
 
+    int _unkeyedState;
+
     float _timeScale;
 
     static Animation* getEmptyAnimation();
 
     static void applyRotateTimeline(RotateTimeline* rotateTimeline, Skeleton& skeleton, float time, float alpha, MixBlend pose, Vector<float>& timelinesRotation, size_t i, bool firstFrame);
+    void applyAttachmentTimeline(AttachmentTimeline* attachmentTimeline, Skeleton& skeleton, float animationTime, MixBlend pose, bool firstFrame);
 
     /// Returns true when all mixing from entries are complete.
     bool updateMixingFrom(TrackEntry* to, float delta);
@@ -429,8 +434,8 @@ private:
 
     void computeHold(TrackEntry* entry);
 
-    void computeNotLast(TrackEntry* entry);
+    void setAttachment(Skeleton &skeleton, spine::Slot &slot, const String &attachmentName, bool attachments);
 };
-} // namespace spine
+}
 
 #endif /* Spine_AnimationState_h */

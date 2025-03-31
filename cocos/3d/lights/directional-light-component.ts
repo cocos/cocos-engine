@@ -506,7 +506,7 @@ export class DirectionalLight extends Light {
     })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
     @editable
-    @range([0.0, 0.1, 0.01])
+    @range([0.0, 1.0, 0.01])
     @slide
     @type(CCFloat)
     get csmTransitionRange (): number {

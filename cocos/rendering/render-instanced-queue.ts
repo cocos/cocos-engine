@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { InstancedBuffer } from './instanced-buffer';
+import { InstancedBuffer, instancingCompareFn } from './instanced-buffer';
 import { Device, RenderPass, PipelineState, CommandBuffer, DescriptorSet } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
@@ -55,22 +55,17 @@ export class RenderInstancedQueue {
     }
 
     public sort (): void {
-        let it = this.queue.values();
-        let res = it.next();
-        while (!res.done) {
-            if (!(res.value.pass.blendState.targets[0].blend)) {
-                this._renderQueue.push(res.value);
+        const sortedArray = Array.from(this.queue).sort(instancingCompareFn);
+        sortedArray.forEach((item) => {
+            if (!item.pass.blendState.targets[0]?.blend) {
+                this._renderQueue.push(item);
             }
-            res = it.next();
-        }
-        it = this.queue.values();
-        res = it.next();
-        while (!res.done) {
-            if (res.value.pass.blendState.targets[0].blend) {
-                this._renderQueue.push(res.value);
+        });
+        sortedArray.forEach((item) => {
+            if (item.pass.blendState.targets[0]?.blend) {
+                this._renderQueue.push(item);
             }
-            res = it.next();
-        }
+        });
     }
 
     public uploadBuffers (cmdBuff: CommandBuffer): void {

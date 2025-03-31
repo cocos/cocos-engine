@@ -174,6 +174,7 @@ SkeletonRenderer::~SkeletonRenderer() {
         CC_SAFE_DELETE(item.second);
     }
 
+    _entity = nullptr;
     stopSchedule();
 }
 

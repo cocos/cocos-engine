@@ -25,9 +25,18 @@
 import { Pass } from '../render-scene';
 import { SubModel } from '../render-scene/scene';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING,
-    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, ENABLE_PROBE_BLEND } from './define';
+    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, ENABLE_PROBE_BLEND,
+    IRenderPass,
+    getPassPool } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
+import { RecyclePool } from '../core/memop';
+
+export function instancingCompareFn (l: InstancedBuffer, r: InstancedBuffer): number {
+    const ls = l.sortRender;
+    const rs = r.sortRender;
+    return (ls.hash - rs.hash) ||  (ls.shaderId - rs.shaderId);
+}
 
 export interface IInstancedItem {
     count: number;
@@ -53,11 +62,16 @@ export class InstancedBuffer {
     public declare pass: Pass;
     public hasPendingModels = false;
     public dynamicOffsets: number[] = [];
+    public sortRender: IRenderPass;
+    private declare _passPool: RecyclePool<IRenderPass>;
     private declare _device: Device;
-
     constructor (pass: Pass) {
         this._device = pass.device;
         this.pass = pass;
+        this._passPool = getPassPool();
+        // Sorting instances of the same material is meaningless;
+        // the primary focus here is sorting different instances
+        this.sortRender = this._passPool.add();
     }
 
     public destroy (): void {
@@ -65,6 +79,7 @@ export class InstancedBuffer {
             instance.vb.destroy();
             instance.ia.destroy();
         });
+        this._passPool.reset();
         this.instances.length = 0;
     }
 
@@ -86,6 +101,11 @@ export class InstancedBuffer {
             shader = subModel.shaders[passIdx];
         }
         const descriptorSet = subModel.descriptorSet;
+        const hash = (subModel.passes[passIdx].priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
+
+        this.sortRender.hash = hash;
+        this.sortRender.shaderId = shader.typedID;
+        this.sortRender.passIdx = passIdx;
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer?.objectID !== sourceIA.indexBuffer?.objectID || instance.count >= MAX_CAPACITY) { continue; }
@@ -169,5 +189,6 @@ export class InstancedBuffer {
             instance.count = 0;
         });
         this.hasPendingModels = false;
+        this._passPool.reset();
     }
 }

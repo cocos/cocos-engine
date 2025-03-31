@@ -85,6 +85,7 @@ SkeletonCacheAnimation::~SkeletonCacheAnimation() {
     for (auto &item : _materialCaches) {
         CC_SAFE_DELETE(item.second);
     }
+    _entity = nullptr;
     stopSchedule();
 }
 
