@@ -61,54 +61,6 @@ class Pipeline;
 class PipelinePassBuilder;
 class PipelineBuilder;
 class RenderingModule;
-
-enum class DataType : uint32_t;
-
-struct Parameter;
-
-enum class WaitMask : uint32_t;
-
-struct BufferView;
-class RenderObject;
-class RenderGeometry;
-class RenderGeometryCone;
-class RenderGeometryCurve;
-class RenderGeometryCylinder;
-class RenderGeometryQuad;
-class RenderGeometrySphere;
-class RenderGeometryTriangle;
-class RenderSampler;
-class RenderSamplerImage1D;
-class RenderSamplerImage2D;
-class RenderSamplerImage3D;
-class RenderSamplerPrimitive;
-class RenderSamplerTransform;
-class RenderMaterial;
-class RenderMaterialMatte;
-class RenderMaterialPhysicallyBased;
-class RenderVolume;
-class RenderSpatialField;
-class RenderSpatialFieldStructuredRegular;
-class RenderVolumeTransferFunction1D;
-class RenderLight;
-class RenderLightDirectional;
-class RenderLightHDRI;
-class RenderLightPoint;
-class RenderLightQuad;
-class RenderLightRing;
-class RenderSurface;
-class RenderGroup;
-class RenderInstance;
-class RenderInstanceTransform;
-class RenderInstanceMotionTransform;
-class RenderInstanceMotionScaleRotationTranslation;
-class RenderWorld;
-class RenderCamera;
-class RenderCameraPerspective;
-class RenderCameraOmnidirectional;
-class RenderCameraOrthographic;
-class Renderer;
-class RenderDevice;
 class Factory;
 
 } // namespace render
