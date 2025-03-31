@@ -128,6 +128,13 @@ class HTMLCanvasElement extends HTMLElement {
     requestPointerLock () {
         jsb.setCursorEnabled(false);
     }
+
+    _destroy () {
+        if (this._context2D) {
+            this._context2D._setCanvasBufferUpdatedCallback(null);
+            this._context2D = null;
+        }
+    }
 }
 
 module.exports = HTMLCanvasElement;

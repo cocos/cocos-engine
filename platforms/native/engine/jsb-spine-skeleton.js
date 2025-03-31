@@ -728,6 +728,7 @@ const cacheManager = require('./jsb-cache-manager');
     skeleton.onDestroy = function () {
         _onDestroy.call(this);
         if (this._nativeSkeleton) {
+            this._nativeSkeleton.setRenderEntity(null);
             this._nativeSkeleton.stopSchedule();
             this._nativeSkeleton._comp = null;
             this._nativeSkeleton = null;

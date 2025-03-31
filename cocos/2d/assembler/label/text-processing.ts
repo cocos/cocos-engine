@@ -85,6 +85,9 @@ export class TextProcessing {
 
     public destroy (): void {
         CanvasPool.getInstance().put(this._canvasData!);
+        this._canvasData = null;
+        this._canvas = null;
+        this._context = null;
         this._lettersInfo.length = 0;
     }
 

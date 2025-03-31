@@ -1215,6 +1215,10 @@ EMSCRIPTEN_BINDINGS(spine) {
         .property("mixTime", &TrackEntry::_mixTime)
         .property("mixDuration", &TrackEntry::_mixDuration)
         .property("mixBlend", &TrackEntry::_mixBlend)
+        .property("reverse", &TrackEntry::_reverse)
+        .property("shortestRotation ", &TrackEntry::_shortestRotation)
+        .property("totalAlpha", &TrackEntry::_totalAlpha)
+        .property("interruptAlpha", &TrackEntry::_interruptAlpha)
 
         .function("getAnimationTime", &TrackEntry::getAnimationTime)
         .function("isComplete", &TrackEntry::isComplete)

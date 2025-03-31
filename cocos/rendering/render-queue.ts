@@ -23,7 +23,7 @@
 */
 
 import { RecyclePool, CachedArray } from '../core';
-import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
+import { getPassPool, IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
 import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
@@ -66,21 +66,7 @@ export class RenderQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
-        this._passPool = new RecyclePool<IRenderPass>((): {
-                priority: number;
-                hash: number;
-                depth: number;
-                shaderId: number;
-                subModel: any;
-                passIdx: number;
-            } => ({
-            priority: 0,
-            hash: 0,
-            depth: 0,
-            shaderId: 0,
-            subModel: null!,
-            passIdx: 0,
-        }), 64);
+        this._passPool = getPassPool();
         this.queue = new CachedArray(64, this._passDesc.sortFunc);
     }
 

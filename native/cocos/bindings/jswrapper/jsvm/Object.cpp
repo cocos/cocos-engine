@@ -390,11 +390,11 @@ Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object* ob
             sizeOfEle = 1;
             break;
         case TypedArrayType::INT16:
-            jsvmType = JSVM_INT8_ARRAY;
+            jsvmType = JSVM_INT16_ARRAY;
             sizeOfEle = 2;
             break;
         case TypedArrayType::UINT16:
-            jsvmType = JSVM_UINT8_ARRAY;
+            jsvmType = JSVM_UINT16_ARRAY;
             sizeOfEle = 2;
             break;
         case TypedArrayType::INT32:

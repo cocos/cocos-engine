@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { FontAtlas, FontLetterDefinition } from '../../assets/bitmap-font';
 import { Color, macro, warnID } from '../../../core';
 import { ImageAsset, Texture2D } from '../../../asset/assets';
@@ -67,6 +68,14 @@ export class CanvasPool {
 
     public put (canvas: ISharedLabelData): void {
         if (this.pool.length >= macro.MAX_LABEL_CANVAS_POOL_SIZE) {
+            if (JSB) {
+                const c = canvas.canvas as any;
+                if (c && c._destroy) {
+                    c._destroy();
+                }
+                canvas.canvas = null!;
+                canvas.context = null;
+            }
             return;
         }
         this.pool.push(canvas);
@@ -135,8 +144,8 @@ class LetterTexture {
 
     public destroy (): void {
         this.image = null;
-        // Label._canvasPool.put(this._data);
         CanvasPool.getInstance().put(this.data as ISharedLabelData);
+        this.data = null;
     }
 
     private _updateProperties (): void {

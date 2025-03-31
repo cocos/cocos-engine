@@ -26,7 +26,7 @@ import { Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { SubModel } from '../render-scene/scene/submodel';
 import { Layers } from '../scene-graph/layers';
-import { cclegacy } from '../core';
+import { cclegacy, RecyclePool } from '../core';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
     Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format, API,
     Texture,
@@ -1121,3 +1121,21 @@ export function isEnableEffect (): boolean {
 }
 
 /* eslint-enable max-len */
+
+export function getPassPool (): RecyclePool<IRenderPass> {
+    return new RecyclePool<IRenderPass>((): {
+                priority: number;
+                hash: number;
+                depth: number;
+                shaderId: number;
+                subModel: any;
+                passIdx: number;
+            } => ({
+        priority: 0,
+        hash: 0,
+        depth: 0,
+        shaderId: 0,
+        subModel: null!,
+        passIdx: 0,
+    }), 64);
+}
