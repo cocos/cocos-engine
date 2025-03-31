@@ -50,32 +50,6 @@ export class CCON {
     private declare _chunks: Uint8Array[];
 }
 
-interface CCONPreface {
-    version: number;
-    document: unknown;
-    chunks: string[];
-}
-
-export function encodeCCONJson (ccon: CCON, chunkURLs: string[]): unknown {
-    return {
-        version: VERSION,
-        document: ccon.document,
-        chunks: chunkURLs,
-    } as unknown;
-}
-
-export function parseCCONJson (json: unknown): {
-    chunks: string[];
-    document: unknown;
-} {
-    const cconPreface = json as CCONPreface;
-
-    return {
-        chunks: cconPreface.chunks,
-        document: cconPreface.document,
-    };
-}
-
 export function encodeCCONBinary (ccon: CCON): Uint8Array {
     const { document, chunks } = ccon;
 
@@ -230,6 +204,5 @@ export class BufferBuilder {
     }
 }
 
-cclegacy.internal.parseCCONJson = parseCCONJson;
 cclegacy.internal.decodeCCONBinary = decodeCCONBinary;
 cclegacy.internal.CCON = CCON;

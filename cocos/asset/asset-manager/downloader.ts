@@ -31,7 +31,7 @@ import downloadScript from './download-script';
 import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
-import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
+import { CCON, decodeCCONBinary } from '../../serialization/ccon';
 import type { AssetManager } from './asset-manager';
 
 export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void;
@@ -66,32 +66,6 @@ const downloadJson = (url: string, options: Record<string, any>, onComplete: ((e
 const downloadArrayBuffer = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void => {
     options.xhrResponseType = 'arraybuffer';
     downloadFile(url, options, options.onFileProgress as FileProgressCallback, onComplete);
-};
-
-const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
-    url = url.replace('.ccon', '.json');
-    downloader._downloadJson(url, options, (err, json): void => {
-        if (err) {
-            onComplete(err);
-            return;
-        }
-        const cconPreface = parseCCONJson(json);
-        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk): Promise<Uint8Array> => new Promise<Uint8Array>((resolve, reject): void => {
-            downloader._downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer: ArrayBuffer): void => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(new Uint8Array(chunkBuffer));
-                }
-            });
-        })));
-        chunkPromises.then((chunks): void => {
-            const ccon = new CCON(cconPreface.document, chunks);
-            onComplete(null, ccon);
-        }).catch((err: Error): void => {
-            onComplete(err);
-        });
-    });
 };
 
 const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
@@ -305,7 +279,6 @@ export class Downloader {
         '.ExportJson': downloadJson,
         '.plist': downloadText,
 
-        '.ccon': downloadCCON,
         '.cconb': downloadCCONB,
 
         '.fnt': downloadText,

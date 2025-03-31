@@ -1,39 +1,7 @@
-import { BufferBuilder, CCON, decodeCCONBinary, parseCCONJson, encodeCCONBinary, encodeCCONJson, InvalidCCONError } from "../../cocos/serialization/ccon";
+import { BufferBuilder, CCON, decodeCCONBinary, encodeCCONBinary, InvalidCCONError } from "../../cocos/serialization/ccon";
 import { TextEncoder } from 'util';
 
 describe(`CCON`, () => {
-    describe(`Json`, () => {
-        function encodeAndDecode (document: unknown, chunks: Uint8Array[], chunkURLs: string[]) {
-            expect(chunks).toHaveLength(chunkURLs.length);
-            const ccon = new CCON(document, chunks);
-            const cconJson = JSON.parse(JSON.stringify(encodeCCONJson(ccon, chunkURLs)));
-            const decoded = parseCCONJson(cconJson);
-            expect(decoded.chunks).toStrictEqual(chunkURLs);
-            expect(decoded.document).toStrictEqual(document);
-        }
-
-        test('Zero chunks', () => {
-            encodeAndDecode({}, [], []);
-        });
-
-        test('Single chunk', () => {
-            encodeAndDecode({}, [new Uint8Array(0)], ['.bin']);
-            encodeAndDecode({}, [new Uint8Array([1, 2, 3])], ['.bin']);
-        });
-
-        test('Multiple chunk', () => {
-            encodeAndDecode({}, [
-                new Uint8Array([1, 2, 3]),
-                new Uint8Array([4]),
-                new Uint8Array([5, 6, 7, 8]),
-            ], [
-                '.0.bin',
-                '.1.bin',
-                '.2.bin',
-            ]);
-        });
-    });
-
     describe(`Binary`, () => {
         function encodeAndDecode (document: unknown, chunks: Uint8Array[], insertFrontBytes = 0, insertBackBytes = 0) {
             const ccon = new CCON(document, chunks);
