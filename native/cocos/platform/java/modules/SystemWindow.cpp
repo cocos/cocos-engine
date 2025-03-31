@@ -61,11 +61,6 @@ void SystemWindow::setWindowHandle(void *handle) {
     if (!lockSuccess) {
         _windowHandlePromise.set_value();
     }
-    if (_windowHandle) {
-        auto *nativeWindow = static_cast<ANativeWindow *>(_windowHandle);
-        _width = ANativeWindow_getWidth(nativeWindow);
-        _height = ANativeWindow_getHeight(nativeWindow);
-    }
     if (lockSuccess) {
         _handleMutex.unlock();
     }
@@ -97,7 +92,7 @@ SystemWindow::Size SystemWindow::getViewSize() const {
                     static_cast<float>(ANativeWindow_getHeight(nativeWindow))};
     }
     // windowHandle may be nullptr when the surfaceView is destroyed.
-    return Size{static_cast<float>(_width), static_cast<float>(_height)};
+    return Size{static_cast<float>(0), static_cast<float>(0)};
 #else
     return Size{static_cast<float>(JNI_NATIVE_GLUE()->getWidth()),
                 static_cast<float>(JNI_NATIVE_GLUE()->getHeight())};
