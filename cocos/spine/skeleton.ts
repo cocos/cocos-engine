@@ -941,7 +941,7 @@ export class Skeleton extends UIRenderer {
             logID(7509, name);
             return null;
         }
-        let trackEntry: spine.TrackEntry | null = null;
+
         if (loop === undefined) loop = true;
         this._playTimes = loop ? 0 : 1;
         if (this.isAnimationCached()) {
@@ -966,12 +966,10 @@ export class Skeleton extends UIRenderer {
                 this._animCache.updateToFrame(0);
                 this._curFrame = this._animCache.frames[0];
             }
-        } else {
-            this._animationName = name;
-            trackEntry = this._instance!.setAnimation(trackIndex, name, loop);
         }
-        this._markForUpdateRenderData();
-        return trackEntry;
+
+        this._animationName = name;
+        return this._state?.setAnimationWith(trackIndex, animation, loop);
     }
     /**
      * @en Adds an animation to be played delay seconds after the current or last queued animation.<br>
@@ -985,6 +983,13 @@ export class Skeleton extends UIRenderer {
      * @return {sp.spine.TrackEntry}
      */
     public addAnimation (trackIndex: number, name: string, loop: boolean, delay?: number): spine.TrackEntry | null {
+        const skeleton = this._skeleton;
+        const animation = skeleton ? skeleton.data.findAnimation(name) : null;
+        if (!animation) {
+            logID(7509, name);
+            return null;
+        }
+
         delay = delay || 0;
         if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
@@ -992,15 +997,9 @@ export class Skeleton extends UIRenderer {
             }
             this._animationQueue.push({ animationName: name, loop, delay });
             return null;
-        } else if (this._skeleton) {
-            const animation = this._skeleton.data.findAnimation(name);
-            if (!animation) {
-                logID(7510, name);
-                return null;
-            }
-            return this._state?.addAnimationWith(trackIndex, animation, loop, delay);
         }
-        return null;
+
+        return this._state?.addAnimationWith(trackIndex, animation, loop, delay);
     }
     /**
      * @en Find animation with specified name.
