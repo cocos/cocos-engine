@@ -173,6 +173,7 @@ export class BmfontUtils {
 
     updateUVs (label: Label): void {
         const renderData = label.renderData!;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
         const vertexCount = renderData.vertexCount;
         const stride = renderData.floatStride;
