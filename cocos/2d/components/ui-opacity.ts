@@ -82,8 +82,6 @@ function setEntityLocalOpacityDirtyRecursively (
             render.renderEntity.localOpacity = parentOpacity;
         }
         render.node._uiProps.localOpacity = render.renderEntity.localOpacity;
-        //No need for recursion here. Because it doesn't affect the capacity of the child nodes.
-        return;
     }
 
     if (uiOp) {
