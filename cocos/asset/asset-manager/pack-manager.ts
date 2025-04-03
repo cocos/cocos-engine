@@ -230,11 +230,14 @@ export class PackManager {
         }
 
         const packs = item.info.packs;
+        const pack = packs[0];
 
         // find a loading package
         const loadingPack = packs.find((val): boolean => this._loading.has(val.uuid));
 
         if (loadingPack) {
+            downloader.updateExistedRequestPrioirty(pack.uuid, item.options.priority);
+
             const req = this._loading.get(loadingPack.uuid);
             assertIsTrue(req);
             req.push({ onComplete, id: item.id });
@@ -242,7 +245,6 @@ export class PackManager {
         }
 
         // download a new package
-        const pack = packs[0];
         this._loading.add(pack.uuid, [{ onComplete, id: item.id }]);
 
         // find the url of pack
