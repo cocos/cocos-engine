@@ -270,7 +270,7 @@ void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, c
 }
 
 void SkeletonRenderer::render(float /*deltaTime*/) {
-    if (!_skeleton) return;
+    if (!_skeleton || !_entity) return;
     auto *entity = _entity;
     entity->clearDynamicRenderDrawInfos();
     _sharedBufferOffset->reset();
