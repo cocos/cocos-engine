@@ -236,7 +236,7 @@ export class PackManager {
         const loadingPack = packs.find((val): boolean => this._loading.has(val.uuid));
 
         if (loadingPack) {
-            downloader.updateExistedRequestPrioirty(pack.uuid, item.options.priority);
+            downloader.updateExistedRequestPrioirty(pack.uuid, item.options.priority as number);
 
             const req = this._loading.get(loadingPack.uuid);
             assertIsTrue(req);
