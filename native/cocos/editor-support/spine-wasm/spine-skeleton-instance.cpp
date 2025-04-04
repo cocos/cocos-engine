@@ -34,6 +34,7 @@ SpineSkeletonInstance::SpineSkeletonInstance() {
 }
 
 SpineSkeletonInstance::~SpineSkeletonInstance() {
+    _trackListenerSet.clear();
     _skeletonData = nullptr;
     if (_clipper) delete _clipper;
     if (_animState) delete _animState;
@@ -450,7 +451,7 @@ void SpineSkeletonInstance::setMix(const spine::String &from, const spine::Strin
 
 void SpineSkeletonInstance::setTrackEntryListener(uint32_t trackId, TrackEntry *entry) {
     if (!entry->getRendererObject()) {
-        _trackEntryListenerID = trackId;
+        _trackListenerSet.put(entry, trackId);
         entry->setRendererObject(this);
         entry->setListener(trackEntryCallback);
     }
@@ -466,11 +467,14 @@ void SpineSkeletonInstance::setDebugMode(bool debug) {
 
 void SpineSkeletonInstance::onTrackEntryEvent(TrackEntry *entry, EventType type, Event *event) {
     if (!entry->getRendererObject()) return;
-    SpineWasmUtil::s_listenerID = _trackEntryListenerID;
+    SpineWasmUtil::s_listenerID = _trackListenerSet[entry];
     SpineWasmUtil::s_currentType = type;
     SpineWasmUtil::s_currentEntry = entry;
     SpineWasmUtil::s_currentEvent = event;
     spineTrackListenerCallback();
+    if (type == EventType_Dispose) {
+        _trackListenerSet.remove(entry);
+    }
 }
 
 void SpineSkeletonInstance::onAnimationStateEvent(TrackEntry *entry, EventType type, Event *event) {

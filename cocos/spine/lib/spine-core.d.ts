@@ -421,8 +421,8 @@ declare namespace spine {
         start = 0,
         interrupt = 1,
         end = 2,
-        dispose = 3,
-        complete = 4,
+        complete = 3,
+        dispose = 4,
         event = 5
     }
     interface AnimationStateListener {
