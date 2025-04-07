@@ -39,6 +39,7 @@
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
+#include "cocos/renderer/pipeline/custom/CustomTypes.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
@@ -1401,6 +1402,41 @@ struct LightResource {
     PmrFlatMap<const scene::Light*, uint32_t> lightIndex;
 };
 
+struct DescriptorSetKey {
+    DescriptorSetKey(uint32_t nodeIDIn, UpdateFrequency frequencyIn) noexcept
+    : nodeID(nodeIDIn),
+      frequency(frequencyIn) {}
+
+    uint32_t nodeID{0xFFFFFFFF};
+    UpdateFrequency frequency{UpdateFrequency::PER_INSTANCE};
+};
+
+inline bool operator==(const DescriptorSetKey& lhs, const DescriptorSetKey& rhs) noexcept {
+    return std::forward_as_tuple(lhs.nodeID, lhs.frequency) ==
+           std::forward_as_tuple(rhs.nodeID, rhs.frequency);
+}
+
+inline bool operator!=(const DescriptorSetKey& lhs, const DescriptorSetKey& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+inline bool operator<(const DescriptorSetKey& lhs, const DescriptorSetKey& rhs) noexcept {
+    return std::forward_as_tuple(lhs.nodeID, lhs.frequency) <
+           std::forward_as_tuple(rhs.nodeID, rhs.frequency);
+}
+
+struct DescriptorSetContext {
+    DescriptorSetContext() = default;
+    DescriptorSetContext(IntrusivePtr<gfx::DescriptorSet> descriptorSetIn) noexcept // NOLINT
+    : descriptorSet(std::move(descriptorSetIn)) {}
+    DescriptorSetContext(DescriptorSetContext&& rhs) noexcept = default;
+    DescriptorSetContext(DescriptorSetContext const& rhs) = delete;
+    DescriptorSetContext& operator=(DescriptorSetContext&& rhs) noexcept = default;
+    DescriptorSetContext& operator=(DescriptorSetContext const& rhs) = delete;
+
+    IntrusivePtr<gfx::DescriptorSet> descriptorSet;
+};
+
 struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -1423,6 +1459,7 @@ struct NativeRenderContext {
     QuadResource fullscreenQuad;
     SceneCulling sceneCulling;
     LightResource lightResources;
+    ccstd::pmr::unordered_map<DescriptorSetKey, DescriptorSetContext> graphNodeContexts;
 };
 
 class NativeProgramLibrary final : public ProgramLibrary {
@@ -1559,6 +1596,29 @@ public:
     bool isOcclusionQueryEnabled() const override;
     void resetRenderQueue(bool reset) override;
     bool isRenderQueueReset() const override;
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string &name) override;
+    void setCustomBehavior(const ccstd::string &name) override;
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
+    void setColor(const ccstd::string &name, const gfx::Color &color) override;
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
+    void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+    void setBuiltinCameraConstants(const scene::Camera *camera) override;
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override;
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override;
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override;
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override;
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override;
+    void setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t csmLevel) override;
+    void setBuiltinSpotLightFrustumConstants(const scene::SpotLight *light) override;
 
     PipelineType getType() const override;
     PipelineCapabilities getCapabilities() const override;
@@ -1713,6 +1773,13 @@ inline hash_t hash<cc::render::NativeRenderQueueKey>::operator()(const cc::rende
     hash_combine(seed, val.frustumCulledResultID);
     hash_combine(seed, val.lightBoundsCulledResultID);
     hash_combine(seed, val.queueLayoutID);
+    return seed;
+}
+
+inline hash_t hash<cc::render::DescriptorSetKey>::operator()(const cc::render::DescriptorSetKey& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.nodeID);
+    hash_combine(seed, val.frequency);
     return seed;
 }
 
