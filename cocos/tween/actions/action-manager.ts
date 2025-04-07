@@ -124,12 +124,8 @@ export class ActionManager {
      * 如果目标不存在，将为这一目标创建一个新的实例，并将动作添加进去。<br/>
      * 当目标状态的 paused 为 true，动作将不会被执行
      *
-     * @method addAction
-     * @param {Action} action
-     * @param {object} target
-     * @param {Boolean} paused
      */
-    addAction<T> (action: Action | null, target: T, paused: boolean, isBindNodeLifecycle: boolean = true): void {
+    addAction<T> (action: Action | null, target: T, paused: boolean, isBindNodeTarget: boolean = true): void {
         if (!action || !target) {
             errorID(1000);
             return;
@@ -146,7 +142,7 @@ export class ActionManager {
             element.actions = [];
         }
 
-        const registerNodeEvent = isBindNodeLifecycle && element.actions.length === 0 && target instanceof Node;
+        const registerNodeEvent = isBindNodeTarget && element.actions.length === 0 && target instanceof Node;
 
         if (registerNodeEvent) {
             this._registerNodeEvent(target);
