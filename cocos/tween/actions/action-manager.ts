@@ -129,7 +129,7 @@ export class ActionManager {
      * @param {object} target
      * @param {Boolean} paused
      */
-    addAction<T> (action: Action | null, target: T, paused: boolean, associateNodeState: boolean = true): void {
+    addAction<T> (action: Action | null, target: T, paused: boolean, isBindNodeLifecycle: boolean = true): void {
         if (!action || !target) {
             errorID(1000);
             return;
@@ -146,9 +146,9 @@ export class ActionManager {
             element.actions = [];
         }
 
-        const needAssociateNodeState = associateNodeState && element.actions.length === 0 && target instanceof Node;
+        const registerNodeEvent = isBindNodeLifecycle && element.actions.length === 0 && target instanceof Node;
 
-        if (needAssociateNodeState) {
+        if (registerNodeEvent) {
             this._registerNodeEvent(target);
             if (!target.active) {
                 element.paused = true; // if the target is not active, we need to pause the action
