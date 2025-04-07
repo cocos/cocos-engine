@@ -113,11 +113,11 @@ export class Tween<T extends object = any> {
     }
 
     /**
-     * @en Set the associated node state. (Supported from v3.8.7)
+     * @en Set whether to associate with node target's state. (Supported from v3.8.7)
      * - When the node is activated, the tween will automatically resume.
      * - When the node is deactivated, the tween will automatically pause.
      * - When the node is destroyed, the tween will automatically be destroyed.
-     * @zh 设置关联节点状态。节点被激活，缓动会被自动恢复，节点被禁用，缓动会被自动暂停，节点销毁后，缓动会被自动销毁。 (从 v3.8.7 开始支持)
+     * @zh 设置是否关联节点状态。节点被激活，缓动会被自动恢复，节点被禁用，缓动会被自动暂停，节点销毁后，缓动会被自动销毁。 (从 v3.8.7 开始支持)
      * @param associateNodeState @en Whether to associate node state for the current tween. @zh 关联节点状态。
      * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      * @note @en If not set, the default value is true which is compatible with Creator 2.x. If only works on the tween with Node target.
