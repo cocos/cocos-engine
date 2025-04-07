@@ -159,6 +159,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     if (!_animationData) return;
     SkeletonCache::FrameData *frameData = _animationData->getFrameData(_curFrameIndex);
     if (!frameData) return;
+    if (!_entity || !_entity->getNode()) return;
     auto *entity = _entity;
     entity->clearDynamicRenderDrawInfos();
 
