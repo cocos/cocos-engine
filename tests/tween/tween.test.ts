@@ -5005,12 +5005,16 @@ test('parallel with set action', function () {
     director.unregisterSystem(sys);
 });
 
-test('associateNodeState(true) test', function () {
+test('associateNodeState(true) default test', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
 
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
     const node = new Node();
+    scene.addChild(node);
     node.active = false;
 
     tween(node)
@@ -5024,9 +5028,73 @@ test('associateNodeState(true) test', function () {
 
     node.active = true;
 
+    runFrames(1); // start
     runFrames(60);
 
     expect(node.position.equals(v3(1, 1, 1))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('associateNodeState(true) test', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    const node = new Node();
+    scene.addChild(node);
+    node.active = false;
+
+    tween(node)
+        .associateNodeState(true)
+        .by(1, { position: v3(1, 1, 1) })
+        .start();
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    node.active = true;
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(1, 1, 1))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('associateNodeState(false) test', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    const node = new Node();
+    scene.addChild(node);
+    node.active = false;
+
+    tween(node)
+        .associateNodeState(false)
+        .by(2, { position: v3(2, 2, 2) })
+        .start();
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(1, 1, 1))).toBeTruthy();
+
+    node.active = true;
+
+    runFrames(60);
+
+    expect(node.position.equals(v3(2, 2, 2))).toBeTruthy();
 
     director.unregisterSystem(sys);
 });
