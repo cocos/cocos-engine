@@ -146,8 +146,13 @@ export class ActionManager {
             element.actions = [];
         }
 
-        if (associateNodeState && element.actions.length === 0 && target instanceof Node) {
+        const needAssociateNodeState = associateNodeState && element.actions.length === 0 && target instanceof Node;
+
+        if (needAssociateNodeState) {
             this._registerNodeEvent(target);
+            if (!target.active) {
+                element.paused = true; // if the target is not active, we need to pause the action
+            }
         }
 
         // update target due to the same UUID is allowed for different scenarios
