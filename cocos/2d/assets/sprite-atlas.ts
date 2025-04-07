@@ -120,6 +120,9 @@ export class SpriteAtlas extends Asset {
                 if (id && ctxForExporting && ctxForExporting._compressUuid) {
                     id = EditorExtends.UuidUtils.compressUuid(id, true);
                 }
+                if (id && ctxForExporting) {
+                    ctxForExporting.dependsOn('_textureSource', id);
+                }
                 frames.push(key);
                 frames.push(id);
             }
