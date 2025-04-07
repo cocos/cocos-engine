@@ -5005,7 +5005,7 @@ test('parallel with set action', function () {
     director.unregisterSystem(sys);
 });
 
-test('bindNodeTarget(true) default test', function () {
+test('bindNodeState(true) default test', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -5036,7 +5036,7 @@ test('bindNodeTarget(true) default test', function () {
     director.unregisterSystem(sys);
 });
 
-test('bindNodeTarget(true) test', function () {
+test('bindNodeState(true) test', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -5049,7 +5049,7 @@ test('bindNodeTarget(true) test', function () {
     node.active = false;
 
     tween(node)
-        .bindNodeTarget(true)
+        .bindNodeState(true)
         .by(1, { position: v3(1, 1, 1) })
         .start();
 
@@ -5068,7 +5068,7 @@ test('bindNodeTarget(true) test', function () {
     director.unregisterSystem(sys);
 });
 
-test('bindNodeTarget(false) test', function () {
+test('bindNodeState(false) test', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -5081,7 +5081,7 @@ test('bindNodeTarget(false) test', function () {
     node.active = false;
 
     tween(node)
-        .bindNodeTarget(false)
+        .bindNodeState(false)
         .by(2, { position: v3(2, 2, 2) })
         .start();
 

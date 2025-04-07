@@ -125,7 +125,7 @@ export class ActionManager {
      * 当目标状态的 paused 为 true，动作将不会被执行
      *
      */
-    addAction<T> (action: Action | null, target: T, paused: boolean, isBindNodeTarget: boolean = true): void {
+    addAction<T> (action: Action | null, target: T, paused: boolean, isBindNodeState: boolean = true): void {
         if (!action || !target) {
             errorID(1000);
             return;
@@ -142,7 +142,7 @@ export class ActionManager {
             element.actions = [];
         }
 
-        const registerNodeEvent = isBindNodeTarget && element.actions.length === 0 && target instanceof Node;
+        const registerNodeEvent = isBindNodeState && element.actions.length === 0 && target instanceof Node;
 
         if (registerNodeEvent) {
             this._registerNodeEvent(target);
