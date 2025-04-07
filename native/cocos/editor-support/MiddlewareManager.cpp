@@ -83,7 +83,7 @@ void MiddlewareManager::update(float dt) {
 }
 
 void MiddlewareManager::render(float dt) {
-    // _deferredDestroy(called from ts) may be trigger after update, and native object may be release at this time.
+    // _deferredDestroy(called from ts) may be triggered after update, and native object may be release at this time.
     for (auto &iter : _operateCacheMap) {
         auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
         if (!iter.second && it != _updateList.end()) {
