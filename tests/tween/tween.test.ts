@@ -5049,7 +5049,7 @@ test('associateNodeState(true) test', function () {
     node.active = false;
 
     tween(node)
-        .bindNodeLifecycle(true)
+        .bindNode(true)
         .by(1, { position: v3(1, 1, 1) })
         .start();
 
@@ -5081,7 +5081,7 @@ test('associateNodeState(false) test', function () {
     node.active = false;
 
     tween(node)
-        .bindNodeLifecycle(false)
+        .bindNode(false)
         .by(2, { position: v3(2, 2, 2) })
         .start();
 
