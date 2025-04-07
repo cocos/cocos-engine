@@ -129,7 +129,7 @@ export class ActionManager {
      * @param {object} target
      * @param {Boolean} paused
      */
-    addAction<T> (action: Action | null, target: T, paused: boolean): void {
+    addAction<T> (action: Action | null, target: T, paused: boolean, associateNodeState: boolean = true): void {
         if (!action || !target) {
             errorID(1000);
             return;
@@ -146,7 +146,7 @@ export class ActionManager {
             element.actions = [];
         }
 
-        if (element.actions.length === 0 && target instanceof Node) {
+        if (associateNodeState && element.actions.length === 0 && target instanceof Node) {
             this._registerNodeEvent(target);
         }
 

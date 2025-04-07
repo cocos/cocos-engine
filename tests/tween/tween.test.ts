@@ -5004,3 +5004,29 @@ test('parallel with set action', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('associateNodeState(true) test', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    node.active = false;
+
+    tween(node)
+        .by(1, { position: v3(1, 1, 1) })
+        .start();
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    node.active = true;
+
+    runFrames(60);
+
+    expect(node.position.equals(v3(1, 1, 1))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
