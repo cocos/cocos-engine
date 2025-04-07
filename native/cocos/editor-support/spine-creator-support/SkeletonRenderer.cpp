@@ -272,6 +272,8 @@ void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, c
 void SkeletonRenderer::render(float /*deltaTime*/) {
     if (!_skeleton) return;
     auto *entity = _entity;
+    // entity's node may be set to nullptr while component is destroyed.
+    if (!entity || !entity->getNode()) return;
     entity->clearDynamicRenderDrawInfos();
     _sharedBufferOffset->reset();
     _sharedBufferOffset->clear();

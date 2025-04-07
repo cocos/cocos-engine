@@ -80,23 +80,23 @@ void MiddlewareManager::update(float dt) {
         auto *editor = _updateList[i];
         editor->update(dt);
     }
-
-    for (auto &iter: _operateCacheMap) {
-        auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
-        if (!iter.second && it != _updateList.end()) {
-             _updateList.erase(it);
-        }
-    }
 }
 
 void MiddlewareManager::render(float dt) {
+    // _deferredDestroy(called from ts) may be trigger after update, and native object may be release at this time.
+    for (auto &iter : _operateCacheMap) {
+        auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
+        if (!iter.second && it != _updateList.end()) {
+            _updateList.erase(it);
+        }
+    }
+
     for (auto it : _mbMap) {
         auto *buffer = it.second;
         if (buffer) {
             buffer->reset();
         }
     }
-
 
     for (size_t i = 0, len = _updateList.size(); i < len; ++i) {
         auto *editor = _updateList[i];
