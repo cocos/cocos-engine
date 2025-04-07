@@ -298,8 +298,10 @@ export class Texture2D extends SimpleTexture {
                     if (!mipmap || !mipmap._uuid) {
                         return null;
                     }
+                    if (ctxForExporting) {
+                        ctxForExporting.dependsOn('_textureSource', mipmap._uuid);
+                    }
                     if (ctxForExporting && ctxForExporting._compressUuid) {
-                        // ctxForExporting.dependsOn('_textureSource', texture); TODO
                         return EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
                     }
                     return mipmap._uuid;

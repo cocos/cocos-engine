@@ -117,6 +117,9 @@ export class SpriteAtlas extends Asset {
             for (const key in this.spriteFrames) {
                 const spriteFrame = this.spriteFrames[key];
                 let id = spriteFrame ? spriteFrame._uuid : '';
+                if (ctxForExporting) {
+                    ctxForExporting.dependsOn('_textureSource', id);
+                }
                 if (id && ctxForExporting && ctxForExporting._compressUuid) {
                     id = EditorExtends.UuidUtils.compressUuid(id, true);
                 }
