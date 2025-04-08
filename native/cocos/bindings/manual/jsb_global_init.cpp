@@ -49,7 +49,7 @@ using namespace cc; //NOLINT
 se::Object *__jsbObj = nullptr; //NOLINT
 se::Object *__glObj = nullptr;  //NOLINT
 
-static std::basic_string<unsigned char> xxteaKey;
+static ccstd::string xxteaKey;
 
 void jsb_set_xxtea_key(const ccstd::string &key) { //NOLINT
     xxteaKey.assign(key.begin(), key.end());
@@ -120,7 +120,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 uint32_t dataLen = 0;
                 uint8_t *data = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
-                                              const_cast<unsigned char *>(xxteaKey.data()),
+                                              reinterpret_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), reinterpret_cast<uint32_t *>(&dataLen));
 
                 if (data == nullptr) {
@@ -161,7 +161,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 uint32_t dataLen;
                 uint8_t *data = xxtea_decrypt(static_cast<uint8_t *>(fileData.getBytes()), static_cast<uint32_t>(fileData.getSize()),
-                                              const_cast<unsigned char *>(xxteaKey.data()),
+                                              reinterpret_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), &dataLen);
 
                 if (data == nullptr) {

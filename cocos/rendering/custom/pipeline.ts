@@ -686,7 +686,7 @@ export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilde
  * 资源在注册后，不能更改驻留属性。
  * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
-export interface BasicPipeline extends PipelineRuntime {
+export interface BasicPipeline extends PipelineRuntime, Setter {
     readonly type: PipelineType;
     readonly capabilities: PipelineCapabilities;
     /**

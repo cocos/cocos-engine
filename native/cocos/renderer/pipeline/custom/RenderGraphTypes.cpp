@@ -430,7 +430,8 @@ RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
   clearViews(alloc),
   viewports(alloc),
   index(alloc),
-  sortedVertices(alloc) {}
+  sortedVertices(alloc),
+  globalRenderData(alloc) {}
 
 RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
 : objects(std::move(rhs.objects), alloc),
@@ -454,7 +455,8 @@ RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
   clearViews(std::move(rhs.clearViews), alloc),
   viewports(std::move(rhs.viewports), alloc),
   index(std::move(rhs.index), alloc),
-  sortedVertices(std::move(rhs.sortedVertices), alloc) {}
+  sortedVertices(std::move(rhs.sortedVertices), alloc),
+  globalRenderData(std::move(rhs.globalRenderData), alloc) {}
 
 // ContinuousContainer
 void RenderGraph::reserve(vertices_size_type sz) {

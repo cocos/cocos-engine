@@ -31,12 +31,14 @@
 // NOLINTBEGIN(misc-include-cleaner, bugprone-easily-swappable-parameters)
 #pragma once
 #include "cocos/core/ArrayBuffer.h"
+#include "cocos/core/TypedArray.h"
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
-#include "cocos/renderer/pipeline/custom/CustomTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "cocos/scene/Camera.h"
 
 namespace cc {
 
@@ -820,7 +822,7 @@ public:
  * 资源在注册后，不能更改驻留属性。
  * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
-class BasicPipeline : public PipelineRuntime {
+class BasicPipeline : public PipelineRuntime, public Setter {
 public:
     BasicPipeline() noexcept = default;
 

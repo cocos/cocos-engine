@@ -25,13 +25,13 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG, EDITOR } from 'internal:constants';
-import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, ResolveMode, SampleCount, Color, ComparisonFunc } from '../../gfx';
-import { Vec4, macro, cclegacy, RecyclePool } from '../../core';
+import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, ResolveMode, SampleCount, Color, ComparisonFunc, Buffer } from '../../gfx';
+import { Vec4, macro, cclegacy, RecyclePool, Mat4, Quat, Vec2 } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RenderCommonObjectPool, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer, RenderGraphObjectPool, CullingFlags, ManagedResource, ManagedBuffer } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter, SceneBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, PCFType, ProbeType } from '../../render-scene/scene';
+import { Model, Camera, PCFType, ProbeType, DirectionalLight, PointLight, RangedDirectionalLight, SphereLight, SpotLight } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { DescriptorSetData, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
@@ -1116,6 +1116,72 @@ export class WebPipeline implements BasicPipeline {
             currRaster.addQueue(QueueHint.NONE).addFullscreenQuad(this._copyPassMat, 0, SceneFlags.NONE);
         }
     }
+    // ------------------------------------------------------
+    // Setter interface
+    // ------------------------------------------------------
+    get name (): string {
+        return 'WebPipeline';
+    }
+    setMat4 (name: string, mat: Mat4): void {
+        // TODO: add implementation
+    }
+    setQuaternion (name: string, quat: Quat): void {
+        // TODO: add implementation
+    }
+    setColor (name: string, color: Color): void {
+        // TODO: add implementation
+    }
+    setVec4 (name: string, vec: Vec4): void {
+        // TODO: add implementation
+    }
+    setVec2 (name: string, vec: Vec2): void {
+        // TODO: add implementation
+    }
+    setFloat (name: string, v: number): void {
+        // TODO: add implementation
+    }
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
+        // TODO: add implementation
+    }
+    setBuffer (name: string, buffer: Buffer): void {
+        // TODO: add implementation
+    }
+    setTexture (name: string, texture: Texture): void {
+        // TODO: add implementation
+    }
+    setSampler (name: string, sampler: Sampler): void {
+        // TODO: add implementation
+    }
+    setBuiltinCameraConstants (camera: Camera): void {
+        // TODO: add implementation
+    }
+    setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
+        // TODO: add implementation
+    }
+    setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void {
+        // TODO: add implementation
+    }
+    setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void {
+        // TODO: add implementation
+    }
+    setBuiltinPointLightConstants (light: PointLight, camera: Camera): void {
+        // TODO: add implementation
+    }
+    setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void {
+        // TODO: add implementation
+    }
+    setBuiltinDirectionalLightFrustumConstants (camera: Camera, light: DirectionalLight, csmLevel?: number): void {
+        // TODO: add implementation
+    }
+    setBuiltinSpotLightFrustumConstants (light: SpotLight): void {
+        // TODO: add implementation
+    }
+    setCustomBehavior (name: string): void {
+        // TODO: add implementation
+    }
+    // ------------------------------------------------------
+    // Setter interface end
+    // ------------------------------------------------------
     protected _generateConstantMacros (clusterEnabled: boolean): void {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this._device.getFormatFeatures(Format.RGBA32F)

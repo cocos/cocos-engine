@@ -1325,6 +1325,7 @@ export class RenderGraph implements BidirectionalGraph
         // Members
         this.index.clear();
         this.sortedVertices.length = 0;
+        this.globalRenderData.reset();
         // ComponentGraph
         this._names.length = 0;
         this._layoutNodes.length = 0;
@@ -1499,6 +1500,7 @@ export class RenderGraph implements BidirectionalGraph
     readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
     readonly sortedVertices: number[] = [];
+    readonly globalRenderData: RenderData = new RenderData();
 }
 
 function createPool<T> (Constructor: new() => T): RecyclePool<T> {
