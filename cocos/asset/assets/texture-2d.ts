@@ -299,11 +299,13 @@ export class Texture2D extends SimpleTexture {
                         return null;
                     }
                     let uuid = mipmap._uuid;
-                    if (ctxForExporting && ctxForExporting._compressUuid) {
-                        uuid = EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
-                    }
-                    if (ctxForExporting && uuid) {
-                        ctxForExporting.dependsOn('_textureSource', uuid);
+                    if (ctxForExporting) {
+                        if (ctxForExporting._compressUuid) {
+                            uuid = EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
+                        }
+                        if (uuid) {
+                            ctxForExporting.dependsOn('_textureSource', uuid);
+                        }
                     }
                     return uuid;
                 }),
