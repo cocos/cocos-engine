@@ -23,8 +23,8 @@
 */
 
 import { getError, cclegacy } from '../core';
-import { notepackDecode } from './notepack_decode';
-import { notepackEncode } from './notepack_encode';
+import { notepackDecode } from '../../external/deserialize/notepack_decode';
+import { notepackEncode } from '../../external/deserialize/notepack_encode';
 
 const VERSION = 1;
 
