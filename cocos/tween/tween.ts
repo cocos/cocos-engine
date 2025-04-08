@@ -106,7 +106,7 @@ export class Tween<T extends object = any> {
     private _target: T | null = null;
     private _tag = ActionEnum.TAG_INVALID;
     private _timeScale = 1;
-    private _isBindNodeState = true; // The default value is true which is compatible with Creator 2.x. See 'associateNodeState' method.
+    private _isBindNodeState = true; // The default value is true which is compatible with Creator 2.x. See 'bindNodeState' method.
 
     constructor (target?: T | null) {
         this._target = target === undefined ? null : target;
