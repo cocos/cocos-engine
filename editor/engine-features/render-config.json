@@ -15,14 +15,14 @@
             "description": "i18n:ENGINE.features.gfx_webgl.description",
             "category": "graphics",
             "enginePlugin": true,
-            "envCondition": "$HTML5 || $MINIGAME"
+            "envCondition": "$HTML5 || $MINIGAME || $RUNTIME_BASED"
         },
         "gfx-webgl2": {
             "label": "i18n:ENGINE.features.gfx_webgl2.label",
             "description": "i18n:ENGINE.features.gfx_webgl2.description",
             "category": "graphics",
             "enginePlugin": true,
-            "envCondition": "$HTML5 || $MINIGAME"
+            "envCondition": "$HTML5 || $MINIGAME || $RUNTIME_BASED"
         },
         "gfx-webgpu": {
             "label": "i18n:ENGINE.features.gfx_webgpu.label",
