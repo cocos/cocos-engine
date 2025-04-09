@@ -969,7 +969,8 @@ export class Skeleton extends UIRenderer {
         }
 
         this._animationName = name;
-        return this._state?.setAnimationWith(trackIndex, animation, loop);
+        const trackEntry = this._instance!.setAnimation(trackIndex, name, loop);
+        return trackEntry;
     }
     /**
      * @en Adds an animation to be played delay seconds after the current or last queued animation.<br>
