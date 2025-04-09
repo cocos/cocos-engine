@@ -1,5 +1,3 @@
-const lodash = require('lodash');
-
 /**
  * Hide or show an HTML element based on the value.
  * 根据值隐藏或显示 HTML 元素。
