@@ -1459,7 +1459,6 @@ struct NativeRenderContext {
     QuadResource fullscreenQuad;
     SceneCulling sceneCulling;
     LightResource lightResources;
-    ccstd::pmr::unordered_map<DescriptorSetKey, DescriptorSetContext> graphNodeContexts;
 };
 
 class NativeProgramLibrary final : public ProgramLibrary {
@@ -1676,6 +1675,8 @@ public:
     void setCustomContext(std::string_view name);
 
     static void prepareDescriptors(RenderGraphVisitorContext& ctx, RenderGraph::vertex_descriptor passID);
+
+    void prepareDescriptorSets(RenderGraph::vertex_descriptor passID);
 
 private:
     ccstd::vector<gfx::CommandBuffer*> _commandBuffers;

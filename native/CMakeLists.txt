@@ -1529,6 +1529,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativeBuiltinUtils.h
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeExecutorDescriptor.cpp
+                 cocos/renderer/pipeline/custom/NativeExecutorDescriptor2.cpp
                  cocos/renderer/pipeline/custom/NativeExecutorRenderGraph.h
                  cocos/renderer/pipeline/custom/NativeFactory.cpp
                  cocos/renderer/pipeline/custom/NativeFwd.h

@@ -216,8 +216,7 @@ NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> d
   layoutGraphResources(alloc),
   renderSceneResources(alloc),
   sceneCulling(alloc),
-  lightResources(alloc),
-  graphNodeContexts(alloc) {}
+  lightResources(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),
