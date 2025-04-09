@@ -407,10 +407,11 @@ export class UIRenderer extends Renderer {
      * @zh 销毁当前渲染数据。
      */
     public destroyRenderData (): void {
+        this.renderEntity.clearRenderDrawInfos();
         if (!this._renderData) {
             return;
         }
-        this._renderData.removeRenderDrawInfo(this);
+
         RenderData.remove(this._renderData);
         this._renderData = null;
     }

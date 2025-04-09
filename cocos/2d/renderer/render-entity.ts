@@ -186,6 +186,16 @@ export class RenderEntity {
         }
     }
 
+    public clearRenderDrawInfos (): void {
+        if (JSB) {
+            if (this._renderEntityType === RenderEntityType.DYNAMIC) {
+                this.removeDynamicRenderDrawInfo();
+            } else if (this._renderEntityType === RenderEntityType.STATIC) {
+                this.clearStaticRenderDrawInfos();
+            }
+        }
+    }
+
     public setDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null, index: number): void {
         if (JSB) {
             if (renderDrawInfo) {
