@@ -1207,9 +1207,12 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::m
 
     se::Value tmp;
     for (const auto &key : allKeys) {
-        auto pngPos = key.find(".png");
-        if (pngPos == ccstd::string::npos) {
-            continue;
+        auto picExist = key.find(".png");
+        if (picExist == ccstd::string::npos) {
+            picExist = key.find(".jpg");
+            if (picExist == ccstd::string::npos) {
+                continue;
+            }
         }
 
         ok = obj->getProperty(key.c_str(), &tmp);
