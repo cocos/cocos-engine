@@ -83,7 +83,8 @@ void MiddlewareManager::update(float dt) {
 }
 
 void MiddlewareManager::render(float dt) {
-    // _deferredDestroy(called from ts) may be triggered after update, and native object may be release at this time.
+    // Object._deferredDestroy is called after component update in Director.tick and before emitting BEFORE_DRAW event in which MiddlewareManager::render is invoked, 
+    // so the native object may be released here and it needs to be erased from _updateList.
     for (auto &iter : _operateCacheMap) {
         auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
         if (!iter.second && it != _updateList.end()) {

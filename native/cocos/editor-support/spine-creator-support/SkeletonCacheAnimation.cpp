@@ -160,8 +160,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     SkeletonCache::FrameData *frameData = _animationData->getFrameData(_curFrameIndex);
     if (!frameData) return;
     if (!_entity || !_entity->getNode()) return;
-    auto *entity = _entity;
-    entity->clearDynamicRenderDrawInfos();
+    _entity->clearDynamicRenderDrawInfos();
 
     const auto &segments = frameData->getSegments();
     const auto &colors = frameData->getColors();
@@ -198,7 +197,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     int vs = _useTint ? vs2 : vs1;
     int vbs = _useTint ? vbs2 : vbs1;
 
-    auto &nodeWorldMat = entity->getNode()->getWorldMatrix();
+    auto &nodeWorldMat = _entity->getNode()->getWorldMatrix();
 
     int colorOffset = 0;
     SkeletonCache::ColorData *nowColor = colors[colorOffset++];
@@ -270,7 +269,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
             vertexFloats = segment->vertexFloatCount;
         }
         curDrawInfo = requestDrawInfo(segmentCount++);
-        entity->addDynamicRenderDrawInfo(curDrawInfo);
+        _entity->addDynamicRenderDrawInfo(curDrawInfo);
         // fill new texture index
         curTexture = static_cast<cc::Texture2D *>(segment->getTexture()->getRealTexture());
         gfx::Texture *texture = curTexture->getGFXTexture();
