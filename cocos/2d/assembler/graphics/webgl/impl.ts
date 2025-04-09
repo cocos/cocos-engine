@@ -25,7 +25,7 @@
 import { JSB } from 'internal:constants';
 import { Color, Vec2 } from '../../../../core';
 import { Graphics } from '../../../components/graphics';
-import { RenderData, MeshRenderData, BaseRenderData } from '../../../renderer/render-data';
+import { RenderData, MeshRenderData } from '../../../renderer/render-data';
 import { RenderDrawInfoType } from '../../../renderer/render-draw-info';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags } from '../types';
