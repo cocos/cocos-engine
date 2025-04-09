@@ -124,12 +124,8 @@ export class ActionManager {
      * 如果目标不存在，将为这一目标创建一个新的实例，并将动作添加进去。<br/>
      * 当目标状态的 paused 为 true，动作将不会被执行
      *
-     * @method addAction
-     * @param {Action} action
-     * @param {object} target
-     * @param {Boolean} paused
      */
-    addAction<T> (action: Action | null, target: T, paused: boolean): void {
+    addAction<T> (action: Action | null, target: T, paused: boolean, isBindNodeState: boolean = true): void {
         if (!action || !target) {
             errorID(1000);
             return;
@@ -146,8 +142,13 @@ export class ActionManager {
             element.actions = [];
         }
 
-        if (element.actions.length === 0 && target instanceof Node) {
+        const registerNodeEvent = isBindNodeState && element.actions.length === 0 && target instanceof Node;
+
+        if (registerNodeEvent) {
             this._registerNodeEvent(target);
+            if (!target.active) {
+                element.paused = true; // if the target is not active, we need to pause the action
+            }
         }
 
         // update target due to the same UUID is allowed for different scenarios

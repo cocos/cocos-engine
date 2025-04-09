@@ -172,12 +172,12 @@ export class Renderer extends Component {
      * new material instance will be created automatically if the sub-model is already using one.
      * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
      */
-    public setSharedMaterial (material: Material | null, index: number): void {
+    public setSharedMaterial (material: Material | null, index: number, forceUpdate = false): void {
         if (material && material instanceof MaterialInstance) {
             errorID(12012);
         }
 
-        if (this._materials[index] === material) return;
+        if (!forceUpdate && this._materials[index] === material) return;
 
         this._materials[index] = material;
         const inst = this._materialInstances[index];

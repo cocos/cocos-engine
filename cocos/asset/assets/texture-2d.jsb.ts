@@ -64,11 +64,16 @@ texture2DProto._serialize = function (ctxForExporting: any) {
                 if (!mipmap || !mipmap._uuid) {
                     return null;
                 }
-                if (ctxForExporting && ctxForExporting._compressUuid) {
-                    // ctxForExporting.dependsOn('_textureSource', texture); TODO
-                    return EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
+                let uuid = mipmap._uuid;
+                if (ctxForExporting) {
+                    if (ctxForExporting._compressUuid) {
+                        uuid = EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
+                    }
+                    if (uuid) {
+                        ctxForExporting.dependsOn('_textureSource', uuid);
+                    }
                 }
-                return mipmap._uuid;
+                return uuid;
             }),
         };
     }

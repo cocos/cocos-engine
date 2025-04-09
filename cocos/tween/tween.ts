@@ -106,9 +106,27 @@ export class Tween<T extends object = any> {
     private _target: T | null = null;
     private _tag = ActionEnum.TAG_INVALID;
     private _timeScale = 1;
+    private _isBindNodeState = true; // The default value is true which is compatible with Creator 2.x. See 'bindNodeState' method.
 
     constructor (target?: T | null) {
         this._target = target === undefined ? null : target;
+    }
+
+    /**
+     * @en Set whether to bind the current tween's lifecycle with node target's state. (Supported from v3.8.7)
+     * If set it to true :
+     * - When the node is activated, the tween will automatically resume.
+     * - When the node is deactivated, the tween will automatically pause.
+     * - When the node is destroyed, the tween will automatically be destroyed.
+     * @zh 设置当前缓动是否需要关联节点状态。如果设置为真，那么节点被激活，缓动会被自动恢复，节点被禁用，缓动会被自动暂停，节点销毁后，缓动会被自动销毁。 (从 v3.8.7 开始支持)
+     * @param isBindNodeState @en Whether to associate node state for the current tween. @zh 关联节点状态。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     * @note @en If not set, the default value is true which is compatible with Creator 2.x. If only works on the tween with Node target.
+     *       @zh 如果此接口未被调用，为兼容 Creator 2.x，其默认值为 true 。此方法只针对 Node 目标的 tween 有效。
+     */
+    bindNodeState (isBindNodeState: boolean): Tween<T> {
+        this._isBindNodeState = isBindNodeState;
+        return this;
     }
 
     /**
@@ -323,7 +341,7 @@ export class Tween<T extends object = any> {
             final.setSpeed(this._timeScale);
             final.setStartTime(time);
             final.setPaused(false); // If a tween was paused, starting the tween again should clear the 'paused' flag for the final action.
-            getActionManager().addAction(final, this._target, false);
+            getActionManager().addAction(final, this._target, false, this._isBindNodeState);
         } else {
             warnID(16393);
         }
