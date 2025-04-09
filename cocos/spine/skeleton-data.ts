@@ -300,7 +300,11 @@ export class SkeletonData extends Asset {
         return super.destroy();
     }
 
-    public isInvalid (): boolean {
+    /**
+     * @engineInternal
+     * @mangle
+     */
+    public isEmpty (): boolean {
         if (this._atlasText.length === 0) return true;
         if (this._skeletonJson) return false;
         if (this._nativeAsset) return false;
