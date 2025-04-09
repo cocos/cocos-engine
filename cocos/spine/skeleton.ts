@@ -380,8 +380,8 @@ export class Skeleton extends UIRenderer {
     @visible(true)
     @type(DefaultSkinsEnum)
     get _defaultSkinIndex (): number {
-        if (this._isSkeletonDataValid()) {
-            const skinsEnum = this.skeletonData!.getSkinsEnum();
+        if (this._isSkeletonDataValid(this.skeletonData)) {
+            const skinsEnum = this.skeletonData.getSkinsEnum();
             if (skinsEnum) {
                 if (this.defaultSkin === '') {
                     // eslint-disable-next-line no-prototype-builtins
@@ -404,8 +404,8 @@ export class Skeleton extends UIRenderer {
      */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
-        if (this._isSkeletonDataValid()) {
-            skinsEnum = this.skeletonData!.getSkinsEnum();
+        if (this._isSkeletonDataValid(this.skeletonData)) {
+            skinsEnum = this.skeletonData.getSkinsEnum();
         }
         if (!skinsEnum) {
             error(`${this.name} skin enums are invalid`);
@@ -431,9 +431,9 @@ export class Skeleton extends UIRenderer {
     @type(SpineDefaultAnimsEnum)
     get _animationIndex (): number {
         const animationName = EDITOR_NOT_IN_PREVIEW ? this.defaultAnimation : this.animation;
-        if (this._isSkeletonDataValid()) {
+        if (this._isSkeletonDataValid(this.skeletonData)) {
             if (animationName) {
-                const animsEnum = this.skeletonData!.getAnimsEnum();
+                const animsEnum = this.skeletonData.getAnimsEnum();
                 if (animsEnum) {
                     const animIndex = animsEnum[animationName];
                     if (animIndex !== undefined) {
@@ -451,8 +451,8 @@ export class Skeleton extends UIRenderer {
      */
     set _animationIndex (value: number) {
         let animsEnum;
-        if (this._isSkeletonDataValid()) {
-            animsEnum = this.skeletonData!.getAnimsEnum();
+        if (this._isSkeletonDataValid(this.skeletonData)) {
+            animsEnum = this.skeletonData.getAnimsEnum();
         }
         if (!animsEnum) {
             error(`${this.name} animation enums are invalid`);
@@ -761,7 +761,7 @@ export class Skeleton extends UIRenderer {
 
     protected _updateSkeletonData (): void {
         const skeletonData = this._skeletonData;
-        if (!this._isSkeletonDataValid()) {
+        if (!this._isSkeletonDataValid(this._skeletonData)) {
             this._runtimeData = null!;
             this._state = null!;
             this._skeleton = null!;
@@ -1288,8 +1288,8 @@ export class Skeleton extends UIRenderer {
     // update animation list for editor
     protected _updateAnimEnum (): void {
         let animEnum;
-        if (this._isSkeletonDataValid()) {
-            animEnum = this.skeletonData!.getAnimsEnum();
+        if (this._isSkeletonDataValid(this.skeletonData)) {
+            animEnum = this.skeletonData.getAnimsEnum();
         } else {
             animEnum = SpineDefaultAnimsEnum;
         }
@@ -1303,8 +1303,8 @@ export class Skeleton extends UIRenderer {
     // update skin list for editor
     protected _updateSkinEnum (): void {
         let skinEnum;
-        if (this._isSkeletonDataValid()) {
-            skinEnum = this.skeletonData!.getSkinsEnum();
+        if (this._isSkeletonDataValid(this.skeletonData)) {
+            skinEnum = this.skeletonData.getSkinsEnum();
         } else {
             skinEnum = DefaultSkinsEnum;
         }
@@ -1940,9 +1940,8 @@ export class Skeleton extends UIRenderer {
         }
     }
 
-    private _isSkeletonDataValid (): boolean {
-        if (!this._skeletonData) return false;
-        return !this._skeletonData.isEmpty();
+    private _isSkeletonDataValid (skeletonData: SkeletonData | null): skeletonData is SkeletonData {
+        return skeletonData ? skeletonData.isEmpty() : false;
     }
 }
 

@@ -305,11 +305,7 @@ export class SkeletonData extends Asset {
      * @mangle
      */
     public isEmpty (): boolean {
-        if (this._atlasText.length === 0) return true;
-        if (this._skeletonJson) return false;
-        if (this._nativeAsset) return false;
-
-        return true;
+        return this._atlasText.length === 0 && !this._skeletonJson && !this._nativeAsset;
     }
 }
 
