@@ -299,6 +299,14 @@ export class SkeletonData extends Asset {
         spine.wasmUtil.destroySpineSkeletonDataWithUUID(this.mergedUUID());
         return super.destroy();
     }
+
+    public isInvalid (): boolean {
+        if (this._atlasText.length === 0) return true;
+        if (this._skeletonJson) return false;
+        if (this._nativeAsset) return false;
+
+        return true;
+    }
 }
 
 legacyCC.internal.SpineSkeletonData = SkeletonData;

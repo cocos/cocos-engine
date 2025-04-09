@@ -380,7 +380,7 @@ export class Skeleton extends UIRenderer {
     @visible(true)
     @type(DefaultSkinsEnum)
     get _defaultSkinIndex (): number {
-        if (this.skeletonData) {
+        if (this.skeletonData && !this.skeletonData.isInvalid()) {
             const skinsEnum = this.skeletonData.getSkinsEnum();
             if (skinsEnum) {
                 if (this.defaultSkin === '') {
@@ -404,7 +404,7 @@ export class Skeleton extends UIRenderer {
      */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
-        if (this.skeletonData) {
+        if (this.skeletonData && !this.skeletonData.isInvalid()) {
             skinsEnum = this.skeletonData.getSkinsEnum();
         }
         if (!skinsEnum) {
@@ -431,7 +431,7 @@ export class Skeleton extends UIRenderer {
     @type(SpineDefaultAnimsEnum)
     get _animationIndex (): number {
         const animationName = EDITOR_NOT_IN_PREVIEW ? this.defaultAnimation : this.animation;
-        if (this.skeletonData) {
+        if (this.skeletonData && !this.skeletonData.isInvalid()) {
             if (animationName) {
                 const animsEnum = this.skeletonData.getAnimsEnum();
                 if (animsEnum) {
@@ -451,7 +451,7 @@ export class Skeleton extends UIRenderer {
      */
     set _animationIndex (value: number) {
         let animsEnum;
-        if (this.skeletonData) {
+        if (this.skeletonData && !this.skeletonData.isInvalid()) {
             animsEnum = this.skeletonData.getAnimsEnum();
         }
         if (!animsEnum) {
@@ -761,7 +761,7 @@ export class Skeleton extends UIRenderer {
 
     protected _updateSkeletonData (): void {
         const skeletonData = this._skeletonData;
-        if (!skeletonData) {
+        if (!skeletonData || skeletonData.isInvalid()) {
             this._runtimeData = null!;
             this._state = null!;
             this._skeleton = null!;
@@ -1288,7 +1288,7 @@ export class Skeleton extends UIRenderer {
     // update animation list for editor
     protected _updateAnimEnum (): void {
         let animEnum;
-        if (this.skeletonData) {
+        if (this.skeletonData && !this.skeletonData.isInvalid()) {
             animEnum = this.skeletonData.getAnimsEnum();
         } else {
             animEnum = SpineDefaultAnimsEnum;
@@ -1303,7 +1303,7 @@ export class Skeleton extends UIRenderer {
     // update skin list for editor
     protected _updateSkinEnum (): void {
         let skinEnum;
-        if (this.skeletonData) {
+        if (this.skeletonData && !this.skeletonData.isInvalid()) {
             skinEnum = this.skeletonData.getSkinsEnum();
         } else {
             skinEnum = DefaultSkinsEnum;
