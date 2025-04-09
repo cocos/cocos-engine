@@ -1941,7 +1941,7 @@ export class Skeleton extends UIRenderer {
     }
 
     private _isSkeletonDataValid (skeletonData: SkeletonData | null): skeletonData is SkeletonData {
-        return skeletonData ? skeletonData.isEmpty() : false;
+        return skeletonData ? !skeletonData.isEmpty() : false;
     }
 }
 
