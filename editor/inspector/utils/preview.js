@@ -152,7 +152,7 @@ class PreviewControl {
     _createCanvas() {
         if (!this._container) { return; }
 
-        // image 用于拖动 inspector-resize-preview 修改预览视图大小
+        // image for dragging inspector-resize-preview to resize the preview view.
         this._image = document.createElement('div');
         this._image.classList.add('image');
         this._container.appendChild(this._image);
@@ -204,8 +204,7 @@ class PreviewControl {
     }
 
     /**
-     * TODO HACK 这里也需要看如何完善
-     * 计算出 canvas 最大值，防止一直拖动 inspector-resize-preview 会出现 canvas 超出面板
+     * Calculate canvas max size to avoid overflow when dragging inspector-resize-preview.
      * @returns {number}
      */
     panelFrameElement = null;
