@@ -35,17 +35,24 @@ exports.methods = {};
 
 exports.ready = function() {
     this.preview = new PreviewControl('scene:prefab-preview', 'query-prefab-preview-data', this.$.container);
-
     Object.values(Elements).forEach((element) => element.ready && element.ready(this));
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = async function(assetList, metaList) {
+    // The TODO hack should be followed by a dump switch for the resource to provide a preview or not
+    const prefabPreviewEnabled = await Editor.Profile.getConfig('asset-db', 'prefabPreviewEnabled');
+    if (!prefabPreviewEnabled) {
+        this.$this.parentElement.style.display = 'none';
+        return;
+    }
+    this.$this.parentElement.style.display = '';
+
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    // 如何多选就隐藏预览
+    // How to multi-select to hide the preview
     hideElement(this.$.container, assetList.length > 1);
 
     Object.values(Elements).forEach((element) => element.update && element.update(this));
@@ -53,6 +60,5 @@ exports.update = function(assetList, metaList) {
 
 exports.close = function() {
     this.preview.close();
-
     Object.values(Elements).forEach((element) => element.close && element.close(this));
 };
