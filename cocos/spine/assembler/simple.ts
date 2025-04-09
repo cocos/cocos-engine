@@ -27,7 +27,7 @@ import { IAssembler } from '../../2d/renderer/base';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../../2d/renderer/vertex-format';
 import { type Skeleton, SpineMaterialType } from '../skeleton';
-import { BlendFactor } from '../../gfx';
+import { Attribute, BlendFactor } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
@@ -35,6 +35,7 @@ import spine from '../lib/spine-core';
 import { Color, EPSILON, Vec3 } from '../../core';
 import type { MaterialInstance } from '../../render-scene';
 import type { IBatcher } from '../../2d/renderer/i-batcher';
+import { AnimationCache } from '../skeleton-cache';
 
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
@@ -51,8 +52,10 @@ let _tintAccessor: StaticVBAccessor = null!;
 let _premultipliedAlpha = false;
 let _useTint = false;
 
-const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
-const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
+let vfmtOneColor = vfmtPosUvColor4B;
+let vfmtTwoColor = vfmtPosUvTwoColor4B;
+const _byteStrideOneColor = getAttributeStride(vfmtOneColor);
+const _byteStrideTwoColor = getAttributeStride(vfmtTwoColor);
 
 const DEBUG_TYPE_REGION = 0;
 const DEBUG_TYPE_MESH = 1;
@@ -86,12 +89,19 @@ function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance 
 
 class Simple implements IAssembler {
     vCount = 32767;
+
+    public static customVfmts (customizedOneColorVfmt: Attribute[], customizedTwoColorVfmt: Attribute[]): void {
+        vfmtOneColor = customizedOneColorVfmt;
+        vfmtTwoColor = customizedTwoColorVfmt;
+        AnimationCache.customVfmts(customizedOneColorVfmt, customizedTwoColorVfmt);
+    }
+
     private ensureAccessor (useTint: boolean): StaticVBAccessor {
         let accessor = useTint ? _tintAccessor : _accessor;
         if (!accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
-            const attributes = useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B;
+            const attributes = useTint ? vfmtTwoColor : vfmtOneColor;
             if (useTint) {
                 accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
                 // Register to batcher so that batcher can upload buffers after batching process
@@ -110,7 +120,7 @@ class Simple implements IAssembler {
         if (!rd) {
             const useTint = comp.useTint || comp.isAnimationCached();
             const accessor = this.ensureAccessor(useTint);
-            rd = RenderData.add(useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B, accessor);
+            rd = RenderData.add(useTint ? vfmtTwoColor : vfmtOneColor, accessor);
         }
         return rd;
     }
@@ -143,17 +153,20 @@ function updateComponentRenderData (comp: Skeleton): void {
 }
 
 function realTimeTraverse (comp: Skeleton): void {
-    const floatStride = (comp.useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
+    const byteStride = (_useTint ? _byteStrideTwoColor : _byteStrideOneColor);
+    const floatStride = byteStride / Float32Array.BYTES_PER_ELEMENT;
     const model = comp.updateRenderData();
     const vc = model.vCount as number;
     const ic = model.iCount as number;
     if (vc < 1 || ic < 1) return;
 
     const rd = comp.renderData!;
+    const customizedByteStride = rd.accessor.vertexFormatBytes;
+    const customizedFloatStride = rd.accessor.floatsPerVertex;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
-        comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
+        comp._vLength = vc * customizedByteStride;
         comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, Float32Array.BYTES_PER_ELEMENT * rd.chunk.vb.length);
         comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         comp._iBuffer = new Uint8Array(rd.indices.buffer);
@@ -165,7 +178,17 @@ function realTimeTraverse (comp: Skeleton): void {
     const ibuf = rd.indices!;
     const HEAPU8: Uint8Array = spine.wasmUtil.wasm.HEAPU8;
 
-    comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
+    //comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
+    const temp = HEAPU8.subarray(vPtr, vPtr + comp._vLength);
+    let start = 0;
+    let end = start + byteStride;
+    let customizedFloatOffset = 0;
+    for (let i = 0; i < vc; i++) {
+        comp._vBuffer?.set(temp.subarray(start, end), customizedFloatOffset);
+        start = end;
+        end += byteStride;
+        customizedFloatOffset += customizedByteStride;
+    }
     comp._iBuffer?.set(HEAPU8.subarray(iPtr, iPtr + comp._iLength), 0);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) ibuf[i] += chunkOffset;
@@ -178,7 +201,7 @@ function realTimeTraverse (comp: Skeleton): void {
     for (let i = 0; i < count; i += 5) {
         indexCount = data.get(i + 3);
         const material = _getSlotMaterial(data.get(i + 4) as number, comp);
-        comp.requestDrawData(material, textures.get(i / 5), indexOffset, indexCount);
+        comp.requestDrawData(material, textures.get(i / 5) as string, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 
@@ -187,7 +210,7 @@ function realTimeTraverse (comp: Skeleton): void {
         const worldMat = comp.node.worldMatrix;
         let index = 0;
         for (let i = 0; i < vc; i++) {
-            index = i * floatStride;
+            index = i * customizedFloatStride;
             tempVecPos.x = vbuf[index];
             tempVecPos.y = vbuf[index + 1];
             tempVecPos.z = 0;
@@ -271,6 +294,7 @@ function cacheTraverse (comp: Skeleton): void {
     const ic = model.iCount as number;
     if (vc < 1 || ic < 1) return;
     const rd = comp.renderData!;
+    const _byteStrideTwoColorCustomized = _useTint ? rd.accessor.vertexFormatBytes : rd.accessor.vertexFormatBytes + 4;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
@@ -288,7 +312,7 @@ function cacheTraverse (comp: Skeleton): void {
         _nodeB = nodeColor.b / 255;
         _nodeA = opacity;
         for (let i = 0; i < vc; i++) {
-            const index = i * _byteStrideTwoColor + 5 * Float32Array.BYTES_PER_ELEMENT;
+            const index = i * _byteStrideTwoColorCustomized + 5 * Float32Array.BYTES_PER_ELEMENT;
             const R = vUint8Buf[index];
             const G = vUint8Buf[index + 1];
             const B = vUint8Buf[index + 2];
@@ -323,11 +347,11 @@ function cacheTraverse (comp: Skeleton): void {
         const material = _getSlotMaterial(mesh.blendMode as number, comp);
         const textureID = mesh.textureID;
         indexCount = mesh.iCount;
-        comp.requestDrawData(material, textureID, indexOffset, indexCount);
+        comp.requestDrawData(material, textureID as string, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 
-    const floatStride = _byteStrideTwoColor / Float32Array.BYTES_PER_ELEMENT;
+    const floatStride = _byteStrideTwoColorCustomized / Float32Array.BYTES_PER_ELEMENT;
     if (comp.enableBatch) {
         const worldMat = comp.node.worldMatrix;
         let index = 0;
