@@ -566,7 +566,7 @@ export class Sprite extends UIRenderer {
         let mat = super._updateBuiltinMaterial();
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
             const rtMatName = `rt-${mat.name}`;
-            var rtMat = builtinResMgr.get(rtMatName) as Material | null;
+            let rtMat = builtinResMgr.get(rtMatName) as Material | null;
             if (!rtMat) {
                 rtMat = new Material(rtMatName);
                 rtMat.copy(mat, { defines: { SAMPLE_FROM_RT: true } });
