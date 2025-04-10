@@ -210,13 +210,26 @@ LightResource::LightResource(const allocator_type& alloc) noexcept
   lights(alloc),
   lightIndex(alloc) {}
 
+DeviceRenderData::DeviceRenderData(const allocator_type& alloc) noexcept
+: buffers(alloc),
+  textures(alloc),
+  samplers(alloc) {}
+
+DeviceRenderData::DeviceRenderData(DeviceRenderData&& rhs, const allocator_type& alloc)
+: hasConstants(rhs.hasConstants),
+  buffers(std::move(rhs.buffers), alloc),
+  textures(std::move(rhs.textures), alloc),
+  samplers(std::move(rhs.samplers), alloc) {}
+
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
   renderSceneResources(alloc),
   sceneCulling(alloc),
-  lightResources(alloc) {}
+  lightResources(alloc),
+  graphNodeRenderData(alloc),
+  resourceGraphIndex(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),

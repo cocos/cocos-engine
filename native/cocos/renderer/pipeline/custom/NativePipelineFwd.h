@@ -102,6 +102,8 @@ struct SceneCulling;
 struct LightResource;
 struct DescriptorSetKey;
 struct DescriptorSetContext;
+struct TextureWithAccessFlags;
+struct DeviceRenderData;
 struct NativeRenderContext;
 class NativeProgramLibrary;
 struct PipelineCustomization;

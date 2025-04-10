@@ -486,6 +486,15 @@ struct FrameGraphDispatcher {
         const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
         boost::container::pmr::memory_resource* scratch) const;
 
+    void buildDescriptorIndex(
+        const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
+        const PmrTransparentMap<ccstd::pmr::string, RasterView>& rasterViews,
+        PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& resourceIndex) const;
+
+    void buildDescriptorIndex(
+        const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
+        PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& resourceIndex) const;
+
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
     const RenderGraph& renderGraph;

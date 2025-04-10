@@ -1068,8 +1068,8 @@ locate(std::string_view absolute, const LayoutGraph& g) noexcept {
 
 inline LayoutGraph::vertex_descriptor
 locate(LayoutGraph::vertex_descriptor u, std::string_view relative, const LayoutGraph& g) {
-    CC_EXPECTS(!boost::algorithm::starts_with(relative, "/"));
-    CC_EXPECTS(!boost::algorithm::ends_with(relative, "/"));
+    CC_EXPECTS(relative.substr(0, 1) != "/");
+    CC_EXPECTS(relative.empty() || relative.substr(relative.size() - 1) != "/");
     auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
@@ -1770,8 +1770,8 @@ locate(std::string_view absolute, const LayoutGraphData& g) noexcept {
 
 inline LayoutGraphData::vertex_descriptor
 locate(LayoutGraphData::vertex_descriptor u, std::string_view relative, const LayoutGraphData& g) {
-    CC_EXPECTS(!boost::algorithm::starts_with(relative, "/"));
-    CC_EXPECTS(!boost::algorithm::ends_with(relative, "/"));
+    CC_EXPECTS(relative.substr(0, 1) != "/");
+    CC_EXPECTS(relative.empty() || relative.substr(relative.size() - 1) != "/");
     auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);

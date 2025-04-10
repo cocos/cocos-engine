@@ -205,31 +205,11 @@ ResourceGraph::vertex_descriptor locateSubres(const ccstd::pmr::string &originNa
     return findVertex(resName, resg);
 }
 
-PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::buildDescriptorIndex(
-    const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
-    boost::container::pmr::memory_resource *scratch) const {
-    PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(scratch);
-    resourceIndex.reserve(computeViews.size() * 2);
-    if (!computeViews.empty()) {
-        for (const auto &[resName, computeViews] : computeViews) {
-            auto resID = realResourceID(resName);
-            for (const auto &computeView : computeViews) {
-                const auto &name = computeView.name;
-                CC_EXPECTS(!name.empty());
-                const auto nameID = layoutGraph.attributeIndex.at(name);
-                auto subresID = locateSubres(resName, resourceGraph, computeView.plane, resourceAccessGraph, scratch);
-                resourceIndex.emplace(nameID, subresID);
-            }
-        }
-    }
-    return resourceIndex;
-}
-
-PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::buildDescriptorIndex(
+void FrameGraphDispatcher::buildDescriptorIndex(
     const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
     const PmrTransparentMap<ccstd::pmr::string, RasterView> &rasterViews,
-    boost::container::pmr::memory_resource *scratch) const {
-    auto resourceIndex = buildDescriptorIndex(computeViews, scratch);
+    PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> &resourceIndex) const {
+    buildDescriptorIndex(computeViews, resourceIndex);
     if (!rasterViews.empty()) {
         NameLocalID unused{128};
         // input sort by slot name
@@ -261,7 +241,41 @@ PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::
             unused.value++;
         }
     }
+}
 
+void FrameGraphDispatcher::buildDescriptorIndex(
+    const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
+    PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> &resourceIndex) const {
+    CC_EXPECTS(resourceIndex.empty());
+    resourceIndex.reserve(computeViews.size() * 2);
+    if (!computeViews.empty()) {
+        for (const auto &[resName, computeViews] : computeViews) {
+            auto resID = realResourceID(resName);
+            for (const auto &computeView : computeViews) {
+                const auto &name = computeView.name;
+                CC_EXPECTS(!name.empty());
+                const auto nameID = layoutGraph.attributeIndex.at(name);
+                auto subresID = locateSubres(resName, resourceGraph, computeView.plane, resourceAccessGraph, scratch);
+                resourceIndex.emplace(nameID, subresID);
+            }
+        }
+    }
+}
+
+PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::buildDescriptorIndex(
+    const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
+    boost::container::pmr::memory_resource *scratch) const {
+    PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(scratch);
+    buildDescriptorIndex(computeViews, resourceIndex);
+    return resourceIndex;
+}
+
+PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::buildDescriptorIndex(
+    const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
+    const PmrTransparentMap<ccstd::pmr::string, RasterView> &rasterViews,
+    boost::container::pmr::memory_resource *scratch) const {
+    PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(scratch);
+    buildDescriptorIndex(computeViews, rasterViews, resourceIndex);
     return resourceIndex;
 }
 
