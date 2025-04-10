@@ -95,7 +95,8 @@ class Simple implements IAssembler {
 
         // 当前渲染的数据
         const data = dataArray[layer._tiledDataArrayIdx] as TiledRenderData;
-        const renderData = data.renderData!;
+        const renderData = data.renderData;
+        if (!renderData) return;
         const iBuf = renderData.chunk.meshBuffer.iData;
 
         let indexOffset = renderData.chunk.meshBuffer.indexOffset;
