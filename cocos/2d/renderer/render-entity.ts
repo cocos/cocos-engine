@@ -182,7 +182,6 @@ export class RenderEntity {
 
     public clearStaticRenderDrawInfos (): void {
         if (JSB) {
-            this._nativeObj.staticDrawInfoSize = 0;
             this._nativeObj.clearStaticRenderDrawInfos();
         }
     }
