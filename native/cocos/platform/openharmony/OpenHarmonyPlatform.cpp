@@ -46,11 +46,25 @@
 #include <sstream>
 
 namespace {
+
+struct SyncContext {
+    uv_cond_t cond;
+    uv_mutex_t mutex;
+    bool completed;
+};
+
 void sendMsgToWorker(const cc::MessageType& type, void* data, void* window) {
     cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
     CC_ASSERT(platform != nullptr);
     cc::WorkerMessageData msg{type, static_cast<void*>(data), window};
     platform->enqueue(msg);
+}
+
+void sendMsgToWorkerAndWait(const cc::MessageType& type, void* data, void* window) {
+    cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
+    CC_ASSERT(platform != nullptr);
+    cc::WorkerMessageData msg{type, static_cast<void*>(data), window};
+    platform->enqueueAndWait(msg);
 }
 
 void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
@@ -75,9 +89,10 @@ void onSurfaceHideCB(OH_NativeXComponent* component, void* window) {
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
     ret = OH_NativeXComponent_GetXComponentId(component, idStr, &idSize);
     if(ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+        CC_LOG_ERROR("onSurfaceHideCB, OH_NativeXComponent_GetXComponentId failed: %d", ret);
         return;
     }
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_HIDE, component, window);
+    sendMsgToWorkerAndWait(cc::MessageType::WM_XCOMPONENT_SURFACE_HIDE, component, window);
 }
 
 void onSurfaceShowCB(OH_NativeXComponent* component, void* window) {
@@ -198,6 +213,32 @@ void OpenHarmonyPlatform::enqueue(const WorkerMessageData& msg) {
     triggerMessageSignal();
 }
 
+void OpenHarmonyPlatform::enqueueAndWait(WorkerMessageData& msg) {
+    SyncContext syncContext;
+    uv_mutex_init(&syncContext.mutex);
+    uv_cond_init(&syncContext.cond);
+    syncContext.completed = false;
+    
+    msg.syncContext = &syncContext;
+    _messageQueue.enqueue(msg);
+    triggerMessageSignal();
+
+    auto oldTime = std::chrono::steady_clock::now();
+    
+    uv_mutex_lock(&syncContext.mutex);
+    while (!syncContext.completed) {
+        uv_cond_wait(&syncContext.cond, &syncContext.mutex);
+    }
+    uv_mutex_unlock(&syncContext.mutex);
+    
+    uv_mutex_destroy(&syncContext.mutex);
+    uv_cond_destroy(&syncContext.cond);
+    
+    auto nowTime = std::chrono::steady_clock::now();
+    auto interval = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(nowTime - oldTime).count());
+    CC_LOG_INFO("enqueueAndWait: %.03f ms", interval / 1000 / 1000);
+}
+
 void OpenHarmonyPlatform::triggerMessageSignal() {
     if (_workerLoop != nullptr) {
         // It is possible that when the message is sent, the worker thread has not yet started.
@@ -246,6 +287,15 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
                 CC_ASSERT(nativexcomponet != nullptr);        
                 platform->onSurfaceHide();
+                
+                auto *ctx = reinterpret_cast<SyncContext*>(msgData.syncContext);
+                if (ctx != nullptr) {
+                    uv_mutex_lock(&ctx->mutex);
+                    ctx->completed = true;
+                    uv_cond_signal(&ctx->cond);
+                    uv_mutex_unlock(&ctx->mutex);
+                }
+                
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_DESTROY) {
                 CC_LOG_INFO("onMessageCallback WM_XCOMPONENT_SURFACE_DESTROY ...");
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
@@ -352,11 +402,11 @@ void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, voi
 }
 
 void OpenHarmonyPlatform::onSurfaceHide() {
-
+    events::WindowDestroy::broadcast(ISystemWindow::mainWindowId);
 }
 
 void OpenHarmonyPlatform::onSurfaceShow(void* window) {
-
+    events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);
 }
 
 
