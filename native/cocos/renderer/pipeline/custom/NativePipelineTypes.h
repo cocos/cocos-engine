@@ -1456,6 +1456,16 @@ struct DeviceRenderData {
     DeviceRenderData& operator=(DeviceRenderData&& rhs) noexcept = default;
     DeviceRenderData& operator=(DeviceRenderData const& rhs) = delete;
 
+    void clear() noexcept {
+        hasConstants = false;
+        buffers.clear();
+        textures.clear();
+        samplers.clear();
+    }
+    bool hasNoData() const noexcept {
+        return !hasConstants && buffers.empty() && textures.empty() && samplers.empty();
+    }
+
     bool hasConstants{false};
     PmrFlatMap<NameLocalID, IntrusivePtr<gfx::Buffer>> buffers;
     PmrFlatMap<NameLocalID, TextureWithAccessFlags> textures;

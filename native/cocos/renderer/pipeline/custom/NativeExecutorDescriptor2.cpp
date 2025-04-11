@@ -248,6 +248,7 @@ struct DescriptorSetVisitorContext {
         auto& context = pipeline.nativeContext;
         auto iter = context.graphNodeRenderData.find(key);
         if (iter != context.graphNodeRenderData.end()) {
+            CC_EXPECTS(iter->second.hasNoData());
             return iter->second;
         }
         auto res = context.graphNodeRenderData.emplace(
@@ -757,10 +758,18 @@ struct DescriptorSetVisitor : boost::dfs_visitor<> {
 
 void NativePipeline::prepareDescriptorSets(RenderGraph::vertex_descriptor passID) {
     // Clear the resource graph index
-    // Notice: we do not call `nativeContext.resourceGraphIndex.clear()` here
-    // to avoid memory allocation.
+    // Notice: we do not call `nativeContext.resourceGraphIndex.clear()`.
+    // Avoid memory allocation.
     for (auto& [_, index] : nativeContext.resourceGraphIndex) {
         index.clear();
+    }
+
+    // Notice: we do not call `nativeContext.graphNodeRenderData.clear()`.
+    // Avoid memory allocation.
+    // TODO(zhouzhenglong): we should use a pool allocator for this map.
+    for (auto& [_, data] : nativeContext.graphNodeRenderData) {
+        data.clear();
+        CC_ENSURES(data.hasNoData());
     }
 
     // #if CC_DEBUG
