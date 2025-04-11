@@ -16,6 +16,7 @@ exports.style = /* css */`
 `;
 
 exports.$ = {
+    previewSection: '.preview-section',
     container: '.preview',
 };
 
@@ -42,7 +43,7 @@ exports.update = async function(assetList, metaList) {
     // TODO The hack should be followed by a dump switch for the resource to provide a preview or not
     const prefabPreviewEnabled = await Editor.Profile.getConfig('asset-db', 'prefabPreviewEnabled');
     // set parent element display state by prefabPreviewEnabled
-    hideElement(this.$this.parentElement, !prefabPreviewEnabled);
+    hideElement(this.$.previewSection, !prefabPreviewEnabled);
     if (!prefabPreviewEnabled) { return; }
 
     this.assetList = assetList;

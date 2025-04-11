@@ -341,14 +341,6 @@ const Elements = {
                 try {
                     await Promise.all(
                         contentRender.__panels__.map(($panel) => {
-                            // TODO need to refine it
-                            // HACK Since the properties panel is reused, the update of prefab-preview has been hidden,
-                            // and other previews have not, so you need to set the display first
-                            if ($panel.panelObject &&
-                                $panel.panelObject.$this &&
-                                $panel.panelObject.$this.parentElement) {
-                                $panel.panelObject.$this.parentElement.style.display = 'block';
-                            }
                             return $panel.update(panel.assetList, panel.metaList);
                         }),
                     );
