@@ -717,38 +717,77 @@ struct DescriptorSetVisitorContext {
 
 struct DescriptorSetVisitor : boost::dfs_visitor<> {
     void discover_vertex(
-        RenderGraph::vertex_descriptor v,
-        const AddressableView<RenderGraph>& gv) const {
+        RenderGraph::vertex_descriptor v, const AddressableView<RenderGraph>& gv) const {
+        std::ignore = gv;
         const auto& g = ctx.renderGraph;
         visitObject(
             v, g,
+            // Pass
             [&](const RasterPass& pass) {
                 const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.renderGraph, v);
                 ctx.buildRenderOrComputePassResourceIndex(v, pass);
                 ctx.setupRenderPass(v, passLayoutName);
                 ctx.collectPassDescriptors(v);
             },
-            [](const auto& /*res*/) {});
-
-        // visit_vertex
-        // const auto&g = ctx.renderGraph;
-        // const auto& rg = gIn.get();
-        // rg.visit_vertex(
-        //     v,
-        //     [&](const Graphics_ auto& pass) {
-        //         setupRenderPass(v, pass.mLayoutName);
-        //         collectPassDescriptors(v);
-        //     },
-        //     [&](const Render_ auto&) {
-        //         // noop
-        //     },
-        //     [&](const RenderQueueData& queue) {
-        //         setupRenderQueue(v, queue);
-        //         collectQueueDescriptors(v);
-        //     },
-        //     [&](const SceneCommand_ auto&) {
-        //         collectSceneDescriptors(v);
-        //     });
+            [&](const ComputePass& pass) {
+                const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.renderGraph, v);
+                ctx.buildRenderOrComputePassResourceIndex(v, pass);
+                ctx.setupRenderPass(v, passLayoutName);
+                ctx.collectPassDescriptors(v);
+            },
+            [&](const RaytracePass& pass) {
+                const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.renderGraph, v);
+                ctx.buildRenderOrComputePassResourceIndex(v, pass);
+                ctx.setupRenderPass(v, passLayoutName);
+                ctx.collectPassDescriptors(v);
+            },
+            // Subpass
+            [&](const RasterSubpass& subpass) {
+                const auto& subpassLayoutName = get(RenderGraph::LayoutTag{}, ctx.renderGraph, v);
+                ctx.buildRenderSubpassResourceIndex(v, subpass);
+                ctx.setupRenderSubpass(v, subpassLayoutName);
+                ctx.collectSubpassDescriptors(v);
+            },
+            [&](const ComputeSubpass& subpass) {
+                const auto& subpassLayoutName = get(RenderGraph::LayoutTag{}, ctx.renderGraph, v);
+                ctx.buildRenderSubpassResourceIndex(v, subpass);
+                ctx.setupRenderSubpass(v, subpassLayoutName);
+                ctx.collectSubpassDescriptors(v);
+            },
+            // Queue
+            [&](const RenderQueue& queue) {
+                ctx.setupRenderQueue(v, queue);
+                ctx.collectQueueDescriptors(v);
+            },
+            // Scene
+            [&](const SceneData&) {
+                ctx.setupScene();
+                ctx.collectSceneDescriptors(v);
+            },
+            [&](const Blit&) {
+                ctx.setupScene();
+                ctx.collectSceneDescriptors(v);
+            },
+            [&](const Dispatch&) {
+                ctx.setupScene();
+                ctx.collectSceneDescriptors(v);
+            },
+            // Others
+            [&](const ResolvePass&) {
+                // noop
+            },
+            [&](const CopyPass&) {
+                // noop
+            },
+            [&](const MovePass&) {
+                // noop
+            },
+            [&](const ccstd::pmr::vector<ClearView>&) {
+                // noop
+            },
+            [&](const gfx::Viewport&) {
+                // noop
+            });
     }
 
     DescriptorSetVisitorContext& ctx;
