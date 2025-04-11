@@ -687,10 +687,43 @@ struct DescriptorSetVisitorContext {
         // Stack: Queue + Scene
         Ensures(mPerQueueDeviceRenderDataStack.size() == 2);
     }
-
-    void prepareResourceGraphIndex(
-        RenderGraph::vertex_descriptor vertID,
-        const RasterPass& rasterPass) {
+    void popPassDescriptors() {
+        mRenderDataStack.pop_back(); // Pass data
+        mRenderDataStack.pop_back(); // Global data
+        mPerPassDeviceRenderDataStack.pop_back();
+        Ensures(mRenderDataStack.empty());
+        Ensures(mPerPassDeviceRenderDataStack.empty());
+        Ensures(mPerQueueDeviceRenderDataStack.empty());
+    }
+    void popSubpassDescriptors() {
+        mRenderDataStack.pop_back();
+        mPerPassDeviceRenderDataStack.pop_back();
+        // Stack: Global + Pass
+        Ensures(mRenderDataStack.size() == 2);
+        // Stack: Pass
+        Ensures(mPerPassDeviceRenderDataStack.size() == 1);
+        Ensures(mPerQueueDeviceRenderDataStack.empty());
+    }
+    void popQueueDescriptors() {
+        mRenderDataStack.pop_back();
+        mPerPassDeviceRenderDataStack.pop_back();
+        mPerQueueDeviceRenderDataStack.pop_back();
+        // Stack: Global + Pass + (Subpass)
+        Ensures(mRenderDataStack.size() == 2 + mSubpassID != RenderGraph::null_vertex());
+        // Stack: Pass + (Subpass)
+        Ensures(mPerPassDeviceRenderDataStack.size() == 1 + mSubpassID != RenderGraph::null_vertex());
+        Ensures(mPerQueueDeviceRenderDataStack.empty());
+    }
+    void popSceneDescriptors() {
+        mRenderDataStack.pop_back();
+        mPerPassDeviceRenderDataStack.pop_back();
+        mPerQueueDeviceRenderDataStack.pop_back();
+        // Stack: Global + Pass + (Subpass) + Queue
+        Ensures(mRenderDataStack.size() == 3 + mSubpassID != RenderGraph::null_vertex());
+        // Stack: Pass + (Subpass) + Queue
+        Ensures(mPerPassDeviceRenderDataStack.size() == 2 + mSubpassID != RenderGraph::null_vertex());
+        // Stack: Queue
+        Ensures(mPerQueueDeviceRenderDataStack.size() == 1);
     }
 
     NativePipeline& pipeline;
@@ -771,6 +804,69 @@ struct DescriptorSetVisitor : boost::dfs_visitor<> {
             [&](const Dispatch&) {
                 ctx.setupScene();
                 ctx.collectSceneDescriptors(v);
+            },
+            // Others
+            [&](const ResolvePass&) {
+                // noop
+            },
+            [&](const CopyPass&) {
+                // noop
+            },
+            [&](const MovePass&) {
+                // noop
+            },
+            [&](const ccstd::pmr::vector<ClearView>&) {
+                // noop
+            },
+            [&](const gfx::Viewport&) {
+                // noop
+            });
+    }
+
+    void finish_vertex(RenderGraph::vertex_descriptor v, const AddressableView<RenderGraph>& gv) {
+        std::ignore = gv;
+        const auto& g = ctx.renderGraph;
+        visitObject(
+            v, g,
+            // Pass
+            [&](const RasterPass& pass) {
+                ctx.popPassDescriptors();
+                ctx.resetRenderPass();
+            },
+            [&](const ComputePass& pass) {
+                ctx.popPassDescriptors();
+                ctx.resetRenderPass();
+            },
+            [&](const RaytracePass& pass) {
+                ctx.popPassDescriptors();
+                ctx.resetRenderPass();
+            },
+            // Subpass
+            [&](const RasterSubpass& subpass) {
+                ctx.popSubpassDescriptors();
+                ctx.resetRenderSubpass();
+            },
+            [&](const ComputeSubpass& subpass) {
+                ctx.popSubpassDescriptors();
+                ctx.resetRenderSubpass();
+            },
+            // Queue
+            [&](const RenderQueue& queue) {
+                ctx.popQueueDescriptors();
+                ctx.resetRenderQueue();
+            },
+            // Scene
+            [&](const SceneData&) {
+                ctx.popSceneDescriptors();
+                ctx.resetScene();
+            },
+            [&](const Blit&) {
+                ctx.popSceneDescriptors();
+                ctx.resetScene();
+            },
+            [&](const Dispatch&) {
+                ctx.popSceneDescriptors();
+                ctx.resetScene();
             },
             // Others
             [&](const ResolvePass&) {
