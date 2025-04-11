@@ -226,6 +226,8 @@ void OpenHarmonyPlatform::enqueueAndWait(WorkerMessageData& msg) {
     auto oldTime = std::chrono::steady_clock::now();
     
     uv_mutex_lock(&syncContext.mutex);
+    
+    // Use a while loop to check the completed flag to avoid spurious wakeup.
     while (!syncContext.completed) {
         uv_cond_wait(&syncContext.cond, &syncContext.mutex);
     }
