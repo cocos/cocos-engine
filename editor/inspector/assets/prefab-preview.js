@@ -41,11 +41,9 @@ exports.ready = function() {
 exports.update = async function(assetList, metaList) {
     // The TODO hack should be followed by a dump switch for the resource to provide a preview or not
     const prefabPreviewEnabled = await Editor.Profile.getConfig('asset-db', 'prefabPreviewEnabled');
-    if (!prefabPreviewEnabled) {
-        this.$this.parentElement.style.display = 'none';
-        return;
-    }
-    this.$this.parentElement.style.display = '';
+    // set parent element display state by prefabPreviewEnabled
+    hideElement(this.$this.parentElement, prefabPreviewEnabled);
+    if (!prefabPreviewEnabled) { return; }
 
     this.assetList = assetList;
     this.metaList = metaList;
