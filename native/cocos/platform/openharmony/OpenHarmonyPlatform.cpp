@@ -68,6 +68,7 @@ void sendMsgToWorkerAndWait(const cc::MessageType& type, void* data, void* windo
 }
 
 void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
+    CC_LOG_ERROR("cjh onSurfaceCreatedCB, component: %p, window: %p");
     // It is possible that when the message is sent, the worker thread has not yet started.
     //sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CREATED, component, window);
     cc::ISystemWindowInfo info;
@@ -84,6 +85,7 @@ void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
 }
 
 void onSurfaceHideCB(OH_NativeXComponent* component, void* window) {
+    CC_LOG_ERROR("cjh onSurfaceHideCB begin, component: %p, window: %p");
     int32_t ret;
     char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
@@ -93,9 +95,12 @@ void onSurfaceHideCB(OH_NativeXComponent* component, void* window) {
         return;
     }
     sendMsgToWorkerAndWait(cc::MessageType::WM_XCOMPONENT_SURFACE_HIDE, component, window);
+    
+    CC_LOG_ERROR("cjh onSurfaceHideCB end, component: %p, window: %p");
 }
 
 void onSurfaceShowCB(OH_NativeXComponent* component, void* window) {
+    CC_LOG_ERROR("cjh onSurfaceShowCB, component: %p, window: %p");
     int32_t ret;
     char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
@@ -224,7 +229,7 @@ void OpenHarmonyPlatform::enqueueAndWait(WorkerMessageData& msg) {
     triggerMessageSignal();
 
     auto oldTime = std::chrono::steady_clock::now();
-    
+        
     uv_mutex_lock(&syncContext.mutex);
     
     // Use a while loop to check the completed flag to avoid spurious wakeup.
@@ -367,7 +372,9 @@ void OpenHarmonyPlatform::workerInit(uv_loop_t* loop) {
     if (_workerLoop) {
         uv_timer_init(_workerLoop, &_timerHandle);
         _timerInited = true;
+        
         uv_async_init(_workerLoop, &_messageSignal, reinterpret_cast<uv_async_cb>(OpenHarmonyPlatform::onMessageCallback));
+        
         if (!_messageQueue.empty()) {
             triggerMessageSignal(); // trigger the signal to handle the pending message
         }
@@ -404,10 +411,12 @@ void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, voi
 }
 
 void OpenHarmonyPlatform::onSurfaceHide() {
+    CC_LOG_ERROR("cjh OpenHarmonyPlatform::onSurfaceHide");
     events::WindowDestroy::broadcast(ISystemWindow::mainWindowId);
 }
 
 void OpenHarmonyPlatform::onSurfaceShow(void* window) {
+    CC_LOG_ERROR("cjh OpenHarmonyPlatform::onSurfaceShow");
     events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);
 }
 
