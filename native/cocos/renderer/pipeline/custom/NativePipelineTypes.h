@@ -1467,6 +1467,7 @@ struct DeviceRenderData {
     }
 
     bool hasConstants{false};
+    bool required{false};
     PmrFlatMap<NameLocalID, IntrusivePtr<gfx::Buffer>> buffers;
     PmrFlatMap<NameLocalID, TextureWithAccessFlags> textures;
     PmrFlatMap<NameLocalID, gfx::Sampler*> samplers;

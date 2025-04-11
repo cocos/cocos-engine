@@ -679,6 +679,14 @@ struct DescriptorSetVisitorContext {
         collectPerPassDescriptors(v);
         collectPerPhaseDescriptors(v);
 
+        // Mark required
+        if (mPerPassDeviceRenderDataStack.back()) {
+            mPerPassDeviceRenderDataStack.back()->required = true;
+        }
+        if (mPerQueueDeviceRenderDataStack.back()) {
+            mPerQueueDeviceRenderDataStack.back()->required = true;
+        }
+
         // Post conditions
         // Stack: Global + Pass + (Subpass) + Queue + Scene
         Ensures(mRenderDataStack.size() == 4 + mSubpassID != RenderGraph::null_vertex());
@@ -687,6 +695,182 @@ struct DescriptorSetVisitorContext {
         // Stack: Queue + Scene
         Ensures(mPerQueueDeviceRenderDataStack.size() == 2);
     }
+    static std::pair<
+        boost::span<LayoutGraphData::vertex_descriptor const>,
+        boost::span<DeviceRenderData* const>>
+    getConsistentLayoutIDsAndRenderDataRange(
+        boost::span<LayoutGraphData::vertex_descriptor const> layoutIDs,
+        boost::span<DeviceRenderData* const> renderDataFullRange) {
+        CC_EXPECTS(layoutIDs.size() == renderDataFullRange.size());
+        CC_EXPECTS(!layoutIDs.empty());
+
+        auto i = static_cast<uint32_t>(layoutIDs.size());
+        for (; i-- > 1;) {
+            if (layoutIDs[i] != layoutIDs[i - 1]) {
+                break;
+            }
+        }
+        return {
+            layoutIDs.subspan(i, layoutIDs.size() - i),
+            renderDataFullRange.subspan(i, layoutIDs.size() - i),
+        };
+    }
+
+    void buildDescriptorSet(
+        UpdateFrequency frequency,
+        LayoutGraphData::vertex_descriptor layoutID,
+        boost::span<DeviceRenderData* const> renderDataFullRange) const {
+        // Get layout
+        const auto& layout = get(LayoutGraphData::LayoutTag{}, layoutGraph, layoutID);
+        CC_EXPECTS(layout.descriptorSets.find(frequency) != layout.descriptorSets.end());
+        const auto& data = layout.descriptorSets.at(frequency).descriptorSetLayoutData;
+
+        // Get layout node resource
+        auto& node = pipeline.nativeContext.layoutGraphResources.at(layoutID);
+
+        // Allocate descriptor set
+        gfx::DescriptorSet* newSet = node.descriptorSetPool.allocateDescriptorSet();
+
+        for (const auto& block : data.descriptorBlocks) {
+            CC_EXPECTS(block.descriptors.size() == block.capacity);
+            auto bindID = block.offset;
+            switch (block.type) {
+                case DescriptorTypeOrder::UNIFORM_BUFFER:
+                case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER: {
+                    for (const auto& d : block.descriptors) {
+                        // get uniform block
+                        const auto& uniformBlock = data.uniformBlocks.at(d.descriptorID);
+
+                        auto& resource = node.uniformBuffers.at(d.descriptorID);
+                        // updateCpuUniformBuffer(lg, user, uniformBlock, true, resource.cpuBuffer);
+                        // CC_ENSURES(resource.bufferPool.bufferSize == resource.cpuBuffer.size());
+
+                        // // upload gfx buffer
+                        // uploadUniformBuffer(newSet, bindID, resource, cmdBuff);
+
+                        // increase slot
+                        // TODO(zhouzhenglong): here binding will be refactored in the future
+                        // current implementation is incorrect, and we assume d.count == 1
+                        CC_EXPECTS(d.count == 1);
+                        bindID += d.count;
+                    }
+                } break;
+                case DescriptorTypeOrder::STORAGE_BUFFER:
+                case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER: {
+                    CC_EXPECTS(newSet);
+                    for (const auto& d : block.descriptors) {
+                        bool found = false;
+                        CC_EXPECTS(d.count == 1);
+
+                        if (!found) {
+                            // newSet->bindBuffer(bindID, defaultResource.getBuffer());
+                        }
+                        bindID += d.count;
+                    }
+                } break;
+                case DescriptorTypeOrder::SAMPLER_TEXTURE: {
+                    CC_EXPECTS(newSet);
+                    for (const auto& d : block.descriptors) {
+                        CC_EXPECTS(d.count == 1);
+                        CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
+                                   d.type <= gfx::Type::SAMPLER_CUBE);
+
+                        // increase descriptor binding offset
+                        bindID += d.count;
+                    }
+                } break;
+                case DescriptorTypeOrder::SAMPLER: {
+                    for (const auto& d : block.descriptors) {
+                        CC_EXPECTS(d.count == 1);
+
+                        bindID += d.count;
+                    }
+                } break;
+                case DescriptorTypeOrder::TEXTURE: {
+                    // not supported yet
+                    CC_EXPECTS(false);
+                } break;
+                case DescriptorTypeOrder::STORAGE_IMAGE: {
+                    // not supported yet
+                    CC_EXPECTS(newSet);
+                    for (const auto& d : block.descriptors) {
+                        CC_EXPECTS(d.count == 1);
+                        CC_EXPECTS(d.type == gfx::Type::IMAGE2D);
+
+                        bindID += d.count;
+                    }
+                } break;
+                case DescriptorTypeOrder::INPUT_ATTACHMENT: {
+                } break;
+                default:
+                    CC_EXPECTS(false);
+                    break;
+            }
+        }
+    }
+
+    void tryCreateDescriptorSet(
+        UpdateFrequency frequency,
+        boost::span<LayoutGraphData::vertex_descriptor const> layoutIDs,
+        boost::span<DeviceRenderData* const> renderDataFullRange) const {
+        Expects(layoutIDs.size() == renderDataFullRange.size());
+
+        auto* const targetRenderData = renderDataFullRange.back();
+
+        // No descriptors defined in this descriptor set
+        if (!targetRenderData) {
+            return;
+        }
+
+        // If current node is not required,
+        // it means all child nodes will bind descriptor sets.
+        // Skip current node.
+        if (!targetRenderData->required) {
+            return;
+        }
+
+        // Get layout IDs and render data range of the same layoutId
+        auto [layoutIDsRange, renderDataRange] =
+            getConsistentLayoutIDsAndRenderDataRange(layoutIDs, renderDataFullRange);
+        CC_ENSURES(layoutIDsRange.size() == renderDataRange.size());
+        CC_ENSURES(!layoutIDsRange.empty());
+        CC_ENSURES(renderDataRange.back() == targetRenderData);
+        CC_ENSURES(std::all_of(layoutIDsRange.begin(), layoutIDsRange.end(), [&](auto id) {
+            return id == layoutIDsRange.back();
+        }));
+
+        // All render data in the range must be valid
+        CC_EXPECTS(
+            std::all_of(
+                renderDataRange.begin(), renderDataRange.end(), [](const auto* data) {
+                    return !!data;
+                }));
+
+        if (renderDataRange.size() > 1 &&          // More than 1 render data
+            renderDataRange.back()->hasNoData()) { // Last render data is empty
+            // Current render data is not set. There is nothing to bind.
+            // Mark the render data with lower frequency as required
+            CC_EXPECTS(renderDataRange[renderDataRange.size() - 2]);
+            renderDataRange[renderDataRange.size() - 2]->required = true;
+            return;
+        }
+
+        buildDescriptorSet(frequency, layoutIDsRange.back(), renderDataRange);
+    }
+
+    void tryCreatePerPassDescriptorSet() const {
+        tryCreateDescriptorSet(
+            UpdateFrequency::PER_PASS,
+            mPassLayoutIdStack,
+            mPerPassDeviceRenderDataStack);
+    }
+    void tryCreatePerPhaseDescriptorSet() const {
+        tryCreateDescriptorSet(
+            UpdateFrequency::PER_PHASE,
+            mPhaseLayoutIdStack,
+            mPerQueueDeviceRenderDataStack);
+    }
+
     void popPassDescriptors() {
         mRenderDataStack.pop_back(); // Pass data
         mRenderDataStack.pop_back(); // Global data
@@ -739,7 +923,6 @@ struct DescriptorSetVisitorContext {
     boost::container::static_vector<LayoutGraphData::vertex_descriptor, 4> mPassLayoutIdStack;
     // Queue + Scene
     boost::container::static_vector<LayoutGraphData::vertex_descriptor, 2> mPhaseLayoutIdStack;
-
     // Global + Pass + (Subpass) + Queue + Scene
     boost::container::static_vector<const RenderData*, 5> mRenderDataStack;
     // Pass + (Subpass) + Queue + Scene
@@ -826,45 +1009,59 @@ struct DescriptorSetVisitor : boost::dfs_visitor<> {
     void finish_vertex(RenderGraph::vertex_descriptor v, const AddressableView<RenderGraph>& gv) {
         std::ignore = gv;
         const auto& g = ctx.renderGraph;
+        // The following code can be simplified with C++20
         visitObject(
             v, g,
             // Pass
-            [&](const RasterPass& pass) {
+            [&](const RasterPass&) {
+                ctx.tryCreatePerPassDescriptorSet();
                 ctx.popPassDescriptors();
                 ctx.resetRenderPass();
             },
-            [&](const ComputePass& pass) {
+            [&](const ComputePass&) {
+                ctx.tryCreatePerPassDescriptorSet();
                 ctx.popPassDescriptors();
                 ctx.resetRenderPass();
             },
-            [&](const RaytracePass& pass) {
+            [&](const RaytracePass&) {
+                ctx.tryCreatePerPassDescriptorSet();
                 ctx.popPassDescriptors();
                 ctx.resetRenderPass();
             },
             // Subpass
-            [&](const RasterSubpass& subpass) {
+            [&](const RasterSubpass&) {
+                ctx.tryCreatePerPassDescriptorSet();
                 ctx.popSubpassDescriptors();
                 ctx.resetRenderSubpass();
             },
-            [&](const ComputeSubpass& subpass) {
+            [&](const ComputeSubpass&) {
+                ctx.tryCreatePerPassDescriptorSet();
                 ctx.popSubpassDescriptors();
                 ctx.resetRenderSubpass();
             },
             // Queue
-            [&](const RenderQueue& queue) {
+            [&](const RenderQueue&) {
+                ctx.tryCreatePerPassDescriptorSet();
+                ctx.tryCreatePerPhaseDescriptorSet();
                 ctx.popQueueDescriptors();
                 ctx.resetRenderQueue();
             },
             // Scene
             [&](const SceneData&) {
+                ctx.tryCreatePerPassDescriptorSet();
+                ctx.tryCreatePerPhaseDescriptorSet();
                 ctx.popSceneDescriptors();
                 ctx.resetScene();
             },
             [&](const Blit&) {
+                ctx.tryCreatePerPassDescriptorSet();
+                ctx.tryCreatePerPhaseDescriptorSet();
                 ctx.popSceneDescriptors();
                 ctx.resetScene();
             },
             [&](const Dispatch&) {
+                ctx.tryCreatePerPassDescriptorSet();
+                ctx.tryCreatePerPhaseDescriptorSet();
                 ctx.popSceneDescriptors();
                 ctx.resetScene();
             },

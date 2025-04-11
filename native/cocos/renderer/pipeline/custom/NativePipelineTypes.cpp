@@ -217,6 +217,7 @@ DeviceRenderData::DeviceRenderData(const allocator_type& alloc) noexcept
 
 DeviceRenderData::DeviceRenderData(DeviceRenderData&& rhs, const allocator_type& alloc)
 : hasConstants(rhs.hasConstants),
+  required(rhs.required),
   buffers(std::move(rhs.buffers), alloc),
   textures(std::move(rhs.textures), alloc),
   samplers(std::move(rhs.samplers), alloc) {}
