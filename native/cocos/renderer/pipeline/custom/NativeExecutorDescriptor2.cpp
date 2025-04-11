@@ -219,6 +219,31 @@ struct DescriptorSetVisitorContext {
         CC_ENSURES(mPhaseLayoutIdStack.size() == 1);
     }
 
+    template <class RenderOrComputePass>
+    void buildRenderOrComputePassResourceIndex(
+        RenderGraph::vertex_descriptor passID, const RenderOrComputePass& pass) const {
+        // Build resource index
+        auto& resourceIndex = pipeline.nativeContext.resourceGraphIndex[passID];
+        CC_EXPECTS(resourceIndex.empty());
+        renderDependencyGraph.buildDescriptorIndex(pass.computeViews, resourceIndex);
+    }
+
+    template <class RenderOrComputeSubpass>
+    void buildRenderSubpassResourceIndex(
+        RenderGraph::vertex_descriptor subpassID, const RenderOrComputeSubpass& subpass) const {
+        auto& resourceIndex = pipeline.nativeContext.resourceGraphIndex[subpassID];
+        CC_EXPECTS(resourceIndex.empty());
+        renderDependencyGraph.buildDescriptorIndex(
+            subpass.computeViews, subpass.rasterViews, resourceIndex);
+    }
+
+    RenderGraph::vertex_descriptor getPassOrSubpassID() const {
+        if (mSubpassID != RenderGraph::null_vertex()) {
+            return mSubpassID;
+        }
+        return mPassID;
+    }
+
     DeviceRenderData& getOrCreateDeviceRenderData(const RootArgumentKey& key) const {
         auto& context = pipeline.nativeContext;
         auto iter = context.graphNodeRenderData.find(key);
@@ -482,12 +507,14 @@ struct DescriptorSetVisitorContext {
         const ResourceAccessNode* accessNode = nullptr;
 
         if (includeRenderGraphResource) {
-            auto iter = pipeline.nativeContext.resourceGraphIndex.find(key.nodeID);
+            const auto passOrSubpassID = getPassOrSubpassID();
+            CC_EXPECTS(passOrSubpassID != RenderGraph::null_vertex());
+            auto iter = pipeline.nativeContext.resourceGraphIndex.find(passOrSubpassID);
             if (iter != pipeline.nativeContext.resourceGraphIndex.end() &&
                 !iter->second.empty()) {
                 resourceIndex = &iter->second;
             }
-            accessNode = &renderDependencyGraph.getAccessNode(key.nodeID);
+            accessNode = &renderDependencyGraph.getAccessNode(passOrSubpassID);
         }
 
         const auto& rsg = layoutGraph;
@@ -694,8 +721,9 @@ struct DescriptorSetVisitor : boost::dfs_visitor<> {
         const auto& g = ctx.renderGraph;
         visitObject(
             v, g,
-            [&](const RasterPass&) {
+            [&](const RasterPass& pass) {
                 const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.renderGraph, v);
+                ctx.buildRenderOrComputePassResourceIndex(v, pass);
                 ctx.setupRenderPass(v, passLayoutName);
                 ctx.collectPassDescriptors(v);
             },
@@ -729,7 +757,9 @@ struct DescriptorSetVisitor : boost::dfs_visitor<> {
 
 void NativePipeline::prepareDescriptorSets(RenderGraph::vertex_descriptor passID) {
     // Clear the resource graph index
-    for (auto& [passId, index] : nativeContext.resourceGraphIndex) {
+    // Notice: we do not call `nativeContext.resourceGraphIndex.clear()` here
+    // to avoid memory allocation.
+    for (auto& [_, index] : nativeContext.resourceGraphIndex) {
         index.clear();
     }
 
