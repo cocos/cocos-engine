@@ -39,7 +39,7 @@ exports.ready = function() {
 };
 
 exports.update = async function(assetList, metaList) {
-    // The TODO hack should be followed by a dump switch for the resource to provide a preview or not
+    // TODO The hack should be followed by a dump switch for the resource to provide a preview or not
     const prefabPreviewEnabled = await Editor.Profile.getConfig('asset-db', 'prefabPreviewEnabled');
     // set parent element display state by prefabPreviewEnabled
     hideElement(this.$this.parentElement, prefabPreviewEnabled);
@@ -50,7 +50,7 @@ exports.update = async function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    // How to multi-select to hide the preview
+    // hide the preview when multi-select
     hideElement(this.$.container, assetList.length > 1);
 
     Object.values(Elements).forEach((element) => element.update && element.update(this));
