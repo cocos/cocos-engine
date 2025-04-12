@@ -11,6 +11,7 @@
 
 lib
 build
+temp
 aspnet_client
 node_modules
 npm-debug.log
