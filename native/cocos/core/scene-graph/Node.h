@@ -601,14 +601,15 @@ public:
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
 
     inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryActor.getSharedArrayBufferObject(); } // NOLINT
+    
+    inline float _getLocalOpacity() const { return _localOpacity; }
+    inline bool _isLocalOpacityDirty() const { return _localOpacityDirty != 0; }
+    
+    inline float _getFinalOpacity() const { return _finalOpacity; }
+    inline void _setFinalOpacity(float v) { _finalOpacity = v; }
 
     bool onPreDestroy() override;
     bool onPreDestroyBase();
-
-    // For deserialization
-    ccstd::string _id;
-    Node *_parent{nullptr};
-    MobilityMode _mobility = MobilityMode::Static;
 
 private:
     static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
@@ -662,6 +663,12 @@ private:
     static uint32_t clearFrame;
     static uint32_t clearRound;
 
+public:
+    // For deserialization
+    ccstd::string _id;
+    Node *_parent{nullptr};
+    
+private:
     Scene *_scene{nullptr};
     IntrusivePtr<UserData> _userData;
 
@@ -685,19 +692,28 @@ private:
     uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
     uint32_t _transformFlags{static_cast<uint32_t>(TransformBit::TRS | TransformBit::SKEW)}; // Uint32: 2
     index_t _siblingIndex{0};                                           // Int32: 0
-    uint8_t _activeInHierarchy{0};                                      // Uint8: 0
-    uint8_t _active{1};                                                 // Uint8: 1
-    uint8_t _isStatic{0};                                               // Uint8: 2
-    uint8_t _skewType{static_cast<uint8_t>(SkewType::NONE)};            // Uint8: 3
+    uint8_t _activeInHierarchy: 1;                                      // Uint8: 0:0
+    uint8_t _active: 1;                                                 // Uint8: 0:1
+    uint8_t _isStatic: 1;                                               // Uint8: 0:2
+    uint8_t _localOpacityDirty: 1;                                      // Uint8: 0:3
+    uint8_t _boolBitPaddings: 4;                                        // Uint8: 0:4~7
+    uint8_t _skewType{static_cast<uint8_t>(SkewType::NONE)};            // Uint8: 1
+    uint8_t _u8Paddings[2];                                             // Uint8: 2, 3
     float _skewX{.0F};                                                  // Float32: 0
     float _skewY{.0F};                                                  // Float32: 1
+    float _localOpacity{1.F};                                           // Float32: 2
+    float _finalOpacity{1.F};                                           // Float32: 3
 
     /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
      * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
      */
     uint32_t _hasChangedFlagsVersion{0};
     uint32_t _hasChangedFlags{0};
+    
+public:
+    MobilityMode _mobility = MobilityMode::Static;
 
+private:
     bool _eulerDirty{false};
 
     friend class NodeActivator;

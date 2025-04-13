@@ -119,12 +119,7 @@ public:
     };
 
     static void deferredDestroy();
-
-    // cjh    public declare [editorExtrasTag]: unknown;
-
-    Flags _objFlags{Flags::ZERO};
-    ccstd::string _name;
-
+    
     explicit CCObject(ccstd::string name = "");
     ~CCObject() override;
 
@@ -232,6 +227,10 @@ protected:
         return true;
     }
 
+public:
+    Flags _objFlags{Flags::ZERO};
+    ccstd::string _name;
+protected:
     se::Object* _scriptObject{nullptr}; // weak reference
 };
 

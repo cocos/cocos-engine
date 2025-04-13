@@ -115,16 +115,22 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
     }
     bool breakWalk = false;
     auto* entity = static_cast<RenderEntity*>(node->getUserData());
-    bool opacityDirty = false;
+    
+    bool isCurrentOpacityDirty = node->_isLocalOpacityDirty() || parentOpacityDirty;
+    const float localOpacity = node->_getLocalOpacity();
+    const float finalOpacityWithoutColorAlpha = parentOpacity * localOpacity;
+    float finalOpacity = finalOpacityWithoutColorAlpha;
+    
     if (entity) {
-        if (entity->getColorDirty() || parentOpacityDirty) {
-            float localOpacity = entity->getLocalOpacity();
+        if (entity->getColorDirty() || isCurrentOpacityDirty) {
             float localColorAlpha = entity->getColorAlpha();
-            entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
+            finalOpacity = finalOpacityWithoutColorAlpha * localColorAlpha;
+            entity->setOpacity(finalOpacity);
             entity->setColorDirty(false);
             entity->setVBColorDirty(true);
-            opacityDirty = true;
+            isCurrentOpacityDirty = true;
         }
+
         if (math::isEqualF(entity->getOpacity(), 0)) {
             breakWalk = true;
         } else if (entity->isEnabled()) {
@@ -139,13 +145,15 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
             breakWalk = true;
         }
     }
+    
+    node->_setFinalOpacity(finalOpacity);
 
     if (!breakWalk) {
         const auto& children = node->getChildren();
-        float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
+        float thisOpacity = (entity && entity->isEnabled()) ? entity->getOpacity() : finalOpacity;
         for (const auto& child : children) {
             // we should find parent opacity recursively upwards if it doesn't have an entity.
-            walk(child, thisOpacity, opacityDirty || parentOpacityDirty);
+            walk(child, thisOpacity, isCurrentOpacityDirty);
         }
     }
 

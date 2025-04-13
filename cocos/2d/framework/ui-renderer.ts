@@ -498,7 +498,6 @@ export class UIRenderer extends Renderer {
         this.node._uiProps.colorDirty = true;
         this.setEntityColorDirty(true);
         this.setEntityColor(this._color);
-        this.setEntityOpacity(this.node._uiProps.localOpacity);
 
         const assembler = this._assembler;
         if (assembler) {
@@ -552,7 +551,8 @@ export class UIRenderer extends Renderer {
      */
     public setEntityOpacity (opacity: number): void {
         if (JSB) {
-            this._renderEntity.localOpacity = opacity;
+            const oldOpacity = (this.node as any)._getLocalOpacity();
+            (this.node as any)._setLocalOpacity(opacity);
         }
     }
 

@@ -50,7 +50,6 @@ enum class MaskMode : uint8_t {
 };
 
 struct EntityAttrLayout {
-    float localOpacity{1.0F};
     uint8_t colorR{255};
     uint8_t colorG{255};
     uint8_t colorB{255};
@@ -123,7 +122,6 @@ public:
     inline void setVBColorDirty(bool vbColorDirty) { _vbColorDirty = vbColorDirty; }
     inline Color getColor() const { return Color(_entityAttrLayout.colorR, _entityAttrLayout.colorG, _entityAttrLayout.colorB, _entityAttrLayout.colorA); }
     inline float getColorAlpha() const { return static_cast<float>(_entityAttrLayout.colorA) / 255.F; }
-    inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
     inline float getOpacity() const { return _opacity; }
     inline void setOpacity(float opacity) { _opacity = opacity; }
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
@@ -137,22 +135,23 @@ public:
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
     // weak reference
-    Node* _node{nullptr};
+    Node* _node{nullptr}; // 8
 
     // weak reference
-    Node* _renderTransform{nullptr};
+    Node* _renderTransform{nullptr}; // 8
+    
+    bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor; // 8
 
-    EntityAttrLayout _entityAttrLayout;
-    float _opacity{1.0F};
-
-    bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor;
     union {
-        std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
+        std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos; // 144 * 4 = 576
         ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
     };
-    StencilStage _stencilStage{StencilStage::DISABLED};
-    RenderEntityType _renderEntityType{RenderEntityType::STATIC};
-    uint8_t _staticDrawInfoSize{0};
-    bool _vbColorDirty{true};
+    EntityAttrLayout _entityAttrLayout; // 12
+    StencilStage _stencilStage{StencilStage::DISABLED};  // 1
+    RenderEntityType _renderEntityType{RenderEntityType::STATIC}; // 1
+    uint8_t _staticDrawInfoSize{0}; // 1
+    bool _vbColorDirty{true}; // 1
+    float _opacity{1.0F};  // 4
 };
+
 } // namespace cc

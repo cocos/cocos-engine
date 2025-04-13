@@ -35,11 +35,6 @@ export enum RenderEntityType {
     CROSSED,
 }
 
-export enum RenderEntityFloatSharedBufferView {
-    localOpacity,
-    count,
-}
-
 export enum RenderEntityUInt8SharedBufferView {
     colorR,
     colorG,
@@ -107,17 +102,6 @@ export class RenderEntity {
             this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorG] = val.g;
             this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorB] = val.b;
             this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorA] = val.a;
-        }
-    }
-
-    protected _localOpacity = 255;
-    get localOpacity (): number {
-        return this._localOpacity;
-    }
-    set localOpacity (val: number) {
-        this._localOpacity = val;
-        if (JSB) {
-            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.localOpacity] = val;
         }
     }
 
@@ -265,8 +249,6 @@ export class RenderEntity {
             //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
             const buffer = this._nativeObj.getEntitySharedBufferForJS();
             let offset = 0;
-            this._floatSharedBuffer = new Float32Array(buffer, offset, RenderEntityFloatSharedBufferView.count);
-            offset += RenderEntityFloatSharedBufferView.count * 4;
             this._uint8SharedBuffer = new Uint8Array(buffer, offset, RenderEntityUInt8SharedBufferView.count);
             offset += RenderEntityUInt8SharedBufferView.count * 1;
             this._boolSharedBuffer = new Uint8Array(buffer, offset, RenderEntityBoolSharedBufferView.count);
