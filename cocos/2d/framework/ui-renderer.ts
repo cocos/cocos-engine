@@ -551,7 +551,6 @@ export class UIRenderer extends Renderer {
      */
     public setEntityOpacity (opacity: number): void {
         if (JSB) {
-            const oldOpacity = (this.node as any)._getLocalOpacity();
             (this.node as any)._setLocalOpacity(opacity);
         }
     }
