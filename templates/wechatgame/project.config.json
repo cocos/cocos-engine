@@ -10,7 +10,7 @@
         "useIsolateContext": true
     },
     "compileType": "game",
-    "libVersion": "game",
+    "libVersion": "widelyUsed",
     "appid": "",
     "projectname": "",
     "condition": {
