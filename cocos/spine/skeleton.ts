@@ -328,6 +328,8 @@ export class Skeleton extends UIRenderer {
     private _eventListenerID: number = -1;
     private _slotTextures: Map<string, Texture2D> | null = null;
 
+    private _isEnabled = false;
+
     constructor () {
         super();
         this._useVertexOpacity = true;
@@ -375,6 +377,13 @@ export class Skeleton extends UIRenderer {
             this._skinName = '';
             this._updateSkeletonData();
             this._updateUITransform();
+        }
+        if (this._isEnabled) {
+            if (value) {
+                SkeletonSystem.getInstance().add(this);
+            } else {
+                SkeletonSystem.getInstance().remove(this);
+            }
         }
     }
 
@@ -695,10 +704,8 @@ export class Skeleton extends UIRenderer {
      */
     public onEnable (): void {
         super.onEnable();
-        if (this._instance) {
-            this._instance.enable = true;
-        }
         this._flushAssembler();
+        this._isEnabled = true;
         SkeletonSystem.getInstance().add(this);
     }
     /**
@@ -707,9 +714,7 @@ export class Skeleton extends UIRenderer {
      */
     public onDisable (): void {
         super.onDisable();
-        if (this._instance) {
-            this._instance.enable = false;
-        }
+        this._isEnabled = false;
         SkeletonSystem.getInstance().remove(this);
     }
 
