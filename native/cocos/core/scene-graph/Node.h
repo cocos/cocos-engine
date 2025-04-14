@@ -602,11 +602,11 @@ public:
 
     inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryActor.getSharedArrayBufferObject(); } // NOLINT
     
-    inline float _getLocalOpacity() const { return _localOpacity; }
-    inline bool _isLocalOpacityDirty() const { return _localOpacityDirty != 0; }
+    inline float _getLocalOpacity() const { return _localOpacity; } // NOLINT
+    inline bool _isLocalOpacityDirty() const { return _localOpacityDirty != 0; } // NOLINT
     
-    inline float _getFinalOpacity() const { return _finalOpacity; }
-    inline void _setFinalOpacity(float v) { _finalOpacity = v; }
+    inline float _getFinalOpacity() const { return _finalOpacity; } // NOLINT
+    inline void _setFinalOpacity(float v) { _finalOpacity = v; } // NOLINT
 
     bool onPreDestroy() override;
     bool onPreDestroyBase();
