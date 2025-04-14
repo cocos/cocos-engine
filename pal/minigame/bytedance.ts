@@ -41,7 +41,7 @@ minigame.tt.getAudioContext = tt.getAudioContext?.bind(tt);
 let systemInfo = minigame.getSystemInfoSync();
 minigame.getSystemInfoSync = (): SystemInfo => systemInfo;
 minigame.onWindowResize?.(() => {
-    systemInfo = minigame.getSystemInfoSync();
+    systemInfo = tt.getSystemInfoSync();
 });
 
 minigame.isDevTool = (systemInfo.platform === 'devtools');
