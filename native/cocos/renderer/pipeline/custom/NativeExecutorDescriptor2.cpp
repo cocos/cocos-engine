@@ -720,6 +720,7 @@ struct DescriptorSetVisitorContext {
         UpdateFrequency frequency,
         LayoutGraphData::vertex_descriptor layoutID,
         boost::span<DeviceRenderData* const> renderDataFullRange) const {
+        std::ignore = renderDataFullRange;
         // Get layout
         const auto& layout = get(LayoutGraphData::LayoutTag{}, layoutGraph, layoutID);
         CC_EXPECTS(layout.descriptorSets.find(frequency) != layout.descriptorSets.end());
@@ -835,9 +836,11 @@ struct DescriptorSetVisitorContext {
         CC_ENSURES(layoutIDsRange.size() == renderDataRange.size());
         CC_ENSURES(!layoutIDsRange.empty());
         CC_ENSURES(renderDataRange.back() == targetRenderData);
-        CC_ENSURES(std::all_of(layoutIDsRange.begin(), layoutIDsRange.end(), [&](auto id) {
-            return id == layoutIDsRange.back();
-        }));
+        CC_ENSURES(std::all_of(
+            layoutIDsRange.begin(), layoutIDsRange.end(),
+            [value = layoutIDsRange.back()](auto id) {
+                return id == value;
+            }));
 
         // All render data in the range must be valid
         CC_EXPECTS(
@@ -1013,72 +1016,86 @@ struct DescriptorSetVisitor : boost::dfs_visitor<> {
         visitObject(
             v, g,
             // Pass
-            [&](const RasterPass&) {
+            [&](const RasterPass& pass) {
+                std::ignore = pass;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.popPassDescriptors();
                 ctx.resetRenderPass();
             },
-            [&](const ComputePass&) {
+            [&](const ComputePass& pass) {
+                std::ignore = pass;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.popPassDescriptors();
                 ctx.resetRenderPass();
             },
-            [&](const RaytracePass&) {
+            [&](const RaytracePass& pass) {
+                std::ignore = pass;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.popPassDescriptors();
                 ctx.resetRenderPass();
             },
             // Subpass
-            [&](const RasterSubpass&) {
+            [&](const RasterSubpass& subpass) {
+                std::ignore = subpass;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.popSubpassDescriptors();
                 ctx.resetRenderSubpass();
             },
-            [&](const ComputeSubpass&) {
+            [&](const ComputeSubpass& subpass) {
+                std::ignore = subpass;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.popSubpassDescriptors();
                 ctx.resetRenderSubpass();
             },
             // Queue
-            [&](const RenderQueue&) {
+            [&](const RenderQueue& queue) {
+                std::ignore = queue;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.tryCreatePerPhaseDescriptorSet();
                 ctx.popQueueDescriptors();
                 ctx.resetRenderQueue();
             },
             // Scene
-            [&](const SceneData&) {
+            [&](const SceneData& scene) {
+                std::ignore = scene;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.tryCreatePerPhaseDescriptorSet();
                 ctx.popSceneDescriptors();
                 ctx.resetScene();
             },
-            [&](const Blit&) {
+            [&](const Blit& blit) {
+                std::ignore = blit;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.tryCreatePerPhaseDescriptorSet();
                 ctx.popSceneDescriptors();
                 ctx.resetScene();
             },
-            [&](const Dispatch&) {
+            [&](const Dispatch& dispatch) {
+                std::ignore = dispatch;
                 ctx.tryCreatePerPassDescriptorSet();
                 ctx.tryCreatePerPhaseDescriptorSet();
                 ctx.popSceneDescriptors();
                 ctx.resetScene();
             },
             // Others
-            [&](const ResolvePass&) {
+            [&](const ResolvePass& pass) {
+                std::ignore = pass;
                 // noop
             },
-            [&](const CopyPass&) {
+            [&](const CopyPass& pass) {
+                std::ignore = pass;
                 // noop
             },
-            [&](const MovePass&) {
+            [&](const MovePass& pass) {
+                std::ignore = pass;
                 // noop
             },
-            [&](const ccstd::pmr::vector<ClearView>&) {
+            [&](const ccstd::pmr::vector<ClearView>& view) {
+                std::ignore = view;
                 // noop
             },
-            [&](const gfx::Viewport&) {
+            [&](const gfx::Viewport& viewport) {
+                std::ignore = viewport;
                 // noop
             });
     }
@@ -1089,6 +1106,7 @@ struct DescriptorSetVisitor : boost::dfs_visitor<> {
 } // namespace
 
 void NativePipeline::prepareDescriptorSets(RenderGraph::vertex_descriptor passID) {
+    std::ignore = passID;
     // Clear the resource graph index
     // Notice: we do not call `nativeContext.resourceGraphIndex.clear()`.
     // Avoid memory allocation.
