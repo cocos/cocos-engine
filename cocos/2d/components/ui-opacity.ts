@@ -89,8 +89,9 @@ export class UIOpacity extends Component {
     private _syncLocalOpacity (localOpacity: number): void {
         this.node._uiProps.localOpacity = localOpacity;
         if (JSB) {
-            const node = this.node;
-            (node as any)._setLocalOpacity(localOpacity);
+            const node = this.node as any;
+            node._localOpacityDirty = true;
+            node._setLocalOpacity(localOpacity);
         }
     }
 }
