@@ -165,8 +165,11 @@ export class StaticVBAccessor extends BufferAccessor {
             errorID(9004, byteLength);
             return null;
         }
-        let buf: MeshBuffer = null!; let freeList: IFreeEntry[];
-        let bid = 0; let eid = -1; let entry: IFreeEntry | null = null;
+        let buf: MeshBuffer = null!;
+        let freeList: IFreeEntry[];
+        let bid = 0;
+        let eid = -1;
+        let entry: IFreeEntry | null = null;
         // Loop buffers
         for (let i = 0; i < this._buffers.length; ++i) {
             buf = this._buffers[i];
