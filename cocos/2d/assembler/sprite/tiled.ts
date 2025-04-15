@@ -124,6 +124,7 @@ class Tiled implements IAssembler {
     }
 
     private createQuadIndices (indexCount: number): void {
+        if (!JSB) return;
         if (indexCount % 6 !== 0) {
             errorID(16308);
             return;

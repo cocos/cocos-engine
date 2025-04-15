@@ -167,6 +167,7 @@ class MotionStreakAssembler implements IAssembler {
     }
 
     private updateWorldVertexAllData (comp: MotionStreak): void {
+        if (!JSB) return;
         const renderData = comp.renderData;
         if (!renderData) return;
         const stride = renderData.floatStride;
@@ -184,6 +185,7 @@ class MotionStreakAssembler implements IAssembler {
     }
 
     private createQuadIndices (comp: MotionStreak, indexCount: number): void {
+        if (!JSB) return;
         const renderData = comp.renderData;
         if (!renderData) return;
         const chunk = renderData.chunk;
