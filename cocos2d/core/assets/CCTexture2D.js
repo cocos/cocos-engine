@@ -1142,4 +1142,4 @@ var Texture2D = cc.Class({
  */
 
 cc.Texture2D = module.exports = Texture2D;
-cc.Texture2D.pixelFormat = PixelFormat;
+cc.Texture2D.PixelFormat = PixelFormat;
