@@ -1458,6 +1458,7 @@ struct DeviceRenderData {
 
     void clear() noexcept {
         hasConstants = false;
+        required = false;
         buffers.clear();
         textures.clear();
         samplers.clear();
@@ -1495,8 +1496,9 @@ struct NativeRenderContext {
     QuadResource fullscreenQuad;
     SceneCulling sceneCulling;
     LightResource lightResources;
-    ccstd::pmr::unordered_map<DescriptorSetKey, DeviceRenderData> graphNodeRenderData;
     ccstd::pmr::unordered_map<RenderGraph::vertex_descriptor, PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>> resourceGraphIndex;
+    ccstd::pmr::unordered_map<DescriptorSetKey, DeviceRenderData> graphNodeRenderData;
+    ccstd::pmr::unordered_map<DescriptorSetKey, gfx::DescriptorSet*> graphNodeDescriptorSets;
 };
 
 class NativeProgramLibrary final : public ProgramLibrary {
