@@ -89,7 +89,7 @@ CC_FORCE_INLINE void fillOpacity(RenderEntity* entity, RenderDrawInfo* drawInfo)
     }
 }
 
-} // namespace {
+} // namespace
 
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
 }
