@@ -9,9 +9,9 @@
 
 namespace {
     struct SpineEventInfo {
-        spine::TrackEntry* entry = nullptr;
-        spine::EventType eventType;
-        spine::Event *event = nullptr;
+        spine::TrackEntry* entry{nullptr};
+        spine::EventType eventType{spine::EventType::EventType_Start};
+        spine::Event *event{nullptr};
     };
 }
 enum DEBUG_SHAPE_TYPE {

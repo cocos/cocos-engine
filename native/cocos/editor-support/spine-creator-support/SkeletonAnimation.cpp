@@ -46,17 +46,11 @@ struct TrackEntryListeners {
 };
 
 void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->onAnimationStateEvent(entry, type, event);
+    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->cacheAnimationEvent(entry, type, event);
 }
 
 void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->onTrackEntryEvent(entry, type, event);
-    if (type == EventType_Dispose) {
-        if (entry->getRendererObject()) {
-            delete static_cast<TrackEntryListeners *>(entry->getRendererObject());
-            entry->setRendererObject(nullptr);
-        }
-    }
+    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->cacheTrackEvent(entry, type, event);
 }
 
 static TrackEntryListeners *getListeners(TrackEntry *entry) {
@@ -72,6 +66,30 @@ void SkeletonAnimation::setGlobalTimeScale(float timeScale) {
     GlobalTimeScale = timeScale;
 }
 
+void SkeletonAnimation::cacheAnimationEvent(TrackEntry *entry, EventType type, Event *event) {
+    _vecAnimationEvents.push_back({type, entry, event});
+}
+
+void SkeletonAnimation::cacheTrackEvent(TrackEntry *entry, EventType type, Event *event) {
+    _vecTrackEvents.push_back({type, entry, event});
+}
+
+void SkeletonAnimation::dispatchEvents() {
+    auto copiedAnimationEvents = _vecAnimationEvents;
+    _vecAnimationEvents.clear();
+    auto copiedTrackEvents = _vecTrackEvents;
+    _vecTrackEvents.clear();
+
+    std::for_each(copiedAnimationEvents.begin(), copiedAnimationEvents.end(),
+                [&](const CacheEventInfo &info) {
+                  onAnimationStateEvent(info.entry, info.type, info.event);
+                });
+
+    std::for_each(copiedTrackEvents.begin(), copiedTrackEvents.end(),
+                [&](const CacheEventInfo &info) {
+                  onTrackEntryEvent(info.entry, info.type, info.event);
+                });
+}
 SkeletonAnimation *SkeletonAnimation::create() {
     auto *skeleton = new SkeletonAnimation();
     return skeleton;
@@ -133,6 +151,7 @@ void SkeletonAnimation::update(float deltaTime) {
         _skeleton->updateWorldTransform(Physics::Physics_Update);
 #endif
     }
+    dispatchEvents();
 }
 
 void SkeletonAnimation::setAnimationStateData(AnimationStateData *stateData) {
@@ -265,6 +284,8 @@ void SkeletonAnimation::onTrackEntryEvent(TrackEntry *entry, EventType type, Eve
             break;
         case EventType_Dispose:
             if (listeners->disposeListener) listeners->disposeListener(entry);
+            delete static_cast<TrackEntryListeners *>(entry->getRendererObject());
+            entry->setRendererObject(nullptr);
             break;
         case EventType_Complete:
             if (listeners->completeListener) listeners->completeListener(entry);
