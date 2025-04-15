@@ -33,6 +33,64 @@
 
 namespace cc {
 
+namespace {
+
+CC_FORCE_INLINE void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    uint16_t* ib = drawInfo->getIDataBuffer();
+    
+    UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+    uint32_t indexOffset = buffer->getIndexOffset();
+    
+    uint16_t* indexb = drawInfo->getIbBuffer();
+    uint32_t indexCount = drawInfo->getIbCount();
+    
+    memcpy(&ib[indexOffset], indexb, indexCount * sizeof(uint16_t));
+    indexOffset += indexCount;
+    
+    buffer->setIndexOffset(indexOffset);
+}
+
+CC_FORCE_INLINE void fillVertexBuffers(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    Node* node = entity->getNode();
+    const Mat4& matrix = node->getWorldMatrix();
+    uint8_t stride = drawInfo->getStride();
+    uint32_t size = drawInfo->getVbCount() * stride;
+    float* vbBuffer = drawInfo->getVbBuffer();
+    for (int i = 0; i < size; i += stride) {
+        Render2dLayout* curLayout = drawInfo->getRender2dLayout(i);
+        // make sure that the layout of Vec3 is three consecutive floats
+        static_assert(sizeof(Vec3) == 3 * sizeof(float));
+        // cast to reduce value copy instructions
+        reinterpret_cast<Vec3*>(vbBuffer + i)->transformMat4(curLayout->position, matrix);
+    }
+}
+
+CC_FORCE_INLINE void setIndexRange(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+    uint32_t indexOffset = drawInfo->getIndexOffset();
+    uint32_t indexCount = drawInfo->getIbCount();
+    indexOffset += indexCount;
+    if (buffer->getIndexOffset() < indexOffset) {
+        buffer->setIndexOffset(indexOffset);
+    }
+}
+
+CC_FORCE_INLINE void fillOpacity(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    Color temp = entity->getColor();
+    
+    uint8_t stride = drawInfo->getStride();
+    uint32_t size = drawInfo->getVbCount() * stride;
+    float* vbBuffer = drawInfo->getVbBuffer();
+    
+    uint32_t offset = 0;
+    for (int i = 0; i < size; i += stride) {
+        offset = i + 5;
+        vbBuffer[offset+3] = entity->getOpacity();
+    }
+}
+
+} // namespace {
+
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
 }
 
@@ -224,7 +282,7 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
         }
 
         if (entity->getVBColorDirty()) {
-            fillColors(entity, drawInfo);
+            fillOpacity(entity, drawInfo);
         }
 
         fillIndexBuffers(drawInfo);
