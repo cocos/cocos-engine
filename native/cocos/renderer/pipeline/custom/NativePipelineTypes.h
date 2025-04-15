@@ -1716,7 +1716,7 @@ public:
 
     static void prepareDescriptors(RenderGraphVisitorContext& ctx, RenderGraph::vertex_descriptor passID);
 
-    void prepareDescriptorSets(RenderGraph::vertex_descriptor passID);
+    void prepareDescriptorSets(gfx::CommandBuffer& cmdBuff, const FrameGraphDispatcher& rdg, RenderGraph::vertex_descriptor passID);
 
 private:
     ccstd::vector<gfx::CommandBuffer*> _commandBuffers;

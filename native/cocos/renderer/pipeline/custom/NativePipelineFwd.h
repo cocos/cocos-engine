@@ -48,6 +48,7 @@ template <class T>
 using Array4 = std::array<T, 4>;
 
 struct RenderGraphVisitorContext;
+struct FrameGraphDispatcher;
 
 } // namespace render
 

@@ -29,7 +29,7 @@
 // #include <boost/graph/filtered_graph.hpp>
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
-// #include "NativeExecutorRenderGraph.h"
+#include "NativeExecutorRenderGraph.h" // IWYU pragma: keep
 #include "NativePipelineTypes.h"
 // #include "NativeUtils.h"
 #include "FGDispatcherTypes.h"
@@ -52,7 +52,7 @@ using RenderGraphData = RenderGraph;
 using RootSignatureGraphImpl = LayoutGraphData;
 using RootArgumentKey = DescriptorSetKey;
 
-struct DescriptorSetVisitorContext {
+struct DescriptorSetVisitorContext : boost::dfs_visitor<> {
     void setupRenderPass(RenderGraph::vertex_descriptor passID, std::string_view passLayoutName) {
         CC_EXPECTS(!passLayoutName.empty());
         CC_EXPECTS(mPassID == RenderGraph::null_vertex());
@@ -1292,7 +1292,10 @@ struct DescriptorSetVisitor : boost::dfs_visitor<> {
 
 } // namespace
 
-void NativePipeline::prepareDescriptorSets(RenderGraph::vertex_descriptor passID) {
+void NativePipeline::prepareDescriptorSets(
+    gfx::CommandBuffer& cmdBuff,
+    const FrameGraphDispatcher& rdg,
+    RenderGraph::vertex_descriptor passID) {
     std::ignore = passID;
     // Clear the resource graph index
     // Notice: we do not call `nativeContext.resourceGraphIndex.clear()`.
@@ -1312,23 +1315,33 @@ void NativePipeline::prepareDescriptorSets(RenderGraph::vertex_descriptor passID
     // Clear the descriptor sets
     nativeContext.graphNodeDescriptorSets.clear();
 
-    // #if CC_DEBUG
-    //    ctx.cmdBuff->beginMarker(makeMarkerInfo("Upload", RASTER_UPLOAD_COLOR));
-    // #endif
-    // auto colors = ctx.g.colors(ctx.scratch);
-    // RenderGraphUploadVisitor visitor{{}, ctx};
-    // AddressableView<RenderGraph> graphView(ctx.g);
-    // boost::depth_first_visit(graphView, passID, visitor, get(colors, ctx.g));
+#if CC_DEBUG
+    cmdBuff.beginMarker(makeMarkerInfo("Upload", RASTER_UPLOAD_COLOR));
+#endif
+    auto colors = renderGraph.colors(&unsyncPool);
 
-    // if (holds<RasterPassTag>(passID, ctx.g)) {
-    //     const auto& pass = get(RasterPassTag{}, passID, ctx.g);
-    //     if (pass.showStatistics) {
-    //         prepareStatisticsDescriptorSet(ctx, passID);
-    //     }
-    // }
-    // #if CC_DEBUG
-    //     ctx.cmdBuff->endMarker();
-    // #endif
+    DescriptorSetVisitorContext visitor{
+        {},
+        *this,
+        programLibrary->layoutGraph,
+        renderGraph,
+        rdg,
+        cmdBuff,
+    };
+
+// RenderGraphUploadVisitor visitor{{}, ctx};
+// AddressableView<RenderGraph> graphView(ctx.g);
+// boost::depth_first_visit(graphView, passID, visitor, get(colors, ctx.g));
+
+// if (holds<RasterPassTag>(passID, ctx.g)) {
+//     const auto& pass = get(RasterPassTag{}, passID, ctx.g);
+//     if (pass.showStatistics) {
+//         prepareStatisticsDescriptorSet(ctx, passID);
+//     }
+// }
+#if CC_DEBUG
+    cmdBuff.endMarker();
+#endif
 }
 
 } // namespace render
