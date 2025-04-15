@@ -35,7 +35,7 @@
 namespace cc {
 
 struct CacheEventInfo {
-  spine::EventType type{EventType::EventType_Start};
+  spine::EventType type{spine::EventType::EventType_Start};
   spine::TrackEntry *entry{nullptr};
   spine::Event *event{nullptr};
 };
