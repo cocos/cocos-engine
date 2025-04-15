@@ -35,9 +35,9 @@
 namespace cc {
 
 struct CacheEventInfo {
-  EventType type{EventType::EventType_Start};
-  TrackEntry *entry{nullptr};
-  Event *event{nullptr};
+  spine::EventType type{EventType::EventType_Start};
+  spine::TrackEntry *entry{nullptr};
+  spine::Event *event{nullptr};
 };
 typedef std::function<void(spine::TrackEntry *entry)> StartListener;
 typedef std::function<void(spine::TrackEntry *entry)> InterruptListener;
@@ -88,8 +88,8 @@ public:
     virtual void onAnimationStateEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event);
     virtual void onTrackEntryEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event);
 
-    void cacheAnimationEvent(TrackEntry *entry, EventType type, Event *event);
-    void cacheTrackEvent(TrackEntry *entry, EventType type, Event *event);
+    void cacheAnimationEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event);
+    void cacheTrackEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event);
     void dispatchEvents();
 
     spine::AnimationState *getState() const;

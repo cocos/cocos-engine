@@ -66,11 +66,11 @@ void SkeletonAnimation::setGlobalTimeScale(float timeScale) {
     GlobalTimeScale = timeScale;
 }
 
-void SkeletonAnimation::cacheAnimationEvent(TrackEntry *entry, EventType type, Event *event) {
+void SkeletonAnimation::cacheAnimationEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event) {
     _vecAnimationEvents.push_back({type, entry, event});
 }
 
-void SkeletonAnimation::cacheTrackEvent(TrackEntry *entry, EventType type, Event *event) {
+void SkeletonAnimation::cacheTrackEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event) {
     _vecTrackEvents.push_back({type, entry, event});
 }
 
