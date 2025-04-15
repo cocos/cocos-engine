@@ -75,20 +75,14 @@ void SkeletonAnimation::cacheTrackEvent(TrackEntry *entry, EventType type, Event
 }
 
 void SkeletonAnimation::dispatchEvents() {
-    auto copiedAnimationEvents = _vecAnimationEvents;
-    _vecAnimationEvents.clear();
-    auto copiedTrackEvents = _vecTrackEvents;
-    _vecTrackEvents.clear();
-
-    std::for_each(copiedAnimationEvents.begin(), copiedAnimationEvents.end(),
-                [&](const CacheEventInfo &info) {
-                  onAnimationStateEvent(info.entry, info.type, info.event);
-                });
-
-    std::for_each(copiedTrackEvents.begin(), copiedTrackEvents.end(),
-                [&](const CacheEventInfo &info) {
-                  onTrackEntryEvent(info.entry, info.type, info.event);
-                });
+    auto animationEvents = std::move(_vecAnimationEvents);
+    auto trackEvents = std::move(_vecTrackEvents);
+    for (const auto &info : animationEvents) {
+        onAnimationStateEvent(info.entry, info.type, info.event);
+    }
+    for (const auto &info : trackEvents) {
+        onTrackEntryEvent(info.entry, info.type, info.event);
+    }
 }
 SkeletonAnimation *SkeletonAnimation::create() {
     auto *skeleton = new SkeletonAnimation();
@@ -122,7 +116,10 @@ void SkeletonAnimation::initialize() {
     _state->setListener(animationCallback);
 }
 
-SkeletonAnimation::SkeletonAnimation() = default;
+SkeletonAnimation::SkeletonAnimation() {
+    _vecAnimationEvents.reserve(EventType::EventType_Event + 1);
+    _vecTrackEvents.reserve(EventType::EventType_Event + 1);
+}
 
 SkeletonAnimation::~SkeletonAnimation() {
     _startListener = nullptr;

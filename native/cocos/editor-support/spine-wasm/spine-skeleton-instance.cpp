@@ -42,9 +42,8 @@ static void trackEntryCallback(AnimationState *state, EventType type, TrackEntry
 
 SpineSkeletonInstance::SpineSkeletonInstance() {
     _model = new SpineModel();
-    // 6 equals EventType count.
-    animationEvents.ensureCapacity(6);
-    trackEvents.ensureCapacity(6);
+    animationEvents.ensureCapacity(spine::EventType::EventType_Event + 1);
+    trackEvents.ensureCapacity(spine::EventType::EventType_Event + 1);
 }
 
 SpineSkeletonInstance::~SpineSkeletonInstance() {

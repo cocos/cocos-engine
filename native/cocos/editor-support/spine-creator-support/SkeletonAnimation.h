@@ -113,7 +113,7 @@ protected:
 
 private:
     typedef cc::SkeletonRenderer super;
-	std::vector<CacheEventInfo> _vecAnimationEvents;
+    std::vector<CacheEventInfo> _vecAnimationEvents;
     std::vector<CacheEventInfo> _vecTrackEvents;
 };
 
