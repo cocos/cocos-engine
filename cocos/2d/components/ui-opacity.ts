@@ -243,6 +243,6 @@ export class UIOpacity extends Component {
         this.node.off(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
         this.node._uiProps.localOpacity = 1;
         this._parentOpacity = 1;
-        this._setEntityLocalOpacityRecursively(this.node._uiProps.localOpacity);
+        this._setEntityLocalOpacityRecursively(1);
     }
 }
