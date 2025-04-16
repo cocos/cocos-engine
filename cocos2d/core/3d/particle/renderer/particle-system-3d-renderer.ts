@@ -29,7 +29,6 @@ const CC_USE_STRETCHED_BILLBOARD = 'CC_USE_STRETCHED_BILLBOARD';
 const CC_USE_HORIZONTAL_BILLBOARD = 'CC_USE_HORIZONTAL_BILLBOARD';
 const CC_USE_VERTICAL_BILLBOARD = 'CC_USE_VERTICAL_BILLBOARD';
 const CC_USE_MESH = 'CC_USE_MESH';
-const CC_USE_EMBEDDED_ALPHA = 'CC_USE_EMBEDDED_ALPHA';
 //const CC_DRAW_WIRE_FRAME = 'CC_DRAW_WIRE_FRAME'; // <wireframe debug>
 
 
@@ -382,11 +381,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
         if (this._particleSystem.textureAnimationModule.enable) {
             let _texture = mat.getProperty("mainTexture");
-            if (_texture && (_texture._pixelFormat === cc.Texture2D.PixelFormat.RGB_A_PVRTC_2BPPV1
-                || _texture._pixelFormat === cc.Texture2D.PixelFormat.RGB_A_PVRTC_4BPPV1
-                || _texture._pixelFormat === cc.Texture2D.PixelFormat.RGBA_ETC1)
-            ) {
-                mat.define(CC_USE_EMBEDDED_ALPHA, true);
+            if (_texture && _texture._isAlphaAtlas) {
                 this._particleSystem.textureAnimationModule._numTilesX *= 2;
                 this._particleSystem.textureAnimationModule._numTilesY *= 2;
             }

@@ -722,7 +722,7 @@ var Texture2D = cc.Class({
         this.width = pixelsWidth;
         this.height = pixelsHeight;
 
-        this._updateFormat(pixelFormat);
+        this._updateFormat();
         this._checkPackable();
 
         this.loaded = true;
@@ -940,12 +940,12 @@ var Texture2D = cc.Class({
         }
     },
 
-    _updateFormat (pixelFormat) {
+    _updateFormat () {
         this._isAlphaAtlas = this._format === PixelFormat.RGBA_ETC1 || this._format === PixelFormat.RGB_A_PVRTC_4BPPV1 || this._format === PixelFormat.RGB_A_PVRTC_2BPPV1;
+        this._texture._isAlphaAtlas = this._isAlphaAtlas;
         if (CC_JSB) {
             this._texture.setAlphaAtlas(this._isAlphaAtlas);
         }
-        this._texture._pixelFormat = pixelFormat;
     },
 
     _checkPackable () {
@@ -1142,4 +1142,3 @@ var Texture2D = cc.Class({
  */
 
 cc.Texture2D = module.exports = Texture2D;
-cc.Texture2D.PixelFormat = PixelFormat;
