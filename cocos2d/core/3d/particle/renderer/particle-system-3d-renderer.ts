@@ -382,9 +382,9 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
         if (this._particleSystem.textureAnimationModule.enable) {
             let _texture = mat.getProperty("mainTexture");
-            if (_texture._pixelFormat === cc.Texture2D.PixelFormat.RGB_A_PVRTC_2BPPV1
+            if (_texture && (_texture._pixelFormat === cc.Texture2D.PixelFormat.RGB_A_PVRTC_2BPPV1
                 || _texture._pixelFormat === cc.Texture2D.PixelFormat.RGB_A_PVRTC_4BPPV1
-                || _texture._pixelFormat === cc.Texture2D.PixelFormat.RGBA_ETC1
+                || _texture._pixelFormat === cc.Texture2D.PixelFormat.RGBA_ETC1)
             ) {
                 mat.define(CC_USE_EMBEDDED_ALPHA, true);
                 this._particleSystem.textureAnimationModule._numTilesX *= 2;
