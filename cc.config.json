@@ -459,6 +459,13 @@
                 "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-4.2.ts",
                 "cocos/spine/lib/spine-instantiate.ts": "cocos/spine/lib/spine-instantiate-4.2.ts"
             }
+        },
+        {
+            "test": "context.buildTimeConstants.USE_VENDOR_GOOGLE",
+            "isVirtualModule": false,
+            "overrides": {
+                "vendor/google/index.ts": "vendor/google/impl.ts"
+            }
         }
     ],
     "includes": [
@@ -785,6 +792,12 @@
         },
         "USE_XR": {
             "comment": "An internal constant to indicate whether we're using xr module.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "USE_VENDOR_GOOGLE": {
+            "comment": "An internal constant to indicate whether we're using vendor google module.",
             "type": "boolean",
             "value": false,
             "internal": true
