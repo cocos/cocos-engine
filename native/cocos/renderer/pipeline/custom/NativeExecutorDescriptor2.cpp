@@ -1329,9 +1329,8 @@ void NativePipeline::prepareDescriptorSets(
         cmdBuff,
     };
 
-// RenderGraphUploadVisitor visitor{{}, ctx};
-// AddressableView<RenderGraph> graphView(ctx.g);
-// boost::depth_first_visit(graphView, passID, visitor, get(colors, ctx.g));
+    AddressableView<RenderGraph> graphView(renderGraph);
+    boost::depth_first_visit(graphView, passID, visitor, get(colors, renderGraph));
 
 // if (holds<RasterPassTag>(passID, ctx.g)) {
 //     const auto& pass = get(RasterPassTag{}, passID, ctx.g);
