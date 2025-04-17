@@ -26,18 +26,13 @@
 #include <boost/core/span.hpp>
 #include <boost/graph/depth_first_search.hpp>
 
-// #include <boost/graph/filtered_graph.hpp>
+#include "FGDispatcherTypes.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
 #include "NativeExecutorRenderGraph.h" // IWYU pragma: keep
 #include "NativePipelineTypes.h"
-// #include "NativeUtils.h"
-#include "FGDispatcherTypes.h"
 #include "RenderGraphGraphs.h"
 #include "details/GraphView.h"
-
-// #include "details/GslUtils.h"
-// #include "details/Range.h"
 
 namespace cc {
 
@@ -189,6 +184,7 @@ struct DescriptorSetVisitorContext {
         // Stack: Queue
         CC_EXPECTS(mPhaseLayoutIdStack.size() == 1);
 
+        // Use the last queue layoutId as the scene layoutId
         const auto passLayoutId = mPassLayoutIdStack.back();
         mPassLayoutIdStack.push_back(passLayoutId);
         const auto phaseLayoutId = mPhaseLayoutIdStack.back();
@@ -204,8 +200,10 @@ struct DescriptorSetVisitorContext {
         CC_EXPECTS(mPassLayoutIdStack.size() == 3 + (mSubpassID != RenderGraph::null_vertex()));
         // Stack: Queue + Scene
         CC_EXPECTS(mPhaseLayoutIdStack.size() == 2);
+
         mPassLayoutIdStack.pop_back();
         mPhaseLayoutIdStack.pop_back();
+
         // Stack: Pass + (Subpass) + Queue
         CC_ENSURES(mPassLayoutIdStack.size() == 2 + (mSubpassID != RenderGraph::null_vertex()));
         // Stack: Queue
@@ -510,8 +508,7 @@ struct DescriptorSetVisitorContext {
             accessNode = &renderDependencyGraph.getAccessNode(passOrSubpassID);
         }
 
-        const auto& rsg = layoutGraph;
-        const auto& layout = get(LayoutGraphData::LayoutTag{}, rsg, layoutID);
+        const auto& layout = get(LayoutGraphData::LayoutTag{}, layoutGraph, layoutID);
 
         DeviceRenderData* deviceData = nullptr;
         // Collect resources from the current render graph node
@@ -543,16 +540,19 @@ struct DescriptorSetVisitorContext {
 
     void collectPerPassDescriptors(const RenderGraph::vertex_descriptor v) {
         CC_EXPECTS(mPassLayoutIdStack.size() >= 1);
+        // Chec if the last two layout names are equal
         const bool fullRange = mPassLayoutIdStack.size() < 2 ||
                                mPassLayoutIdStack[mPassLayoutIdStack.size() - 1] !=
                                    mPassLayoutIdStack[mPassLayoutIdStack.size() - 2];
+        // Collect the render data range
         const auto renderDataRange =
             fullRange
-                // Render pass or not equal, collect full stack
+                // Last two layout names are not equal, collect from full stack
                 ? boost::span<const RenderData* const>(mRenderDataStack)
-                // Last two layouts are equal, collect last element
+                // Last two layout names are equal, collect from last render data
                 : boost::span<const RenderData* const>(&mRenderDataStack.back(), 1);
 
+        // If collecting full range, include render graph resource
         const bool includeRenderGraphResource = fullRange;
 
         mPerPassDeviceRenderDataStack.emplace_back(
@@ -569,7 +569,7 @@ struct DescriptorSetVisitorContext {
             mPhaseLayoutIdStack.size() < 2 ||
                     mPhaseLayoutIdStack[mPhaseLayoutIdStack.size() - 1] !=
                         mPhaseLayoutIdStack[mPhaseLayoutIdStack.size() - 2]
-                // Render queue or not equal, collect full stack
+                // Last two layout names are not equal, collect from full stack
                 ? boost::span<const RenderData* const>(mRenderDataStack)
                 // Last two layouts are equal, collect last element
                 : boost::span<const RenderData* const>(&mRenderDataStack.back(), 1);
