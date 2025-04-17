@@ -52,7 +52,7 @@ using RenderGraphData = RenderGraph;
 using RootSignatureGraphImpl = LayoutGraphData;
 using RootArgumentKey = DescriptorSetKey;
 
-struct DescriptorSetVisitorContext : boost::dfs_visitor<> {
+struct DescriptorSetVisitorContext {
     void setupRenderPass(RenderGraph::vertex_descriptor passID, std::string_view passLayoutName) {
         CC_EXPECTS(!passLayoutName.empty());
         CC_EXPECTS(mPassID == RenderGraph::null_vertex());
@@ -360,8 +360,7 @@ struct DescriptorSetVisitorContext : boost::dfs_visitor<> {
         if (resourceIndex) {
             auto iter = resourceIndex->find(attrID);
             if (iter != resourceIndex->end()) {
-                Expects(!accessNode);
-
+                Expects(accessNode);
                 auto resID = iter->second;
                 auto* texture = pipeline.resourceGraph.getTexture(resID);
                 Expects(texture);
@@ -776,7 +775,7 @@ struct DescriptorSetVisitorContext : boost::dfs_visitor<> {
     }
 
     gfx::Buffer* getBuffer(
-        boost::span<DeviceRenderData* const> dataRange,
+        boost::span<const DeviceRenderData* const> dataRange,
         const NameLocalID& attrId) const {
         for (auto iter = dataRange.rbegin(); iter != dataRange.rend(); ++iter) {
             const auto* renderData = *iter;
@@ -791,7 +790,7 @@ struct DescriptorSetVisitorContext : boost::dfs_visitor<> {
     }
 
     gfx::Texture* getTexture(
-        boost::span<DeviceRenderData* const> dataRange,
+        boost::span<const DeviceRenderData* const> dataRange,
         const DescriptorData& d) const {
         for (auto iter = dataRange.rbegin(); iter != dataRange.rend(); ++iter) {
             const auto* renderData = *iter;
@@ -830,7 +829,7 @@ struct DescriptorSetVisitorContext : boost::dfs_visitor<> {
     }
 
     static gfx::Sampler* getSampler(
-        boost::span<DeviceRenderData* const> dataRange,
+        boost::span<const DeviceRenderData* const> dataRange,
         const NameLocalID& attrId) {
         for (auto iter = dataRange.rbegin(); iter != dataRange.rend(); ++iter) {
             const auto* renderData = *iter;
@@ -848,7 +847,7 @@ struct DescriptorSetVisitorContext : boost::dfs_visitor<> {
         RenderGraph::vertex_descriptor nodeId,
         UpdateFrequency frequency,
         LayoutGraphData::vertex_descriptor layoutID,
-        boost::span<DeviceRenderData* const> dataRange) const {
+        boost::span<const DeviceRenderData* const> dataRange) const {
         const auto& defaultResource = *pipeline.nativeContext.defaultResource;
         // Get layout
         const auto& layout = get(LayoutGraphData::LayoutTag{}, layoutGraph, layoutID);
@@ -1296,7 +1295,6 @@ void NativePipeline::prepareDescriptorSets(
     gfx::CommandBuffer& cmdBuff,
     const FrameGraphDispatcher& rdg,
     RenderGraph::vertex_descriptor passID) {
-    std::ignore = passID;
     // Clear the resource graph index
     // Notice: we do not call `nativeContext.resourceGraphIndex.clear()`.
     // Avoid memory allocation.
@@ -1320,14 +1318,15 @@ void NativePipeline::prepareDescriptorSets(
 #endif
     auto colors = renderGraph.colors(&unsyncPool);
 
-    DescriptorSetVisitorContext visitor{
-        {},
+    DescriptorSetVisitorContext context{
         *this,
         programLibrary->layoutGraph,
         renderGraph,
         rdg,
         cmdBuff,
     };
+
+    DescriptorSetVisitor visitor{{}, context};
 
     AddressableView<RenderGraph> graphView(renderGraph);
     boost::depth_first_visit(graphView, passID, visitor, get(colors, renderGraph));

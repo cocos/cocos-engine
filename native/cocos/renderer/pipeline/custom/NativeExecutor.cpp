@@ -255,68 +255,68 @@ void submitUICommands(
     uint32_t phaseLayoutID,
     const scene::Camera* camera,
     gfx::CommandBuffer* cmdBuff) {
-    const auto cameraVisFlags = camera->getVisibility();
-    const auto& batches = camera->getScene()->getBatches();
-    for (auto* batch : batches) {
-        if (!(cameraVisFlags & batch->getVisFlags())) {
-            continue;
-        }
-        const auto& passes = batch->getPasses();
-        for (size_t i = 0; i < batch->getShaders().size(); ++i) {
-            const scene::Pass* pass = passes[i];
-            if (pass->getPhaseID() != phaseLayoutID) {
-                continue;
-            }
-            auto* shader = batch->getShaders()[i];
-            auto* inputAssembler = batch->getInputAssembler();
-            auto* ds = batch->getDescriptorSet();
-            auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
-                pass, shader, inputAssembler, renderPass);
-            cmdBuff->bindPipelineState(pso);
-            cmdBuff->bindDescriptorSet(
-                static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                pass->getDescriptorSet());
-            cmdBuff->bindInputAssembler(inputAssembler);
-            cmdBuff->bindDescriptorSet(
-                static_cast<uint32_t>(pipeline::SetIndex::LOCAL), ds);
-            cmdBuff->draw(batch->getDrawInfo());
-        }
-    }
+    // const auto cameraVisFlags = camera->getVisibility();
+    // const auto& batches = camera->getScene()->getBatches();
+    // for (auto* batch : batches) {
+    //     if (!(cameraVisFlags & batch->getVisFlags())) {
+    //         continue;
+    //     }
+    //     const auto& passes = batch->getPasses();
+    //     for (size_t i = 0; i < batch->getShaders().size(); ++i) {
+    //         const scene::Pass* pass = passes[i];
+    //         if (pass->getPhaseID() != phaseLayoutID) {
+    //             continue;
+    //         }
+    //         auto* shader = batch->getShaders()[i];
+    //         auto* inputAssembler = batch->getInputAssembler();
+    //         auto* ds = batch->getDescriptorSet();
+    //         auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+    //             pass, shader, inputAssembler, renderPass);
+    //         cmdBuff->bindPipelineState(pso);
+    //         cmdBuff->bindDescriptorSet(
+    //             static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
+    //             pass->getDescriptorSet());
+    //         cmdBuff->bindInputAssembler(inputAssembler);
+    //         cmdBuff->bindDescriptorSet(
+    //             static_cast<uint32_t>(pipeline::SetIndex::LOCAL), ds);
+    //         cmdBuff->draw(batch->getDrawInfo());
+    //     }
+    // }
 }
 
 void submitProfilerCommands(
     RenderGraphVisitorContext& ctx,
     RenderGraph::vertex_descriptor vertID,
     const RasterPass& rasterPass) {
-    const auto* profiler = ctx.ppl->getProfiler();
-    if (!profiler || !profiler->isEnabled()) {
-        return;
-    }
-    auto* renderPass = ctx.currentPass;
-    auto* cmdBuff = ctx.cmdBuff;
-    const auto& submodel = profiler->getSubModels()[0];
-    auto* pass = submodel->getPass(0);
-    auto* ia = submodel->getInputAssembler();
-    auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
-        pass, submodel->getShader(0), ia, renderPass);
+    // const auto* profiler = ctx.ppl->getProfiler();
+    // if (!profiler || !profiler->isEnabled()) {
+    //     return;
+    // }
+    // auto* renderPass = ctx.currentPass;
+    // auto* cmdBuff = ctx.cmdBuff;
+    // const auto& submodel = profiler->getSubModels()[0];
+    // auto* pass = submodel->getPass(0);
+    // auto* ia = submodel->getInputAssembler();
+    // auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+    //     pass, submodel->getShader(0), ia, renderPass);
 
-    // profiler pass
-    gfx::Viewport profilerViewport{};
-    gfx::Rect profilerScissor{};
-    profilerViewport.width = profilerScissor.width = rasterPass.width;
-    profilerViewport.height = profilerScissor.height = rasterPass.height;
-    cmdBuff->setViewport(profilerViewport);
-    cmdBuff->setScissor(profilerScissor);
+    //// profiler pass
+    // gfx::Viewport profilerViewport{};
+    // gfx::Rect profilerScissor{};
+    // profilerViewport.width = profilerScissor.width = rasterPass.width;
+    // profilerViewport.height = profilerScissor.height = rasterPass.height;
+    // cmdBuff->setViewport(profilerViewport);
+    // cmdBuff->setScissor(profilerScissor);
 
-    auto* passSet = ctx.profilerPerPassDescriptorSets.at(vertID);
-    CC_ENSURES(passSet);
+    // auto* passSet = ctx.profilerPerPassDescriptorSets.at(vertID);
+    // CC_ENSURES(passSet);
 
-    cmdBuff->bindPipelineState(pso);
-    cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::GLOBAL), passSet);
-    cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass->getDescriptorSet());
-    cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::LOCAL), submodel->getDescriptorSet());
-    cmdBuff->bindInputAssembler(ia);
-    cmdBuff->draw(ia);
+    // cmdBuff->bindPipelineState(pso);
+    // cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::GLOBAL), passSet);
+    // cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass->getDescriptorSet());
+    // cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::LOCAL), submodel->getDescriptorSet());
+    // cmdBuff->bindInputAssembler(ia);
+    // cmdBuff->draw(ia);
 }
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
@@ -376,42 +376,38 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             submitBarriers(barrier.rearBarriers);
         }
     }
-    void tryBindPassDescriptorSet(RenderGraph::vertex_descriptor passOrSubpassID) const {
-        auto iter = ctx.renderGraphDescriptorSet.find(passOrSubpassID);
-        if (iter != ctx.renderGraphDescriptorSet.end()) {
-            CC_ENSURES(get<0>(iter->second));
+    void tryBindPassDescriptorSet(RenderGraph::vertex_descriptor nodeId) const {
+        const DescriptorSetKey key{nodeId, UpdateFrequency::PER_PASS};
+        auto iter = ctx.ppl->nativeContext.graphNodeDescriptorSets.find(key);
+        if (iter != ctx.ppl->nativeContext.graphNodeDescriptorSets.end()) {
+            auto* passSet = iter->second;
+            CC_EXPECTS(passSet);
             ctx.cmdBuff->bindDescriptorSet(
                 static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
-                get<0>(iter->second));
+                passSet);
         }
     }
-    void tryBindQueueDescriptorSets(RenderGraph::vertex_descriptor queueID) const {
-        auto iter = ctx.renderGraphDescriptorSet.find(queueID);
-        if (iter != ctx.renderGraphDescriptorSet.end()) {
-            const auto& [passSet, queueSet] = iter->second;
-            CC_EXPECTS(passSet || queueSet);
-            if (passSet) {
-                ctx.cmdBuff->bindDescriptorSet(
-                    static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
-                    passSet);
-            }
-            if (queueSet) {
-                static_assert(static_cast<uint32_t>(pipeline::SetIndex::COUNT) == 3);
-                ctx.cmdBuff->bindDescriptorSet(
-                    static_cast<uint32_t>(pipeline::SetIndex::COUNT),
-                    queueSet);
-            }
-        }
-    }
-    void tryBindLeafOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor leafID) const {
-        auto iter = ctx.renderGraphDescriptorSet.find(leafID);
-        if (iter != ctx.renderGraphDescriptorSet.end()) {
-            CC_ENSURES(get<0>(iter->second));
+    void tryBindQueueDescriptorSets(RenderGraph::vertex_descriptor queueId) const {
+        const DescriptorSetKey key{queueId, UpdateFrequency::PER_PHASE};
+        auto iter = ctx.ppl->nativeContext.graphNodeDescriptorSets.find(key);
+        if (iter != ctx.ppl->nativeContext.graphNodeDescriptorSets.end()) {
+            auto* phaseSet = iter->second;
+            CC_EXPECTS(phaseSet);
+            static_assert(static_cast<uint32_t>(pipeline::SetIndex::COUNT) == 3);
             ctx.cmdBuff->bindDescriptorSet(
-                static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
-                get<0>(iter->second));
+                static_cast<uint32_t>(pipeline::SetIndex::COUNT),
+                phaseSet);
         }
     }
+    // void tryBindLeafOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor leafID) const {
+    //     auto iter = ctx.ppl->nativeContext.graphNodeDescriptorSets.find(leafID);
+    //     if (iter != ctx.ppl->nativeContext.graphNodeDescriptorSets.end()) {
+    //         CC_ENSURES(get<0>(iter->second));
+    //         ctx.cmdBuff->bindDescriptorSet(
+    //             static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
+    //             get<0>(iter->second));
+    //     }
+    // }
     void tryBindUIOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor sceneID) const {
         auto iter = ctx.uiDescriptorSet.find(sceneID);
         if (iter != ctx.uiDescriptorSet.end()) {
@@ -680,15 +676,16 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         } else {
             ctx.viewportStack.emplace_back();
         }
-
+        tryBindPassDescriptorSet(vertID);
         tryBindQueueDescriptorSets(vertID);
     }
     void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto* const camera = sceneData.camera;
         CC_EXPECTS(camera);
-        if (camera) { // update camera data
-            tryBindLeafOverwritePerPassDescriptorSet(sceneID);
-        }
+        
+        tryBindPassDescriptorSet(sceneID);
+        tryBindQueueDescriptorSets(sceneID);
+
         const auto* scene = camera->getScene();
         const auto& queueDesc = ctx.context.sceneCulling.renderQueueQueryIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
@@ -767,9 +764,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& programLib = *dynamic_cast<const NativeProgramLibrary*>(ctx.programLib);
         CC_EXPECTS(blit.material);
         CC_EXPECTS(blit.material->getPasses());
-        if (blit.camera) {
-            tryBindLeafOverwritePerPassDescriptorSet(vertID);
-        }
+
+        tryBindPassDescriptorSet(vertID);
+        tryBindQueueDescriptorSets(vertID);
+        
         // get pass
         auto& pass = *blit.material->getPasses()->at(static_cast<size_t>(blit.passID));
         // get shader
@@ -1050,7 +1048,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 #endif
                 mountResources(pass);
 
-                NativePipeline::prepareDescriptors(ctx, vertID);
+                ctx.ppl->prepareDescriptorSets(*ctx.cmdBuff, ctx.fgd, vertID);
+                // NativePipeline::prepareDescriptors(ctx, vertID);
 
                 // execute render pass
                 frontBarriers(vertID);
@@ -1065,7 +1064,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             [&](const ComputePass& pass) {
                 mountResources(pass);
 
-                NativePipeline::prepareDescriptors(ctx, vertID);
+                ctx.ppl->prepareDescriptorSets(*ctx.cmdBuff, ctx.fgd, vertID);
+                // NativePipeline::prepareDescriptors(ctx, vertID);
 
                 frontBarriers(vertID);
                 begin(pass, vertID);
