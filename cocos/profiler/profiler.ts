@@ -169,49 +169,50 @@ export class Profiler extends System {
     }
 
     public hideStats (): void {
-        if (this._showFPS) {
-            this._profilerStats = null;
-            if (this._rootNode) {
-                this._rootNode.destroy();
-                this._rootNode = null;
+        const self = this;
+        if (self._showFPS) {
+            self._profilerStats = null;
+            if (self._rootNode) {
+                self._rootNode.destroy();
+                self._rootNode = null;
             }
-            this._device = null;
-            this._swapchain = null;
-            if (this._meshRenderer) {
-                this._meshRenderer.destroy();
-                this._meshRenderer = null!;
+            self._device = null;
+            self._swapchain = null;
+            const meshRenderer = self._meshRenderer;
+            if (meshRenderer) {
+                meshRenderer.sharedMaterial?.destroy();
+                meshRenderer.mesh?.destroy();
+                meshRenderer.destroy();
+                self._meshRenderer = null!;
             }
-            this._canvas = null;
-            this._ctx = null;
-            if (this._texture) {
-                this._texture.destroy();
-                this._texture = null;
+            self._canvas = null;
+            self._ctx = null;
+            if (self._texture) {
+                self._texture.destroy();
+                self._texture = null;
             }
 
-            this._canvasArr.length = 0;
-            this.digitsData = null!;
-            this.offsetData = null!;
-            if (this.pass) {
-                this.pass.destroy();
-                this.pass = null!;
-            }
-            this._canvasDone = false;
-            this._statsDone = false;
-            this._inited = false;
+            self._canvasArr.length = 0;
+            self.digitsData = null!;
+            self.offsetData = null!;
+            self.pass = null!; // Pass was destroyed in the material
+            self._canvasDone = false;
+            self._statsDone = false;
+            self._inited = false;
 
-            this._wordHeight = 0;
-            this._eachNumWidth = 0;
-            this._totalLines = 0;
-            this.lastTime = 0;
+            self._wordHeight = 0;
+            self._eachNumWidth = 0;
+            self._totalLines = 0;
+            self.lastTime = 0;
 
-            director.off(DirectorEvent.BEFORE_UPDATE, this.beforeUpdate, this);
-            director.off(DirectorEvent.AFTER_UPDATE, this.afterUpdate, this);
-            director.off(DirectorEvent.BEFORE_PHYSICS, this.beforePhysics, this);
-            director.off(DirectorEvent.AFTER_PHYSICS, this.afterPhysics, this);
-            director.off(DirectorEvent.BEFORE_DRAW, this.beforeDraw, this);
-            director.off(DirectorEvent.AFTER_RENDER, this.afterRender, this);
-            director.off(DirectorEvent.AFTER_DRAW, this.afterPresent, this);
-            this._showFPS = false;
+            director.off(DirectorEvent.BEFORE_UPDATE, self.beforeUpdate, self);
+            director.off(DirectorEvent.AFTER_UPDATE, self.afterUpdate, self);
+            director.off(DirectorEvent.BEFORE_PHYSICS, self.beforePhysics, self);
+            director.off(DirectorEvent.AFTER_PHYSICS, self.afterPhysics, self);
+            director.off(DirectorEvent.BEFORE_DRAW, self.beforeDraw, self);
+            director.off(DirectorEvent.AFTER_RENDER, self.afterRender, self);
+            director.off(DirectorEvent.AFTER_DRAW, self.afterPresent, self);
+            self._showFPS = false;
             director.root!.pipeline.profiler = null;
             cclegacy.game.config.showFPS = false;
         }
