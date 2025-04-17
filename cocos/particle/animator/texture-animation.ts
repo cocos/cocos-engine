@@ -297,4 +297,9 @@ export default class TextureAnimationModule extends ParticleModuleBase {
             }
         }
     }
+
+    public scaleNumTilesXY (scale: number) {
+        this._numTilesX *= scale;
+        this._numTilesY *= scale;
+    }
 }
