@@ -187,7 +187,9 @@ export class Impl {
             }
 
             MeshRenderData.remove(data);
-            data.removeRenderDrawInfo(this._comp);
+            if (JSB) {
+                this._comp.renderEntity.clearRenderDrawInfos();
+            }
         }
 
         this._renderDataList.length = 0;

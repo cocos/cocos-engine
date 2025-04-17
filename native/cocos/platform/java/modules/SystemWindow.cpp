@@ -57,9 +57,8 @@ void SystemWindow::setWindowHandle(void *handle) {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     //The getWindowHandle interface may have been called earlier, causing _handleMutex to be occupied all the time.
     bool lockSuccess = _handleMutex.try_lock();
-    bool needNotify = _windowHandle == nullptr;
     _windowHandle = handle;
-    if (needNotify) {
+    if (!lockSuccess) {
         _windowHandlePromise.set_value();
     }
     if (lockSuccess) {
@@ -87,10 +86,13 @@ uintptr_t SystemWindow::getWindowHandle() const {
 
 SystemWindow::Size SystemWindow::getViewSize() const {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    CC_ASSERT(_windowHandle);
-    auto *nativeWindow = static_cast<ANativeWindow *>(_windowHandle);
-    return Size{static_cast<float>(ANativeWindow_getWidth(nativeWindow)),
-                static_cast<float>(ANativeWindow_getHeight(nativeWindow))};
+    if (_windowHandle) {
+        auto *nativeWindow = static_cast<ANativeWindow *>(_windowHandle);
+        return Size{static_cast<float>(ANativeWindow_getWidth(nativeWindow)),
+                    static_cast<float>(ANativeWindow_getHeight(nativeWindow))};
+    }
+    // windowHandle may be nullptr when the surfaceView is destroyed.
+    return Size{static_cast<float>(0), static_cast<float>(0)};
 #else
     return Size{static_cast<float>(JNI_NATIVE_GLUE()->getWidth()),
                 static_cast<float>(JNI_NATIVE_GLUE()->getHeight())};

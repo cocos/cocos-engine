@@ -962,6 +962,7 @@ export class Widget extends Component {
         if (target) {
             target.off(NodeEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
             target.off(NodeEventType.SIZE_CHANGED, this._setDirtyByMode, this);
+            target.off(NodeEventType.ANCHOR_CHANGED, this._setDirtyByMode, this);
         }
     }
     protected _setDirtyByMode (): void {

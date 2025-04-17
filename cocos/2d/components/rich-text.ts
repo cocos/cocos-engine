@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, executeInEditMode, executionOrder, help, menu, multiline, type, displayOrder, serializable, editable } from 'cc.decorator';
+import { ccclass, requireComponent, executeInEditMode, executionOrder, help, menu, multiline, type, displayOrder, serializable, editable } from 'cc.decorator';
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
@@ -149,6 +149,7 @@ interface ISegment {
  * 富文本组件。
  */
 @ccclass('cc.RichText')
+@requireComponent(UITransform)
 @help('i18n:cc.RichText')
 @executionOrder(110)
 @menu('2D/RichText')

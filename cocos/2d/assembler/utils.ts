@@ -30,7 +30,8 @@ import { FormatInfos } from '../../gfx';
 
 const _col = new Vec4();
 
-export function fillMeshVertices3D(node: Node, renderer: IBatcher, renderData: RenderData, color: Color): void {
+export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData | null, color: Color): void {
+    if (!renderData) return;
     const chunk = renderData.chunk;
     const dataList = renderData.data;
     const vData = chunk.vb;
@@ -77,7 +78,7 @@ export function fillMeshVertices3D(node: Node, renderer: IBatcher, renderData: R
     meshBuffer.setDirty();
 }
 
-export function updateOpacity(renderData: RenderData, opacity: number): void {
+export function updateOpacity (renderData: RenderData, opacity: number): void {
     const vfmt = renderData.vertexFormat;
     const vb = renderData.chunk.vb;
     let attr; let format; let stride;

@@ -271,8 +271,9 @@ void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, c
 
 void SkeletonRenderer::render(float /*deltaTime*/) {
     if (!_skeleton) return;
-    auto *entity = _entity;
-    entity->clearDynamicRenderDrawInfos();
+    // entity's node may be set to nullptr while component is destroyed.
+    if (!_entity || !_entity->getNode()) return;
+    _entity->clearDynamicRenderDrawInfos();
     _sharedBufferOffset->reset();
     _sharedBufferOffset->clear();
 
@@ -289,7 +290,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     if (_skeleton->getColor().a == 0) {
         return;
     }
-    auto &nodeWorldMat = entity->getNode()->getWorldMatrix();
+    auto &nodeWorldMat = _entity->getNode()->getWorldMatrix();
     // color range is [0.0, 1.0]
     cc::middleware::Color4F color;
     cc::middleware::Color4F darkColor;
@@ -344,7 +345,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             curDrawInfo->setIbCount(curISegLen);
         }
         curDrawInfo = requestDrawInfo(materialLen);
-        entity->addDynamicRenderDrawInfo(curDrawInfo);
+        _entity->addDynamicRenderDrawInfo(curDrawInfo);
         // prepare to fill new segment field
         curBlendMode = slot->getData().getBlendMode();
         switch (curBlendMode) {

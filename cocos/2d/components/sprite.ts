@@ -27,6 +27,7 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame, SpriteFrameEvent } from '../assets/sprite-frame';
+import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Vec2, cclegacy, ccenum, clamp, warnID } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
@@ -564,9 +565,14 @@ export class Sprite extends UIRenderer {
     protected _updateBuiltinMaterial (): Material {
         let mat = super._updateBuiltinMaterial();
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
-            const renderMat = new Material();
-            renderMat.copy(mat, { defines: { SAMPLE_FROM_RT: true } });
-            mat = renderMat;
+            const rtMatName = `rt-${mat.name}`;
+            let rtMat = builtinResMgr.get(rtMatName) as Material | null;
+            if (!rtMat) {
+                rtMat = new Material(rtMatName);
+                rtMat.copy(mat, { defines: { SAMPLE_FROM_RT: true } });
+                builtinResMgr.addAsset(rtMatName, rtMat);
+            }
+            mat = rtMat;
         }
         return mat;
     }

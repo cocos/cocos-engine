@@ -24,7 +24,19 @@
 */
 
 import { DEV, JSB } from 'internal:constants';
-import { CCObject, CCObjectFlags, isCCObject, js, ValueType, isCCClassOrFastDefined, getError, warn, misc, cclegacy } from '../core';
+import {
+    CCObject,
+    CCObjectFlags,
+    isCCObject,
+    js,
+    ValueType,
+    isCCClassOrFastDefined,
+    getError,
+    warn,
+    misc,
+    cclegacy,
+    editorExtrasTag,
+} from '../core';
 import { Prefab } from '../scene-graph/prefab';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';
@@ -45,6 +57,15 @@ type CustomInstantiation = <T>(this: T, instantiated?: T) => T;
 
 function hasImplementedInstantiate (original: any): original is { _instantiate (...args: unknown[]): unknown } {
     return typeof original._instantiate === 'function';
+}
+
+// Used to detect whether the current node is a Mounted node in a PrefabInstance
+function isMountedChild (node: Node): boolean {
+    const editorExtras = node[editorExtrasTag];
+    if (typeof editorExtras === 'object') {
+        return !!((editorExtras as { mountedRoot: Node }).mountedRoot);
+    }
+    return false;
 }
 
 /**
@@ -285,8 +306,8 @@ function instantiateObj (obj: TypedArray | any[] | CCObject, parent: any): any {
                 }
             } else if (parent instanceof Node) {
                 if (obj instanceof Node) {
-                    if (!obj.isChildOf(parent)) {
-                        // should not clone other nodes if not descendant
+                    if (!obj.isChildOf(parent) && !isMountedChild(obj)) {
+                        // should not clone other nodes if not descendant and there is no mounted child
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                         return obj;
                     }

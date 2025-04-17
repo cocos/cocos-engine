@@ -168,6 +168,9 @@ export class BaseRenderData {
         }
     }
 
+    /**
+     * @deprecated Please use RenderEntity.clearRenderDrawInfos instead.
+     */
     public removeRenderDrawInfo (comp: UIRenderer): void {
         if (JSB) {
             const renderEntity: RenderEntity = comp.renderEntity;

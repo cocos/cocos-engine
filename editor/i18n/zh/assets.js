@@ -11,6 +11,7 @@ module.exports = {
         preview: {
             header: '预览',
             resetCameraView: '复位摄像机视图',
+            viewToggle: '切换 2D/3D 视图',
         },
         spine: {
             skin: '皮肤',

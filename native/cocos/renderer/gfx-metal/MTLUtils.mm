@@ -1059,7 +1059,8 @@ NSUInteger mu::highestSupportedFeatureSet(id<MTLDevice> device) {
     NSUInteger maxKnownFeatureSet;
 #if CC_PLATFORM == CC_PLATFORM_IOS
     if (@available(iOS 12.0, *)) {
-        maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily5_v1;
+        // Upgrade to MTLFeatureSet_iOS_GPUFamily5_v1 might cause bug with ASTC.
+        maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily4_v2;
     } else if (@available(iOS 11.0, *)) {
         maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily4_v1;
     } else {

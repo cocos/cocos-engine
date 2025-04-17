@@ -15,10 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup emsdk
-        uses: dumganhar/setup-emsdk@997d2cde2deabda085a11f98e86e842915b0e846
+        uses: mymindstorm/setup-emsdk@v14
         with:
           version: ${{ github.event.inputs.emsdk_version }}
-          actions-cache-folder: 'emsdk-cache-${{ github.event.inputs.emsdk_version }}'
 
       - name: Verify
         run: |

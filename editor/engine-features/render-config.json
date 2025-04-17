@@ -15,14 +15,14 @@
             "description": "i18n:ENGINE.features.gfx_webgl.description",
             "category": "graphics",
             "enginePlugin": true,
-            "envCondition": "$HTML5 || $MINIGAME"
+            "envCondition": "$HTML5 || $MINIGAME || $RUNTIME_BASED"
         },
         "gfx-webgl2": {
             "label": "i18n:ENGINE.features.gfx_webgl2.label",
             "description": "i18n:ENGINE.features.gfx_webgl2.description",
             "category": "graphics",
             "enginePlugin": true,
-            "envCondition": "$HTML5 || $MINIGAME"
+            "envCondition": "$HTML5 || $MINIGAME || $RUNTIME_BASED"
         },
         "gfx-webgpu": {
             "label": "i18n:ENGINE.features.gfx_webgpu.label",
@@ -75,7 +75,8 @@
             "default": false,
             "label": "i18n:ENGINE.features.xr.label",
             "description": "i18n:ENGINE.features.xr.description",
-            "enginePlugin": false
+            "enginePlugin": false,
+            "envCondition": "$NATIVE || $HTML5"
         },
         "rich-text": {
             "default": true,
@@ -379,7 +380,8 @@
             "enginePlugin": false,
             "isNativeModule": true,
             "cmakeConfig": "USE_VENDOR",
-            "hidden": true
+            "hidden": true,
+            "envCondition": "$ANDROID"
         },
         "spine": {
             "label": "i18n:ENGINE.features.spine.label",

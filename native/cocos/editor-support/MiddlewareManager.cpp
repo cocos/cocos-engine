@@ -80,23 +80,24 @@ void MiddlewareManager::update(float dt) {
         auto *editor = _updateList[i];
         editor->update(dt);
     }
-
-    for (auto &iter: _operateCacheMap) {
-        auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
-        if (!iter.second && it != _updateList.end()) {
-             _updateList.erase(it);
-        }
-    }
 }
 
 void MiddlewareManager::render(float dt) {
+    // Object._deferredDestroy is called after component update in Director.tick and before emitting BEFORE_DRAW event in which MiddlewareManager::render is invoked, 
+    // so the native object may be released here and it needs to be erased from _updateList.
+    for (auto &iter : _operateCacheMap) {
+        auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
+        if (!iter.second && it != _updateList.end()) {
+            _updateList.erase(it);
+        }
+    }
+
     for (auto it : _mbMap) {
         auto *buffer = it.second;
         if (buffer) {
             buffer->reset();
         }
     }
-
 
     for (size_t i = 0, len = _updateList.size(); i < len; ++i) {
         auto *editor = _updateList[i];

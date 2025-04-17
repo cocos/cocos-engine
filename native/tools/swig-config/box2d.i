@@ -54,7 +54,6 @@
 %ignore b2Hull::points;
 
 %ignore b2PolygonShape::m_vertices;
-
 %ignore b2PolygonShape::m_normals;
 
 %ignore b2ContactImpulse::normalImpulses;
@@ -62,6 +61,7 @@
 
 %ignore b2ChainShape::CreateLoop;
 %ignore b2ChainShape::CreateChain;
+%ignore b2ChainShape::m_vertices;
 %ignore b2DistanceProxy::Set;
 %ignore b2PolygonShape::Set;
 %ignore b2Joint::Draw;

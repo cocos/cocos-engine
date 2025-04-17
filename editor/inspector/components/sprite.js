@@ -7,13 +7,6 @@ exports.close = close;
 
 const { setHidden, setReadonly, isMultipleInvalid } = require('../utils/prop');
 
-// Query an automatic atlas
-async function findAutoAtlasFolder(spriteFrameUuid) {
-    // auto atlas
-    const info = await Editor.Message.request('builder', 'request-to-build-worker', 'build-worker:query-atlas-by-sprite', spriteFrameUuid);
-    return info && info.uuid;
-}
-
 // query the dom node by type
 function findDomByType(parentElement, type) {
     for (const child of parentElement.children) {
@@ -55,15 +48,10 @@ exports.ready = function() {
                     .then(async (spriteFrameMeta) => {
                         if (!spriteFrameMeta || !spriteFrameMeta.userData) { return; }
 
-                        let autoAtlasUuid = '';
-                        if (!spriteFrameMeta.userData.atlasUuid) {
-                            autoAtlasUuid = await findAutoAtlasFolder(spriteFrameUuid);
-                        }
-
                         const spriteAtlasDom = findDomByType(parentElement, 'cc.SpriteAtlas');
                         if (!spriteAtlasDom) { return; }
 
-                        spriteAtlasDom.value = spriteFrameMeta.userData.atlasUuid || autoAtlasUuid;
+                        spriteAtlasDom.value = spriteFrameMeta.userData.atlasUuid;
                         spriteAtlasDom.dispatch('change');
                         spriteAtlasDom.dispatch('confirm');
                     })

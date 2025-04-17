@@ -310,6 +310,55 @@ bool js_ContactImpulse_tangentImpulses_get(se::State &s) {
 }
 SE_BIND_PROP_GET(js_ContactImpulse_tangentImpulses_get)
 
+bool js_PolygonShape_m_vertices_get(se::State &s) {
+    b2PolygonShape *cobj = SE_THIS_OBJECT<b2PolygonShape>(s);
+    if (nullptr == cobj) return true;
+
+    static ccstd::array<b2Vec2, b2_maxPolygonVertices> vertices;
+    for (size_t i = 0; i < b2_maxPolygonVertices; ++i) {
+        vertices[i] = cobj->m_vertices[i];
+    }
+
+    bool ok = nativevalue_to_se(vertices, s.rval());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    return true;
+}
+SE_BIND_PROP_GET(js_PolygonShape_m_vertices_get)
+
+bool js_PolygonShape_m_normals_get(se::State &s) {
+    b2PolygonShape *cobj = SE_THIS_OBJECT<b2PolygonShape>(s);
+    if (nullptr == cobj) return true;
+
+    static ccstd::array<b2Vec2, b2_maxPolygonVertices> normals;
+    for (size_t i = 0; i < b2_maxPolygonVertices; ++i) {
+        normals[i] = cobj->m_normals[i];
+    }
+
+    bool ok = nativevalue_to_se(normals, s.rval());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    return true;
+}
+SE_BIND_PROP_GET(js_PolygonShape_m_normals_get)
+
+bool js_ChainShape_m_vertices_get(se::State &s) {
+    b2ChainShape *cobj = SE_THIS_OBJECT<b2ChainShape>(s);
+    if (nullptr == cobj) return true;
+
+    ccstd::vector<b2Vec2> vertices;
+    vertices.reserve(cobj->m_count);
+    for (size_t i = 0; i < cobj->m_count; ++i) {
+        vertices.emplace_back(cobj->m_vertices[i]);
+    }
+
+    bool ok = nativevalue_to_se(vertices, s.rval());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    return true;
+}
+SE_BIND_PROP_GET(js_ChainShape_m_vertices_get)
+
 } // namespace {
 
 bool register_all_box2d_manual(se::Object *obj) { // NOLINT
@@ -341,7 +390,12 @@ bool register_all_box2d_manual(se::Object *obj) { // NOLINT
 
     __jsb_b2ContactImpulse_proto->defineProperty("normalImpulses", _SE(js_ContactImpulse_normalImpulses_get), nullptr);
     __jsb_b2ContactImpulse_proto->defineProperty("tangentImpulses", _SE(js_ContactImpulse_tangentImpulses_get), nullptr);
-
+    
+    __jsb_b2PolygonShape_proto->defineProperty("m_vertices", _SE(js_PolygonShape_m_vertices_get), nullptr);
+    __jsb_b2PolygonShape_proto->defineProperty("m_normals", _SE(js_PolygonShape_m_normals_get), nullptr);
+    
+    __jsb_b2ChainShape_proto->defineProperty("m_vertices", _SE(js_ChainShape_m_vertices_get), nullptr);
+    
     nsObj->setProperty("maxFloat", se::Value(b2_maxFloat));
     nsObj->setProperty("epsilon", se::Value(b2_epsilon));
     nsObj->setProperty("pi", se::Value(b2_pi));

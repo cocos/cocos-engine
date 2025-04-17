@@ -188,7 +188,8 @@ class Simple implements IAssembler {
 export const simple = new Simple();
 
 function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?: Mat4): void {
-    const rd = _renderData!;
+    const rd = _renderData;
+    if (!rd) return;
     _vbuf = rd.chunk.vb;
     _ibuf = rd.indices!;
 
@@ -317,7 +318,8 @@ function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?:
 function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4): void {
     if (!frame) return;
     const segments = frame.segments;
-    if (segments.length === 0) return;
+    const rd = _renderData;
+    if (segments.length === 0 || !rd) return;
 
     let material: MaterialInstance | null = null;
     // let offsetInfo;
@@ -335,7 +337,6 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4): void {
     let maxVFOffset = nowColor.vfOffset!;
     _handleColor(nowColor, 1.0);
 
-    const rd = _renderData!;
     const vbuf = rd.chunk.vb;
     const ibuf = rd.indices!;
 
@@ -422,7 +423,7 @@ function updateComponentRenderData (comp: ArmatureDisplay): void {
     comp.drawList.reset();
     _comp = comp;
     _node = comp.node;
-    _renderData = comp.renderData!;
+    _renderData = comp.renderData;
     _comp = comp;
     _handleVal = 0;
     _currentMaterial = null;

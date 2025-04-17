@@ -56,8 +56,8 @@ class Letter extends LetterFont implements IAssembler {
     }
 
     updateColor (label: Label): void {
-        if (JSB) {
-            const renderData = label.renderData!;
+        const renderData = label.renderData;
+        if (JSB && renderData) {
             const vertexCount = renderData.vertexCount;
             if (vertexCount === 0) return;
             const vData = renderData.chunk.vb;

@@ -1562,16 +1562,16 @@ export class TiledLayer extends UIRenderer {
                 });
             } else {
                 const td = m;
-                if (td.texture) {
+                if (td.texture && td.renderData) {
                     if (!this._drawInfoList[idx]) {
                         this._drawInfoList[idx] = new RenderDrawInfo();
                     }
                     const drawInfo = this._drawInfoList[idx];
-                    td.renderData!.fillDrawInfoAttributes(drawInfo);
+                    td.renderData.fillDrawInfoAttributes(drawInfo);
                     drawInfo.setTexture(td.texture.getGFXTexture());
                     drawInfo.setSampler(td.texture.getGFXSampler());
                     drawInfo.setMaterial(this.getRenderMaterial(0)!);
-                    this.fillIndicesBuffer(td.renderData!, drawInfo);
+                    this.fillIndicesBuffer(td.renderData, drawInfo);
                     entity.setDynamicRenderDrawInfo(drawInfo, idx);
                     idx++;
                 }

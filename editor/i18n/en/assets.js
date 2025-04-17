@@ -11,6 +11,7 @@ module.exports = {
         preview: {
             header: 'Preview',
             resetCameraView: 'Reset camera view',
+            viewToggle: 'Toggle the 2D/3D view',
         },
         spine: {
             skin: 'Skin',
