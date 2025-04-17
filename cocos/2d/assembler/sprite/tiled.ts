@@ -31,6 +31,7 @@ import type { Sprite } from '../../components/sprite';
 import type { UIRenderer } from '../../framework/ui-renderer';
 import type { IAssembler } from '../../renderer/base';
 import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const m = new Mat4();
 
@@ -69,6 +70,8 @@ class Tiled implements IAssembler {
         if (!frame || !renderData) {
             return;
         }
+
+        dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
 
         if (!renderData.vertDirty) {
             return;

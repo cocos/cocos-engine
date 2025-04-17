@@ -399,7 +399,8 @@ class RadialFilled implements IAssembler {
 
     fillBuffers (comp: Sprite, renderer: IBatcher): void {
         const node = comp.node;
-        const renderData: RenderData = comp.renderData!;
+        const renderData = comp.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         if (comp._flagChangedVersion !== node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexAndUVData(comp, chunk);
@@ -423,7 +424,8 @@ class RadialFilled implements IAssembler {
     }
 
     private updateWorldUVData (sprite: Sprite): void {
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = renderData.chunk.vb;
@@ -439,9 +441,10 @@ class RadialFilled implements IAssembler {
         const node = sprite.node;
         node.getWorldMatrix(m);
 
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const stride = renderData.floatStride;
-        const dataList = sprite.renderData!.data;
+        const dataList = sprite.renderData.data;
         const vData = chunk.vb;
         const vertexCount = renderData.vertexCount;
 
@@ -465,14 +468,16 @@ class RadialFilled implements IAssembler {
     // dirty Mark
     // the real update uv is on updateWorldUVData
     updateUVs (sprite: Sprite): void {
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         renderData.vertDirty = true;
         sprite._markForUpdateRenderData();
     }
 
     // fill color here
     private updateColorLate (sprite: Sprite): void {
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
         const vertexCount = renderData.vertexCount;

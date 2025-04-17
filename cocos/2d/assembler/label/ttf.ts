@@ -76,7 +76,8 @@ export class TTF extends TTFUtils implements IAssembler {
     }
 
     fillBuffers (comp: Label, renderer: IBatcher): void {
-        const renderData = comp.renderData!;
+        const renderData = comp.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;

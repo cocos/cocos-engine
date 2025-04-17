@@ -76,7 +76,8 @@ class BarFilled implements IAssembler {
 
     updateUVs (sprite: Sprite, fillStart: number, fillEnd: number): void {
         const spriteFrame = sprite.spriteFrame!;
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
 
         // build uvs
@@ -155,7 +156,8 @@ class BarFilled implements IAssembler {
 
     private updateVertexData (sprite: Sprite, fillStart: number, fillEnd: number): void {
         const renderData: RenderData | null = sprite.renderData;
-        const dataList: IRenderData[] = renderData!.data;
+        if (!renderData) return;
+        const dataList: IRenderData[] = renderData.data;
         const uiTrans = sprite.node._getUITransformComp()!;
         const width = uiTrans.width;
         const height = uiTrans.height;
@@ -215,9 +217,10 @@ class BarFilled implements IAssembler {
         const node = sprite.node;
         node.getWorldMatrix(m);
 
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const stride = renderData.floatStride;
-        const dataList = sprite.renderData!.data;
+        const dataList = sprite.renderData.data;
         const vData = chunk.vb;
 
         let offset = 0;
@@ -236,7 +239,8 @@ class BarFilled implements IAssembler {
     }
 
     fillBuffers (sprite: Sprite, renderer: IBatcher): void {
-        const renderData: RenderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexData(sprite, chunk);
@@ -259,7 +263,8 @@ class BarFilled implements IAssembler {
     }
 
     updateColor (sprite: Sprite): void {
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
         let colorOffset = 5;

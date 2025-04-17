@@ -571,6 +571,10 @@ public:
                 }
                 // NOLINTNEXTLINE
                 events::WindowDestroy::broadcast(ISystemWindow::mainWindowId);
+
+                auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
+                auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(ISystemWindow::mainWindowId));
+                window->setWindowHandle(nullptr);
                 break;
             }
             case APP_CMD_GAINED_FOCUS:

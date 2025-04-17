@@ -54,6 +54,14 @@ export class AnimationManager extends System {
     private _blendStateBuffer: LegacyBlendStateBuffer = new LegacyBlendStateBuffer();
     private _sockets: ISocketData[] = [];
 
+    /**
+     * @en Get the array of all the animation state.
+     * @zh 获取所有动画状态的数组。
+     */
+    public get animationStates (): ReadonlyArray<AnimationState> {
+        return this._anims.array;
+    }
+
     public addCrossFade (crossFade: CrossFade): void {
         const index = this._crossFades.array.indexOf(crossFade);
         if (index === -1) {

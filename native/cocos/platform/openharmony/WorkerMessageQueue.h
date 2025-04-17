@@ -48,8 +48,9 @@ enum class MessageType {
 
 struct WorkerMessageData {
     MessageType type;
-    void* data;
-    void* window;
+    void* data{nullptr};
+    void* window{nullptr};
+    void* syncContext{nullptr};
 };
 
 class WorkerMessageQueue final {

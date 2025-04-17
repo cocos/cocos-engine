@@ -46,6 +46,69 @@
 #include <sstream>
 
 namespace {
+
+class SyncContext {
+private:
+    std::atomic<int> _refCount{1};
+    uv_cond_t _cond{};
+    uv_mutex_t _mutex{};
+    bool _completed{false};
+public:
+    
+    enum class WAIT_RET_CODE {
+        SUCCEED = 0,
+        TIMEOUT,
+    };
+    
+    SyncContext() {
+        CC_LOG_INFO("Create SyncContext: %p", this);
+        uv_mutex_init(&_mutex);
+        uv_cond_init(&_cond);
+    }
+    
+    ~SyncContext() {
+        CC_LOG_INFO("Destroy SyncContext: %p", this);
+        uv_mutex_destroy(&_mutex);
+        uv_cond_destroy(&_cond);
+    }
+    
+    WAIT_RET_CODE wait_for(uint64_t nanoSeconds) {
+        WAIT_RET_CODE ret = WAIT_RET_CODE::SUCCEED;
+        uv_mutex_lock(&_mutex);
+    
+        // Use a while loop to check the completed flag to avoid spurious wakeup.
+        while (!_completed) {
+            int r = uv_cond_timedwait(&_cond, &_mutex, nanoSeconds);
+            if (r == UV_ETIMEDOUT) {
+                ret = WAIT_RET_CODE::TIMEOUT;
+                break;
+            }
+        }
+        uv_mutex_unlock(&_mutex);
+        return ret;
+    }
+    
+    void notify() {
+        uv_mutex_lock(&_mutex);
+        _completed = true;
+        uv_cond_signal(&_cond);
+        uv_mutex_unlock(&_mutex);
+    }
+    
+    void addRef() {
+        ++_refCount;
+    }
+    
+    void release() {
+        --_refCount;
+        int ref = _refCount;
+        if (ref == 0) {
+            delete this;
+        }
+    }
+    
+};
+
 void sendMsgToWorker(const cc::MessageType& type, void* data, void* window) {
     cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
     CC_ASSERT(platform != nullptr);
@@ -53,7 +116,15 @@ void sendMsgToWorker(const cc::MessageType& type, void* data, void* window) {
     platform->enqueue(msg);
 }
 
+void sendMsgToWorkerAndWait(const cc::MessageType& type, void* data, void* window) {
+    cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
+    CC_ASSERT(platform != nullptr);
+    cc::WorkerMessageData msg{type, static_cast<void*>(data), window};
+    platform->enqueueAndWait(msg);
+}
+
 void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
+    CC_LOG_INFO("onSurfaceCreatedCB, component: %p, window: %p");
     // It is possible that when the message is sent, the worker thread has not yet started.
     //sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CREATED, component, window);
     cc::ISystemWindowInfo info;
@@ -70,17 +141,22 @@ void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
 }
 
 void onSurfaceHideCB(OH_NativeXComponent* component, void* window) {
+    CC_LOG_INFO("onSurfaceHideCB begin, component: %p, window: %p");
     int32_t ret;
     char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
     ret = OH_NativeXComponent_GetXComponentId(component, idStr, &idSize);
     if(ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+        CC_LOG_ERROR("onSurfaceHideCB, OH_NativeXComponent_GetXComponentId failed: %d", ret);
         return;
     }
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_HIDE, component, window);
+    sendMsgToWorkerAndWait(cc::MessageType::WM_XCOMPONENT_SURFACE_HIDE, component, window);
+    
+    CC_LOG_INFO("onSurfaceHideCB end, component: %p, window: %p");
 }
 
 void onSurfaceShowCB(OH_NativeXComponent* component, void* window) {
+    CC_LOG_INFO("onSurfaceShowCB, component: %p, window: %p");
     int32_t ret;
     char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
@@ -198,10 +274,44 @@ void OpenHarmonyPlatform::enqueue(const WorkerMessageData& msg) {
     triggerMessageSignal();
 }
 
+void OpenHarmonyPlatform::enqueueAndWait(WorkerMessageData& msg) {
+    SyncContext* syncContext = new SyncContext(); // ref -> 1
+    syncContext->addRef(); // ref -> 2
+    msg.syncContext = syncContext;
+    _messageQueue.enqueue(msg);
+    auto *oldWorkerLoop = _workerLoop;
+    triggerMessageSignal();
+
+    auto oldTime = std::chrono::steady_clock::now();
+    static const uint64_t SYNC_TIMEOUT_NANO_SECONDS = 300 * 1000 * 1000; // 300ms
+    static const uint32_t WAIT_COUNT = 10;
+
+    SyncContext::WAIT_RET_CODE waitRet = SyncContext::WAIT_RET_CODE::SUCCEED;
+    for (uint32_t i = 0; i < WAIT_COUNT; ++i) {
+        waitRet = syncContext->wait_for(SYNC_TIMEOUT_NANO_SECONDS); // not timeout, after wait: ref -> 1 ; timeout, after wait: ref still -> 2
+        if (waitRet == SyncContext::WAIT_RET_CODE::SUCCEED) {
+            break;
+        }
+        if (oldWorkerLoop == nullptr) {
+            CC_LOG_INFO("oldWorkerLoop is nullptr, current: %p", _workerLoop);
+            triggerMessageSignal();
+            oldWorkerLoop = _workerLoop;
+        }
+        CC_LOG_INFO("enqueueAndWait timeout 300ms, index: %u, try again", i);
+    }
+
+    auto nowTime = std::chrono::steady_clock::now();
+    auto interval = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(nowTime - oldTime).count());
+    CC_LOG_INFO("enqueueAndWait: %.03f ms, waitRet: %d", interval / 1000 / 1000, static_cast<int>(waitRet));
+    syncContext->release(); // not timeout, ref -> 0; timeout, ref -> 1, will be released in event handle callback
+}
+
 void OpenHarmonyPlatform::triggerMessageSignal() {
     if (_workerLoop != nullptr) {
         // It is possible that when the message is sent, the worker thread has not yet started.
         uv_async_send(&_messageSignal);
+    } else {
+        CC_LOG_WARNING("triggerMessageSignal, _workerLoop is not created");
     }
 }
 
@@ -246,6 +356,12 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
                 CC_ASSERT(nativexcomponet != nullptr);        
                 platform->onSurfaceHide();
+                
+                auto *ctx = reinterpret_cast<SyncContext*>(msgData.syncContext);
+                if (ctx) {
+                    ctx->notify();
+                    ctx->release();
+                }
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_DESTROY) {
                 CC_LOG_INFO("onMessageCallback WM_XCOMPONENT_SURFACE_DESTROY ...");
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
@@ -274,6 +390,7 @@ void OpenHarmonyPlatform::onCreateNative(napi_env env, uv_loop_t* loop) {
 }
 
 void OpenHarmonyPlatform::onShowNative() {
+    CC_LOG_INFO("OpenHarmonyPlatform::onShowNative");
     WindowEvent ev;
     ev.type = WindowEvent::Type::SHOW;
     ev.windowId = cc::ISystemWindow::mainWindowId;
@@ -285,6 +402,7 @@ void OpenHarmonyPlatform::onShowNative() {
 }
 
 void OpenHarmonyPlatform::onHideNative() {
+    CC_LOG_INFO("OpenHarmonyPlatform::onHideNative");
     WindowEvent ev;
     ev.type = WindowEvent::Type::HIDDEN;
     ev.windowId = cc::ISystemWindow::mainWindowId;
@@ -296,6 +414,7 @@ void OpenHarmonyPlatform::onHideNative() {
 }
 
 void OpenHarmonyPlatform::onDestroyNative() {
+    CC_LOG_INFO("OpenHarmonyPlatform::onDestroyNative");
     onDestroy();
      if (_timerInited) {
         uv_timer_stop(&_timerHandle);
@@ -311,11 +430,14 @@ void OpenHarmonyPlatform::restartJSVM() {
 }
 
 void OpenHarmonyPlatform::workerInit(uv_loop_t* loop) {
+    CC_LOG_INFO("workerInit: %p", loop);
     _workerLoop = loop;
     if (_workerLoop) {
         uv_timer_init(_workerLoop, &_timerHandle);
         _timerInited = true;
+        
         uv_async_init(_workerLoop, &_messageSignal, reinterpret_cast<uv_async_cb>(OpenHarmonyPlatform::onMessageCallback));
+        
         if (!_messageQueue.empty()) {
             triggerMessageSignal(); // trigger the signal to handle the pending message
         }
@@ -352,11 +474,13 @@ void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, voi
 }
 
 void OpenHarmonyPlatform::onSurfaceHide() {
-
+    CC_LOG_INFO("OpenHarmonyPlatform::onSurfaceHide");
+    events::WindowDestroy::broadcast(ISystemWindow::mainWindowId);
 }
 
 void OpenHarmonyPlatform::onSurfaceShow(void* window) {
-
+    CC_LOG_INFO("OpenHarmonyPlatform::onSurfaceShow");
+    events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);
 }
 
 

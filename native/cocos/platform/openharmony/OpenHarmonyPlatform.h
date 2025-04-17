@@ -61,6 +61,7 @@ public:
     void requestVSync();
 
     void enqueue(const WorkerMessageData& data);
+    void enqueueAndWait(WorkerMessageData& data);
     bool dequeue(WorkerMessageData* data);
 
     void triggerMessageSignal();

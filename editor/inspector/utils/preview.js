@@ -303,8 +303,8 @@ class PreviewControl {
 
     async _onMouseWheel(event) {
         await this.callPreviewFunction('onMouseWheel', {
-            wheelDeltaY: 0 - event.deltaY,
-            wheelDeltaX: 0 - event.deltaX,
+            wheelDeltaY: event.deltaY,
+            wheelDeltaX: event.deltaX,
         });
 
         this._isDirty = true;
