@@ -636,8 +636,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
-            let _texture = mat.getProperty('mainTexture', 0) as Texture2D;
-            if (_texture && _texture.isAlphaAtlas) {
+            const texture = mat.getProperty('mainTexture', 0) as Texture2D;
+            if (texture && texture.isAlphaAtlas) {
                 textureModule.scaleNumTilesXY(2);
                 this._defines[CC_USE_EMBEDDED_ALPHA] = true;
             }
