@@ -242,4 +242,9 @@ export default class TextureAnimationModule {
             }
         }
     }
+
+    public scaleNumTilesXY (scale: number) {
+        this._numTilesX *= scale;
+        this._numTilesY *= scale;
+    }
 }

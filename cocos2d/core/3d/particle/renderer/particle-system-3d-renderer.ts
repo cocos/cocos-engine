@@ -379,13 +379,13 @@ export default class ParticleSystem3DAssembler extends Assembler {
             console.warn(`particle system renderMode ${this._particleSystem.renderMode} not support.`);
         }
 
-        if (this._particleSystem.textureAnimationModule.enable) {
+        const textureModule = this._particleSystem.textureAnimationModule;
+        if (textureModule && textureModule.enable) {
             let _texture = mat.getProperty("mainTexture");
             if (_texture && _texture._isAlphaAtlas) {
-                this._particleSystem.textureAnimationModule._numTilesX *= 2;
-                this._particleSystem.textureAnimationModule._numTilesY *= 2;
+                textureModule.scaleNumTilesXY(2);
             }
-            Vec2.set(this.frameTile_velLenScale, this._particleSystem.textureAnimationModule.numTilesX, this._particleSystem.textureAnimationModule.numTilesY);
+            Vec2.set(this.frameTile_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
         }
 
         mat.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
