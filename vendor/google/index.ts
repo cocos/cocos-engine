@@ -26,39 +26,43 @@
 import './billing/billing-enum';
 import './play/play-enum';
 
+import { TaskHelper, ContinuationHelper } from './play/task';
+
 export declare namespace google {
     export namespace billing {
-        export interface UserChoiceDetailsProduct {
-            /**
-             * @en Hash code
-             * @zh hash值
-             */
-            hashCode(): number;
-            /**
-             * @en Returns the id of the product being purchased.
-             * @zh 返回所购买产品的 ID。
-             */
-            getId(): string;
-            /**
-             * @en Returns the offer token that was passed in launchBillingFlow to purchase the product.
-             * @zh 返回在 launchBillingFlow 中传递的用于购买产品的优惠令牌。
-             */
-            getOfferToken(): string;
-            /**
-             * @en Returns the ProductType of the product being purchased.
-             * @zh 返回ProductType所购买产品的。
-             */
-            getType(): string;
-            /**
-             * @en To string
-             * @zh 转换成字符串
-             */
-            toString(): string;
-            /**
-             * @en Is it equal to another UserChoiceDetailsProduct.
-             * @zh 判断与另一个UserChoiceDetailsProduct是否相等。
-             */
-            equals(product: UserChoiceDetailsProduct): boolean;
+        export namespace UserChoiceDetails {
+            export interface Product {
+                /**
+                 * @en Hash code
+                 * @zh hash值
+                 */
+                hashCode(): number;
+                /**
+                 * @en Returns the id of the product being purchased.
+                 * @zh 返回所购买产品的 ID。
+                 */
+                getId(): string;
+                /**
+                 * @en Returns the offer token that was passed in launchBillingFlow to purchase the product.
+                 * @zh 返回在 launchBillingFlow 中传递的用于购买产品的优惠令牌。
+                 */
+                getOfferToken(): string;
+                /**
+                 * @en Returns the ProductType of the product being purchased.
+                 * @zh 返回ProductType所购买产品的。
+                 */
+                getType(): string;
+                /**
+                 * @en To string
+                 * @zh 转换成字符串
+                 */
+                toString(): string;
+                /**
+                 * @en Is it equal to another UserChoiceDetails.Product.
+                 * @zh 判断与另一个UserChoiceDetails.Product是否相等。
+                 */
+                equals(product: Product): boolean;
+            }
         }
         export class UserChoiceDetails {
             /**
@@ -75,7 +79,7 @@ export declare namespace google {
              * @en Returns a list of Product to be purchased in the user choice alternative billing flow.
              * @zh Product返回用户选择替代计费流程中要购买的商品列表。
              */
-            getProducts(): UserChoiceDetailsProduct[];
+            getProducts(): UserChoiceDetails.Product[];
         }
 
         /**
@@ -299,7 +303,7 @@ export declare namespace google {
             getPurchaseToken(): string;
             /**
              * @en The product ids.
-             * @zh 产品 ID。
+             * @zh 产品 ids。
              */
             getProducts(): string[];
         }
@@ -444,7 +448,7 @@ export declare namespace google {
 
         /**
          * @en The details used to report transactions made via alternative billing without user choice to use Google Play Billing.
-         * @zh 用于报告用户未选择使用 Google Play Billing方式而通过替代Billing方式进行的交易的详细信息。
+         * @zh 用于报告用户未选择使用 Google Play Billing 方式而通过替代Billing方式进行的交易的详细信息。
          */
         export interface AlternativeBillingOnlyReportingDetails {
             /**
@@ -491,18 +495,18 @@ export declare namespace google {
         export namespace BillingResult {
             export interface Builder {
                 /**
-                 * @en Setting up debugging information for the in-app Billing APi.
-                 * @zh 设置应用内Billing APi的调试信息。
+                 * @en Setting up debugging information for the in-app Billing API.
+                 * @zh 设置应用内 Billing API 的调试信息。
                  */
                 setDebugMessage(productType: string): Builder;
                 /**
-                 * @en Setting the response code for the in-app in-app Billing APi.
-                 * @zh 设置应用内Billing APi的响应代码。
+                 * @en Setting the response code for the in-app in-app Billing API.
+                 * @zh 设置应用内 Billing API 的响应代码。
                  */
                 setResponseCode(productType: number): Builder;
                 /**
                  * @en Returns BillingResult reference.
-                 * @zh 返回BillingResult的引用。
+                 * @zh 返回 BillingResult 的引用。
                  */
                 build(): BillingResult;
             }
@@ -510,19 +514,19 @@ export declare namespace google {
 
         /**
          * @en Params containing the response code and the debug message from In-app Billing API response.
-         * @zh 参数包含来自应用内结算 API 响应的响应代码和调试消息。
+         * @zh 参数包含来自应用内 Billing API 响应的响应代码和调试消息。
          */
         export class BillingResult {
             private constructor();
             static Builder: BillingResult.Builder;
             /**
              * @en Response code returned in In-app Billing API calls.
-             * @zh 应用内Billing API 调用中返回的响应代码。
+             * @zh 应用内 Billing API 调用中返回的响应代码。
              */
             getResponseCode(): number;
             /**
              * @en Debug message returned in In-app Billing API calls.
-             * @zh 应用内Billing API 调用中返回的调试消息。
+             * @zh 应用内 Billing API 调用中返回的调试消息。
              */
             getDebugMessage(): string;
             /**
@@ -532,19 +536,19 @@ export declare namespace google {
             toString(): string;
             /**
              * @en Constructs a new BillingResult.Builder instance.
-             * @zh 构造一个新BillingResult.Builder实例。
+             * @zh 构造一个新 BillingResult.Builder 实例。
              */
             public static newBuilder(): BillingResult.Builder;
         }
 
         /**
          * @en Listener interface for the developer-managed alternative billing flow, when it is chosen by the user when initiating a purchase.
-         * @zh 当用户在发起购买时选择由开发人员管理的替代计费流程的监听器接口。
+         * @zh 当用户在发起购买时选择由开发人员管理的替代 Billing 流程的监听器接口。
          */
         export interface UserChoiceBillingListener {
             /**
              * @en Called when a user has selected to make a purchase using user choice billing.
-             * @zh 当用户选择使用用户选择计费进行购买时调用。
+             * @zh 当用户选择使用用户选择 Billing 进行购买时调用。
              */
             userSelectedAlternativeBilling(userChoiceDetails: UserChoiceDetails): void;
         }
@@ -564,7 +568,7 @@ export declare namespace google {
 
         /**
          * @en Callback for setup process. This listener's onBillingSetupFinished method is called when the setup process is complete.
-         * @zh 设置过程的回调。onBillingSetupFinished设置过程完成后，会调用此监听器的方法。
+         * @zh 设置过程的回调。 onBillingSetupFinished 设置过程完成后，会调用此监听器的方法。
          */
         export interface BillingClientStateListener {
             /**
@@ -595,7 +599,7 @@ export declare namespace google {
                 enablePrepaidPlans: () => Builder;
                 /**
                  * @en Returns PendingPurchasesParams reference to enable pending purchases.
-                 * @zh 返回PendingPurchasesParams参考以启用待处理的购买。
+                 * @zh 返回 PendingPurchasesParams 参考以启用待处理的购买。
                  */
                 build: () => PendingPurchasesParams;
             }
@@ -609,7 +613,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回 的一个 Builder 实例。
              */
             public static newBuilder(): google.billing.PendingPurchasesParams.Builder;
         }
@@ -618,7 +622,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回 的一个 Builder 实例。
              */
             public static newBuilder(): QueryProductDetailsParams.Product.Builder;
         }
@@ -648,12 +652,12 @@ export declare namespace google {
                     setProductId: (productID: string) => Builder;
                     /**
                      * @en Sets the ProductType of the product.
-                     * @zh 设置ProductType产品的。
+                     * @zh 设置 ProductType 产品的。
                      */
                     setProductType: (productType: string) => Builder;
                     /**
                      * @en Returns the Product instance.
-                     * @zh 返回Product实例。
+                     * @zh 返回 Product 实例。
                      */
                     build: () => QueryProductDetailsParamsProduct;
                 }
@@ -662,14 +666,14 @@ export declare namespace google {
         }
         /**
          * @en Parameters to initiate a query for Product details queryProductDetailsAsync.
-         * @zh 用于启动产品详细信息查询的参数queryProductDetailsAsync。
+         * @zh 用于启动产品详细信息查询的参数 queryProductDetailsAsync。
          */
         export class QueryProductDetailsParams {
             static Product: typeof google.billing.QueryProductDetailsParamsProduct;
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             public static newBuilder(): QueryProductDetailsParams.Builder;
         }
@@ -738,12 +742,12 @@ export declare namespace google {
 
         /**
          * @en Listener for the result of the BillingClient#getBillingConfigAsync API.
-         * @zh 监听BillingClient#getBillingConfigAsync API的返回结果。
+         * @zh 监听 BillingClient#getBillingConfigAsync API 的返回结果。
          */
         export interface BillingConfigResponseListener {
             /**
              * @en Called to notify when the get billing config flow has finished.
-             * @zh 当获取 Billing 配置流程完成时调用以通知。
+             * @zh 当获取 billing 配置流程完成时调用以通知。
              */
             onBillingConfigResponse(
                 billingResult: BillingResult,
@@ -752,7 +756,7 @@ export declare namespace google {
         }
         /**
          * @en Listener for the result of the createAlternativeBillingOnlyReportingDetailsAsync API.
-         * @zh 监听 createAlternativeBillingOnlyReportingDetailsAsync API的返回结果。
+         * @zh 监听 createAlternativeBillingOnlyReportingDetailsAsync API 的返回结果。
          */
         export interface AlternativeBillingOnlyReportingDetailsListener {
             /**
@@ -766,7 +770,7 @@ export declare namespace google {
         }
         /**
          * @en Listener for the result of the BillingClient#createExternalOfferReportingDetailsAsync API.
-         * @zh 监听BillingClient#createExternalOfferReportingDetailsAsync API的返回结果。
+         * @zh 监听 BillingClient#createExternalOfferReportingDetailsAsync API 的返回结果。
          */
         export interface ExternalOfferReportingDetailsListener {
             /**
@@ -781,7 +785,7 @@ export declare namespace google {
 
         /**
          * @en Listener for the result of the BillingClient#isAlternativeBillingOnlyAvailableAsync API.
-         * @zh 监听BillingClient#isAlternativeBillingOnlyAvailableAsync API的返回结果。
+         * @zh 监听 BillingClient#isAlternativeBillingOnlyAvailableAsync API 的返回结果。
          */
         export interface AlternativeBillingOnlyAvailabilityListener {
             /**
@@ -794,7 +798,7 @@ export declare namespace google {
         }
         /**
          * @en Listener for the result of the BillingClient#isExternalOfferAvailableAsync API.
-         * @zh 监听BillingClient#isExternalOfferAvailableAsync API的返回结果。
+         * @zh 监听 BillingClient#isExternalOfferAvailableAsync API 的返回结果。
          */
         export interface ExternalOfferAvailabilityListener {
             /**
@@ -807,7 +811,7 @@ export declare namespace google {
         }
         /**
          * @en Listener for the result of the BillingClient#showAlternativeBillingOnlyInformationDialog API.
-         * @zh 监听BillingClient#showAlternativeBillingOnlyInformationDialog API的返回结果。
+         * @zh 监听 BillingClient#showAlternativeBillingOnlyInformationDialog API 的返回结果。
          */
         export interface AlternativeBillingOnlyInformationDialogListener {
             /**
@@ -820,7 +824,7 @@ export declare namespace google {
         }
         /**
          * @en Listener for the result of the BillingClient#showExternalOfferInformationDialog API.
-         * @zh 监听BillingClient#showExternalOfferInformationDialog API的返回结果。
+         * @zh 监听 BillingClient#showExternalOfferInformationDialog API 的返回结果。
          */
         export interface ExternalOfferInformationDialogListener {
             /**
@@ -1007,7 +1011,7 @@ export declare namespace google {
          * Features/capabilities supported by isFeatureSupported.
          *
          * @zh
-         * 支持的特性/能力isFeatureSupported。
+         * 支持的特性/能力 isFeatureSupported。
          */
         export enum FeatureType {
             /**
@@ -1258,7 +1262,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             static newBuilder: () => BillingFlowParams.ProductDetailsParams.Builder;
         }
@@ -1272,7 +1276,7 @@ export declare namespace google {
             /**
              * @en If the originating transaction for the suscription that the user is upgrading or downgrading from was
              *     processed via alternative billing, specifies the external transaction id of the originating subscription.
-             * @zh 如果用户升级或降级的订阅的原始交易是通过替代计费处理的，则指定原始订阅的外部交易 ID。。
+             * @zh 如果用户升级或降级的订阅的原始交易是通过替代计费处理的，则指定原始订阅的外部交易 ID。
              */
             setOriginalExternalTransactionId: (externalTransactionId: string) => SubscriptionUpdateParamsBuilder;
             /**
@@ -1282,7 +1286,7 @@ export declare namespace google {
             setSubscriptionReplacementMode: (subscriptionReplacementMode: number) => SubscriptionUpdateParamsBuilder;
             /**
              * @en Construct a ProductDetailsParams.
-             * @zh 构建一个SubscriptionUpdateParams。
+             * @zh 构建一个 SubscriptionUpdateParams 。
              */
             build: () => SubscriptionUpdateParams;
         }
@@ -1295,7 +1299,7 @@ export declare namespace google {
             static Builder: SubscriptionUpdateParamsBuilder;
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             static newBuilder: () => SubscriptionUpdateParamsBuilder;
             static ReplacementMode: typeof google.billing.ReplacementMode;
@@ -1316,12 +1320,12 @@ export declare namespace google {
                     setOfferToken: (offerToken: string) => ProductDetailsParams.Builder;
                     /**
                      * @en Specifies the details of item to be purchased, fetched via queryProductDetailsAsync.
-                     * @zh 指定要购买的商品的详细信息，通过 获取queryProductDetailsAsync。
+                     * @zh 指定要购买的商品的详细信息，通过获取 queryProductDetailsAsync 。
                      */
                     setProductDetails: (productDetails: ProductDetails) => ProductDetailsParams.Builder;
                     /**
                      * @en Construct a ProductDetailsParams.
-                     * @zh 构建一个ProductDetailsParams。
+                     * @zh 构建一个 ProductDetailsParams。
                      */
                     build: () => ProductDetailsParams;
                 }
@@ -1336,7 +1340,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             public static newBuilder(): BillingFlowParamsBuilder;
         }
@@ -1351,18 +1355,18 @@ export declare namespace google {
              */
             setIsOfferPersonalized: (isOfferPersonalized: boolean) => BillingFlowParamsBuilder;
             /**
-     * @en Specifies an optional obfuscated string that is uniquely associated with the purchaser's user account in your app.
-     * @zh 指定一个可选的混淆字符串，该字符串与应用中的购买者用户帐户唯一关联。
-     */
+             * @en Specifies an optional obfuscated string that is uniquely associated with the purchaser's user account in your app.
+             * @zh 指定一个可选的混淆字符串，该字符串与应用中的购买者用户帐户唯一关联。
+             */
             setObfuscatedAccountId: (obfuscatedAccountid: string) => BillingFlowParamsBuilder;
             /**
-     * @en Specifies an optional obfuscated string that is uniquely associated with the purchaser's user profile in your app.
-     * @zh 指定一个可选的混淆字符串，该字符串与应用中的购买者的用户资料唯一关联。
-     */
+             * @en Specifies an optional obfuscated string that is uniquely associated with the purchaser's user profile in your app.
+             * @zh 指定一个可选的混淆字符串，该字符串与应用中的购买者的用户资料唯一关联。
+             */
             setObfuscatedProfileId: (obfuscatedProfileId: string) => BillingFlowParamsBuilder;
             /**
              * @en Specifies the ProductDetailsParams of the items being purchased.
-             * @zh 指定所ProductDetailsParams购买物品的。
+             * @zh 指定所 ProductDetailsParams 购买物品的。
              */
             setProductDetailsParamsList: (userChoiceBillingListener: ProductDetailsParams[]) => BillingFlowParamsBuilder;
             /**
@@ -1372,7 +1376,7 @@ export declare namespace google {
             setSubscriptionUpdateParams: (userChoiceBillingListener: SubscriptionUpdateParams) => BillingFlowParamsBuilder;
             /**
              * @en Returns BillingFlowParams reference to initiate a purchase flow.
-             * @zh 返回BillingFlowParams参考以启动购买流程。
+             * @zh 返回 BillingFlowParams 参考以启动购买流程。
              */
             build: () => BillingFlowParams;
         }
@@ -1395,7 +1399,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             public static newBuilder(): ConsumeParams.Builder;
         }
@@ -1418,7 +1422,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             public static newBuilder(): AcknowledgePurchaseParams.Builder;
         }
@@ -1427,7 +1431,7 @@ export declare namespace google {
             export interface Builder {
                 /**
                  * @en 设置ProductType查询购买情况。
-                 * @zh 返回 的一个实例Builder。
+                 * @zh 返回一个 Builder 实例。
                  */
                 setProductType: (productType: string) => Builder;
                 /**
@@ -1445,7 +1449,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             public static newBuilder(): QueryPurchasesParams.Builder;
         }
@@ -1479,7 +1483,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             public static newBuilder(): InAppMessageParams.Builder;
             static InAppMessageCategoryId: typeof InAppMessageCategoryId;
@@ -1502,7 +1506,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             public static newBuilder(): GetBillingConfigParams.Builder;
         }
@@ -1526,7 +1530,7 @@ export declare namespace google {
             static ProductType: typeof google.billing.ProductType;
             /**
              * @en Returns an instance of Builder.
-             * @zh 返回 的一个实例Builder。
+             * @zh 返回一个 Builder 实例。
              */
             public static newBuilder(): BillingClientBuilder;
             /**
@@ -1576,7 +1580,7 @@ export declare namespace google {
             queryPurchasesAsync: (params: QueryPurchasesParams, listener: PurchasesResponseListener) => void;
             /**
              * @en Gets the billing config, which stores configuration used to perform billing operations.
-             * @zh 获取Billing配置，其中存储用于执行Billing操作的配置。
+             * @zh 获取 billing 配置，其中存储用于执行 billing 操作的配置。
              */
             getBillingConfigAsync: (params: GetBillingConfigParams, listener: BillingConfigResponseListener) => void;
             /**
@@ -1621,7 +1625,43 @@ export declare namespace google {
              */
             showInAppMessages: (params: InAppMessageParams, listener: InAppMessageResponseListener) => void;
         }
+    }
 
+    export namespace play {
+        /**
+         * @en Represents the current authentication status with Play Games Services.
+         * @zh 代表 Play Games Services 的当前身份验证状态。
+         */
+        export class AuthenticationResult {
+            private constructor();
+            /**
+             * @en Returns true if your game is authenticated to Play Games Services.
+             * @zh 返回true表示您的游戏已通过 Play Games Services 的身份验证。
+             */
+            public isAuthenticated(): boolean;
+        }
+        /**
+         * @en Contains the result of RecallClient.requestRecallAccess().
+         * @zh 包含 RecallClient.requestRecallAccess() 的返回结果
+         */
+        export class RecallAccess {
+            private constructor();
+            /**
+             * @en Hash code
+             * @zh hash值
+             */
+            public hashCode(): number;
+            /**
+             * @en Returns the session id to be passed into PGS server API.
+             * @zh 返回要传递到 PGS server API 的会话 ID。
+             */
+            public getSessionId(): string;
+            /**
+             * @en Is it equal to another RecallAccess.
+             * @zh 判断与另一个 RecallAccess 是否相等。
+             */
+            public equals(other: RecallAccess): boolean;
+        }
         export class PlayException {
             /**
              * @en Getting Exception message.
@@ -1644,149 +1684,6 @@ export declare namespace google {
              */
             toString(): string;
         }
-
-        export interface OnCanceledListener {
-            /**
-             * @en Called when the Task is canceled successfully.
-             * @zh 当任务成功取消时调用。
-             */
-            onCanceled(): void;
-        }
-
-        export interface OnCompleteListener {
-            /**
-             * @en Called when the Task completes.
-             * @zh 任务完成时调用。
-             */
-            onComplete(task: any): void;
-        }
-
-        export interface OnFailureListener {
-            /**
-             * @en Called when the Task fails with an exception.
-             * @zh 当任务因异常而失败时调用。
-             */
-            onFailure(e: PlayException): void;
-        }
-
-        export interface OnSuccessListener {
-            /**
-             * @en Called when the Task completes successfully.
-             * @zh 成功完成时调用Task。
-             */
-            onSuccess(result: any): void;
-        }
-
-        export interface OnContinueWithListener {
-            /**
-             * @en Returns the result of applying this Continuation to task.
-             * @zh 返回将此 Continuation 应用到 的结果task。
-             */
-            then(result: any): void;
-        }
-
-        export class PlayTask {
-            /**
-             * @en Adds a listener that is called if the Task is canceled.
-             * @zh 添加一个侦听器，当任务被取消时调用该侦听器。
-             */
-            public addOnCanceledListener(listener: OnCanceledListener): PlayTask;
-            /**
-             * @en Adds a listener that is called when the Task completes.
-             * @zh 添加在任务完成时调用的监听器。
-             */
-            public addOnCompleteListener(listener: OnCompleteListener): PlayTask;
-            /**
-             * @en Adds a listener that is called if the Task fails.
-             * @zh 添加一个在任务失败时调用的监听器。
-             */
-            public addOnFailureListener(listener: OnFailureListener): PlayTask;
-            /**
-             * @en Adds a listener that is called if the Task completes successfully.
-             * @zh 添加一个侦听器，当任务成功完成时调用该侦听器。
-             */
-            public addOnSuccessListener(listener: OnSuccessListener): PlayTask;
-            /**
-             * @en Returns a new Task that will be completed with the result of applying the specified Continuation to this Task.
-             * @zh 返回一个新任务，该任务将通过将指定的延续应用于此任务的结果来完成。
-             */
-            public continueWith(listener: OnContinueWithListener): PlayTask;
-            /**
-             * @en Gets the result of the Task, if it has already completed.
-             * @zh 如果任务已经完成，则获取任务的结果。
-             */
-            public getResult(listener: OnSuccessListener): any;
-            /**
-             * @en Returns true if the Task is canceled; false otherwise.
-             * @zh true如果任务被取消则返回；false否则返回。
-             */
-            public isCanceled(): boolean;
-            /**
-             * @en Returns true if the Task is complete; false otherwise.
-             * @zh true如果任务完成则返回；false否则返回。
-             */
-            public isComplete(): boolean;
-            /**
-             * @en Returns true if the Task has completed successfully; false otherwise.
-             * @zh true如果任务已成功完成则返回；false否则返回。
-             */
-            public isSuccessful(): boolean;
-        }
-        /**
-         * @en Represents the current authentication status with Play Games Services.
-         * @zh 代表 Play Games Services 的当前身份验证状态。
-         */
-        export class AuthenticationResult {
-            private constructor();
-            /**
-             * @en Returns true if your game is authenticated to Play Games Services.
-             * @zh true如果您的游戏已通过 Play 游戏服务的身份验证， 则返回。
-             */
-            public isAuthenticated(): boolean;
-        }
-        /**
-         * @en Contains the result of RecallClient.requestRecallAccess().
-         * @zh 包含 RecallClient.requestRecallAccess() 的返回结果
-         */
-        export class RecallAccess {
-            private constructor();
-            /**
-             * @en Hash code
-             * @zh hash值
-             */
-            public hashCode(): number;
-            /**
-             * @en Returns the session id to be passed into PGS server API.
-             * @zh 返回要传递到 PGS 服务器 API 的会话 ID。
-             */
-            public getSessionId(): string;
-            /**
-             * @en Is it equal to another RecallAccess.
-             * @zh 判断与另一个RecallAccess是否相等。
-             */
-            public equals(other: RecallAccess): boolean;
-        }
-        /**
-         * @en A client for performing sign-in with Play Games Services.
-         * @zh 用于使用 Play Games Services 执行登录的客户端。
-         */
-        export class GamesSignInClient {
-            /**
-             * @en Returns the current authentication status via an AuthenticationResult.
-             * @zh 通过 返回当前身份验证状态AuthenticationResult。
-             */
-            public isAuthenticated(): PlayTask;
-            /**
-             * @en Requests server-side access to Play Games Services for the currently signed-in player.
-             * @zh 向当前登录的玩家请求服务器端访问 Play Games Services。
-             */
-            public requestServerSideAccess(serverClientId: string, forceRefreshToken: boolean): PlayTask;
-            /**
-             * @en Manually requests that your game sign in with Play Games Services.
-             * @zh 手动请求您的游戏通过 Play Games Services 登录。
-             */
-            public signIn(): PlayTask;
-        }
         /**
          * @en Data interface for retrieving achievement information.
          * @zh 用于检索成就信息的数据接口。
@@ -1794,48 +1691,48 @@ export declare namespace google {
         export class Achievement {
             /**
              * @en Constant returned by getState() indicating an unlocked achievement.
-             * @zh getState返回的常量表示未解锁的成就。
+             * @zh getState 返回的常量表示未解锁的成就。
              */
             public static STATE_UNLOCKED: number;
             /**
              * @en Constant returned by getState() indicating a revealed achievement.
-             * @zh getState返回的常量表示已显示的成就。
+             * @zh getState 返回的常量表示已显示的成就。
              */
             public static STATE_REVEALED: number;
             /**
              * @en Constant returned by getState() indicating a hidden achievement.
-             * @zh getState返回的常量表示隐藏的成就。
+             * @zh getState 返回的常量表示隐藏的成就。
              */
             public static STATE_HIDDEN: number;
             /**
              * @en Constant returned by getType() indicating a standard achievement.
-             * @zh getState返回的常量表示标准的成就。
+             * @zh getState 返回的常量表示标准的成就。
              */
             public static TYPE_STANDARD: number;
             /**
              * @en Constant returned by getType() indicating an incremental achievement.
-             * @zh getState返回的常量表示增量的成就。
+             * @zh getState 返回的常量表示增量的成就。
              */
             public static TYPE_INCREMENTAL: number;
             /**
              * @en Retrieves the number of steps this user has gone toward unlocking this achievement;
              *     only applicable for TYPE_INCREMENTAL achievement types.
-             * @zh 检索该用户为解锁该成就所走的步数；仅适用于 TYPE_INCREMENTAL成就类型。
+             * @zh 检索该用户为解锁该成就所走的步数；仅适用于 TYPE_INCREMENTAL 成就类型。
              */
             public getCurrentSteps(): number;
             /**
              * @en Returns the Achievement.AchievementState of the achievement.
-             * @zh 返回 Achievement.AchievementState成就。
+             * @zh 返回 Achievement.AchievementState 成就。
              */
             public getState(): number;
             /**
              * @en Retrieves the total number of steps necessary to unlock this achievement; only applicable for TYPE_INCREMENTAL achievement types
-             * @zh 检索解锁此成就所需的总步数；仅适用于 TYPE_INCREMENTAL成就类型。
+             * @zh 检索解锁此成就所需的总步数；仅适用于 TYPE_INCREMENTAL 成就类型。
              */
             public getTotalSteps(): number;
             /**
              * @en Returns the Achievement.AchievementType of this achievement.
-             * @zh 返回 Achievement.AchievementType此成就。
+             * @zh 返回 Achievement.AchievementType 此成就。
              */
             public getType(): number;
             /**
@@ -1867,7 +1764,7 @@ export declare namespace google {
             /**
              * @en Loads the total number of steps necessary to unlock this achievement
              *     (formatted for the user's locale) into the given CharArrayBuffer; only applicable for TYPE_INCREMENTAL achievement types.
-             * @zh 检索解锁此成就所需的总步数；仅适用于 TYPE_INCREMENTAL成就类型。
+             * @zh 检索解锁此成就所需的总步数；仅适用于 TYPE_INCREMENTAL 成就类型。
              */
             public getFormattedTotalSteps(): string;
             /**
@@ -1893,7 +1790,7 @@ export declare namespace google {
         export class AchievementBuffer {
             /**
              * @en Get the count of achievement.
-             * @zh 获取achievement的数量 。
+             * @zh 获取 achievement 的数量 。
              */
             public getCount(): number;
             /**
@@ -1908,7 +1805,7 @@ export declare namespace google {
             public close(): void;
             /**
              * @en Releases resources used by the buffer.
-             * @zh 释放缓冲区使用的资源。。
+             * @zh 释放缓冲区使用的资源。
              */
             public release(): void;
         }
@@ -1919,14 +1816,67 @@ export declare namespace google {
         export class AnnotatedData {
             /**
              * @en Returns true if the data returned by get() is stale.
-             * @zh true如果返回的数据已过时，则 返回get() 。
+             * @zh true如果返回的数据已过时，则返回 get() 。
              */
             public isStale(): boolean;
             /**
              * @en Returns the data that is annotated by this class.
-             * @zh 返回由此类注解的数据。
+             * @zh 返回由此类 annotated 的数据。
              */
             public get(): AchievementBuffer;
+        }
+        /**
+         * @en Entry point for the Play Games SDK.
+         * @zh Play Games SDK 的入口点。
+         */
+        export class PlayGamesSdk {
+            /**
+             * @en Initializes the Play Games SDK using the Game services application id defined in the application's manifest.
+             * @zh 使用应用程序清单中定义的游戏服务应用程序 ID 初始化 Play 游戏 SDK。
+             */
+            public static initialize(): void;
+        }
+        /**
+         * @en Main entry point for the Games APIs. This class provides APIs and interfaces to access the Google Play Games Services functionality.
+         * @zh 游戏 API 的主要入口点。此类提供用于访问 Google Play Games Services 功能的 API 和接口。
+         */
+        export class PlayGames {
+            /**
+             * @en Returns a new instance of AchievementsClient.
+             * @zh 返回一个新的 AchievementsClient 实例。
+             */
+            public static getAchievementsClient(): AchievementsClient;
+            /**
+             * @en Returns a new instance of GamesSignInClient.
+             * @zh 返回一个新的 GamesSignInClient 实例。
+             */
+            public static getGamesSignInClient(): GamesSignInClient;
+            /**
+             * @en Returns a new instance of RecallClient.
+             * @zh 返回一个新的 RecallClient 实例。
+             */
+            public static getRecallClient(): RecallClient;
+        }
+        /**
+         * @en A client for performing sign-in with Play Games Services.
+         * @zh 用于使用 Play Games Services 执行登录的客户端。
+         */
+        export class GamesSignInClient {
+            /**
+             * @en Returns the current authentication status via an AuthenticationResult.
+             * @zh 通过 返回当前身份验证状态 AuthenticationResult 。
+             */
+            public isAuthenticated(): TaskHelper<google.play.AuthenticationResult>;
+            /**
+             * @en Requests server-side access to Play Games Services for the currently signed-in player.
+             * @zh 向当前登录的玩家请求服务器端访问 Play Games Services。
+             */
+            public requestServerSideAccess(serverClientId: string, forceRefreshToken: boolean): TaskHelper<string>;
+            /**
+             * @en Manually requests that your game sign in with Play Games Services.
+             * @zh 手动请求您的游戏通过 Play Games Services 登录。
+             */
+            public signIn(): TaskHelper<google.play.AuthenticationResult>;
         }
         /**
          * @en A client to interact with achievements functionality.
@@ -1940,30 +1890,30 @@ export declare namespace google {
             public showAchievements(): void;
             /**
              * @en Returns a Task which asynchronously increments an achievement by the given number of steps.
-             * @zh 返回一个Task 以给定步数异步增加成就的方法。
+             * @zh 返回一个 Task 以给定步数异步增加成就的方法。
              */
-            public incrementImmediate(id: string, numSteps: number): PlayTask;
+            public incrementImmediate(id: string, numSteps: number): TaskHelper<boolean>;
             /**
              * @en Returns a Task which asynchronously loads an annotated AchievementBuffer that represents the achievement data.
              *     for the currently signed-in player.
-             * @zh 返回一个Task 异步加载的task， AchievementBuffer该注释代表当前登录玩家的成就数据。
+             * @zh 返回一个 Task 异步加载的task， AchievementBuffer该注释代表当前登录玩家的成就数据。
              */
-            public load(forceReload: boolean): PlayTask;
+            public load(forceReload: boolean):  TaskHelper<google.play.AnnotatedData>;
             /**
              * @en Returns a Task which asynchronously reveals a hidden achievement to the currently signed in player.
-             * @zh 返回一个Task 异步向当前登录的玩家显示隐藏成就的对象。
+             * @zh 返回一个 Task 异步向当前登录的玩家显示隐藏成就的对象。
              */
-            public revealImmediate(id: string): PlayTask;
+            public revealImmediate(id: string): TaskHelper<void>;
             /**
              * @en Returns a Task which asynchronously sets an achievement to have at least the given number of steps completed.
-             * @zh 返回一个Task 异步设置成就以至少完成给定数量的步骤。
+             * @zh 返回一个 Task 异步设置成就以至少完成给定数量的步骤。
              */
-            public setStepsImmediate(id: string, numSteps: number): PlayTask;
+            public setStepsImmediate(id: string, numSteps: number): TaskHelper<boolean>;
             /**
              * @en Returns a Task which asynchronously unlocks an achievement for the currently signed in player.
-             * @zh 返回一个Task 异步解锁当前登录玩家的成就。
+             * @zh 返回一个 Task 异步解锁当前登录玩家的成就。
              */
-            public unlockImmediate(id: string): PlayTask;
+            public unlockImmediate(id: string): TaskHelper<void>;
             /**
             * @en Increments an achievement by the given number of steps.
             * @zh 按给定的步数增加成就。
@@ -1989,45 +1939,15 @@ export declare namespace google {
          * @en A client for the recall functionality.
          * @zh Recall 功能客户端。
          */
-        export class RecallClient {
+        export class RecallClientHelper {
             /**
              * @en Returns a RecallAccess to use for server-to-server communication between the 3p game server and Play Games Services server.
-             * @zh 返回RecallAccess 用于第三方游戏服务器和 Play 游戏服务服务器之间的服务器到服务器通信。
+             * @zh 返回 RecallAccess 用于第三方游戏服务器和 Play 游戏服务服务器之间的服务器到服务器通信。
              */
-            public requestRecallAccess(): PlayTask;
+            public requestRecallAccess(): TaskHelper<google.play.RecallAccess>;
         }
-
-        /**
-         * @en Main entry point for the Games APIs. This class provides APIs and interfaces to access the Google Play Games Services functionality.
-         * @zh 游戏 API 的主要入口点。此类提供用于访问 Google Play Games Services 功能的 API 和接口。
-         */
-        export class PlayGames {
-            /**
-             * @en Returns a new instance of AchievementsClient.
-             * @zh 返回一个新的AchievementsClient实例。
-             */
-            public static getAchievementsClient(): AchievementsClient;
-            /**
-             * @en Returns a new instance of GamesSignInClient.
-             * @zh 返回一个新的GamesSignInClient实例。
-             */
-            public static getGamesSignInClient(): GamesSignInClient;
-            /**
-             * @en Returns a new instance of RecallClient.
-             * @zh 返回一个新的RecallClient实例。
-             */
-            public static getRecallClient(): RecallClient;
-        }
-        /**
-         * @en Entry point for the Play Games SDK.
-         * @zh Play Games SDK 的入口点。
-         */
-        export class PlayGamesSdk {
-            /**
-             * @en Initializes the Play Games SDK using the Game services application id defined in the application's manifest.
-             * @zh 使用应用程序清单中定义的游戏服务应用程序 ID 初始化 Play 游戏 SDK。
-             */
-            public static initialize(): void;
-        }
+        export type RecallClient = RecallClientHelper;
+        export type Continuation<T, K = void> = ContinuationHelper<T, K>;
+        export type Task<T, K = void> = TaskHelper<T, K>;
     }
 }

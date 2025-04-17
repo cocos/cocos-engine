@@ -1,6 +1,6 @@
 // /* eslint-disable @typescript-eslint/no-namespace */
 // /*
-//  Copyright (c) 2024-2025 Xiamen Yaji Software Co., Ltd.
+//  Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
 //  https://www.cocos.com/
 
@@ -22,14 +22,12 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 // */
-
+import { JSB } from 'internal:constants';
 import './billing/billing-enum';
 import './play/play-enum';
 
-import { PlayGamesHelper, GamesSignInClientHelper } from './play/games';
+import { AchievementsClientHelper, GamesSignInClientHelper, RecallClientHelper, PlayGamesHelper } from './play/games';
 
-//export * from './play/games';
-//const ns = JSB ? jsb : {} as unknown as typeof jsb;
 const ns: any = globalThis.jsb ?? {};
 export namespace google {
     export namespace billing {
@@ -51,6 +49,8 @@ export namespace google {
         export const PlayGamesSdk = ns.PlayGamesSdk;
         export const PlayGames = PlayGamesHelper;
         export const GamesSignInClient = GamesSignInClientHelper;
+        export const AchievementsClient = AchievementsClientHelper;
+        export const RecallClient = RecallClientHelper;
         export const AuthenticationResult = ns.AuthenticationResult;
         export const RecallAccess = ns.RecallAccess;
         export const PlayException = ns.PlayException;

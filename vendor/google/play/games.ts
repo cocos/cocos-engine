@@ -182,7 +182,7 @@ export class GamesSignInClientHelper {
     }
 }
 
-export class AchievementsClient {
+export class AchievementsClientHelper {
     showAchievements (): void {
         jsb.PlayGames.getAchievementsClient().showAchievements();
     }
@@ -229,7 +229,7 @@ export class AchievementsClient {
     }
 }
 
-export class RecallClient {
+export class RecallClientHelper {
     requestRecallAccess (): TaskHelper<jsb.RecallAccess> {
         const newTask = new GooglePlayTask<jsb.RecallAccess>(jsb.PlayGames.getRecallClient().requestRecallAccess());
         GooglePlayTask.taskMgr.addTask(newTask);
@@ -238,16 +238,16 @@ export class RecallClient {
 }
 
 export class PlayGamesHelper {
-    private static achievementsClient: AchievementsClient = new AchievementsClient();
+    private static achievementsClient: AchievementsClientHelper = new AchievementsClientHelper();
     private static gamesSignInClient: GamesSignInClientHelper = new GamesSignInClientHelper();
-    private static recallClient: RecallClient = new RecallClient();
-    public static getAchievementsClient (): AchievementsClient {
+    private static recallClient: RecallClientHelper = new RecallClientHelper();
+    public static getAchievementsClient (): AchievementsClientHelper {
         return this.achievementsClient;
     }
     public static getGamesSignInClient (): GamesSignInClientHelper {
         return this.gamesSignInClient;
     }
-    public static getRecallClient (): RecallClient {
+    public static getRecallClient (): RecallClientHelper {
         return this.recallClient;
     }
 }
