@@ -333,6 +333,7 @@ struct DescriptorSetVisitorContext {
             CC_ENSURES(res.second);
         }
     }
+
     gfx::AccessFlagBit getAccessFlagBit(
         const ResourceAccessNode& accessNode,
         ResourceGraph::vertex_descriptor resID) const {
@@ -342,6 +343,7 @@ struct DescriptorSetVisitorContext {
         const auto& resName = get(ResourceGraph::NameTag{}, pipeline.resourceGraph, parentID);
         return accessNode.resourceStatus.at(resName).accessFlag;
     }
+
     TextureWithAccessFlags resolveTexture(
         boost::span<const RenderData* const> renderDataRange,
         const PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>* resourceIndex,
@@ -708,6 +710,7 @@ struct DescriptorSetVisitorContext {
         // Stack: Queue + Scene
         CC_ENSURES(mPerQueueDeviceRenderDataStack.size() == 2);
     }
+
     static std::pair<
         boost::span<LayoutGraphData::vertex_descriptor const>,
         boost::span<DeviceRenderData* const>>
