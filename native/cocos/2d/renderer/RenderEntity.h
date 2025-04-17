@@ -164,11 +164,13 @@ private:
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
     uint8_t _staticDrawInfoSize{0};
     bool _vbColorDirty{true};
-    uint8_t paddings[1];
+    uint8_t _paddings[1];
     
     float _opacity{1.0F};
 };
 
+#if defined(__x86_64__) || defined(__amd64__) || defined(__aarch64__)
 static_assert(sizeof(RenderEntity) == 632, "Be carefull to add property to RenderEntity which may cause the potential cache miss");
+#endif
 
 } // namespace cc
