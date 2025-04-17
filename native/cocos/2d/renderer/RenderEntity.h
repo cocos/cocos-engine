@@ -49,10 +49,9 @@ enum class MaskMode : uint8_t {
     MASK_NODE_INVERTED
 };
 
-enum class UIOpacityType: uint8_t {
-    COLOR,
+enum class FillColorType: uint8_t {
+    COLOR = 0,
     VERTEX,
-    MULTIPLY,
 };
 
 struct EntityAttrLayout {
@@ -61,7 +60,7 @@ struct EntityAttrLayout {
     uint8_t colorB{255};
     uint8_t colorA{255};
     uint8_t maskMode{0};
-    UIOpacityType opacityType{UIOpacityType::COLOR};
+    FillColorType fillColorType{FillColorType::COLOR};
     uint8_t colorDirtyBit: 1;
     uint8_t enabledIndex: 1;
     uint8_t useLocal: 1;
@@ -100,7 +99,7 @@ public:
         _entityAttrLayout.useLocal = useLocal;
     }
     
-    inline UIOpacityType getOpacityType() const { return _entityAttrLayout.opacityType; }
+    inline FillColorType getFillColorType() const { return _entityAttrLayout.fillColorType; }
 
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);

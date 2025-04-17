@@ -111,39 +111,3 @@ export function updateOpacity (renderData: RenderData, opacity: number): void {
         offset += format.size >> 2;
     }
 }
-
-export function multiplyOpacity (renderData: RenderData, opacity: number): void {
-    const vfmt = renderData.vertexFormat;
-    const vb = renderData.chunk.vb;
-    let vbUint32View: Uint32Array | undefined;
-    let attr: Attribute;
-    let format: FormatInfo;
-    let stride: number;
-    // Color component offset
-    let offset = 0;
-    for (let i = 0; i < vfmt.length; ++i) {
-        attr = vfmt[i];
-        format = FormatInfos[attr.format];
-        if (format.hasAlpha) {
-            stride = renderData.floatStride;
-            if (format.size / format.count === 1) {
-                if (!vbUint32View) {
-                    vbUint32View = new Uint32Array(vb.buffer, vb.byteOffset, vb.length);
-                }
-                const alpha = ~~clamp(Math.round(opacity * 255), 0, 255);
-                // Uint color RGBA8
-                for (let color = offset; color < vbUint32View.length; color += stride) {
-                    const oldAlpha = vbUint32View[color] & 0x000000FF;
-                    const newAlpha = oldAlpha * (alpha / 255);
-                    vbUint32View[color] = ((vbUint32View[color] & 0x00ffffff) | (newAlpha << 24)) >>> 0;
-                }
-            } else if (format.size / format.count === 4) {
-                // RGBA32 color, alpha at position 3
-                for (let alpha = offset + 3; alpha < vb.length; alpha += stride) {
-                    vb[alpha] *= opacity;
-                }
-            }
-        }
-        offset += format.size >> 2;
-    }
-}

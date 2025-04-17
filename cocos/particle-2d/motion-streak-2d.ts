@@ -30,7 +30,7 @@ import { Texture2D } from '../asset/assets/texture-2d';
 import type { IBatcher } from '../2d/renderer/i-batcher';
 import { Vec2 } from '../core';
 import type { RenderData } from '../2d/renderer/render-data';
-import { RenderEntityOpacityType } from '../2d/renderer/render-entity';
+import { RenderEntityFillColorType } from '../2d/renderer/render-entity';
 
 export class Point {
     public point = new Vec2();
@@ -75,7 +75,7 @@ export class MotionStreak extends UIRenderer {
 
     constructor () {
         super();
-        this.setOpacityType(RenderEntityOpacityType.VERTEX);
+        this.setFillColorType(RenderEntityFillColorType.VERTEX);
     }
 
     /**

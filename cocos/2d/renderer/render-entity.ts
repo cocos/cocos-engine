@@ -29,10 +29,9 @@ import { Color } from '../../core';
 import { Stage } from './stencil-manager';
 import { Node } from '../../scene-graph';
 
-export enum RenderEntityOpacityType {
-    VERTEX = 0,
-    COLOR = 1,
-    MULTIPLY = 2,
+export enum RenderEntityFillColorType {
+    COLOR = 0,
+    VERTEX
 }
 
 export enum RenderEntityType {
@@ -47,7 +46,7 @@ enum RenderEntityUInt8SharedBufferView {
     colorB,
     colorA,
     maskMode,
-    opacityType,
+    fillColorType,
     count,
 }
 
@@ -80,7 +79,6 @@ export class RenderEntity {
     protected _enabled = false;
     protected _useLocal = false;
     protected _maskMode = MaskMode.NONE;
-    protected _opacityType = RenderEntityOpacityType.COLOR;
 
     protected declare _floatSharedBuffer: Float32Array;
     protected declare _uint8SharedBuffer: Uint8Array;
@@ -231,11 +229,10 @@ export class RenderEntity {
         this._maskMode = mode;
     }
 
-    public setOpacityType (opacityType: RenderEntityOpacityType): void {
+    public setFillColorType (fillColorType: RenderEntityFillColorType): void {
         if (JSB) {
-            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.opacityType] = opacityType;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.fillColorType] = fillColorType;
         }
-        this._opacityType = opacityType;
     }
 
     public getStaticRenderDrawInfo (): RenderDrawInfo | null {

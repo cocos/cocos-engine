@@ -41,7 +41,7 @@ import { TextureBase } from '../../asset/assets/texture-base';
 import { IBatcher } from './i-batcher';
 import { StaticVBAccessor } from './static-vb-accessor';
 import { getAttributeStride, vfmt, vfmtPosUvColor } from './vertex-format';
-import { multiplyOpacity, updateOpacity } from '../assembler/utils';
+import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 import { NativeBatcher2d } from './native-2d';
@@ -50,7 +50,7 @@ import { scene } from '../../render-scene';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { RenderingSubMesh } from '../../asset/assets';
 import { IAssembler } from './base';
-import { RenderEntityOpacityType } from './render-entity';
+import { RenderEntityFillColorType } from './render-entity';
 import type { Director } from '../../game/director';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -824,13 +824,13 @@ export class Batcher2D implements IBatcher {
             // Update cascaded opacity to vertex buffer
             if (this._opacityDirty && vertexCount > 0) {
                 // HARD COUPLING
-                switch (render.getOpacityType()) {
-                case RenderEntityOpacityType.COLOR: {
+                switch (render.getFillColorType()) {
+                case RenderEntityFillColorType.COLOR: {
                     updateOpacity(renderData!, opacity);
                     break;
                 }
-                case RenderEntityOpacityType.MULTIPLY: {
-                    multiplyOpacity(renderData!, opacity);
+                case RenderEntityFillColorType.VERTEX: {
+                    // Use vertex color directly, so do nothing here.
                     break;
                 }
                 default:

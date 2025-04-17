@@ -40,7 +40,7 @@ import { UITransform } from './ui-transform';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Renderer } from '../../misc/renderer';
-import { RenderEntity, RenderEntityType, RenderEntityOpacityType } from '../renderer/render-entity';
+import { RenderEntity, RenderEntityType, RenderEntityFillColorType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
@@ -293,25 +293,25 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @en The opacity type for the UIRenderer component.
-     * @zh UI 渲染组件透明度类型
+     * @en UI rendering component fill color type, COLOR means using color property value to fill, VERTEX means using vertex color value to fill.
+     * @zh UI 渲染组件填充颜色类型，COLOR 表示使用 color 属性值填充，VERTEX 表示使用顶点颜色值填充。
      */
-    private _opacityType = RenderEntityOpacityType.COLOR;
+    private _fillColorType = RenderEntityFillColorType.COLOR;
 
     /**
      * @engineInternal
      */
-    public getOpacityType (): RenderEntityOpacityType {
-        return this._opacityType;
+    public getFillColorType (): RenderEntityFillColorType {
+        return this._fillColorType;
     }
 
     /**
      * @engineInternal
      */
-    protected setOpacityType (val: RenderEntityOpacityType): void {
-        this._opacityType = val;
+    protected setFillColorType (val: RenderEntityFillColorType): void {
+        this._fillColorType = val;
         if (JSB) {
-            this._renderEntity.setOpacityType(val);
+            this._renderEntity.setFillColorType(val);
         }
     }
 
@@ -319,21 +319,21 @@ export class UIRenderer extends Renderer {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     protected set _useVertexOpacity (val: boolean) {
-        this.setOpacityType(RenderEntityOpacityType.VERTEX);
+        this.setFillColorType(RenderEntityFillColorType.VERTEX);
     }
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     protected get _useVertexOpacity (): boolean {
-        return this._opacityType === RenderEntityOpacityType.VERTEX;
+        return this._fillColorType === RenderEntityFillColorType.VERTEX;
     }
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get useVertexOpacity (): boolean {
-        return this._opacityType === RenderEntityOpacityType.VERTEX;
+        return this._fillColorType === RenderEntityFillColorType.VERTEX;
     }
 
     protected _lastParent: Node | null = null;

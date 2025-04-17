@@ -84,25 +84,13 @@ CC_FORCE_INLINE void fillColor(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     uint32_t offset = 0;
     for (int i = 0; i < size; i += stride) {
         offset = i + 5;
-        // NOTE: Only support RGBA32F (4 floats) color fomat now. Spine uses RGBA32 (4 bytes) color format which is not supported currently.
-        
+        // NOTE: Only support RGBA32F (4 floats) color fomat now.
+        // Spine set 'UIRenderer._useVertexOpacity = true', it uses RGBA32 (4 bytes) color and fills color in Skeleton._updateColor and spine/simple.ts assembler.
+        // So for Spine rendering, it will never go here to fill color.
         vbBuffer[offset] = static_cast<float>(temp.r) / 255.0F;
         vbBuffer[offset+1] = static_cast<float>(temp.g) / 255.0F;
         vbBuffer[offset+2] = static_cast<float>(temp.b) / 255.0F;
         vbBuffer[offset+3] = entity->getOpacity();
-    }
-}
-
-CC_FORCE_INLINE void multiplyOpacity(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
-    uint8_t stride = drawInfo->getStride();
-    uint32_t size = drawInfo->getVbCount() * stride;
-    float* vbBuffer = drawInfo->getVbBuffer();
-    
-    uint32_t offset = 0;
-    for (int i = 0; i < size; i += stride) {
-        offset = i + 5;
-        // NOTE: Only support RGBA32F (4 floats) color fomat now. Spine uses RGBA32 (4 bytes) color format which is not supported currently.
-        vbBuffer[offset+3] = entity->getColorAlpha() * entity->getOpacity();
     }
 }
 
@@ -299,15 +287,13 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
         }
 
         if (entity->getVBColorDirty()) {
-            switch (entity->getOpacityType()) {
-                case UIOpacityType::COLOR: {
+            switch (entity->getFillColorType()) {
+                case FillColorType::COLOR: {
                     fillColor(entity, drawInfo);
                     break;
                 }
-                case UIOpacityType::MULTIPLY: {
-                    // Not ready now.
-                    CC_ABORT();
-                    multiplyOpacity(entity, drawInfo);
+                case FillColorType::VERTEX: {
+                    // Use vertex color directly, so do nothing here.
                     break;
                 }
                 default:
