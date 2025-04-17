@@ -29,22 +29,29 @@ import { Color } from '../../core';
 import { Stage } from './stencil-manager';
 import { Node } from '../../scene-graph';
 
+export enum RenderEntityOpacityType {
+    VERTEX = 0,
+    COLOR = 1,
+    MULTIPLY = 2,
+}
+
 export enum RenderEntityType {
     STATIC,
     DYNAMIC,
     CROSSED,
 }
 
-export enum RenderEntityUInt8SharedBufferView {
+enum RenderEntityUInt8SharedBufferView {
     colorR,
     colorG,
     colorB,
     colorA,
     maskMode,
+    opacityType,
     count,
 }
 
-export enum RenderEntityBoolSharedBufferView {
+enum RenderEntityBoolSharedBufferViewBitIndex {
     colorDirty,
     enabled,
     useLocal,
@@ -68,8 +75,12 @@ export class RenderEntity {
     protected _node: Node | null = null;
     protected _renderTransform: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
+
+    protected _colorDirty = true;
+    protected _enabled = false;
     protected _useLocal = false;
     protected _maskMode = MaskMode.NONE;
+    protected _opacityType = RenderEntityOpacityType.COLOR;
 
     protected declare _floatSharedBuffer: Float32Array;
     protected declare _uint8SharedBuffer: Uint8Array;
@@ -105,29 +116,48 @@ export class RenderEntity {
         }
     }
 
-    protected _colorDirty = true;
     get colorDirty (): boolean {
         if (JSB) {
             // Synchronize values set from native to JS
-            this._colorDirty = !!this._boolSharedBuffer[RenderEntityBoolSharedBufferView.colorDirty];
+            this._colorDirty = !!(this._boolSharedBuffer[0] & (1 << RenderEntityBoolSharedBufferViewBitIndex.colorDirty));
         }
         return this._colorDirty;
     }
+
     set colorDirty (val: boolean) {
         this._colorDirty = val;
         if (JSB) {
-            this._boolSharedBuffer[RenderEntityBoolSharedBufferView.colorDirty] = val ? 1 : 0;
+            if (val) {
+                this._boolSharedBuffer[0] |= (1 << RenderEntityBoolSharedBufferViewBitIndex.colorDirty);
+            } else {
+                this._boolSharedBuffer[0] &= ~(1 << RenderEntityBoolSharedBufferViewBitIndex.colorDirty);
+            }
         }
     }
 
-    protected _enabled = false;
     get enabled (): boolean {
         return this._enabled;
     }
+
     set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
-            this._boolSharedBuffer[RenderEntityBoolSharedBufferView.enabled] = val ? 1 : 0;
+            if (val) {
+                this._boolSharedBuffer[0] |= (1 << RenderEntityBoolSharedBufferViewBitIndex.enabled);
+            } else {
+                this._boolSharedBuffer[0] &= ~(1 << RenderEntityBoolSharedBufferViewBitIndex.enabled);
+            }
+        }
+    }
+
+    setUseLocal (useLocal: boolean): void {
+        this._useLocal = useLocal;
+        if (JSB) {
+            if (useLocal) {
+                this._boolSharedBuffer[0] |= (1 << RenderEntityBoolSharedBufferViewBitIndex.useLocal);
+            } else {
+                this._boolSharedBuffer[0] &= ~(1 << RenderEntityBoolSharedBufferViewBitIndex.useLocal);
+            }
         }
     }
 
@@ -201,6 +231,13 @@ export class RenderEntity {
         this._maskMode = mode;
     }
 
+    public setOpacityType (opacityType: RenderEntityOpacityType): void {
+        if (JSB) {
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.opacityType] = opacityType;
+        }
+        this._opacityType = opacityType;
+    }
+
     public getStaticRenderDrawInfo (): RenderDrawInfo | null {
         if (JSB) {
             const nativeDrawInfo = this._nativeObj.getStaticRenderDrawInfo(this._nativeObj.staticDrawInfoSize++);
@@ -237,13 +274,6 @@ export class RenderEntity {
         this._stencilStage = stage;
     }
 
-    setUseLocal (useLocal: boolean): void {
-        if (JSB) {
-            this._boolSharedBuffer[RenderEntityBoolSharedBufferView.useLocal] = useLocal ? 1 : 0;
-        }
-        this._useLocal = useLocal;
-    }
-
     private initSharedBuffer (): void {
         if (JSB) {
             //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
@@ -251,7 +281,7 @@ export class RenderEntity {
             let offset = 0;
             this._uint8SharedBuffer = new Uint8Array(buffer, offset, RenderEntityUInt8SharedBufferView.count);
             offset += RenderEntityUInt8SharedBufferView.count * 1;
-            this._boolSharedBuffer = new Uint8Array(buffer, offset, RenderEntityBoolSharedBufferView.count);
+            this._boolSharedBuffer = new Uint8Array(buffer, offset, 1); // Only use 1 bytes for at most 8 booleans
         }
     }
 }

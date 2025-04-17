@@ -40,7 +40,7 @@ import { UITransform } from './ui-transform';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Renderer } from '../../misc/renderer';
-import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { RenderEntity, RenderEntityType, RenderEntityOpacityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
@@ -216,13 +216,6 @@ export class UIRenderer extends Renderer {
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
-     */
-    get useVertexOpacity (): boolean {
-        return this._useVertexOpacity;
-    }
-
-    /**
-     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -300,10 +293,48 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @en Marks for calculating opacity per vertex
-     * @zh 标记组件是否逐顶点计算透明度
+     * @en The opacity type for the UIRenderer component.
+     * @zh UI 渲染组件透明度类型
      */
-    protected _useVertexOpacity = false;
+    private _opacityType = RenderEntityOpacityType.COLOR;
+
+    /**
+     * @engineInternal
+     */
+    public getOpacityType (): RenderEntityOpacityType {
+        return this._opacityType;
+    }
+
+    /**
+     * @engineInternal
+     */
+    protected setOpacityType (val: RenderEntityOpacityType): void {
+        this._opacityType = val;
+        if (JSB) {
+            this._renderEntity.setOpacityType(val);
+        }
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    protected set _useVertexOpacity (val: boolean) {
+        this.setOpacityType(RenderEntityOpacityType.VERTEX);
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    protected get _useVertexOpacity (): boolean {
+        return this._opacityType === RenderEntityOpacityType.VERTEX;
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    get useVertexOpacity (): boolean {
+        return this._opacityType === RenderEntityOpacityType.VERTEX;
+    }
 
     protected _lastParent: Node | null = null;
 

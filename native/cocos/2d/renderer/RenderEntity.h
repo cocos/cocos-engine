@@ -49,16 +49,26 @@ enum class MaskMode : uint8_t {
     MASK_NODE_INVERTED
 };
 
+enum class UIOpacityType: uint8_t {
+    COLOR,
+    VERTEX,
+    MULTIPLY,
+};
+
 struct EntityAttrLayout {
     uint8_t colorR{255};
     uint8_t colorG{255};
     uint8_t colorB{255};
     uint8_t colorA{255};
     uint8_t maskMode{0};
-    uint8_t colorDirtyBit{1};
-    uint8_t enabledIndex{0};
-    uint8_t useLocal{0};
+    UIOpacityType opacityType{UIOpacityType::COLOR};
+    uint8_t colorDirtyBit: 1;
+    uint8_t enabledIndex: 1;
+    uint8_t useLocal: 1;
+    uint8_t paddings: 5;
 };
+
+static_assert(sizeof(EntityAttrLayout) == 7, "Be carefull to add property to EntityAttrLayout which may cause the potential cache miss");
 
 class RenderEntity final : public Node::UserData {
 public:
@@ -89,6 +99,8 @@ public:
     inline void setUseLocal(bool useLocal) {
         _entityAttrLayout.useLocal = useLocal;
     }
+    
+    inline UIOpacityType getOpacityType() const { return _entityAttrLayout.opacityType; }
 
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
@@ -135,23 +147,28 @@ public:
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
     // weak reference
-    Node* _node{nullptr}; // 8
+    Node* _node{nullptr};
 
     // weak reference
-    Node* _renderTransform{nullptr}; // 8
+    Node* _renderTransform{nullptr};
     
-    bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor; // 8
+    bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor;
 
     union {
-        std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos; // 144 * 4 = 576
+        std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
         ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
     };
-    EntityAttrLayout _entityAttrLayout; // 12
-    StencilStage _stencilStage{StencilStage::DISABLED};  // 1
-    RenderEntityType _renderEntityType{RenderEntityType::STATIC}; // 1
-    uint8_t _staticDrawInfoSize{0}; // 1
-    bool _vbColorDirty{true}; // 1
-    float _opacity{1.0F};  // 4
+    EntityAttrLayout _entityAttrLayout;
+    
+    StencilStage _stencilStage{StencilStage::DISABLED};
+    RenderEntityType _renderEntityType{RenderEntityType::STATIC};
+    uint8_t _staticDrawInfoSize{0};
+    bool _vbColorDirty{true};
+    uint8_t paddings[1];
+    
+    float _opacity{1.0F};
 };
+
+static_assert(sizeof(RenderEntity) == 632, "Be carefull to add property to RenderEntity which may cause the potential cache miss");
 
 } // namespace cc

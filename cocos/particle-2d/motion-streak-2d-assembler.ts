@@ -89,7 +89,7 @@ class MotionStreakAssembler implements IAssembler {
         const cr = color.r;
         const cg = color.g;
         const cb = color.b;
-        const ca = color.a;
+        const ca = color.a * comp.node._uiProps.opacity;
 
         const prev = points[1];
         prev.distance = Vec2.subtract(_vec2, cur.point, prev.point).length();
@@ -153,6 +153,9 @@ class MotionStreakAssembler implements IAssembler {
         indexCount = vertexCount <= 2 ? 0 : (vertexCount - 2) * 3;
 
         renderData.resize(vertexCount, indexCount); // resize
+
+        node._uiProps.colorDirty = true;
+
         if (JSB) {
             const indexCount = renderData.indexCount;
             this.createQuadIndices(comp, indexCount);

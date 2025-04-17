@@ -305,4 +305,7 @@ private:
     IntrusivePtr<gfx::Buffer> _vb;
     IntrusivePtr<gfx::Buffer> _ib;
 };
+
+static_assert(sizeof(RenderDrawInfo) == 144, "Be carefull to add property to RenderDrawInfo which may cause the potential cache miss");
+
 } // namespace cc
