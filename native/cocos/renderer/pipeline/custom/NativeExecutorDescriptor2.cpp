@@ -584,11 +584,15 @@ struct DescriptorSetVisitorContext {
         CC_EXPECTS(mPassID != RenderGraph::null_vertex());
         CC_EXPECTS(mSubpassID == RenderGraph::null_vertex());
         CC_EXPECTS(mQueueID == RenderGraph::null_vertex());
+        // Stack: Pass
         CC_EXPECTS(mPassLayoutIdStack.size() == 1);
+        // Stack: _
         CC_EXPECTS(mPhaseLayoutIdStack.empty());
-
+        // Stack: _
         CC_EXPECTS(mRenderDataStack.empty());
+        // Stack: _
         CC_EXPECTS(mPerPassDeviceRenderDataStack.empty());
+        // Stack: _
         CC_EXPECTS(mPerQueueDeviceRenderDataStack.empty());
 
         // Add global and pass render data to the stack
@@ -599,8 +603,11 @@ struct DescriptorSetVisitorContext {
         collectPerPassDescriptors(v);
 
         // Post conditions
+        // Stack: Global + Pass
         CC_ENSURES(mRenderDataStack.size() == 2);
+        // Stack: Pass
         CC_ENSURES(mPerPassDeviceRenderDataStack.size() == 1);
+        // Stack: _
         CC_ENSURES(mPerQueueDeviceRenderDataStack.empty()); // Pass does not set queue descriptor set
     }
 
@@ -608,11 +615,15 @@ struct DescriptorSetVisitorContext {
         CC_EXPECTS(mPassID != RenderGraph::null_vertex());
         CC_EXPECTS(mSubpassID != RenderGraph::null_vertex());
         CC_EXPECTS(mQueueID == RenderGraph::null_vertex());
+        // Stack: Pass + Subpass
         CC_EXPECTS(mPassLayoutIdStack.size() == 2);
+        // Stack: _
         CC_EXPECTS(mPhaseLayoutIdStack.empty());
-
+        // Stack: Global + Pass
         CC_EXPECTS(mRenderDataStack.size() == 2);
+        // Stack: Pass
         CC_EXPECTS(mPerPassDeviceRenderDataStack.size() == 1);
+        // Stack: _
         CC_EXPECTS(mPerQueueDeviceRenderDataStack.empty());
 
         // Add subpass render data to the stack
@@ -622,19 +633,26 @@ struct DescriptorSetVisitorContext {
         collectPerPassDescriptors(v);
 
         // Post conditions
+        // Stack: Global + Pass + Subpass
         CC_ENSURES(mRenderDataStack.size() == 3);
+        // Stack: Pass + Subpass
         CC_ENSURES(mPerPassDeviceRenderDataStack.size() == 2);
+        // Stack: _
         CC_ENSURES(mPerQueueDeviceRenderDataStack.empty()); // Subpass does not set queue descriptor set
     }
 
     void collectQueueDescriptors(const RenderGraph::vertex_descriptor v) {
         CC_EXPECTS(mPassID != RenderGraph::null_vertex());
         CC_EXPECTS(mQueueID != RenderGraph::null_vertex());
+        // Stack: Pass + (Subpass) + Queue
         CC_EXPECTS(mPassLayoutIdStack.size() == 2 + (mSubpassID != RenderGraph::null_vertex()));
+        // Stack: Queue
         CC_EXPECTS(mPhaseLayoutIdStack.size() == 1);
-
+        // Stack: Global + Pass + (Subpass)
         CC_EXPECTS(mRenderDataStack.size() == 2 + (mSubpassID != RenderGraph::null_vertex()));
+        // Stack: Pass + (Subpass)
         CC_EXPECTS(mPerPassDeviceRenderDataStack.size() == 1 + (mSubpassID != RenderGraph::null_vertex()));
+        // Stack: _
         CC_EXPECTS(mPerQueueDeviceRenderDataStack.empty());
 
         // Add queue render data to the stack
@@ -645,8 +663,11 @@ struct DescriptorSetVisitorContext {
         collectPerPhaseDescriptors(v);
 
         // Post conditions
+        // Stack: Global + Pass + (Subpass) + Queue
         CC_ENSURES(mRenderDataStack.size() == 3 + (mSubpassID != RenderGraph::null_vertex()));
+        // Stack: Pass + (Subpass) + Queue
         CC_ENSURES(mPerPassDeviceRenderDataStack.size() == 2 + (mSubpassID != RenderGraph::null_vertex()));
+        // Stack: Queue
         CC_ENSURES(mPerQueueDeviceRenderDataStack.size() == 1);
     }
 
