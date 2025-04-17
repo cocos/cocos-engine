@@ -1,27 +1,27 @@
-// /* eslint-disable @typescript-eslint/no-namespace */
-// /*
-//  Copyright (c) 2024-2025 Xiamen Yaji Software Co., Ltd.
+/* eslint-disable @typescript-eslint/no-namespace */
+/*
+ Copyright (c) 2024-2025 Xiamen Yaji Software Co., Ltd.
 
-//  https://www.cocos.com/
+ https://www.cocos.com/
 
-//  Permission is hereby granted, free of charge, to any person obtaining a copy
-//  of this software and associated documentation files (the "Software"), to deal
-//  in the Software without restriction, including without limitation the rights to
-//  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-//  of the Software, and to permit persons to whom the Software is furnished to do so,
-//  subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
-//  The above copyright notice and this permission notice shall be included in
-//  all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-//  THE SOFTWARE.
-// */
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
 
 import './billing/billing-enum';
 import './play/play-enum';
@@ -34,7 +34,7 @@ export declare namespace google {
             export interface Product {
                 /**
                  * @en Hash code
-                 * @zh hash值
+                 * @zh hash 值
                  */
                 hashCode(): number;
                 /**
@@ -49,17 +49,17 @@ export declare namespace google {
                 getOfferToken(): string;
                 /**
                  * @en Returns the ProductType of the product being purchased.
-                 * @zh 返回ProductType所购买产品的。
+                 * @zh 返回所购买产品的类型（ProductType）。
                  */
                 getType(): string;
                 /**
                  * @en To string
-                 * @zh 转换成字符串
+                 * @zh 转换成字符串。
                  */
                 toString(): string;
                 /**
                  * @en Is it equal to another UserChoiceDetails.Product.
-                 * @zh 判断与另一个UserChoiceDetails.Product是否相等。
+                 * @zh 判断与另一个 UserChoiceDetails.Product 是否相等。
                  */
                 equals(product: Product): boolean;
             }
@@ -67,7 +67,7 @@ export declare namespace google {
         export class UserChoiceDetails {
             /**
              * @en Returns a token that represents the user's prospective purchase via user choice alternative billing.
-             * @zh 返回一个令牌，该令牌代表用户通过用户选择的替代计费方式进行的潜在购买。
+             * @zh 返回一个令牌，该令牌代表用户通过用户选择的替代 Billing 方式进行的潜在购买。
              */
             getExternalTransactionToken(): string;
             /**
@@ -77,7 +77,7 @@ export declare namespace google {
             getOriginalExternalTransactionId(): string;
             /**
              * @en Returns a list of Product to be purchased in the user choice alternative billing flow.
-             * @zh Product返回用户选择替代计费流程中要购买的商品列表。
+             * @zh Product 返回用户选择替代 Billing 流程中要购买的商品列表。
              */
             getProducts(): UserChoiceDetails.Product[];
         }
@@ -128,7 +128,7 @@ export declare namespace google {
         export interface PricingPhase {
             /**
              * @en Number of cycles for which the billing period is applied.
-             * @zh 计费周期适用的周期数。
+             * @zh Billing 周期适用的周期数。
              */
             getBillingCycleCount(): number;
             /**
@@ -138,12 +138,12 @@ export declare namespace google {
             getPriceAmountMicros(): number;
             /**
              * @en RecurrenceMode for the pricing phase.
-             * @zh 定价阶段的RecurrenceMode。
+             * @zh 定价阶段的 RecurrenceMode 。
              */
             getRecurrenceMode(): number;
             /**
              * @en Billing period for which the given price applies, specified in ISO 8601 format.
-             * @zh 给定价格适用的计费期，以 ISO 8601 格式指定。
+             * @zh 给定价格适用的 billing 期，以 ISO 8601 格式指定。
              */
             getBillingPeriod(): string;
             /**
@@ -229,7 +229,7 @@ export declare namespace google {
             equals(other: ProductDetails): boolean;
             /**
              * @en Hash code
-             * @zh hash值
+             * @zh hash 值
              */
             hashCode(): number;
             /**
@@ -244,12 +244,12 @@ export declare namespace google {
             getName(): string;
             /**
              * @en The product's Id.
-             * @zh 产品的 ID。
+             * @zh 产品的 Id。
              */
             getProductId(): string;
             /**
              * @en The ProductType of the product.
-             * @zh ProductType产品的。
+             * @zh 产品的类型（ProductType）。
              */
             getProductType(): string;
             /**
@@ -259,7 +259,7 @@ export declare namespace google {
             getTitle(): string;
             /**
              * @en To string
-             * @zh 转换成字符串
+             * @zh 转换成字符串。
              */
             toString(): string;
             /**
@@ -281,12 +281,12 @@ export declare namespace google {
         export interface AccountIdentifiers {
             /**
              * @en The obfuscated account id specified in setObfuscatedAccountId.
-             * @zh 在setObfuscatedAccountId中设置的混淆账户id
+             * @zh 在 setObfuscatedAccountId 中设置的混淆账户id
              */
             getObfuscatedAccountId(): string;
             /**
              * @en The obfuscated profile id specified in setObfuscatedProfileId.
-             * @zh 在setObfuscatedProfileId中设置的混淆profile id
+             * @zh 在 setObfuscatedProfileId 中设置的混淆profile id
              */
             getObfuscatedProfileId(): string;
         }
@@ -346,7 +346,7 @@ export declare namespace google {
         }
         /**
          * @en Represents an in-app billing purchase.
-         * @zh 代表应用内billing购买。
+         * @zh 代表应用内 billing 购买。
          */
         export class Purchase {
             static PurchaseState: typeof google.billing.PurchaseState;
@@ -372,7 +372,7 @@ export declare namespace google {
             isAutoRenewing(): number;
             /**
              * @en Hash code
-             * @zh hash值
+             * @zh hash 值
              */
             hashCode(): number;
 
@@ -413,7 +413,7 @@ export declare namespace google {
             getSignature(): string;
             /**
              * @en To string
-             * @zh 转换成字符串
+             * @zh 转换成字符串。
              */
             toString(): string;
 
@@ -424,19 +424,19 @@ export declare namespace google {
             getAccountIdentifiers(): AccountIdentifiers;
             /**
              * @en The PendingPurchaseUpdate for an uncommitted transaction.
-             * @zh 返回PendingPurchaseUpdate未提交的事务。
+             * @zh 返回 PendingPurchaseUpdate 未提交的事务。
              */
             getPendingPurchaseUpdate(): PendingPurchaseUpdate;
             /**
              * @en the product Ids.
-             * @zh 产品 ID。
+             * @zh 产品 Ids。
              */
             getProducts(): string[];
         }
 
         /**
          * @en BillingConfig stores configuration used to perform billing operations.
-         * @zh BillingConfig 存储用于执行 billing 操作的配置。
+         * @zh BillingConfig 存储用于执行 Billing 操作的配置。
          */
         export interface BillingConfig {
             /**
@@ -448,7 +448,7 @@ export declare namespace google {
 
         /**
          * @en The details used to report transactions made via alternative billing without user choice to use Google Play Billing.
-         * @zh 用于报告用户未选择使用 Google Play Billing 方式而通过替代Billing方式进行的交易的详细信息。
+         * @zh 用于报告用户未选择使用 Google Play Billing 方式而通过替代 Billing 方式进行的交易的详细信息。
          */
         export interface AlternativeBillingOnlyReportingDetails {
             /**
@@ -531,7 +531,7 @@ export declare namespace google {
             getDebugMessage(): string;
             /**
              * @en To string
-             * @zh 转换成字符串
+             * @zh 转换成字符串。
              */
             toString(): string;
             /**
@@ -630,12 +630,12 @@ export declare namespace google {
             export interface Builder {
                 /**
                  * @en Set the list of Product.
-                 * @zh 设置列表Product。
+                 * @zh 设置列表 Product 。
                  */
                 setProductList: (products: QueryProductDetailsParamsProduct[]) => QueryProductDetailsParams.Builder;
                 /**
                  * @en Returns an instance of QueryProductDetailsParams.
-                 * @zh 返回一个QueryProductDetailsParams实例。
+                 * @zh 返回一个 QueryProductDetailsParams 实例。
                  */
                 build: () => QueryProductDetailsParams;
             }
@@ -647,7 +647,7 @@ export declare namespace google {
                 export interface Builder {
                     /**
                      * @en Sets the product id of the product.
-                     * @zh 设置产品的产品 ID。
+                     * @zh 设置产品的产品 id 。
                      */
                     setProductId: (productID: string) => Builder;
                     /**
@@ -816,7 +816,7 @@ export declare namespace google {
         export interface AlternativeBillingOnlyInformationDialogListener {
             /**
              * @en Called to notify that the alternative billing only dialog flow is finished.
-             * @zh 调用此命令来通知仅备选计费对话流程已完成。
+             * @zh 调用此命令来通知仅备选 billing 对话流程已完成。
              */
             onAlternativeBillingOnlyInformationDialogResponse(
                 billingResult: BillingResult
@@ -1059,7 +1059,7 @@ export declare namespace google {
              * Get billing config.
              *
              * @zh
-             * 获取计费配置。
+             * 获取 billing 配置。
              */
             BILLING_CONFIG = 'ggg',
             /**
@@ -1164,7 +1164,7 @@ export declare namespace google {
              * The new plan takes effect immediately, and the billing cycle remains the same.
              *
              * @zh
-             * 新计划立即生效，计费周期保持不变。
+             * 新计划立即生效，Billing 周期保持不变。
              */
             CHARGE_PRORATED_PRICE = 2,
             /**
@@ -1181,7 +1181,7 @@ export declare namespace google {
              * is given a full billing cycle of subscription, plus remaining prorated time from the old plan.
              *
              * @zh
-             * 替换立即生效，用户将被收取新计划的全额费用，并获得一个完整的计费周期，加上旧计划按比例计算的剩余时间。
+             * 替换立即生效，用户将被收取新计划的全额费用，并获得一个完整的 Billing 周期，加上旧计划按比例计算的剩余时间。
              */
             CHARGE_FULL_PRICE = 5,
             /**
@@ -1241,7 +1241,7 @@ export declare namespace google {
              * The billing plan payment recurs for a fixed number of billing period set in billingCycleCount.
              *
              * @zh
-             * Billing计划付款将在 billingCycleCount 中设置的固定计费周期内重复发生。
+             * Billing计划付款将在 billingCycleCount 中设置的固定 Billing 周期内重复发生。
              */
             FINITE_RECURRING = 2,
             /**
@@ -1276,7 +1276,7 @@ export declare namespace google {
             /**
              * @en If the originating transaction for the suscription that the user is upgrading or downgrading from was
              *     processed via alternative billing, specifies the external transaction id of the originating subscription.
-             * @zh 如果用户升级或降级的订阅的原始交易是通过替代计费处理的，则指定原始订阅的外部交易 ID。
+             * @zh 如果用户升级或降级的订阅的原始交易是通过替代 Billing 处理的，则指定原始订阅的外部交易 ID。
              */
             setOriginalExternalTransactionId: (externalTransactionId: string) => SubscriptionUpdateParamsBuilder;
             /**
@@ -1545,7 +1545,7 @@ export declare namespace google {
             endConnection: () => void;
             /**
              * @en Get the current billing client connection state.
-             * @zh 获取当前计费客户端连接状态。
+             * @zh 获取当前 billing 客户端连接状态。
              */
             getConnectionState: () => number;
             /**
@@ -1560,7 +1560,7 @@ export declare namespace google {
             queryProductDetailsAsync: (params: QueryProductDetailsParams, listener: ProductDetailsResponseListener) => void;
             /**
              * @en Initiates the billing flow for an in-app purchase or subscription.
-             * @zh 启动应用内购买或订阅的计费流程。
+             * @zh 启动应用内购买或订阅的 Billing 流程。
              */
             launchBillingFlow: (params: BillingFlowParams) => void;
             /**
@@ -1580,7 +1580,7 @@ export declare namespace google {
             queryPurchasesAsync: (params: QueryPurchasesParams, listener: PurchasesResponseListener) => void;
             /**
              * @en Gets the billing config, which stores configuration used to perform billing operations.
-             * @zh 获取 billing 配置，其中存储用于执行 billing 操作的配置。
+             * @zh 获取 billing 配置，其中存储用于执行 Billing 操作的配置。
              */
             getBillingConfigAsync: (params: GetBillingConfigParams, listener: BillingConfigResponseListener) => void;
             /**
@@ -1611,7 +1611,7 @@ export declare namespace google {
             isFeatureSupported: (productType: string) => BillingResult;
             /**
              * @en Shows the alternative billing only information dialog on top of the calling app.
-             * @zh 在呼叫应用程序顶部显示仅备选计费信息对话框。
+             * @zh 在呼叫应用程序顶部显示仅备选 billing 信息对话框。
              */
             showAlternativeBillingOnlyInformationDialog: (listener: AlternativeBillingOnlyInformationDialogListener) => void;
             /**
@@ -1621,7 +1621,7 @@ export declare namespace google {
             showExternalOfferInformationDialog: (listener: ExternalOfferInformationDialogListener) => void;
             /**
              * @en Overlays billing related messages on top of the calling app.
-             * @zh 在呼叫应用程序上覆盖与计费相关的消息。
+             * @zh 在呼叫应用程序上覆盖与 billing 相关的消息。
              */
             showInAppMessages: (params: InAppMessageParams, listener: InAppMessageResponseListener) => void;
         }
@@ -1648,7 +1648,7 @@ export declare namespace google {
             private constructor();
             /**
              * @en Hash code
-             * @zh hash值
+             * @zh hash 值。
              */
             public hashCode(): number;
             /**
@@ -1706,12 +1706,12 @@ export declare namespace google {
             public static STATE_HIDDEN: number;
             /**
              * @en Constant returned by getType() indicating a standard achievement.
-             * @zh getState 返回的常量表示标准的成就。
+             * @zh getType 返回的常量表示标准的成就。
              */
             public static TYPE_STANDARD: number;
             /**
              * @en Constant returned by getType() indicating an incremental achievement.
-             * @zh getState 返回的常量表示增量的成就。
+             * @zh getType 返回的常量表示增量的成就。
              */
             public static TYPE_INCREMENTAL: number;
             /**
@@ -1722,7 +1722,7 @@ export declare namespace google {
             public getCurrentSteps(): number;
             /**
              * @en Returns the Achievement.AchievementState of the achievement.
-             * @zh 返回 Achievement.AchievementState 成就。
+             * @zh 返回该成就的状态（Achievement.AchievementState）。
              */
             public getState(): number;
             /**
