@@ -90,9 +90,7 @@ class MotionStreakAssembler implements IAssembler {
         const cg = color.g;
         const cb = color.b;
 
-        const localOpacity = node._uiProps.localOpacity;
-        const parentOpacity = node.parent ? node.parent._uiProps.opacity : 1;
-        const ca = parentOpacity * localOpacity * color.a;
+        const ca = node._uiProps.opacity * color.a;
 
         const prev = points[1];
         prev.distance = Vec2.subtract(_vec2, cur.point, prev.point).length();
