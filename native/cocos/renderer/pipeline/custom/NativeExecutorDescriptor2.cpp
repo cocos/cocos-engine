@@ -45,10 +45,6 @@ namespace render {
 
 namespace {
 
-using RenderGraphData = RenderGraph;
-using RootSignatureGraphImpl = LayoutGraphData;
-using RootArgumentKey = DescriptorSetKey;
-
 struct DescriptorSetVisitorContext {
     void setupRenderPass(RenderGraph::vertex_descriptor passID, std::string_view passLayoutName) {
         CC_EXPECTS(!passLayoutName.empty());
@@ -241,7 +237,7 @@ struct DescriptorSetVisitorContext {
         return mPassID;
     }
 
-    DeviceRenderData& getOrCreateDeviceRenderData(const RootArgumentKey& key) const {
+    DeviceRenderData& getOrCreateDeviceRenderData(const DescriptorSetKey& key) const {
         auto& context = pipeline.nativeContext;
         auto iter = context.graphNodeRenderData.find(key);
         if (iter != context.graphNodeRenderData.end()) {
@@ -496,8 +492,8 @@ struct DescriptorSetVisitorContext {
 
     DeviceRenderData* collectDescriptors(
         boost::span<const RenderData* const> renderDataRange,
-        const RootArgumentKey& key,
-        RootSignatureGraphImpl::vertex_descriptor layoutID,
+        const DescriptorSetKey& key,
+        LayoutGraphData::vertex_descriptor layoutID,
         bool includeRenderGraphResource = false) const {
         const PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>*
             resourceIndex = nullptr;
@@ -545,7 +541,7 @@ struct DescriptorSetVisitorContext {
         return deviceData;
     }
 
-    void collectPerPassDescriptors(const RenderGraphData::vertex_descriptor v) {
+    void collectPerPassDescriptors(const RenderGraph::vertex_descriptor v) {
         CC_EXPECTS(mPassLayoutIdStack.size() >= 1);
         const bool fullRange = mPassLayoutIdStack.size() < 2 ||
                                mPassLayoutIdStack[mPassLayoutIdStack.size() - 1] !=
@@ -562,12 +558,12 @@ struct DescriptorSetVisitorContext {
         mPerPassDeviceRenderDataStack.emplace_back(
             collectDescriptors(
                 renderDataRange,
-                RootArgumentKey{v, UpdateFrequency::PER_PASS},
+                DescriptorSetKey{v, UpdateFrequency::PER_PASS},
                 mPassLayoutIdStack.back(),
                 includeRenderGraphResource));
     }
 
-    void collectPerPhaseDescriptors(const RenderGraphData::vertex_descriptor v) {
+    void collectPerPhaseDescriptors(const RenderGraph::vertex_descriptor v) {
         CC_EXPECTS(mPhaseLayoutIdStack.size() >= 1);
         const auto renderDataRange =
             mPhaseLayoutIdStack.size() < 2 ||
@@ -580,11 +576,11 @@ struct DescriptorSetVisitorContext {
         mPerQueueDeviceRenderDataStack.emplace_back(
             collectDescriptors(
                 renderDataRange,
-                RootArgumentKey{v, UpdateFrequency::PER_PHASE},
+                DescriptorSetKey{v, UpdateFrequency::PER_PHASE},
                 mPhaseLayoutIdStack.back()));
     }
 
-    void collectPassDescriptors(const RenderGraphData::vertex_descriptor v) {
+    void collectPassDescriptors(const RenderGraph::vertex_descriptor v) {
         CC_EXPECTS(mPassID != RenderGraph::null_vertex());
         CC_EXPECTS(mSubpassID == RenderGraph::null_vertex());
         CC_EXPECTS(mQueueID == RenderGraph::null_vertex());
@@ -608,7 +604,7 @@ struct DescriptorSetVisitorContext {
         CC_ENSURES(mPerQueueDeviceRenderDataStack.empty()); // Pass does not set queue descriptor set
     }
 
-    void collectSubpassDescriptors(const RenderGraphData::vertex_descriptor v) {
+    void collectSubpassDescriptors(const RenderGraph::vertex_descriptor v) {
         CC_EXPECTS(mPassID != RenderGraph::null_vertex());
         CC_EXPECTS(mSubpassID != RenderGraph::null_vertex());
         CC_EXPECTS(mQueueID == RenderGraph::null_vertex());
@@ -631,7 +627,7 @@ struct DescriptorSetVisitorContext {
         CC_ENSURES(mPerQueueDeviceRenderDataStack.empty()); // Subpass does not set queue descriptor set
     }
 
-    void collectQueueDescriptors(const RenderGraphData::vertex_descriptor v) {
+    void collectQueueDescriptors(const RenderGraph::vertex_descriptor v) {
         CC_EXPECTS(mPassID != RenderGraph::null_vertex());
         CC_EXPECTS(mQueueID != RenderGraph::null_vertex());
         CC_EXPECTS(mPassLayoutIdStack.size() == 2 + (mSubpassID != RenderGraph::null_vertex()));
@@ -654,7 +650,7 @@ struct DescriptorSetVisitorContext {
         CC_ENSURES(mPerQueueDeviceRenderDataStack.size() == 1);
     }
 
-    void collectSceneDescriptors(const RenderGraphData::vertex_descriptor v) {
+    void collectSceneDescriptors(const RenderGraph::vertex_descriptor v) {
         CC_EXPECTS(mPassID != RenderGraph::null_vertex());
         CC_EXPECTS(mQueueID != RenderGraph::null_vertex());
         // Stack: Pass + (Subpass) + Queue + Scene
