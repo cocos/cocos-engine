@@ -293,6 +293,7 @@ export default class NodeActivator {
         }
         node._objFlags |= Deactivating;
         node._setActiveInHierarchy(false);
+        node._uiProps.setOpacity(0);
 
         // component maybe added during onEnable, and the onEnable of new component is already called
         // so we should record the origin length
