@@ -920,6 +920,7 @@ declare namespace spine {
         MipMapNearestNearest = 9984,
         MipMapLinearNearest = 9985,
         MipMapNearestLinear = 9986,
+        // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
         MipMapLinearLinear = 9987
     }
     enum TextureWrap {
