@@ -932,14 +932,12 @@ spine::Slot *SkeletonRenderer::findSlot(const std::string &slotName) const {
 void SkeletonRenderer::setSkin(const std::string &skinName) {
     if (_skeleton) {
         _skeleton->setSkin(skinName.empty() ? nullptr : skinName.c_str());
-        _skeleton->setSlotsToSetupPose();
     }
 }
 
 void SkeletonRenderer::setSkin(const char *skinName) {
     if (_skeleton) {
         _skeleton->setSkin(skinName);
-        _skeleton->setSlotsToSetupPose();
     }
 }
 
