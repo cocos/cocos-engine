@@ -730,7 +730,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
-            const texture = mat.getProperty('mainTexture', 0) as Texture2D;
+            const texture = mat.getProperty('mainTexture', 0) as Texture2D | null;
             if (texture && texture.isAlphaAtlas) {
                 textureModule.scaleNumTilesXY(2);
                 this._defines[CC_USE_EMBEDDED_ALPHA] = true;
@@ -777,7 +777,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _matInsInfo.subModelIdx = 0;
             }
             mat = mat || this._defaultTrailMat!;
-            const texture = mat.getProperty('mainTexture', 0) as Texture2D;
+            const texture = mat.getProperty('mainTexture', 0) as Texture2D | null;
             if (texture && texture.isAlphaAtlas) {
                 this._trailDefines[CC_USE_EMBEDDED_ALPHA] = true;
             }
