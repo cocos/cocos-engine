@@ -636,7 +636,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             const texture = mat.getProperty('mainTexture', 0) as Texture2D | null;
             if (texture && texture.isAlphaAtlas) {
                 textureModule.scaleNumTilesXY(2);
@@ -650,12 +649,12 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             Vec4.copy(this._unifrom_velLenScale, this._tmp_velLenScale);
         }
 
-        this.initShaderUniform(mat!);
+        this.initShaderUniform(mat);
 
-        mat!.recompileShaders(this._defines);
+        mat.recompileShaders(this._defines);
 
         if (this._model) {
-            this._model.updateMaterial(mat!);
+            this._model.updateMaterial(mat);
         }
     }
 
