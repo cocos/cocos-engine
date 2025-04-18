@@ -1,7 +1,7 @@
 #pragma once
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
-#include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "pipeline/custom/RenderGraphTypes.h"
 
@@ -55,7 +55,6 @@ inline LayoutGraphData::vertex_descriptor getSubpassOrPassID(
             CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
             layoutID = subpassLayoutID;
         }
-        
     }
     CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
     return layoutID;

@@ -41,7 +41,7 @@
 #include "cocos/scene/RenderWindow.h"
 #include "cocos/scene/SpotLight.h"
 #include "cocos/scene/DirectionalLight.h"
-#include "bindings/jswrapper/SeApi.h"
+#include "bindings/jswrapper/SeApi.h" // IWYU pragma: keep
 #include "cocos/renderer/pipeline/custom/NativeUtils.h"
 
 #if CC_USE_DEBUG_RENDERER
