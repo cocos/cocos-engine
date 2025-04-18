@@ -204,6 +204,7 @@ export class UIOpacity extends Component {
             this._parentOpacity = this._getParentOpacity(parent);
             opacity = this._parentOpacity;
         } else {
+            this._parentOpacity = 1;
             this._parentOpacityResetFlag = true;
         }
         setEntityLocalOpacityDirtyRecursively(this.node, true, opacity, false);
@@ -214,11 +215,14 @@ export class UIOpacity extends Component {
         if (!JSB) {
             return;
         }
+
+        this.node._uiProps.localOpacity = opacity;
+
         const render = this.node._uiProps.uiComp as UIRenderer;
         if (render && render.color) { // exclude UIMeshRenderer which has not color
             render.renderEntity.colorDirty = true;
             render.renderEntity.localOpacity = opacity;
-            render.node._uiProps.localOpacity = opacity;
+            // render.node._uiProps.localOpacity = opacity;
             return;
         }
         // The current node is not recursive, only the child nodes are recursive.
@@ -229,18 +233,20 @@ export class UIOpacity extends Component {
 
     public onEnable (): void {
         this.node.on(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
-        this.node._uiProps.localOpacity = this._parentOpacity * this._opacity / 255;
+        const opacity = this._opacity / 255;
+        this.node._uiProps.localOpacity = opacity;
         if (this._parentOpacityResetFlag) {
             this._parentChanged();
             this._parentOpacityResetFlag = false;
         } else {
-            this._setEntityLocalOpacityRecursively(this.node._uiProps.localOpacity);
+            this._setEntityLocalOpacityRecursively(this._parentOpacity * opacity);
         }
     }
 
     public onDisable (): void {
         this.node.off(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
         this.node._uiProps.localOpacity = 1;
-        this._setEntityLocalOpacityRecursively(this.node._uiProps.localOpacity);
+        this._parentOpacity = 1;
+        this._setEntityLocalOpacityRecursively(1);
     }
 }
