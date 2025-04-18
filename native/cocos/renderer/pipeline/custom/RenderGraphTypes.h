@@ -947,18 +947,26 @@ struct Dispatch {
     uint32_t threadGroupCountZ{0};
 };
 
+enum class BlitType : uint8_t {
+    FULLSCREEN_QUAD,
+    DRAW_2D,
+    DRAW_PROFILE,
+};
+
 struct Blit {
     Blit() = default;
-    Blit(IntrusivePtr<Material> materialIn, uint32_t passIDIn, SceneFlags sceneFlagsIn, scene::Camera* cameraIn) noexcept
+    Blit(IntrusivePtr<Material> materialIn, uint32_t passIDIn, SceneFlags sceneFlagsIn, const scene::Camera* cameraIn, BlitType blitTypeIn) noexcept
     : material(std::move(materialIn)),
       passID(passIDIn),
       sceneFlags(sceneFlagsIn),
-      camera(cameraIn) {}
+      camera(cameraIn),
+      blitType(blitTypeIn) {}
 
     IntrusivePtr<Material> material;
     uint32_t passID{0};
     SceneFlags sceneFlags{SceneFlags::NONE};
-    scene::Camera* camera{nullptr};
+    const scene::Camera* camera{nullptr};
+    BlitType blitType{BlitType::FULLSCREEN_QUAD};
 };
 
 struct RenderData {

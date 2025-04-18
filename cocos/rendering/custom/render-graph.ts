@@ -1080,23 +1080,44 @@ export class Dispatch {
     declare threadGroupCountZ: number;
 }
 
+export const enum BlitType {
+    FULLSCREEN_QUAD,
+    DRAW_2D,
+    DRAW_PROFILE,
+}
+
 export class Blit {
-    constructor (material: Material | null = null, passID = 0, sceneFlags: SceneFlags = SceneFlags.NONE, camera: Camera | null = null) {
+    constructor (
+        material: Material | null = null,
+        passID = 0,
+        sceneFlags: SceneFlags = SceneFlags.NONE,
+        camera: Camera | null = null,
+        blitType: BlitType = BlitType.FULLSCREEN_QUAD,
+    ) {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
         this.camera = camera;
+        this.blitType = blitType;
     }
-    reset (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null): void {
+    reset (
+        material: Material | null,
+        passID: number,
+        sceneFlags: SceneFlags,
+        camera: Camera | null,
+        blitType: BlitType,
+    ): void {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
         this.camera = camera;
+        this.blitType = blitType;
     }
     declare /*refcount*/ material: Material | null;
     declare passID: number;
     declare sceneFlags: SceneFlags;
     declare /*pointer*/ camera: Camera | null;
+    declare blitType: BlitType;
 }
 
 export class RenderData {
@@ -1761,9 +1782,10 @@ export class RenderGraphObjectPool {
         passID = 0,
         sceneFlags: SceneFlags = SceneFlags.NONE,
         camera: Camera | null = null,
+        blitType: BlitType = BlitType.FULLSCREEN_QUAD,
     ): Blit {
         const v = this.b.add(); // Blit
-        v.reset(material, passID, sceneFlags, camera);
+        v.reset(material, passID, sceneFlags, camera, blitType);
         return v;
     }
     createRenderData (): RenderData {

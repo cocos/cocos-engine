@@ -250,18 +250,25 @@ struct DescriptorSetVisitorContext {
         return res.first->second;
     }
 
-    static void collectUniformBuffer(
+    void collectUniformBuffer(
         boost::span<const RenderData* const> renderDataRange,
-        const NameLocalID& attrID,
-        DeviceRenderData& data) {
-        for (auto rangeIter = renderDataRange.rbegin(); rangeIter != renderDataRange.rend(); ++rangeIter) {
-            const auto& renderData = **rangeIter;
-            if (renderData.constants.empty()) {
-                return;
-            }
-            if (renderData.constants.contains(attrID.value)) {
-                data.hasConstants = true;
-                break;
+        const gfx::UniformBlock& uniformBlock,
+        DeviceRenderData& data) const {
+        for (const auto& uniform : uniformBlock.members) {
+            const auto valueID = [&]() {
+                auto iter = layoutGraph.constantIndex.find(std::string_view{uniform.name});
+                CC_EXPECTS(iter != layoutGraph.constantIndex.end());
+                return iter->second.value;
+            }();
+            for (auto rangeIter = renderDataRange.rbegin(); rangeIter != renderDataRange.rend(); ++rangeIter) {
+                const auto& renderData = **rangeIter;
+                if (renderData.constants.empty()) {
+                    continue;
+                }
+                if (renderData.constants.contains(valueID)) {
+                    data.hasConstants = true;
+                    return;
+                }
             }
         }
     }
@@ -440,7 +447,9 @@ struct DescriptorSetVisitorContext {
                 case DescriptorTypeOrder::UNIFORM_BUFFER:
                 case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER: {
                     for (const auto& d : block.descriptors) {
-                        collectUniformBuffer(renderDataRange, d.descriptorID, data);
+                        // Get uniform block
+                        const auto& uniformBlock = table.uniformBlocks.at(d.descriptorID);
+                        collectUniformBuffer(renderDataRange, uniformBlock, data);
                     }
                 } break;
                 case DescriptorTypeOrder::STORAGE_BUFFER:
@@ -1320,24 +1329,6 @@ void NativePipeline::prepareDescriptorSets(
     gfx::CommandBuffer& cmdBuff,
     const FrameGraphDispatcher& rdg,
     RenderGraph::vertex_descriptor passID) {
-    // Clear the resource graph index
-    // Notice: we do not call `nativeContext.resourceGraphIndex.clear()`.
-    // Avoid memory allocation.
-    for (auto& [_, index] : nativeContext.resourceGraphIndex) {
-        index.clear();
-    }
-
-    // Notice: we do not call `nativeContext.graphNodeRenderData.clear()`.
-    // Avoid memory allocation.
-    // TODO(zhouzhenglong): we should use a pool allocator for this map.
-    for (auto& [_, data] : nativeContext.graphNodeRenderData) {
-        data.clear();
-        CC_ENSURES(data.hasNoData());
-    }
-
-    // Clear the descriptor sets
-    nativeContext.graphNodeDescriptorSets.clear();
-
 #if CC_DEBUG
     cmdBuff.beginMarker(makeMarkerInfo("Upload", RASTER_UPLOAD_COLOR));
 #endif
