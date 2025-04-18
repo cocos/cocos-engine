@@ -43,6 +43,7 @@ public:
     ~SpineSkeletonInstance();
     spine::Skeleton *initSkeleton(spine::SkeletonData *data);
     spine::TrackEntry *setAnimation(float trackIndex, const spine::String &name, bool loop);
+    spine::TrackEntry *addAnimation(float trackIndex, const spine::String &name, bool loop, float delay);
     void setSkin(const spine::String &name);
     void updateAnimation(float dltTime);
     SpineModel *updateRenderData();
