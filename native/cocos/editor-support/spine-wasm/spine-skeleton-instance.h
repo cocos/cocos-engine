@@ -7,6 +7,13 @@
 #include "mesh-type-define.h"
 #include "spine-model.h"
 
+namespace {
+    struct SpineEventInfo {
+        spine::TrackEntry* entry{nullptr};
+        spine::EventType eventType{spine::EventType::EventType_Start};
+        spine::Event *event{nullptr};
+    };
+}
 enum DEBUG_SHAPE_TYPE {
     DEBUG_REGION = 0,
     DEBUG_MESH = 1
@@ -59,8 +66,11 @@ public:
     void setSlotTexture(const spine::String &slotName, const spine::String& textureUuid);
     void destroy();
     bool isCache{false};
-    bool enable{true};
     float dtRate{1.0F};
+
+    // Used internal for cache event
+    spine::Vector<SpineEventInfo> animationEvents;
+    spine::Vector<SpineEventInfo> trackEvents;
 private:
     void collectMeshData();
 

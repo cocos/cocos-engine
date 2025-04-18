@@ -721,7 +721,6 @@ const cacheManager = require('./jsb-cache-manager');
             this._nativeSkeleton._comp = null;
             this._nativeSkeleton = null;
         }
-        this._needUpdateSkeltonData = false;
     };
 
     const _onDestroy = skeleton.onDestroy;

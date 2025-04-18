@@ -79,6 +79,12 @@ public:
     bool isCompressed() const;
 
     /**
+     * @en Whether it is a compressed alpha channel texture
+     * @zh 是否为压缩的透明通道贴图
+     */
+    bool isAlphaAtlas() const;
+
+    /**
      * @en Pixel width of the texture
      * @zh 此贴图的像素宽度。
      */

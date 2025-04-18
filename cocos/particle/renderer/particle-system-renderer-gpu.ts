@@ -50,6 +50,7 @@ const _sample_num = 32;
 const _sample_interval = 1.0 / _sample_num;
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
+const CC_USE_EMBEDDED_ALPHA = 'CC_USE_EMBEDDED_ALPHA';
 
 const CC_RENDER_MODE = 'CC_RENDER_MODE';
 const RENDER_MODE_BILLBOARD = 0;
@@ -608,7 +609,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                 this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
             }
         }
-        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
+        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat!;
 
         ps.node.getWorldMatrix(_tempWorldTrans);
 
@@ -635,6 +636,11 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
+            const texture = mat.getProperty('mainTexture', 0) as Texture2D | null;
+            if (texture && texture.isAlphaAtlas) {
+                textureModule.scaleNumTilesXY(2);
+                this._defines[CC_USE_EMBEDDED_ALPHA] = true;
+            }
             Vec2.set(this._frameTile_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
             Vec4.copy(this._unifrom_velLenScale, this._frameTile_velLenScale);
         } else {
@@ -643,12 +649,12 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             Vec4.copy(this._unifrom_velLenScale, this._tmp_velLenScale);
         }
 
-        this.initShaderUniform(mat!);
+        this.initShaderUniform(mat);
 
-        mat!.recompileShaders(this._defines);
+        mat.recompileShaders(this._defines);
 
         if (this._model) {
-            this._model.updateMaterial(mat!);
+            this._model.updateMaterial(mat);
         }
     }
 
