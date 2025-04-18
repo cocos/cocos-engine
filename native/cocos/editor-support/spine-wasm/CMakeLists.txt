@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME "spine")
-set(SPINE_VERSION "3.8")
+set(SPINE_VERSION "3.8" CACHE STRING "Build Spine version")
 # set(SPINE_VERSION "4.2")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -10,14 +10,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(${APP_NAME}_wasm)
 
-set(BUILD_WASM 1)
+set(BUILD_WASM 1 CACHE STRING "Build wasm or asm")
 set(ENABLE_JSON_PARSER 1)
 set(ENABLE_BINARY_PARSER 1)
 # set(ENABLE_PROFILING "--profiling")
 # set(ENABLE_MEMORY_PROFILING "--memoryprofiler -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$demangleAll")
 set(VERBOSE_LOG 0)
 
-set(CMAKE_BUILD_TYPE "MinSizeRel")
+set(CMAKE_BUILD_TYPE "MinSizeRel" CACHE STRING "Build Type")
 # set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 # set(CMAKE_BUILD_TYPE "Debug")
 
@@ -66,7 +66,7 @@ message(">>> --------------------------------------------------------------")
 if(SPINE_VERSION STREQUAL "3.8")
     include_directories(${CMAKE_CURRENT_LIST_DIR}/../spine/3.8/)
     file(GLOB SPINE_CORE_SRC "${CMAKE_CURRENT_LIST_DIR}/../spine/3.8/spine/*.cpp")
-    file(GLOB COCOS_ADAPTER_SRC 
+    file(GLOB COCOS_ADAPTER_SRC
         "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/3.8/*.cpp"
     )
@@ -74,7 +74,7 @@ if(SPINE_VERSION STREQUAL "3.8")
 elseif(SPINE_VERSION STREQUAL "4.2")
     include_directories(${CMAKE_CURRENT_LIST_DIR}/../spine/4.2/)
     file(GLOB SPINE_CORE_SRC "${CMAKE_CURRENT_LIST_DIR}/../spine/4.2/spine/*.cpp")
-    file(GLOB COCOS_ADAPTER_SRC 
+    file(GLOB COCOS_ADAPTER_SRC
         "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/4.2/*.cpp"
     )
