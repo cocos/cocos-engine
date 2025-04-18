@@ -39,7 +39,7 @@ const VERSION = 1;
 const UNIT_SIZE = 4;
 const LITTLE_ENDIAN = true;
 
-export function binPackageUnpack (arrayBuffer: ArrayBuffer): ArrayBuffer[] {
+export function binPackageUnpack (arrayBuffer: ArrayBuffer): Uint8Array[] {
     const dataView = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
 
     const packBinType = String.fromCharCode(...new Uint8Array(arrayBuffer.slice(0, UNIT_SIZE)));
@@ -58,8 +58,5 @@ export function binPackageUnpack (arrayBuffer: ArrayBuffer): ArrayBuffer[] {
         offset += size;
     }
 
-    return filesPosition.map(({ offset, size }) => {
-        const buffer = arrayBuffer.slice(offset, offset + size);
-        return buffer;
-    });
+    return filesPosition.map(({ offset, size }) => new Uint8Array(arrayBuffer, offset, size));
 }

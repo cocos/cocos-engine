@@ -136,8 +136,9 @@ export class PackManager {
         const out: Record<string, any> = js.createMap(true);
         let err: Error | null = null;
         try {
-            const arrayBuffers  = binPackageUnpack(buffer);
-            pack.forEach((uuid, index) => out[`${uuid}@import`] = decodeCCONBinary(new Uint8Array(arrayBuffers[index])));
+            const uint8Arrays = binPackageUnpack(buffer);
+            // TODO native上可以用stream优化
+            pack.forEach((uuid, index) => out[`${uuid}@import`] = decodeCCONBinary(uint8Arrays[index]));
         } catch (e) {
             err = e as Error;
         }
@@ -268,7 +269,7 @@ export class PackManager {
         // find the url of pack
         assertIsTrue(item.config);
         const url = transform(pack.uuid, { ext: pack.ext, bundle: item.config.name }) as string;
-        downloader.download(pack.uuid, url, pack.ext, item.options, (err, data): void => {
+        const done = <T>(err: Error | null, data: T): void => {
             files.remove(pack.uuid);
             if (err) {
                 error(err.message, err.stack);
@@ -297,7 +298,14 @@ export class PackManager {
                     }
                 }
             });
-        });
+        };
+        if (pack.ext === '.bin') {
+            downloader._downloadArrayBuffer(url, item.options, done);
+        } else if (pack.ext === '.json') {
+            downloader.download(pack.uuid, url, pack.ext, item.options, done);
+        } else {
+            errorID(4916, pack.ext);
+        }
     }
 }
 
