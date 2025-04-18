@@ -181,13 +181,13 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
     
     bool isCurrentOpacityDirty = node->_isLocalOpacityDirty() || parentOpacityDirty;
     const float localOpacity = node->_getLocalOpacity();
-    const float finalOpacityWithoutColorAlpha = parentOpacity * localOpacity;
-    float finalOpacity = finalOpacityWithoutColorAlpha;
-    
+    // Keep the same logic as which in batcher-2d.ts
+    const float finalOpacity = parentOpacity * localOpacity * (entity ? entity->getColorAlpha() : 1.F);
+    node->_setFinalOpacity(finalOpacity);
+
     if (entity) {
         if (entity->getColorDirty() || isCurrentOpacityDirty) {
             float localColorAlpha = entity->getColorAlpha();
-            finalOpacity = finalOpacityWithoutColorAlpha * localColorAlpha;
             entity->setOpacity(finalOpacity);
             entity->setColorDirty(false);
             entity->setVBColorDirty(true);
@@ -208,8 +208,6 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
             breakWalk = true;
         }
     }
-    
-    node->_setFinalOpacity(finalOpacity);
 
     if (!breakWalk) {
         const auto& children = node->getChildren();
