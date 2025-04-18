@@ -55,6 +55,7 @@ Node::Node(const ccstd::string &name) {
     _active = 1;
     _isStatic = 0;
     _localOpacityDirty = 1;
+    _colorDirty = 1;
     
 #define NODE_SHARED_MEMORY_BYTE_LENGTH (36)
     static_assert(offsetof(Node, _finalOpacity) + sizeof(_finalOpacity) - offsetof(Node, _eventMask) == NODE_SHARED_MEMORY_BYTE_LENGTH, "Wrong shared memory size");

@@ -696,7 +696,8 @@ private:
     uint8_t _active: 1;                                                 // Uint8: 0:1
     uint8_t _isStatic: 1;                                               // Uint8: 0:2
     uint8_t _localOpacityDirty: 1;                                      // Uint8: 0:3
-    uint8_t _boolBitPaddings: 4;                                        // Uint8: 0:4~7
+    uint8_t _colorDirty: 1;                                             // Uint8: 0:4
+    uint8_t _boolBitPaddings: 3;                                        // Uint8: 0:5~7
     uint8_t _skewType{static_cast<uint8_t>(SkewType::NONE)};            // Uint8: 1
     uint8_t _u8Paddings[2];                                             // Uint8: 2, 3
     float _skewX{.0F};                                                  // Float32: 0

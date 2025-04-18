@@ -382,7 +382,7 @@ class RadialFilled implements IAssembler {
                 // need dirty
                 this.updateWorldUVData(sprite);
                 //this.updateColorLate(sprite);
-                sprite.renderEntity.colorDirty = true;
+                (sprite.node as any)._colorDirty = true;
             }
             renderData.updateRenderData(sprite, frame);
         }

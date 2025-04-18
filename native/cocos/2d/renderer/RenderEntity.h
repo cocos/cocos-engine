@@ -61,10 +61,9 @@ struct EntityAttrLayout {
     uint8_t colorA{255};
     uint8_t maskMode{0};
     FillColorType fillColorType{FillColorType::COLOR};
-    uint8_t colorDirtyBit: 1;
     uint8_t enabledIndex: 1;
     uint8_t useLocal: 1;
-    uint8_t paddings: 5;
+    uint8_t paddings: 6;
 };
 
 static_assert(sizeof(EntityAttrLayout) == 7, "Be carefull to add property to EntityAttrLayout which may cause the potential cache miss");

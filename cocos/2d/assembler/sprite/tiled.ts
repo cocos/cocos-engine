@@ -104,8 +104,8 @@ class Tiled implements IAssembler {
 
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
-        if (renderData.vertexCount !== row * col * 4) {
-            sprite.renderEntity.colorDirty = true;
+        if (JSB && renderData.vertexCount !== row * col * 4) {
+            (sprite.node as any)._colorDirty = true;
         }
         // update data property
         renderData.resize(row * col * 4, row * col * 6);

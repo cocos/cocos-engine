@@ -1201,6 +1201,17 @@ Object.defineProperty(nodeProto, '_localOpacityDirty', {
     },
 });
 
+Object.defineProperty(nodeProto, '_colorDirty', {
+    configurable: true,
+    enumerable: true,
+    get(): Readonly<Boolean> {
+        return (this._sharedUint8Arr[0] & 0x10) !== 0; // Uint8, 0:4, _colorDirty
+    },
+    set(v) {
+        v ? this._sharedUint8Arr[0] |= 0x10 : this._sharedUint8Arr[0] &= ~0x10; // Uint8, 0:4, _colorDirty
+    },
+});
+
 Object.defineProperty(nodeProto, '_skewType', {
     configurable: true,
     enumerable: true,

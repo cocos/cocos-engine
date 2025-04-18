@@ -548,23 +548,9 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    /**
-     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
-     */
-    // for common
-    public static setEntityColorDirtyRecursively (node: Node, dirty: boolean): void {
-        const render = node._uiProps.uiComp as UIRenderer;
-        if (render && render.color) { // exclude UIMeshRenderer which has not color
-            render._renderEntity.colorDirty = dirty;
-        }
-        for (let i = 0; i < node.children.length; i++) {
-            UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
-        }
-    }
-
     private setEntityColorDirty (dirty: boolean): void {
         if (JSB) {
-            UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+            (this.node as any)._colorDirty = dirty;
         }
     }
 
