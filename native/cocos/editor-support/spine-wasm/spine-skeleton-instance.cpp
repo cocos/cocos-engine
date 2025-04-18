@@ -14,13 +14,24 @@ using namespace spine;
 
 static void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
     SpineSkeletonInstance *instance = (static_cast<SpineSkeletonInstance *>(state->getRendererObject()));
-    instance->onAnimationStateEvent(entry, type, event);
+    if (instance) {
+        SpineEventInfo info;
+        info.entry = entry;
+        info.eventType = type;
+        info.event = event;
+        instance->animationEvents.add(info);
+    }
 }
 
 static void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    void* renderObj = state->getRendererObject();
-    if (renderObj) {
-        (static_cast<SpineSkeletonInstance *>(renderObj))->onTrackEntryEvent(entry, type, event);
+    SpineSkeletonInstance *instance = (static_cast<SpineSkeletonInstance *>(state->getRendererObject()));
+    if (instance) {
+        SpineEventInfo info;
+        info.entry = entry;
+        info.eventType = type;
+        info.event = event;
+        instance->trackEvents.add(info);
+
         if (type == EventType_Dispose) {
             if (entry->getRendererObject()) {
                 entry->setRendererObject(nullptr);
@@ -31,10 +42,14 @@ static void trackEntryCallback(AnimationState *state, EventType type, TrackEntry
 
 SpineSkeletonInstance::SpineSkeletonInstance() {
     _model = new SpineModel();
+    animationEvents.ensureCapacity(spine::EventType::EventType_Event + 1);
+    trackEvents.ensureCapacity(spine::EventType::EventType_Event + 1);
 }
 
 SpineSkeletonInstance::~SpineSkeletonInstance() {
     _trackListenerSet.clear();
+    animationEvents.clear();
+    trackEvents.clear();
     _skeletonData = nullptr;
     if (_clipper) delete _clipper;
     if (_animState) delete _animState;
@@ -48,6 +63,9 @@ void SpineSkeletonInstance::destroy() {
 }
 
 Skeleton *SpineSkeletonInstance::initSkeleton(SkeletonData *data) {
+    if (data == _skeletonData) {
+        return _skeleton;
+    }
     if (_clipper) delete _clipper;
     if (_animState) delete _animState;
     if (_animStateData) delete _animStateData;
@@ -99,6 +117,20 @@ void SpineSkeletonInstance::updateAnimation(float dltTime) {
     _skeleton->update(dltTime);
     _animState->update(dltTime);
     _animState->apply(*_skeleton);
+    //Cache animation events then call back to JS.
+    auto vecAnimationEvents = animationEvents;
+    animationEvents.clear();
+    //Cache track events then call back to JS.
+    auto vecTrackEvents = trackEvents;
+    trackEvents.clear();
+    for (int i = 0; i < vecAnimationEvents.size(); i++) {
+        auto& info = vecAnimationEvents[i];
+        onAnimationStateEvent(info.entry, info.eventType, info.event);
+    }
+    for (int i = 0; i < vecTrackEvents.size(); i++) {
+        auto& info = vecTrackEvents[i];
+        onTrackEntryEvent(info.entry, info.eventType, info.event);
+    }
 }
 
 SpineModel *SpineSkeletonInstance::updateRenderData() {

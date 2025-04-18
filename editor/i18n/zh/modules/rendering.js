@@ -7,38 +7,50 @@ module.exports = {
                 groups: {
                     LightMap: {
                         displayName: '光照贴图设置',
+                        tooltip: '',
                     },
                     LightProbe: {
                         displayName: '光照探针设置',
+                        tooltip: '',
                     },
                     ReflectionProbe: {
                         displayName: '反射探针设置',
+                        tooltip: '',
                     },
                 },
                 properties: {
                     'bakeable': {
                         displayName: '可烘焙',
+                        tooltip: '模型是否是静态的并可以烘培光照贴图。<br>' +
+                            '注意：模型顶点数据必须包含第二套 UV 属性来支持光照贴图烘焙。',
                     },
                     'castShadow': {
                         displayName: '投射阴影',
+                        tooltip: '在光照贴图烘焙中是否投射阴影。',
                     },
                     'receiveShadow': {
                         displayName: '接收阴影',
+                        tooltip: '在光照贴图烘焙中是否接受阴影。',
                     },
                     'lightmapSize': {
                         displayName: '光照贴图尺寸',
+                        tooltip: '光照图大小。',
                     },
                     'useLightProbe': {
                         displayName: '使用光照探针',
+                        tooltip: '模型是否使用光照探针，光照探针为动态物体提供间接光。',
                     },
                     'bakeToLightProbe': {
                         displayName: '烘焙至光照探针',
+                        tooltip: '模型是否用于计算光照探针。',
                     },
                     'reflectionProbe': {
                         displayName: '反射探针',
+                        tooltip: '用于设置是否使用反射探针或者设置反射探针的类型。',
                     },
                     'bakeToReflectionProbe': {
                         displayName: '烘焙至反射探针',
+                        tooltip: '模型是否能被反射探针渲染。',
                     },
                 },
             },
@@ -46,6 +58,7 @@ module.exports = {
                 groups: {
                     DynamicShadow: {
                         displayName: '动态阴影设置',
+                        tooltip: '',
                     },
                 },
                 properties: {
