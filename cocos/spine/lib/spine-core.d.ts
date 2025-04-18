@@ -1333,6 +1333,7 @@ declare namespace spine {
         initSkeleton(data: SkeletonData);
         getAnimationState();
         setAnimation(trackIndex: number, name: string, loop: boolean): spine.TrackEntry | null;
+        addAnimation(trackIndex: number, name: string, loop: boolean, delay: number): spine.TrackEntry | null;
         setSkin(name: string);
         setPremultipliedAlpha(usePremultipliedAlpha: boolean);
         setColor(r: number, g: number, b: number, a: number);
