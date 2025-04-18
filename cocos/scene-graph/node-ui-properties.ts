@@ -94,6 +94,11 @@ export class NodeUIProperties {
     set localOpacity (val) {
         this._localOpacity = val;
         this.colorDirty = true;
+        if (JSB) {
+            const node = this._node as any;
+            node._colorDirty = true;
+            node._setLocalOpacity(val);
+        }
     }
 
     public colorDirty = true;

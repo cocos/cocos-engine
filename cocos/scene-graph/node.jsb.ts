@@ -1190,25 +1190,14 @@ Object.defineProperty(nodeProto, '_static', {
     },
 });
 
-Object.defineProperty(nodeProto, '_localOpacityDirty', {
-    configurable: true,
-    enumerable: true,
-    get(): Readonly<Boolean> {
-        return (this._sharedUint8Arr[0] & 0x08) !== 0; // Uint8, 0:3, _localOpacityDirty
-    },
-    set(v) {
-        v ? this._sharedUint8Arr[0] |= 0x08 : this._sharedUint8Arr[0] &= ~0x08; // Uint8, 0:3, _localOpacityDirty
-    },
-});
-
 Object.defineProperty(nodeProto, '_colorDirty', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return (this._sharedUint8Arr[0] & 0x10) !== 0; // Uint8, 0:4, _colorDirty
+        return (this._sharedUint8Arr[0] & 0x08) !== 0; // Uint8, 0:3, _colorDirty
     },
     set(v) {
-        v ? this._sharedUint8Arr[0] |= 0x10 : this._sharedUint8Arr[0] &= ~0x10; // Uint8, 0:4, _colorDirty
+        v ? this._sharedUint8Arr[0] |= 0x08 : this._sharedUint8Arr[0] &= ~0x08; // Uint8, 0:3, _colorDirty
     },
 });
 

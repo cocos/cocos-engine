@@ -172,26 +172,25 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     }
 }
 
-void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) { // NOLINT(misc-no-recursion)
+void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { // NOLINT(misc-no-recursion)
     if (!node->isActiveInHierarchy()) {
         return;
     }
     bool breakWalk = false;
     auto* entity = static_cast<RenderEntity*>(node->getUserData());
     
-    bool isCurrentOpacityDirty = node->_isLocalOpacityDirty() || parentOpacityDirty;
+    bool isCurrentColorDirty = node->_isColorDirty() || parentColorDirty;
     const float localOpacity = node->_getLocalOpacity();
     // Keep the same logic as which in batcher-2d.ts
     const float finalOpacity = parentOpacity * localOpacity * (entity ? entity->getColorAlpha() : 1.F);
     node->_setFinalOpacity(finalOpacity);
 
     if (entity) {
-        if (node->_isColorDirty() || isCurrentOpacityDirty) {
+        if (isCurrentColorDirty) {
             float localColorAlpha = entity->getColorAlpha();
             entity->setOpacity(finalOpacity);
             node->_setColorDirty(false);
             entity->setVBColorDirty(true);
-            isCurrentOpacityDirty = true;
         }
 
         if (math::isEqualF(entity->getOpacity(), 0)) {
@@ -214,7 +213,7 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
         float thisOpacity = (entity && entity->isEnabled()) ? entity->getOpacity() : finalOpacity;
         for (const auto& child : children) {
             // we should find parent opacity recursively upwards if it doesn't have an entity.
-            walk(child, thisOpacity, isCurrentOpacityDirty);
+            walk(child, thisOpacity, isCurrentColorDirty);
         }
     }
 

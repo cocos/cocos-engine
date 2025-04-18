@@ -54,7 +54,6 @@ Node::Node(const ccstd::string &name) {
     _activeInHierarchy = 0;
     _active = 1;
     _isStatic = 0;
-    _localOpacityDirty = 1;
     _colorDirty = 1;
     
 #define NODE_SHARED_MEMORY_BYTE_LENGTH (36)
