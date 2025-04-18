@@ -298,8 +298,6 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public _curFrame: AnimationFrame | null = null;
-    // Is need update skeltonData
-    protected _needUpdateSkeltonData = true;
     protected _listener: TrackEntryListeners | null = null;
 
     /**
@@ -327,6 +325,8 @@ export class Skeleton extends UIRenderer {
     _tempColor: TempColor = { r: 0, g: 0, b: 0, a: 0 };
     private _eventListenerID: number = -1;
     private _slotTextures: Map<string, Texture2D> | null = null;
+
+    private _isRenderable: boolean = false;
 
     constructor () {
         super();
@@ -695,11 +695,9 @@ export class Skeleton extends UIRenderer {
      */
     public onEnable (): void {
         super.onEnable();
-        if (this._instance) {
-            this._instance.enable = true;
-        }
         this._flushAssembler();
         SkeletonSystem.getInstance().add(this);
+        this._isRenderable = true;
     }
     /**
      * @en Be called when component state becomes disabled.
@@ -707,10 +705,8 @@ export class Skeleton extends UIRenderer {
      */
     public onDisable (): void {
         super.onDisable();
-        if (this._instance) {
-            this._instance.enable = false;
-        }
         SkeletonSystem.getInstance().remove(this);
+        this._isRenderable = false;
     }
 
     public onDestroy (): void {
@@ -771,12 +767,14 @@ export class Skeleton extends UIRenderer {
             this._skeleton = null!;
             this._textures = [];
             this._refreshInspector();
+            if (this._isRenderable) {
+                SkeletonSystem.getInstance().remove(this);
+            }
             return;
         }
         if (this._instance) {
             this._instance.dtRate = this._timeScale * timeScale;
         }
-        this._needUpdateSkeltonData = false;
         //const data = this.skeletonData?.getRuntimeData();
         //if (!data) return;
         //this.setSkeletonData(data);
@@ -857,6 +855,9 @@ export class Skeleton extends UIRenderer {
             this._skeleton = this._instance!.initSkeleton(skeletonData);
             this._state = this._instance!.getAnimationState();
             this._instance!.setPremultipliedAlpha(this._premultipliedAlpha);
+        }
+        if (this._isRenderable) {
+            SkeletonSystem.getInstance().add(this);
         }
         // Recreate render data and mark dirty
         this._flushAssembler();

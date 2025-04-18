@@ -114,6 +114,7 @@ CCEffect %{
 CCProgram tinted-fs %{
   precision mediump float;
   #include <legacy/output>
+  #include <builtin/internal/embedded-alpha>
 
   in vec2 uv;
   in vec4 color;
@@ -124,13 +125,13 @@ CCProgram tinted-fs %{
   };
 
   vec4 add () {
-    vec4 col = 2.0 * color * tintColor * texture(mainTexture, uv);
+    vec4 col = 2.0 * color * tintColor * CCSampleWithAlphaSeparated(mainTexture, uv);
     return CCFragOutput(col);
   }
 
   vec4 multiply () {
     vec4 col;
-    vec4 texColor = texture(mainTexture, uv);
+    vec4 texColor = CCSampleWithAlphaSeparated(mainTexture, uv);
     col.rgb = tintColor.rgb * texColor.rgb * color.rgb * vec3(2.0);
     return CCFragOutput(col);
   }
@@ -139,6 +140,7 @@ CCProgram tinted-fs %{
 CCProgram no-tint-fs %{
   precision mediump float;
   #include <legacy/output>
+  #include <builtin/internal/embedded-alpha>
 
   in vec2 uv;
   in vec4 color;
@@ -146,13 +148,13 @@ CCProgram no-tint-fs %{
   uniform sampler2D mainTexture;
 
   vec4 addSmooth () {
-    vec4 col = color * texture(mainTexture, uv);
+    vec4 col = color * CCSampleWithAlphaSeparated(mainTexture, uv);
     col.rgb *= col.a;
     return CCFragOutput(col);
   }
 
   vec4 premultiplied () {
-    vec4 col = color * texture(mainTexture, uv) * color.a;
+    vec4 col = color * CCSampleWithAlphaSeparated(mainTexture, uv) * color.a;
     return CCFragOutput(col);
   }
 }%

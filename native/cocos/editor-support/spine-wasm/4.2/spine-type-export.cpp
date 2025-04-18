@@ -1359,7 +1359,6 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<>()
         .property("isCache", &SpineSkeletonInstance::isCache)
         .property("dtRate", &SpineSkeletonInstance::dtRate)
-        .property("enable", &SpineSkeletonInstance::enable)
         .function("initSkeleton", &SpineSkeletonInstance::initSkeleton, allow_raw_pointers())
         .function("setAnimation", &SpineSkeletonInstance::setAnimation, allow_raw_pointers())
         .function("setSkin", &SpineSkeletonInstance::setSkin)
