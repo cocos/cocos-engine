@@ -22,6 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+/* global globalThis */
+
 const cacheManager = require('./jsb-cache-manager');
 
 // @ts-expect-error jsb polyfills
@@ -155,7 +158,8 @@ const cacheManager = require('./jsb-cache-manager');
     animation.setCompleteListener = function (listener) {
         this._compeleteListener = listener;
         this.setCompleteListenerNative(function (trackEntry) {
-            const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+            const duration = trackEntry.animationEnd - trackEntry.animationStart;
+            const loopCount = Math.floor(trackEntry.trackTime / duration);
             this._compeleteListener && this._compeleteListener(trackEntry, loopCount);
         });
     };
@@ -164,7 +168,8 @@ const cacheManager = require('./jsb-cache-manager');
     animation.setTrackCompleteListener = function (trackEntry, listener) {
         this._trackCompeleteListener = listener;
         this.setTrackCompleteListenerNative(trackEntry, function (trackEntryNative) {
-            const loopCount = Math.floor(trackEntryNative.trackTime / trackEntryNative.animationEnd);
+            const duration = trackEntry.animationEnd - trackEntry.animationStart;
+            const loopCount = Math.floor(trackEntry.trackTime / duration);
             this._trackCompeleteListener && this._trackCompeleteListener(trackEntryNative, loopCount);
         });
     };
@@ -426,6 +431,13 @@ const cacheManager = require('./jsb-cache-manager');
         const node = this.node;
         if (!node) return;
 
+        if (this._updateDirty) {
+            nativeSkeleton.update(0);
+            this._updateDirty = false;
+        }
+
+        this.markForUpdateRenderData();
+
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             const compColor = this.color;
             nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
@@ -448,18 +460,21 @@ const cacheManager = require('./jsb-cache-manager');
     skeleton.setToSetupPose = function () {
         if (this._nativeSkeleton) {
             this._nativeSkeleton.setToSetupPose();
+            this._updateDirty = true;
         }
     };
 
     skeleton.setBonesToSetupPose = function () {
         if (this._nativeSkeleton) {
             this._nativeSkeleton.setBonesToSetupPose();
+            this._updateDirty = true;
         }
     };
 
     skeleton.setSlotsToSetupPose = function () {
         if (this._nativeSkeleton) {
             this._nativeSkeleton.setSlotsToSetupPose();
+            this._updateDirty = true;
         }
     };
 
@@ -540,21 +555,24 @@ const cacheManager = require('./jsb-cache-manager');
              * note: since native spine animation update called after Director.EVENT_BEFORE_UPDATE
              * and before setAnimation. it's need to update native animation to first frame directly.
              */
-            this._nativeSkeleton.update(0);
+            // this._nativeSkeleton.update(0);
+            this._updateDirty = true;
         }
         return res;
     };
 
     skeleton.addAnimation = function (trackIndex, name, loop, delay) {
+        let res = null;
         if (this._nativeSkeleton) {
             delay = delay || 0;
             if (this.isAnimationCached()) {
-                return this._nativeSkeleton.addAnimation(name, loop, delay);
+                res = this._nativeSkeleton.addAnimation(name, loop, delay);
             } else {
-                return this._nativeSkeleton.addAnimation(trackIndex, name, loop, delay);
+                res = this._nativeSkeleton.addAnimation(trackIndex, name, loop, delay);
             }
+            this._updateDirty = true;
         }
-        return null;
+        return res;
     };
 
     skeleton.findAnimation = function (name) {
@@ -721,6 +739,7 @@ const cacheManager = require('./jsb-cache-manager');
             this._nativeSkeleton._comp = null;
             this._nativeSkeleton = null;
         }
+        this._needUpdateSkeltonData = false;
     };
 
     const _onDestroy = skeleton.onDestroy;
@@ -732,6 +751,7 @@ const cacheManager = require('./jsb-cache-manager');
             this._nativeSkeleton._comp = null;
             this._nativeSkeleton = null;
         }
+        this._updateDirty = false;
         this._stateData = null;
     };
 
