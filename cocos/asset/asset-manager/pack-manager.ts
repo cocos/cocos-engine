@@ -31,6 +31,8 @@ import downloader from './downloader';
 import { transform } from './helper';
 import RequestItem from './request-item';
 import { files } from './shared';
+import { decodeCCONBinary } from '../../serialization/ccon';
+import { binPackageUnpack } from './bin-package-unpack';
 
 export type Unpacker = (
     packUuid: string[],
@@ -56,6 +58,7 @@ export class PackManager {
     private _loading = new Cache<IUnpackRequest[]>();
     private _unpackers: Record<string, Unpacker> = {
         '.json': this.unpackJson,
+        '.bin': this.unpackBin,
     };
 
     /**
@@ -120,6 +123,23 @@ export class PackManager {
                 onComplete(err, null);
                 return;
             }
+        }
+        onComplete(err, out);
+    }
+
+    public unpackBin (
+        pack: string[],
+        buffer: ArrayBuffer,
+        options: Record<string, any>,
+        onComplete: ((err: Error | null, data?: Record<string, any> | null) => void),
+    ): void {
+        const out: Record<string, any> = js.createMap(true);
+        let err: Error | null = null;
+        try {
+            const arrayBuffers  = binPackageUnpack(buffer);
+            pack.forEach((uuid, index) => out[`${uuid}@import`] = decodeCCONBinary(new Uint8Array(arrayBuffers[index])));
+        } catch (e) {
+            err = e as Error;
         }
         onComplete(err, out);
     }
@@ -248,7 +268,6 @@ export class PackManager {
         // find the url of pack
         assertIsTrue(item.config);
         const url = transform(pack.uuid, { ext: pack.ext, bundle: item.config.name }) as string;
-
         downloader.download(pack.uuid, url, pack.ext, item.options, (err, data): void => {
             files.remove(pack.uuid);
             if (err) {
