@@ -34,7 +34,6 @@ RenderEntity::RenderEntity(RenderEntityType type) : _renderEntityType(type) {
         ccnew_placement(&_dynamicDrawInfos) ccstd::vector<RenderDrawInfo*>();
     }
     
-    _entityAttrLayout.colorDirtyBit = 1;
     _entityAttrLayout.enabledIndex = 0;
     _entityAttrLayout.useLocal = 0;
     _entityAttrLayout.paddings = 0;

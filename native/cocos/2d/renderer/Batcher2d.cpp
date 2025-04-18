@@ -186,10 +186,10 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
     node->_setFinalOpacity(finalOpacity);
 
     if (entity) {
-        if (entity->getColorDirty() || isCurrentOpacityDirty) {
+        if (node->_isColorDirty() || isCurrentOpacityDirty) {
             float localColorAlpha = entity->getColorAlpha();
             entity->setOpacity(finalOpacity);
-            entity->setColorDirty(false);
+            node->_setColorDirty(false);
             entity->setVBColorDirty(true);
             isCurrentOpacityDirty = true;
         }
