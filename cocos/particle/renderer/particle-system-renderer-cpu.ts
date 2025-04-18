@@ -730,6 +730,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             const texture = mat.getProperty('mainTexture', 0) as Texture2D | null;
             if (texture && texture.isAlphaAtlas) {
                 textureModule.scaleNumTilesXY(2);
@@ -777,6 +778,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _matInsInfo.subModelIdx = 0;
             }
             mat = mat || this._defaultTrailMat!;
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             const texture = mat.getProperty('mainTexture', 0) as Texture2D | null;
             if (texture && texture.isAlphaAtlas) {
                 this._trailDefines[CC_USE_EMBEDDED_ALPHA] = true;
