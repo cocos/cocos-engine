@@ -193,7 +193,9 @@ TrackEntry *SkeletonAnimation::addAnimation(int trackIndex, const std::string &n
         CC_LOG_WARNING("Spine: Animation not found: %s", name.c_str());
         return nullptr;
     }
-    return _state->addAnimation(trackIndex, animation, loop, delay);
+    auto *trackEntry = _state->addAnimation(trackIndex, animation, loop, delay);
+    _state->apply(*_skeleton);
+    return trackEntry;
 }
 
 TrackEntry *SkeletonAnimation::setEmptyAnimation(int trackIndex, float mixDuration) {
@@ -233,7 +235,6 @@ TrackEntry *SkeletonAnimation::getCurrent(int trackIndex) {
 void SkeletonAnimation::clearTracks() {
     if (_state) {
         _state->clearTracks();
-        super::setToSetupPose();
     }
 }
 
