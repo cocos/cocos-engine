@@ -153,8 +153,8 @@ export class BmfontUtils {
             // It is reasonable that the '_comp.node._uiProps.colorDirty' interface should be used.
             // But this function is not called when just modifying the opacity.
             // So the value of '_comp.node._uiProps.colorDirty' does not change.
-            // And _uiProps.colorDirty is synchronized with node._colorDirty for native platforms.
-            if (JSB && ((_comp.node as any)._colorDirty || isResized)) {
+            // And _uiProps.colorDirty is synchronized with renderEntity.colorDirty.
+            if (JSB && (_comp.renderEntity.colorDirty || isResized)) {
                 this.updateColor(comp); // dirty need
                 _comp.node._uiProps.colorDirty = false;
             }

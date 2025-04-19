@@ -550,7 +550,7 @@ export class UIRenderer extends Renderer {
 
     private setEntityColorDirty (dirty: boolean): void {
         if (JSB) {
-            (this.node as any)._colorDirty = dirty;
+            this._renderEntity.colorDirty = dirty;
         }
     }
 

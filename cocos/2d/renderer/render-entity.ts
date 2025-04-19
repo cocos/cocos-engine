@@ -74,6 +74,7 @@ export class RenderEntity {
     protected _renderTransform: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
 
+    protected _colorDirty = true;
     protected _enabled = false;
     protected _useLocal = false;
     protected _maskMode = MaskMode.NONE;
@@ -109,6 +110,20 @@ export class RenderEntity {
             this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorG] = val.g;
             this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorB] = val.b;
             this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorA] = val.a;
+        }
+    }
+
+    get colorDirty (): boolean {
+        if (JSB && this._node) {
+            this._colorDirty = (this._node as any)._colorDirty;
+        }
+        return this._colorDirty;
+    }
+
+    set colorDirty (val: boolean) {
+        this._colorDirty = val;
+        if (JSB && this._node) {
+            (this._node as any)._colorDirty = val;
         }
     }
 
