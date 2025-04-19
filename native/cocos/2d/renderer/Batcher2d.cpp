@@ -189,7 +189,6 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
         if (isCurrentColorDirty) {
             float localColorAlpha = entity->getColorAlpha();
             entity->setOpacity(finalOpacity);
-            node->_setColorDirty(false);
             entity->setVBColorDirty(true);
         }
 
@@ -215,6 +214,10 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
             // we should find parent opacity recursively upwards if it doesn't have an entity.
             walk(child, thisOpacity, isCurrentColorDirty);
         }
+    }
+    
+    if (isCurrentColorDirty) {
+        node->_setColorDirty(false);
     }
 
     // post assembler

@@ -607,8 +607,8 @@ public:
     inline float _getFinalOpacity() const { return _finalOpacity; } // NOLINT
     inline void _setFinalOpacity(float v) { _finalOpacity = v; } // NOLINT
     
-    inline bool _isColorDirty() const { return _colorDirty; } // NOLINT
-    inline void _setColorDirty(bool v) { _colorDirty = v; } // NOLINT
+    inline bool _isColorDirty() const { return _colorDirty == 0 ? false : true; } // NOLINT
+    inline void _setColorDirty(bool v) { _colorDirty = v ? 1 : 0; } // NOLINT
 
     bool onPreDestroy() override;
     bool onPreDestroyBase();
