@@ -25,12 +25,11 @@
 import {  Mat4, errorID } from '../../../core';
 import type { IRenderData, RenderData } from '../../renderer/render-data';
 import type { IBatcher } from '../../renderer/i-batcher';
-import { Sprite } from '../../components';
+import { Sprite, SpriteFillType } from '../../components';
 import type { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
-const FillType = Sprite.FillType;
 const m = new Mat4();
 const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
@@ -122,7 +121,7 @@ class BarFilled implements IAssembler {
         const stride = renderData.floatStride;
         let uvOffset = 3;
         switch (sprite.fillType) {
-        case FillType.HORIZONTAL:
+        case SpriteFillType.HORIZONTAL:
             vData[uvOffset] = quadUV0 + (quadUV2 - quadUV0) * fillStart;
             vData[uvOffset + 1] = quadUV1 + (quadUV3 - quadUV1) * fillStart;
             uvOffset += stride;
@@ -135,7 +134,7 @@ class BarFilled implements IAssembler {
             vData[uvOffset] = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
             vData[uvOffset + 1] = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
             break;
-        case FillType.VERTICAL:
+        case SpriteFillType.VERTICAL:
             vData[uvOffset] = quadUV0 + (quadUV4 - quadUV0) * fillStart;
             vData[uvOffset + 1] = quadUV1 + (quadUV5 - quadUV1) * fillStart;
             uvOffset += stride;
@@ -172,14 +171,14 @@ class BarFilled implements IAssembler {
         let progressStart = 0;
         let progressEnd = 0;
         switch (sprite.fillType) {
-        case FillType.HORIZONTAL:
+        case SpriteFillType.HORIZONTAL:
             progressStart = l + (r - l) * fillStart;
             progressEnd = l + (r - l) * fillEnd;
 
             l = progressStart;
             r = progressEnd;
             break;
-        case FillType.VERTICAL:
+        case SpriteFillType.VERTICAL:
             progressStart = b + (t - b) * fillStart;
             progressEnd = b + (t - b) * fillEnd;
 

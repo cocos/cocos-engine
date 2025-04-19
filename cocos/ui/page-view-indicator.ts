@@ -31,7 +31,7 @@ import { ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
 import { Layout, LayoutResizeMode, LayoutType } from './layout';
 import { PageView } from './page-view';
-import { Sprite } from '../2d/components/sprite';
+import { Sprite, SpriteSizeMode } from '../2d/components/sprite';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { legacyCC } from '../core/global-exports';
 
@@ -212,7 +212,7 @@ export class PageViewIndicator extends Component {
         node.layer = this.node.layer;
         const sprite = node.addComponent(Sprite);
         sprite.spriteFrame = this.spriteFrame;
-        sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+        sprite.sizeMode = SpriteSizeMode.CUSTOM;
         node.parent = this.node;
         node._getUITransformComp()!.setContentSize(this._cellSize);
         return node;

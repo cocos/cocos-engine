@@ -91,7 +91,7 @@ ccenum(SpriteType);
  * @zh
  * 填充类型。
  */
-enum FillType {
+export enum SpriteFillType {
     /**
      * @en
      * The horizontal fill.
@@ -116,7 +116,7 @@ enum FillType {
      */
     RADIAL = 2,
 }
-ccenum(FillType);
+ccenum(SpriteFillType);
 
 /**
  * @en
@@ -125,7 +125,7 @@ ccenum(FillType);
  * @zh
  * 精灵尺寸调整模式。
  */
-enum SizeMode {
+export enum SpriteSizeMode {
     /**
      * @en
      * Use the customized node size.
@@ -151,7 +151,7 @@ enum SizeMode {
      */
     RAW = 2,
 }
-ccenum(SizeMode);
+ccenum(SpriteSizeMode);
 
 export enum SpriteEventType {
     SPRITE_FRAME_CHANGED = 'spriteframe-changed',
@@ -256,15 +256,15 @@ export class Sprite extends UIRenderer {
      * sprite.fillType = Sprite.FillType.HORIZONTAL;
      * ```
      */
-    @type(FillType)
+    @type(SpriteFillType)
     @displayOrder(6)
     @tooltip('i18n:sprite.fill_type')
-    get fillType (): FillType {
+    get fillType (): SpriteFillType {
         return this._fillType;
     }
-    set fillType (value: FillType) {
+    set fillType (value: SpriteFillType) {
         if (this._fillType !== value) {
-            if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
+            if (value === SpriteFillType.RADIAL || this._fillType === SpriteFillType.RADIAL) {
                 this.destroyRenderData();
             } else if (this.renderData) {
                 this._markForUpdateRenderData(true);
@@ -419,9 +419,9 @@ export class Sprite extends UIRenderer {
      * sprite.sizeMode = Sprite.SizeMode.CUSTOM;
      * ```
      */
-    @type(SizeMode)
+    @type(SpriteSizeMode)
     @displayOrder(5)
-    get sizeMode (): SizeMode {
+    get sizeMode (): SpriteSizeMode {
         return this._sizeMode;
     }
     set sizeMode (value) {
@@ -430,7 +430,7 @@ export class Sprite extends UIRenderer {
         }
 
         this._sizeMode = value;
-        if (value !== SizeMode.CUSTOM) {
+        if (value !== SpriteSizeMode.CUSTOM) {
             this._applySpriteSize();
         }
     }
@@ -439,7 +439,7 @@ export class Sprite extends UIRenderer {
      * @en Enum for fill type.
      * @zh 填充类型。
      */
-    public static FillType = FillType;
+    public static FillType = SpriteFillType;
     /**
      * @en Enum for sprite type.
      * @zh Sprite 类型。
@@ -449,7 +449,7 @@ export class Sprite extends UIRenderer {
      * @en Sprite's size mode, including trimmed size, raw size, and none.
      * @zh 精灵尺寸调整模式。
      */
-    public static SizeMode = SizeMode;
+    public static SizeMode = SpriteSizeMode;
     /**
      * @en Event types for sprite.
      * @zh sprite 的事件类型。
@@ -461,9 +461,9 @@ export class Sprite extends UIRenderer {
     @serializable
     protected _type = SpriteType.SIMPLE;
     @serializable
-    protected _fillType = FillType.HORIZONTAL;
+    protected _fillType = SpriteFillType.HORIZONTAL;
     @serializable
-    protected _sizeMode = SizeMode.TRIMMED;
+    protected _sizeMode = SpriteSizeMode.TRIMMED;
     @serializable
     protected _fillCenter: Vec2 = new Vec2(0, 0);
     @serializable
@@ -632,10 +632,10 @@ export class Sprite extends UIRenderer {
         if (spriteFrame) {
             if (BUILD || !spriteFrame.isDefault) {
                 const uiProps = self.node._uiProps;
-                if (SizeMode.RAW === self._sizeMode) {
+                if (SpriteSizeMode.RAW === self._sizeMode) {
                     const size = spriteFrame.originalSize;
                     uiProps.uiTransformComp!.setContentSize(size);
-                } else if (SizeMode.TRIMMED === self._sizeMode) {
+                } else if (SpriteSizeMode.TRIMMED === self._sizeMode) {
                     const rect = spriteFrame.rect;
                     uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
                 }
@@ -652,18 +652,18 @@ export class Sprite extends UIRenderer {
             const actualSize = this.node._getUITransformComp()!.contentSize;
             let expectedW = actualSize.width;
             let expectedH = actualSize.height;
-            if (this._sizeMode === SizeMode.RAW) {
+            if (this._sizeMode === SpriteSizeMode.RAW) {
                 const size = this._spriteFrame.originalSize;
                 expectedW = size.width;
                 expectedH = size.height;
-            } else if (this._sizeMode === SizeMode.TRIMMED) {
+            } else if (this._sizeMode === SpriteSizeMode.TRIMMED) {
                 const rect = this._spriteFrame.rect;
                 expectedW = rect.width;
                 expectedH = rect.height;
             }
 
             if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
-                this._sizeMode = SizeMode.CUSTOM;
+                this._sizeMode = SpriteSizeMode.CUSTOM;
             }
         }
     }

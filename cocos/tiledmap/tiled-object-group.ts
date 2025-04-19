@@ -25,7 +25,7 @@
 
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
 import { Component } from '../scene-graph/component';
-import { Sprite } from '../2d/components/sprite';
+import { Sprite, SpriteSizeMode } from '../2d/components/sprite';
 import { Label } from '../2d/components/label';
 import { BlendFactor } from '../gfx';
 
@@ -346,7 +346,7 @@ export class TiledObjectGroup extends Component {
                     c.a *= this._opacity / 255;
                 }
 
-                sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+                sprite.sizeMode = SpriteSizeMode.CUSTOM;
 
                 // HACK: we should support _premultiplyAlpha when group had material
                 const srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;

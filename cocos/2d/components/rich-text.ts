@@ -31,7 +31,7 @@ import { assert, warnID, Color, Vec2, CCObjectFlags, cclegacy, js, Size } from '
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
-import { Sprite } from './sprite';
+import { Sprite, SpriteSizeMode, SpriteType } from './sprite';
 import { UITransform } from '../framework';
 import { Component } from '../../scene-graph/component';
 import { NodeEventType } from '../../scene-graph/node-event';
@@ -92,14 +92,14 @@ function createSegment (type: string): ISegment {
 }
 
 function getSegmentByPool (type: string, content: string | SpriteFrame): ISegment | null {
-    let seg;
+    let seg: ISegment | null = null;
     if (type === RichTextChildName) {
         seg = labelPool._get();
     } else if (type === RichTextChildImageName) {
         seg = imagePool._get();
     }
     seg = seg || createSegment(type);
-    let node = seg.node as Node;
+    let node = seg.node;
     if (!node) {
         node = new Node(type);
     }
@@ -108,8 +108,8 @@ function getSegmentByPool (type: string, content: string | SpriteFrame): ISegmen
     if (type === RichTextChildImageName) {
         seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
         seg.comp.spriteFrame = content as SpriteFrame;
-        seg.comp.type = Sprite.Type.SLICED;
-        seg.comp.sizeMode = Sprite.SizeMode.CUSTOM;
+        seg.comp.type = SpriteType.SLICED;
+        seg.comp.sizeMode = SpriteSizeMode.CUSTOM;
     } else { // RichTextChildName
         seg.comp = node.getComponent(Label) || node.addComponent(Label);
         seg.comp.string = content as string;
@@ -127,7 +127,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame): ISegmen
     seg.imageOffset = '';
     seg.clickParam = '';
     seg.clickHandler = '';
-    return seg as ISegment | null;
+    return seg;
 }
 
 interface ISegment {

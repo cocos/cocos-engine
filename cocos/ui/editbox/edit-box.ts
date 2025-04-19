@@ -33,7 +33,7 @@ import { Size } from '../../core/math';
 import { EventTouch } from '../../input/types';
 import { Node } from '../../scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
-import { Sprite, SpriteEventType } from '../../2d/components/sprite';
+import { Sprite, SpriteEventType, SpriteType } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
@@ -589,7 +589,7 @@ export class EditBox extends Component {
             }
             if (background !== this._background) {
                 // init background
-                background.type = Sprite.Type.SLICED;
+                background.type = SpriteType.SLICED;
                 background.spriteFrame = this._backgroundImage;
                 this._background = background;
                 this._registerBackgroundEvent();

@@ -24,15 +24,12 @@
 
 import { UIRenderer } from '../../framework/ui-renderer';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
-import { Sprite } from '../../components';
+import { Sprite, SpriteFillType, SpriteType } from '../../components';
 import { barFilled } from './bar-filled';
 import { radialFilled } from './radial-filled';
 import { simple } from './simple';
 import { sliced } from './sliced';
 import { tiled } from './tiled';
-
-const SpriteType = Sprite.Type;
-const FillType = Sprite.FillType;
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
@@ -49,7 +46,7 @@ const spriteAssembler: IAssemblerManager = {
             util = tiled;
             break;
         case SpriteType.FILLED:
-            if (comp.fillType === FillType.RADIAL) {
+            if (comp.fillType === SpriteFillType.RADIAL) {
                 util = radialFilled;
             } else {
                 util = barFilled;

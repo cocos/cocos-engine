@@ -29,7 +29,7 @@ import { UITransform } from '../2d/framework';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Enum } from '../core/value-types';
 import { clamp01 } from '../core/math/utils';
-import { Sprite } from '../2d/components/sprite';
+import { Sprite, SpriteFillType, SpriteType } from '../2d/components/sprite';
 import { warnID } from '../core/platform/debug';
 import { legacyCC } from '../core/global-exports';
 
@@ -263,7 +263,7 @@ export class ProgressBar extends Component {
             //     this.node.setContentSize(barSpriteSize);
             // }
 
-            if (this._barSprite.fillType === Sprite.FillType.RADIAL) {
+            if (this._barSprite.fillType === SpriteFillType.RADIAL) {
                 this._mode = Mode.FILLED;
             }
 
@@ -325,7 +325,7 @@ export class ProgressBar extends Component {
 
             // handling filled mode
             if (this._mode === Mode.FILLED) {
-                if (this._barSprite.type !== Sprite.Type.FILLED) {
+                if (this._barSprite.type !== SpriteType.FILLED) {
                     warnID(16397);
                 } else {
                     if (this._reverse) {
@@ -333,7 +333,7 @@ export class ProgressBar extends Component {
                     }
                     this._barSprite.fillRange = actualLenth;
                 }
-            } else if (this._barSprite.type !== Sprite.Type.FILLED) {
+            } else if (this._barSprite.type !== SpriteType.FILLED) {
                 const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
                 const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
 
