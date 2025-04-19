@@ -179,21 +179,21 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
     bool breakWalk = false;
     auto* entity = static_cast<RenderEntity*>(node->getUserData());
     
-    bool isCurrentColorDirty = node->_isColorDirty() || parentColorDirty;
+    const bool isCurrentColorDirty = node->_isColorDirty() || parentColorDirty;
     const float localOpacity = node->_getLocalOpacity();
     // Keep the same logic as which in batcher-2d.ts
     const float finalOpacity = parentOpacity * localOpacity * (entity ? entity->getColorAlpha() : 1.F);
     node->_setFinalOpacity(finalOpacity);
 
     if (entity) {
-        if (isCurrentColorDirty) {
-            entity->setOpacity(finalOpacity);
-            entity->setVBColorDirty(true);
-        }
-
         if (math::isEqualF(entity->getOpacity(), 0)) {
             breakWalk = true;
         } else if (entity->isEnabled()) {
+            if (isCurrentColorDirty) {
+                entity->setOpacity(finalOpacity);
+                entity->setVBColorDirty(true);
+            }
+
             uint32_t size = entity->getRenderDrawInfosSize();
             for (uint32_t i = 0; i < size; i++) {
                 auto* drawInfo = entity->getRenderDrawInfoAt(i);
