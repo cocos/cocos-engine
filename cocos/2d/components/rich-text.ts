@@ -1299,10 +1299,6 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
 
             label.isUnderline = !!textStyle.underline;
             if (textStyle.outline) {
-                let label = labelSeg.node.getComponent(Label);
-                if (!label) {
-                    label = labelSeg.node.addComponent(Label);
-                }
                 label.enableOutline = true;
                 label.outlineColor = this._convertLiteralColorValue(textStyle.outline.color);
                 label.outlineWidth = textStyle.outline.width;
