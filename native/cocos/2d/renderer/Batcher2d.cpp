@@ -186,14 +186,14 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
     node->_setFinalOpacity(finalOpacity);
 
     if (entity) {
+        if (isCurrentColorDirty) {
+            entity->setOpacity(finalOpacity);
+            entity->setVBColorDirty(true);
+        }
+
         if (math::isEqualF(entity->getOpacity(), 0)) {
             breakWalk = true;
         } else if (entity->isEnabled()) {
-            if (isCurrentColorDirty) {
-                entity->setOpacity(finalOpacity);
-                entity->setVBColorDirty(true);
-            }
-
             uint32_t size = entity->getRenderDrawInfosSize();
             for (uint32_t i = 0; i < size; i++) {
                 auto* drawInfo = entity->getRenderDrawInfoAt(i);
@@ -201,6 +201,7 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
             }
             entity->setVBColorDirty(false);
         }
+        
         if (entity->getRenderEntityType() == RenderEntityType::CROSSED) {
             breakWalk = true;
         }
