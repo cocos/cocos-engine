@@ -40,6 +40,11 @@ export enum RenderEntityType {
     CROSSED,
 }
 
+enum RenderEntityUInt32SharedBufferView {
+    priority,
+    count,
+}
+
 enum RenderEntityUInt8SharedBufferView {
     colorR,
     colorG,
@@ -79,7 +84,7 @@ export class RenderEntity {
     protected _useLocal = false;
     protected _maskMode = MaskMode.NONE;
 
-    protected declare _floatSharedBuffer: Float32Array;
+    protected declare _uint32SharedBuffer: Uint32Array;
     protected declare _uint8SharedBuffer: Uint8Array;
     protected declare _boolSharedBuffer: Uint8Array;
 
@@ -98,6 +103,12 @@ export class RenderEntity {
     // set renderEntityType (val:RenderEntityType) {
     //     this._renderEntityType = val;
     // }
+
+    setPriority (val: number): void {
+        if (JSB) {
+            this._uint32SharedBuffer[RenderEntityUInt32SharedBufferView.priority] = val;
+        }
+    }
 
     protected _color: Color = Color.WHITE.clone();
     get color (): Color {
@@ -267,9 +278,10 @@ export class RenderEntity {
 
     private initSharedBuffer (): void {
         if (JSB) {
-            //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
             const buffer = this._nativeObj.getEntitySharedBufferForJS();
             let offset = 0;
+            this._uint32SharedBuffer = new Uint32Array(buffer, offset, RenderEntityUInt32SharedBufferView.count);
+            offset += RenderEntityUInt32SharedBufferView.count * 4;
             this._uint8SharedBuffer = new Uint8Array(buffer, offset, RenderEntityUInt8SharedBufferView.count);
             offset += RenderEntityUInt8SharedBufferView.count * 1;
             this._boolSharedBuffer = new Uint8Array(buffer, offset, 1); // Only use 1 bytes for at most 8 booleans

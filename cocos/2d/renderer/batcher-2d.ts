@@ -892,7 +892,7 @@ export class Batcher2D implements IBatcher {
         const length = queue.length;
         if (length === 0) return;
 
-        queue.sort((a, b) => a.uiRenderer!._priority - b.uiRenderer!._priority);
+        queue.sort((a, b) => a.uiRenderer!.priority - b.uiRenderer!.priority);
 
         let maskLastRender: UIRenderer | null = null;
         for (let i = 0; i < length; i++) {

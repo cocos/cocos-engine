@@ -35,6 +35,9 @@ namespace cc {
 
 namespace {
 
+const bool ENABLE_SORTING_2D = true;
+
+
 CC_FORCE_INLINE void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
     uint16_t* ib = drawInfo->getIDataBuffer();
     
@@ -107,6 +110,11 @@ Batcher2d::Batcher2d(Root* root)
     _root = root;
     _device = _root->getDevice();
     _stencilManager = StencilManager::getInstance();
+    
+    _recordedRendererInfoQueueStack.resize(3);
+    for (auto &queue : _recordedRendererInfoQueueStack) {
+        queue.reserve(20);
+    }
 }
 
 Batcher2d::~Batcher2d() { // NOLINT
@@ -131,6 +139,14 @@ Batcher2d::~Batcher2d() { // NOLINT
     }
     _maskClearMtl = nullptr;
     _maskAttributes.clear();
+}
+
+ccstd::vector<RecordedRendererInfo> &Batcher2d::getRecordedRendererInfoQueue() {
+    if (_recordedRendererInfoQueueIndex >= _recordedRendererInfoQueueStack.size()) {
+        auto &queue = _recordedRendererInfoQueueStack.emplace_back();
+        queue.reserve(20);
+    }
+    return _recordedRendererInfoQueueStack[_recordedRendererInfoQueueIndex];
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -161,6 +177,11 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     for (auto* rootNode : _rootNodeArr) {
         // _batches will add by generateBatch
         walk(rootNode, 1, false);
+        
+        if (ENABLE_SORTING_2D) {
+            flushRecordedUIRenderers();
+        }
+        
         generateBatch(_currEntity, _currDrawInfo);
 
         auto* scene = rootNode->getScene()->getRenderScene();
@@ -170,6 +191,52 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         }
         index = count;
     }
+}
+
+void Batcher2d::handleUIRenderer(RenderEntity *entity) {
+    uint32_t size = entity->getRenderDrawInfosSize();
+    for (uint32_t i = 0; i < size; i++) {
+        auto* drawInfo = entity->getRenderDrawInfoAt(i);
+        handleDrawInfo(entity, drawInfo, entity->getNode());
+    }
+    entity->setVBColorDirty(false);
+}
+
+int32_t Batcher2d::recordUIRenderer(RenderEntity *entity) {
+    if (!ENABLE_SORTING_2D) return -1;
+    auto &queue = getRecordedRendererInfoQueue();
+    auto &info = queue.emplace_back();
+    info.renderEntity = entity;
+    info.maskLastRender = nullptr;
+    return static_cast<int32_t>(queue.size() - 1);
+}
+
+void Batcher2d::flushRecordedUIRenderers() {
+    if (!ENABLE_SORTING_2D) return;
+    auto &queue = getRecordedRendererInfoQueue();
+    const size_t length = queue.size();
+    if (length == 0) return;
+
+    std::stable_sort(queue.begin(), queue.end(), [](const auto &a, const auto &b){
+        return a.renderEntity->getPriority() < b.renderEntity->getPriority();
+    });
+
+    RenderEntity *maskLastRender = nullptr;
+    for (size_t i = 0; i < length; ++i) {
+        const auto &info = queue[i];
+        auto *entity = info.renderEntity;
+        if (info.maskLastRender) {
+            maskLastRender = info.maskLastRender;
+        }
+        if (entity) {
+            handleUIRenderer(entity);
+
+            if (entity == maskLastRender) {
+                CC_ASSERT_FORMAT(i == length - 1, "maskLastNode should be the last one");
+            }
+        }
+    }
+    queue.clear();
 }
 
 void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { // NOLINT(misc-no-recursion)
@@ -184,9 +251,13 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
     // Keep the same logic as which in batcher-2d.ts
     const float finalOpacity = parentOpacity * localOpacity * (entity ? entity->getColorAlpha() : 1.F);
     node->_setFinalOpacity(finalOpacity);
+    
+    int32_t recordedInfoIndex = -1;
+    int32_t queueMaskUseIndex = -1;
+    const bool visible = math::isNotEqualF(finalOpacity, 0);
 
     if (entity) {
-        if (math::isEqualF(finalOpacity, 0)) {
+        if (!visible) {
             breakWalk = true;
         } else if (entity->isEnabled()) {
             if (isCurrentColorDirty) {
@@ -194,12 +265,24 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
                 entity->setVBColorDirty(true);
             }
             
-            uint32_t size = entity->getRenderDrawInfosSize();
-            for (uint32_t i = 0; i < size; i++) {
-                auto* drawInfo = entity->getRenderDrawInfoAt(i);
-                handleDrawInfo(entity, drawInfo, node);
+            if (ENABLE_SORTING_2D) {
+                if (entity->getIsMask()) {
+                    auto &maskInfo = _maskInfoStack.emplace_back();
+                    maskInfo.mask = entity;
+                    maskInfo.maskLastRender = nullptr;
+                    flushRecordedUIRenderers();
+                    ++_recordedRendererInfoQueueIndex;
+
+                    generateBatch(_currEntity, _currDrawInfo);
+                    resetRenderStates();
+                }
+                recordedInfoIndex = recordUIRenderer(entity);
+                if (entity->getIsMask()) {
+                    queueMaskUseIndex = _recordedRendererInfoQueueIndex;
+                }
+            } else {
+                handleUIRenderer(entity);
             }
-            entity->setVBColorDirty(false);
         }
         
         if (entity->getRenderEntityType() == RenderEntityType::CROSSED) {
@@ -211,6 +294,10 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
         const auto& children = node->getChildren();
         float thisOpacity = (entity && entity->isEnabled()) ? entity->getOpacity() : finalOpacity;
         for (const auto& child : children) {
+            if (child->getUserData() && !_maskInfoStack.empty() && _maskInfoStack[_maskInfoStack.size() - 1].mask) {
+                _maskInfoStack[_maskInfoStack.size() - 1].maskLastRender = static_cast<RenderEntity*>(child->getUserData());
+            }
+            
             // we should find parent opacity recursively upwards if it doesn't have an entity.
             walk(child, thisOpacity, isCurrentColorDirty);
         }
@@ -221,8 +308,29 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
     }
 
     // post assembler
-    if (_stencilManager->getMaskStackSize() > 0 && entity && entity->isEnabled()) {
-        handlePostRender(entity);
+    if (entity && entity->isEnabled()) {
+        if (ENABLE_SORTING_2D) {
+            if (visible && entity->getIsMask()) {
+                if (!_maskInfoStack.empty() && _maskInfoStack[_maskInfoStack.size() - 1].maskLastRender) {
+                    CC_ASSERT(queueMaskUseIndex >= 0);
+                    CC_ASSERT(recordedInfoIndex >= 0);
+                    if (recordedInfoIndex < _recordedRendererInfoQueueStack[queueMaskUseIndex].size()) {
+                        _recordedRendererInfoQueueStack[queueMaskUseIndex][recordedInfoIndex].maskLastRender = _maskInfoStack[_maskInfoStack.size() - 1].maskLastRender;
+                    }
+                }
+                
+                if (!_maskInfoStack.empty()) {
+                    _maskInfoStack.pop_back();
+                }
+                flushRecordedUIRenderers();
+                --_recordedRendererInfoQueueIndex;
+                CC_ASSERT(_recordedRendererInfoQueueIndex >= 0);
+            }
+        }
+        
+        if (_stencilManager->getMaskStackSize() > 0) {
+            handlePostRender(entity);
+        }
     }
 }
 
@@ -234,6 +342,7 @@ void Batcher2d::handlePostRender(RenderEntity* entity) {
         _stencilManager->exitMask();
     }
 }
+
 CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
     ccstd::hash_t dataHash = drawInfo->getDataHash();
     if (drawInfo->getIsMeshBuffer()) {

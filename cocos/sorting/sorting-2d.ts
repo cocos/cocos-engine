@@ -98,7 +98,7 @@ export class Sorting2D extends Component {
         const sortingLayerValue = SortingLayers.getLayerIndex(this._sortingLayer);
         const sortingPriority = SortingLayers.getSortingPriority(sortingLayerValue, this._sortingOrder);
         if (this._uiRenderer) {
-            this._uiRenderer._priority = sortingPriority;
+            this._uiRenderer.priority = sortingPriority;
         }
     }
 }
