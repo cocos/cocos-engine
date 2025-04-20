@@ -165,6 +165,7 @@ module.exports = link(mixin({
             RenderRoot2D: `${url}/${version}/manual/zh/ui-system/components/editor/renderroot2d.html`,
             ReflectionProbe: `${url}/${version}/manual/zh/concepts/scene/light/probe/reflection-art-workflow.html`,
             Sorting: `${url}/${version}/manual/zh/engine/rendering/sorting.html`,
+            Sorting2D: `${url}/${version}/manual/zh/engine/rendering/sorting-2d.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scripting/plugin-scripts.html`,

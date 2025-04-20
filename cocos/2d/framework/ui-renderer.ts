@@ -276,6 +276,12 @@ export class UIRenderer extends Renderer {
     public _flagChangedVersion = -1;
 
     /**
+     * @engineInternal
+     * @mangle
+     */
+    public _priority = 0;
+
+    /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get batcher (): Batcher2D {
