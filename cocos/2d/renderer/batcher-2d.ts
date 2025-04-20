@@ -938,7 +938,8 @@ export class Batcher2D implements IBatcher {
 
         let recordedInfo: RecordedRendererInfo | null = null;
 
-        if (!approx(opacity, 0, EPSILON)) {
+        const visable = !approx(opacity, 0, EPSILON);
+        if (visable) {
             if (uiProps.colorDirty) {
                 // Cascade color dirty state
                 this._opacityDirty++;
@@ -992,7 +993,7 @@ export class Batcher2D implements IBatcher {
             if (!ENABLE_SORTING_2D) {
                 render.postUpdateAssembler(this);
             }
-            if ((render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)) {
+            if (visable && (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)) {
                 if (ENABLE_SORTING_2D) {
                     if (this._maskInfoStack.length > 0 && this._maskInfoStack[this._maskInfoStack.length - 1].maskLastRender) {
                         recordedInfo!.maskLastRender = this._maskInfoStack[this._maskInfoStack.length - 1].maskLastRender;
@@ -1000,6 +1001,7 @@ export class Batcher2D implements IBatcher {
                     this._maskInfoStack.pop();
                     this._flushRecordedUIRenderers();
                     --this._recordedRendererInfoQueueIndex;
+                    assertIsTrue(this._recordedRendererInfoQueueIndex >= 0);
                 }
 
                 if (StencilManager.sharedManager!.getMaskStackSize() > 0) {
