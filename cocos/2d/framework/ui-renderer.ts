@@ -250,9 +250,6 @@ export class UIRenderer extends Renderer {
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
 
-    // RenderEntity
-    //protected renderData: RenderData | null = null;
-    protected _renderDataFlag = true;
     protected _renderFlag = true;
 
     protected declare _renderEntity: RenderEntity;
