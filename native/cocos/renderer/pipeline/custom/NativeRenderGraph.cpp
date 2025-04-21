@@ -938,12 +938,13 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
 
         const auto queueId = addVertex2(
             QueueTag{},
-            std::forward_as_tuple("default"),
+            std::forward_as_tuple("UI Queue"),
             std::forward_as_tuple("default"),
             std::forward_as_tuple(),
             std::forward_as_tuple(),
             std::forward_as_tuple(QueueHint::BLEND, phaseLayoutId, passLayoutId),
-            *renderGraph, passOrSubpassId);
+            *renderGraph,
+            passOrSubpassId);
 
         const auto sceneId = addVertex2(
             BlitTag{},
@@ -957,7 +958,8 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
                 SceneFlags::NONE,
                 camera,
                 BlitType::DRAW_2D),
-            *renderGraph, queueId);
+            *renderGraph,
+            queueId);
     }
 
     if (any(sceneFlags & SceneFlags::PROFILER)) {
@@ -988,16 +990,17 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
 
             const auto queueId = addVertex2(
                 QueueTag{},
-                std::forward_as_tuple("default"),
+                std::forward_as_tuple("Profiler Queue"),
                 std::forward_as_tuple("default"),
                 std::forward_as_tuple(),
                 std::forward_as_tuple(),
                 std::forward_as_tuple(QueueHint::BLEND, phaseLayoutId, passLayoutId),
-                *renderGraph, passOrSubpassId);
+                *renderGraph,
+                passOrSubpassId);
 
             const auto sceneId = addVertex2(
                 BlitTag{},
-                std::forward_as_tuple("UI"),
+                std::forward_as_tuple("Profiler"),
                 std::forward_as_tuple(),
                 std::forward_as_tuple(),
                 std::forward_as_tuple(),
@@ -1007,7 +1010,8 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
                     SceneFlags::NONE,
                     camera,
                     BlitType::DRAW_PROFILE),
-                *renderGraph, queueId);
+                *renderGraph,
+                queueId);
 
             auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneId);
             setMat4Impl(data, *layoutGraph, "cc_matProj", camera->getMatProj());
