@@ -36,6 +36,7 @@ namespace cc {
 namespace {
 
 const bool ENABLE_SORTING_2D = true;
+int32_t sorting2DCount{0};
 
 CC_FORCE_INLINE void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
     uint16_t* ib = drawInfo->getIDataBuffer();
@@ -170,7 +171,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         // _batches will add by generateBatch
         walk(rootNode, 1, false);
         
-        if (ENABLE_SORTING_2D) {
+        if (ENABLE_SORTING_2D && sorting2DCount > 0) {
             flushRecordedUIRenderers();
         }
         
@@ -244,7 +245,7 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
                 entity->setVBColorDirty(true);
             }
             
-            if (ENABLE_SORTING_2D) {
+            if (ENABLE_SORTING_2D && sorting2DCount > 0) {
                 if (entity->getIsMask()) {
                     flushRecordedUIRenderers();
 
@@ -277,7 +278,7 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
 
     // post assembler
     if (entity && entity->isEnabled()) {
-        if (ENABLE_SORTING_2D) {
+        if (ENABLE_SORTING_2D && sorting2DCount > 0) {
             if (visible && entity->getIsMask()) {
                 flushRecordedUIRenderers();
             }
@@ -764,4 +765,9 @@ void Batcher2d::createClearModel() {
         _maskClearModel->initSubModel(0, _maskModelMesh, _maskClearMtl);
     }
 }
+
+void Batcher2d::setSorting2DCount(int32_t v) {
+    sorting2DCount = v;
+}
+
 } // namespace cc

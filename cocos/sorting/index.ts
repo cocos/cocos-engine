@@ -24,4 +24,3 @@
 
 export { SortingLayers } from './sorting-layers';
 export { Sorting } from  './sorting';
-export { Sorting2D } from  './sorting-2d';

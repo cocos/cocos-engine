@@ -46,6 +46,8 @@ struct RecordedRendererInfo {
 
 class Batcher2d final {
 public:
+    static void setSorting2DCount(int32_t v);
+    
     Batcher2d();
     explicit Batcher2d(Root* root);
     ~Batcher2d();

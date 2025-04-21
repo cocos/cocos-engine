@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, JSB } from 'internal:constants';
+import { DEBUG, JSB, USE_SORTING_2D } from 'internal:constants';
 import { Camera, Model } from '../../render-scene/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../asset/assets/material';
@@ -53,11 +53,22 @@ import { IAssembler } from './base';
 import { RenderEntityFillColorType } from './render-entity';
 import type { Director } from '../../game/director';
 
+let sorting2DCount = 0;
+
+/**
+ * @engineInternal
+ */
+export function _setSorting2DCount (v: number): void {
+    sorting2DCount = v;
+    if (JSB) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        n2d.Batcher2d.setSorting2DCount(v);
+    }
+}
+
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
-
-const ENABLE_SORTING_2D = true;
-
 interface RecordedRendererInfo {
     uiRenderer: UIRenderer | null;
     finalOpacity: number; // float
@@ -146,6 +157,7 @@ export class Batcher2D implements IBatcher {
     private _maskModelMesh: RenderingSubMesh | null = null;
 
     private _recordedRendererInfoQueue: RecordedRendererInfo[] = [];
+    private _sorting2DCount = 0;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -263,6 +275,11 @@ export class Batcher2D implements IBatcher {
         if (JSB) {
             return;
         }
+
+        if (USE_SORTING_2D) {
+            this._sorting2DCount = sorting2DCount;
+        }
+
         const screens = this._screens;
         let offset = 0;
         for (let i = 0; i < screens.length; ++i) {
@@ -277,7 +294,7 @@ export class Batcher2D implements IBatcher {
 
             this.walk(screen.node);
 
-            if (ENABLE_SORTING_2D) {
+            if (USE_SORTING_2D && this._sorting2DCount > 0) {
                 this._flushRecordedUIRenderers();
             }
 
@@ -302,7 +319,7 @@ export class Batcher2D implements IBatcher {
             }
         }
 
-        if (ENABLE_SORTING_2D) {
+        if (USE_SORTING_2D && this._sorting2DCount > 0) {
             recordedRendererInfoPool.reset();
         }
     }
@@ -856,7 +873,7 @@ export class Batcher2D implements IBatcher {
     }
 
     private _recordUIRenderer (render: UIRenderer, finalOpacity: number, opacityDirty: boolean): RecordedRendererInfo {
-        if (!ENABLE_SORTING_2D) return null!;
+        if (!USE_SORTING_2D) return null!;
         const queue = this.getRecordedRendererInfoQueue();
         const info = recordedRendererInfoPool.add();
         info.uiRenderer = render;
@@ -867,7 +884,7 @@ export class Batcher2D implements IBatcher {
     }
 
     private _flushRecordedUIRenderers (): void {
-        if (!ENABLE_SORTING_2D) return;
+        if (!USE_SORTING_2D) return;
         const queue = this.getRecordedRendererInfoQueue();
         const length = queue.length;
         if (length === 0) return;
@@ -915,7 +932,7 @@ export class Batcher2D implements IBatcher {
                 this._opacityDirty++;
             }
             if (render) {
-                if (ENABLE_SORTING_2D) {
+                if (USE_SORTING_2D && this._sorting2DCount > 0) {
                     if (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
                         this._flushRecordedUIRenderers();
 
@@ -948,11 +965,11 @@ export class Batcher2D implements IBatcher {
         // Post render assembler update logic
         // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
         if (render && render.enabledInHierarchy) {
-            if (!ENABLE_SORTING_2D) {
+            if (!USE_SORTING_2D) {
                 render.postUpdateAssembler(this);
             }
             if (visable && (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)) {
-                if (ENABLE_SORTING_2D) {
+                if (USE_SORTING_2D && this._sorting2DCount > 0) {
                     this._flushRecordedUIRenderers();
                 }
 

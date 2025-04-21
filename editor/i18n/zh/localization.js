@@ -954,6 +954,10 @@ module.exports = link(mixin({
             label: "基础 2D 功能",
             description: "常用于一般 2D 应用的工具与组件。",
         },
+        sorting_2d: {
+            label: "2D 渲染排序功能",
+            description: "根据 Sorting2D 组件中的配置对 UIRenderer 进行排序。",
+        },
         rich_text: {
             label: "富文本",
             description: "富文本支持。",

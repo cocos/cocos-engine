@@ -976,6 +976,10 @@ module.exports = link(mixin({
             label: "Basic 2D Features",
             description: "Components and tools that are widely used in general 2D applications.",
         },
+        sorting_2d: {
+            label: "2D Rendering Sorting Features",
+            description: "Sorting UIRenderers by the configuration in Sorting2D component.",
+        },
         rich_text: {
             label: "Rich Text",
             description: "Rich text support.",

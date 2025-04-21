@@ -28,9 +28,12 @@ import { SortingLayers } from './sorting-layers';
 import { Component } from '../scene-graph/component';
 import { warnID } from '../core/platform/debug';
 import { UIRenderer } from '../2d/framework/ui-renderer';
+import { _setSorting2DCount } from '../2d/renderer/batcher-2d';
 
 const MAX_INT16 = (1 << 15) - 1;
 const MIN_INT16 = -1 << 15;
+
+let sorting2DCount = 0;
 
 /**
  * @en
@@ -86,12 +89,20 @@ export class Sorting2D extends Component {
 
     private _uiRenderer: UIRenderer | null = null;
 
-    protected __preload (): void {
+    protected override __preload (): void {
         this._uiRenderer = this.getComponent(UIRenderer);
         if (!this._uiRenderer) {
             warnID(16300, this.node.name);
         }
         this._updateSortingPriority();
+
+        ++sorting2DCount;
+        _setSorting2DCount(sorting2DCount);
+    }
+
+    protected override onDestroy (): void {
+        --sorting2DCount;
+        _setSorting2DCount(sorting2DCount);
     }
 
     protected _updateSortingPriority (): void {
@@ -101,4 +112,8 @@ export class Sorting2D extends Component {
             this._uiRenderer.priority = sortingPriority;
         }
     }
+}
+
+export function getSorting2DCount (): number {
+    return sorting2DCount;
 }
