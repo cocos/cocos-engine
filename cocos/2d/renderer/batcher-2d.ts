@@ -77,8 +77,6 @@ const recordedRendererInfoPool = new RecyclePool<RecordedRendererInfo>(() => ({
     maskLastRender: null,
 }), 128);
 
-const maskInfoPool = new RecyclePool<MaskInfo>(() => ({ mask: null, maskLastRender: null }), 5);
-
 /**
  * @en UI rendering process
  * @zh UI 渲染流程
@@ -154,9 +152,7 @@ export class Batcher2D implements IBatcher {
     private _maskClearMtl: Material | null = null;
     private _maskModelMesh: RenderingSubMesh | null = null;
 
-    private _recordedRendererInfoQueueStack: RecordedRendererInfo[][] = [];
-    private _recordedRendererInfoQueueIndex = 0;
-    private _maskInfoStack: MaskInfo[] = [];
+    private _recordedRendererInfoQueue: RecordedRendererInfo[] = [];
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -165,22 +161,15 @@ export class Batcher2D implements IBatcher {
     }
 
     private getRecordedRendererInfoQueue (): RecordedRendererInfo[] {
-        if (this._recordedRendererInfoQueueIndex >= this._recordedRendererInfoQueueStack.length) {
-            this._recordedRendererInfoQueueStack.push([]);
-        }
-        return this._recordedRendererInfoQueueStack[this._recordedRendererInfoQueueIndex];
+        return this._recordedRendererInfoQueue;
     }
 
     public initialize (): boolean {
-        for (let i = 0; i < 3; ++i) {
-            this._recordedRendererInfoQueueStack.push([]);
-        }
-
         return true;
     }
 
     public destroy (): void {
-        this._recordedRendererInfoQueueStack.length = 0;
+        this._recordedRendererInfoQueue.length = 0;
 
         for (let i = 0; i < this._batches.length; i++) {
             if (this._batches.array[i]) {
@@ -322,7 +311,6 @@ export class Batcher2D implements IBatcher {
 
         if (ENABLE_SORTING_2D) {
             recordedRendererInfoPool.reset();
-            maskInfoPool.reset();
         }
     }
 
@@ -947,12 +935,7 @@ export class Batcher2D implements IBatcher {
             if (render) {
                 if (ENABLE_SORTING_2D) {
                     if (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
-                        const maskInfo = maskInfoPool.add();
-                        maskInfo.mask = render;
-                        maskInfo.maskLastRender = null;
-                        this._maskInfoStack.push(maskInfo);
                         this._flushRecordedUIRenderers();
-                        ++this._recordedRendererInfoQueueIndex;
 
                         this.autoMergeBatches(this._currComponent!);
                         this.resetRenderStates();
@@ -964,15 +947,8 @@ export class Batcher2D implements IBatcher {
             }
 
             if (children.length > 0 && !node._static) {
-                let childUiComp: UIRenderer | null = null;
                 for (let i = 0; i < children.length; ++i) {
                     const child = children[i];
-                    if (this._maskInfoStack.length > 0 && this._maskInfoStack[this._maskInfoStack.length - 1].mask) {
-                        childUiComp = child._uiProps.uiComp as UIRenderer | null;
-                        if (childUiComp) {
-                            this._maskInfoStack[this._maskInfoStack.length - 1].maskLastRender = childUiComp;
-                        }
-                    }
                     this.walk(child, level);
                 }
             }
@@ -995,13 +971,7 @@ export class Batcher2D implements IBatcher {
             }
             if (visable && (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)) {
                 if (ENABLE_SORTING_2D) {
-                    if (this._maskInfoStack.length > 0 && this._maskInfoStack[this._maskInfoStack.length - 1].maskLastRender) {
-                        recordedInfo!.maskLastRender = this._maskInfoStack[this._maskInfoStack.length - 1].maskLastRender;
-                    }
-                    this._maskInfoStack.pop();
                     this._flushRecordedUIRenderers();
-                    --this._recordedRendererInfoQueueIndex;
-                    assertIsTrue(this._recordedRendererInfoQueueIndex >= 0);
                 }
 
                 if (StencilManager.sharedManager!.getMaskStackSize() > 0) {
