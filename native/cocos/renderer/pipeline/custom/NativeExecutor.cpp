@@ -405,24 +405,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 phaseSet);
         }
     }
-    // void tryBindLeafOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor leafID) const {
-    //     auto iter = ctx.ppl->nativeContext.graphNodeDescriptorSets.find(leafID);
-    //     if (iter != ctx.ppl->nativeContext.graphNodeDescriptorSets.end()) {
-    //         CC_ENSURES(get<0>(iter->second));
-    //         ctx.cmdBuff->bindDescriptorSet(
-    //             static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
-    //             get<0>(iter->second));
-    //     }
-    // }
-    void tryBindUIOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor sceneID) const {
-        auto iter = ctx.uiDescriptorSet.find(sceneID);
-        if (iter != ctx.uiDescriptorSet.end()) {
-            CC_EXPECTS(iter->second);
-            ctx.cmdBuff->bindDescriptorSet(
-                static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
-                iter->second);
-        }
-    }
     void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
@@ -1037,7 +1019,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 mountResources(pass);
 
                 ctx.ppl->prepareDescriptorSets(*ctx.cmdBuff, ctx.fgd, vertID);
-                // NativePipeline::prepareDescriptors(ctx, vertID);
 
                 // execute render pass
                 frontBarriers(vertID);
@@ -1053,7 +1034,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 mountResources(pass);
 
                 ctx.ppl->prepareDescriptorSets(*ctx.cmdBuff, ctx.fgd, vertID);
-                // NativePipeline::prepareDescriptors(ctx, vertID);
 
                 frontBarriers(vertID);
                 begin(pass, vertID);
