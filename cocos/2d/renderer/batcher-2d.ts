@@ -50,6 +50,7 @@ import { scene } from '../../render-scene';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { RenderingSubMesh } from '../../asset/assets';
 import { IAssembler } from './base';
+import { RenderEntityFillColorType } from './render-entity';
 import type { Director } from '../../game/director';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -808,6 +809,8 @@ export class Batcher2D implements IBatcher {
         // TODO Set opacity to ui property's opacity before remove it
         uiProps.setOpacity(opacity);
         if (!approx(opacity, 0, EPSILON)) {
+            const renderData = render ? render.renderData : null;
+            const vertexCount = renderData ? renderData.vertexCount : 0;
             if (uiProps.colorDirty) {
             // Cascade color dirty state
                 this._opacityDirty++;
@@ -819,10 +822,22 @@ export class Batcher2D implements IBatcher {
             }
 
             // Update cascaded opacity to vertex buffer
-            if (this._opacityDirty && render && !render.useVertexOpacity && render.renderData && render.renderData.vertexCount > 0) {
-            // HARD COUPLING
-                updateOpacity(render.renderData, opacity);
-                const buffer = render.renderData.getMeshBuffer();
+            if (this._opacityDirty && vertexCount > 0) {
+                // HARD COUPLING
+                switch (render.getFillColorType()) {
+                case RenderEntityFillColorType.COLOR: {
+                    updateOpacity(renderData!, opacity);
+                    break;
+                }
+                case RenderEntityFillColorType.VERTEX: {
+                    // Use vertex color directly, so do nothing here.
+                    break;
+                }
+                default:
+                    break;
+                }
+
+                const buffer = renderData!.getMeshBuffer();
                 if (buffer) {
                     buffer.setDirty();
                 }
@@ -836,7 +851,7 @@ export class Batcher2D implements IBatcher {
             }
 
             if (uiProps.colorDirty) {
-            // Reduce cascaded color dirty state
+                // Reduce cascaded color dirty state
                 this._opacityDirty--;
                 // Reset color dirty
                 uiProps.colorDirty = false;

@@ -40,7 +40,7 @@ import { UITransform } from './ui-transform';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Renderer } from '../../misc/renderer';
-import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { RenderEntity, RenderEntityType, RenderEntityFillColorType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
@@ -216,13 +216,6 @@ export class UIRenderer extends Renderer {
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
-     */
-    get useVertexOpacity (): boolean {
-        return this._useVertexOpacity;
-    }
-
-    /**
-     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -300,10 +293,48 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @en Marks for calculating opacity per vertex
-     * @zh 标记组件是否逐顶点计算透明度
+     * @en UI rendering component fill color type, COLOR means using color property value to fill, VERTEX means using vertex color value to fill.
+     * @zh UI 渲染组件填充颜色类型，COLOR 表示使用 color 属性值填充，VERTEX 表示使用顶点颜色值填充。
      */
-    protected _useVertexOpacity = false;
+    private _fillColorType = RenderEntityFillColorType.COLOR;
+
+    /**
+     * @engineInternal
+     */
+    public getFillColorType (): RenderEntityFillColorType {
+        return this._fillColorType;
+    }
+
+    /**
+     * @engineInternal
+     */
+    protected setFillColorType (val: RenderEntityFillColorType): void {
+        this._fillColorType = val;
+        if (JSB) {
+            this._renderEntity.setFillColorType(val);
+        }
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    protected set _useVertexOpacity (val: boolean) {
+        this.setFillColorType(RenderEntityFillColorType.VERTEX);
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    protected get _useVertexOpacity (): boolean {
+        return this._fillColorType === RenderEntityFillColorType.VERTEX;
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    get useVertexOpacity (): boolean {
+        return this._fillColorType === RenderEntityFillColorType.VERTEX;
+    }
 
     protected _lastParent: Node | null = null;
 
@@ -498,7 +529,6 @@ export class UIRenderer extends Renderer {
         this.node._uiProps.colorDirty = true;
         this.setEntityColorDirty(true);
         this.setEntityColor(this._color);
-        this.setEntityOpacity(this.node._uiProps.localOpacity);
 
         const assembler = this._assembler;
         if (assembler) {
@@ -518,23 +548,9 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    /**
-     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
-     */
-    // for common
-    public static setEntityColorDirtyRecursively (node: Node, dirty: boolean): void {
-        const render = node._uiProps.uiComp as UIRenderer;
-        if (render && render.color) { // exclude UIMeshRenderer which has not color
-            render._renderEntity.colorDirty = dirty;
-        }
-        for (let i = 0; i < node.children.length; i++) {
-            UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
-        }
-    }
-
     private setEntityColorDirty (dirty: boolean): void {
         if (JSB) {
-            UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+            this._renderEntity.colorDirty = dirty;
         }
     }
 
@@ -552,7 +568,7 @@ export class UIRenderer extends Renderer {
      */
     public setEntityOpacity (opacity: number): void {
         if (JSB) {
-            this._renderEntity.localOpacity = opacity;
+            (this.node as any)._setLocalOpacity(opacity);
         }
     }
 

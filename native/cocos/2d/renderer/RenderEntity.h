@@ -49,17 +49,24 @@ enum class MaskMode : uint8_t {
     MASK_NODE_INVERTED
 };
 
+enum class FillColorType: uint8_t {
+    COLOR = 0,
+    VERTEX,
+};
+
 struct EntityAttrLayout {
-    float localOpacity{1.0F};
     uint8_t colorR{255};
     uint8_t colorG{255};
     uint8_t colorB{255};
     uint8_t colorA{255};
     uint8_t maskMode{0};
-    uint8_t colorDirtyBit{1};
-    uint8_t enabledIndex{0};
-    uint8_t useLocal{0};
+    FillColorType fillColorType{FillColorType::COLOR};
+    uint8_t enabledIndex: 1;
+    uint8_t useLocal: 1;
+    uint8_t paddings: 6;
 };
+
+static_assert(sizeof(EntityAttrLayout) == 7, "Be carefull to add property to EntityAttrLayout which may cause the potential cache miss");
 
 class RenderEntity final : public Node::UserData {
 public:
@@ -90,6 +97,8 @@ public:
     inline void setUseLocal(bool useLocal) {
         _entityAttrLayout.useLocal = useLocal;
     }
+    
+    inline FillColorType getFillColorType() const { return _entityAttrLayout.fillColorType; }
 
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
@@ -117,13 +126,11 @@ public:
     ccstd::vector<RenderDrawInfo*>& getDynamicRenderDrawInfos();
 
     inline se::Object* getEntitySharedBufferForJS() const { return _entitySharedBufferActor.getSharedArrayBufferObject(); }
-    inline bool getColorDirty() const { return _entityAttrLayout.colorDirtyBit != 0; }
-    inline void setColorDirty(bool dirty) { _entityAttrLayout.colorDirtyBit = dirty ? 1 : 0; }
+
     inline bool getVBColorDirty() const { return _vbColorDirty; }
     inline void setVBColorDirty(bool vbColorDirty) { _vbColorDirty = vbColorDirty; }
     inline Color getColor() const { return Color(_entityAttrLayout.colorR, _entityAttrLayout.colorG, _entityAttrLayout.colorB, _entityAttrLayout.colorA); }
     inline float getColorAlpha() const { return static_cast<float>(_entityAttrLayout.colorA) / 255.F; }
-    inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
     inline float getOpacity() const { return _opacity; }
     inline void setOpacity(float opacity) { _opacity = opacity; }
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
@@ -141,18 +148,26 @@ private:
 
     // weak reference
     Node* _renderTransform{nullptr};
-
-    EntityAttrLayout _entityAttrLayout;
-    float _opacity{1.0F};
-
+    
     bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor;
+
     union {
         std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
         ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
     };
+    EntityAttrLayout _entityAttrLayout;
+    
     StencilStage _stencilStage{StencilStage::DISABLED};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
     uint8_t _staticDrawInfoSize{0};
     bool _vbColorDirty{true};
+    uint8_t _paddings[1];
+    
+    float _opacity{1.0F};
 };
+
+#if defined(__x86_64__) || defined(__amd64__) || defined(__aarch64__)
+static_assert(sizeof(RenderEntity) == 632, "Be carefull to add property to RenderEntity which may cause the potential cache miss");
+#endif
+
 } // namespace cc

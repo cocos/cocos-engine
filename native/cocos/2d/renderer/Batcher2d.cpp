@@ -33,6 +33,69 @@
 
 namespace cc {
 
+namespace {
+
+CC_FORCE_INLINE void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    uint16_t* ib = drawInfo->getIDataBuffer();
+    
+    UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+    uint32_t indexOffset = buffer->getIndexOffset();
+    
+    uint16_t* indexb = drawInfo->getIbBuffer();
+    uint32_t indexCount = drawInfo->getIbCount();
+    
+    memcpy(&ib[indexOffset], indexb, indexCount * sizeof(uint16_t));
+    indexOffset += indexCount;
+    
+    buffer->setIndexOffset(indexOffset);
+}
+
+CC_FORCE_INLINE void fillVertexBuffers(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    Node* node = entity->getNode();
+    const Mat4& matrix = node->getWorldMatrix();
+    uint8_t stride = drawInfo->getStride();
+    uint32_t size = drawInfo->getVbCount() * stride;
+    float* vbBuffer = drawInfo->getVbBuffer();
+    for (int i = 0; i < size; i += stride) {
+        Render2dLayout* curLayout = drawInfo->getRender2dLayout(i);
+        // make sure that the layout of Vec3 is three consecutive floats
+        static_assert(sizeof(Vec3) == 3 * sizeof(float));
+        // cast to reduce value copy instructions
+        reinterpret_cast<Vec3*>(vbBuffer + i)->transformMat4(curLayout->position, matrix);
+    }
+}
+
+CC_FORCE_INLINE void setIndexRange(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+    uint32_t indexOffset = drawInfo->getIndexOffset();
+    uint32_t indexCount = drawInfo->getIbCount();
+    indexOffset += indexCount;
+    if (buffer->getIndexOffset() < indexOffset) {
+        buffer->setIndexOffset(indexOffset);
+    }
+}
+
+CC_FORCE_INLINE void fillColor(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    uint8_t stride = drawInfo->getStride();
+    uint32_t size = drawInfo->getVbCount() * stride;
+    float* vbBuffer = drawInfo->getVbBuffer();
+    Color temp = entity->getColor();
+    
+    uint32_t offset = 0;
+    for (int i = 0; i < size; i += stride) {
+        offset = i + 5;
+        // NOTE: Only support RGBA32F (4 floats) color fomat now.
+        // Spine set 'UIRenderer._useVertexOpacity = true', it uses RGBA32 (4 bytes) color and fills color in Skeleton._updateColor and spine/simple.ts assembler.
+        // So for Spine rendering, it will never go here to fill color.
+        vbBuffer[offset] = static_cast<float>(temp.r) / 255.0F;
+        vbBuffer[offset+1] = static_cast<float>(temp.g) / 255.0F;
+        vbBuffer[offset+2] = static_cast<float>(temp.b) / 255.0F;
+        vbBuffer[offset+3] = entity->getOpacity();
+    }
+}
+
+} // namespace
+
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
 }
 
@@ -109,25 +172,28 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     }
 }
 
-void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) { // NOLINT(misc-no-recursion)
+void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { // NOLINT(misc-no-recursion)
     if (!node->isActiveInHierarchy()) {
         return;
     }
     bool breakWalk = false;
     auto* entity = static_cast<RenderEntity*>(node->getUserData());
-    bool opacityDirty = false;
+    
+    const bool isCurrentColorDirty = node->_isColorDirty() || parentColorDirty;
+    const float localOpacity = node->_getLocalOpacity();
+    // Keep the same logic as which in batcher-2d.ts
+    const float finalOpacity = parentOpacity * localOpacity * (entity ? entity->getColorAlpha() : 1.F);
+    node->_setFinalOpacity(finalOpacity);
+
     if (entity) {
-        if (entity->getColorDirty() || parentOpacityDirty) {
-            float localOpacity = entity->getLocalOpacity();
-            float localColorAlpha = entity->getColorAlpha();
-            entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
-            entity->setColorDirty(false);
-            entity->setVBColorDirty(true);
-            opacityDirty = true;
-        }
-        if (math::isEqualF(entity->getOpacity(), 0)) {
+        if (math::isEqualF(finalOpacity, 0)) {
             breakWalk = true;
         } else if (entity->isEnabled()) {
+            if (isCurrentColorDirty) {
+                entity->setOpacity(finalOpacity);
+                entity->setVBColorDirty(true);
+            }
+            
             uint32_t size = entity->getRenderDrawInfosSize();
             for (uint32_t i = 0; i < size; i++) {
                 auto* drawInfo = entity->getRenderDrawInfoAt(i);
@@ -135,6 +201,7 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
             }
             entity->setVBColorDirty(false);
         }
+        
         if (entity->getRenderEntityType() == RenderEntityType::CROSSED) {
             breakWalk = true;
         }
@@ -142,11 +209,15 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
 
     if (!breakWalk) {
         const auto& children = node->getChildren();
-        float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
+        float thisOpacity = (entity && entity->isEnabled()) ? entity->getOpacity() : finalOpacity;
         for (const auto& child : children) {
             // we should find parent opacity recursively upwards if it doesn't have an entity.
-            walk(child, thisOpacity, opacityDirty || parentOpacityDirty);
+            walk(child, thisOpacity, isCurrentColorDirty);
         }
+    }
+    
+    if (isCurrentColorDirty) {
+        node->_setColorDirty(false);
     }
 
     // post assembler
@@ -216,7 +287,18 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
         }
 
         if (entity->getVBColorDirty()) {
-            fillColors(entity, drawInfo);
+            switch (entity->getFillColorType()) {
+                case FillColorType::COLOR: {
+                    fillColor(entity, drawInfo);
+                    break;
+                }
+                case FillColorType::VERTEX: {
+                    // Use vertex color directly, so do nothing here.
+                    break;
+                }
+                default:
+                    break;
+            }
         }
 
         fillIndexBuffers(drawInfo);

@@ -44,6 +44,8 @@
 %ignore UserData;
 %ignore cc::RefCounted;
 
+%ignore cc::EntityAttrLayout;
+
 %ignore cc::UIMeshBuffer::requireFreeIA;
 %ignore cc::UIMeshBuffer::createNewIA;
 %ignore cc::UIMeshBuffer::recycleIA;

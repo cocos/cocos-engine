@@ -63,7 +63,7 @@ public:
     void updateDescriptorSet();
 
     void fillBuffersAndMergeBatches();
-    void walk(Node* node, float parentOpacity, bool parentOpacityDirty);
+    void walk(Node* node, float parentOpacity, bool parentColorDirty);
     void handlePostRender(RenderEntity* entity);
     void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
@@ -76,63 +76,6 @@ public:
 
 private:
     bool _isInit = false;
-
-    inline void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
-        uint16_t* ib = drawInfo->getIDataBuffer();
-
-        UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
-        uint32_t indexOffset = buffer->getIndexOffset();
-
-        uint16_t* indexb = drawInfo->getIbBuffer();
-        uint32_t indexCount = drawInfo->getIbCount();
-
-        memcpy(&ib[indexOffset], indexb, indexCount * sizeof(uint16_t));
-        indexOffset += indexCount;
-
-        buffer->setIndexOffset(indexOffset);
-    }
-
-    inline void fillVertexBuffers(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
-        Node* node = entity->getNode();
-        const Mat4& matrix = node->getWorldMatrix();
-        uint8_t stride = drawInfo->getStride();
-        uint32_t size = drawInfo->getVbCount() * stride;
-        float* vbBuffer = drawInfo->getVbBuffer();
-        for (int i = 0; i < size; i += stride) {
-            Render2dLayout* curLayout = drawInfo->getRender2dLayout(i);
-            // make sure that the layout of Vec3 is three consecutive floats
-            static_assert(sizeof(Vec3) == 3 * sizeof(float));
-            // cast to reduce value copy instructions
-            reinterpret_cast<Vec3*>(vbBuffer + i)->transformMat4(curLayout->position, matrix);
-        }
-    }
-
-    inline void setIndexRange(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
-        UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
-        uint32_t indexOffset = drawInfo->getIndexOffset();
-        uint32_t indexCount = drawInfo->getIbCount();
-        indexOffset += indexCount;
-        if (buffer->getIndexOffset() < indexOffset) {
-            buffer->setIndexOffset(indexOffset);
-        }
-    }
-
-    inline void fillColors(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
-        Color temp = entity->getColor();
-
-        uint8_t stride = drawInfo->getStride();
-        uint32_t size = drawInfo->getVbCount() * stride;
-        float* vbBuffer = drawInfo->getVbBuffer();
-
-        uint32_t offset = 0;
-        for (int i = 0; i < size; i += stride) {
-            offset = i + 5;
-            vbBuffer[offset++] = static_cast<float>(temp.r) / 255.0F;
-            vbBuffer[offset++] = static_cast<float>(temp.g) / 255.0F;
-            vbBuffer[offset++] = static_cast<float>(temp.b) / 255.0F;
-            vbBuffer[offset++] = entity->getOpacity();
-        }
-    }
 
     void insertMaskBatch(RenderEntity* entity);
     void createClearModel();

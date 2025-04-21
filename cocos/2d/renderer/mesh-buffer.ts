@@ -230,9 +230,9 @@ export class MeshBuffer {
     constructor () {
         if (JSB) {
             this._nativeObj = new NativeUIMeshBuffer();
+            this.initSharedBuffer();
+            this.syncSharedBufferToNative();
         }
-        this.initSharedBuffer();
-        this.syncSharedBufferToNative();
     }
 
     /**
