@@ -42,12 +42,6 @@ using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>;
 
 struct RecordedRendererInfo {
     RenderEntity *renderEntity{nullptr};
-    RenderEntity *maskLastRender{nullptr};
-};
-
-struct MaskInfo {
-    RenderEntity *mask{nullptr};
-    RenderEntity *maskLastRender{nullptr};
 };
 
 class Batcher2d final {
@@ -108,10 +102,7 @@ private:
     ccstd::vector<scene::DrawBatch2D*> _batches;
     memop::Pool<scene::DrawBatch2D> _drawBatchPool;
     
-    ccstd::vector<ccstd::vector<RecordedRendererInfo>> _recordedRendererInfoQueueStack;
-    int32_t _recordedRendererInfoQueueIndex{0};
-    
-    ccstd::vector<MaskInfo> _maskInfoStack;
+    ccstd::vector<RecordedRendererInfo> _recordedRendererInfoQueue;
 
     // weak reference
     gfx::Device* _device{nullptr}; // use getDevice()
