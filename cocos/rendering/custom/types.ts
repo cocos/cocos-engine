@@ -101,16 +101,31 @@ export enum SceneFlags {
     OPAQUE = 0x1,
     MASK = 0x2,
     BLEND = 0x4,
+    /**
+     * @deprecated Please use OPAQUE.
+     */
     OPAQUE_OBJECT = OPAQUE,
+    /**
+     * @deprecated Please use MASK.
+     */
     CUTOUT_OBJECT = MASK,
+    /**
+     * @deprecated Please use BLEND.
+     */
     TRANSPARENT_OBJECT = BLEND,
     SHADOW_CASTER = 0x8,
+    /**
+     * @deprecated Please add 2D node in the render graph.
+     */
     UI = 0x10,
     DEFAULT_LIGHTING = 0x20,
     VOLUMETRIC_LIGHTING = 0x40,
     CLUSTERED_LIGHTING = 0x80,
     PLANAR_SHADOW = 0x100,
     GEOMETRY = 0x200,
+    /**
+     * @deprecated Please add profiler node in the render graph.
+     */
     PROFILER = 0x400,
     DRAW_INSTANCING = 0x800,
     DRAW_NON_INSTANCING = 0x1000,
