@@ -137,7 +137,7 @@ export class PackManager {
         let err: Error | null = null;
         try {
             const uint8Arrays = binPackageUnpack(buffer);
-            // TODO native上可以用stream优化
+            // TODO Maybe it can be optimized through read file stream on the native side.
             pack.forEach((uuid, index) => out[`${uuid}@import`] = decodeCCONBinary(uint8Arrays[index]));
         } catch (e) {
             err = e as Error;
@@ -300,6 +300,7 @@ export class PackManager {
             });
         };
         if (pack.ext === '.bin') {
+            // FIXME _downloadArrayBuffer is not a public API
             downloader._downloadArrayBuffer(url, item.options, done);
         } else if (pack.ext === '.json') {
             downloader.download(pack.uuid, url, pack.ext, item.options, done);
