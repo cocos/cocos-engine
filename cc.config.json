@@ -191,7 +191,10 @@
             "dependentModules": ["2d"]
         },
         "vendor-google": {
-            "modules": ["vendor-google"]
+            "modules": ["vendor-google"],
+            "intrinsicFlags": {
+                "USE_VENDOR_GOOGLE": true
+            }
         },
         "spine-3.8": {
             "modules": ["spine"],
@@ -792,12 +795,6 @@
         },
         "USE_XR": {
             "comment": "An internal constant to indicate whether we're using xr module.",
-            "type": "boolean",
-            "value": false,
-            "internal": true
-        },
-        "USE_VENDOR_GOOGLE": {
-            "comment": "An internal constant to indicate whether we're using vendor google module.",
             "type": "boolean",
             "value": false,
             "internal": true
