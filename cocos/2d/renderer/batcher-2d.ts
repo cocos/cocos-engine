@@ -62,19 +62,12 @@ interface RecordedRendererInfo {
     uiRenderer: UIRenderer | null;
     finalOpacity: number; // float
     opacityDirty: boolean;
-    maskLastRender: UIRenderer | null;
-}
-
-interface MaskInfo {
-    mask: UIRenderer | null;
-    maskLastRender: UIRenderer | null;
 }
 
 const recordedRendererInfoPool = new RecyclePool<RecordedRendererInfo>(() => ({
     uiRenderer: null,
     finalOpacity: 0,
     opacityDirty: false,
-    maskLastRender: null,
 }), 128);
 
 /**
@@ -869,7 +862,6 @@ export class Batcher2D implements IBatcher {
         info.uiRenderer = render;
         info.finalOpacity = finalOpacity;
         info.opacityDirty = opacityDirty;
-        info.maskLastRender = null;
         queue.push(info);
         return info;
     }
@@ -882,26 +874,18 @@ export class Batcher2D implements IBatcher {
 
         queue.sort((a, b) => a.uiRenderer!.priority - b.uiRenderer!.priority);
 
-        let maskLastRender: UIRenderer | null = null;
         for (let i = 0; i < length; i++) {
             const info = queue[i];
             const render = info.uiRenderer;
-            if (info.maskLastRender) {
-                maskLastRender = info.maskLastRender;
-            }
+
             if (render) {
                 this._handleUIRenderer(render, info.finalOpacity, info.opacityDirty);
                 if (render.enabledInHierarchy) {
                     render.postUpdateAssembler(this);
                 }
-
-                if (render === maskLastRender) {
-                    assertIsTrue(i === length - 1, 'maskLastNode should be the last one');
-                }
             }
             info.finalOpacity = 1;
             info.opacityDirty = false;
-            info.maskLastRender = null;
             info.uiRenderer = null;
         }
         queue.length = 0;
