@@ -83,7 +83,6 @@ struct DescriptorSetVisitorContext {
         CC_ENSURES(mPhaseLayoutIdStack.empty());
     }
     void setupRenderSubpass(RenderGraph::vertex_descriptor subpassID, std::string_view subpassLayoutName) {
-        CC_EXPECTS(!subpassLayoutName.empty());
         CC_EXPECTS(mPassID != RenderGraph::null_vertex());
         CC_EXPECTS(mSubpassID == RenderGraph::null_vertex());
         CC_EXPECTS(mQueueID == RenderGraph::null_vertex());
@@ -92,7 +91,10 @@ struct DescriptorSetVisitorContext {
         CC_EXPECTS(mPhaseLayoutIdStack.empty());
 
         // Get the pass layoutId from the layout graph
-        auto subpassLayoutId = locate(LayoutGraphData::null_vertex(), subpassLayoutName, layoutGraph);
+        auto subpassLayoutId =
+            subpassLayoutName.empty()
+                ? mPassLayoutIdStack.back()
+                : locate(LayoutGraphData::null_vertex(), subpassLayoutName, layoutGraph);
         CC_ENSURES(subpassLayoutId != LayoutGraphData::null_vertex());
 
         // Save the passId
