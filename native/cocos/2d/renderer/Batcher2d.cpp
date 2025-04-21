@@ -185,7 +185,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     }
 }
 
-void Batcher2d::handleUIRenderer(RenderEntity *entity) {
+void Batcher2d::handleUIRenderer(RenderEntity *entity) { // NOLINT(misc-no-recursion)
     uint32_t size = entity->getRenderDrawInfosSize();
     for (uint32_t i = 0; i < size; i++) {
         auto* drawInfo = entity->getRenderDrawInfoAt(i);
@@ -202,7 +202,7 @@ int32_t Batcher2d::recordUIRenderer(RenderEntity *entity) {
     return static_cast<int32_t>(queue.size() - 1);
 }
 
-void Batcher2d::flushRecordedUIRenderers() {
+void Batcher2d::flushRecordedUIRenderers() { // NOLINT(misc-no-recursion)
     if (!ENABLE_SORTING_2D) return;
     auto &queue = getRecordedRendererInfoQueue();
     if (queue.empty()) return;
