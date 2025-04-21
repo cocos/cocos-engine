@@ -37,7 +37,6 @@ namespace {
 
 const bool ENABLE_SORTING_2D = true;
 
-
 CC_FORCE_INLINE void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
     uint16_t* ib = drawInfo->getIDataBuffer();
     

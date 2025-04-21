@@ -171,7 +171,7 @@ private:
 };
 
 #if defined(__x86_64__) || defined(__amd64__) || defined(__aarch64__)
-//static_assert(sizeof(RenderEntity) == 632, "Be carefull to add property to RenderEntity which may cause the potential cache miss");
+static_assert(sizeof(RenderEntity) == 640, "Be carefull to add property to RenderEntity which may cause the potential cache miss");
 #endif
 
 } // namespace cc
