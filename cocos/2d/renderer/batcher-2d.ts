@@ -908,8 +908,6 @@ export class Batcher2D implements IBatcher {
         // TODO Set opacity to ui property's opacity before remove it
         uiProps.setOpacity(opacity);
 
-        let recordedInfo: RecordedRendererInfo | null = null;
-
         const visable = !approx(opacity, 0, EPSILON);
         if (visable) {
             if (uiProps.colorDirty) {
@@ -924,7 +922,7 @@ export class Batcher2D implements IBatcher {
                         this.autoMergeBatches(this._currComponent!);
                         this.resetRenderStates();
                     }
-                    recordedInfo = this._recordUIRenderer(render, opacity, !!this._opacityDirty);
+                    this._recordUIRenderer(render, opacity, !!this._opacityDirty);
                 } else {
                     this._handleUIRenderer(render, opacity, !!this._opacityDirty);
                 }
