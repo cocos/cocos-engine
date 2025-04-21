@@ -157,7 +157,6 @@ export class Batcher2D implements IBatcher {
     private _maskModelMesh: RenderingSubMesh | null = null;
 
     private _recordedRendererInfoQueue: RecordedRendererInfo[] = [];
-    private _sorting2DCount = 0;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -276,10 +275,6 @@ export class Batcher2D implements IBatcher {
             return;
         }
 
-        if (USE_SORTING_2D) {
-            this._sorting2DCount = sorting2DCount;
-        }
-
         const screens = this._screens;
         let offset = 0;
         for (let i = 0; i < screens.length; ++i) {
@@ -294,7 +289,7 @@ export class Batcher2D implements IBatcher {
 
             this.walk(screen.node);
 
-            if (USE_SORTING_2D && this._sorting2DCount > 0) {
+            if (USE_SORTING_2D && sorting2DCount > 0) {
                 this._flushRecordedUIRenderers();
             }
 
@@ -319,7 +314,7 @@ export class Batcher2D implements IBatcher {
             }
         }
 
-        if (USE_SORTING_2D && this._sorting2DCount > 0) {
+        if (USE_SORTING_2D && sorting2DCount > 0) {
             recordedRendererInfoPool.reset();
         }
     }
@@ -932,7 +927,7 @@ export class Batcher2D implements IBatcher {
                 this._opacityDirty++;
             }
             if (render) {
-                if (USE_SORTING_2D && this._sorting2DCount > 0) {
+                if (USE_SORTING_2D && sorting2DCount > 0) {
                     if (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
                         this._flushRecordedUIRenderers();
 
@@ -969,7 +964,7 @@ export class Batcher2D implements IBatcher {
                 render.postUpdateAssembler(this);
             }
             if (visable && (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)) {
-                if (USE_SORTING_2D && this._sorting2DCount > 0) {
+                if (USE_SORTING_2D && sorting2DCount > 0) {
                     this._flushRecordedUIRenderers();
                 }
 
