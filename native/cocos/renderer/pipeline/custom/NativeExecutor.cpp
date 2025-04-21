@@ -720,13 +720,16 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (!pso) {
             return;
         }
-        // auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
         // execution
         ctx.cmdBuff->bindPipelineState(pso);
+        {
+            // Try updating material descriptor set
+            auto* materialDescriptorSet = pass.getDescriptorSet();
+            CC_EXPECTS(materialDescriptorSet);
+            materialDescriptorSet->update();
+        }
         ctx.cmdBuff->bindDescriptorSet(
             static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
-        // ctx.cmdBuff->bindDescriptorSet(
-        //     static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
         ctx.cmdBuff->bindInputAssembler(ctx.context.fullscreenQuad.quadIA.get());
         ctx.cmdBuff->draw(ctx.context.fullscreenQuad.quadIA.get());
     }
