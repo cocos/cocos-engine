@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2025 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -112,8 +112,4 @@ export class Sorting2D extends Component {
             this._uiRenderer.priority = sortingPriority;
         }
     }
-}
-
-export function getSorting2DCount (): number {
-    return sorting2DCount;
 }
