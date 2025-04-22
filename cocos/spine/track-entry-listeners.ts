@@ -52,7 +52,7 @@ export class TrackEntryListeners {
 
     static emitListener (id: number, entry: spine.TrackEntry, event: spine.Event, eventType: spine.EventType): void {
         const listener = TrackEntryListeners._listenerSet.get(id);
-        if (!listener) return;
+        if (!listener || !event) return;
         switch (eventType) {
         case spine.EventType.event:
             if (listener.event) {
