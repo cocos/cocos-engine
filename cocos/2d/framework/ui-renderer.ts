@@ -142,9 +142,7 @@ export class UIRenderer extends Renderer {
         this._renderEntity = this.createRenderEntity();
 
         if (USE_SORTING_2D) {
-            this._priority = SortingLayers.getDefaultPriority();
-        } else {
-            this._priority = 0;
+            this.priority = SortingLayers.getDefaultPriority();
         }
     }
 
@@ -279,7 +277,7 @@ export class UIRenderer extends Renderer {
      */
     public _flagChangedVersion = -1;
 
-    private declare _priority: number;
+    private _priority = 0;
 
     get priority (): number {
         return this._priority;
