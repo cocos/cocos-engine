@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, JSB } from 'internal:constants';
+import { DEBUG, EDITOR, JSB, USE_SORTING_2D } from 'internal:constants';
 import {
     ccclass, executeInEditMode, requireComponent, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
@@ -44,6 +44,7 @@ import { RenderEntity, RenderEntityType, RenderEntityFillColorType } from '../re
 import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
+import { SortingLayers } from '../../sorting/sorting-layers';
 import type { Batcher2D } from '../renderer/batcher-2d';
 
 // hack
@@ -139,6 +140,12 @@ export class UIRenderer extends Renderer {
     constructor () {
         super();
         this._renderEntity = this.createRenderEntity();
+
+        if (USE_SORTING_2D) {
+            this._priority = SortingLayers.getDefaultPriority();
+        } else {
+            this._priority = 0;
+        }
     }
 
     @override
@@ -272,7 +279,7 @@ export class UIRenderer extends Renderer {
      */
     public _flagChangedVersion = -1;
 
-    private _priority = 0;
+    private declare _priority: number;
 
     get priority (): number {
         return this._priority;

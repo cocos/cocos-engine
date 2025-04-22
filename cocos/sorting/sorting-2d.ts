@@ -49,6 +49,8 @@ let sorting2DCount = 0;
 @executeInEditMode
 @requireComponent(UIRenderer)
 export class Sorting2D extends Component {
+    private _isSorting2DEnabled = false;
+
     constructor () {
         super();
     }
@@ -94,22 +96,32 @@ export class Sorting2D extends Component {
         if (!this._uiRenderer) {
             warnID(16300, this.node.name);
         }
-        this._updateSortingPriority();
+    }
 
+    protected override onEnable (): void {
+        this._isSorting2DEnabled = true;
+        this._updateSortingPriority();
         ++sorting2DCount;
         _setSorting2DCount(sorting2DCount);
     }
 
-    protected override onDestroy (): void {
+    protected override onDisable (): void {
+        this._isSorting2DEnabled = false;
+        this._updateSortingPriority();
         --sorting2DCount;
         _setSorting2DCount(sorting2DCount);
     }
 
     protected _updateSortingPriority (): void {
-        const sortingLayerValue = SortingLayers.getLayerIndex(this._sortingLayer);
-        const sortingPriority = SortingLayers.getSortingPriority(sortingLayerValue, this._sortingOrder);
-        if (this._uiRenderer) {
-            this._uiRenderer.priority = sortingPriority;
+        const uiRenderer = this._uiRenderer;
+        if (uiRenderer && uiRenderer.isValid) {
+            if (this._isSorting2DEnabled) {
+                const sortingLayerValue = SortingLayers.getLayerIndex(this._sortingLayer);
+                const sortingPriority = SortingLayers.getSortingPriority(sortingLayerValue, this._sortingOrder);
+                uiRenderer.priority = sortingPriority;
+            } else {
+                uiRenderer.priority = SortingLayers.getDefaultPriority();
+            }
         }
     }
 }

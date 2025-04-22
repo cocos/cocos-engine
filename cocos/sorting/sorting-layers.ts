@@ -65,6 +65,10 @@ export class SortingLayers {
         return (((layer + (1 << 15)) << 16) | (order + (1 << 15))) >>> 0;
     }
 
+    public static getDefaultPriority (): number {
+        return this.getSortingPriority(SortingLayer.default, 0);
+    }
+
     /**
      * @zh 获取 Layer 顺序索引
      * @en Get Layer index by id

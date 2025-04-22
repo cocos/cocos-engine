@@ -822,6 +822,7 @@
 
     "treeShake": {
         "noSideEffectFiles": [
+            "cocos/sorting/sorting-layers.ts",
             "cocos/xr/event/xr-event-handle.ts",
             "cocos/xr/xr-enums.ts",
             "cocos/serialization/instantiate-jit.ts",
