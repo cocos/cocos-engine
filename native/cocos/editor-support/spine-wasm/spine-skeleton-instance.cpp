@@ -12,6 +12,12 @@ extern void spineTrackListenerCallback();
 }
 using namespace spine;
 
+#ifdef CC_SPINE_VERSION_3_8
+static void deleteAttachmentVertices(void *vertices) {
+    delete static_cast<AttachmentVertices *>(vertices);
+}
+#endif
+
 static void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
     SpineSkeletonInstance *instance = (static_cast<SpineSkeletonInstance *>(state->getRendererObject()));
     if (instance) {
@@ -178,6 +184,7 @@ void SpineSkeletonInstance::collectMeshData() {
 #else
     void* _effect = nullptr;
 #endif
+    bool forceUseCustomTexture = false;
     const Color& skeletonColor = _skeleton->getColor();
     for (uint32_t drawIdx = 0; drawIdx < slotCount; ++drawIdx) {
         auto* slot = slotArray[drawIdx];
@@ -195,6 +202,19 @@ void SpineSkeletonInstance::collectMeshData() {
         color.b = _userData.color.b;
         color.a = _userData.color.a;
         spine::Attachment* attachmentSlot = slot->getAttachment();
+        if (_userData.useSlotTexture) {
+            forceUseCustomTexture = false;
+            int count = _vecSlotTextures.size();
+            for (int i = 0; i < count; i++) {
+                auto& info = _vecSlotTextures[i];
+                if (info.slot == slot) {
+                    attachmentSlot = info.attachment;
+                    currMesh.textureID = info.textureUuid;
+                    forceUseCustomTexture = true;
+                    break;
+                }
+            }
+        }
         const spine::RTTI& attachmentRTTI = attachmentSlot->getRTTI();
         if (attachmentRTTI.isExactly(spine::RegionAttachment::rtti)) {
             debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_REGION;
@@ -205,7 +225,7 @@ void SpineSkeletonInstance::collectMeshData() {
             auto *attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
 #endif
 
-            auto& triangles = attachmentVertices->_triangles;
+            auto *triangles = attachmentVertices->_triangles;
             auto vertCount = triangles->vertCount;
             auto indexCount = triangles->indexCount;
             auto ibSize = indexCount * sizeof_uint16;
@@ -234,7 +254,9 @@ void SpineSkeletonInstance::collectMeshData() {
             color.g *= attachmentColor.g;
             color.b *= attachmentColor.b;
             color.a *= attachmentColor.a;
-            currMesh.textureID = attachmentVertices->_textureUUID;
+            if (!forceUseCustomTexture) {
+                currMesh.textureID = attachmentVertices->_textureUUID;
+            }
         } else if (attachmentRTTI.isExactly(spine::MeshAttachment::rtti)) {
             debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_MESH;
             auto *attachment = static_cast<spine::MeshAttachment *>(attachmentSlot);
@@ -244,7 +266,7 @@ void SpineSkeletonInstance::collectMeshData() {
             auto *attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
 #endif
 
-            auto& triangles = attachmentVertices->_triangles;
+            auto *triangles = attachmentVertices->_triangles;
             auto vertCount = triangles->vertCount;
             auto indexCount = triangles->indexCount;
             auto ibSize = indexCount * sizeof_uint16;
@@ -268,7 +290,9 @@ void SpineSkeletonInstance::collectMeshData() {
             color.g *= attachmentColor.g;
             color.b *= attachmentColor.b;
             color.a *= attachmentColor.a;
-            currMesh.textureID = attachmentVertices->_textureUUID;
+            if (!forceUseCustomTexture) {
+                currMesh.textureID = attachmentVertices->_textureUUID;
+            }
         } else if (attachmentRTTI.isExactly(spine::ClippingAttachment::rtti)) {
             auto *clip = static_cast<spine::ClippingAttachment *>(attachmentSlot);
             _clipper->clipStart(*slot, clip);
@@ -433,11 +457,6 @@ void SpineSkeletonInstance::collectMeshData() {
         }
 
         currMesh.blendMode = static_cast<uint32_t>(slot->getData().getBlendMode());
-        if (_userData.useSlotTexture) {
-            if (_slotTextureSet.containsKey(slot)) {
-                currMesh.textureID = _slotTextureSet[slot];
-            }
-        }
         _model->addSlotMesh(currMesh);
         _clipper->clipEnd(*slot);
     }
@@ -523,12 +542,17 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
     if (!_skeleton) return;
     auto* slot = _skeleton->findSlot(slotName);
     if (!slot) return;
-    auto*attachment = slot->getAttachment();
+    auto *attachment = slot->getAttachment();
     if (!attachment) return;
     if (createNew) {
         attachment = attachment->copy();
         slot->setAttachment(attachment);
     }
+    SlotCacheInfo info;
+    info.attachment = attachment;
+    info.slot = slot;
+    info.isOwner = createNew;
+    _vecSlotTextures.add(info);
     if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
         auto *region = static_cast<RegionAttachment *>(attachment);
 #ifdef CC_SPINE_VERSION_3_8
@@ -538,12 +562,14 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         region->setRegionOriginalHeight(height);
         region->setWidth(width);
         region->setHeight(height);
+        region->setRegionOffsetX(0);
+        region->setRegionOffsetY(0);
         region->setUVs(0, 0, 1.0f, 1.0f, false);
         region->updateOffset();
         auto *attachmentVertices = static_cast<AttachmentVertices *>(region->getRendererObject());
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
-            region->setRendererObject(attachmentVertices);
+            region->setRendererObject(attachmentVertices, deleteAttachmentVertices);
         }
 #else
         auto *textureRegion = region->getRegion();
@@ -596,7 +622,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         auto *attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRendererObject());
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
-            mesh->setRendererObject(attachmentVertices);
+            mesh->setRendererObject(attachmentVertices, deleteAttachmentVertices);
         }
 #else
         auto *region = mesh->getRegion();
@@ -627,6 +653,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
             vertices[i].texCoord.v = UVs[ii + 1];
         }
     }
+    _skeleton->updateCache();
 }
 
 void SpineSkeletonInstance::setSlotTexture(const spine::String &slotName, const spine::String& textureUuid) {
@@ -634,6 +661,12 @@ void SpineSkeletonInstance::setSlotTexture(const spine::String &slotName, const 
     auto* slot = _skeleton->findSlot(slotName);
     if (!slot) return;
     _userData.useSlotTexture = true;
-
-    _slotTextureSet.put(slot, textureUuid);
+    int count = _vecSlotTextures.size();
+    for (int i = 0; i < count; i++) {
+        auto& info = _vecSlotTextures[i];
+        if (info.slot == slot) {
+            info.textureUuid = textureUuid;
+            return;
+        }
+    }
 }

@@ -13,6 +13,20 @@ namespace {
         spine::EventType eventType{spine::EventType::EventType_Start};
         spine::Event *event{nullptr};
     };
+
+    struct SlotCacheInfo {
+        bool isOwner{false};
+        spine::Slot* slot{nullptr};
+        spine::String textureUuid;
+        spine::Attachment* attachment{nullptr};
+
+        ~SlotCacheInfo() {
+            if (isOwner && attachment) {
+                delete attachment;
+                attachment = nullptr;
+            }
+        }
+    };
 }
 enum DEBUG_SHAPE_TYPE {
     DEBUG_REGION = 0,
@@ -88,5 +102,5 @@ private:
     spine::HashMap<spine::TrackEntry *, uint32_t> _trackListenerSet{};
     UserData _userData;
     spine::Vector<SpineDebugShape> _debugShapes{};
-    spine::HashMap<spine::Slot*, spine::String> _slotTextureSet{};
+    spine::Vector<SlotCacheInfo> _vecSlotTextures{};
 };

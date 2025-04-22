@@ -14,7 +14,7 @@ static void wasmLog(const char* message) {
 }
 
 
-static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
+static const uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
 
 AttachmentVertices::AttachmentVertices(int verticesCount, uint16_t *triangles, int trianglesCount, const spine::String& textureName) {
     _triangles = new Triangles();
@@ -33,6 +33,7 @@ AttachmentVertices::~AttachmentVertices() {
 AttachmentVertices *AttachmentVertices::copy() {
     AttachmentVertices *atv = new AttachmentVertices(_triangles->vertCount, _triangles->indices, _triangles->indexCount, _textureName);
     atv->_textureUUID = _textureUUID;
+    memcpy(static_cast<void *>(atv->_triangles->verts), static_cast<void *>(_triangles->verts), sizeof(V3F_T2F_C4B) * _triangles->vertCount);
     return atv;
 }
 
@@ -56,7 +57,7 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
 #else
         auto *region = static_cast<AtlasRegion *>(regionAttachment->getRegion());
 #endif
-        auto *attachmentVertices = new AttachmentVertices(4, quadTriangles, 6, region->page->name);
+        auto *attachmentVertices = new AttachmentVertices(4, const_cast<uint16_t*>(quadTriangles), 6, region->page->name);
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
         const auto &uvs = regionAttachment->getUVs();
         for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
