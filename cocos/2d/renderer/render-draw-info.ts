@@ -105,14 +105,16 @@ export class RenderDrawInfo {
     protected _render2dBuffer: Float32Array | null = null;
 
     constructor (nativeDrawInfo?: NativeRenderDrawInfo) {
-        this.init(nativeDrawInfo);
-        const attrSharedBuffer = this._nativeObj.getAttrSharedBufferForJS();
-        let offset = 0;
-        this._uint8SharedBuffer = new Uint8Array(attrSharedBuffer, offset, AttrUInt8ArrayView.Count);
-        offset += AttrUInt8ArrayView.Count * Uint8Array.BYTES_PER_ELEMENT;
-        this._uint16SharedBuffer = new Uint16Array(attrSharedBuffer, offset, AttrUInt16ArrayView.Count);
-        offset += AttrUInt16ArrayView.Count * Uint16Array.BYTES_PER_ELEMENT;
-        this._uint32SharedBuffer = new Uint32Array(attrSharedBuffer, offset, AttrUInt32ArrayView.Count);
+        if (JSB) {
+            this.init(nativeDrawInfo);
+            const attrSharedBuffer = this._nativeObj.getAttrSharedBufferForJS();
+            let offset = 0;
+            this._uint8SharedBuffer = new Uint8Array(attrSharedBuffer, offset, AttrUInt8ArrayView.Count);
+            offset += AttrUInt8ArrayView.Count * Uint8Array.BYTES_PER_ELEMENT;
+            this._uint16SharedBuffer = new Uint16Array(attrSharedBuffer, offset, AttrUInt16ArrayView.Count);
+            offset += AttrUInt16ArrayView.Count * Uint16Array.BYTES_PER_ELEMENT;
+            this._uint32SharedBuffer = new Uint32Array(attrSharedBuffer, offset, AttrUInt32ArrayView.Count);
+        }
     }
 
     get nativeObj (): NativeRenderDrawInfo {
@@ -135,6 +137,7 @@ export class RenderDrawInfo {
     }
 
     public clear (): void {
+        if (!JSB) return;
         this._bufferId = 0;
         this._vertexOffset = 0;
         this._indexOffset = 0;

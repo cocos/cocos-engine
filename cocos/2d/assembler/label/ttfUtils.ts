@@ -112,9 +112,10 @@ export class TTFUtils {
     }
 
     updateRenderData (comp: Label): void {
-        if (!comp.renderData) { return; }
+        const renderData = comp.renderData;
+        if (!renderData) { return; }
 
-        if (comp.renderData.vertDirty) {
+        if (renderData.vertDirty) {
             const trans = comp.node._getUITransformComp()!;
             const processing = TextProcessing.instance;
             const style = comp.textStyle;
@@ -140,7 +141,6 @@ export class TTFUtils {
                 this.generateVertexData,
             );
 
-            const renderData = comp.renderData;
             renderData.textureDirty = true;
             this._calDynamicAtlas(comp, outputLayoutData);
 
@@ -148,13 +148,14 @@ export class TTFUtils {
             trans.setContentSize(outputLayoutData.nodeContentSize);
 
             const datalist = renderData.data;
-            datalist[0] = outputRenderData.vertexBuffer[0];
-            datalist[1] = outputRenderData.vertexBuffer[1];
-            datalist[2] = outputRenderData.vertexBuffer[2];
-            datalist[3] = outputRenderData.vertexBuffer[3];
+            const vertexBuffer = outputRenderData.vertexBuffer;
+            datalist[0] = vertexBuffer[0];
+            datalist[1] = vertexBuffer[1];
+            datalist[2] = vertexBuffer[2];
+            datalist[3] = vertexBuffer[3];
 
             this.updateUVs(comp);
-            comp.renderData.vertDirty = false;
+            renderData.vertDirty = false;
             comp.contentWidth = outputLayoutData.nodeContentSize.width;
         }
 
@@ -167,9 +168,9 @@ export class TTFUtils {
     // callBack function
     generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData): void {
         const data = outputRenderData.vertexBuffer;
-
-        const width = outputLayoutData.nodeContentSize.width;
-        const height = outputLayoutData.nodeContentSize.height;
+        const nodeContentSize = outputLayoutData.nodeContentSize;
+        const width = nodeContentSize.width;
+        const height = nodeContentSize.height;
         const appX = outputRenderData.uiTransAnchorX * width;
         const appY = outputRenderData.uiTransAnchorY * height;
 

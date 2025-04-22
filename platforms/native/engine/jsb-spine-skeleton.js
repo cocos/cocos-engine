@@ -371,7 +371,6 @@ const cacheManager = require('./jsb-cache-manager');
             const compColor = this._color;
             this.setEntityColorDirty(true);
             this.setEntityColor(compColor);
-            this.setEntityOpacity(this.node._uiProps.localOpacity);
             this._nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
             this.markForUpdateRenderData();
         }

@@ -172,7 +172,7 @@ function updateList<EnumT extends object> (enumType: EnumT): readonly Enum.Enume
  * @param enumType @en The enum type defined from [[Enum]] @zh 从[[Enum]]定义的枚举类型。
  * @param compareFn @en Function used to determine the order of the elements. @zh 用于确定元素顺序的函数。
  */
-Enum.sortList = <EnumT extends object> (enumType: EnumT, compareFn: (a, b) => number): void => {
+Enum.sortList = <EnumT extends object> (enumType: EnumT, compareFn: (a: Enum.Enumerator<EnumT>, b: Enum.Enumerator<EnumT>) => number): void => {
     assertIsEnum(enumType);
     if (!Array.isArray(enumType.__enums__)) {
         return;

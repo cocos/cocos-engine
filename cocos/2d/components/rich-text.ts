@@ -985,16 +985,16 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
             warnID(4400);
         } else {
             const segment = this._createImage(spriteFrame);
-            const sprite = segment.comp;
+            const uiTransform = segment.node._getUITransformComp()!;
             switch (style.imageAlign) {
             case 'top':
-                segment.node._getUITransformComp()!.setAnchorPoint(0, 1);
+                uiTransform.setAnchorPoint(0, 1);
                 break;
             case 'center':
-                segment.node._getUITransformComp()!.setAnchorPoint(0, 0.5);
+                uiTransform.setAnchorPoint(0, 0.5);
                 break;
             default:
-                segment.node._getUITransformComp()!.setAnchorPoint(0, 0);
+                uiTransform.setAnchorPoint(0, 0);
                 break;
             }
 
@@ -1037,7 +1037,7 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
                     this._labelWidth = this._lineOffsetX;
                 }
             }
-            segment.node._getUITransformComp()!.setContentSize(spriteWidth, spriteHeight);
+            uiTransform.setContentSize(spriteWidth, spriteHeight);
             segment.lineCount = this._lineCount;
 
             segment.clickHandler = '';
@@ -1205,24 +1205,26 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
                 break;
             }
 
-            const pos = segment.node.position;
-            segment.node.setPosition(
+            const segmentNode = segment.node;
+
+            const pos = segmentNode.position;
+            segmentNode.setPosition(
                 nextTokenX + lineOffsetX,
                 this._lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
                 pos.z,
             );
 
             if (lineCount === nextLineIndex) {
-                nextTokenX += segment.node._getUITransformComp()!.width;
+                nextTokenX += segmentNode._getUITransformComp()!.width;
             }
 
-            const sprite = segment.node.getComponent(Sprite);
+            const sprite = segmentNode.getComponent(Sprite);
             if (sprite) {
-                const position = segment.node.position.clone();
+                const position = segmentNode.position.clone();
                 // adjust img align (from <img align=top|center|bottom>)
                 const lineHeightSet = this._lineHeight;
                 const lineHeightReal = this._lineHeight * (1 + BASELINE_RATIO); // single line node height
-                switch (segment.node._getUITransformComp()!.anchorY) {
+                switch (segmentNode._getUITransformComp()!.anchorY) {
                 case 1:
                     position.y += (lineHeightSet + ((lineHeightReal - lineHeightSet) / 2));
                     break;
@@ -1246,15 +1248,15 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
                         if (Number.isInteger(offsetY)) position.y += offsetY;
                     }
                 }
-                segment.node.position = position;
+                segmentNode.position = position;
             }
 
             // adjust y for label with outline
-            const label = segment.node.getComponent(Label);
+            const label = segmentNode.getComponent(Label);
             if (label && label.enableOutline) {
-                const position = segment.node.position.clone();
+                const position = segmentNode.position.clone();
                 position.y -= label.outlineWidth;
-                segment.node.position = position;
+                segmentNode.position = position;
             }
         }
     }

@@ -179,7 +179,9 @@ inline bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
         return a.hash < b.hash;
     }
 
-    if (math::isNotEqualF(a.depth, b.depth)) {
+    CC_ASSERT(!std::isnan(a.depth) && !std::isnan(b.depth));
+
+    if (a.depth != b.depth) {
         return a.depth < b.depth;
     }
 
@@ -195,7 +197,9 @@ inline bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
         return a.hash < b.hash;
     }
 
-    if (math::isNotEqualF(a.depth, b.depth)) {
+    CC_ASSERT(!std::isnan(a.depth) && !std::isnan(b.depth));
+
+    if (a.depth != b.depth) {
         return b.depth < a.depth;
     }
 
