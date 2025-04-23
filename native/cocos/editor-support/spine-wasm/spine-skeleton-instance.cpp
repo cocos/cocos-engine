@@ -548,7 +548,6 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
     }
     SlotCacheInfo info;
     info.attachment = attachment;
-    info.slot = slot;
     info.isOwner = createNew;
     _slotTextureSet.put(slot, info);
     if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
@@ -658,15 +657,8 @@ void SpineSkeletonInstance::setSlotTexture(const spine::String &slotName, const 
     if (!slot) return;
     _userData.useSlotTexture = true;
     if (_slotTextureSet.containsKey(slot)) {
-        auto info = _slotTextureSet[slot];
-        if (info.textureUuid == textureUuid) {
-            return;
-        }
-        info.textureUuid = textureUuid;
-        _slotTextureSet.put(slot, info);
-
         AttachmentVertices *attachmentVertices =  nullptr;
-        auto* attachment = info.attachment;
+        auto* attachment = _slotTextureSet[slot].attachment;
         if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
             auto *regionAttachment = static_cast<RegionAttachment *>(attachment);
 #ifdef CC_SPINE_VERSION_3_8

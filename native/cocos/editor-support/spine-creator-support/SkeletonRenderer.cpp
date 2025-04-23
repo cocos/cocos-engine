@@ -56,7 +56,12 @@ static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 
 static Cocos2dTextureLoader textureLoader;
-static std::vector<middleware::Texture2D *> _slotTextureSet{};
+
+#if CC_USE_SPINE_3_8
+static void deleteAttachmentVertices(void *vertices) {
+    delete static_cast<AttachmentVertices *>(vertices);
+}
+#endif
 
 enum DebugType {
     NONE = 0,
@@ -172,6 +177,14 @@ SkeletonRenderer::~SkeletonRenderer() {
 
     for (auto &item : _materialCaches) {
         CC_SAFE_DELETE(item.second);
+    }
+
+    for (auto iter: _slotTextureSet) {
+        auto &info = iter.second;
+        if (info.isOwner && info.attachment) {
+            delete info.attachment;
+            info.attachment = nullptr;
+        }
     }
 
     _entity = nullptr;
@@ -419,7 +432,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             inRange = false;
         }
 
-        if (!slot->getAttachment()) {
+        auto *tmpAttachment = slot->getAttachment();
+        if (!tmpAttachment) {
             _clipper->clipEnd(*slot);
             continue;
         }
@@ -427,8 +441,12 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         cc::middleware::Triangles triangles;
         cc::middleware::TwoColorTriangles trianglesTwoColor;
 
-        if (slot->getAttachment()->getRTTI().isExactly(RegionAttachment::rtti)) {
-            auto *attachment = dynamic_cast<RegionAttachment *>(slot->getAttachment());
+        auto iter = _slotTextureSet.find(slot);
+        if (iter != _slotTextureSet.end()) {
+            tmpAttachment = iter->second.attachment;
+        }
+        if (tmpAttachment->getRTTI().isExactly(RegionAttachment::rtti)) {
+            auto *attachment = dynamic_cast<RegionAttachment *>(tmpAttachment);
 #if CC_USE_SPINE_3_8
             attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
@@ -496,8 +514,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                     vertices += stride;
                 }
             }
-        } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
-            auto *attachment = dynamic_cast<MeshAttachment *>(slot->getAttachment());
+        } else if (tmpAttachment->getRTTI().isExactly(MeshAttachment::rtti)) {
+            auto *attachment = dynamic_cast<MeshAttachment *>(tmpAttachment);
 #if CC_USE_SPINE_3_8
             attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
@@ -566,8 +584,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
             }
 
-        } else if (slot->getAttachment()->getRTTI().isExactly(ClippingAttachment::rtti)) {
-            auto *clip = dynamic_cast<ClippingAttachment *>(slot->getAttachment());
+        } else if (tmpAttachment->getRTTI().isExactly(ClippingAttachment::rtti)) {
+            auto *clip = dynamic_cast<ClippingAttachment *>(tmpAttachment);
             _clipper->clipStart(*slot, clip);
             continue;
         } else {
@@ -1103,7 +1121,7 @@ cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blen
 
 void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D *tex2d, bool createAttachment) {
     if (!_skeleton) return;
-    auto slot = _skeleton->findSlot(slotName.c_str());
+    auto *slot = _skeleton->findSlot(slotName.c_str());
     if (!slot) return;
     auto attachment = slot->getAttachment();
     if (!attachment) return;
@@ -1129,7 +1147,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         attachmentVertices = static_cast<AttachmentVertices *>(region->getRendererObject());
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
-            region->setRendererObject(attachmentVertices);
+            region->setRendererObject(attachmentVertices, deleteAttachmentVertices);
         }
 #else
         auto *textureRegion = region->getRegion();
@@ -1182,7 +1200,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRendererObject());
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
-            mesh->setRendererObject(attachmentVertices);
+            mesh->setRendererObject(attachmentVertices, deleteAttachmentVertices);
         }
 #else
         auto *region = mesh->getRegion();
@@ -1215,12 +1233,32 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
     }
     if (!attachmentVertices) return;
     middleware::Texture2D *middlewareTexture = nullptr;
-    for (auto &it : _slotTextureSet) {
-        if (it->getRealTexture() == tex2d) {
-            middlewareTexture = it;
-            break;
+    auto iter = _slotTextureSet.find(slot);
+    if (iter != _slotTextureSet.end()) {
+        auto info = iter->second;
+        AttachmentVertices *tmpAttachmentVertices = nullptr;
+        auto *cacheAttachment = info.attachment;
+        if (cacheAttachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
+            auto *tmpRegion = static_cast<RegionAttachment *>(cacheAttachment);
+#if CC_USE_SPINE_3_8
+            tmpAttachmentVertices = reinterpret_cast<AttachmentVertices *>(tmpRegion->getRendererObject());
+#else
+            tmpAttachmentVertices = reinterpret_cast<AttachmentVertices *>(tmpRegion->getRegion()->rendererObject);
+#endif
+        } else if (cacheAttachment->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
+            auto *meshAttachment = static_cast<MeshAttachment *>(cacheAttachment);
+#if CC_USE_SPINE_3_8
+            tmpAttachmentVertices = reinterpret_cast<AttachmentVertices *>(meshAttachment->getRendererObject());
+#else
+            tmpAttachmentVertices = reinterpret_cast<AttachmentVertices *>(meshAttachment->getRegion()->rendererObject);
+#endif
+        }
+        auto *realTex2d = tmpAttachmentVertices ? (tmpAttachmentVertices->_texture ? tmpAttachmentVertices->_texture->getRealTexture() : nullptr) : nullptr;
+        if (realTex2d == tex2d) {
+            return;
         }
     }
+    _slotTextureSet[slot] = {createAttachment, attachment};
     if (!middlewareTexture) {
         middlewareTexture = new middleware::Texture2D();
         middlewareTexture->addRef();

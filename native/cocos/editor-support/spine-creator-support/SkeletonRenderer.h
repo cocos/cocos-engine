@@ -50,6 +50,11 @@ class Material;
 
 class AttachmentVertices;
 
+struct SlotCacheInfo {
+    bool isOwner{false};
+    spine::Attachment* attachment{nullptr};
+};
+
 /** Draws a skeleton.
      */
 class SkeletonRenderer : public cc::RefCounted, public cc::middleware::IMiddleware {
@@ -189,6 +194,7 @@ protected:
     cc::Material *_material = nullptr;
     ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
     ccstd::unordered_map<uint32_t, cc::Material *> _materialCaches;
+    ccstd::unordered_map<Slot *, SlotCacheInfo> _slotTextureSet;
     bool _needClearMaterialCaches = false;
 };
 }; // namespace cc

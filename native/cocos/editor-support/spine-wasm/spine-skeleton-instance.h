@@ -16,8 +16,6 @@ namespace {
 
     struct SlotCacheInfo {
         bool isOwner{false};
-        spine::Slot* slot{nullptr};
-        spine::String textureUuid;
         spine::Attachment* attachment{nullptr};
     };
 }
