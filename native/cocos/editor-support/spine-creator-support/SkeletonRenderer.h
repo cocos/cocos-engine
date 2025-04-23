@@ -198,7 +198,7 @@ protected:
      * The slot's attachment may be modified when calling AnimationState::apply(), which can cause custom attachments to malfunction. 
      * To prevent this, we need to cache the original attachment.
      */
-    ccstd::unordered_map<Slot *, SlotCacheInfo> _slotTextureSet;
+    ccstd::unordered_map<spine::Slot *, SlotCacheInfo> _slotTextureSet;
     bool _needClearMaterialCaches = false;
 };
 }; // namespace cc
