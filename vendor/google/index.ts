@@ -164,15 +164,15 @@ export declare namespace google {
          */
         export interface PricingPhases {
             /**
-             * @en Returns ISO 4217 currency code for price.
-             * @zh 返回价格的 ISO 4217 货币代码。
+             * @en Returns the pricing phases as a time ordered list of Pricing phase.
+             * @zh 以定价阶段的时间顺序列表返回定价阶段。
              */
             getPricingPhaseList(): PricingPhase[];
         }
 
         /**
          * @en Represents the available purchase plans to buy a subscription product.
-         * @zh 代表一次性购买产品的报价详情。
+         * @zh 表示购买订阅产品可用的购买计划。
          */
         export interface SubscriptionOfferDetails {
             /**
@@ -630,7 +630,7 @@ export declare namespace google {
             export interface Builder {
                 /**
                  * @en Set the list of Product.
-                 * @zh 设置列表 Product 。
+                 * @zh 设置 Product 列表 。
                  */
                 setProductList: (products: QueryProductDetailsParamsProduct[]) => QueryProductDetailsParams.Builder;
                 /**
@@ -652,7 +652,7 @@ export declare namespace google {
                     setProductId: (productID: string) => Builder;
                     /**
                      * @en Sets the ProductType of the product.
-                     * @zh 设置 ProductType 产品的。
+                     * @zh 设置产品的类型。
                      */
                     setProductType: (productType: string) => Builder;
                     /**
@@ -1366,7 +1366,7 @@ export declare namespace google {
             setObfuscatedProfileId: (obfuscatedProfileId: string) => BillingFlowParamsBuilder;
             /**
              * @en Specifies the ProductDetailsParams of the items being purchased.
-             * @zh 指定所 ProductDetailsParams 购买物品的。
+             * @zh 指定所购买商品的 ProductDetailsParams。
              */
             setProductDetailsParamsList: (userChoiceBillingListener: ProductDetailsParams[]) => BillingFlowParamsBuilder;
             /**
@@ -1430,8 +1430,8 @@ export declare namespace google {
         export namespace QueryPurchasesParams {
             export interface Builder {
                 /**
-                 * @en 设置ProductType查询购买情况。
-                 * @zh 返回一个 Builder 实例。
+                 * @en Set the ProductType to query purchases.
+                 * @zh 设置 ProductType 来查询购买情况。
                  */
                 setProductType: (productType: string) => Builder;
                 /**
@@ -1611,7 +1611,7 @@ export declare namespace google {
             isFeatureSupported: (productType: string) => BillingResult;
             /**
              * @en Shows the alternative billing only information dialog on top of the calling app.
-             * @zh 在呼叫应用程序顶部显示仅备选 billing 信息对话框。
+             * @zh 在调用应用程序顶部显示仅备选 billing 信息对话框。
              */
             showAlternativeBillingOnlyInformationDialog: (listener: AlternativeBillingOnlyInformationDialogListener) => void;
             /**
@@ -1621,7 +1621,7 @@ export declare namespace google {
             showExternalOfferInformationDialog: (listener: ExternalOfferInformationDialogListener) => void;
             /**
              * @en Overlays billing related messages on top of the calling app.
-             * @zh 在呼叫应用程序上覆盖与 billing 相关的消息。
+             * @zh 在调用应用程序上覆盖与 billing 相关的消息。
              */
             showInAppMessages: (params: InAppMessageParams, listener: InAppMessageResponseListener) => void;
         }
@@ -1732,7 +1732,7 @@ export declare namespace google {
             public getTotalSteps(): number;
             /**
              * @en Returns the Achievement.AchievementType of this achievement.
-             * @zh 返回 Achievement.AchievementType 此成就。
+             * @zh 返回此成就的 Achievement.AchievementType。
              */
             public getType(): number;
             /**
@@ -1774,7 +1774,7 @@ export declare namespace google {
             public getName(): string;
             /**
              * @en Retrieves a URI that can be used to load the achievement's revealed image icon.
-             * @zh 检索可用于加载成就显示图像图标的 URI。
+             * @zh 检索一个URI，该URI可用于加载成就的显示图像图标。
              */
             public getRevealedImageUrl(): string;
             /**
@@ -1795,7 +1795,7 @@ export declare namespace google {
             public getCount(): number;
             /**
              * @en Get the item at the specified position.
-             * @zh 获取指定位置的物品。
+             * @zh 获取指定位置的 Achievement。
              */
             public get(i: number): Achievement;
             /**
@@ -1811,17 +1811,17 @@ export declare namespace google {
         }
         /**
          * @en Class to return annotated data. Currently, the only annotation is whether the data is stale or not.
-         * @zh 用于返回带 annotated 数据的类。目前，唯一的 annotated 是数据是否过时。
+         * @zh 用于返回带 annotated 数据的类。目前，唯一的 annotated 数据是否过时。
          */
         export class AnnotatedData {
             /**
              * @en Returns true if the data returned by get() is stale.
-             * @zh true如果返回的数据已过时，则返回 get() 。
+             * @zh 如果 get() 返回的数据已过时，则返回 true。
              */
             public isStale(): boolean;
             /**
              * @en Returns the data that is annotated by this class.
-             * @zh 返回由此类 annotated 的数据。
+             * @zh 返回该类的 annotated 数据。
              */
             public get(): AchievementBuffer;
         }
@@ -1864,7 +1864,7 @@ export declare namespace google {
         export class GamesSignInClient {
             /**
              * @en Returns the current authentication status via an AuthenticationResult.
-             * @zh 通过 返回当前身份验证状态 AuthenticationResult 。
+             * @zh 通过 AuthenticationResult 返回当前身份验证状态。
              */
             public isAuthenticated(): TaskHelper<google.play.AuthenticationResult>;
             /**
@@ -1896,7 +1896,7 @@ export declare namespace google {
             /**
              * @en Returns a Task which asynchronously loads an annotated AchievementBuffer that represents the achievement data.
              *     for the currently signed-in player.
-             * @zh 返回一个 Task 异步加载的task， AchievementBuffer该注释代表当前登录玩家的成就数据。
+             * @zh 返回一个 Task，该任务异步加载带 annotated 的 AchievementBuffer，该缓冲区代表当前登录玩家的成就数据。
              */
             public load(forceReload: boolean):  TaskHelper<google.play.AnnotatedData>;
             /**
