@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { TEST, USE_XR } from 'internal:constants';
+import { USE_XR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
 import { Material } from '../asset/assets/material';
@@ -92,8 +92,6 @@ const _constants = {
     textureHeight: 280,
 };
 
-const _defaultBackgroundColor = new Color(150, 150, 150, 100);
-
 export class Profiler extends System {
     private _profilerStats: IProfilerState | null = null;
     private _showFPS = false;
@@ -122,7 +120,8 @@ export class Profiler extends System {
     private _totalLines = 0; // total lines to display
 
     private lastTime = 0;   // update use time
-    private _backgroundColor = _defaultBackgroundColor.clone();
+    private _backgroundColor = new Color(150, 150, 150, 100);
+    private _fontColor = Color.WHITE.clone();
 
     constructor () {
         super();
@@ -142,6 +141,17 @@ export class Profiler extends System {
             return;
         }
         this._backgroundColor.set(color);
+        if (this._showFPS) {
+            this.hideStats();
+            this.showStats();
+        }
+    }
+
+    public setFontColor (color: Readonly<Color>): void {
+        if (this._fontColor.equals(color)) {
+            return;
+        }
+        this._fontColor.set(color);
         if (this._showFPS) {
             this.hideStats();
             this.showStats();
@@ -276,7 +286,9 @@ export class Profiler extends System {
 
         ctx.font = `${_constants.fontSize}px Arial`;
         ctx.textBaseline = 'top';
-        ctx.fillStyle = '#fff';
+
+        const fontColor = this._fontColor;
+        ctx.fillStyle = `rgba(${fontColor.r}, ${fontColor.g}, ${fontColor.b}, ${fontColor.a / 255})`;
 
         this._texture = this._device!.createTexture(new TextureInfo(
             TextureType.TEX2D,
@@ -321,11 +333,8 @@ export class Profiler extends System {
             ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
 
-        const backgroundR = this._backgroundColor.r;
-        const backgroundG = this._backgroundColor.g;
-        const backgroundB = this._backgroundColor.b;
-        const backgroundA = this._backgroundColor.a / 255;
-        ctx.fillStyle = `rgba(${backgroundR}, ${backgroundG}, ${backgroundB}, ${backgroundA})`;
+        const bgColor = this._backgroundColor;
+        ctx.fillStyle = `rgba(${bgColor.r}, ${bgColor.g}, ${bgColor.b}, ${bgColor.a / 255})`;
         ctx.fillRect(canvas.width - 4, canvas.height - 4, 4, 4);
 
         this._eachNumWidth /= canvas.width;
