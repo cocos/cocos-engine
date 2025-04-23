@@ -1431,7 +1431,7 @@ export declare namespace google {
             export interface Builder {
                 /**
                  * @en Set the ProductType to query purchases.
-                 * @zh 设置ProductType来查询购买情况。
+                 * @zh 设置 ProductType 来查询购买情况。
                  */
                 setProductType: (productType: string) => Builder;
                 /**
