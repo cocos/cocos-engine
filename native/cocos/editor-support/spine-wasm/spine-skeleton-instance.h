@@ -19,13 +19,6 @@ namespace {
         spine::Slot* slot{nullptr};
         spine::String textureUuid;
         spine::Attachment* attachment{nullptr};
-
-        ~SlotCacheInfo() {
-            if (isOwner && attachment) {
-                delete attachment;
-                attachment = nullptr;
-            }
-        }
     };
 }
 enum DEBUG_SHAPE_TYPE {
@@ -102,5 +95,8 @@ private:
     spine::HashMap<spine::TrackEntry *, uint32_t> _trackListenerSet{};
     UserData _userData;
     spine::Vector<SpineDebugShape> _debugShapes{};
-    spine::Vector<SlotCacheInfo> _vecSlotTextures{};
+    /**  The slot's attachment may be modified when calling AnimationState::apply(), which can cause custom attachments to malfunction. 
+        To prevent this, we need to cache the original attachment.
+    */
+    spine::HashMap<spine::Slot*, SlotCacheInfo> _slotTextureSet{};
 };
