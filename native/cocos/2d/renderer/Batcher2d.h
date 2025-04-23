@@ -40,8 +40,14 @@ class Root;
 using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>;
 using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>;
 
+struct RecordedRendererInfo {
+    RenderEntity *renderEntity{nullptr};
+};
+
 class Batcher2d final {
 public:
+    static void setSorting2DCount(int32_t v);
+    
     Batcher2d();
     explicit Batcher2d(Root* root);
     ~Batcher2d();
@@ -81,6 +87,11 @@ private:
     void createClearModel();
 
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, const gfx::DescriptorSetLayout* dsLayout);
+    
+    ccstd::vector<RecordedRendererInfo> &getRecordedRendererInfoQueue();
+    void handleUIRenderer(RenderEntity *entity);
+    int32_t recordUIRenderer(RenderEntity *entity);
+    void flushRecordedUIRenderers();
 
     StencilManager* _stencilManager{nullptr};
 
@@ -92,6 +103,8 @@ private:
     // manage memory manually
     ccstd::vector<scene::DrawBatch2D*> _batches;
     memop::Pool<scene::DrawBatch2D> _drawBatchPool;
+    
+    ccstd::vector<RecordedRendererInfo> _recordedRendererInfoQueue;
 
     // weak reference
     gfx::Device* _device{nullptr}; // use getDevice()

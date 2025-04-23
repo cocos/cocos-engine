@@ -55,6 +55,7 @@ enum class FillColorType: uint8_t {
 };
 
 struct EntityAttrLayout {
+    uint32_t priority{0};
     uint8_t colorR{255};
     uint8_t colorG{255};
     uint8_t colorB{255};
@@ -64,9 +65,10 @@ struct EntityAttrLayout {
     uint8_t enabledIndex: 1;
     uint8_t useLocal: 1;
     uint8_t paddings: 6;
+    uint8_t paddings2{0};
 };
 
-static_assert(sizeof(EntityAttrLayout) == 7, "Be carefull to add property to EntityAttrLayout which may cause the potential cache miss");
+static_assert(sizeof(EntityAttrLayout) == 12, "Be carefull to add property to EntityAttrLayout which may cause the potential cache miss");
 
 class RenderEntity final : public Node::UserData {
 public:
@@ -140,6 +142,8 @@ public:
     inline RenderDrawInfo* getRenderDrawInfoAt(uint32_t index) {
         return _renderEntityType == RenderEntityType::STATIC ? &(_staticDrawInfos[index]) : _dynamicDrawInfos[index];
     }
+    
+    inline uint32_t getPriority() const { return _entityAttrLayout.priority; }
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
@@ -167,7 +171,7 @@ private:
 };
 
 #if defined(__x86_64__) || defined(__amd64__) || defined(__aarch64__)
-static_assert(sizeof(RenderEntity) == 632, "Be carefull to add property to RenderEntity which may cause the potential cache miss");
+static_assert(sizeof(RenderEntity) == 640, "Be carefull to add property to RenderEntity which may cause the potential cache miss");
 #endif
 
 } // namespace cc

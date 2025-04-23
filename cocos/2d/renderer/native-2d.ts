@@ -108,6 +108,7 @@ export declare class NativeBatcher2d {
     syncMeshBuffersToNative(accId: number, buffers: NativeUIMeshBuffer[]);
     update();
     uploadBuffers();
+    setSorting2DCount(count: number);
     reset();
     syncRootNodesToNative(nodes: Node[]);
     releaseDescriptorSetCache(texture: Texture, sampler: Sampler);

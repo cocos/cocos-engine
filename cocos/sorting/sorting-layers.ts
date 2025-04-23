@@ -111,7 +111,7 @@ export class SortingLayers {
         const keyIterator = this.nameMap.keys();
         let key = 0;
         for (let i = 0; i < count; i++) {
-            key = keyIterator.next().value;
+            key = keyIterator.next().value as number;
             if (this.nameMap.get(key) === name) return key;
         }
         errorID(2106);
