@@ -920,6 +920,7 @@ declare namespace spine {
         MipMapNearestNearest = 9984,
         MipMapLinearNearest = 9985,
         MipMapNearestLinear = 9986,
+        // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
         MipMapLinearLinear = 9987
     }
     enum TextureWrap {
@@ -1333,6 +1334,7 @@ declare namespace spine {
         initSkeleton(data: SkeletonData);
         getAnimationState();
         setAnimation(trackIndex: number, name: string, loop: boolean): spine.TrackEntry | null;
+        addAnimation(trackIndex: number, name: string, loop: boolean, delay: number): spine.TrackEntry | null;
         setSkin(name: string);
         setPremultipliedAlpha(usePremultipliedAlpha: boolean);
         setColor(r: number, g: number, b: number, a: number);

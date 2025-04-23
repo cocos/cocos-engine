@@ -59,7 +59,7 @@ mkdir temp && cd temp
 2. **生成构建文件**：
 
 ```bash
-emcmake cmake ..
+emcmake cmake .. -G "Ninja"
 ```
 
 3. **使用 Ninja 编译**：

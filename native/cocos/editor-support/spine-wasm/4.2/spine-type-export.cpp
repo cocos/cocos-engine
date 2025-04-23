@@ -1361,6 +1361,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .property("dtRate", &SpineSkeletonInstance::dtRate)
         .function("initSkeleton", &SpineSkeletonInstance::initSkeleton, allow_raw_pointers())
         .function("setAnimation", &SpineSkeletonInstance::setAnimation, allow_raw_pointers())
+        .function("addAnimation", &SpineSkeletonInstance::addAnimation, allow_raw_pointers())
         .function("setSkin", &SpineSkeletonInstance::setSkin)
         .function("updateAnimation", &SpineSkeletonInstance::updateAnimation)
         .function("updateRenderData", &SpineSkeletonInstance::updateRenderData, allow_raw_pointer<SpineModel>())
