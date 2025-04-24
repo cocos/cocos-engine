@@ -1226,12 +1226,15 @@ class DeviceRenderScene implements RecordingInterface {
         const rasterId = devicePass.rasterID;
         const passRenderData = context.renderGraph.getData(rasterId);
         const sceneId = this.sceneID;
-        // CCGlobal
+        // global
+        this._updateGlobal(context.renderGraph.globalRenderData, sceneId);
+        // pass
         this._updateGlobal(passRenderData, sceneId);
-        // CCCamera, CCShadow, CCCSM
+        // queue
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
         this._updateGlobal(queueRenderData, sceneId);
+        // scene
         const sceneRenderData = context.renderGraph.getData(sceneId)!;
         if (sceneRenderData) this._updateGlobal(sceneRenderData, sceneId);
         devicePass.processRenderLayout();

@@ -826,9 +826,11 @@ function isManaged (residency: ResourceResidency): boolean {
         || residency === ResourceResidency.MEMORYLESS;
 }
 
-export class WebPipeline implements BasicPipeline {
+export class WebPipeline extends WebSetter implements BasicPipeline {
     constructor (layoutGraph: LayoutGraphData) {
-        this._layoutGraph = layoutGraph;
+        super(new RenderData(), layoutGraph);
+        this._renderGraph = new RenderGraph();
+        this._data = this._renderGraph.globalRenderData;
     }
     globalDSManager!: GlobalDSManager;
     descriptorSetLayout!: DescriptorSetLayout;
@@ -1088,7 +1090,7 @@ export class WebPipeline implements BasicPipeline {
         const data = renderGraphPool.createRenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Compute>(RenderGraphValue.Compute, pass, name, passName, data, !DEBUG);
         const result = pipelinePool.computePassBuilder.add();
-        result.update(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
+        result.update(data, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         setComputeConstants(result, passName);
         return result;
     }
@@ -1122,63 +1124,6 @@ export class WebPipeline implements BasicPipeline {
     get name (): string {
         return 'WebPipeline';
     }
-    setMat4 (name: string, mat: Mat4): void {
-        // TODO: add implementation
-    }
-    setQuaternion (name: string, quat: Quat): void {
-        // TODO: add implementation
-    }
-    setColor (name: string, color: Color): void {
-        // TODO: add implementation
-    }
-    setVec4 (name: string, vec: Vec4): void {
-        // TODO: add implementation
-    }
-    setVec2 (name: string, vec: Vec2): void {
-        // TODO: add implementation
-    }
-    setFloat (name: string, v: number): void {
-        // TODO: add implementation
-    }
-    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
-        // TODO: add implementation
-    }
-    setBuffer (name: string, buffer: Buffer): void {
-        // TODO: add implementation
-    }
-    setTexture (name: string, texture: Texture): void {
-        // TODO: add implementation
-    }
-    setSampler (name: string, sampler: Sampler): void {
-        // TODO: add implementation
-    }
-    setBuiltinCameraConstants (camera: Camera): void {
-        // TODO: add implementation
-    }
-    setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
-        // TODO: add implementation
-    }
-    setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void {
-        // TODO: add implementation
-    }
-    setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void {
-        // TODO: add implementation
-    }
-    setBuiltinPointLightConstants (light: PointLight, camera: Camera): void {
-        // TODO: add implementation
-    }
-    setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void {
-        // TODO: add implementation
-    }
-    setBuiltinDirectionalLightFrustumConstants (camera: Camera, light: DirectionalLight, csmLevel?: number): void {
-        // TODO: add implementation
-    }
-    setBuiltinSpotLightFrustumConstants (light: SpotLight): void {
-        // TODO: add implementation
-    }
-    setCustomBehavior (name: string): void {
-        // TODO: add implementation
-    }
     // ------------------------------------------------------
     // Setter interface end
     // ------------------------------------------------------
@@ -1195,7 +1140,7 @@ export class WebPipeline implements BasicPipeline {
         const jointUniformCapacity = UBOSkinning.JOINT_UNIFORM_CAPACITY;
         str += `#define CC_JOINT_UNIFORM_CAPACITY ${jointUniformCapacity}\n`;
         this._constantMacros = str;
-        this._layoutGraph.constantMacros = this._constantMacros;
+        this._lg.constantMacros = this._constantMacros;
     }
     public setCustomPipelineName (name: string): void {
         this._customPipelineName = name;
@@ -1245,7 +1190,7 @@ export class WebPipeline implements BasicPipeline {
         this._device = deviceManager.gfxDevice;
         pipelinePool = new PipelinePool();
         renderGraphPool = pipelinePool.renderGraphPool;
-        createGfxDescriptorSetsAndPipelines(this._device, this._layoutGraph);
+        createGfxDescriptorSetsAndPipelines(this._device, this._lg);
         this._compileMaterial();
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
         this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16HalfFloatTexture(this._device));
@@ -1383,7 +1328,10 @@ export class WebPipeline implements BasicPipeline {
         }
     }
     beginSetup (): void {
-        if (!this._renderGraph) this._renderGraph = new RenderGraph();
+        if (!this._renderGraph) {
+            this._renderGraph = new RenderGraph();
+            this._data = this._renderGraph.globalRenderData;
+        }
         pipelinePool.reset();
     }
     endSetup (): void {
@@ -1584,7 +1532,7 @@ export class WebPipeline implements BasicPipeline {
         }
         if (DEBUG) {
             if (!this._compiler) {
-                this._compiler = new Compiler(this, this._renderGraph, this._resourceGraph, this._layoutGraph);
+                this._compiler = new Compiler(this, this._renderGraph, this._resourceGraph, this._lg);
             }
             this._compiler.compile(this._renderGraph);
         } else {
@@ -1676,7 +1624,7 @@ export class WebPipeline implements BasicPipeline {
         const data = renderGraphPool.createRenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, data, !DEBUG);
         const result = pipelinePool.renderPassBuilder.add();
-        result.update(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
+        result.update(data, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height, layoutName);
         setTextureUBOView(result, this._pipelineSceneData);
         return result;
@@ -1688,7 +1636,7 @@ export class WebPipeline implements BasicPipeline {
         return this.addRenderPassImpl(width, height, layoutName, count, quality);
     }
     public getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout {
-        const lg = this._layoutGraph;
+        const lg = this._lg;
         const phaseID = lg.shaderLayoutIndex.get(shaderName)!;
         const pplLayout = lg.getLayout(phaseID);
         const setLayout = pplLayout.getSet(freq)!;
@@ -1701,7 +1649,7 @@ export class WebPipeline implements BasicPipeline {
         return this._resourceGraph;
     }
     get layoutGraph (): LayoutGraphData {
-        return this._layoutGraph;
+        return this._lg;
     }
 
     get resourceUses (): string[] {
@@ -1752,7 +1700,6 @@ export class WebPipeline implements BasicPipeline {
     private _cameras: Camera[] = [];
     private _resourceUses: string[] = [];
 
-    private _layoutGraph: LayoutGraphData;
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
     private _compiler: Compiler | null = null;
