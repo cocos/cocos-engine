@@ -23,11 +23,11 @@
 */
 
 import { screenAdapter } from 'pal/screen-adapter';
+import { systemInfo } from 'pal/system-info';
 import { EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { systemInfo} from 'pal/system-info';
 import { OS } from '../../system-info/enum-type';
 
 export type MouseCallback = (res: EventMouse) => void;
@@ -207,7 +207,7 @@ export class MouseInputSource {
         eventMouse.movementY = this._preMousePos.y - location.y;
 
         let matchStandardFactor = 0;
-        if(systemInfo.os === OS.OPENHARMONY) {
+        if (systemInfo.os === OS.OPENHARMONY) {
             matchStandardFactor = 5;
             eventMouse.setScrollData(mouseEvent.wheelDeltaX, mouseEvent.wheelDeltaY * matchStandardFactor);
         } else {
