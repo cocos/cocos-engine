@@ -378,10 +378,8 @@ export class MeshBuffer {
             const length = this._iaPool.length;
             // Destroy InputAssemblers
             for (let i = length - 1; i >= count; i--) {
+                // No need to release vertext buffer，because all IAs sharing one.
                 const iaRef = this._iaPool[i];
-                if (iaRef.vertexBuffers[0]) {
-                    iaRef.vertexBuffers[0].destroy();
-                }
                 if (iaRef.indexBuffer) {
                     iaRef.indexBuffer.destroy();
                 }
@@ -394,23 +392,32 @@ export class MeshBuffer {
         for (let i = 0; i < submitCount; ++i) {
             const iaRef = this._iaPool[i];
 
-            const verticesData = new Float32Array(this.vData.buffer, 0, byteCount >> 2);
-            const indicesData = new Uint16Array(this.iData.buffer, 0, indexCount);
+            if (i === 0) {
+                // Use one vertext buffer.
+                const verticesData = new Float32Array(this.vData.buffer, 0, byteCount >> 2);
 
-            const vertexBuffer = iaRef.vertexBuffers[0];
-            if (byteCount > vertexBuffer.size) {
-                vertexBuffer.resize(byteCount);
+                const vertexBuffer = iaRef.vertexBuffers[0];
+                if (byteCount > vertexBuffer.size) {
+                    vertexBuffer.resize(byteCount);
+                }
+                vertexBuffer.update(verticesData);
             }
-            vertexBuffer.update(verticesData);
 
-            if (indexCount * 2 > iaRef.indexBuffer.size) {
+            // Use seperated index buffers to fix web iOS 14 performance problem.
+            const curIndexCount = iOS14 ? iaRef.ia.indexCount : indexCount;
+            const indicesData = new Uint16Array(this.iData.buffer, iaRef.ia.firstIndex * 2, curIndexCount);
+
+            if (curIndexCount * 2 > iaRef.indexBuffer.size) {
                 iaRef.indexBuffer.resize(indexCount * 2);
             }
+            // Reset after used.
+            iaRef.ia.firstIndex = 0;
             iaRef.indexBuffer.update(indicesData);
         }
         this.dirty = false;
     }
 
+    private _vertexBuffer?: Buffer;
     private createNewIA (device: Device): IIARef {
         let ia: InputAssembler;
         let vertexBuffers: Buffer[];
@@ -420,12 +427,19 @@ export class MeshBuffer {
         if (sys.__isWebIOS14OrIPadOS14Env || !this._iaPool[0]) {
             const vbStride = this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
             const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-            const vertexBuffer = device.createBuffer(new BufferInfo(
-                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                vbStride,
-                vbStride,
-            ));
+
+            if (!this._vertexBuffer) {
+                // In web iOS 14，no need to use seperated vertex buffers to fix performance problem.
+                this._vertexBuffer = device.createBuffer(new BufferInfo(
+                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                    vbStride,
+                    vbStride,
+                ));
+            }
+
+            const vertexBuffer = this._vertexBuffer;
+
             indexBuffer = device.createBuffer(new BufferInfo(
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
