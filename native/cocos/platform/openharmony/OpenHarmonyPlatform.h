@@ -73,12 +73,14 @@ public:
     void onSurfaceDestroyed(OH_NativeXComponent* component, void* window);
     void onSurfaceHide();
     void onSurfaceShow(void* window);
+    void dispatchMouseWheelCB(std::string eventType, float localX, float localY, float offsetY);
 
     static void onMessageCallback(const uv_async_t* req);
     static void timerCb(uv_timer_t* handle);
 
     OH_NativeXComponent* _component{nullptr};
     OH_NativeXComponent_Callback _callback;
+    OH_NativeXComponent_MouseEvent_Callback _mouseCallback;
     uv_timer_t _timerHandle;
     uv_loop_t* _workerLoop{nullptr};
     uv_async_t _messageSignal{};
@@ -86,5 +88,7 @@ public:
     WorkerMessageQueue _messageQueue;
     //game started
     bool g_started = false;
+    bool isMouseLeftActive{false};
+    float scrollDistance = 0;
 };
 } // namespace cc
