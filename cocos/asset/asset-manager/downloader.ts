@@ -367,6 +367,20 @@ export class Downloader {
     }
 
     /**
+     * @engineInternal
+     * Update existed request prioirty.
+     */
+    public updateExistedRequestPrioirty(id: string, newPriority = 0) {
+        const request = this._queue.find((x): boolean => x.id === id);
+        if (!request) { return; }
+        const priority: number = newPriority;
+        if (request.priority < priority) {
+            request.priority = priority;
+            this._queueDirty = true;
+        }
+    }
+
+    /**
      * @en
      * Use corresponding handler to download file under limitation.
      *
@@ -401,13 +415,7 @@ export class Downloader {
         const downloadCallbacks = this._downloading.get(id);
         if (downloadCallbacks) {
             downloadCallbacks.push(onComplete);
-            const request = this._queue.find((x): boolean => x.id === id);
-            if (!request) { return; }
-            const priority: number = options.priority || 0;
-            if (request.priority < priority) {
-                request.priority = priority;
-                this._queueDirty = true;
-            }
+            this.updateExistedRequestPrioirty(id, options.priority);
             return;
         }
 
