@@ -744,7 +744,6 @@ export class Skeleton extends UIRenderer {
     public clearAnimation (trackIndex?: number): void {
         if (!this.isAnimationCached()) {
             this.clearTrack(trackIndex || 0);
-            this.setToSetupPose();
         }
     }
 
@@ -755,7 +754,6 @@ export class Skeleton extends UIRenderer {
     public clearAnimations (): void {
         if (!this.isAnimationCached()) {
             this.clearTracks();
-            this.setToSetupPose();
         }
     }
 
@@ -1513,7 +1511,6 @@ export class Skeleton extends UIRenderer {
             warnID(16416);
         } else if (this._state) {
             this._state.clearTracks();
-            this.setToSetupPose();
         }
     }
 
