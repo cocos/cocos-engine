@@ -434,8 +434,7 @@ struct Index {
 
   onMouseWheel(eventType: string,event: PanGestureEvent) {
       if(event.source == SourceType.Mouse) {
-        const validFinger = event.fingerList?.find(item => item.globalX && item.globalY);
-        validFinger && mouseWheelNapi.onMouseWheel(eventType, validFinger.localX, validFinger.localY, event.offsetY);
+        mouseWheelNapi.onMouseWheel(eventType, event.offsetY);
       }
   }
 

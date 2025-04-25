@@ -327,15 +327,13 @@ static void napiOnVideoEvent(const Napi::CallbackInfo &info) {
 }
 
 static void napiOnMouseWheel(const Napi::CallbackInfo &info) {
-    if(info.Length() != 4) {
+    if(info.Length() != 2) {
         Napi::Error::New(info.Env(), "napiOnMouseWheel , 1 argument expected").ThrowAsJavaScriptException();
         return;
     }
     std::string eventType = info[0].As<Napi::String>().ToString();
-    float localX = info[1].As<Napi::Number>().FloatValue();
-    float localY = info[2].As<Napi::Number>().FloatValue();
-    float offsetY = info[3].As<Napi::Number>().FloatValue();
-    OpenHarmonyPlatform::getInstance()->dispatchMouseWheelCB(eventType, localX, localY, offsetY);
+    float offsetY = info[1].As<Napi::Number>().FloatValue();
+    OpenHarmonyPlatform::getInstance()->dispatchMouseWheelCB(eventType, offsetY);
 }
 
 // NAPI Interface

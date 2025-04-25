@@ -633,7 +633,7 @@ void OpenHarmonyPlatform::onSurfaceShow(void* window) {
     events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);
 }
 
-void OpenHarmonyPlatform::dispatchMouseWheelCB(std::string eventType, float localX, float localY, float offsetY) {
+void OpenHarmonyPlatform::dispatchMouseWheelCB(std::string eventType, float offsetY) {
     if(isMouseLeftActive) {
         return;
     }
@@ -643,7 +643,7 @@ void OpenHarmonyPlatform::dispatchMouseWheelCB(std::string eventType, float loca
         cc::MouseEvent* ev = new cc::MouseEvent;
         ev->windowId = cc::ISystemWindow::mainWindowId;
         ev->type = MouseEvent::Type::WHEEL;
-        ev->x = 0; // localX;
+        ev->x = 0;
         ev->y = moveScrollY;
         sendMsgToWorker(MessageType::WM_XCOMPONENT_MOUSE_WHEEL_EVENT, reinterpret_cast<void*>(ev), nullptr);
     } else {
