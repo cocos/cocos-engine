@@ -1872,7 +1872,8 @@ export class Skeleton extends UIRenderer {
      */
     public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2): void {
         const onComplete = (trackEntry: spine.TrackEntry): void => {
-            const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+            const duration = trackEntry.animationEnd - trackEntry.animationStart;
+            const loopCount = Math.floor(trackEntry.trackTime / duration);
             listener(trackEntry, loopCount);
             // this._instance.setListener(listenerID, spine.EventType.event);
             // this._listener!.event = listener;
