@@ -64,7 +64,7 @@ async function bundleMinigameAdapter () {
 
         // bundle web-adapter.js
         let builtinEntry = normalizePath(ps.join(engineRoot, `platforms/minigame/platforms/${platform}/wrapper/builtin/index.js`));
-        if (platform === 'alipay' || platform === 'xiaomi') {
+        if (platform === 'xiaomi') {
             builtinEntry = normalizePath(ps.join(engineRoot, `platforms/minigame/platforms/${platform}/wrapper/builtin.js`));
         }
         const builtinOutput = normalizePath(ps.join(engineRoot, `bin/adapter/minigame/${platform}/web-adapter.js`));

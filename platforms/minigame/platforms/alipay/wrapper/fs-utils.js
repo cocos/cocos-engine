@@ -121,12 +121,17 @@ const fsUtils = {
 
     writeFileSync (path, data, encoding) {
         try {
-            fs.writeFileSync({
+            const resp = fs.writeFileSync({
                 filePath: path,
                 data,
                 encoding,
             });
-            return null;
+            if (resp.success) {
+                return null;
+            } else {
+                console.warn(`Write file failed: path: ${path} message: ${resp.errorMessage}`);
+                return new Error(resp.errorMessage);
+            }
         } catch (e) {
             console.warn(`Write file failed: path: ${path} message: ${e.message}`);
             return new Error(e.message);
@@ -189,7 +194,12 @@ const fsUtils = {
                 filePath: path,
                 encoding: 'utf8',
             });
-            return JSON.parse(res.data);
+            if (res.success) {
+                return JSON.parse(res.data);
+            } else {
+                console.warn(`Read json failed: path: ${path} message: ${res.errorMessage}`);
+                return new Error(res.errorMessage);
+            }
         } catch (e) {
             console.warn(`Read json failed: path: ${path} message: ${e.message}`);
             return new Error(e.message);
@@ -198,11 +208,16 @@ const fsUtils = {
 
     makeDirSync (path, recursive) {
         try {
-            fs.mkdirSync({
+            const resp = fs.mkdirSync({
                 dirPath: path,
                 recursive,
             });
-            return null;
+            if (resp.success) {
+                return null;
+            } else {
+                console.warn(`Make directory failed: path: ${path} message: ${resp.errorMessage}`);
+                return new Error(resp.errorMessage);
+            }
         } catch (e) {
             console.warn(`Make directory failed: path: ${path} message: ${e.message}`);
             return new Error(e.message);
@@ -211,8 +226,13 @@ const fsUtils = {
 
     rmdirSync (dirPath, recursive) {
         try {
-            fs.rmdirSync({ dirPath, recursive });
-            return null;
+            const resp = fs.rmdirSync({ dirPath, recursive });
+            if (resp.success) {
+                return null;
+            } else {
+                console.warn(`rm directory failed: path: ${dirPath} message: ${resp.errorMessage}`);
+                return new Error(resp.errorMessage);
+            }
         } catch (e) {
             console.warn(`rm directory failed: path: ${dirPath} message: ${e.message}`);
             return new Error(e.message);
@@ -238,8 +258,8 @@ const fsUtils = {
                 onComplete && onComplete();
             },
             fail: (res) => {
-                console.warn(`Load Subpackage failed: path: ${name} message: ${res.errMsg}`);
-                onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errMsg}`));
+                console.warn(`Load Subpackage failed: path: ${name} message: ${res.errorMessage}`);
+                onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errorMessage}`));
             },
         });
         onProgress && task.onProgressUpdate(onProgress);
