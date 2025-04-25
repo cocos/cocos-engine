@@ -1241,15 +1241,11 @@ const Elements = {
             panel.$.nodeMobility.render(panel.dump.mobility);
             setLabel(panel.dump.layer, panel.$.nodeLayer);
 
-            // 查找需要渲染的 component 列表
+            // Find a list of components that need to be rendered
             const componentList = [];
             for (let i = 0; i < panel.dump.__comps__.length; i++) {
                 const comp = panel.dump.__comps__[i];
-                if (
-                    panel.dumps.every((dump) => {
-                        return dump.__comps__.find(__comp__ => __comp__.type === comp.type);
-                    })
-                ) {
+                if (panel.dumps.every(dump => dump.__comps__.some(__comp__ => __comp__.type === comp.type))) {
                     componentList.push(comp);
                 }
             }
