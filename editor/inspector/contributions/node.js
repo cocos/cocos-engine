@@ -1242,13 +1242,11 @@ const Elements = {
             setLabel(panel.dump.layer, panel.$.nodeLayer);
 
             // Find a list of components that need to be rendered
-            const componentList = [];
-            for (let i = 0; i < panel.dump.__comps__.length; i++) {
-                const comp = panel.dump.__comps__[i];
-                if (panel.dumps.every(dump => dump.__comps__.some(__comp__ => __comp__.type === comp.type))) {
-                    componentList.push(comp);
-                }
-            }
+            const componentList = panel.dump.__comps__.filter(comp =>
+                panel.dumps.every(dump =>
+                    dump.__comps__.some(__comp__ => __comp__.type === comp.type)
+                )
+            );
 
             const sectionBody = panel.$.sectionBody;
 
