@@ -1247,7 +1247,7 @@ const Elements = {
                 const comp = panel.dump.__comps__[i];
                 if (
                     panel.dumps.every((dump) => {
-                        return dump.__comps__[i] && dump.__comps__[i].type === comp.type;
+                        return dump.__comps__.find(__comp__ => __comp__.type === comp.type);
                     })
                 ) {
                     componentList.push(comp);
