@@ -214,15 +214,18 @@ export class PhysicsContact implements IPhysics2DContact {
     emit (contactType: string): void {
         const colliderA = this.colliderA;
         const colliderB = this.colliderB;
+        if (!colliderA || !colliderB) {
+            return;
+        }
 
-        const hasListenerA = colliderA?.body?.enabledContactListener;
-        const hasListenerB = colliderB?.body?.enabledContactListener;
+        const hasListenerA = colliderA.body?.enabledContactListener;
+        const hasListenerB = colliderB.body?.enabledContactListener;
 
-        if (hasListenerA) {
+        if (hasListenerA || (!colliderA.body)) {
             colliderA.emit(contactType, colliderA, colliderB, this);
         }
 
-        if (hasListenerB) {
+        if (hasListenerB || (!colliderB.body)) {
             colliderB.emit(contactType, colliderB, colliderA, this);
         }
 
