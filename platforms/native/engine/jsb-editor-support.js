@@ -62,12 +62,15 @@
         // reset render order
         middleware.reset();
 
-        //const batcher2D = director.root.batcher2D;
-        if (globalThis.dragonBones) {
+        /**
+         * DragonBones is included in the compilation for the emulator platform, but the feature trimming module might be stripped.
+         * Therefore, it is necessary to check if the TypeScript object exists here.
+         */
+        if (cc.internal.ArmatureSystem && globalThis.dragonBones) {
             const armaSystem = cc.internal.ArmatureSystem.getInstance();
             armaSystem.prepareRenderData();
         }
-        if (globalThis.spine) {
+        if (cc.internal.SpineSkeletonSystem && globalThis.spine) {
             const skeletonSystem = cc.internal.SpineSkeletonSystem.getInstance();
             skeletonSystem.prepareRenderData();
         }
