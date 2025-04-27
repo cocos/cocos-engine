@@ -76,6 +76,8 @@ public:
     // Used internal for cache event
     spine::Vector<SpineEventInfo> animationEvents;
     spine::Vector<SpineEventInfo> trackEvents;
+    // Used internal for dispatch event
+    void dispatchEvents();
 private:
     void collectMeshData();
 

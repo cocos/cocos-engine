@@ -46,7 +46,11 @@ struct TrackEntryListeners {
 };
 
 void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->cacheAnimationEvent(entry, type, event);
+    auto *skeletonAnimation = static_cast<SkeletonAnimation *>(state->getRendererObject());
+    skeletonAnimation->cacheAnimationEvent(entry, type, event);
+    if (type == EventType::EventType_Dispose) {
+        skeletonAnimation->dispatchEvents();
+    }
 }
 
 void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {

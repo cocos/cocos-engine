@@ -26,6 +26,14 @@ static void animationCallback(AnimationState *state, EventType type, TrackEntry 
         info.eventType = type;
         info.event = event;
         instance->animationEvents.add(info);
+
+        if (type == spine::EventType::EventType_Dispose) {
+            /**
+             * In the official implementation of Spine's AnimationState class, the animationCallback is invoked after the trackEntryCallback. 
+             * After the AnimationState completes the EventType_Dispose callback, the TrackEntry will be reclaimed, so this event must be dispatched immediately.
+             */
+            instance->dispatchEvents();
+        }
     }
 }
 
@@ -37,12 +45,6 @@ static void trackEntryCallback(AnimationState *state, EventType type, TrackEntry
         info.eventType = type;
         info.event = event;
         instance->trackEvents.add(info);
-
-        if (type == EventType_Dispose) {
-            if (entry->getRendererObject()) {
-                entry->setRendererObject(nullptr);
-            }
-        }
     }
 }
 
@@ -135,20 +137,7 @@ void SpineSkeletonInstance::updateAnimation(float dltTime) {
     _skeleton->update(dltTime);
     _animState->update(dltTime);
     _animState->apply(*_skeleton);
-    //Cache animation events then call back to JS.
-    auto vecAnimationEvents = animationEvents;
-    animationEvents.clear();
-    //Cache track events then call back to JS.
-    auto vecTrackEvents = trackEvents;
-    trackEvents.clear();
-    for (int i = 0; i < vecAnimationEvents.size(); i++) {
-        auto& info = vecAnimationEvents[i];
-        onAnimationStateEvent(info.entry, info.eventType, info.event);
-    }
-    for (int i = 0; i < vecTrackEvents.size(); i++) {
-        auto& info = vecTrackEvents[i];
-        onTrackEntryEvent(info.entry, info.eventType, info.event);
-    }
+    dispatchEvents();
 }
 
 SpineModel *SpineSkeletonInstance::updateRenderData() {
@@ -522,6 +511,7 @@ void SpineSkeletonInstance::onTrackEntryEvent(TrackEntry *entry, EventType type,
     SpineWasmUtil::s_currentEvent = event;
     spineTrackListenerCallback();
     if (type == EventType_Dispose) {
+        entry->setRendererObject(nullptr);
         _trackListenerSet.remove(entry);
     }
 }
@@ -677,5 +667,22 @@ void SpineSkeletonInstance::setSlotTexture(const spine::String &slotName, const 
         if (attachmentVertices) {
             attachmentVertices->_textureUUID = textureUuid;
         }
+    }
+}
+
+void SpineSkeletonInstance::dispatchEvents() {
+    //Cache animation events then call back to JS.
+    auto vecAnimationEvents = animationEvents;
+    animationEvents.clear();
+    //Cache track events then call back to JS.
+    auto vecTrackEvents = trackEvents;
+    trackEvents.clear();
+    for (int i = 0; i < vecAnimationEvents.size(); i++) {
+        auto& info = vecAnimationEvents[i];
+        onAnimationStateEvent(info.entry, info.eventType, info.event);
+    }
+    for (int i = 0; i < vecTrackEvents.size(); i++) {
+        auto& info = vecTrackEvents[i];
+        onTrackEntryEvent(info.entry, info.eventType, info.event);
     }
 }
