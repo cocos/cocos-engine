@@ -116,14 +116,14 @@ namespace spine {
 			}
 		}
 
-		inline void addAll(Vector<T> &inValue) {
+		inline void addAll(const Vector<T> &inValue) {
 			ensureCapacity(this->size() + inValue.size());
 			for (size_t i = 0; i < inValue.size(); i++) {
 				add(inValue[i]);
 			}
 		}
 
-		inline void clearAndAddAll(Vector<T> &inValue) {
+		inline void clearAndAddAll(const Vector<T> &inValue) {
 			this->clear();
 			this->addAll(inValue);
 		}
@@ -192,6 +192,13 @@ namespace spine {
 
 		inline friend bool operator!=(Vector<T> &lhs, Vector<T> &rhs) {
 			return !(lhs == rhs);
+		}
+
+		Vector &operator=(const Vector &inVector) {
+			if (this != &inVector) {
+				clearAndAddAll(inVector);
+			}
+			return *this;
 		}
 
 		inline T *buffer() {

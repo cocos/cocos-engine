@@ -671,12 +671,18 @@ void SpineSkeletonInstance::setSlotTexture(const spine::String &slotName, const 
 }
 
 void SpineSkeletonInstance::dispatchEvents() {
-    //Cache animation events then call back to JS.
-    auto vecAnimationEvents = animationEvents;
-    animationEvents.clear();
-    //Cache track events then call back to JS.
-    auto vecTrackEvents = trackEvents;
-    trackEvents.clear();
+    spine::Vector<SpineEventInfo> vecAnimationEvents;
+    spine::Vector<SpineEventInfo> vecTrackEvents;
+    if (animationEvents.size() > 0) {
+        //Cache animation events then call back to JS.
+        vecAnimationEvents.addAll(animationEvents);
+        animationEvents.clear();
+    }
+    if (trackEvents.size() > 0) {
+        //Cache track events then call back to JS.
+        vecTrackEvents.addAll(trackEvents);
+        trackEvents.clear();
+    }
     for (int i = 0; i < vecAnimationEvents.size(); i++) {
         auto& info = vecAnimationEvents[i];
         onAnimationStateEvent(info.entry, info.eventType, info.event);
