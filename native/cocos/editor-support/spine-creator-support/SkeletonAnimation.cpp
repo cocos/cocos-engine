@@ -49,6 +49,10 @@ void animationCallback(AnimationState *state, EventType type, TrackEntry *entry,
     auto *skeletonAnimation = static_cast<SkeletonAnimation *>(state->getRendererObject());
     skeletonAnimation->cacheAnimationEvent(entry, type, event);
     if (type == EventType::EventType_Dispose) {
+         /**
+         * In the official implementation of Spine's AnimationState class, the animationCallback is invoked after the trackEntryCallback. 
+         * After the AnimationState completes the EventType_Dispose callback, the TrackEntry will be reclaimed, so this event must be dispatched immediately.
+         */
         skeletonAnimation->dispatchEvents();
     }
 }
