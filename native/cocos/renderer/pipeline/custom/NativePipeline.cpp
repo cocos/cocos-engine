@@ -1652,18 +1652,6 @@ void NativePipeline::setCustomContext(std::string_view name) {
     }
 }
 
-ccstd::string NativePipeline::getName() const {
-    return {};
-}
-
-void NativePipeline::setName(const ccstd::string &name) {
-    std::ignore = name;
-}
-
-void NativePipeline::setCustomBehavior(const ccstd::string &name) {
-    std::ignore = name;
-}
-
 void NativePipeline::setMat4(const ccstd::string &name, const Mat4 &mat) {
     setMat4Impl(renderGraph.globalRenderData, programLibrary->layoutGraph, name, mat);
 }

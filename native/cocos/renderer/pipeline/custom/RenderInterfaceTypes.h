@@ -822,7 +822,7 @@ public:
  * 资源在注册后，不能更改驻留属性。
  * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
-class BasicPipeline : public PipelineRuntime, public Setter {
+class BasicPipeline : public PipelineRuntime {
 public:
     BasicPipeline() noexcept = default;
 
@@ -1094,6 +1094,24 @@ public:
      * @engineInternal
      */
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
+    virtual void setMat4(const ccstd::string &name, const Mat4 &mat) = 0;
+    virtual void setQuaternion(const ccstd::string &name, const Quaternion &quat) = 0;
+    virtual void setColor(const ccstd::string &name, const gfx::Color &color) = 0;
+    virtual void setVec4(const ccstd::string &name, const Vec4 &vec) = 0;
+    virtual void setVec2(const ccstd::string &name, const Vec2 &vec) = 0;
+    virtual void setFloat(const ccstd::string &name, float v) = 0;
+    virtual void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) = 0;
+    virtual void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
+    virtual void setTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
+    virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
+    virtual void setBuiltinCameraConstants(const scene::Camera *camera) = 0;
+    virtual void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t csmLevel) = 0;
+    virtual void setBuiltinSpotLightFrustumConstants(const scene::SpotLight *light) = 0;
     uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
         return addRenderWindow(name, format, width, height, renderWindow, "");
     }
@@ -1117,6 +1135,9 @@ public:
     }
     BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality) {
         return addMultisampleRenderPass(width, height, count, quality, "default");
+    }
+    void setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light) {
+        setBuiltinDirectionalLightFrustumConstants(camera, light, 0);
     }
 };
 

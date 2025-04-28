@@ -686,7 +686,7 @@ export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilde
  * 资源在注册后，不能更改驻留属性。
  * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
-export interface BasicPipeline extends PipelineRuntime, Setter {
+export interface BasicPipeline extends PipelineRuntime {
     readonly type: PipelineType;
     readonly capabilities: PipelineCapabilities;
     /**
@@ -1034,6 +1034,27 @@ export interface BasicPipeline extends PipelineRuntime, Setter {
      * @engineInternal
      */
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | undefined;
+    setMat4 (name: string, mat: Mat4): void;
+    setQuaternion (name: string, quat: Quat): void;
+    setColor (name: string, color: Color): void;
+    setVec4 (name: string, vec: Vec4): void;
+    setVec2 (name: string, vec: Vec2): void;
+    setFloat (name: string, v: number): void;
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void;
+    setBuffer (name: string, buffer: Buffer): void;
+    setTexture (name: string, texture: Texture): void;
+    setSampler (name: string, sampler: Sampler): void;
+    setBuiltinCameraConstants (camera: Camera): void;
+    setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void;
+    setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void;
+    setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
+    setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
+    setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
+    setBuiltinDirectionalLightFrustumConstants (
+        camera: Camera,
+        light: DirectionalLight,
+        csmLevel?: number): void;
+    setBuiltinSpotLightFrustumConstants (light: SpotLight): void;
 }
 
 /**
