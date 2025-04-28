@@ -28,7 +28,7 @@ import { DEBUG, EDITOR } from 'internal:constants';
 import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, ResolveMode, SampleCount, Color, ComparisonFunc, Buffer } from '../../gfx';
 import { Vec4, macro, cclegacy, RecyclePool, Mat4, Quat, Vec2 } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RenderCommonObjectPool, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
-import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer, RenderGraphObjectPool, CullingFlags, ManagedResource, ManagedBuffer } from './render-graph';
+import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer, RenderGraphObjectPool, CullingFlags, ManagedResource, ManagedBuffer, BlitType } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter, SceneBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, PCFType, ProbeType, DirectionalLight, PointLight, RangedDirectionalLight, SphereLight, SpotLight } from '../../render-scene/scene';
@@ -179,6 +179,8 @@ function getResourceDimension (type: TextureType): ResourceDimension {
     return ResourceDimension.TEXTURE2D;
 }
 
+const emptyMaterial = new Material();
+const emptyRenderData = new RenderData();
 export class WebSceneBuilder extends WebSetter implements SceneBuilder {
     constructor (
         data: RenderData,
@@ -298,6 +300,85 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             );
             if (light && light.type !== LightType.DIRECTIONAL) setShadowUBOLightView(this, camera, light, 0, layoutName);
             else if (!(sceneFlags & SceneFlags.SHADOW_CASTER)) setShadowUBOView(this, camera, layoutName);
+        }
+        const passOrSubpassId = this._renderGraph.getParent(this._vertID);
+        if (sceneFlags & SceneFlags.UI) {
+            const passLayoutId = this._lg.locateChild(
+                this._lg.N,
+                'default',
+            );
+            const phaseLayoutId = this._lg.locateChild(
+                passLayoutId,
+                'default',
+            );
+            const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
+                RenderGraphValue.Queue,
+                this._queue,
+                'UI Queue',
+                'default',
+                this._data,
+                !DEBUG,
+                passOrSubpassId,
+            );
+
+            this._renderGraph.addVertex<RenderGraphValue.Blit>(
+                RenderGraphValue.Blit,
+                renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_2D),
+                'UI',
+                '',
+                emptyRenderData,
+                !DEBUG,
+                queueId,
+            );
+        }
+        if (sceneFlags & SceneFlags.PROFILER) {
+            let showStatistics = false;
+            const N = this._renderGraph.N;
+            if (passOrSubpassId !== N) {
+                const passOrNullId = this._renderGraph.getParent(passOrSubpassId);
+                const passId = passOrNullId === N
+                    ? passOrSubpassId
+                    : passOrNullId;
+
+                if (
+                    passId !== N
+            && this._renderGraph.h(RenderGraphValue.RasterPass, passId)
+                ) {
+                    const pass = this._renderGraph.value(RenderGraphValue.RasterPass, passId);
+                    showStatistics = pass.showStatistics;
+                }
+            }
+            if (showStatistics) {
+                const passLayoutId = this._lg.locateChild(
+                    this._lg.N,
+                    'default',
+                );
+                const phaseLayoutId = this._lg.locateChild(
+                    passLayoutId,
+                    'default',
+                );
+                const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
+                    RenderGraphValue.Queue,
+                    this._queue,
+                    'UI Queue',
+                    'default',
+                    this._data,
+                    !DEBUG,
+                    passOrSubpassId,
+                );
+                this._renderGraph.addVertex<RenderGraphValue.Blit>(
+                    RenderGraphValue.Blit,
+                    renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_PROFILE),
+                    'Profiler',
+                    '',
+                    emptyRenderData,
+                    !DEBUG,
+                    queueId,
+                );
+
+                const data = renderData;
+                WebSetter.setMat4(this._lg, data, 'cc_matProj', camera.matProj);
+            }
         }
         const sceneBuilder = pipelinePool.sceneBuilder.add();
         sceneBuilder.update(renderData, this._lg, this._renderGraph, sceneId, sceneData);

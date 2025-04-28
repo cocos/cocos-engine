@@ -85,6 +85,7 @@ import { DescriptorSetData, LayoutGraphData, LayoutGraphDataValue, PipelineLayou
 import { BasicPipeline } from './pipeline';
 import {
     Blit,
+    BlitType,
     ClearView,
     ComputePass,
     ComputeSubpass,
@@ -889,25 +890,6 @@ class DeviceRenderPass implements RecordingInterface {
         }
     }
 
-    protected _showProfiler (rect: Rect): void {
-        const profiler = context.pipeline.profiler!;
-        if (!profiler || !profiler.enabled) {
-            return;
-        }
-        const profilerDesc = context.profilerDescriptorSet;
-        const renderPass = this._renderPass;
-        const cmdBuff = context.commandBuffer;
-        const submodel = profiler.subModels[0];
-        const pass = submodel.passes[0];
-        const ia = submodel.inputAssembler;
-        profilerViewport.width = rect.width;
-        profilerViewport.height = rect.height;
-        cmdBuff.setViewport(profilerViewport);
-        cmdBuff.setScissor(rect);
-        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, profilerDesc);
-        recordCommand(cmdBuff, renderPass, pass, submodel.descriptorSet, submodel.shaders[0], ia);
-    }
-
     beginPass (): void {
         const tex = this.framebuffer.colorTextures[0]!;
         this._applyViewport(tex);
@@ -948,9 +930,6 @@ class DeviceRenderPass implements RecordingInterface {
         this.beginPass();
         for (const queue of this._deviceQueues.values()) {
             queue.record();
-        }
-        if (this._rasterPass.showStatistics) {
-            this._showProfiler(renderPassArea);
         }
         this.endPass();
     }
@@ -1155,7 +1134,7 @@ class DeviceRenderScene implements RecordingInterface {
     get sceneID (): number { return this._sceneID; }
     get camera (): Camera | null { return this._camera; }
     preRecord (): void {
-        if (this._blit) {
+        if (this._blit && this._blit.blitType === BlitType.FULLSCREEN_QUAD) {
             this._currentQueue.createBlitDesc(this._blit);
             this._currentQueue.blitDesc!.update();
         }
@@ -1171,7 +1150,7 @@ class DeviceRenderScene implements RecordingInterface {
         this._blit = blit;
         this._sceneID = sceneID;
         this._renderPass = queue.devicePass.renderPass;
-        const camera = scene && scene.camera ? scene.camera : null;
+        const camera = scene && scene.camera ? scene.camera : blit && blit.camera ? blit.camera : null;
         if (camera) {
             this._scene = camera.scene;
             this._camera = camera;
@@ -1201,6 +1180,25 @@ class DeviceRenderScene implements RecordingInterface {
         }
     }
 
+    protected _showProfiler (): void {
+        const rect = renderPassArea;
+        const profiler = context.pipeline.profiler!;
+        if (!profiler || !profiler.enabled) {
+            return;
+        }
+        const profilerDesc = context.profilerDescriptorSet;
+        const renderPass = this._renderPass;
+        const cmdBuff = context.commandBuffer;
+        const submodel = profiler.subModels[0];
+        const pass = submodel.passes[0];
+        const ia = submodel.inputAssembler;
+        profilerViewport.width = rect.width;
+        profilerViewport.height = rect.height;
+        cmdBuff.setViewport(profilerViewport);
+        cmdBuff.setScissor(rect);
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, profilerDesc);
+        recordCommand(cmdBuff, renderPass, pass, submodel.descriptorSet, submodel.shaders[0], ia);
+    }
     private _recordBlit (): void {
         if (!this.blit) { return; }
 
@@ -1270,7 +1268,19 @@ class DeviceRenderScene implements RecordingInterface {
 
         // Currently processing blit and camera first
         if (this.blit) {
-            this._recordBlit();
+            switch (this.blit.blitType) {
+            case BlitType.FULLSCREEN_QUAD:
+                this._recordBlit();
+                break;
+            case BlitType.DRAW_2D:
+                this._recordUI();
+                break;
+            case BlitType.DRAW_PROFILE:
+                this._showProfiler();
+                break;
+            default:
+                break;
+            }
             return;
         }
         const rqQuery = sceneCulling.renderQueueQueryIndex.get(this.sceneID)!;
@@ -1286,9 +1296,6 @@ class DeviceRenderScene implements RecordingInterface {
                 context.commandBuffer,
                 context.pipeline.pipelineSceneData,
             );
-        }
-        if (graphSceneData.flags & SceneFlags.UI) {
-            this._recordUI();
         }
     }
 }
