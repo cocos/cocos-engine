@@ -80,7 +80,11 @@ public:
         size_t oldSize = _size;
         _size = newSize;
         if (_capacity < newSize) {
-            _capacity = (int)(_size * 1.75f);
+            if (_capacity == 0) {
+                _capacity = _size;
+            } else {
+                _capacity = (int)(_size * 1.75f);
+            }
             if (_capacity < 8) _capacity = 8;
             _buffer = spine::SpineExtension::realloc<T>(_buffer, _capacity, __SPINE_FILE__, __SPINE_LINE__);
         }

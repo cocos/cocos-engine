@@ -58,7 +58,7 @@ namespace spine {
 			deallocate(_buffer);
 		}
 
-		inline void clear() {
+		void clear() {
 			for (size_t i = 0; i < _size; ++i) {
 				destroy(_buffer + (_size - 1 - i));
 			}
@@ -74,12 +74,16 @@ namespace spine {
 			return _size;
 		}
 
-		inline void setSize(size_t newSize, const T &defaultValue) {
+		void setSize(size_t newSize, const T &defaultValue) {
 			assert(newSize >= 0);
 			size_t oldSize = _size;
 			_size = newSize;
 			if (_capacity < newSize) {
-				_capacity = (int) (_size * 1.75f);
+				if (_capacity == 0) {
+					_capacity = _size;
+				} else {
+					_capacity = (int) (_size * 1.75f);
+				}
 				if (_capacity < 8) _capacity = 8;
 				_buffer = spine::SpineExtension::realloc<T>(_buffer, _capacity, __FILE__, __LINE__);
 			}
@@ -94,13 +98,13 @@ namespace spine {
 			}
 		}
 
-		inline void ensureCapacity(size_t newCapacity = 0) {
+		void ensureCapacity(size_t newCapacity = 0) {
 			if (_capacity >= newCapacity) return;
 			_capacity = newCapacity;
 			_buffer = SpineExtension::realloc<T>(_buffer, newCapacity, __FILE__, __LINE__);
 		}
 
-		inline void add(const T &inValue) {
+		void add(const T &inValue) {
 			if (_size == _capacity) {
 				// inValue might reference an element in this buffer
 				// When we reallocate, the reference becomes invalid.
@@ -128,7 +132,7 @@ namespace spine {
 			this->addAll(inValue);
 		}
 
-		inline void removeAt(size_t inIndex) {
+		void removeAt(size_t inIndex) {
 			assert(inIndex < _size);
 
 			--_size;
