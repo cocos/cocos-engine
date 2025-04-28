@@ -79,7 +79,7 @@ function loadCC() {
         },
         handlers: {
             'plugin:': (urlNoSchema) => {
-                requirePlugin ? requirePlugin(urlNoSchema) : require(urlNoSchema);
+                typeof requirePlugin === 'function' ? requirePlugin(urlNoSchema) : require(urlNoSchema);
             },
             'project:': (urlNoSchema) => {
                 require(urlNoSchema);
