@@ -6,17 +6,19 @@
 #include <string>
 #include "mesh-type-define.h"
 #include "spine-model.h"
+#include "AtlasAttachmentLoaderExtension.h"
 
 namespace {
     struct SpineEventInfo {
-        spine::TrackEntry* entry{nullptr};
+        spine::TrackEntry *entry{nullptr};
         spine::EventType eventType{spine::EventType::EventType_Start};
         spine::Event *event{nullptr};
     };
 
     struct SlotCacheInfo {
         bool isOwner{false};
-        spine::Attachment* attachment{nullptr};
+        spine::Attachment *attachment{nullptr};
+        AttachmentVertices *attachmentVertices{nullptr};
     };
 }
 enum DEBUG_SHAPE_TYPE {

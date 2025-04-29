@@ -12,12 +12,6 @@ extern void spineTrackListenerCallback();
 }
 using namespace spine;
 
-#ifdef CC_SPINE_VERSION_3_8
-static void deleteAttachmentVertices(void *vertices) {
-    delete static_cast<AttachmentVertices *>(vertices);
-}
-#endif
-
 static void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
     SpineSkeletonInstance *instance = (static_cast<SpineSkeletonInstance *>(state->getRendererObject()));
     if (instance) {
@@ -73,6 +67,7 @@ SpineSkeletonInstance::~SpineSkeletonInstance() {
             if (info.attachment && info.isOwner) {
                 delete info.attachment;
                 info.attachment = nullptr;
+                delete info.attachmentVertices;
             }
         }
     }
@@ -157,6 +152,7 @@ SpineModel *SpineSkeletonInstance::updateRenderData() {
         _model->byteStride = sizeof(V3F_T2F_C4B);
     }
     collectMeshData();
+    globalMesh.textureID = "";
     _model->setBufferPtr(SpineMeshData::vb(), SpineMeshData::ib());
     return _model;
 }
@@ -202,19 +198,24 @@ void SpineSkeletonInstance::collectMeshData() {
         color.b = _userData.color.b;
         color.a = _userData.color.a;
         spine::Attachment* attachmentSlot = slot->getAttachment();
+        AttachmentVertices *cacheSlotAttachmentVertices = nullptr;
         if (_userData.useSlotTexture && _slotTextureSet.containsKey(slot)) {
             auto info = _slotTextureSet[slot];
             attachmentSlot = info.attachment;
+            cacheSlotAttachmentVertices = info.attachmentVertices;
         }
         const spine::RTTI& attachmentRTTI = attachmentSlot->getRTTI();
         if (attachmentRTTI.isExactly(spine::RegionAttachment::rtti)) {
             debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_REGION;
             auto *attachment = static_cast<spine::RegionAttachment *>(attachmentSlot);
+            auto *attachmentVertices = cacheSlotAttachmentVertices;
+            if (!attachmentVertices) {
 #ifdef CC_SPINE_VERSION_3_8
-            auto *attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
+                attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
-            auto *attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+                attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
 #endif
+            }
 
             auto *triangles = attachmentVertices->_triangles;
             auto vertCount = triangles->vertCount;
@@ -249,11 +250,14 @@ void SpineSkeletonInstance::collectMeshData() {
         } else if (attachmentRTTI.isExactly(spine::MeshAttachment::rtti)) {
             debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_MESH;
             auto *attachment = static_cast<spine::MeshAttachment *>(attachmentSlot);
+            auto *attachmentVertices = cacheSlotAttachmentVertices;
+            if (!attachmentVertices) {
 #ifdef CC_SPINE_VERSION_3_8
-            auto *attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
+                attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
-            auto *attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+                attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
 #endif
+            }
 
             auto *triangles = attachmentVertices->_triangles;
             auto vertCount = triangles->vertCount;
@@ -534,12 +538,10 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
     if (!attachment) return;
     if (createNew) {
         attachment = attachment->copy();
-        slot->setAttachment(attachment);
     }
     SlotCacheInfo info;
     info.attachment = attachment;
     info.isOwner = createNew;
-    _slotTextureSet.put(slot, info);
     if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
         auto *region = static_cast<RegionAttachment *>(attachment);
 #ifdef CC_SPINE_VERSION_3_8
@@ -554,7 +556,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         auto *attachmentVertices = static_cast<AttachmentVertices *>(region->getRendererObject());
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
-            region->setRendererObject(attachmentVertices, deleteAttachmentVertices);
+            info.attachmentVertices = attachmentVertices;
         }
 #else
         auto *textureRegion = region->getRegion();
@@ -563,6 +565,11 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
             textureRegion->height = height;
             textureRegion->originalWidth = width;
             textureRegion->originalHeight = height;
+
+            textureRegion->u = 0;
+            textureRegion->v = 0;
+            textureRegion->u2 = 1.0f;
+            textureRegion->v2 = 1.0f;
         }
         region->setWidth(width);
         region->setHeight(height);
@@ -579,7 +586,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         auto *attachmentVertices = static_cast<AttachmentVertices *>(region->getRegion()->rendererObject);
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
-            region->getRegion()->rendererObject = attachmentVertices;
+            info.attachmentVertices = attachmentVertices;
         }
 #endif
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
@@ -607,7 +614,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         auto *attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRendererObject());
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
-            mesh->setRendererObject(attachmentVertices, deleteAttachmentVertices);
+            info.attachmentVertices = attachmentVertices;
         }
 #else
         auto *region = mesh->getRegion();
@@ -628,7 +635,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         auto *attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRegion()->rendererObject);
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
-            mesh->getRegion()->rendererObject = attachmentVertices;
+            info.attachmentVertices = attachmentVertices;
         }
 #endif
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
@@ -638,6 +645,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
             vertices[i].texCoord.v = UVs[ii + 1];
         }
     }
+    _slotTextureSet.put(slot, info);
     _skeleton->updateCache();
 }
 
@@ -647,23 +655,7 @@ void SpineSkeletonInstance::setSlotTexture(const spine::String &slotName, const 
     if (!slot) return;
     _userData.useSlotTexture = true;
     if (_slotTextureSet.containsKey(slot)) {
-        AttachmentVertices *attachmentVertices =  nullptr;
-        auto* attachment = _slotTextureSet[slot].attachment;
-        if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
-            auto *regionAttachment = static_cast<RegionAttachment *>(attachment);
-#ifdef CC_SPINE_VERSION_3_8
-            attachmentVertices = static_cast<AttachmentVertices *>(regionAttachment->getRendererObject());
-#else
-            attachmentVertices = static_cast<AttachmentVertices *>(regionAttachment->getRegion()->rendererObject);
-#endif
-        } else if(attachment->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
-            auto *meshAttachment = static_cast<MeshAttachment *>(attachment);
-#ifdef CC_SPINE_VERSION_3_8
-            attachmentVertices = static_cast<AttachmentVertices *>(meshAttachment->getRendererObject());
-#else
-            attachmentVertices = static_cast<AttachmentVertices *>(meshAttachment->getRegion()->rendererObject);
-#endif
-        }
+        AttachmentVertices *attachmentVertices =  _slotTextureSet[slot].attachmentVertices;
         if (attachmentVertices) {
             attachmentVertices->_textureUUID = textureUuid;
         }
