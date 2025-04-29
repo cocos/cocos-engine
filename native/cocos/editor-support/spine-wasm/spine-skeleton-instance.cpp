@@ -655,7 +655,7 @@ void SpineSkeletonInstance::setSlotTexture(const spine::String &slotName, const 
     if (!slot) return;
     _userData.useSlotTexture = true;
     if (_slotTextureSet.containsKey(slot)) {
-        AttachmentVertices *attachmentVertices =  _slotTextureSet[slot].attachmentVertices;
+        AttachmentVertices *attachmentVertices = _slotTextureSet[slot].attachmentVertices;
         if (attachmentVertices) {
             attachmentVertices->_textureUUID = textureUuid;
         }
