@@ -226,7 +226,7 @@ void dispatchKeyEventCB(OH_NativeXComponent* component, void* window) {
         OH_NativeXComponent_KeyCode code;
         OH_NativeXComponent_GetKeyEventCode(keyEvent, &code);
         if (code == keyCodeUnknownInOH || action == keyActionUnknownInOH) {
-            DO_CC_LOG_ERROR("unknown code and action don't callback");
+            CC_LOG_ERROR("unknown code and action don't callback");
             return;
         }
         cc::KeyboardEvent* ev = new cc::KeyboardEvent;
@@ -236,7 +236,7 @@ void dispatchKeyEventCB(OH_NativeXComponent* component, void* window) {
         ev->key = ohKeyCodeToCocosKeyCode(code);
         sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_KEY_EVENT, reinterpret_cast<void*>(ev), window);
     } else {
-        DO_CC_LOG_ERROR("OpenHarmonyPlatform::getKeyEventError");
+        CC_LOG_ERROR("OpenHarmonyPlatform::getKeyEventError");
     }
 }
 
@@ -245,6 +245,8 @@ void dispatchMouseEventCB(OH_NativeXComponent* component, void* window) {
     OH_NativeXComponent_MouseEvent mouseEvent;
     int32_t ret = OH_NativeXComponent_GetMouseEvent(component, window, &mouseEvent);
     if (ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+        if (mouseEvent.action == OH_NativeXComponent_MouseEventAction::OH_NATIVEXCOMPONENT_MOUSE_NONE)
+            return;
         cc::MouseEvent* ev = new cc::MouseEvent;
         ev->windowId = cc::ISystemWindow::mainWindowId;
         ev->x = mouseEvent.x;
@@ -263,7 +265,6 @@ void dispatchMouseEventCB(OH_NativeXComponent* component, void* window) {
                 ev->type = cc::MouseEvent::Type::UNKNOWN;
                 break;
         }
-        if(ev->type == cc::MouseEvent::Type::UNKNOWN) return;
         switch (mouseEvent.button) {
             case OH_NativeXComponent_MouseEventButton::OH_NATIVEXCOMPONENT_LEFT_BUTTON:
                 ev->button = 0;
@@ -292,7 +293,7 @@ void dispatchMouseEventCB(OH_NativeXComponent* component, void* window) {
         }
         sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_MOUSE_EVENT, reinterpret_cast<void*>(ev), window);
     } else {
-        DO_CC_LOG_ERROR("OpenHarmonyPlatform::getMouseEventError");
+        CC_LOG_ERROR("OpenHarmonyPlatform::getMouseEventError");
     }
 }
 

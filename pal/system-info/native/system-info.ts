@@ -115,7 +115,8 @@ class SystemInfo extends EventTarget {
         this.isXR = (typeof xr !== 'undefined' && typeof xr.XrEntry !== 'undefined');
 
         const isHPE: boolean = typeof __supportHPE === 'function' ? __supportHPE() : false;
-
+        const isHarmonyOSNext = this.platform === Platform.OPENHARMONY;
+        
         this._featureMap = {
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
@@ -126,7 +127,7 @@ class SystemInfo extends EventTarget {
 
             [Feature.INPUT_TOUCH]: this.isMobile,
             [Feature.EVENT_KEYBOARD]: true,
-            [Feature.EVENT_MOUSE]: isHPE || !this.isMobile,
+            [Feature.EVENT_MOUSE]: isHPE || !this.isMobile || isHarmonyOSNext,
             [Feature.EVENT_TOUCH]: true,
             [Feature.EVENT_ACCELEROMETER]: this.isMobile,
             [Feature.EVENT_GAMEPAD]: true,

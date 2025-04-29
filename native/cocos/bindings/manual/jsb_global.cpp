@@ -389,8 +389,6 @@ SE_BIND_FUNC(JSB_getOSVersion)
 static bool JSB_supportHPE(se::State &s) { // NOLINT
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     s.rval().setBoolean(getSupportHPE());
-#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    s.rval().setBoolean(true);
 #else
     s.rval().setBoolean(false);
 #endif

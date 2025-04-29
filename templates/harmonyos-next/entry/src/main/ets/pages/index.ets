@@ -432,7 +432,7 @@ struct Index {
     }
   }
 
-  onMouseWheel(eventType: string,event: PanGestureEvent) {
+  onMouseWheel(eventType: string, event: PanGestureEvent) {
       if(event.source == SourceType.Mouse) {
         mouseWheelNapi.onMouseWheel(eventType, event.offsetY);
       }
