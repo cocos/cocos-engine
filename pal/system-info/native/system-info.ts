@@ -116,7 +116,7 @@ class SystemInfo extends EventTarget {
 
         const isHPE: boolean = typeof __supportHPE === 'function' ? __supportHPE() : false;
         const isHarmonyOSNext = this.platform === Platform.OPENHARMONY;
-        
+
         this._featureMap = {
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
