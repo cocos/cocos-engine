@@ -1,0 +1,2 @@
+Spine 3.8: https://github.com/EsotericSoftware/spine-runtimes/commit/d33c10f85634d01efbe4a3ab31dabaeaca41230c
+Spine 4.2: 4.2.80 https://github.com/EsotericSoftware/spine-runtimes/commit/6654484a33e622f62170b6e67f1d09bdca325351
