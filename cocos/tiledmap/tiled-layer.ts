@@ -26,12 +26,12 @@
 
 import { ccclass } from 'cc.decorator';
 
-import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component, Node } from '../scene-graph';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, Vec2, Vec3, logID, warnID } from '../core';
+import { Color, IVec2Like, Mat4, Size, Vec2, Vec3, logID, v2, warnID } from '../core';
 import { TiledTile } from './tiled-tile';
 import { RenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher';
@@ -89,6 +89,10 @@ export interface ITiledLayerCullingRect {
         col: number;
     };
 }
+
+const ANCHOR_CHANGED = NodeEventType.ANCHOR_CHANGED;
+const TRANSFORM_CHANGED = NodeEventType.TRANSFORM_CHANGED;
+const SIZE_CHANGED = NodeEventType.SIZE_CHANGED;
 
 /**
   * @en Render the TMX layer.
@@ -187,24 +191,17 @@ export class TiledLayer extends UIRenderer {
     protected _diffY1?: number;
     protected _useAutomaticVertexZ?: boolean;
     protected _vertexZvalue?: number;
-    protected _offset?: Vec2;
+    protected _offset = v2();
 
     protected _tiledDataArray: TiledDataArray = [];
 
-    protected _cameraNode?: Node;
+    protected _cameraNode: Node | null = null;
 
     get tiledDataArray (): TiledDataArray { return this._tiledDataArray; }
     get leftDownToCenterX (): number { return this._leftDownToCenterX; }
     get leftDownToCenterY (): number { return this._leftDownToCenterY; }
 
     private _drawInfoList: RenderDrawInfo[] = [];
-    private requestDrawInfo (idx: number): RenderDrawInfo {
-        if (!this._drawInfoList[idx]) {
-            this._drawInfoList[idx] = new RenderDrawInfo();
-            this._drawInfoList[idx].setDrawInfoType(RenderDrawInfoType.MIDDLEWARE);
-        }
-        return this._drawInfoList[idx];
-    }
 
     constructor () {
         super();
@@ -259,8 +256,8 @@ export class TiledLayer extends UIRenderer {
         this._positionToRowCol(_vec2_temp.x, _vec2_temp.y, _tempRowCol);
         this._addUserNodeToGrid(dataComp, _tempRowCol);
         this._updateCullingOffsetByUserNode(node);
-        node.on(NodeEventType.TRANSFORM_CHANGED, this._userNodePosChange, dataComp);
-        node.on(NodeEventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
+        node.on(TRANSFORM_CHANGED, this._userNodePosChange, dataComp);
+        node.on(SIZE_CHANGED, this._userNodeSizeChange, dataComp);
         return true;
     }
 
@@ -277,8 +274,8 @@ export class TiledLayer extends UIRenderer {
             warnID(7243);
             return false;
         }
-        node.off(NodeEventType.TRANSFORM_CHANGED, this._userNodePosChange, dataComp);
-        node.off(NodeEventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
+        node.off(TRANSFORM_CHANGED, this._userNodePosChange, dataComp);
+        node.off(SIZE_CHANGED, this._userNodeSizeChange, dataComp);
         this._removeUserNodeFromGrid(dataComp);
         delete this._userNodeMap[node.uuid];
         node._removeComponent(dataComp);
@@ -432,8 +429,8 @@ export class TiledLayer extends UIRenderer {
         if (this._cameraNode !== cameraNode) {
             this._uninstallCamera();
             if (cameraNode) {
-                cameraNode.on(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-                cameraNode.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+                cameraNode.on(TRANSFORM_CHANGED, this.updateCulling, this);
+                cameraNode.on(SIZE_CHANGED, this.updateCulling, this);
                 this._cameraNode = cameraNode;
             }
         }
@@ -442,19 +439,20 @@ export class TiledLayer extends UIRenderer {
 
     protected _uninstallCamera (): void {
         if (this._cameraNode) {
-            this._cameraNode.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-            this._cameraNode.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
-            delete this._cameraNode;
+            this._cameraNode.off(TRANSFORM_CHANGED, this.updateCulling, this);
+            this._cameraNode.off(SIZE_CHANGED, this.updateCulling, this);
+            this._cameraNode = null;
         }
     }
 
     onEnable (): void {
         super.onEnable();
-        this.node.on(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
-        this.node.on(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-        this.node.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.parent!.on(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-        this.node.parent!.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+        const node = this.node;
+        node.on(ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        node.on(TRANSFORM_CHANGED, this.updateCulling, this);
+        node.on(SIZE_CHANGED, this.updateCulling, this);
+        node.parent!.on(TRANSFORM_CHANGED, this.updateCulling, this);
+        node.parent!.on(SIZE_CHANGED, this.updateCulling, this);
         this._markForUpdateRenderData();
         // delay 1 frame, since camera's matrix data is dirty
         this.scheduleOnce(this.updateCulling.bind(this));
@@ -462,18 +460,19 @@ export class TiledLayer extends UIRenderer {
 
     onDisable (): void {
         super.onDisable();
-        this.node.parent?.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.parent?.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-        this.node.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-        this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        const node = this.node;
+        node.parent?.off(SIZE_CHANGED, this.updateCulling, this);
+        node.parent?.off(TRANSFORM_CHANGED, this.updateCulling, this);
+        node.off(SIZE_CHANGED, this.updateCulling, this);
+        node.off(TRANSFORM_CHANGED, this.updateCulling, this);
+        node.off(ANCHOR_CHANGED, this._syncAnchorPoint, this);
         this._uninstallCamera();
     }
 
     protected _syncAnchorPoint (): void {
         const node = this.node;
         const trans = node._getUITransformComp()!;
-        const scale = node.getScale();
+        const scale = node.scale;
         this._leftDownToCenterX = trans.width * trans.anchorX * scale.x;
         this._leftDownToCenterY = trans.height * trans.anchorY * scale.y;
         this._cullingDirty = true;
@@ -805,8 +804,8 @@ export class TiledLayer extends UIRenderer {
             reserveLine = 2;
         }
 
-        const vpx = this._viewPort.x - this._offset!.x + this._leftDownToCenterX;
-        const vpy = this._viewPort.y - this._offset!.y + this._leftDownToCenterY;
+        const vpx = this._viewPort.x - this._offset.x + this._leftDownToCenterX;
+        const vpy = this._viewPort.y - this._offset.y + this._leftDownToCenterY;
 
         let leftDownX = vpx - this._leftOffset;
         let leftDownY = vpy - this._downOffset;
@@ -1072,8 +1071,8 @@ export class TiledLayer extends UIRenderer {
         // tileOffset is tileset offset which is related to each grid
         // tileOffset coordinate system's y axis is opposite with engine's y axis.
         const tileOffset = grid.tileset.tileOffset;
-        left += this._offset!.x + tileOffset.x + grid.offsetX;
-        bottom += this._offset!.y - tileOffset.y - grid.offsetY;
+        left += this._offset.x + tileOffset.x + grid.offsetX;
+        bottom += this._offset.y - tileOffset.y - grid.offsetY;
 
         topBorder = -tileOffset.y + grid.tileset._tileSize.height - mapth;
         topBorder = topBorder < 0 ? 0 : topBorder;
@@ -1423,7 +1422,7 @@ export class TiledLayer extends UIRenderer {
         }
 
         // offset (after layer orientation is set);
-        self._offset = new Vec2(layerInfo.offset.x, -layerInfo.offset.y);
+        self._offset.set(layerInfo.offset.x, -layerInfo.offset.y);
         self._useAutomaticVertexZ = false;
         self._vertexZvalue = 0;
         self._syncAnchorPoint();
@@ -1519,6 +1518,7 @@ export class TiledLayer extends UIRenderer {
     }
 
     private fillIndicesBuffer (renderData: RenderData, drawInfo: RenderDrawInfo): void {
+        if (!JSB) return;
         const iBuf = renderData.chunk.meshBuffer.iData;
 
         let indexOffset = renderData.chunk.meshBuffer.indexOffset;
@@ -1539,7 +1539,11 @@ export class TiledLayer extends UIRenderer {
         drawInfo.setIBCount(quadCount * 6);
     }
 
+    /**
+     * @engineInternal
+     */
     public prepareDrawData (): void {
+        if (!JSB) return;
         this._drawInfoList.length = 0;
         const entity = this.renderEntity;
         entity.clearDynamicRenderDrawInfos();
