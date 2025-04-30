@@ -51,6 +51,7 @@ using namespace spine;
 %ignore spine::Polygon::Polygon;
 %ignore spine::Polygon::_vertices;
 
+%ignore cc::SlotCacheInfo;
 %ignore cc::SkeletonRenderer::create;
 %ignore cc::SkeletonRenderer::initWithJsonFile;
 %ignore cc::SkeletonRenderer::initWithBinaryFile;
