@@ -57,12 +57,6 @@ static const std::string TEXTURE_KEY = "texture";
 
 static Cocos2dTextureLoader textureLoader;
 
-#if CC_USE_SPINE_3_8
-static void deleteAttachmentVertices(void *vertices) {
-    delete static_cast<AttachmentVertices *>(vertices);
-}
-#endif
-
 enum DebugType {
     NONE = 0,
     SLOTS,
@@ -181,14 +175,20 @@ SkeletonRenderer::~SkeletonRenderer() {
 
     for (auto iter: _slotTextureSet) {
         auto &info = iter.second;
-        if (info.isOwner && info.attachment) {
-            delete info.attachment;
-            info.attachment = nullptr;
-        }
+        releaseSlotCacheInfo(info);
     }
 
     _entity = nullptr;
     stopSchedule();
+}
+
+void SkeletonRenderer::releaseSlotCacheInfo(SlotCacheInfo &info) {
+    if (info.isOwner && info.attachment) {
+        delete info.attachment;
+        info.attachment = nullptr;
+        delete info.attachmentVertices;
+        info.attachmentVertices = nullptr;
+    }
 }
 
 void SkeletonRenderer::initWithUUID(const std::string &uuid) {
@@ -440,18 +440,22 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
         cc::middleware::Triangles triangles;
         cc::middleware::TwoColorTriangles trianglesTwoColor;
+        attachmentVertices = nullptr;
 
         auto iter = _slotTextureSet.find(slot);
         if (iter != _slotTextureSet.end()) {
             tmpAttachment = iter->second.attachment;
+            attachmentVertices = iter->second.attachmentVertices;
         }
         if (tmpAttachment->getRTTI().isExactly(RegionAttachment::rtti)) {
             auto *attachment = dynamic_cast<RegionAttachment *>(tmpAttachment);
+            if (!attachmentVertices) {
 #if CC_USE_SPINE_3_8
-            attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
+                attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
-            attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+                attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
 #endif
+            }
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -516,11 +520,13 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             }
         } else if (tmpAttachment->getRTTI().isExactly(MeshAttachment::rtti)) {
             auto *attachment = dynamic_cast<MeshAttachment *>(tmpAttachment);
+            if (!attachmentVertices) {
 #if CC_USE_SPINE_3_8
-            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
+                attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
-            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+                attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
 #endif
+            }
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -1130,8 +1136,8 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
 
     if (createAttachment) {
         attachment = attachment->copy();
-        slot->setAttachment(attachment);
     }
+    SlotCacheInfo slotCacheInfo{createAttachment, attachment, nullptr};
     AttachmentVertices *attachmentVertices = nullptr;
     if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
         auto region = static_cast<RegionAttachment *>(attachment);
@@ -1147,7 +1153,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         attachmentVertices = static_cast<AttachmentVertices *>(region->getRendererObject());
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
-            region->setRendererObject(attachmentVertices, deleteAttachmentVertices);
+            slotCacheInfo.attachmentVertices = attachmentVertices;
         }
 #else
         auto *textureRegion = region->getRegion();
@@ -1156,6 +1162,11 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
             textureRegion->height = height;
             textureRegion->originalWidth = width;
             textureRegion->originalHeight = height;
+
+            textureRegion->u = 0;
+            textureRegion->v = 0;
+            textureRegion->u2 = 1.0f;
+            textureRegion->v2 = 1.0f;
         }
         region->setWidth(width);
         region->setHeight(height);
@@ -1172,7 +1183,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         attachmentVertices = static_cast<AttachmentVertices *>(textureRegion->rendererObject);
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
-            textureRegion->rendererObject = attachmentVertices;
+            slotCacheInfo.attachmentVertices = attachmentVertices;
         }
 #endif
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
@@ -1200,7 +1211,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRendererObject());
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
-            mesh->setRendererObject(attachmentVertices, deleteAttachmentVertices);
+            slotCacheInfo.attachmentVertices = attachmentVertices;
         }
 #else
         auto *region = mesh->getRegion();
@@ -1221,7 +1232,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRegion()->rendererObject);
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
-            mesh->getRegion()->rendererObject = attachmentVertices;
+            slotCacheInfo.attachmentVertices = attachmentVertices;
         }
 #endif
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
@@ -1236,29 +1247,19 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
     auto iter = _slotTextureSet.find(slot);
     if (iter != _slotTextureSet.end()) {
         auto info = iter->second;
-        AttachmentVertices *tmpAttachmentVertices = nullptr;
-        auto *cacheAttachment = info.attachment;
-        if (cacheAttachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
-            auto *tmpRegion = static_cast<RegionAttachment *>(cacheAttachment);
-#if CC_USE_SPINE_3_8
-            tmpAttachmentVertices = reinterpret_cast<AttachmentVertices *>(tmpRegion->getRendererObject());
-#else
-            tmpAttachmentVertices = reinterpret_cast<AttachmentVertices *>(tmpRegion->getRegion()->rendererObject);
-#endif
-        } else if (cacheAttachment->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
-            auto *meshAttachment = static_cast<MeshAttachment *>(cacheAttachment);
-#if CC_USE_SPINE_3_8
-            tmpAttachmentVertices = reinterpret_cast<AttachmentVertices *>(meshAttachment->getRendererObject());
-#else
-            tmpAttachmentVertices = reinterpret_cast<AttachmentVertices *>(meshAttachment->getRegion()->rendererObject);
-#endif
-        }
-        auto *realTex2d = tmpAttachmentVertices ? (tmpAttachmentVertices->_texture ? tmpAttachmentVertices->_texture->getRealTexture() : nullptr) : nullptr;
-        if (realTex2d == tex2d) {
-            return;
+        auto *cachedattachmentVertices = info.attachmentVertices;
+        if (cachedattachmentVertices) {
+            auto *realTex2d = cachedattachmentVertices->_texture ? cachedattachmentVertices->_texture->getRealTexture() : nullptr;
+            if (realTex2d == tex2d) {
+                return;
+            }
         }
     }
-    _slotTextureSet[slot] = {createAttachment, attachment};
+    if (_slotTextureSet.find(slot) != _slotTextureSet.end()) {
+        auto &info = _slotTextureSet[slot];
+        releaseSlotCacheInfo(info);
+    }
+    _slotTextureSet[slot] = slotCacheInfo;
     if (!middlewareTexture) {
         middlewareTexture = new middleware::Texture2D();
         middlewareTexture->addRef();

@@ -50,10 +50,13 @@ class Material;
 
 class AttachmentVertices;
 
+namespace {
 struct SlotCacheInfo {
     bool isOwner{false};
-    spine::Attachment* attachment{nullptr};
+    spine::Attachment *attachment{nullptr};
+    AttachmentVertices *attachmentVertices{nullptr};
 };
+} // namespace
 
 /** Draws a skeleton.
      */
@@ -160,6 +163,7 @@ public:
 
 protected:
     void setSkeletonData(spine::SkeletonData *skeletonData, bool ownsSkeletonData);
+    void releaseSlotCacheInfo(SlotCacheInfo &info);
 
     bool _ownsSkeletonData = false;
     bool _ownsSkeleton = false;
