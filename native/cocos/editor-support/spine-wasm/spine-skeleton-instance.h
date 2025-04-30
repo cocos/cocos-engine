@@ -82,6 +82,7 @@ public:
     void dispatchEvents();
 private:
     void collectMeshData();
+    void releaseSlotCacheInfo(SlotCacheInfo &info);
 
 private:
     spine::Skeleton *_skeleton = nullptr;

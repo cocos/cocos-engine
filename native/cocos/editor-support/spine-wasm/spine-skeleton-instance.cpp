@@ -64,11 +64,7 @@ SpineSkeletonInstance::~SpineSkeletonInstance() {
         while (entries.hasNext()) {
             auto entry = entries.next();
             auto info = entry.value;
-            if (info.attachment && info.isOwner) {
-                delete info.attachment;
-                info.attachment = nullptr;
-                delete info.attachmentVertices;
-            }
+            releaseSlotCacheInfo(info);
         }
     }
 }
@@ -645,6 +641,10 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
             vertices[i].texCoord.v = UVs[ii + 1];
         }
     }
+    if (_slotTextureSet.containsKey(slot)) {
+        auto cacheInfo = _slotTextureSet[slot];
+        releaseSlotCacheInfo(cacheInfo);
+    }
     _slotTextureSet.put(slot, info);
     _skeleton->updateCache();
 }
@@ -682,5 +682,14 @@ void SpineSkeletonInstance::dispatchEvents() {
     for (int i = 0; i < vecTrackEvents.size(); i++) {
         auto& info = vecTrackEvents[i];
         onTrackEntryEvent(info.entry, info.eventType, info.event);
+    }
+}
+
+void SpineSkeletonInstance::releaseSlotCacheInfo(SlotCacheInfo &info) {
+    if (info.attachment && info.isOwner) {
+        delete info.attachment;
+        info.attachment = nullptr;
+        delete info.attachmentVertices;
+        info.attachmentVertices = nullptr;
     }
 }
