@@ -79,6 +79,7 @@ export class AudioContextAgent {
                 // TODO: need to reject the error.
                 // eslint-disable-next-line no-console
                 console.error('failed to load Web Audio', err);
+                reject(err);
             });
             promise?.catch(reject);  // Safari doesn't support the promise based decodeAudioData
         });
