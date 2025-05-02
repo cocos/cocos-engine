@@ -81,6 +81,7 @@
     "@cocos/cannon": "1.2.8",
     "@cocos/ccbuild": "^2.3.16",
     "@cocos/dragonbones-js": "^1.0.1",
-    "@types/jest": "^24.9.1"
+    "@types/jest": "^24.9.1",
+    "event-target-shim": "^6.0.2"
   }
 }

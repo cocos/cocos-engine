@@ -180,8 +180,8 @@
                 "USE_XR": true
             }
         },
-        "light-probe": { 
-            "modules": [ "light-probe" ] 
+        "light-probe": {
+            "modules": [ "light-probe" ]
         },
         "terrain": {
             "modules": ["terrain"],
@@ -227,7 +227,7 @@
         },
         "dragon-bones": {
             "modules": ["dragon-bones"],
-            "dependentAssets":[ 
+            "dependentAssets":[
                 "c27215d8-6835-4b68-bfbb-bdeac6100c04",
                 "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
             ],
@@ -261,7 +261,7 @@
         },
         "custom-pipeline-post-process": {
             "modules": ["custom-pipeline-post-process"],
-            "dependentAssets":[ 
+            "dependentAssets":[
                 "15049ccd-4dd7-451e-a8ae-af66735c929e",
                 "521c5f6e-1a26-42e2-8108-4400c912d9bf",
                 "4c3ce6de-e6d1-47f7-aa36-36b9b58f72d3",
@@ -388,7 +388,8 @@
                 "pal/input": "pal/input/web/index.ts",
                 "pal/env": "pal/env/web/env.ts",
                 "pal/pacer": "pal/pacer/pacer-web.ts",
-                "pal/wasm": "pal/wasm/wasm-web.ts"
+                "pal/wasm": "pal/wasm/wasm-web.ts",
+                "pal/websocket": "pal/websocket/raw.ts"
             }
         },
         {
@@ -402,7 +403,8 @@
                 "pal/input": "pal/input/native/index.ts",
                 "pal/env": "pal/env/native/env.ts",
                 "pal/pacer": "pal/pacer/pacer-native.ts",
-                "pal/wasm": "pal/wasm/wasm-native.ts"
+                "pal/wasm": "pal/wasm/wasm-native.ts",
+                "pal/websocket": "pal/websocket/native.ts"
             }
         },
         {
@@ -416,7 +418,8 @@
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/minigame/env.ts",
                 "pal/pacer": "pal/pacer/pacer-minigame.ts",
-                "pal/wasm": "pal/wasm/wasm-minigame.ts"
+                "pal/wasm": "pal/wasm/wasm-minigame.ts",
+                "pal/websocket": "pal/websocket/minigame/websocket.ts"
             }
         },
         {
@@ -430,7 +433,8 @@
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/runtime/env.ts",
                 "pal/pacer": "pal/pacer/pacer-minigame.ts",
-                "pal/wasm": "pal/wasm/wasm-minigame.ts"
+                "pal/wasm": "pal/wasm/wasm-minigame.ts",
+                "pal/websocket": "pal/websocket/raw.ts"
             }
         },
         {
@@ -534,7 +538,7 @@
             "value": false,
             "internal": false,
             "dynamic": false
-        },        
+        },
         "OHOS": {
             "comment": "Running in OHOS platform",
             "type": "boolean",
@@ -749,7 +753,7 @@
         "NATIVE_CODE_BUNDLE_MODE": {
             "comment": "Native code (wasm/asmjs) bundle mode, 0: asmjs, 1: wasm, 2: both",
             "type": "number",
-            "value": 2, 
+            "value": 2,
             "internal": true
         },
         "WASM_SUBPACKAGE": {
@@ -822,7 +826,7 @@
             "rangeMax", "rangeStep", "slide", "displayOrder", "unit", "radian", "multiline", "disallowAnimation",
             "requireComponent", "executionOrder", "disallowMultiple", "allowReplicated", "ccclass"
         ],
-        
+
         "editorDecorators": [
             "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help", "editable", "visible",
             "readOnly", "displayName", "tooltip", "group", "range", "rangeMin", "rangeMax", "rangeStep", "slide",

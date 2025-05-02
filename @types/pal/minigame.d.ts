@@ -57,6 +57,17 @@ declare module 'pal/minigame' {
         offAccelerometerChange(cb?: AccelerometerChangeCallback);
         startAccelerometer(obj: AccelerometerStartParameter);
         stopAccelerometer(obj: AccelerometerStopParameter);
+
+        connectSocket(_: {
+            url: string;
+            multiple?: boolean;
+            header?: Record<string, string>;
+            protocols?: string[];
+            tcpNoDelay?: boolean;
+            perMessageDeflate?: boolean;
+            timeout?: number;
+            forceCellularNetwork?: boolean;
+        }): SocketTask;
     }
 
     interface WeChatAPI {
@@ -247,7 +258,7 @@ declare class InnerAudioContext {
     onWaiting(callback: () => void): any;
     pause(): any;
     play(): any;
-    seek(position:number): any;
+    seek(position: number): any;
     stop(): any;
 }
 
@@ -267,4 +278,30 @@ interface LoadSubpackageTaskOnProgressUpdateListenerResult {
     progress: number;
     totalBytesExpectedToWrite: number;
     totalBytesWritten: number;
+}
+
+declare interface SocketTask {
+    send(_: {
+        data: string | ArrayBuffer;
+    }): void;
+
+    close(_: {
+        code?: number;
+        reason?: string;
+    }): void;
+
+    onOpen(callback: () => void): void;
+
+    onMessage(callback: (res: {
+        data: string | ArrayBuffer;
+    }) => void): void;
+
+    onError(callback: (res: {
+        errMsg: string;
+    }) => void): void;
+
+    onClose(callback: (res: {
+        code: number;
+        reason: string;
+    }) => void): void;
 }
