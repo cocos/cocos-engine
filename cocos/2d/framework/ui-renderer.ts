@@ -385,13 +385,22 @@ export class UIRenderer extends Renderer {
         this._markForUpdateRenderData();
     }
 
+    private _destroyData (): void {
+        this.destroyRenderData();
+        if (this._materials) {
+            for (let i = 0; i < this._materials.length; i++) {
+                this.setSharedMaterial(null, i, true);
+            }
+        }
+    }
+
     public onDisable (): void {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         // When disabling, it is necessary to free up idle space to fully utilize chunks
         // and avoid breaking batch processing.
-        this.destroyRenderData();
+        this._destroyData();
         uiRendererManager.removeRenderer(this);
         this._renderFlag = false;
         this._renderEntity.enabled = false;
@@ -402,13 +411,7 @@ export class UIRenderer extends Renderer {
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }
-        this.destroyRenderData();
-        if (this._materialInstances) {
-            for (let i = 0; i < this._materialInstances.length; i++) {
-                const instance = this._materialInstances[i];
-                if (instance) { instance.destroy(); }
-            }
-        }
+        this._destroyData();
     }
 
     /**
