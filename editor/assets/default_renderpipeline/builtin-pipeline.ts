@@ -188,7 +188,6 @@ function addCopyToScreenPass(
         LoadOp.CLEAR, StoreOp.STORE,
         sClearColorTransparentBlack);
     pass.addTexture(input, 'inputTexture');
-    pass.setVec4('g_platform', pplConfigs.platform);
     pass.addQueue(rendering.QueueHint.OPAQUE)
         .addFullscreenQuad(cameraConfigs.copyAndTonemapMaterial, 1);
     return pass;
@@ -521,6 +520,9 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
         cameraConfigs: CameraConfigs & ForwardPassConfigs,
         camera: renderer.scene.Camera,
         context: PipelineContext): rendering.BasicRenderPassBuilder | undefined {
+        // Add global constants
+        ppl.setVec4('g_platform', pplConfigs.platform);
+
         const id = camera.window.renderWindowId;
 
         const scene = camera.scene!;
@@ -1095,7 +1097,6 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             this._clearColorTransparentBlack,
         );
         prefilterPass.addTexture(radianceName, 'inputTexture');
-        prefilterPass.setVec4('g_platform', pplConfigs.platform);
         prefilterPass.setVec4('bloomParams', this._bloomParams);
         prefilterPass
             .addQueue(QueueHint.OPAQUE)
@@ -1108,7 +1109,6 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             downPass.addTexture(this._bloomTexNames[i - 1], 'bloomTexture');
             this._bloomTexSize.x = this._bloomWidths[i - 1];
             this._bloomTexSize.y = this._bloomHeights[i - 1];
-            downPass.setVec4('g_platform', pplConfigs.platform);
             downPass.setVec4('bloomTexSize', this._bloomTexSize);
             downPass
                 .addQueue(QueueHint.OPAQUE)
@@ -1122,7 +1122,6 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             upPass.addTexture(this._bloomTexNames[i + 1], 'bloomTexture');
             this._bloomTexSize.x = this._bloomWidths[i + 1];
             this._bloomTexSize.y = this._bloomHeights[i + 1];
-            upPass.setVec4('g_platform', pplConfigs.platform);
             upPass.setVec4('bloomTexSize', this._bloomTexSize);
             upPass
                 .addQueue(QueueHint.OPAQUE)
@@ -1133,7 +1132,6 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
         const combinePass = ppl.addRenderPass(width, height, 'cc-bloom-combine');
         combinePass.addRenderTarget(radianceName, LoadOp.LOAD, StoreOp.STORE);
         combinePass.addTexture(this._bloomTexNames[0], 'bloomTexture');
-        combinePass.setVec4('g_platform', pplConfigs.platform);
         combinePass.setVec4('bloomParams', this._bloomParams);
         combinePass
             .addQueue(QueueHint.BLEND)
@@ -1256,7 +1254,6 @@ export class BuiltinToneMappingPassBuilder implements rendering.PipelinePassBuil
             }
             pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, sClearColorTransparentBlack);
             pass.addTexture(radianceName, 'sceneColorMap');
-            pass.setVec4('g_platform', pplConfigs.platform);
             pass.setVec2('lutTextureSize', this._colorGradingTexSize);
             pass.setFloat('contribute', settings.colorGrading.contribute);
             pass.addQueue(rendering.QueueHint.OPAQUE)
@@ -1265,7 +1262,6 @@ export class BuiltinToneMappingPassBuilder implements rendering.PipelinePassBuil
             pass = ppl.addRenderPass(width, height, 'cc-tone-mapping');
             pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, sClearColorTransparentBlack);
             pass.addTexture(radianceName, 'inputTexture');
-            pass.setVec4('g_platform', pplConfigs.platform);
             if (settings.toneMapping.material) {
                 pass.addQueue(rendering.QueueHint.OPAQUE)
                     .addFullscreenQuad(settings.toneMapping.material, 0);
@@ -1371,7 +1367,6 @@ export class BuiltinFXAAPassBuilder implements rendering.PipelinePassBuilder {
         const pass = ppl.addRenderPass(width, height, 'cc-fxaa');
         pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, sClearColorTransparentBlack);
         pass.addTexture(ldrColorName, 'sceneColorMap');
-        pass.setVec4('g_platform', pplConfigs.platform);
         pass.setVec4('texSize', this._fxaaParams);
         pass.addQueue(rendering.QueueHint.OPAQUE)
             .addFullscreenQuad(fxaaMaterial, 0);
@@ -1465,7 +1460,6 @@ export class BuiltinFsrPassBuilder implements rendering.PipelinePassBuilder {
         const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'cc-fsr-easu');
         easuPass.addRenderTarget(fsrColorName, LoadOp.CLEAR, StoreOp.STORE, sClearColorTransparentBlack);
         easuPass.addTexture(inputColorName, 'outputResultMap');
-        easuPass.setVec4('g_platform', pplConfigs.platform);
         easuPass.setVec4('fsrTexSize', this._fsrTexSize);
         easuPass
             .addQueue(rendering.QueueHint.OPAQUE)
@@ -1474,7 +1468,6 @@ export class BuiltinFsrPassBuilder implements rendering.PipelinePassBuilder {
         const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'cc-fsr-rcas');
         rcasPass.addRenderTarget(outputColorName, LoadOp.CLEAR, StoreOp.STORE, sClearColorTransparentBlack);
         rcasPass.addTexture(fsrColorName, 'outputResultMap');
-        rcasPass.setVec4('g_platform', pplConfigs.platform);
         rcasPass.setVec4('fsrTexSize', this._fsrTexSize);
         rcasPass.setVec4('fsrParams', this._fsrParams);
         rcasPass
@@ -1718,6 +1711,7 @@ if (rendering) {
             if (this._initMaterials(ppl)) {
                 return;
             }
+
             // Render cameras
             // log(`==================== One Frame ====================`);
             for (const camera of cameras) {
