@@ -55,7 +55,14 @@ public:
             for (int i = 0; i < size; i++) {
                 auto *region = regions[i];
                 if (region->rendererObject) {
-                    delete static_cast<AttachmentVertices *>(region->rendererObject);
+                    auto *map = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(region->rendererObject);
+                    auto entries = map->getEntries();
+                    while (entries.hasNext()) {
+                        auto entry = entries.next();
+                        auto *attachmentVertices = entry.value;
+                        delete attachmentVertices;
+                    }
+                    delete map;
                     region->rendererObject = nullptr;
                 }
             }

@@ -453,7 +453,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 #if CC_USE_SPINE_3_8
                 attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
-                attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+                auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(attachment->getRegion()->rendererObject);
+                attachmentVertices = (*tmpMap)[attachment];
 #endif
             }
 
@@ -524,7 +525,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 #if CC_USE_SPINE_3_8
                 attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
-                attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+                auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(attachment->getRegion()->rendererObject);
+                attachmentVertices = (*tmpMap)[attachment];
 #endif
             }
 
@@ -536,6 +538,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
             if (!_useTint) {
                 triangles.vertCount = attachmentVertices->_triangles->vertCount;
+                int count = attachment->getWorldVerticesLength() / 2;
+                if (count != triangles.vertCount && count == 70) {
+                    int a = 0;
+                    CC_LOG_INFO("bf test traverse attachment=%p attachmentVertices=%p region=%p", attachment, attachment->getRegion()->rendererObject, attachment->getRegion());
+                }
                 vbSize = triangles.vertCount * sizeof(V3F_T2F_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
                 triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
@@ -1180,7 +1187,8 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         uvs[0] = 1;
         uvs[1] = 1;
         region->updateRegion();
-        attachmentVertices = static_cast<AttachmentVertices *>(textureRegion->rendererObject);
+        auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(textureRegion->rendererObject);
+        attachmentVertices = (*tmpMap)[slot->getAttachment()];
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
             slotCacheInfo.attachmentVertices = attachmentVertices;
@@ -1229,7 +1237,8 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         mesh->setWidth(width);
         mesh->setHeight(height);
         mesh->updateRegion();
-        attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRegion()->rendererObject);
+        auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(mesh->getRegion()->rendererObject);
+        attachmentVertices = (*tmpMap)[slot->getAttachment()];
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
             slotCacheInfo.attachmentVertices = attachmentVertices;

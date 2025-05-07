@@ -209,7 +209,8 @@ void SpineSkeletonInstance::collectMeshData() {
 #ifdef CC_SPINE_VERSION_3_8
                 attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
-                attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+                auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(attachment->getRegion()->rendererObject);
+                attachmentVertices = (*tmpMap)[slot->getAttachment()];
 #endif
             }
 
@@ -251,7 +252,8 @@ void SpineSkeletonInstance::collectMeshData() {
 #ifdef CC_SPINE_VERSION_3_8
                 attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
 #else
-                attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRegion()->rendererObject);
+                auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(attachment->getRegion()->rendererObject);
+                attachmentVertices = (*tmpMap)[slot->getAttachment()];
 #endif
             }
 
@@ -579,7 +581,8 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         uvs[0] = 1;
         uvs[1] = 1;
         region->updateRegion();
-        auto *attachmentVertices = static_cast<AttachmentVertices *>(region->getRegion()->rendererObject);
+        auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(textureRegion->rendererObject);
+        auto *attachmentVertices = (*tmpMap)[slot->getAttachment()];
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
             info.attachmentVertices = attachmentVertices;
@@ -628,7 +631,8 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         mesh->setWidth(width);
         mesh->setHeight(height);
         mesh->updateRegion();
-        auto *attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRegion()->rendererObject);
+        auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(mesh->getRegion()->rendererObject);
+        auto *attachmentVertices = (*tmpMap)[slot->getAttachment()];
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
             info.attachmentVertices = attachmentVertices;

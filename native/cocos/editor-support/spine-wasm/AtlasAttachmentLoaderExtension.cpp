@@ -41,6 +41,20 @@ AttachmentVertices *AttachmentVertices::copy() {
 static void deleteAttachmentVertices(void *vertices) {
     delete static_cast<AttachmentVertices *>(vertices);
 }
+#else
+/**
+* The relationship between ​​AtlasRegion​​ and ​​AttachmentVertices​​ is ​​one-to-many​​.
+*/
+static void saveAttachmentVertices(Attachment *attachment, AtlasRegion *region, AttachmentVertices *attachmentVertices) {
+    spine::HashMap<Attachment *, AttachmentVertices *> *map = nullptr;
+    if (region->rendererObject && region->rendererObject != region->page->texture) {
+        map = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(region->rendererObject);
+    } else {
+        map = new spine::HashMap<Attachment *, AttachmentVertices *>();
+        region->rendererObject = map;
+    }
+    map->put(attachment, attachmentVertices);
+}
 #endif
 
 AtlasAttachmentLoaderExtension::AtlasAttachmentLoaderExtension(Atlas *atlas) : AtlasAttachmentLoader(atlas), _atlasCache(atlas) {
@@ -67,7 +81,7 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
 #ifdef CC_SPINE_VERSION_3_8
         regionAttachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
 #else
-        regionAttachment->getRegion()->rendererObject = attachmentVertices;
+        saveAttachmentVertices(attachment, region, attachmentVertices);
 #endif
     } else if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
         auto *meshAttachment = static_cast<MeshAttachment *>(attachment);
@@ -88,7 +102,7 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
 #ifdef CC_SPINE_VERSION_3_8
         meshAttachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
 #else
-        meshAttachment->getRegion()->rendererObject = attachmentVertices;
+        saveAttachmentVertices(attachment, region, attachmentVertices);
 #endif
     } else {
         wasmLog(attachment->getName().buffer());

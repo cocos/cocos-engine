@@ -48,21 +48,24 @@ void updateAttachmentVerticesTextureId(SkeletonData* skeletonData, const spine::
         auto entries = skin->getAttachments();
         while (entries.hasNext()) {
             Skin::AttachmentMap::Entry& entry = entries.next();
-            AttachmentVertices* attachmentVertices;
+            AttachmentVertices* attachmentVertices = nullptr;
             auto* attachment = entry._attachment;
+            spine::HashMap<Attachment *, AttachmentVertices *> *map = nullptr;
             if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
                 auto* meshAttachment = static_cast<MeshAttachment*>(attachment);
 #ifdef CC_SPINE_VERSION_3_8
                 attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRendererObject());
 #else
-                attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRegion()->rendererObject);
+                map = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(meshAttachment->getRegion()->rendererObject);
+                attachmentVertices = (*map)[attachment];
 #endif
             } else if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
                 auto* regionAttachment = static_cast<RegionAttachment*>(attachment);
 #ifdef CC_SPINE_VERSION_3_8
                 attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRendererObject());
 #else
-                attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRegion()->rendererObject);
+                map = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(regionAttachment->getRegion()->rendererObject);
+                attachmentVertices = (*map)[attachment];
 #endif
             }
             if (attachmentVertices) {
@@ -184,17 +187,25 @@ void SpineWasmUtil::destroySpineSkeletonDataWithUUID(const String& uuid) {
             auto entries = skin->getAttachments();
             while (entries.hasNext()) {
                 Skin::AttachmentMap::Entry& entry = entries.next();
-                AttachmentVertices* attachmentVertices;
                 auto* attachment = entry._attachment;
+                spine::HashMap<Attachment *, AttachmentVertices *> *map = nullptr;
                 if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
                     auto* meshAttachment = static_cast<MeshAttachment*>(attachment);
-                    attachmentVertices = static_cast<AttachmentVertices*>(meshAttachment->getRegion()->rendererObject);
+                    map = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(meshAttachment->getRegion()->rendererObject);
+                    meshAttachment->getRegion()->rendererObject = nullptr;
                 } else if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
                     auto* regionAttachment = static_cast<RegionAttachment*>(attachment);
-                    attachmentVertices = static_cast<AttachmentVertices*>(regionAttachment->getRegion()->rendererObject);
+                    map = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(regionAttachment->getRegion()->rendererObject);
+                    regionAttachment->getRegion()->rendererObject = nullptr;
                 }
-                if (attachmentVertices) {
-                    delete attachmentVertices;
+                if (map) {
+                    auto attachmentVerticesEntries = map->getEntries();
+                    while (attachmentVerticesEntries.hasNext()) {
+                        auto entryTmp = attachmentVerticesEntries.next();
+                        auto *attachmentVertices = entryTmp.value;
+                        delete attachmentVertices;
+                    }
+                    delete map;
                 }
             }
         }

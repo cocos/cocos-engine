@@ -49,11 +49,29 @@ USING_NS_MW;           // NOLINT(google-build-using-namespace)
 using namespace cc;    // NOLINT(google-build-using-namespace)
 using namespace spine; // NOLINT(google-build-using-namespace)
 
+#if CC_USE_SPINE_3_8
 static void deleteAttachmentVertices(void *vertices) {
     delete static_cast<AttachmentVertices *>(vertices);
 }
+#endif
 
 static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
+
+#if CC_USE_SPINE_4_2
+/**
+* The relationship between ​​AtlasRegion​​ and ​​AttachmentVertices​​ is ​​one-to-many​​.
+*/
+static void saveAttachmentVertices(Attachment *attachment, AtlasRegion *region, AttachmentVertices *attachmentVertices) {
+    spine::HashMap<Attachment *, AttachmentVertices *> *map = nullptr;
+    if (region->rendererObject && region->rendererObject != region->page->texture) {
+        map = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(region->rendererObject);
+    } else {
+        map = new spine::HashMap<Attachment *, AttachmentVertices *>();
+        region->rendererObject = map;
+    }
+    map->put(attachment, attachmentVertices);
+}
+#endif
 
 static void setAttachmentVertices(RegionAttachment *attachment) {
 #if CC_USE_SPINE_3_8
@@ -71,7 +89,7 @@ static void setAttachmentVertices(RegionAttachment *attachment) {
 #if CC_USE_SPINE_3_8
     attachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
 #else
-    attachment->getRegion()->rendererObject = attachmentVertices;
+   saveAttachmentVertices(attachment, region, attachmentVertices);
 #endif
 }
 
@@ -93,7 +111,7 @@ static void setAttachmentVertices(MeshAttachment *attachment) {
 #if CC_USE_SPINE_3_8
     attachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
 #else
-    attachment->getRegion()->rendererObject = attachmentVertices;
+    saveAttachmentVertices(attachment, region, attachmentVertices);
 #endif
 }
 
