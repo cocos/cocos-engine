@@ -787,6 +787,9 @@ let ScrollView = cc.Class({
         }
         if(CC_JSB || CC_RUNTIME) {
             wheelPrecision = -7;
+            if(cc.sys.os === cc.sys.OS_OPENHARMONY){
+                wheelPrecision = -1;
+            }
         }
         if(this.vertical) {
             deltaMove = cc.v2(0, event.getScrollY() * wheelPrecision);

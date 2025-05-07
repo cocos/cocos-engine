@@ -799,6 +799,7 @@ function initSys () {
 
         if (sys.isMobile) {
             capabilities["accelerometer"] = true;
+            capabilities["mouse"] = platform === sys.OPENHARMONY;
         } else {
             // desktop
             capabilities["keyboard"] = true;

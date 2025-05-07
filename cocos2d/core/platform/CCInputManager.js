@@ -465,7 +465,7 @@ let inputManager = {
 
         window.addEventListener('resize', this._updateCanvasBoundingRect.bind(this));
 
-        let prohibition = sys.isMobile;
+        let prohibition = sys.platform != sys.OPENHARMONY && sys.isMobile;
         let supportMouse = ('mouse' in sys.capabilities);
         let supportTouches = ('touches' in sys.capabilities);
 
