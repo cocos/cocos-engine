@@ -538,11 +538,6 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
             if (!_useTint) {
                 triangles.vertCount = attachmentVertices->_triangles->vertCount;
-                int count = attachment->getWorldVerticesLength() / 2;
-                if (count != triangles.vertCount && count == 70) {
-                    int a = 0;
-                    CC_LOG_INFO("bf test traverse attachment=%p attachmentVertices=%p region=%p", attachment, attachment->getRegion()->rendererObject, attachment->getRegion());
-                }
                 vbSize = triangles.vertCount * sizeof(V3F_T2F_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
                 triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
