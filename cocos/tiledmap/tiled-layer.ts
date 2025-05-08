@@ -1520,11 +1520,10 @@ export class TiledLayer extends UIRenderer {
 
     private fillIndicesBuffer (renderData: RenderData, drawInfo: RenderDrawInfo): void {
         const iBuf = renderData.chunk.meshBuffer.iData;
-
-        let indexOffset = renderData.chunk.meshBuffer.indexOffset;
-        drawInfo.setIndexOffset(indexOffset);
         let vertexId = renderData.chunk.vertexOffset;
         const quadCount = renderData.vertexCount / 4;
+        let indexOffset = (vertexId / 4) * 6;
+        drawInfo.setIndexOffset(indexOffset);
         for (let i = 0; i < quadCount; i += 1) {
             iBuf[indexOffset] = vertexId;
             iBuf[indexOffset + 1] = vertexId + 1;

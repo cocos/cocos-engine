@@ -74,9 +74,6 @@ class Simple implements IAssembler {
             const batcher = director.root!.batcher2D;
             _accessor = new StaticVBAccessor(device, vfmtPosUvColor);
             //batcher.registerBufferAccessor(Number.parseInt('TILED-MAP', 36), _accessor);
-            director.on(DirectorEvent.BEFORE_DRAW, () => {
-                _accessor.reset();
-            });
         }
     }
 
