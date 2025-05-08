@@ -592,6 +592,7 @@ export class Button extends Component {
         }
 
         this._applyTarget();
+        this._updateState();
         this._resetState();
     }
 
