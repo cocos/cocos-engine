@@ -1144,8 +1144,25 @@ struct RenderGraphContextCleaner {
       prevFenceValue(context.nextFenceValue) {
         ++context.nextFenceValue;
         context.clearPreviousResources(prevFenceValue);
-        context.renderSceneResources.clear();
         context.sceneCulling.clear();
+
+        // Clear the resource graph index
+        // Notice: we do not call `nativeContext.resourceGraphIndex.clear()`.
+        // Avoid memory allocation.
+        for (auto& [_, index] : context.resourceGraphIndex) {
+            index.clear();
+        }
+
+        // Notice: we do not call `nativeContext.graphNodeRenderData.clear()`.
+        // Avoid memory allocation.
+        // TODO(zhouzhenglong): we should use a pool allocator for this map.
+        for (auto& [_, data] : context.graphNodeRenderData) {
+            data.clear();
+            CC_ENSURES(data.hasNoData());
+        }
+
+        // Clear the descriptor sets
+        context.graphNodeDescriptorSets.clear();
     }
     RenderGraphContextCleaner(const RenderGraphContextCleaner&) = delete;
     RenderGraphContextCleaner& operator=(const RenderGraphContextCleaner&) = delete;
@@ -1282,16 +1299,6 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             ppl.pipelineSceneData->getShadows());
     }
 
-    // gpu driven
-    if constexpr (ENABLE_GPU_DRIVEN) {
-        // TODO(jilin): consider populating renderSceneResources here
-        const scene::RenderScene* const ptr = nullptr;
-        auto& sceneResource = ppl.nativeContext.renderSceneResources[ptr];
-        const auto& nameID = lg.attributeIndex.find("cc_xxxDescriptor")->second;
-        sceneResource.resourceIndex.emplace(nameID, ResourceType::STORAGE_BUFFER);
-        sceneResource.storageBuffers.emplace(nameID, nullptr);
-    }
-
     // Execute all valid passes
     {
         boost::filtered_graph<
@@ -1325,30 +1332,6 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
 #endif
         }
 
-        ccstd::pmr::unordered_map<
-            RenderGraph::vertex_descriptor,
-            PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>>
-            perPassResourceIndex(scratch);
-
-        ccstd::pmr::unordered_map<
-            RenderGraph::vertex_descriptor,
-            std::tuple<gfx::DescriptorSet*, gfx::DescriptorSet*>>
-            renderGraphDescriptorSet(scratch);
-
-        ccstd::pmr::unordered_map<
-            RenderGraph::vertex_descriptor, gfx::DescriptorSet*>
-            uiDescriptorSet(scratch);
-
-        ccstd::pmr::unordered_map<
-            RenderGraph::vertex_descriptor,
-            gfx::DescriptorSet*>
-            profilerPerPassDescriptorSets(scratch);
-
-        ccstd::pmr::unordered_map<
-            RenderGraph::vertex_descriptor,
-            gfx::DescriptorSet*>
-            perInstanceDescriptorSets(scratch);
-
         ccstd::pmr::vector<ccstd::optional<gfx::Viewport>> viewportStack(scratch);
         viewportStack.reserve(4);
 
@@ -1360,11 +1343,6 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             validPasses,
             ppl.device, submit.primaryCommandBuffer,
             &ppl,
-            perPassResourceIndex,
-            renderGraphDescriptorSet,
-            uiDescriptorSet,
-            profilerPerPassDescriptorSets,
-            perInstanceDescriptorSets,
             programLibrary,
             viewportStack,
             CustomRenderGraphContext{
@@ -1374,26 +1352,6 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
                 submit.primaryCommandBuffer,
             },
             scratch};
-
-        {
-            // Clear the resource graph index
-            // Notice: we do not call `nativeContext.resourceGraphIndex.clear()`.
-            // Avoid memory allocation.
-            for (auto& [_, index] : nativeContext.resourceGraphIndex) {
-                index.clear();
-            }
-
-            // Notice: we do not call `nativeContext.graphNodeRenderData.clear()`.
-            // Avoid memory allocation.
-            // TODO(zhouzhenglong): we should use a pool allocator for this map.
-            for (auto& [_, data] : nativeContext.graphNodeRenderData) {
-                data.clear();
-                CC_ENSURES(data.hasNoData());
-            }
-
-            // Clear the descriptor sets
-            ppl.nativeContext.graphNodeDescriptorSets.clear();
-        }
 
         RenderGraphVisitor visitor{{}, ctx};
         auto colors = rg.colors(scratch);
