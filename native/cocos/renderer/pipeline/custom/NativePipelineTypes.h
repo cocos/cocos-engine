@@ -1709,8 +1709,6 @@ public:
 
     void setCustomContext(std::string_view name);
 
-    static void prepareDescriptors(RenderGraphVisitorContext& ctx, RenderGraph::vertex_descriptor passID);
-
     void prepareDescriptorSets(gfx::CommandBuffer& cmdBuff, const FrameGraphDispatcher& rdg, RenderGraph::vertex_descriptor passID);
 
 private:
