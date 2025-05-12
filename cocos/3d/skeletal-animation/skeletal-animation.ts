@@ -375,10 +375,10 @@ export class SkeletalAnimation extends Animation {
         this._setSkeletonTransformEnabled(!useBakedEffectively);
     }
 
-    private _setSkeletonTransformEnabled (valid: boolean): void {
+    private _setSkeletonTransformEnabled (enabled: boolean): void {
         this.node.children.forEach((child) => {
             if (!this._sockets.find((socket) => socket.target === child)) {
-                child.isSkipTransformUpdate = !valid;
+                child.isSkipTransformUpdate = !enabled;
             }
         });
     }
