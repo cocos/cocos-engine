@@ -58,6 +58,8 @@ export enum CCObjectFlags {
     IsSizeLocked = 1 << 20,
     IsPositionLocked = 1 << 21,
 
+    IsSkipTransformUpdate = 1 << 22,
+
     // var Hide = HideInGame | HideInEditor,
     // should not clone or serialize these flags
     PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating
@@ -277,6 +279,24 @@ class CCObject implements EditorExtendableObject {
      */
     get isValid (): boolean {
         return !(this._objFlags & CCObjectFlags.Destroyed);
+    }
+
+    /**
+     * @engineInternal
+     */
+    set isSkipTransformUpdate (skip: boolean) {
+        if (skip) {
+            this._objFlags |= CCObjectFlags.IsSkipTransformUpdate;
+        } else {
+            this._objFlags &= ~CCObjectFlags.IsSkipTransformUpdate;
+        }
+    }
+
+    /**
+     * @engineInternal
+     */
+    get isSkipTransformUpdate (): boolean {
+        return (this._objFlags & CCObjectFlags.IsSkipTransformUpdate) !== 0;
     }
 
     /**

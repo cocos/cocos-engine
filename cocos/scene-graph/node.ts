@@ -2290,7 +2290,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         while (i >= 0) {
             cur = dirtyNodes[i--];
             hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+            if (cur.isValid && !cur.isSkipTransformUpdate && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._transformFlags |= dirtyBit;
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
