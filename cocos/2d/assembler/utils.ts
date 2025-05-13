@@ -80,7 +80,7 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
 
 export function updateOpacity (renderData: RenderData, opacity: number): void {
     if(!renderData.chunk) {
-        // When the allocation of StaticVBAccessor fails (when the allocated buffer is too large), chunk will be null.
+        // When the allocation of chunk in StaticVBAccessor fails (when the allocated buffer is too large), chunk will be null.
         return;
     }
     const vfmt = renderData.vertexFormat;
