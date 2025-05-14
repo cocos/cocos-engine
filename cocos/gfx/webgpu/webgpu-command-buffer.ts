@@ -620,7 +620,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         for (let i = 0; i < groupSets.length; i++) {
             const currSetIdx = groupSets[i];
             const currDesc = descriptorSets[currSetIdx];
-            if (currDesc) {
+            if (currDesc && currDesc.gpuDescriptorSet) {
                 currDesc.prepare();
             } else {
                 const currLayout = wgpuPipLayout.setLayouts[currSetIdx];
