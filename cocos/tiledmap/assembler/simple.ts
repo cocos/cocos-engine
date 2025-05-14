@@ -69,7 +69,7 @@ let _accessor: StaticVBAccessor = null!;
  */
 class Simple implements IAssembler {
     private ensureAccessor (): void {
-        if (!_accessor) {
+        if (JSB && !_accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
             _accessor = new StaticVBAccessor(device, vfmtPosUvColor);
