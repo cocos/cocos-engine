@@ -602,7 +602,7 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
     auto curDirtyBit{static_cast<uint32_t>(dirtyBit)};
     const uint32_t hasChangedFlags = getChangedFlags();
     const uint32_t transformFlags = _transformFlags;
-    if (isValid() && (transformFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
+    if (isValid() && !getIsSkipTransformUpdate() && (transformFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
         _transformFlags = (transformFlags | curDirtyBit);
         setChangedFlags(hasChangedFlags | curDirtyBit);
 

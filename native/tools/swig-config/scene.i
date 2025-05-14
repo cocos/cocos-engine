@@ -324,6 +324,7 @@ using namespace cc;
 %attribute(cc::Node, uint32_t, flagChangedVersion, getFlagChangedVersion);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
 %attribute(cc::Node, cc::MobilityMode, mobility, getMobility, setMobility);
+%attribute(cc::Node, bool, isSkipTransformUpdate, getIsSkipTransformUpdate, setIsSkipTransformUpdate);
 
 %attribute(cc::scene::Ambient, cc::Vec4&, skyColor, getSkyColor, setSkyColor);
 %attribute(cc::scene::Ambient, float, skyIllum, getSkyIllum, setSkyIllum);

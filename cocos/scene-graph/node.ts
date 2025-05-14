@@ -2988,6 +2988,24 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     _getUITransformComp (): UITransform | null {
         return this._uiProps.uiTransformComp;
     }
+
+    /**
+     * @engineInternal
+     */
+    set isSkipTransformUpdate (skip: boolean) {
+        if (skip) {
+            this._objFlags |= CCObjectFlags.IsSkipTransformUpdate;
+        } else {
+            this._objFlags &= ~CCObjectFlags.IsSkipTransformUpdate;
+        }
+    }
+
+    /**
+     * @engineInternal
+     */
+    get isSkipTransformUpdate (): boolean {
+        return (this._objFlags & CCObjectFlags.IsSkipTransformUpdate) !== 0;
+    }
 }
 
 nodePolyfill(Node);

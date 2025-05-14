@@ -613,6 +613,17 @@ public:
     bool onPreDestroy() override;
     bool onPreDestroyBase();
 
+    inline void setIsSkipTransformUpdate(bool skip) {
+        if (skip) {
+            _objFlags |= Flags::IS_SKIP_TRANSFORM_UPDATA;
+        } else {
+            _objFlags &= ~Flags::IS_SKIP_TRANSFORM_UPDATA;
+        }
+    }
+    inline bool getIsSkipTransformUpdate() {
+        return static_cast<FlagBits>(_objFlags & Flags::IS_SKIP_TRANSFORM_UPDATA) > 0;
+    }
+
 private:
     static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
 
