@@ -27,6 +27,7 @@
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component, Node } from '../scene-graph';
@@ -47,7 +48,6 @@ import { Texture2D } from '../asset/assets';
 import { director } from '../game';
 import { Camera } from '../render-scene/scene';
 import { View } from '../ui/view';
-import { screenAdapter } from 'pal/screen-adapter';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -459,7 +459,6 @@ export class TiledLayer extends UIRenderer {
         this.node.parent!.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         View.instance.on('canvas-resize', this._resize);
         screenAdapter.on('window-resize', this._resize);
-        
         this._markForUpdateRenderData();
         // delay 1 frame, since camera's matrix data is dirty
         this.scheduleOnce(this.updateCulling.bind(this));
