@@ -1157,6 +1157,34 @@ class DeviceRenderScene implements RecordingInterface {
         }
     }
 
+    protected _record3D (): void {
+        const blit = this._blit!;
+        const device = context.device;
+        const cmdBuff = context.commandBuffer;
+        for (const model of blit.models) {
+            for (const subModel of model.subModels) {
+                const inputAssembler = subModel.inputAssembler;
+                const passCount = subModel.passes.length;
+                for (let passId = 0; passId < passCount; ++passId) {
+                    const pass = subModel.passes[passId];
+                    const shader = subModel.shaders[passId];
+                    const pso = PipelineStateManager.getOrCreatePipelineState(
+                        device,
+                        pass,
+                        shader,
+                        this._renderPass,
+                        inputAssembler,
+                    );
+                    cmdBuff.bindPipelineState(pso);
+                    cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
+                    cmdBuff.bindInputAssembler(inputAssembler);
+                    cmdBuff.draw(inputAssembler);
+                }
+            }
+        }
+    }
+
     protected _recordUI (): void {
         const batches = this.camera!.scene!.batches;
         for (let i = 0; i < batches.length; i++) {
@@ -1277,6 +1305,9 @@ class DeviceRenderScene implements RecordingInterface {
                 break;
             case BlitType.DRAW_PROFILE:
                 this._showProfiler();
+                break;
+            case BlitType.DRAW_3D:
+                this._record3D();
                 break;
             default:
                 break;
