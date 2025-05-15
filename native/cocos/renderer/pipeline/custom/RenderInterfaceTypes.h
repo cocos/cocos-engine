@@ -616,15 +616,15 @@ public:
     /**
      * @beta Feature is under development
      */
-    virtual void addDraw3d(const scene::Camera *camera, const std::vector<scene::Model*> &models) = 0;
+    virtual void addDraw3D(const scene::Camera *camera, const std::vector<scene::Model*> &models, SceneFlags sceneFlags) = 0;
     /**
      * @beta Feature is under development
      */
-    virtual void addDraw2d(const scene::Camera *camera) = 0;
+    virtual void addDraw2D(const scene::Camera *camera) = 0;
     /**
      * @beta Feature is under development
      */
-    virtual void addDrawProfiler(const scene::Camera *camera) = 0;
+    virtual void addProfiler(const scene::Camera *camera) = 0;
     /**
      * @en Clear current render target.
      * @zh 清除当前渲染目标
@@ -656,6 +656,9 @@ public:
     }
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID) {
         addCameraQuad(camera, material, passID, SceneFlags::NONE);
+    }
+    void addDraw3D(const scene::Camera *camera, const std::vector<scene::Model*> &models) {
+        addDraw3D(camera, models, SceneFlags::NON_BUILTIN);
     }
     void clearRenderTarget(const ccstd::string &name) {
         clearRenderTarget(name, {});

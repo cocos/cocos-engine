@@ -434,10 +434,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             setShadowUBOView(this, camera, layoutName);
         }
     }
-    addDraw3d (camera: Camera, models: Model[]): void {
-
+    addDraw3D (camera: Camera, models: Model[], sceneFlags = SceneFlags.NON_BUILTIN): void {
     }
-    addDraw2d (camera: Camera): void {
+    addDraw2D (camera: Camera): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit,
             renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_2D),
@@ -448,7 +447,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             this._vertID,
         );
     }
-    addDrawProfiler (camera: Camera): void {
+    addProfiler (camera: Camera): void {
     }
     clearRenderTarget (name: string, color: Color = new Color()): void {
         const clearView = renderGraphPool.createClearView(name, ClearFlagBit.COLOR);

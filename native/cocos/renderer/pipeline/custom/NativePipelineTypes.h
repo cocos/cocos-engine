@@ -279,9 +279,9 @@ public:
     SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light, scene::RenderScene *scene) override;
     void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) override;
-    void addDraw3d(const scene::Camera *camera, const std::vector<scene::Model*> &models) override;
-    void addDraw2d(const scene::Camera *camera) override;
-    void addDrawProfiler(const scene::Camera *camera) override;
+    void addDraw3D(const scene::Camera *camera, const std::vector<scene::Model*> &models, SceneFlags sceneFlags) override;
+    void addDraw2D(const scene::Camera *camera) override;
+    void addProfiler(const scene::Camera *camera) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void addCustomCommand(std::string_view customBehavior) override;

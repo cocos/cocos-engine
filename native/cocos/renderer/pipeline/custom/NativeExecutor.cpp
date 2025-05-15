@@ -678,7 +678,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& queueDesc = ctx.context.sceneCulling.renderQueueQueryIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
 
-        queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0, sceneData.flags);
+        queue.recordCommands(
+            ctx.cmdBuff, ctx.currentPass, ctx.subpassIndex, sceneData.flags);
 
 #if CC_USE_GEOMETRY_RENDERER
         if (any(sceneData.flags & SceneFlags::GEOMETRY) &&
@@ -690,6 +691,34 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
         if (any(sceneData.flags & SceneFlags::REFLECTION_PROBE)) {
             queue.probeQueue.removeMacro();
+        }
+    }
+
+    void draw3D(const Blit& blit) const {
+        if (blit.models.empty()) {
+            return;
+        }
+        auto* cmdBuff = ctx.cmdBuff;
+        auto* renderPass = ctx.currentPass;
+        const auto subpassIndex = ctx.subpassIndex;
+
+        for (const auto& model : blit.models) {
+            for (const auto& subModel : model->getSubModels()) {
+                auto* inputAssembler = subModel->getInputAssembler();
+                const auto& passes = *(subModel->getPasses());
+                for (uint32_t passIdx = 0; passIdx < passes.size(); ++passIdx) {
+                    const auto& pass = passes[passIdx];
+                    auto* shader = subModel->getShader(passIdx);
+                    auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+                        pass, shader, inputAssembler, renderPass, subpassIndex);
+
+                    cmdBuff->bindPipelineState(pso);
+                    cmdBuff->bindDescriptorSet(pipeline::materialSet, pass->getDescriptorSet());
+                    cmdBuff->bindDescriptorSet(pipeline::localSet, subModel->getDescriptorSet());
+                    cmdBuff->bindInputAssembler(inputAssembler);
+                    cmdBuff->draw(inputAssembler);
+                }
+            }
         }
     }
 
@@ -757,6 +786,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 break;
             case BlitType::DRAW_PROFILE:
                 submitProfilerCommands(ctx, vertID);
+                break;
+            case BlitType::DRAW_3D:
+                draw3D(blit);
                 break;
             default:
                 CC_EXPECTS(false);

@@ -37,7 +37,7 @@ import type { CopyPair, MovePair, ResolvePair, UploadPair } from './types';
 import { AccessType, AttachmentType, ClearValueType, LightInfo, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, RenderCommonObjectPool } from './types';
 import type { RenderScene } from '../../render-scene/core/render-scene';
 import type { RenderWindow } from '../../render-scene/core/render-window';
-import type { Light } from '../../render-scene/scene';
+import type { Light, Model } from '../../render-scene/scene';
 import { RecyclePool } from '../../core/memop';
 
 function resetColor (v: Color): void {
@@ -1113,12 +1113,14 @@ export class Blit {
         this.sceneFlags = sceneFlags;
         this.camera = camera;
         this.blitType = blitType;
+        this.models.length = 0;
     }
     declare /*refcount*/ material: Material | null;
     declare passID: number;
     declare sceneFlags: SceneFlags;
     declare /*pointer*/ camera: Camera | null;
     declare blitType: BlitType;
+    readonly models: Model[] = [];
 }
 
 export class RenderData {

@@ -815,6 +815,57 @@ void NativeSceneBuilder::useLightFrustum(
     }
 }
 
+namespace {
+
+void setupLegacyUniforms(
+    NativeSetter &setter,
+    const PipelineRuntime &pipelineRuntime,
+    const LayoutGraphData &layoutGraph,
+    const scene::Camera *camera,
+    cc::scene::DirectionalLight *mainLight,
+    scene::Light *light,
+    RenderData &data) {
+    setCameraUBOValues(
+        *camera,
+        layoutGraph,
+        *pipelineRuntime.getPipelineSceneData(),
+        mainLight,
+        data);
+
+    if (light) {
+        switch (light->getType()) {
+            case scene::LightType::DIRECTIONAL: {
+                const auto *pDirLight = dynamic_cast<const scene::DirectionalLight *>(light);
+                setter.setBuiltinDirectionalLightConstants(pDirLight, camera);
+            } break;
+            case scene::LightType::SPHERE: {
+                const auto *pSphereLight = dynamic_cast<const scene::SphereLight *>(light);
+                setter.setBuiltinSphereLightConstants(pSphereLight, camera);
+            } break;
+            case scene::LightType::SPOT: {
+                const auto *pSpotLight = dynamic_cast<const scene::SpotLight *>(light);
+                setter.setBuiltinSpotLightConstants(pSpotLight, camera);
+            } break;
+            case scene::LightType::POINT: {
+                const auto *pPointLight = dynamic_cast<const scene::PointLight *>(light);
+                setter.setBuiltinPointLightConstants(pPointLight, camera);
+            } break;
+            default:
+                // noop
+                break;
+        }
+    }
+
+    // set builtin legacy ubo
+    setLegacyTextureUBOView(
+        *pipelineRuntime.getDevice(),
+        layoutGraph,
+        *pipelineRuntime.getPipelineSceneData(),
+        data);
+}
+
+} // namespace
+
 SceneBuilder *NativeRenderQueueBuilder::addScene(
     const scene::Camera *camera, SceneFlags sceneFlags,
     scene::Light *light, scene::RenderScene *scene) {
@@ -852,42 +903,13 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
         } else if (camera && camera->getScene()) {
             mainLight = camera->getScene()->getMainLight();
         }
-        setCameraUBOValues(
-            *camera,
+        setupLegacyUniforms(
+            *builder,
+            *pipelineRuntime,
             *layoutGraph,
-            *pipelineRuntime->getPipelineSceneData(),
+            camera,
             mainLight,
-            data);
-
-        if (light) {
-            switch (light->getType()) {
-                case scene::LightType::DIRECTIONAL: {
-                    const auto *pDirLight = dynamic_cast<const scene::DirectionalLight *>(light);
-                    builder->setBuiltinDirectionalLightConstants(pDirLight, camera);
-                } break;
-                case scene::LightType::SPHERE: {
-                    const auto *pSphereLight = dynamic_cast<const scene::SphereLight *>(light);
-                    builder->setBuiltinSphereLightConstants(pSphereLight, camera);
-                } break;
-                case scene::LightType::SPOT: {
-                    const auto *pSpotLight = dynamic_cast<const scene::SpotLight *>(light);
-                    builder->setBuiltinSpotLightConstants(pSpotLight, camera);
-                } break;
-                case scene::LightType::POINT: {
-                    const auto *pPointLight = dynamic_cast<const scene::PointLight *>(light);
-                    builder->setBuiltinPointLightConstants(pPointLight, camera);
-                } break;
-                default:
-                    // noop
-                    break;
-            }
-        }
-
-        // set builtin legacy ubo
-        setLegacyTextureUBOView(
-            *pipelineRuntime->getDevice(),
-            *layoutGraph,
-            *pipelineRuntime->getPipelineSceneData(),
+            light,
             data);
     }
 
@@ -927,7 +949,7 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
     }
 
     if (any(sceneFlags & SceneFlags::PROFILER)) {
-        addDrawProfiler(camera);
+        addProfiler(camera);
     }
 
     return builder.release();
@@ -987,15 +1009,51 @@ void NativeRenderQueueBuilder::addCameraQuad(
         data);
 }
 
-void NativeRenderQueueBuilder::addDraw3d(
-    const scene::Camera *camera, const std::vector<scene::Model *> &models) {
+void NativeRenderQueueBuilder::addDraw3D(
+    const scene::Camera *camera,
+    const std::vector<scene::Model *> &models,
+    SceneFlags sceneFlags) {
+    CC_EXPECTS(camera);
+    ccstd::pmr::vector<IntrusivePtr<scene::Model>> models2(renderGraph->get_allocator());
+    models2.reserve(models.size());
+    for (auto *const model : models) {
+        models2.emplace_back(model);
+    }
+    Blit blit(
+        camera,
+        BlitType::DRAW_3D,
+        std::move(models2),
+        renderGraph->get_allocator());
+
+    const auto sceneId = addVertex2(
+        BlitTag{},
+        std::forward_as_tuple("Draw3D"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(blit)),
+        *renderGraph,
+        nodeID);
+
+    if (!any(sceneFlags & SceneFlags::NON_BUILTIN)) {
+        // objects are projected to camera, set camera ubo
+        auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneId);
+        setupLegacyUniforms(
+            *this,
+            *pipelineRuntime,
+            *layoutGraph,
+            camera,
+            camera->getScene()->getMainLight(),
+            nullptr,
+            data);
+    }
 }
 
-void NativeRenderQueueBuilder::addDraw2d(const scene::Camera *camera) {
+void NativeRenderQueueBuilder::addDraw2D(const scene::Camera *camera) {
     CC_EXPECTS(camera);
     const auto sceneId = addVertex2(
         BlitTag{},
-        std::forward_as_tuple("UI"),
+        std::forward_as_tuple("Draw2D"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -1009,7 +1067,7 @@ void NativeRenderQueueBuilder::addDraw2d(const scene::Camera *camera) {
         nodeID);
 }
 
-void NativeRenderQueueBuilder::addDrawProfiler(const scene::Camera *camera) {
+void NativeRenderQueueBuilder::addProfiler(const scene::Camera *camera) {
     CC_EXPECTS(camera);
     bool showStatistics = false;
     const auto passOrSubpassId = parent(nodeID, *renderGraph);

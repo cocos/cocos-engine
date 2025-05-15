@@ -530,15 +530,18 @@ export interface RenderQueueBuilder extends Setter {
     /**
      * @beta Feature is under development
      */
-    addDraw3d (camera: Camera, models: Model[]): void;
+    addDraw3D (
+        camera: Camera,
+        models: Model[],
+        sceneFlags?: SceneFlags): void;
     /**
      * @beta Feature is under development
      */
-    addDraw2d (camera: Camera): void;
+    addDraw2D (camera: Camera): void;
     /**
      * @beta Feature is under development
      */
-    addDrawProfiler (camera: Camera): void;
+    addProfiler (camera: Camera): void;
     /**
      * @en Clear current render target.
      * @zh 清除当前渲染目标
