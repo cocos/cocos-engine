@@ -285,8 +285,6 @@ public:
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void addCustomCommand(std::string_view customBehavior) override;
-
-
 };
 
 class NativeRenderSubpassBuilder final : public RenderSubpassBuilder, public NativeRenderSubpassBuilderImpl {
