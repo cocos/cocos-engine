@@ -115,6 +115,7 @@ using namespace spine;
 %ignore cc::SkeletonDataMgr::setSkeletonData;
 %ignore cc::SkeletonDataMgr::retainByUUID;
 %ignore cc::SkeletonDataMgr::releaseByUUID;
+%ignore cc::SkeletonDataMgr::getSkeletonDataInfo;
 %ignore cc::SkeletonCacheAnimation::render;
 %ignore cc::SkeletonCacheAnimation::requestDrawInfo;
 %ignore cc::SkeletonCacheAnimation::requestMaterial;

@@ -80,9 +80,9 @@ HashMap<String, SkeletonData*> skeletonDataMap{};
 
 void saveAttachmentVertices(SkeletonData* skeletonData, const spine::Vector<spine::String>& textureNames, const spine::Vector<spine::String>& textureUUIDs) {
     spine::HashMap<spine::String, spine::String> textureMap{};
-    spine::HashMap<spine::String, spine::String> *texturesMap = nullptr;
+    spine::HashMap<spine::String, spine::String>* texturesMap = nullptr;
 #ifdef CC_SPINE_VERSION_3_8
-    // Attachment can not switch pages in 3.8 
+    // Attachment can not switch pages in 3.8
     texturesMap = &textureMap;
 #else
     if (!spineTexturesMap.containsKey(skeletonData)) {
@@ -97,9 +97,9 @@ void saveAttachmentVertices(SkeletonData* skeletonData, const spine::Vector<spin
     for (int i = 0; i < textureSize; ++i) {
         texturesMap->put(textureNames[i], textureUUIDs[i]);
     }
-    HashMap<Attachment *, AttachmentVertices *> *attachmentVerticesMap = nullptr;
+    HashMap<Attachment*, AttachmentVertices*>* attachmentVerticesMap = nullptr;
     if (!spineAttachmentVerticesMap.containsKey(skeletonData)) {
-        attachmentVerticesMap = new HashMap<Attachment *, AttachmentVertices *>();
+        attachmentVerticesMap = new HashMap<Attachment*, AttachmentVertices*>();
         spineAttachmentVerticesMap.put(skeletonData, attachmentVerticesMap);
     } else {
         attachmentVerticesMap = spineAttachmentVerticesMap[skeletonData];

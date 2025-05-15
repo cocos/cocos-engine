@@ -35,9 +35,48 @@
 using namespace spine; //NOLINT
 using namespace cc; //NOLINT
 
+
+static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
+
+extern "C" AttachmentVertices *generateAttachmentVertices(Attachment *attachment) {
+    AttachmentVertices *attachmentVertices = nullptr;
+    if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
+        auto *regionAttachMent = static_cast<RegionAttachment *>(attachment);
+#if CC_USE_SPINE_3_8
+        auto *region = static_cast<AtlasRegion *>(regionAttachMent->getRendererObject());
+        attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
+#else
+        auto *region = static_cast<AtlasRegion *>(regionAttachMent->getRegion());
+        if (!region) return nullptr;
+        attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->texture), 4, quadTriangles, 6);
+#endif
+        auto *vertices = attachmentVertices->_triangles->verts;
+        for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
+            vertices[i].texCoord.u = regionAttachMent->getUVs()[ii];
+            vertices[i].texCoord.v = regionAttachMent->getUVs()[ii + 1];
+        }
+    } else if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
+        auto *meshAttachMent = static_cast<MeshAttachment *>(attachment);
+#if CC_USE_SPINE_3_8
+        auto *region = static_cast<AtlasRegion *>(meshAttachMent->getRendererObject());
+        attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->getRendererObject()),
+                                                    static_cast<int32_t>(meshAttachMent->getWorldVerticesLength() >> 1), meshAttachMent->getTriangles().buffer(), static_cast<int32_t>(meshAttachMent->getTriangles().size()));
+#else
+        auto *region = static_cast<AtlasRegion *>(meshAttachMent->getRegion());
+        if (!region) return nullptr;
+        attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->texture),
+                                                    static_cast<int32_t>(meshAttachMent->getWorldVerticesLength() >> 1), meshAttachMent->getTriangles().buffer(), static_cast<int32_t>(meshAttachMent->getTriangles().size()));
+#endif
+        auto *vertices = attachmentVertices->_triangles->verts;
+        for (size_t i = 0, ii = 0, nn = meshAttachMent->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
+            vertices[i].texCoord.u = meshAttachMent->getUVs()[ii];
+            vertices[i].texCoord.v = meshAttachMent->getUVs()[ii + 1];
+        }
+    }
+    return attachmentVertices;
+}
+
 namespace cc {
-
-
 class SkeletonDataInfo {
 public:
     SkeletonDataInfo() = default;
@@ -49,24 +88,6 @@ public:
         }
 
         if (atlas) {
-#if CC_USE_SPINE_4_2
-            auto &regions = atlas->getRegions();
-            auto size = regions.size();
-            for (int i = 0; i < size; i++) {
-                auto *region = regions[i];
-                if (region->rendererObject) {
-                    auto *map = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(region->rendererObject);
-                    auto entries = map->getEntries();
-                    while (entries.hasNext()) {
-                        auto entry = entries.next();
-                        auto *attachmentVertices = entry.value;
-                        delete attachmentVertices;
-                    }
-                    delete map;
-                    region->rendererObject = nullptr;
-                }
-            }
-#endif
             delete atlas;
             atlas = nullptr;
         }
@@ -75,13 +96,39 @@ public:
             delete attachmentLoader;
             attachmentLoader = nullptr;
         }
+
+        for (const auto& pair : attachmentVerticesMap) {
+            delete pair.second;
+        }
     }
 
     SkeletonData *data = nullptr;
     Atlas *atlas = nullptr;
     AttachmentLoader *attachmentLoader = nullptr;
     std::vector<int> texturesIndex;
+    std::unordered_map<Attachment *, AttachmentVertices *> attachmentVerticesMap;
 };
+
+
+void saveAttachmentVertices(SkeletonDataInfo *info) {
+    auto &attachmentVerticesMap = info->attachmentVerticesMap;
+    auto &skins = info->data->getSkins();
+    auto skinSize = skins.size();
+    for (int i = 0; i < skinSize; ++i) {
+        auto *skin = skins[i];
+        auto entries = skin->getAttachments();
+        while (entries.hasNext()) {
+            Skin::AttachmentMap::Entry &entry = entries.next();
+            auto *attachment = entry._attachment;
+            if (attachmentVerticesMap.count(attachment) < 1) {
+                auto *attachmentVertices = generateAttachmentVertices(attachment);
+                if (attachmentVertices) {
+                    attachmentVerticesMap[attachment] = attachmentVertices;
+                }
+            }
+        }
+    }
+}
 
 } // namespace cc
 
@@ -111,6 +158,17 @@ void SkeletonDataMgr::setSkeletonData(const std::string &uuid, SkeletonData *dat
     info->attachmentLoader = attachmentLoader;
     info->texturesIndex = texturesIndex;
     _dataMap[uuid] = info;
+
+    saveAttachmentVertices(info);
+}
+
+std::unordered_map<Attachment *, AttachmentVertices *>
+    *SkeletonDataMgr::getSkeletonDataInfo(const std::string &uuid) {
+    auto dataIt = _dataMap.find(uuid);
+    if (dataIt == _dataMap.end()) {
+        return nullptr;
+    }
+    return &dataIt->second->attachmentVerticesMap;
 }
 
 SkeletonData *SkeletonDataMgr::retainByUUID(const std::string &uuid) {

@@ -44,6 +44,15 @@
 #include "spine-creator-support/AttachmentVertices.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 
+
+#define LOOP_UV_COORDS(tmp_var, uvs_var, loop_count) \
+    for (int _i = 0, _ii = 0; _i < (loop_count); ++_i, _ii += 2) { \
+        (tmp_var)[_i].texCoord.u = (uvs_var)[_ii]; \
+        (tmp_var)[_i].texCoord.v = (uvs_var)[_ii + 1]; \
+    }
+
+
+
 USING_NS_MW;             // NOLINT(google-build-using-namespace)
 using namespace spine;   // NOLINT(google-build-using-namespace)
 using namespace cc;      // NOLINT(google-build-using-namespace)
@@ -64,6 +73,7 @@ enum DebugType {
     BONES
 };
 
+extern "C" AttachmentVertices *generateAttachmentVertices(Attachment *attachment);
 namespace cc {
 SkeletonRenderer *SkeletonRenderer::create() {
     return new SkeletonRenderer();
@@ -410,6 +420,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
    void *effect = nullptr;
 #endif
 
+    auto *verticesMap = SkeletonDataMgr::getInstance()->getSkeletonDataInfo(_uuid);
+    if (!verticesMap) return;
+    auto &attachmentVerticesMap = *verticesMap;
     auto &drawOrder = _skeleton->getDrawOrder();
     for (size_t i = 0, n = drawOrder.size(); i < n; ++i) {
         isFull = 0;
@@ -440,7 +453,12 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
         cc::middleware::Triangles triangles;
         cc::middleware::TwoColorTriangles trianglesTwoColor;
-        attachmentVertices = nullptr;
+        auto iterAttachment = attachmentVerticesMap.find(tmpAttachment);
+        if (iterAttachment != attachmentVerticesMap.end()) {
+            attachmentVertices = iterAttachment->second;
+        } else {
+            attachmentVertices = nullptr;
+        }
 
         auto iter = _slotTextureSet.find(slot);
         if (iter != _slotTextureSet.end()) {
@@ -449,14 +467,17 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         }
         if (tmpAttachment->getRTTI().isExactly(RegionAttachment::rtti)) {
             auto *attachment = dynamic_cast<RegionAttachment *>(tmpAttachment);
-            if (!attachmentVertices) {
-#if CC_USE_SPINE_3_8
-                attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
-#else
-                auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(attachment->getRegion()->rendererObject);
-                attachmentVertices = (*tmpMap)[attachment];
-#endif
+#if CC_USE_SPINE_4_2
+            if (!attachment->getRegion()) {
+                attachment->getSequence()->apply(slot, attachment);
+                if (attachment->getRegion()) {
+                    attachmentVertices = generateAttachmentVertices(attachment);
+                    if (attachmentVertices) {
+                        attachmentVerticesMap[attachment] = attachmentVertices;
+                    }
+                }
             }
+#endif
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -473,6 +494,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 #if CC_USE_SPINE_3_8
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
 #else
+                LOOP_UV_COORDS(triangles.verts, attachment->getUVs(), triangles.vertCount);
                 attachment->computeWorldVertices(*slot, reinterpret_cast<float *>(triangles.verts), 0, vs1);
 #endif
 
@@ -486,12 +508,13 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 vbSize = trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
                 trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
+#if CC_USE_SPINE_3_8
                 for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                     trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
-#if CC_USE_SPINE_3_8
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 #else
+                LOOP_UV_COORDS(trianglesTwoColor.verts, attachment->getUVs(), trianglesTwoColor.vertCount);
                 attachment->computeWorldVertices(*slot, reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 #endif
 
@@ -521,14 +544,17 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             }
         } else if (tmpAttachment->getRTTI().isExactly(MeshAttachment::rtti)) {
             auto *attachment = dynamic_cast<MeshAttachment *>(tmpAttachment);
-            if (!attachmentVertices) {
-#if CC_USE_SPINE_3_8
-                attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
-#else
-                auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(attachment->getRegion()->rendererObject);
-                attachmentVertices = (*tmpMap)[attachment];
-#endif
+#if CC_USE_SPINE_4_2
+            if (!attachment->getRegion()) {
+                attachment->getSequence()->apply(slot, attachment);
+                if (attachment->getRegion()) {
+                    attachmentVertices = generateAttachmentVertices(attachment);
+                    if (attachmentVertices) {
+                        attachmentVerticesMap[attachment] = attachmentVertices;
+                    }
+                }
             }
+#endif
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -542,6 +568,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 isFull |= vb.checkSpace(vbSize, true);
                 triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
                 memcpy(static_cast<void *>(triangles.verts), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
+#ifdef CC_USE_SPINE_4_2
+                LOOP_UV_COORDS(triangles.verts, attachment->getUVs(), triangles.vertCount);
+#endif
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
 
                 triangles.indexCount = attachmentVertices->_triangles->indexCount;
@@ -554,9 +583,13 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 vbSize = trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
                 trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
+#ifdef CC_USE_SPINE_3_8
                 for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                     trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
+#else
+                LOOP_UV_COORDS(trianglesTwoColor.verts, attachment->getUVs(), trianglesTwoColor.vertCount);
+#endif
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 
                 trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
