@@ -16,44 +16,74 @@ using namespace spine;
 extern HashMap<SkeletonData *, HashMap<Attachment *, AttachmentVertices *>*> spineAttachmentVerticesMap;
 extern HashMap<SkeletonData *, HashMap<spine::String, spine::String>*> spineTexturesMap;
 
-#define LOOP_UV_COORDS(tmp_var, uvs_var, loop_count) \
-    for (int _i = 0, _ii = 0; _i < (loop_count); ++_i, _ii += 2) { \
-        (tmp_var)[_i].texCoord.u = (uvs_var)[_ii]; \
-        (tmp_var)[_i].texCoord.v = (uvs_var)[_ii + 1]; \
+
+//------------------------- UV坐标处理 -------------------------
+template<typename VertexType, typename UVArrayType>
+void loopUVCoords(VertexType* tmp, const UVArrayType& uvs, int count) {
+    for (int i = 0, ii = 0; i < count; ++i, ii += 2) {
+        tmp[i].texCoord.u = uvs[ii];
+        tmp[i].texCoord.v = uvs[ii + 1];
     }
+}
 
 #ifdef CC_SPINE_VERSION_4_2
-    #define SET_SPINE_TEXTURE_ID(currMesh, attachment, attachmentVertices, texturesMap) \
-        do { \
-            auto* region = static_cast<AtlasRegion*>(attachment->getRegion()); \
-            if (region && region->page && (region->page->name != attachmentVertices->_textureName)) { \
-                currMesh.textureID = (*texturesMap)[region->page->name]; \
-            } else { \
-                currMesh.textureID = attachmentVertices->_textureUUID; \
-            } \
-        } while(0)
+template<typename MeshT, 
+         typename AttachmentT,
+         typename VerticesT,
+         typename TexMapT> // 默认使用全局版本控制
+void setSpineTextureID(MeshT& currMesh,
+                      AttachmentT* attachment,
+                      VerticesT* vertices,
+                      TexMapT* texMap) {
+    // Spine 4.2 实现
+    if (auto* region = static_cast<AtlasRegion*>(attachment->getRegion())) {
+        if (region->page && region->page->name != vertices->_textureName) {
+            currMesh.textureID = (*texMap)[region->page->name];
+            return;
+        }
+    }
+    currMesh.textureID = vertices->_textureUUID;
+}
 
-    #define INIT_ATTACHMENT_VERTICES(attachmentVertices, attachment, slot, texturesMap, attachmentVerticesMap) \
-        do { \
-            if (!(attachmentVertices) && !(attachment)->getRegion()) { \
-                (attachment)->getSequence()->apply((slot), (attachment)); \
-                if ((attachment)->getRegion()) { \
-                    (attachmentVertices) = generateAttachmentVertices((attachment)); \
-                    if ((texturesMap)->containsKey((attachmentVertices)->_textureName)) { \
-                        (attachmentVertices)->_textureUUID = (*(texturesMap))[(attachmentVertices)->_textureName]; \
-                    } \
-                    (attachmentVerticesMap)->put((attachment), (attachmentVertices)); \
-                } \
-            } \
-        } while(0)
+template<typename VerticesT, typename AttachmentT, 
+         typename SlotT, typename TexMapT, typename VertMapT>
+void initAttachmentVertices(VerticesT*& vertices,
+                      AttachmentT* attachment,
+                      SlotT* slot,
+                      TexMapT* texMap,
+                      VertMapT* vertMap) 
+{
+    if (!vertices && !attachment->getRegion()) {
+        attachment->getSequence()->apply(slot, attachment);
+        if (attachment->getRegion()) {
+            vertices = generateAttachmentVertices(attachment);
+            if (texMap->containsKey(vertices->_textureName)) {
+                vertices->_textureUUID = (*texMap)[vertices->_textureName];
+            }
+            vertMap->put(attachment, vertices);
+        }
+    }
+}
 #else
-    #define SET_SPINE_TEXTURE_ID(currMesh, attachment, attachmentVertices, texturesMap) \
-        do { \
-            currMesh.textureID = attachmentVertices->_textureUUID; \
-        } while(0)
+template<typename MeshT, 
+         typename AttachmentT,
+         typename VerticesT,
+         typename TexMapT>
+void setSpineTextureID(MeshT& currMesh,
+                      AttachmentT*,
+                      VerticesT* vertices,
+                      TexMapT*)
+{
+    //do nothing
+    currMesh.textureID = vertices->_textureUUID;
+}
 
-    #define INIT_ATTACHMENT_VERTICES(attachmentVertices, attachment, slot, texturesMap, attachmentVerticesMap) \
-        do { /* Empty for non-4.2 versions */ } while(0)
+template<typename VerticesT, typename AttachmentT, 
+         typename SlotT, typename TexMapT, typename VertMapT>
+void initAttachmentVertices(VerticesT*&, AttachmentT*, SlotT*, TexMapT*, VertMapT*) 
+{
+    //do nothing
+}
 #endif
 
 
@@ -225,6 +255,8 @@ void SpineSkeletonInstance::collectMeshData() {
 #ifdef CC_SPINE_VERSION_4_2
     if (!spineTexturesMap.containsKey(_skeletonData)) return;
     auto* texturesMap = spineTexturesMap[_skeletonData];
+#else
+    HashMap<spine::String, spine::String> *texturesMap = nullptr;
 #endif
     if (!spineAttachmentVerticesMap.containsKey(_skeletonData)) return;
     auto* attachmentVerticesMap = spineAttachmentVerticesMap[_skeletonData];
@@ -262,8 +294,8 @@ void SpineSkeletonInstance::collectMeshData() {
         if (attachmentRTTI.isExactly(spine::RegionAttachment::rtti)) {
             debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_REGION;
             auto *attachment = static_cast<spine::RegionAttachment *>(attachmentSlot);
-            INIT_ATTACHMENT_VERTICES(attachmentVertices, attachment, slot, texturesMap, attachmentVerticesMap);
-            SET_SPINE_TEXTURE_ID(currMesh, attachment, attachmentVertices, texturesMap);
+            initAttachmentVertices(attachmentVertices, attachment, slot, texturesMap, attachmentVerticesMap);
+            setSpineTextureID(currMesh, attachment, attachmentVertices, texturesMap);
             auto *triangles = attachmentVertices->_triangles;
             auto vertCount = triangles->vertCount;
             auto indexCount = triangles->indexCount;
@@ -277,13 +309,13 @@ void SpineSkeletonInstance::collectMeshData() {
 #ifdef CC_SPINE_VERSION_4_2
                 const auto& uvs = attachment->getUVs();
                 V3F_T2F_C4B* tmp = (V3F_T2F_C4B *)(vertices);
-                LOOP_UV_COORDS(tmp, uvs, 4);
+                loopUVCoords(tmp, uvs, 4);
  #endif
             } else {
                 V3F_T2F_C4B_C4B *verts = (V3F_T2F_C4B_C4B *)vertices;
 #ifdef CC_SPINE_VERSION_4_2
                     const auto& uvs = attachment->getUVs();
-                    LOOP_UV_COORDS(verts, uvs, vertCount);
+                    loopUVCoords(verts, uvs, vertCount);
 #else
                     for (int ii = 0; ii < vertCount; ii++) {
                         verts[ii].texCoord = triangles->verts[ii].texCoord;
@@ -305,8 +337,8 @@ void SpineSkeletonInstance::collectMeshData() {
         } else if (attachmentRTTI.isExactly(spine::MeshAttachment::rtti)) {
             debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_MESH;
             auto *attachment = static_cast<spine::MeshAttachment *>(attachmentSlot);
-            INIT_ATTACHMENT_VERTICES(attachmentVertices, attachment, slot, texturesMap, attachmentVerticesMap);
-            SET_SPINE_TEXTURE_ID(currMesh, attachment, attachmentVertices, texturesMap);
+            initAttachmentVertices(attachmentVertices, attachment, slot, texturesMap, attachmentVerticesMap);
+            setSpineTextureID(currMesh, attachment, attachmentVertices, texturesMap);
             auto *triangles = attachmentVertices->_triangles;
             auto vertCount = triangles->vertCount;
             auto indexCount = triangles->indexCount;
@@ -322,13 +354,13 @@ void SpineSkeletonInstance::collectMeshData() {
                 // Calling 'attachment->computeWorldVertices()' can alter the UV coordinates.
                 const auto& uvs = attachment->getUVs();
                 V3F_T2F_C4B* tmp = (V3F_T2F_C4B *)(vertices);
-                LOOP_UV_COORDS(tmp, uvs, 4);
+                loopUVCoords(tmp, uvs, 4);
 #endif
             } else {
                 V3F_T2F_C4B_C4B *verts = (V3F_T2F_C4B_C4B *)vertices;
 #ifdef CC_SPINE_VERSION_4_2
                 const auto& uvs = attachment->getUVs();
-                LOOP_UV_COORDS(verts, uvs, vertCount);
+                loopUVCoords(verts, uvs, vertCount);
 #else
                 for (int ii = 0; ii < vertCount; ii++) {
                     verts[ii].texCoord = triangles->verts[ii].texCoord;

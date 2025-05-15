@@ -33,6 +33,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "base/RefCounted.h"
 #include "spine/SkeletonData.h"
 #include "spine/spine.h"
