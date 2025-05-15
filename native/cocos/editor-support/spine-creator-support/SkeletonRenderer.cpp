@@ -45,14 +45,6 @@
 #include "spine-creator-support/spine-cocos2dx.h"
 
 
-#define LOOP_UV_COORDS(tmp_var, uvs_var, loop_count) \
-    for (int _i = 0, _ii = 0; _i < (loop_count); ++_i, _ii += 2) { \
-        (tmp_var)[_i].texCoord.u = (uvs_var)[_ii]; \
-        (tmp_var)[_i].texCoord.v = (uvs_var)[_ii + 1]; \
-    }
-
-
-
 USING_NS_MW;             // NOLINT(google-build-using-namespace)
 using namespace spine;   // NOLINT(google-build-using-namespace)
 using namespace cc;      // NOLINT(google-build-using-namespace)
@@ -72,6 +64,14 @@ enum DebugType {
     MESH,
     BONES
 };
+
+template<typename VertexType, typename UVArrayType>
+void loopUVCoords(VertexType* tmp, const UVArrayType& uvs, int count) {
+    for (int i = 0, ii = 0; i < count; ++i, ii += 2) {
+        tmp[i].texCoord.u = uvs[ii];
+        tmp[i].texCoord.v = uvs[ii + 1];
+    }
+}
 
 extern "C" AttachmentVertices *generateAttachmentVertices(Attachment *attachment);
 namespace cc {
@@ -494,7 +494,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 #if CC_USE_SPINE_3_8
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
 #else
-                LOOP_UV_COORDS(triangles.verts, attachment->getUVs(), triangles.vertCount);
+                loopUVCoords(triangles.verts, attachment->getUVs(), triangles.vertCount);
                 attachment->computeWorldVertices(*slot, reinterpret_cast<float *>(triangles.verts), 0, vs1);
 #endif
 
@@ -514,7 +514,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 #else
-                LOOP_UV_COORDS(trianglesTwoColor.verts, attachment->getUVs(), trianglesTwoColor.vertCount);
+                loopUVCoords(trianglesTwoColor.verts, attachment->getUVs(), trianglesTwoColor.vertCount);
                 attachment->computeWorldVertices(*slot, reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 #endif
 
@@ -569,7 +569,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
                 memcpy(static_cast<void *>(triangles.verts), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
 #ifdef CC_USE_SPINE_4_2
-                LOOP_UV_COORDS(triangles.verts, attachment->getUVs(), triangles.vertCount);
+                loopUVCoords(triangles.verts, attachment->getUVs(), triangles.vertCount);
 #endif
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
 
@@ -588,7 +588,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                     trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
 #else
-                LOOP_UV_COORDS(trianglesTwoColor.verts, attachment->getUVs(), trianglesTwoColor.vertCount);
+                loopUVCoords(trianglesTwoColor.verts, attachment->getUVs(), trianglesTwoColor.vertCount);
 #endif
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 

@@ -17,7 +17,6 @@ extern HashMap<SkeletonData *, HashMap<Attachment *, AttachmentVertices *>*> spi
 extern HashMap<SkeletonData *, HashMap<spine::String, spine::String>*> spineTexturesMap;
 
 
-//------------------------- UV坐标处理 -------------------------
 template<typename VertexType, typename UVArrayType>
 void loopUVCoords(VertexType* tmp, const UVArrayType& uvs, int count) {
     for (int i = 0, ii = 0; i < count; ++i, ii += 2) {
@@ -30,12 +29,11 @@ void loopUVCoords(VertexType* tmp, const UVArrayType& uvs, int count) {
 template<typename MeshT, 
          typename AttachmentT,
          typename VerticesT,
-         typename TexMapT> // 默认使用全局版本控制
+         typename TexMapT>
 void setSpineTextureID(MeshT& currMesh,
                       AttachmentT* attachment,
                       VerticesT* vertices,
                       TexMapT* texMap) {
-    // Spine 4.2 实现
     if (auto* region = static_cast<AtlasRegion*>(attachment->getRegion())) {
         if (region->page && region->page->name != vertices->_textureName) {
             currMesh.textureID = (*texMap)[region->page->name];
