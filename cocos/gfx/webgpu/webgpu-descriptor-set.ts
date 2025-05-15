@@ -146,18 +146,6 @@ export class WebGPUDescriptorSet extends DescriptorSet {
         sampler.resetChange();
     }
 
-    private _bindResourceEntry (bind: number, resource: WebGPUBuffer | WebGPUTexture | WebGPUSampler): void {
-        const gpuSetLayout = this.layout as WebGPUDescriptorSetLayout;
-        const binding = gpuSetLayout.bindings[bind];
-        if (resource instanceof WebGPUBuffer) {
-            this._bindBufferEntry(binding, resource);
-        } else if (resource instanceof WebGPUTexture) {
-            this._bindTextureEntry(binding, resource);
-        } else if (resource instanceof WebGPUSampler) {
-            this._bindSamplerEntry(binding, resource);
-        }
-    }
-
     private _applyBindGroup (): void {
         if (this._isDirty && this._gpuDescriptorSet) {
             const layout = this._layout as WebGPUDescriptorSetLayout;
@@ -186,7 +174,8 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                     if ((descType & DescriptorType.SAMPLER) !== DescriptorType.SAMPLER) {
                         // texture
                         let currTex = this._textures[i] as WebGPUTexture;
-                        if (!currTex) {
+                        // null or destroyed?
+                        if (!currTex || (currTex.hasChange && !currTex.gpuTexture)) {
                             if (binding.viewDimension === ViewDimension.TEXCUBE) {
                                 currTex = device.defaultResource.cubeTexture;
                             } else {
@@ -210,9 +199,8 @@ export class WebGPUDescriptorSet extends DescriptorSet {
         }
     }
 
-    private _hasResourceChange (bind: number, resource: WebGPUBuffer | WebGPUTexture | WebGPUSampler): boolean {
+    private _hasResourceChange (resource: WebGPUBuffer | WebGPUTexture | WebGPUSampler): boolean {
         if (resource && resource.hasChange) {
-            this._bindResourceEntry(bind, resource);
             return true;
         }
         return false;
@@ -220,15 +208,18 @@ export class WebGPUDescriptorSet extends DescriptorSet {
 
     private _isResourceChange (): boolean {
         const layout = this._layout as WebGPUDescriptorSetLayout;
-        return layout.gpuDescriptorSetLayout!.bindings.every((bind) => {
+        if (!layout) {
+            return false;
+        }
+        return layout.gpuDescriptorSetLayout!.bindings.some((bind) => {
             const binding = bind.binding;
             const resource = this._buffers[binding] as WebGPUBuffer || this._textures[binding] || this._samplers[binding];
-            return !this._hasResourceChange(binding, resource);
+            return this._hasResourceChange(resource);
         });
     }
 
     public prepare (force: boolean = false): void {
-        const breakUpdate = this._isResourceChange() && !force;
+        const breakUpdate = !this._isResourceChange() && !force;
         if (breakUpdate) return;
         this._isDirty = true;
         this._applyBindGroup();

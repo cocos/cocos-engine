@@ -27,6 +27,7 @@
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component, Node } from '../scene-graph';
@@ -46,6 +47,7 @@ import { RenderDrawInfo, RenderDrawInfoType } from '../2d/renderer/render-draw-i
 import { Texture2D } from '../asset/assets';
 import { director } from '../game';
 import { Camera } from '../render-scene/scene';
+import { View } from '../ui/view';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -455,6 +457,8 @@ export class TiledLayer extends UIRenderer {
         this.node.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.parent!.on(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.parent!.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+        View.instance.on('canvas-resize', this._resize);
+        screenAdapter.on('window-resize', this._resize);
         this._markForUpdateRenderData();
         // delay 1 frame, since camera's matrix data is dirty
         this.scheduleOnce(this.updateCulling.bind(this));
@@ -467,6 +471,8 @@ export class TiledLayer extends UIRenderer {
         this.node.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        View.instance.off('canvas-resize', this._resize);
+        screenAdapter.off('window-resize', this._resize);
         this._uninstallCamera();
     }
 
@@ -477,6 +483,10 @@ export class TiledLayer extends UIRenderer {
         this._leftDownToCenterX = trans.width * trans.anchorX * scale.x;
         this._leftDownToCenterY = trans.height * trans.anchorY * scale.y;
         this._cullingDirty = true;
+        this._markForUpdateRenderData();
+    }
+
+    protected _resize(): void {
         this._markForUpdateRenderData();
     }
 
