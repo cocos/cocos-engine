@@ -891,42 +891,6 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
             data);
     }
 
-    if (any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
-        const auto passID = renderGraph->getPassID(nodeID);
-        const auto cullingID = dynamic_cast<const NativePipeline *>(pipelineRuntime)->nativeContext.sceneCulling.gpuCullingPassID;
-        CC_EXPECTS(cullingID != 0xFFFFFFFF);
-        if (holds<RasterPassTag>(passID, *renderGraph)) {
-            ccstd::pmr::string drawIndirectBuffer("CCDrawIndirectBuffer");
-            drawIndirectBuffer.append(std::to_string(cullingID));
-            ccstd::pmr::string drawInstanceBuffer("CCDrawInstanceBuffer");
-            drawInstanceBuffer.append(std::to_string(cullingID));
-
-            auto &rasterPass = get(RasterPassTag{}, passID, *renderGraph);
-            if (rasterPass.computeViews.find(drawIndirectBuffer) != rasterPass.computeViews.end()) {
-                auto res = rasterPass.computeViews.emplace(
-                    std::piecewise_construct,
-                    std::forward_as_tuple(drawIndirectBuffer),
-                    std::forward_as_tuple());
-                CC_ENSURES(res.second);
-                auto &view = res.first->second.emplace_back();
-                view.name = "CCDrawIndirectBuffer";
-                view.accessType = AccessType::READ;
-                view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
-            }
-            if (rasterPass.computeViews.find(drawInstanceBuffer) != rasterPass.computeViews.end()) {
-                auto res = rasterPass.computeViews.emplace(
-                    std::piecewise_construct,
-                    std::forward_as_tuple(drawInstanceBuffer),
-                    std::forward_as_tuple());
-                CC_ENSURES(res.second);
-                auto &view = res.first->second.emplace_back();
-                view.name = "CCDrawInstanceBuffer";
-                view.accessType = AccessType::READ;
-                view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
-            }
-        }
-    }
-
     if (any(sceneFlags & SceneFlags::UI)) {
         CC_EXPECTS(camera);
         const auto passOrSubpassId = parent(nodeID, *renderGraph);
@@ -963,59 +927,7 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
     }
 
     if (any(sceneFlags & SceneFlags::PROFILER)) {
-        CC_EXPECTS(camera);
-        bool showStatistics = false;
-        const auto passOrSubpassId = parent(nodeID, *renderGraph);
-        {
-            CC_EXPECTS(passOrSubpassId != RenderGraph::null_vertex());
-            const auto passOrNullId = parent(passOrSubpassId, *renderGraph);
-
-            const auto passId = passOrNullId == RenderGraph::null_vertex()
-                                    ? passOrSubpassId
-                                    : passOrNullId;
-
-            CC_ENSURES(passId != RenderGraph::null_vertex() &&
-                       holds<RasterPassTag>(passId, *renderGraph));
-
-            const auto &pass = get(RasterPassTag{}, passId, *renderGraph);
-
-            showStatistics = pass.showStatistics;
-        }
-
-        if (showStatistics) {
-            const auto passLayoutId = locate(
-                LayoutGraphData::null_vertex(), "default", *layoutGraph);
-            const auto phaseLayoutId = locate(
-                passLayoutId, "default", *layoutGraph);
-
-            const auto queueId = addVertex2(
-                QueueTag{},
-                std::forward_as_tuple("Profiler Queue"),
-                std::forward_as_tuple("default"),
-                std::forward_as_tuple(),
-                std::forward_as_tuple(),
-                std::forward_as_tuple(QueueHint::BLEND, phaseLayoutId, passLayoutId),
-                *renderGraph,
-                passOrSubpassId);
-
-            const auto sceneId = addVertex2(
-                BlitTag{},
-                std::forward_as_tuple("Profiler"),
-                std::forward_as_tuple(),
-                std::forward_as_tuple(),
-                std::forward_as_tuple(),
-                std::forward_as_tuple(
-                    IntrusivePtr<Material>{},
-                    RenderGraph::null_vertex(),
-                    SceneFlags::NONE,
-                    camera,
-                    BlitType::DRAW_PROFILE),
-                *renderGraph,
-                queueId);
-
-            auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneId);
-            setMat4Impl(data, *layoutGraph, "cc_matProj", camera->getMatProj());
-        }
+        addDrawProfiler(camera);
     }
 
     return builder.release();
@@ -1073,6 +985,84 @@ void NativeRenderQueueBuilder::addCameraQuad(
         *layoutGraph,
         *pipelineRuntime->getPipelineSceneData(),
         data);
+}
+
+void NativeRenderQueueBuilder::addDraw3d(
+    const scene::Camera *camera, const std::vector<scene::Model *> &models) {
+}
+
+void NativeRenderQueueBuilder::addDraw2d(const scene::Camera *camera) {
+    CC_EXPECTS(camera);
+    const auto sceneId = addVertex2(
+        BlitTag{},
+        std::forward_as_tuple("UI"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(
+            IntrusivePtr<Material>{},
+            RenderGraph::null_vertex(),
+            SceneFlags::NONE,
+            camera,
+            BlitType::DRAW_2D),
+        *renderGraph,
+        nodeID);
+}
+
+void NativeRenderQueueBuilder::addDrawProfiler(const scene::Camera *camera) {
+    CC_EXPECTS(camera);
+    bool showStatistics = false;
+    const auto passOrSubpassId = parent(nodeID, *renderGraph);
+    {
+        CC_EXPECTS(passOrSubpassId != RenderGraph::null_vertex());
+        const auto passOrNullId = parent(passOrSubpassId, *renderGraph);
+
+        const auto passId = passOrNullId == RenderGraph::null_vertex()
+                                ? passOrSubpassId
+                                : passOrNullId;
+
+        CC_ENSURES(passId != RenderGraph::null_vertex() &&
+                   holds<RasterPassTag>(passId, *renderGraph));
+
+        const auto &pass = get(RasterPassTag{}, passId, *renderGraph);
+
+        showStatistics = pass.showStatistics;
+    }
+
+    if (showStatistics) {
+        const auto passLayoutId = locate(
+            LayoutGraphData::null_vertex(), "default", *layoutGraph);
+        const auto phaseLayoutId = locate(
+            passLayoutId, "default", *layoutGraph);
+
+        const auto queueId = addVertex2(
+            QueueTag{},
+            std::forward_as_tuple("Profiler Queue"),
+            std::forward_as_tuple("default"),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(QueueHint::BLEND, phaseLayoutId, passLayoutId),
+            *renderGraph,
+            passOrSubpassId);
+
+        const auto sceneId = addVertex2(
+            BlitTag{},
+            std::forward_as_tuple("Profiler"),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(
+                IntrusivePtr<Material>{},
+                RenderGraph::null_vertex(),
+                SceneFlags::NONE,
+                nullptr,
+                BlitType::DRAW_PROFILE),
+            *renderGraph,
+            queueId);
+
+        auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneId);
+        setMat4Impl(data, *layoutGraph, "cc_matProj", camera->getMatProj());
+    }
 }
 
 void NativeRenderQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {

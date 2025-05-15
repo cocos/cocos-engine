@@ -1084,6 +1084,7 @@ export const enum BlitType {
     FULLSCREEN_QUAD,
     DRAW_2D,
     DRAW_PROFILE,
+    DRAW_3D,
 }
 
 export class Blit {

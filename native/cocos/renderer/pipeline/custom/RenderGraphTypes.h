@@ -951,6 +951,7 @@ enum class BlitType : uint8_t {
     FULLSCREEN_QUAD,
     DRAW_2D,
     DRAW_PROFILE,
+    DRAW_3D,
 };
 
 struct Blit {

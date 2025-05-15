@@ -73,7 +73,6 @@ class RenderWindow;
 namespace render {
 
 constexpr bool ENABLE_SUBPASS = true;
-constexpr bool ENABLE_GPU_DRIVEN = false;
 
 } // namespace render
 
@@ -614,6 +613,18 @@ public:
      * @param sceneFlags @en Rendering flags of the quad @zh Quad所需场景渲染标志位
      */
     virtual void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
+    /**
+     * @beta Feature is under development
+     */
+    virtual void addDraw3d(const scene::Camera *camera, const std::vector<scene::Model*> &models) = 0;
+    /**
+     * @beta Feature is under development
+     */
+    virtual void addDraw2d(const scene::Camera *camera) = 0;
+    /**
+     * @beta Feature is under development
+     */
+    virtual void addDrawProfiler(const scene::Camera *camera) = 0;
     /**
      * @en Clear current render target.
      * @zh 清除当前渲染目标

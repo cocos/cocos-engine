@@ -528,6 +528,18 @@ export interface RenderQueueBuilder extends Setter {
         passID: number,
         sceneFlags?: SceneFlags): void;
     /**
+     * @beta Feature is under development
+     */
+    addDraw3d (camera: Camera, models: Model[]): void;
+    /**
+     * @beta Feature is under development
+     */
+    addDraw2d (camera: Camera): void;
+    /**
+     * @beta Feature is under development
+     */
+    addDrawProfiler (camera: Camera): void;
+    /**
      * @en Clear current render target.
      * @zh 清除当前渲染目标
      * @param name @en The name of the render target @zh 渲染目标的名字
