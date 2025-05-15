@@ -728,6 +728,7 @@ declare namespace spine {
         findSlot(slotName: string): Slot;
         findSlotIndex(slotName: string): number;
         setSkinByName(skinName: string): void;
+        setSkin(newSkin: Skin): void;
         getAttachmentByName(slotName: string, attachmentName: string): Attachment;
         getAttachment(slotIndex: number, attachmentName: string): Attachment;
         setAttachment(slotName: string, attachmentName: string): void;

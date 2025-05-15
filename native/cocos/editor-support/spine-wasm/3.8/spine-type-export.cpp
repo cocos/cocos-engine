@@ -1262,7 +1262,7 @@ EMSCRIPTEN_BINDINGS(spine) {
             return &obj.getPathConstraints(); }), allow_raw_pointer<SPVectorPathConstraintPtr>())
         .function("getUpdateCacheList", optional_override([](Skeleton &obj){
             return &obj.getUpdateCacheList(); }), allow_raw_pointer<SPVectorUpdatablePtr>())
-        .property("skin", &Skeleton::_skin)
+        .property("skin", &Skeleton::getSkin)
         .property("color", GETTER_RVAL_TO_PTR(Skeleton, getColor, Color*))
         .property("time", &Skeleton::_time)
         .property("scaleX", &Skeleton::_scaleX)
@@ -1281,6 +1281,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("findSlot", &Skeleton::findSlot, allow_raw_pointers())
         .function("findSlotIndex", &Skeleton::findSlotIndex)
         .function("setSkinByName", select_overload<void(const String &)>(&Skeleton::setSkin))
+        .function("setSkin", static_cast<void (Skeleton::*)(Skin *)>(&Skeleton::setSkin), allow_raw_pointer<Skin>())
         .function("getAttachmentByName", select_overload<Attachment*(const String &, const String &)>(&Skeleton::getAttachment), allow_raw_pointers())
         .function("getAttachment", select_overload<Attachment*(int, const String &)>(&Skeleton::getAttachment),allow_raw_pointers())
         .function("setAttachment", &Skeleton::setAttachment)
