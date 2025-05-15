@@ -416,7 +416,7 @@ using namespace spine;
 %attribute(spine::Skeleton, spine::Vector<spine::TransformConstraint*>&, transformConstraints, getTransformConstraints);
 %attribute(spine::Skeleton, spine::Vector<spine::PathConstraint*>&, pathConstraints, getPathConstraints);
 %attribute(spine::Skeleton, spine::Vector<spine::Updatable*>&, _updateCache, getUpdateCacheList);
-%attribute(spine::Skeleton, spine::Skin*, skin, getSkin);
+%attribute(spine::Skeleton, spine::Skin*, skin, getSkin, setSkin);
 %attribute(spine::Skeleton, spine::Color&, color, getColor);
 %attribute(spine::Skeleton, float, time, getTime, setTime);
 %attribute(spine::Skeleton, float, scaleX, getScaleX, setScaleX);

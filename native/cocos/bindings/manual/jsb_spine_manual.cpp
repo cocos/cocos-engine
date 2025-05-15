@@ -582,6 +582,30 @@ static bool js_spine_Slot_getAttachment(se::State& s) {
 }
 SE_BIND_FUNC(js_spine_Slot_getAttachment)
 
+static bool js_spine_Skeleton_setSkin(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::Skeleton *arg1 = (spine::Skeleton *) NULL ;
+    spine::Skin *arg2 = (spine::Skin *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::Skeleton>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setSkin(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_Skeleton_setSkin) 
+
 bool register_all_spine_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
@@ -600,6 +624,7 @@ bool register_all_spine_manual(se::Object *obj) {
     __jsb_spine_VertexAttachment_proto->defineFunction("computeWorldVertices", _SE(js_VertexAttachment_computeWorldVertices));
     __jsb_spine_RegionAttachment_proto->defineFunction("computeWorldVertices", _SE(js_RegionAttachment_computeWorldVertices));
     __jsb_spine_Skeleton_proto->defineFunction("getBounds", _SE(js_Skeleton_getBounds));
+    __jsb_spine_Skeleton_proto->defineFunction("setSkin", _SE(js_spine_Skeleton_setSkin)); 
     __jsb_spine_Skin_proto->defineFunction("getAttachmentsForSlot", _SE(js_Skin_findAttachmentsForSlot));
     __jsb_spine_Bone_proto->defineFunction("worldToLocal", _SE(js_Bone_worldToLocal));
     __jsb_spine_Bone_proto->defineFunction("localToWorld", _SE(js_Bone_localToWorld));
