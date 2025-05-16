@@ -50,6 +50,15 @@ class Material;
 
 class AttachmentVertices;
 
+
+template <typename VertexType, typename UVArrayType>
+void loopUVCoords(VertexType *tmp, const UVArrayType &uvs, int count) {
+    for (int i = 0, ii = 0; i < count; ++i, ii += 2) {
+        tmp[i].texCoord.u = uvs[ii];
+        tmp[i].texCoord.v = uvs[ii + 1];
+    }
+}
+
 struct SlotCacheInfo {
     bool isOwner{false};
     spine::Attachment *attachment{nullptr};

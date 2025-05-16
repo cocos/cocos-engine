@@ -65,14 +65,6 @@ enum DebugType {
     BONES
 };
 
-template<typename VertexType, typename UVArrayType>
-void loopUVCoords(VertexType* tmp, const UVArrayType& uvs, int count) {
-    for (int i = 0, ii = 0; i < count; ++i, ii += 2) {
-        tmp[i].texCoord.u = uvs[ii];
-        tmp[i].texCoord.v = uvs[ii + 1];
-    }
-}
-
 extern "C" AttachmentVertices *generateAttachmentVertices(Attachment *attachment);
 namespace cc {
 SkeletonRenderer *SkeletonRenderer::create() {
@@ -1168,12 +1160,15 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
     if (!attachment) return;
     auto width = tex2d->getWidth();
     auto height = tex2d->getHeight();
+    auto *verticesMap = SkeletonDataMgr::getInstance()->getSkeletonDataInfo(_uuid);
+    if (!verticesMap) return;
+    auto &attachmentVerticesMap = *verticesMap;
+    auto *attachmentVertices = attachmentVerticesMap.at(attachment);
 
     if (createAttachment) {
         attachment = attachment->copy();
     }
     SlotCacheInfo slotCacheInfo{createAttachment, attachment, nullptr};
-    AttachmentVertices *attachmentVertices = nullptr;
     if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
         auto region = static_cast<RegionAttachment *>(attachment);
 #if CC_USE_SPINE_3_8
@@ -1185,7 +1180,6 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         region->setHeight(height);
         region->setUVs(0, 0, 1.0f, 1.0f, false);
         region->updateOffset();
-        attachmentVertices = static_cast<AttachmentVertices *>(region->getRendererObject());
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
             slotCacheInfo.attachmentVertices = attachmentVertices;
@@ -1215,8 +1209,6 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         uvs[0] = 1;
         uvs[1] = 1;
         region->updateRegion();
-        auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(textureRegion->rendererObject);
-        attachmentVertices = (*tmpMap)[slot->getAttachment()];
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
             slotCacheInfo.attachmentVertices = attachmentVertices;
@@ -1244,7 +1236,6 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         mesh->setRegionRotate(true);
         mesh->setRegionDegrees(0);
         mesh->updateUVs();
-        attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRendererObject());
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
             slotCacheInfo.attachmentVertices = attachmentVertices;
@@ -1265,8 +1256,6 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         mesh->setWidth(width);
         mesh->setHeight(height);
         mesh->updateRegion();
-        auto *tmpMap = static_cast<spine::HashMap<Attachment *, AttachmentVertices *> *>(mesh->getRegion()->rendererObject);
-        attachmentVertices = (*tmpMap)[slot->getAttachment()];
         if (createAttachment) {
             attachmentVertices = attachmentVertices->copy();
             slotCacheInfo.attachmentVertices = attachmentVertices;
