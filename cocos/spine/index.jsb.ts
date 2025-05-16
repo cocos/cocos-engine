@@ -93,16 +93,16 @@ export enum AnimationEventType {
      */
     END = 2,
     /**
-     * @en The entry will be disposed.
-     * @zh entry 将被销毁。
-     */
-    DISPOSE = 3,
-    /**
      * @en The play spine skeleton animation complete type.
      * @zh 播放骨骼动画完成。
      * @property {Number} COMPLETE
      */
-    COMPLETE = 4,
+    COMPLETE = 3,
+    /**
+     * @en The entry will be disposed.
+     * @zh entry 将被销毁。
+     */
+    DISPOSE = 4,
     /**
      * @en The spine skeleton animation event type.
      * @zh 骨骼动画事件。
