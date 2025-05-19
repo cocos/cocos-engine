@@ -444,7 +444,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             blit,
             'Draw3D',
             '',
-            emptyRenderData,
+            renderGraphPool.createRenderData(),
             !DEBUG,
             this._vertID,
         );
