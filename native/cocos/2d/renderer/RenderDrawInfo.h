@@ -99,15 +99,6 @@ public:
         _drawInfoAttrs._ibCount = ibCount;
     }
 
-    inline void storeIbCount(uint32_t ibCount) {
-        _originIbCount = ibCount;
-    }
-    
-    inline void restoreIbCount() {
-        if (_originIbCount > 0)
-            _drawInfoAttrs._ibCount = _originIbCount;
-    }
-
     inline bool getVertDirty() const { return _drawInfoAttrs._vertDirty; }
     inline void setVertDirty(bool val) {
         _drawInfoAttrs._vertDirty = val;
@@ -301,7 +292,6 @@ private:
     float* _vbBuffer{nullptr};
     // weak reference
     uint16_t* _ibBuffer{nullptr};
-    uint32_t _originIbCount{0}; // Used to restore ibCount.
 
     union {
         Node* _subNode{nullptr};

@@ -326,9 +326,6 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
                 _indexStart = _currMeshBuffer->getIndexOffset();
             }
         }
-        if (_currDrawInfo) {
-            _currDrawInfo->restoreIbCount();
-        }
         _currHash = dataHash;
         _currMaterial = drawInfo->getMaterial();
         _currStencilStage = tempStage;
@@ -431,15 +428,10 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
     // check for merge draw
     auto enableBatch = !entity->getUseLocal();
     if (enableBatch && _currTexture == texture && _currMeshBuffer == meshBuffer && !_currEntity->getUseLocal() && material->getHash() == _currMaterial->getHash() && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount() && layer == _currLayer) {
-        auto ibCount = _currDrawInfo->getIbCount();
-        _currDrawInfo->setIbCount(ibCount + drawInfo->getIbCount());
-        // Store the original value for post-rendering.
-        _currDrawInfo->storeIbCount(ibCount);
+        _currMiddlewareIbCount += drawInfo->getIbCount();
     } else {
         generateBatch(_currEntity, _currDrawInfo);
-        if (_currDrawInfo) {
-            _currDrawInfo->restoreIbCount();
-        }
+        _currMiddlewareIbCount = drawInfo->getIbCount();
         _currLayer = layer;
         _currMaterial = material;
         _currTexture = texture;
@@ -550,7 +542,7 @@ void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo*
     auto* meshBuffer = drawInfo->getMeshBuffer();
     // set meshbuffer offset
     auto indexOffset = drawInfo->getIndexOffset();
-    auto indexCount = drawInfo->getIbCount();
+    auto indexCount = _currMiddlewareIbCount;
     indexOffset += indexCount;
     if (meshBuffer->getIndexOffset() < indexOffset) {
         meshBuffer->setIndexOffset(indexOffset);
@@ -568,7 +560,7 @@ void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo*
     curdrawBatch->setVisFlags(_currLayer);
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setFirstIndex(drawInfo->getIndexOffset());
-    curdrawBatch->setIndexCount(drawInfo->getIbCount());
+    curdrawBatch->setIndexCount(indexCount);
     curdrawBatch->fillPass(material, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
     if (entity->getUseLocal()) {
@@ -591,11 +583,8 @@ void Batcher2d::resetRenderStates() {
     _currSamplerHash = 0;
     _currLayer = 0;
     _currEntity = nullptr;
-    if (_currDrawInfo) {
-        _currDrawInfo->restoreIbCount();
-        _currDrawInfo = nullptr;
-    }
-
+    _currMiddlewareIbCount = 0;
+    _currDrawInfo = nullptr;
 }
 
 gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, const gfx::DescriptorSetLayout* dsLayout) {

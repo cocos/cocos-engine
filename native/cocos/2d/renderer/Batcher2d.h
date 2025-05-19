@@ -116,6 +116,7 @@ private:
     // weak reference
     UIMeshBuffer* _currMeshBuffer{nullptr};
     uint32_t _indexStart{0};
+    uint32_t _currMiddlewareIbCount{0};
     ccstd::hash_t _currHash{0};
     uint32_t _currLayer{0};
     StencilStage _currStencilStage{StencilStage::DISABLED};
