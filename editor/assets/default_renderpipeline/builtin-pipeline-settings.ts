@@ -144,6 +144,10 @@ export class BuiltinPipelineSettings extends Component {
         type: CCBoolean,
     })
     set shadingScaleEnable(value: boolean) {
+        this._settings.enableShadingScale = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get shadingScaleEnable(): boolean {
         return this._settings.enableShadingScale;
