@@ -1154,7 +1154,7 @@ void AssetsManagerEx::batchDownload() {
 }
 
 void AssetsManagerEx::queueDowload() {
-    if (_totalWaitToDownload == 0 || (_canceled && _currConcurrentTask == 0)){
+    if (_totalWaitToDownload == 0 || (_canceled && _currConcurrentTask == 0)) {
         this->onDownloadUnitsFinished();
         return;
     }
@@ -1165,7 +1165,7 @@ void AssetsManagerEx::queueDowload() {
         _queue.pop_back();
 
         _currConcurrentTask++;
-        DownloadUnit& unit = _downloadUnits[key];
+        DownloadUnit &unit = _downloadUnits[key];
         _fileUtils->createDirectory(basename(unit.storagePath));
         auto downloadTask = _downloader->createDownloadTask(unit.srcUrl, unit.storagePath, unit.customId);
         _downloadingTask.emplace(unit.customId, downloadTask);
