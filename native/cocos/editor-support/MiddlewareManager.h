@@ -112,7 +112,8 @@ private:
     void updateOperateCache();
 
     ccstd::vector<IMiddleware *> _updateList;
-    ccstd::unordered_map<IMiddleware *, bool> _operateCacheMap;
+    // bool true means add, false means delete
+    ccstd::vector<std::pair<IMiddleware *, bool>> _operateCacheQueue;
     ccstd::unordered_map<int, MeshBuffer *> _mbMap;
 
     SharedBufferManager _renderInfo;
