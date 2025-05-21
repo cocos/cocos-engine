@@ -1027,15 +1027,12 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             const bloom = cameraConfigs.settings.bloom;
             const iterations = bloom.iterations;
             const format = cameraConfigs.radianceFormat;
-            if (bloom.type !== BloomType.MipmapFilter) {
-                for (let i = 0; i !== iterations + 1; ++i) {
-                    this._bloomWidths[i] = bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
-                    this._bloomHeights[i] = bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
-                    this._bloomTexDescs[i] = { name: `BloomTex${id}_${i}`, width: bloomWidth, height: bloomHeight };
-                    ppl.addRenderTarget(this._bloomTexDescs[i].name,
+            for (let i = 0; i !== iterations + 1; ++i) {
+                this._bloomWidths[i] = bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
+                this._bloomHeights[i] = bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
+                this._bloomTexDescs[i] = { name: `BloomTex${id}_${i}`, width: bloomWidth, height: bloomHeight };
+                ppl.addRenderTarget(this._bloomTexDescs[i].name,
                         format, bloomWidth, bloomHeight);
-                }
-                return;
             }
             this._originalColorDesc = { name: `OriginalColor${id}`, width, height };
             ppl.addRenderTarget(this._originalColorDesc.name, format, this._originalColorDesc.width, this._originalColorDesc.height);
