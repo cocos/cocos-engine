@@ -55,7 +55,9 @@ export class BuiltinPipelineSettings extends Component {
         const cameraComponent = this.getComponent(Camera)!;
         const camera = cameraComponent.camera;
         camera.pipelineSettings = this._settings;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     onDisable(): void {
         const cameraComponent = this.getComponent(Camera)!;
@@ -80,18 +82,18 @@ export class BuiltinPipelineSettings extends Component {
     }
     set editorPreview(v: boolean) {
         this._editorPreview = v;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     public _tryEnableEditorPreview(): void {
-        if (EDITOR) {
-            if (rendering === undefined) {
-                return;
-            }
-            if (this._editorPreview) {
-                rendering.setEditorPipelineSettings(this._settings);
-            } else {
-                this._disableEditorPreview();
-            }
+        if (rendering === undefined) {
+            return;
+        }
+        if (this._editorPreview) {
+            rendering.setEditorPipelineSettings(this._settings);
+        } else {
+            this._disableEditorPreview();
         }
     }
     public _disableEditorPreview(): void {
@@ -114,7 +116,9 @@ export class BuiltinPipelineSettings extends Component {
     }
     set MsaaEnable(value: boolean) {
         this._settings.msaa.enabled = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
 
     @property({
@@ -126,7 +130,9 @@ export class BuiltinPipelineSettings extends Component {
         value = 2 ** Math.ceil(Math.log2(Math.max(value, 2)));
         value = Math.min(value, 4);
         this._settings.msaa.sampleCount = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get msaaSampleCount(): number {
         return this._settings.msaa.sampleCount;
@@ -152,7 +158,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set shadingScale(value: number) {
         this._settings.shadingScale = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get shadingScale(): number {
         return this._settings.shadingScale;
@@ -165,7 +173,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomEnable(value: boolean) {
         this._settings.bloom.enabled = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get bloomEnable(): boolean {
         return this._settings.bloom.enabled;
@@ -177,7 +187,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomType(value: BloomType) {
         this._settings.bloom.type = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
 
     get bloomType(): BloomType {
@@ -193,7 +205,9 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.bloom.kawaseFilterMaterial = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get kawaseBloomMaterial(): Material {
         return this._settings.bloom.kawaseFilterMaterial!;
@@ -208,7 +222,9 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.bloom.mipmapFilterMaterial = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get mipmapBloomMaterial(): Material {
         return this._settings.bloom.mipmapFilterMaterial!;
@@ -221,7 +237,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomEnableAlphaMask(value: boolean) {
         this._settings.bloom.enableAlphaMask = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get bloomEnableAlphaMask(): boolean {
         return this._settings.bloom.enableAlphaMask;
@@ -236,7 +254,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomIterations(value: number) {
         this._settings.bloom.iterations = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get bloomIterations(): number {
         return this._settings.bloom.iterations;
@@ -264,7 +284,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomIntensity(value: number) {
         this._settings.bloom.intensity = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get bloomIntensity(): number {
         return this._settings.bloom.intensity;
@@ -277,7 +299,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set colorGradingEnable(value: boolean) {
         this._settings.colorGrading.enabled = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingEnable(): boolean {
         return this._settings.colorGrading.enabled;
@@ -292,7 +316,9 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.colorGrading.material = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingMaterial(): Material {
         return this._settings.colorGrading.material!;
@@ -319,7 +345,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set colorGradingMap(val: Texture2D) {
         this._settings.colorGrading.colorGradingMap = val;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingMap(): Texture2D {
         return this._settings.colorGrading.colorGradingMap!;
@@ -332,7 +360,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set fxaaEnable(value: boolean) {
         this._settings.fxaa.enabled = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fxaaEnable(): boolean {
         return this._settings.fxaa.enabled;
@@ -347,7 +377,9 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.fxaa.material = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fxaaMaterial(): Material {
         return this._settings.fxaa.material!;
@@ -359,7 +391,9 @@ export class BuiltinPipelineSettings extends Component {
         type: CCBoolean,
     })
     set fsrEnable(value: boolean) {
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fsrEnable(): boolean {
         return this._settings.fsr.enabled;
@@ -374,7 +408,9 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.fsr.material = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fsrMaterial(): Material {
         return this._settings.fsr.material!;
@@ -402,7 +438,9 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.toneMapping.material = value;
-        this._tryEnableEditorPreview();
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get toneMappingMaterial(): Material {
         return this._settings.toneMapping.material!;
