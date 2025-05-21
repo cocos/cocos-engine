@@ -284,7 +284,7 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
             }
         }
         
-        if (_stencilManager->getMaskStackSize() > 0) {
+        if (visible && _stencilManager->getMaskStackSize() > 0) {
             handlePostRender(entity);
         }
     }
