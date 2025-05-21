@@ -321,6 +321,7 @@ declare namespace jsb {
         prepareUpdate(): void;
         update(): void;
         isResuming(): boolean;
+        cancelUpdate(): void;
 
         getDownloadedFiles(): number;
         getDownloadedBytes(): number;
