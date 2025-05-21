@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Material, Texture2D, gfx } from 'cc';
+import { Material, Texture2D, gfx, ccenum } from 'cc';
 
 const { SampleCount } = gfx;
 
@@ -96,24 +96,33 @@ export function fillRequiredHBAO(value: HBAO): void {
     }
 }
 
+export enum BloomType {
+    MipmapFilter,
+    KawaseDualFilter,
+}
+ccenum(BloomType);
 export interface Bloom {
     enabled: boolean; /* false */
-    /* refcount */ material: Material | null;
+    type: BloomType;
+    /* refcount */ kawaseFilterMaterial: Material | null;
+    mipmapFilterMaterial: Material | null;
     enableAlphaMask: boolean; /* false */
     iterations: number; /* 3 */
     threshold: number; /* 0.8 */
-    intensity: number; /* 2.3 */
+    intensity: number; /* 1 */
     [name: string]: unknown;
 }
 
 export function makeBloom(): Bloom {
     return {
         enabled: false,
-        material: null,
+        type: BloomType.KawaseDualFilter,
+        kawaseFilterMaterial: null,
+        mipmapFilterMaterial: null,
         enableAlphaMask: false,
         iterations: 3,
         threshold: 0.8,
-        intensity: 2.3,
+        intensity: 1,
     };
 }
 
@@ -121,10 +130,16 @@ export function fillRequiredBloom(value: Bloom): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
-    if (value.material === undefined) {
-        value.material = null;
+    if (value.type === undefined) {
+        value.type = BloomType.KawaseDualFilter;
     }
-    if (value.enableAlphaMask === undefined) {
+    if (!value.kawaseFilterMaterial) {
+        value.kawaseFilterMaterial = null;
+    }
+    if (!value.mipmapFilterMaterial) {
+        value.mipmapFilterMaterial = null;
+    }
+    if (!value.enableAlphaMask) {
         value.enableAlphaMask = false;
     }
     if (value.iterations === undefined) {
@@ -134,7 +149,7 @@ export function fillRequiredBloom(value: Bloom): void {
         value.threshold = 0.8;
     }
     if (value.intensity === undefined) {
-        value.intensity = 2.3;
+        value.intensity = 1;
     }
 }
 

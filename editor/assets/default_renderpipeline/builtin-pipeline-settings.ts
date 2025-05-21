@@ -24,13 +24,14 @@
 
 import {
     _decorator, Camera, CCBoolean, CCFloat, CCInteger, Component,
-    Material, rendering, Texture2D,
+    Material, rendering, Texture2D, visible,
 } from 'cc';
 
 import { EDITOR } from 'cc/env';
 
 import {
-    fillRequiredPipelineSettings, makePipelineSettings, PipelineSettings,
+    BloomType,
+    fillRequiredPipelineSettings, getBuiltinBloomMaterial, makePipelineSettings, PipelineSettings,
 } from './builtin-pipeline-types';
 
 const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireComponent, type } = _decorator;
@@ -54,10 +55,7 @@ export class BuiltinPipelineSettings extends Component {
         const cameraComponent = this.getComponent(Camera)!;
         const camera = cameraComponent.camera;
         camera.pipelineSettings = this._settings;
-
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     onDisable(): void {
         const cameraComponent = this.getComponent(Camera)!;
@@ -82,18 +80,18 @@ export class BuiltinPipelineSettings extends Component {
     }
     set editorPreview(v: boolean) {
         this._editorPreview = v;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     public _tryEnableEditorPreview(): void {
-        if (rendering === undefined) {
-            return;
-        }
-        if (this._editorPreview) {
-            rendering.setEditorPipelineSettings(this._settings);
-        } else {
-            this._disableEditorPreview();
+        if (EDITOR) {
+            if (rendering === undefined) {
+                return;
+            }
+            if (this._editorPreview) {
+                rendering.setEditorPipelineSettings(this._settings);
+            } else {
+                this._disableEditorPreview();
+            }
         }
     }
     public _disableEditorPreview(): void {
@@ -116,9 +114,7 @@ export class BuiltinPipelineSettings extends Component {
     }
     set MsaaEnable(value: boolean) {
         this._settings.msaa.enabled = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
 
     @property({
@@ -130,9 +126,7 @@ export class BuiltinPipelineSettings extends Component {
         value = 2 ** Math.ceil(Math.log2(Math.max(value, 2)));
         value = Math.min(value, 4);
         this._settings.msaa.sampleCount = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get msaaSampleCount(): number {
         return this._settings.msaa.sampleCount;
@@ -144,10 +138,6 @@ export class BuiltinPipelineSettings extends Component {
         type: CCBoolean,
     })
     set shadingScaleEnable(value: boolean) {
-        this._settings.enableShadingScale = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
     }
     get shadingScaleEnable(): boolean {
         return this._settings.enableShadingScale;
@@ -162,9 +152,7 @@ export class BuiltinPipelineSettings extends Component {
     })
     set shadingScale(value: number) {
         this._settings.shadingScale = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get shadingScale(): number {
         return this._settings.shadingScale;
@@ -177,29 +165,53 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomEnable(value: boolean) {
         this._settings.bloom.enabled = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get bloomEnable(): boolean {
         return this._settings.bloom.enabled;
+    }
+
+    @type(BloomType)
+    @property({
+        group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
+    })
+    set bloomType(value: BloomType) {
+        this._settings.bloom.type = value;
+        this._tryEnableEditorPreview();
+    }
+
+    get bloomType(): BloomType {
+        return this._settings.bloom.type;
     }
 
     @property({
         group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
         type: Material,
     })
-    set bloomMaterial(value: Material) {
-        if (this._settings.bloom.material === value) {
+    set kawaseBloomMaterial(value: Material) {
+        if (this._settings.bloom.kawaseFilterMaterial === value) {
             return;
         }
-        this._settings.bloom.material = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._settings.bloom.kawaseFilterMaterial = value;
+        this._tryEnableEditorPreview();
     }
-    get bloomMaterial(): Material {
-        return this._settings.bloom.material!;
+    get kawaseBloomMaterial(): Material {
+        return this._settings.bloom.kawaseFilterMaterial!;
+    }
+
+    @property({
+        group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
+        type: Material,
+    })
+    set mipmapBloomMaterial(value: Material) {
+        if (this._settings.bloom.mipmapFilterMaterial === value) {
+            return;
+        }
+        this._settings.bloom.mipmapFilterMaterial = value;
+        this._tryEnableEditorPreview();
+    }
+    get mipmapBloomMaterial(): Material {
+        return this._settings.bloom.mipmapFilterMaterial!;
     }
 
     @property({
@@ -209,9 +221,7 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomEnableAlphaMask(value: boolean) {
         this._settings.bloom.enableAlphaMask = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get bloomEnableAlphaMask(): boolean {
         return this._settings.bloom.enableAlphaMask;
@@ -226,9 +236,7 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomIterations(value: number) {
         this._settings.bloom.iterations = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get bloomIterations(): number {
         return this._settings.bloom.iterations;
@@ -247,8 +255,16 @@ export class BuiltinPipelineSettings extends Component {
         return this._settings.bloom.threshold;
     }
 
+    @type(CCFloat)
+    @property({
+        group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
+    })
+    @visible(function(this: BuiltinPipelineSettings) {
+        return this.bloomType === BloomType.MipmapFilter;
+    })
     set bloomIntensity(value: number) {
         this._settings.bloom.intensity = value;
+        this._tryEnableEditorPreview();
     }
     get bloomIntensity(): number {
         return this._settings.bloom.intensity;
@@ -261,9 +277,7 @@ export class BuiltinPipelineSettings extends Component {
     })
     set colorGradingEnable(value: boolean) {
         this._settings.colorGrading.enabled = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get colorGradingEnable(): boolean {
         return this._settings.colorGrading.enabled;
@@ -278,9 +292,7 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.colorGrading.material = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get colorGradingMaterial(): Material {
         return this._settings.colorGrading.material!;
@@ -307,9 +319,7 @@ export class BuiltinPipelineSettings extends Component {
     })
     set colorGradingMap(val: Texture2D) {
         this._settings.colorGrading.colorGradingMap = val;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get colorGradingMap(): Texture2D {
         return this._settings.colorGrading.colorGradingMap!;
@@ -322,9 +332,7 @@ export class BuiltinPipelineSettings extends Component {
     })
     set fxaaEnable(value: boolean) {
         this._settings.fxaa.enabled = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get fxaaEnable(): boolean {
         return this._settings.fxaa.enabled;
@@ -339,9 +347,7 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.fxaa.material = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get fxaaMaterial(): Material {
         return this._settings.fxaa.material!;
@@ -353,10 +359,7 @@ export class BuiltinPipelineSettings extends Component {
         type: CCBoolean,
     })
     set fsrEnable(value: boolean) {
-        this._settings.fsr.enabled = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get fsrEnable(): boolean {
         return this._settings.fsr.enabled;
@@ -371,9 +374,7 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.fsr.material = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get fsrMaterial(): Material {
         return this._settings.fsr.material!;
@@ -401,9 +402,7 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         this._settings.toneMapping.material = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
+        this._tryEnableEditorPreview();
     }
     get toneMappingMaterial(): Material {
         return this._settings.toneMapping.material!;

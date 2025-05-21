@@ -256,7 +256,8 @@
             "dependentScripts": [
                 "ff9b0199-ce04-4cfe-86cc-6c719f08d6e4",
                 "de1c2107-70c8-4021-8459-6399f24d01c6",
-                "cbf30902-517f-40dc-af90-a550bac27cf1"
+                "cbf30902-517f-40dc-af90-a550bac27cf1",
+                "5c601d96-e4c7-4698-991b-7ee674b11079"
             ]
         },
         "custom-pipeline-post-process": {
