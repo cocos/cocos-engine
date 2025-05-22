@@ -52,13 +52,12 @@ function buildScreenQuadPass(
     colorName: string,
     material: Material,
     passIndex: number,
-    clearColor: gfx.Color = sClearColorTransparentBlack,
     loadOp: gfx.LoadOp = LoadOp.CLEAR,
-    storeOp: gfx.StoreOp = StoreOp.STORE,
+    clearColor: gfx.Color = sClearColorTransparentBlack,
     queueHint: rendering.QueueHint = rendering.QueueHint.OPAQUE,
 ): rendering.BasicRenderPassBuilder {
     const pass = ppl.addRenderPass(width, height, layout);
-    pass.addRenderTarget(colorName, loadOp, storeOp, clearColor);
+    pass.addRenderTarget(colorName, loadOp, StoreOp.STORE, clearColor);
     pass.addQueue(queueHint)
         .addFullscreenQuad(material, passIndex);
     return pass;
@@ -1248,7 +1247,6 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             radianceName,
             bloomMaterial,
             3,
-            sClearColorTransparentBlack,
             LoadOp.LOAD
         );
         combinePass.addTexture(this._bloomTexDescs[0].name, 'bloomTexture');
