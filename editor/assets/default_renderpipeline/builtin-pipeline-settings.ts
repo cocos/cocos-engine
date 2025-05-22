@@ -31,7 +31,7 @@ import { EDITOR } from 'cc/env';
 
 import {
     BloomType,
-    fillRequiredPipelineSettings, getBuiltinBloomMaterial, makePipelineSettings, PipelineSettings,
+    fillRequiredPipelineSettings, makePipelineSettings, PipelineSettings,
 } from './builtin-pipeline-types';
 
 const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireComponent, type } = _decorator;

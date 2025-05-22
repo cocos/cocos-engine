@@ -38,6 +38,14 @@ export interface MSAA {
     [name: string]: unknown;
 }
 
+export interface ForwardPassConfigs {
+    enableMainLightShadowMap: boolean;
+    enableMainLightPlanarShadowMap: boolean;
+    enablePlanarReflectionProbe: boolean;
+    enableMSAA: boolean;
+    enableSingleForwardPass: boolean;
+}
+
 export function makeMSAA(): MSAA {
     return {
         enabled: false,
