@@ -45,23 +45,6 @@ const { CameraUsage, CSMLevel, LightType } = scene;
 let ppl: rendering.BasicPipeline;
 let pplConfigs: PipelineConfigs;
 
-function addRenderTexture(
-    name: string,
-    format: gfx.Format,
-    width: number,
-    height: number,
-    window?: renderer.RenderWindow,
-    depthStencilName?: string
-) {
-    if (window) {
-        ppl.addRenderWindow(name, format, width, height, window, depthStencilName);
-    } else if (format === Format.DEPTH_STENCIL || format === Format.DEPTH) {
-        ppl.addDepthStencil(name, format, width, height);
-    } else {
-        ppl.addRenderTarget(name, format, width, height);
-    }
-}
-
 function buildScreenQuadPass(
     width: number,
     height: number,
@@ -69,8 +52,6 @@ function buildScreenQuadPass(
     colorName: string,
     material: Material,
     passIndex: number,
-    textures: { name: string, uniform: string }[] = [],
-    setUniforms: { name: string, value: Vec2 | Vec4 | number }[] = [],
     clearColor: gfx.Color = sClearColorTransparentBlack,
     loadOp: gfx.LoadOp = LoadOp.CLEAR,
     storeOp: gfx.StoreOp = StoreOp.STORE,
@@ -78,27 +59,9 @@ function buildScreenQuadPass(
 ): rendering.BasicRenderPassBuilder {
     const pass = ppl.addRenderPass(width, height, layout);
     pass.addRenderTarget(colorName, loadOp, storeOp, clearColor);
-    for (const tex of textures) {
-        pass.addTexture(tex.name, tex.uniform);
-    }
-    for (const v of setUniforms) {
-        if (v.value instanceof Vec2) {
-            pass.setVec2(v.name, v.value);
-        }
-        else if (v.value instanceof Vec4) {
-            pass.setVec4(v.name, v.value);
-        }
-        else {
-            pass.setFloat(v.name, v.value);
-        }
-    }
     pass.addQueue(queueHint)
         .addFullscreenQuad(material, passIndex);
     return pass;
-}
-
-function clearArray<T>(arr: T[]) {
-    arr.length = 0;
 }
 
 function forwardNeedClearColor(camera: renderer.scene.Camera): boolean {
@@ -237,15 +200,16 @@ function addCopyToScreenPass(
     input: string,
 ): rendering.BasicRenderPassBuilder {
     assert(!!cameraConfigs.copyAndTonemapMaterial);
-    return buildScreenQuadPass(
+    const pass = buildScreenQuadPass(
             cameraConfigs.nativeWidth,
             cameraConfigs.nativeHeight,
             'cc-tone-mapping',
             cameraConfigs.colorName,
             cameraConfigs.copyAndTonemapMaterial,
             1,
-            [{ name: input, uniform: 'inputTexture' }],
     );
+    pass.addTexture(input, 'inputTexture');
+    return pass;
 }
 
 export function getPingPongRenderTarget(prevName: string, prefix: string, id: number): string {
@@ -277,8 +241,8 @@ class ForwardLighting {
     // ----------------------------------------------------------------
     public cullLights(scene: renderer.RenderScene, frustum: geometry.Frustum, cameraPos?: Vec3): void {
         // TODO(zhouzhenglong): Make light culling native
-        clearArray(this.lights);
-        clearArray(this.shadowEnabledSpotLights);
+        this.lights.length = 0;
+        this.shadowEnabledSpotLights.length = 0;
         const cullSphereLights = (
             lights: Array<{ baked: boolean, position: Vec3, range: number, shadowEnabled?: boolean }>,
             onVisible: (light: any) => void,
@@ -435,7 +399,7 @@ class ForwardLighting {
     }
 
     public isMultipleLightPassesNeeded(): boolean {
-        return Boolean(this.shadowEnabledSpotLights.length);
+        return this.shadowEnabledSpotLights.length > 0;
     }
 }
 
@@ -516,13 +480,13 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
         }
 
         // Mainlight ShadowMap
-        addRenderTexture(
+        ppl.addRenderTarget(
             `ShadowMap${id}`,
             pplConfigs.shadowMapFormat,
             pplConfigs.shadowMapSize.x,
             pplConfigs.shadowMapSize.y,
         );
-        addRenderTexture(
+        ppl.addDepthStencil(
             `ShadowDepth${id}`,
             Format.DEPTH_STENCIL,
             pplConfigs.shadowMapSize.x,
@@ -533,13 +497,13 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
         if (cameraConfigs.enableSingleForwardPass) {
             const count = pplConfigs.mobileMaxSpotLightShadowMaps;
             for (let i = 0; i !== count; ++i) {
-                addRenderTexture(
+                ppl.addRenderTarget(
                     `SpotShadowMap${i}`,
                     pplConfigs.shadowMapFormat,
                     pplConfigs.shadowMapSize.x,
                     pplConfigs.shadowMapSize.y,
                 );
-                addRenderTexture(
+                ppl.addDepthStencil(
                     `SpotShadowDepth${i}`,
                     Format.DEPTH_STENCIL,
                     pplConfigs.shadowMapSize.x,
@@ -680,9 +644,9 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
                 const colorName = `PlanarProbeRT${probeID}`;
                 const depthStencilName = `PlanarProbeDS${probeID}`;
                 // ProbeResource
-                addRenderTexture(colorName,
+                ppl.addRenderWindow(colorName,
                     cameraConfigs.radianceFormat, width, height, window);
-                addRenderTexture(depthStencilName,
+                ppl.addDepthStencil(depthStencilName,
                     gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
 
                 // Rendering
@@ -697,9 +661,9 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
                     const colorName = `CubeProbeRT${probeID}${faceIdx}`;
                     const depthStencilName = `CubeProbeDS${probeID}${faceIdx}`;
                     // ProbeResource
-                    addRenderTexture(colorName,
+                    ppl.addRenderWindow(colorName,
                         cameraConfigs.radianceFormat, width, height, window);
-                    addRenderTexture(depthStencilName,
+                    ppl.addDepthStencil(depthStencilName,
                         gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
 
                     // Rendering
@@ -1065,21 +1029,22 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
         iterations: number
     ): void {
         for (let i = 0; i < this._bloomWidths.length; i++) {
+            // BloomTex
             this._bloomTexDescs[i] = this.createTexture(`BloomTex${id}_${i}`, this._bloomWidths[i], this._bloomHeights[i], format);
+            // DownSample
+            if (i < iterations) {
+                const scale = Math.pow(0.5, i + 2);
+                this._bloomDownSampleTexDescs[i] = this.createTexture(`DownSampleColor${id}${i}`, width * scale, height * scale, format);
+            }
+            // UpSample
+            if (i < iterations - 1) {
+                const scale = Math.pow(0.5, iterations - i - 1);
+                this._bloomUpSampleTexDescs[i] = this.createTexture(`UpSampleColor${id}${i}`, width * scale, height * scale, format);
+            }
         }
 
         this._originalColorDesc = this.createTexture(`OriginalColor${id}`, width, height, format);
         this._prefilterTexDesc = this.createTexture(`PrefilterColor${id}`, width * 0.5, height * 0.5, format);
-
-        this._bloomDownSampleTexDescs = Array.from({ length: iterations }, (_, i) => {
-            const scale = Math.pow(0.5, (i + 2));
-            return this.createTexture(`DownSampleColor${id}${i}`, width * scale, height * scale, format);
-        });
-
-        this._bloomUpSampleTexDescs = Array.from({ length: iterations - 1 }, (_, i) => {
-            const scale = Math.pow(0.5, iterations - i - 1);
-            return this.createTexture(`UpSampleColor${id}${i}`, width * scale, height * scale, format);
-        });
     }
 
     private createTexture(name: string, width: number, height: number, format: number): RenderTextureDesc {
@@ -1088,7 +1053,7 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             width: Math.floor(width),
             height: Math.floor(height),
         };
-        addRenderTexture(desc.name, format, desc.width, desc.height);
+        ppl.addRenderTarget(desc.name, format, desc.width, desc.height);
         return desc;
     }
 
@@ -1139,16 +1104,16 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
         const prefilterInfo = this._prefilterTexDesc;
         ppl.addCopyPass([{ source: radianceName, target: this._originalColorDesc.name }]);
         // Prefilter pass
-        buildScreenQuadPass(
+        let currSamplePass = buildScreenQuadPass(
             prefilterInfo.width,
             prefilterInfo.height,
             'cc-bloom-prefilter',
             prefilterInfo.name,
             bloomMaterial,
             0,
-            [{ name: radianceName, uniform: 'mainTexture' }],
-            [{ name: 'cc_debug_view_mode', value: this._bloomParams }],
         );
+        currSamplePass.addTexture(radianceName, 'mainTexture');
+        currSamplePass.setVec4('cc_debug_view_mode', this._bloomParams);
 
         const downSampleInfos = this._bloomDownSampleTexDescs;
         // Downsample passes
@@ -1158,16 +1123,16 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             const samplerSrcName = samplerSrc.name;
             this._bloomTexSize.x = 1 / samplerSrc.width;
             this._bloomTexSize.y = 1 / samplerSrc.height;
-            buildScreenQuadPass(
+            currSamplePass = buildScreenQuadPass(
                 currInfo.width,
                 currInfo.height,
                 'cc-bloom-downsample',
                 currInfo.name,
                 bloomMaterial,
                 1,
-                [{ name: samplerSrcName, uniform: 'mainTexture' }],
-                [{ name: 'cc_debug_view_mode', value: this._bloomTexSize }],
             );
+            currSamplePass.addTexture(samplerSrcName, 'mainTexture');
+            currSamplePass.setVec4('cc_debug_view_mode', this._bloomTexSize);
         }
         const lastIndex = downSampleInfos.length - 1;
         const upSampleInfos = this._bloomUpSampleTexDescs;
@@ -1178,17 +1143,17 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             const sampleSrcName = sampleSrc.name;
             this._bloomTexSize.x = 1 / sampleSrc.width;
             this._bloomTexSize.y = 1 / sampleSrc.height;
-            buildScreenQuadPass(
+            currSamplePass = buildScreenQuadPass(
                     currInfo.width,
                     currInfo.height,
                     'cc-bloom-upsample',
                     currInfo.name,
                     bloomMaterial,
                     2,
-                    [{ name: sampleSrcName, uniform: 'mainTexture' },
-                     { name: downSampleInfos[lastIndex - 1 - i].name, uniform: 'downsampleTexture' }],
-                    [{ name: 'cc_debug_view_mode', value: this._bloomTexSize }],
             );
+            currSamplePass.addTexture(sampleSrcName, 'mainTexture');
+            currSamplePass.addTexture(downSampleInfos[lastIndex - 1 - i].name, 'downsampleTexture');
+            currSamplePass.setVec4('cc_debug_view_mode', this._bloomTexSize);
         }
 
         // Combine pass
@@ -1199,11 +1164,10 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
                 radianceName,
                 bloomMaterial,
                 3,
-                [{ name: this._originalColorDesc.name, uniform: 'mainTexture' },
-                 { name: upSampleInfos[upSampleInfos.length - 1].name, uniform: 'bloomTexture' },
-                ],
-                [{ name: 'cc_debug_view_mode', value: this._bloomParams }],
         );
+        combinePass.addTexture(this._originalColorDesc.name, 'mainTexture');
+        combinePass.addTexture(upSampleInfos[upSampleInfos.length - 1].name, 'bloomTexture');
+        combinePass.setVec4('cc_debug_view_mode', this._bloomParams);
         if (cameraConfigs.remainingPasses === 0) {
             return addCopyToScreenPass(cameraConfigs, radianceName);
         } else {
@@ -1234,47 +1198,46 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
         this._bloomParams.w = settings.bloom.enableAlphaMask ? 1 : 0;
 
         // Prefilter pass
-        buildScreenQuadPass(
+        let currSamplePass = buildScreenQuadPass(
             this._bloomWidths[0],
             this._bloomHeights[0],
             'cc-bloom-prefilter',
             this._bloomTexDescs[0].name,
             bloomMaterial,
             0,
-            [{ name: radianceName, uniform: 'inputTexture' }],
-            [{ name: 'bloomParams', value: this._bloomParams }],
         );
-
+        currSamplePass.addTexture(radianceName, 'inputTexture');
+        currSamplePass.setVec4('bloomParams', this._bloomParams);
         // Downsample passes
         for (let i = 1; i !== sizeCount; ++i) {
             this._bloomTexSize.x = this._bloomWidths[i - 1];
             this._bloomTexSize.y = this._bloomHeights[i - 1];
-            buildScreenQuadPass(
+            currSamplePass = buildScreenQuadPass(
                 this._bloomWidths[i],
                 this._bloomHeights[i],
                 'cc-bloom-downsample',
                 this._bloomTexDescs[i].name,
                 bloomMaterial,
                 1,
-                [{ name: this._bloomTexDescs[i - 1].name, uniform: 'bloomTexture' }],
-                [{ name: 'bloomTexSize', value: this._bloomTexSize }],
             );
+            currSamplePass.addTexture(this._bloomTexDescs[i - 1].name, 'bloomTexture');
+            currSamplePass.setVec4('bloomTexSize', this._bloomTexSize);
         }
 
         // Upsample passes
         for (let i = iterations; i-- > 0;) {
             this._bloomTexSize.x = this._bloomWidths[i + 1];
             this._bloomTexSize.y = this._bloomHeights[i + 1];
-            buildScreenQuadPass(
+            currSamplePass = buildScreenQuadPass(
                 this._bloomWidths[i],
                 this._bloomHeights[i],
                 'cc-bloom-upsample',
                 this._bloomTexDescs[i].name,
                 bloomMaterial,
                 2,
-                [{ name: this._bloomTexDescs[i + 1].name, uniform: 'bloomTexture' }],
-                [{ name: 'bloomTexSize', value: this._bloomTexSize }],
             );
+            currSamplePass.addTexture(this._bloomTexDescs[i + 1].name, 'bloomTexture');
+            currSamplePass.setVec4('bloomTexSize', this._bloomTexSize);
         }
         this._bloomParams.w = settings.bloom.intensity;
         // Combine pass
@@ -1285,11 +1248,11 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
             radianceName,
             bloomMaterial,
             3,
-            [{ name: this._bloomTexDescs[0].name, uniform: 'bloomTexture' }],
-            [{ name: 'bloomParams', value: this._bloomParams }],
             sClearColorTransparentBlack,
             LoadOp.LOAD
         );
+        combinePass.addTexture(this._bloomTexDescs[0].name, 'bloomTexture');
+        combinePass.setVec4('bloomParams', this._bloomParams);
 
         if (cameraConfigs.remainingPasses === 0) {
             return addCopyToScreenPass(cameraConfigs, radianceName);
@@ -1303,8 +1266,8 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
     private readonly _bloomWidths: Array<number> = [];
     private readonly _bloomHeights: Array<number> = [];
     private readonly _bloomTexDescs: Array<RenderTextureDesc> = [];
-    private _bloomUpSampleTexDescs: Array<RenderTextureDesc> = [];
-    private _bloomDownSampleTexDescs: Array<RenderTextureDesc> = [];
+    private readonly _bloomUpSampleTexDescs: Array<RenderTextureDesc> = [];
+    private readonly _bloomDownSampleTexDescs: Array<RenderTextureDesc> = [];
     private _prefilterTexDesc: RenderTextureDesc;
     private _originalColorDesc: RenderTextureDesc;
 }
@@ -1404,10 +1367,10 @@ export class BuiltinToneMappingPassBuilder implements rendering.PipelinePassBuil
                     colorName,
                     settings.colorGrading.material,
                     isSquareMap ? 1 : 0,
-                    [{ name: radianceName, uniform: 'sceneColorMap' }],
-                    [{ name: 'lutTextureSize', value: this._colorGradingTexSize },
-                     { name: 'contribute', value: settings.colorGrading.contribute }],
             );
+            pass.addTexture(radianceName, 'sceneColorMap');
+            pass.setVec2('lutTextureSize', this._colorGradingTexSize);
+            pass.setFloat('contribute', settings.colorGrading.contribute);
         } else {
             pass = buildScreenQuadPass(
                 width,
@@ -1418,8 +1381,8 @@ export class BuiltinToneMappingPassBuilder implements rendering.PipelinePassBuil
                     ? settings.toneMapping.material
                     : cameraConfigs.copyAndTonemapMaterial!,
                 0,
-                [{ name: radianceName, uniform: 'inputTexture' }],
             );
+            pass.addTexture(radianceName, 'inputTexture');
         }
         return pass;
     }
@@ -1508,16 +1471,17 @@ export class BuiltinFXAAPassBuilder implements rendering.PipelinePassBuilder {
         this._fxaaParams.y = height;
         this._fxaaParams.z = 1 / width;
         this._fxaaParams.w = 1 / height;
-        return buildScreenQuadPass(
+        const pass = buildScreenQuadPass(
             width,
             height,
             'cc-fxaa',
             colorName,
             fxaaMaterial,
             0,
-            [{ name: ldrColorName, uniform: 'sceneColorMap' }],
-            [{ name: 'texSize', value: this._fxaaParams }],
         );
+        pass.addTexture(ldrColorName, 'sceneColorMap');
+        pass.setVec4('texSize', this._fxaaParams);
+        return pass;
     }
     // FXAA
     private readonly _fxaaParams = new Vec4(0, 0, 0, 0);
@@ -1599,31 +1563,29 @@ export class BuiltinFsrPassBuilder implements rendering.PipelinePassBuilder {
 
         const fsrColorName = getPingPongRenderTarget(outputColorName, uiColorPrefix, id);
         // EASU pass
-        buildScreenQuadPass(
+        let currPass = buildScreenQuadPass(
             nativeWidth,
             nativeHeight,
             'cc-fsr-easu',
             fsrColorName,
             fsrMaterial,
             0,
-            [{ name: inputColorName, uniform: 'outputResultMap' }],
-            [{ name: 'fsrTexSize', value: this._fsrTexSize }],
         );
-
+        currPass.addTexture(inputColorName, 'outputResultMap');
+        currPass.setVec4('fsrTexSize', this._fsrTexSize);
         // RCAS pass
-        return buildScreenQuadPass(
+        currPass = buildScreenQuadPass(
             nativeWidth,
             nativeHeight,
             'cc-fsr-rcas',
             outputColorName,
             fsrMaterial,
             1,
-            [{ name: fsrColorName, uniform: 'outputResultMap' }],
-            [
-                { name: 'fsrTexSize', value: this._fsrTexSize },
-                { name: 'fsrParams', value: this._fsrParams },
-            ],
         );
+        currPass.addTexture(fsrColorName, 'outputResultMap');
+        currPass.setVec4('fsrTexSize', this._fsrTexSize);
+        currPass.setVec4('fsrParams', this._fsrParams);
+        return currPass;
     }
     // FSR
     private readonly _fsrParams = new Vec4(0, 0, 0, 0);
@@ -1707,7 +1669,7 @@ if (rendering) {
 
         private _preparePipelinePasses(cameraConfigs: CameraConfigs): void {
             const passBuilders = this._passBuilders;
-            clearArray(passBuilders);
+            passBuilders.length = 0;
 
             const settings = cameraConfigs.settings as PipelineSettings2;
             if (settings._passes) {
@@ -1822,7 +1784,7 @@ if (rendering) {
             // Render Window (UI)
             const id = window.renderWindowId;
 
-            addRenderTexture(this._cameraConfigs.colorName,
+            ppl.addRenderWindow(this._cameraConfigs.colorName,
                 Format.RGBA8, nativeWidth, nativeHeight, window,
                 this._cameraConfigs.depthStencilName);
 
@@ -1830,20 +1792,20 @@ if (rendering) {
             const height = this._cameraConfigs.height;
 
             if (this._cameraConfigs.enableShadingScale) {
-                addRenderTexture(`ScaledSceneDepth_${id}`, Format.DEPTH_STENCIL, width, height);
-                addRenderTexture(`ScaledRadiance0_${id}`, this._cameraConfigs.radianceFormat, width, height);
-                addRenderTexture(`ScaledRadiance1_${id}`, this._cameraConfigs.radianceFormat, width, height);
-                addRenderTexture(`ScaledLdrColor0_${id}`, Format.RGBA8, width, height);
-                addRenderTexture(`ScaledLdrColor1_${id}`, Format.RGBA8, width, height);
+                ppl.addDepthStencil(`ScaledSceneDepth_${id}`, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`ScaledRadiance0_${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`ScaledRadiance1_${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`ScaledLdrColor0_${id}`, Format.RGBA8, width, height);
+                ppl.addRenderTarget(`ScaledLdrColor1_${id}`, Format.RGBA8, width, height);
             } else {
-                addRenderTexture(`SceneDepth_${id}`, Format.DEPTH_STENCIL, width, height);
-                addRenderTexture(`Radiance0_${id}`, this._cameraConfigs.radianceFormat, width, height);
-                addRenderTexture(`Radiance1_${id}`, this._cameraConfigs.radianceFormat, width, height);
-                addRenderTexture(`LdrColor0_${id}`, Format.RGBA8, width, height);
-                addRenderTexture(`LdrColor1_${id}`, Format.RGBA8, width, height);
+                ppl.addDepthStencil(`SceneDepth_${id}`, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`Radiance0_${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`Radiance1_${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`LdrColor0_${id}`, Format.RGBA8, width, height);
+                ppl.addRenderTarget(`LdrColor1_${id}`, Format.RGBA8, width, height);
             }
-            addRenderTexture(`UiColor0_${id}`, Format.RGBA8, nativeWidth, nativeHeight);
-            addRenderTexture(`UiColor1_${id}`, Format.RGBA8, nativeWidth, nativeHeight);
+            ppl.addRenderTarget(`UiColor0_${id}`, Format.RGBA8, nativeWidth, nativeHeight);
+            ppl.addRenderTarget(`UiColor1_${id}`, Format.RGBA8, nativeWidth, nativeHeight);
 
             for (const builder of this._passBuilders) {
                 if (builder.windowResize) {
