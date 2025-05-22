@@ -283,9 +283,6 @@ export class BuiltinPipelineSettings extends Component {
     @property({
         group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
     })
-    @visible(function(this: BuiltinPipelineSettings) {
-        return this.bloomType === BloomType.MipmapFilter;
-    })
     set bloomIntensity(value: number) {
         this._settings.bloom.intensity = value;
         if (EDITOR) {

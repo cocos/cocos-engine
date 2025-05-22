@@ -1276,7 +1276,7 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
                 [{ name: 'bloomTexSize', value: this._bloomTexSize }],
             );
         }
-
+        this._bloomParams.w = settings.bloom.intensity;
         // Combine pass
         const combinePass = buildScreenQuadPass(
             width,

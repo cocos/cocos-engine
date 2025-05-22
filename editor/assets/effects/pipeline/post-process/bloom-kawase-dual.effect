@@ -203,7 +203,7 @@ uniform sampler2D bloomTexture;
 layout(location = 0)out vec4 fragColor;
 
 void main() {
-  vec3 bloomColor = texture(bloomTexture, v_uv).rgb;
+  vec3 bloomColor = texture(bloomTexture, v_uv).rgb * bloomParams.w;
   fragColor = vec4(bloomColor, 0);
 }
 }%
