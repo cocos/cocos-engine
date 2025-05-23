@@ -217,7 +217,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public onInit (ps: ParticleSystem): void {
         super.onInit(ps);
 
-        this._particles = new RecyclePool((): Particle => new Particle(this), this._particleSystem!.capacity);
+        this._particles = new RecyclePool((): Particle => new Particle(this), 16);
         this._setVertexAttrib();
         this._setFillFunc();
         this._initModuleList();
@@ -426,7 +426,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
         }
 
-        for (let i = 0; i < this._particles!.length; ++i) {
+        for (let i = this._particles!.length - 1; i > 0; i--) {
             const p = this._particles!.data[i];
             p.remainingLifetime -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
@@ -436,7 +436,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     trailModule.removeParticle(p);
                 }
                 this._particles!.removeAt(i);
-                --i;
                 continue;
             }
 
@@ -508,7 +507,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public beforeRender (): void {
         // because we use index buffer, per particle index count = 6.
-        this._model!.updateIA(this._particleSystem!.capacity);
+        this._model!.updateIA(this._particles!.length);
     }
 
     public getParticleCount (): number {
