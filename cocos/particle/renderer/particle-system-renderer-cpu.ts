@@ -426,7 +426,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
         }
 
-        for (let i = this._particles!.length - 1; i > 0; i--) {
+        for (let i = this._particles!.length - 1; i >= 0; i--) {
             const p = this._particles!.data[i];
             p.remainingLifetime -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
