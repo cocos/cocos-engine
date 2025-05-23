@@ -217,7 +217,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public onInit (ps: ParticleSystem): void {
         super.onInit(ps);
 
-        this._particles = new RecyclePool((): Particle => new Particle(this), 16);
+        this._particles = new RecyclePool((): Particle => new Particle(this), this._particleSystem!.capacity);
         this._setVertexAttrib();
         this._setFillFunc();
         this._initModuleList();
@@ -508,7 +508,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public beforeRender (): void {
         // because we use index buffer, per particle index count = 6.
-        this._model!.updateIA(this._particles!.length);
+        this._model!.updateIA(this._particleSystem!.capacity);
     }
 
     public getParticleCount (): number {
