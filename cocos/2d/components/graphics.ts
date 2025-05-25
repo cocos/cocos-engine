@@ -552,7 +552,9 @@ export class Graphics extends UIRenderer {
         } else if (this.model) {
             for (let i = 0; i < this.model.subModels.length; i++) {
                 const subModel = this.model.subModels[i];
-                subModel.inputAssembler.indexCount = 0;
+                const ia = subModel.inputAssembler;
+                ia.indexCount = 0;
+                ia.vertexCount = 0;
             }
         }
 
