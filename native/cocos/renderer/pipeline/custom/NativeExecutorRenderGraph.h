@@ -27,6 +27,7 @@
 #include "LayoutGraphTypes.h"
 #include "NativePipelineTypes.h"
 #include "RenderGraphTypes.h"
+#include <boost/container/static_vector.hpp>
 
 namespace cc {
 
@@ -64,6 +65,7 @@ struct RenderGraphVisitorContext {
     gfx::RenderPass* currentPass = nullptr;
     uint32_t subpassIndex = 0;
     RenderGraph::vertex_descriptor currentInFlightPassID = RenderGraph::null_vertex();
+    boost::container::static_vector<bool, 2> passShowStatistics;
 };
 
 } // namespace render

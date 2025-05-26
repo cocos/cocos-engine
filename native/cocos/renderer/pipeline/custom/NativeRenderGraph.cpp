@@ -1069,58 +1069,40 @@ void NativeRenderQueueBuilder::addDraw2D(const scene::Camera *camera) {
 
 void NativeRenderQueueBuilder::addProfiler(const scene::Camera *camera) {
     CC_EXPECTS(camera);
-    bool showStatistics = false;
     const auto passOrSubpassId = parent(nodeID, *renderGraph);
-    {
-        CC_EXPECTS(passOrSubpassId != RenderGraph::null_vertex());
-        const auto passOrNullId = parent(passOrSubpassId, *renderGraph);
 
-        const auto passId = passOrNullId == RenderGraph::null_vertex()
-                                ? passOrSubpassId
-                                : passOrNullId;
+    const auto passLayoutId = locate(
+        LayoutGraphData::null_vertex(), "default", *layoutGraph);
+    const auto phaseLayoutId = locate(
+        passLayoutId, "default", *layoutGraph);
 
-        CC_ENSURES(passId != RenderGraph::null_vertex() &&
-                   holds<RasterPassTag>(passId, *renderGraph));
+    const auto queueId = addVertex2(
+        QueueTag{},
+        std::forward_as_tuple("Profiler Queue"),
+        std::forward_as_tuple("default"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(QueueHint::BLEND, phaseLayoutId, passLayoutId),
+        *renderGraph,
+        passOrSubpassId);
 
-        const auto &pass = get(RasterPassTag{}, passId, *renderGraph);
+    const auto sceneId = addVertex2(
+        BlitTag{},
+        std::forward_as_tuple("Profiler"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(
+            IntrusivePtr<Material>{},
+            RenderGraph::null_vertex(),
+            SceneFlags::NONE,
+            nullptr,
+            BlitType::DRAW_PROFILE),
+        *renderGraph,
+        queueId);
 
-        showStatistics = pass.showStatistics;
-    }
-
-    if (showStatistics) {
-        const auto passLayoutId = locate(
-            LayoutGraphData::null_vertex(), "default", *layoutGraph);
-        const auto phaseLayoutId = locate(
-            passLayoutId, "default", *layoutGraph);
-
-        const auto queueId = addVertex2(
-            QueueTag{},
-            std::forward_as_tuple("Profiler Queue"),
-            std::forward_as_tuple("default"),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(QueueHint::BLEND, phaseLayoutId, passLayoutId),
-            *renderGraph,
-            passOrSubpassId);
-
-        const auto sceneId = addVertex2(
-            BlitTag{},
-            std::forward_as_tuple("Profiler"),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(
-                IntrusivePtr<Material>{},
-                RenderGraph::null_vertex(),
-                SceneFlags::NONE,
-                nullptr,
-                BlitType::DRAW_PROFILE),
-            *renderGraph,
-            queueId);
-
-        auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneId);
-        setMat4Impl(data, *layoutGraph, "cc_matProj", camera->getMatProj());
-    }
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneId);
+    setMat4Impl(data, *layoutGraph, "cc_matProj", camera->getMatProj());
 }
 
 void NativeRenderQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {

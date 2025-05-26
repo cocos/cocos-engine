@@ -286,6 +286,12 @@ void submitUICommands(
 void submitProfilerCommands(
     RenderGraphVisitorContext& ctx,
     RenderGraph::vertex_descriptor sceneId) {
+    CC_EXPECTS(!ctx.passShowStatistics.empty());
+    if (!ctx.passShowStatistics.back()) {
+        // profiler is disabled
+        return;
+    }
+
     const auto* profiler = ctx.ppl->getProfiler();
     if (!profiler || !profiler->isEnabled()) {
         return;
@@ -452,6 +458,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
         // PerPass DescriptorSet
         tryBindPassDescriptorSet(vertID);
+
+        // Statistics
+        CC_EXPECTS(ctx.passShowStatistics.empty());
+        ctx.passShowStatistics.emplace_back(pass.showStatistics);
     }
     void begin(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
 #if CC_DEBUG
@@ -474,7 +484,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         tryBindPassDescriptorSet(vertID);
         ctx.subpassIndex = subpass.subpassID;
-        // noop
+
+        // Statistics
+        CC_EXPECTS(ctx.passShowStatistics.size() == 1);
+        ctx.passShowStatistics.emplace_back(subpass.showStatistics);
     }
     void begin(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -843,6 +856,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.currentPass = nullptr;
         ctx.viewportStack.pop_back();
         CC_ENSURES(ctx.viewportStack.empty());
+
+        // Statistics
+        ctx.passShowStatistics.pop_back();
+        CC_ENSURES(ctx.passShowStatistics.empty());
     }
     void end(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -858,7 +875,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         std::ignore = subpass;
         std::ignore = vertID;
         ctx.subpassIndex = 0;
-        // noop
+        ctx.passShowStatistics.pop_back();
+        CC_ENSURES(ctx.passShowStatistics.size() == 1);
     }
     void end(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -1388,7 +1406,9 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         RenderGraphVisitor visitor{{}, ctx};
         auto colors = rg.colors(scratch);
         for (const auto vertID : ctx.g.sortedVertices) {
-            if (holds<RasterPassTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g) || holds<CopyTag>(vertID, ctx.g)) {
+            if (holds<RasterPassTag>(vertID, ctx.g) ||
+                holds<ComputeTag>(vertID, ctx.g) ||
+                holds<CopyTag>(vertID, ctx.g)) {
                 boost::depth_first_visit(fg, vertID, visitor, get(colors, ctx.g));
             }
         }
