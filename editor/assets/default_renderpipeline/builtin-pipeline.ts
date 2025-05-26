@@ -1608,6 +1608,7 @@ export class BuiltinUiPassBuilder implements rendering.PipelinePassBuilder {
             .addQueue(rendering.QueueHint.BLEND, 'default', 'default');
         queue.addDraw2D(camera);
         if (cameraConfigs.enableProfiler) {
+            prevRenderPass.showStatistics = true;
             queue.addProfiler(camera);
         }
         return prevRenderPass;
@@ -1897,6 +1898,7 @@ if (rendering) {
             const queue = pass.addQueue(QueueHint.BLEND);
             queue.addScene(camera, flags);
             if (this._cameraConfigs.enableProfiler) {
+                pass.showStatistics = true;
                 queue.addProfiler(camera);
             }
         }

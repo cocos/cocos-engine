@@ -1211,7 +1211,7 @@ class DeviceRenderScene implements RecordingInterface {
     protected _showProfiler (): void {
         const rect = renderPassArea;
         const profiler = context.pipeline.profiler!;
-        if (!profiler || !profiler.enabled) {
+        if (!profiler || !profiler.enabled || !context.passShowStatistics) {
             return;
         }
         const profilerDesc = context.profilerDescriptorSet;
@@ -1563,6 +1563,7 @@ class ExecutorContext {
         this.pools.reset();
         this.cullCamera = null;
         this.lightResource.clear();
+        this.passShowStatistics = false;
     }
     resize (width: number, height: number): void {
         this.width = width;
@@ -1589,6 +1590,7 @@ class ExecutorContext {
     cullCamera;
     passDescriptorSet: DescriptorSet | null;
     profilerDescriptorSet: DescriptorSet;
+    passShowStatistics: boolean = false;
 }
 
 export class Executor {
@@ -1879,6 +1881,7 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
         const currPass = devicePasses.get(passHash);
         if (!currPass) return;
         this.currPass = currPass;
+        context.passShowStatistics = pass.showStatistics;
         this.currPass.record();
     }
     rasterSubpass (value: RasterSubpass): void {
