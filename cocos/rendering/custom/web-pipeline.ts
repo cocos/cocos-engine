@@ -324,25 +324,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             );
         }
         if (sceneFlags & SceneFlags.PROFILER) {
-            let showStatistics = false;
-            const N = this._renderGraph.N;
-            if (passOrSubpassId !== N) {
-                const passOrNullId = this._renderGraph.getParent(passOrSubpassId);
-                const passId = passOrNullId === N
-                    ? passOrSubpassId
-                    : passOrNullId;
-
-                if (
-                    passId !== N
-            && this._renderGraph.h(RenderGraphValue.RasterPass, passId)
-                ) {
-                    const pass = this._renderGraph.value(RenderGraphValue.RasterPass, passId);
-                    showStatistics = pass.showStatistics;
-                }
-            }
-            if (showStatistics) {
-                this.addProfiler(camera);
-            }
+            this.addProfiler(camera);
         }
         const sceneBuilder = pipelinePool.sceneBuilder.add();
         sceneBuilder.update(renderData, this._lg, this._renderGraph, sceneId, sceneData);
