@@ -1894,9 +1894,8 @@ if (rendering) {
                 .addScene(camera, SceneFlags.OPAQUE);
 
             // The blend queue is used for UI and Gizmos
-            const flags = SceneFlags.BLEND | SceneFlags.UI;
             const queue = pass.addQueue(QueueHint.BLEND);
-            queue.addScene(camera, flags);
+            queue.addDraw2D(camera);
             if (this._cameraConfigs.enableProfiler) {
                 pass.showStatistics = true;
                 queue.addProfiler(camera);
