@@ -303,7 +303,25 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         }
         const passOrSubpassId = this._renderGraph.getParent(this._vertID);
         if (sceneFlags & SceneFlags.UI) {
-            this.addDraw2D(camera);
+            const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
+                RenderGraphValue.Queue,
+                this._queue,
+                'UI Queue',
+                'default',
+                this._data,
+                !DEBUG,
+                passOrSubpassId,
+            );
+
+            this._renderGraph.addVertex<RenderGraphValue.Blit>(
+                RenderGraphValue.Blit,
+                renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_2D),
+                'UI',
+                '',
+                emptyRenderData,
+                !DEBUG,
+                queueId,
+            );
         }
         if (sceneFlags & SceneFlags.PROFILER) {
             let showStatistics = false;
@@ -407,25 +425,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         }
     }
     addDraw2D (camera: Camera): void {
-        const passOrSubpassId = this._renderGraph.getParent(this._vertID);
-        const passLayoutId = this._lg.locateChild(
-            this._lg.N,
-            'default',
-        );
-        const phaseLayoutId = this._lg.locateChild(
-            passLayoutId,
-            'default',
-        );
-        const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue,
-            this._queue,
-            'UI Queue',
-            'default',
-            this._data,
-            !DEBUG,
-            passOrSubpassId,
-        );
-
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit,
             renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_2D),
@@ -433,7 +432,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             '',
             emptyRenderData,
             !DEBUG,
-            queueId,
+            this._vertID,
         );
     }
     addProfiler (camera: Camera): void {
@@ -446,14 +445,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             emptyRenderData,
             !DEBUG,
             this._vertID,
-        );
-        const passLayoutId = this._lg.locateChild(
-            this._lg.N,
-            'default',
-        );
-        const phaseLayoutId = this._lg.locateChild(
-            passLayoutId,
-            'default',
         );
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
             RenderGraphValue.Queue,
