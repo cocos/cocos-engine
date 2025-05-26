@@ -1604,16 +1604,12 @@ export class BuiltinUiPassBuilder implements rendering.PipelinePassBuilder {
         prevRenderPass?: rendering.BasicRenderPassBuilder)
         : rendering.BasicRenderPassBuilder | undefined {
         assert(!!prevRenderPass);
-
-        let flags = rendering.SceneFlags.UI;
+        const queue = prevRenderPass
+            .addQueue(rendering.QueueHint.BLEND, 'default', 'default');
+        queue.addDraw2D(camera);
         if (cameraConfigs.enableProfiler) {
-            flags |= rendering.SceneFlags.PROFILER;
-            prevRenderPass.showStatistics = true;
+            queue.addProfiler(camera);
         }
-        prevRenderPass
-            .addQueue(rendering.QueueHint.BLEND, 'default', 'default')
-            .addScene(camera, flags);
-
         return prevRenderPass;
     }
 }
@@ -1897,13 +1893,12 @@ if (rendering) {
                 .addScene(camera, SceneFlags.OPAQUE);
 
             // The blend queue is used for UI and Gizmos
-            let flags = SceneFlags.BLEND | SceneFlags.UI;
+            const flags = SceneFlags.BLEND | SceneFlags.UI;
+            const queue = pass.addQueue(QueueHint.BLEND);
+            queue.addScene(camera, flags);
             if (this._cameraConfigs.enableProfiler) {
-                flags |= SceneFlags.PROFILER;
-                pass.showStatistics = true;
+                queue.addProfiler(camera);
             }
-            pass.addQueue(QueueHint.BLEND)
-                .addScene(camera, flags);
         }
 
         private _buildForwardPipeline(

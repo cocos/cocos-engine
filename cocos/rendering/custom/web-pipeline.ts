@@ -472,6 +472,15 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         );
     }
     addProfiler (camera: Camera): void {
+        this._renderGraph.addVertex<RenderGraphValue.Blit>(
+            RenderGraphValue.Blit,
+            renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_PROFILE),
+            'DrawProfiler',
+            '',
+            emptyRenderData,
+            !DEBUG,
+            this._vertID,
+        );
     }
     clearRenderTarget (name: string, color: Color = new Color()): void {
         const clearView = renderGraphPool.createClearView(name, ClearFlagBit.COLOR);
