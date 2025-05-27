@@ -41,7 +41,7 @@
 #include "cocos/scene/RenderWindow.h"
 #include "cocos/scene/SpotLight.h"
 #include "cocos/scene/DirectionalLight.h"
-#include "bindings/jswrapper/SeApi.h"
+#include "bindings/jswrapper/SeApi.h" // IWYU pragma: keep
 #include "cocos/renderer/pipeline/custom/NativeUtils.h"
 
 #if CC_USE_DEBUG_RENDERER
@@ -1650,18 +1650,6 @@ void NativePipeline::setCustomContext(std::string_view name) {
     if (iter != custom.contexts.end()) {
         custom.currentContext = iter->second;
     }
-}
-
-ccstd::string NativePipeline::getName() const {
-    return {};
-}
-
-void NativePipeline::setName(const ccstd::string &name) {
-    std::ignore = name;
-}
-
-void NativePipeline::setCustomBehavior(const ccstd::string &name) {
-    std::ignore = name;
 }
 
 void NativePipeline::setMat4(const ccstd::string &name, const Mat4 &mat) {

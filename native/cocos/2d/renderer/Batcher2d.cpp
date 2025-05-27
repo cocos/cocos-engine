@@ -33,6 +33,72 @@
 
 namespace cc {
 
+namespace {
+
+const bool ENABLE_SORTING_2D = true;
+int32_t sorting2DCount{0};
+
+CC_FORCE_INLINE void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    uint16_t* ib = drawInfo->getIDataBuffer();
+    
+    UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+    uint32_t indexOffset = buffer->getIndexOffset();
+    
+    uint16_t* indexb = drawInfo->getIbBuffer();
+    uint32_t indexCount = drawInfo->getIbCount();
+    
+    memcpy(&ib[indexOffset], indexb, indexCount * sizeof(uint16_t));
+    indexOffset += indexCount;
+    
+    buffer->setIndexOffset(indexOffset);
+}
+
+CC_FORCE_INLINE void fillVertexBuffers(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    Node* node = entity->getNode();
+    const Mat4& matrix = node->getWorldMatrix();
+    uint8_t stride = drawInfo->getStride();
+    uint32_t size = drawInfo->getVbCount() * stride;
+    float* vbBuffer = drawInfo->getVbBuffer();
+    for (int i = 0; i < size; i += stride) {
+        Render2dLayout* curLayout = drawInfo->getRender2dLayout(i);
+        // make sure that the layout of Vec3 is three consecutive floats
+        static_assert(sizeof(Vec3) == 3 * sizeof(float));
+        // cast to reduce value copy instructions
+        reinterpret_cast<Vec3*>(vbBuffer + i)->transformMat4(curLayout->position, matrix);
+    }
+}
+
+CC_FORCE_INLINE void setIndexRange(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+    uint32_t indexOffset = drawInfo->getIndexOffset();
+    uint32_t indexCount = drawInfo->getIbCount();
+    indexOffset += indexCount;
+    if (buffer->getIndexOffset() < indexOffset) {
+        buffer->setIndexOffset(indexOffset);
+    }
+}
+
+CC_FORCE_INLINE void fillColor(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
+    uint8_t stride = drawInfo->getStride();
+    uint32_t size = drawInfo->getVbCount() * stride;
+    float* vbBuffer = drawInfo->getVbBuffer();
+    Color temp = entity->getColor();
+    
+    uint32_t offset = 0;
+    for (int i = 0; i < size; i += stride) {
+        offset = i + 5;
+        // NOTE: Only support RGBA32F (4 floats) color fomat now.
+        // Spine set 'UIRenderer._useVertexOpacity = true', it uses RGBA32 (4 bytes) color and fills color in Skeleton._updateColor and spine/simple.ts assembler.
+        // So for Spine rendering, it will never go here to fill color.
+        vbBuffer[offset] = static_cast<float>(temp.r) / 255.0F;
+        vbBuffer[offset+1] = static_cast<float>(temp.g) / 255.0F;
+        vbBuffer[offset+2] = static_cast<float>(temp.b) / 255.0F;
+        vbBuffer[offset+3] = entity->getOpacity();
+    }
+}
+
+} // namespace
+
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
 }
 
@@ -44,6 +110,8 @@ Batcher2d::Batcher2d(Root* root)
     _root = root;
     _device = _root->getDevice();
     _stencilManager = StencilManager::getInstance();
+    
+    _recordedRendererInfoQueue.reserve(100);
 }
 
 Batcher2d::~Batcher2d() { // NOLINT
@@ -68,6 +136,10 @@ Batcher2d::~Batcher2d() { // NOLINT
     }
     _maskClearMtl = nullptr;
     _maskAttributes.clear();
+}
+
+ccstd::vector<RecordedRendererInfo> &Batcher2d::getRecordedRendererInfoQueue() {
+    return _recordedRendererInfoQueue;
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -98,6 +170,11 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     for (auto* rootNode : _rootNodeArr) {
         // _batches will add by generateBatch
         walk(rootNode, 1, false);
+        
+        if (ENABLE_SORTING_2D && sorting2DCount > 0) {
+            flushRecordedUIRenderers();
+        }
+        
         generateBatch(_currEntity, _currDrawInfo);
 
         auto* scene = rootNode->getScene()->getRenderScene();
@@ -109,32 +186,78 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     }
 }
 
-void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) { // NOLINT(misc-no-recursion)
+void Batcher2d::handleUIRenderer(RenderEntity *entity) { // NOLINT(misc-no-recursion)
+    uint32_t size = entity->getRenderDrawInfosSize();
+    for (uint32_t i = 0; i < size; i++) {
+        auto* drawInfo = entity->getRenderDrawInfoAt(i);
+        handleDrawInfo(entity, drawInfo, entity->getNode());
+    }
+    entity->setVBColorDirty(false);
+}
+
+int32_t Batcher2d::recordUIRenderer(RenderEntity *entity) {
+    if (!ENABLE_SORTING_2D) return -1;
+    auto &queue = getRecordedRendererInfoQueue();
+    auto &info = queue.emplace_back();
+    info.renderEntity = entity;
+    return static_cast<int32_t>(queue.size() - 1);
+}
+
+void Batcher2d::flushRecordedUIRenderers() { // NOLINT(misc-no-recursion)
+    if (!ENABLE_SORTING_2D) return;
+    auto &queue = getRecordedRendererInfoQueue();
+    if (queue.empty()) return;
+
+    std::stable_sort(queue.begin(), queue.end(), [](const auto &a, const auto &b){
+        return a.renderEntity->getPriority() < b.renderEntity->getPriority();
+    });
+
+    for (const auto &info : queue) {
+        auto *entity = info.renderEntity;
+        if (entity) {
+            handleUIRenderer(entity);
+        }
+    }
+    queue.clear();
+}
+
+void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { // NOLINT(misc-no-recursion)
     if (!node->isActiveInHierarchy()) {
         return;
     }
     bool breakWalk = false;
     auto* entity = static_cast<RenderEntity*>(node->getUserData());
-    bool opacityDirty = false;
+    
+    const bool isCurrentColorDirty = node->_isColorDirty() || parentColorDirty;
+    const float localOpacity = node->_getLocalOpacity();
+    // Keep the same logic as which in batcher-2d.ts
+    const float finalOpacity = parentOpacity * localOpacity * (entity ? entity->getColorAlpha() : 1.F);
+    node->_setFinalOpacity(finalOpacity);
+    
+    const bool visible = math::isNotEqualF(finalOpacity, 0);
+
     if (entity) {
-        if (entity->getColorDirty() || parentOpacityDirty) {
-            float localOpacity = entity->getLocalOpacity();
-            float localColorAlpha = entity->getColorAlpha();
-            entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
-            entity->setColorDirty(false);
-            entity->setVBColorDirty(true);
-            opacityDirty = true;
-        }
-        if (math::isEqualF(entity->getOpacity(), 0)) {
+        if (!visible) {
             breakWalk = true;
         } else if (entity->isEnabled()) {
-            uint32_t size = entity->getRenderDrawInfosSize();
-            for (uint32_t i = 0; i < size; i++) {
-                auto* drawInfo = entity->getRenderDrawInfoAt(i);
-                handleDrawInfo(entity, drawInfo, node);
+            if (isCurrentColorDirty) {
+                entity->setOpacity(finalOpacity);
+                entity->setVBColorDirty(true);
             }
-            entity->setVBColorDirty(false);
+            
+            if (ENABLE_SORTING_2D && sorting2DCount > 0) {
+                if (entity->getIsMask()) {
+                    flushRecordedUIRenderers();
+
+                    generateBatch(_currEntity, _currDrawInfo);
+                    resetRenderStates();
+                }
+                recordUIRenderer(entity);
+            } else {
+                handleUIRenderer(entity);
+            }
         }
+        
         if (entity->getRenderEntityType() == RenderEntityType::CROSSED) {
             breakWalk = true;
         }
@@ -142,16 +265,28 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) {
 
     if (!breakWalk) {
         const auto& children = node->getChildren();
-        float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
+        float thisOpacity = (entity && entity->isEnabled()) ? entity->getOpacity() : finalOpacity;
         for (const auto& child : children) {
             // we should find parent opacity recursively upwards if it doesn't have an entity.
-            walk(child, thisOpacity, opacityDirty || parentOpacityDirty);
+            walk(child, thisOpacity, isCurrentColorDirty);
         }
+    }
+    
+    if (isCurrentColorDirty) {
+        node->_setColorDirty(false);
     }
 
     // post assembler
-    if (_stencilManager->getMaskStackSize() > 0 && entity && entity->isEnabled()) {
-        handlePostRender(entity);
+    if (entity && entity->isEnabled()) {
+        if (ENABLE_SORTING_2D && sorting2DCount > 0) {
+            if (visible && entity->getIsMask()) {
+                flushRecordedUIRenderers();
+            }
+        }
+        
+        if (visible && _stencilManager->getMaskStackSize() > 0) {
+            handlePostRender(entity);
+        }
     }
 }
 
@@ -163,6 +298,7 @@ void Batcher2d::handlePostRender(RenderEntity* entity) {
         _stencilManager->exitMask();
     }
 }
+
 CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
     ccstd::hash_t dataHash = drawInfo->getDataHash();
     if (drawInfo->getIsMeshBuffer()) {
@@ -190,7 +326,6 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
                 _indexStart = _currMeshBuffer->getIndexOffset();
             }
         }
-
         _currHash = dataHash;
         _currMaterial = drawInfo->getMaterial();
         _currStencilStage = tempStage;
@@ -216,7 +351,18 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
         }
 
         if (entity->getVBColorDirty()) {
-            fillColors(entity, drawInfo);
+            switch (entity->getFillColorType()) {
+                case FillColorType::COLOR: {
+                    fillColor(entity, drawInfo);
+                    break;
+                }
+                case FillColorType::VERTEX: {
+                    // Use vertex color directly, so do nothing here.
+                    break;
+                }
+                default:
+                    break;
+            }
         }
 
         fillIndexBuffers(drawInfo);
@@ -281,11 +427,11 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
 
     // check for merge draw
     auto enableBatch = !entity->getUseLocal();
-    if (enableBatch && _currTexture == texture && _currMeshBuffer == meshBuffer && !_currEntity->getUseLocal() && material->getHash() == _currMaterial->getHash() && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount() && layer == _currLayer) {
-        auto ibCount = _currDrawInfo->getIbCount();
-        _currDrawInfo->setIbCount(ibCount + drawInfo->getIbCount());
+    if (enableBatch && _currTexture == texture && _currMeshBuffer == meshBuffer && !_currEntity->getUseLocal() && material->getHash() == _currMaterial->getHash() && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currMiddlewareIbCount && layer == _currLayer) {
+        _currMiddlewareIbCount += drawInfo->getIbCount();
     } else {
         generateBatch(_currEntity, _currDrawInfo);
+        _currMiddlewareIbCount = drawInfo->getIbCount();
         _currLayer = layer;
         _currMaterial = material;
         _currTexture = texture;
@@ -396,7 +542,7 @@ void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo*
     auto* meshBuffer = drawInfo->getMeshBuffer();
     // set meshbuffer offset
     auto indexOffset = drawInfo->getIndexOffset();
-    auto indexCount = drawInfo->getIbCount();
+    auto indexCount = _currMiddlewareIbCount;
     indexOffset += indexCount;
     if (meshBuffer->getIndexOffset() < indexOffset) {
         meshBuffer->setIndexOffset(indexOffset);
@@ -414,7 +560,7 @@ void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo*
     curdrawBatch->setVisFlags(_currLayer);
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setFirstIndex(drawInfo->getIndexOffset());
-    curdrawBatch->setIndexCount(drawInfo->getIbCount());
+    curdrawBatch->setIndexCount(indexCount);
     curdrawBatch->fillPass(material, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
     if (entity->getUseLocal()) {
@@ -424,6 +570,7 @@ void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo*
         curdrawBatch->setDescriptorSet(getDescriptorSet(texture, sampler, pass->getLocalSetLayout()));
     }
     _batches.push_back(curdrawBatch);
+
     // make sure next generateBatch return.
     resetRenderStates();
     _currMeshBuffer = nullptr;
@@ -436,6 +583,7 @@ void Batcher2d::resetRenderStates() {
     _currSamplerHash = 0;
     _currLayer = 0;
     _currEntity = nullptr;
+    _currMiddlewareIbCount = 0;
     _currDrawInfo = nullptr;
 }
 
@@ -618,4 +766,9 @@ void Batcher2d::createClearModel() {
         _maskClearModel->initSubModel(0, _maskModelMesh, _maskClearMtl);
     }
 }
+
+void Batcher2d::setSorting2DCount(int32_t v) {
+    sorting2DCount = v;
+}
+
 } // namespace cc

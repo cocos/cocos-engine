@@ -58,6 +58,8 @@ export enum CCObjectFlags {
     IsSizeLocked = 1 << 20,
     IsPositionLocked = 1 << 21,
 
+    IsSkipTransformUpdate = 1 << 24,
+
     // var Hide = HideInGame | HideInEditor,
     // should not clone or serialize these flags
     PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating

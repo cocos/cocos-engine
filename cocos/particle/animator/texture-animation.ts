@@ -297,4 +297,13 @@ export default class TextureAnimationModule extends ParticleModuleBase {
             }
         }
     }
+
+    /**
+     * @engineInternal
+     * @mangle
+     */
+    public scaleNumTilesXY (scale: number): void {
+        this._numTilesX *= scale;
+        this._numTilesY *= scale;
+    }
 }

@@ -34,7 +34,8 @@ export enum ContextType {
     WEBVIEW_UTILS,
     DISPLAY_UTILS,
     UV_ASYNC_SEND,
-    VIDEO_UTILS
+    VIDEO_UTILS,
+    MOUSE_WHEEL_NAPI
 }
 
 export class Constants {

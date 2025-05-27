@@ -49,65 +49,13 @@ USING_NS_MW;           // NOLINT(google-build-using-namespace)
 using namespace cc;    // NOLINT(google-build-using-namespace)
 using namespace spine; // NOLINT(google-build-using-namespace)
 
-static void deleteAttachmentVertices(void *vertices) {
-    delete static_cast<AttachmentVertices *>(vertices);
-}
-
-static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
-
-static void setAttachmentVertices(RegionAttachment *attachment) {
-#if CC_USE_SPINE_3_8
-    auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
-    auto *attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
-#else
-    auto *region = static_cast<AtlasRegion *>(attachment->getRegion());
-    auto *attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->texture), 4, quadTriangles, 6);
-#endif
-    V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
-    for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
-        vertices[i].texCoord.u = attachment->getUVs()[ii];
-        vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
-    }
-#if CC_USE_SPINE_3_8
-    attachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
-#else
-    attachment->getRegion()->rendererObject = attachmentVertices;
-#endif
-}
-
-static void setAttachmentVertices(MeshAttachment *attachment) {
-#if CC_USE_SPINE_3_8
-    auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
-    auto *attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->getRendererObject()),
-                                                      static_cast<int32_t>(attachment->getWorldVerticesLength() >> 1), attachment->getTriangles().buffer(), static_cast<int32_t>(attachment->getTriangles().size()));
-#else
-    auto *region = static_cast<AtlasRegion *>(attachment->getRegion());
-    auto *attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->texture),
-                                                      static_cast<int32_t>(attachment->getWorldVerticesLength() >> 1), attachment->getTriangles().buffer(), static_cast<int32_t>(attachment->getTriangles().size()));
-#endif
-    V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
-    for (size_t i = 0, ii = 0, nn = attachment->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
-        vertices[i].texCoord.u = attachment->getUVs()[ii];
-        vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
-    }
-#if CC_USE_SPINE_3_8
-    attachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
-#else
-    attachment->getRegion()->rendererObject = attachmentVertices;
-#endif
-}
-
 Cocos2dAtlasAttachmentLoader::Cocos2dAtlasAttachmentLoader(Atlas *atlas) : AtlasAttachmentLoader(atlas) {
 }
 
 Cocos2dAtlasAttachmentLoader::~Cocos2dAtlasAttachmentLoader() = default;
 
 void Cocos2dAtlasAttachmentLoader::configureAttachment(Attachment *attachment) {
-    if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
-        setAttachmentVertices(dynamic_cast<RegionAttachment *>(attachment));
-    } else if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
-        setAttachmentVertices(dynamic_cast<MeshAttachment *>(attachment));
-    }
+    //
 }
 
 uint32_t wrap(TextureWrap wrap) {

@@ -65,6 +65,10 @@ export class SortingLayers {
         return (((layer + (1 << 15)) << 16) | (order + (1 << 15))) >>> 0;
     }
 
+    public static getDefaultPriority (): number {
+        return this.getSortingPriority(SortingLayer.default, 0);
+    }
+
     /**
      * @zh 获取 Layer 顺序索引
      * @en Get Layer index by id
@@ -111,7 +115,7 @@ export class SortingLayers {
         const keyIterator = this.nameMap.keys();
         let key = 0;
         for (let i = 0; i < count; i++) {
-            key = keyIterator.next().value;
+            key = keyIterator.next().value as number;
             if (this.nameMap.get(key) === name) return key;
         }
         errorID(2106);

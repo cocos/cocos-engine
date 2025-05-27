@@ -42,6 +42,8 @@
 
 namespace cc {
 
+#define ASSETS_FOLDER_NAME "@assets/"
+
 NativeResourceManager *FileUtilsOpenHarmony::_nativeResourceManager = nullptr;
 
 FileUtils *createFileUtils() {
@@ -68,13 +70,20 @@ FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &
     if (fullPath.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
-
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
+    std::string relativePath;
+    if (0 == position) {
+        // "@assets/" is at the beginning of the path and we don't want it
+        relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));
+    } else {
+        relativePath = fullPath;
+    }
     if (nullptr == _nativeResourceManager) {
         CC_LOG_ERROR("nativeResourceManager is nullptr");
         return FileUtils::Status::NOT_INITIALIZED;
     }
 
-    RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, fullPath.c_str());
+    RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, relativePath.c_str());
     if (nullptr == rawFile) {
         return FileUtils::Status::OPEN_FAILED;
     }
@@ -107,9 +116,18 @@ FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename,
         CC_LOG_ERROR("nativeResourceManager is nullptr");
         return FileUtils::Status::NOT_INITIALIZED;
     }
+    ccstd::string relativePath;
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
+    if (0 == position) {
+        // "@assets/" is at the beginning of the path and we don't want it
+        relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));
+    } else {
+        relativePath = fullPath;
+    }
 
-    RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, fullPath.c_str());
+    RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, relativePath.data());
     if (nullptr == rawFile) {
+        CC_LOG_WARNING("asset (%s) is nullptr", filename.c_str());
         return FileUtils::Status::OPEN_FAILED;
     }
 
@@ -137,12 +155,12 @@ FileUtilsOpenHarmony::~FileUtilsOpenHarmony() {
 }
 
 bool FileUtilsOpenHarmony::init() {
-    _defaultResRootPath = "";
+    _defaultResRootPath = ASSETS_FOLDER_NAME;
     return FileUtils::init();
 }
 
 bool FileUtilsOpenHarmony::isAbsolutePath(const std::string &strPath) const {
-    return !strPath.empty() && (strPath[0] == '/');
+    return !strPath.empty() && ((strPath[0] == '/') || strPath.find(ASSETS_FOLDER_NAME) == 0);
 }
 
 std::string FileUtilsOpenHarmony::getSuitableFOpen(const std::string &filenameUtf8) const {
@@ -182,26 +200,27 @@ bool FileUtilsOpenHarmony::isFileExistInternal(const std::string &strFilePath) c
     if (strFilePath.empty()) {
         return false;
     }
-    std::string strPath = strFilePath;
-    if (!isAbsolutePath(strPath)) { // Not absolute path, add the default root path at the beginning.
-        strPath.insert(0, _defaultResRootPath);
-    } else {
-        FILE *fp = fopen(strFilePath.c_str(), "r");
-        if (fp) {
-            fclose(fp);
+
+    if (strFilePath[0] != '/') { 
+        const char *s = strFilePath.c_str();
+        // Found "@assets/" at the beginning of the path and we don't want it
+        if (strFilePath.find(ASSETS_FOLDER_NAME) == 0) s += strlen(ASSETS_FOLDER_NAME);
+        
+        if (nullptr == _nativeResourceManager) {
+            CC_LOG_ERROR("nativeResourceManager is nullptr");
+            return false;
+        }
+
+        RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, s);
+        if (rawFile) {
+            OH_ResourceManager_CloseRawFile64(rawFile);
             return true;
         }
         return false;
-    }
-
-    if (nullptr == _nativeResourceManager) {
-        CC_LOG_ERROR("nativeResourceManager is nullptr");
-        return false;
-    }
-
-    RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, strPath.c_str());
-    if (rawFile) {
-        OH_ResourceManager_CloseRawFile64(rawFile);
+    } 
+    FILE *fp = fopen(strFilePath.c_str(), "r");
+    if (fp) {
+        fclose(fp);
         return true;
     }
     return false;

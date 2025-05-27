@@ -1297,7 +1297,7 @@ EMSCRIPTEN_BINDINGS(spine) {
             return &obj.getPathConstraints(); }), allow_raw_pointer<SPVectorPathConstraintPtr>())
         .function("getUpdateCacheList", optional_override([](Skeleton &obj){
             return &obj.getUpdateCacheList(); }), allow_raw_pointer<SPVectorUpdatablePtr>())
-        .property("skin", &Skeleton::getSkin)
+        .property("skin", &Skeleton::_skin)
         .property("color", GETTER_RVAL_TO_PTR(Skeleton, getColor, Color*))
         .property("time", &Skeleton::_time)
         .property("scaleX", &Skeleton::_scaleX)
@@ -1359,7 +1359,6 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<>()
         .property("isCache", &SpineSkeletonInstance::isCache)
         .property("dtRate", &SpineSkeletonInstance::dtRate)
-        .property("enable", &SpineSkeletonInstance::enable)
         .function("initSkeleton", &SpineSkeletonInstance::initSkeleton, allow_raw_pointers())
         .function("setAnimation", &SpineSkeletonInstance::setAnimation, allow_raw_pointers())
         .function("setSkin", &SpineSkeletonInstance::setSkin)

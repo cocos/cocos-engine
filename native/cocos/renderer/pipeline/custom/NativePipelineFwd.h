@@ -48,6 +48,7 @@ template <class T>
 using Array4 = std::array<T, 4>;
 
 struct RenderGraphVisitorContext;
+struct FrameGraphDispatcher;
 
 } // namespace render
 
@@ -84,10 +85,6 @@ struct UniformBlockResource;
 struct ProgramResource;
 struct LayoutGraphNodeResource;
 struct QuadResource;
-
-enum class ResourceType : uint8_t;
-
-struct SceneResource;
 struct FrustumCullingKey;
 struct FrustumCullingID;
 struct FrustumCulling;
@@ -102,6 +99,8 @@ struct SceneCulling;
 struct LightResource;
 struct DescriptorSetKey;
 struct DescriptorSetContext;
+struct TextureWithAccessFlags;
+struct DeviceRenderData;
 struct NativeRenderContext;
 class NativeProgramLibrary;
 struct PipelineCustomization;

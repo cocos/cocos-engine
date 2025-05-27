@@ -80,7 +80,11 @@ public:
         size_t oldSize = _size;
         _size = newSize;
         if (_capacity < newSize) {
-            _capacity = (int)(_size * 1.75f);
+            if (_capacity == 0) {
+                _capacity = _size;
+            } else {
+                _capacity = (int)(_size * 1.75f);
+            }
             if (_capacity < 8) _capacity = 8;
             _buffer = spine::SpineExtension::realloc<T>(_buffer, _capacity, __SPINE_FILE__, __SPINE_LINE__);
         }
@@ -117,14 +121,14 @@ public:
         }
     }
 
-    void addAll(Vector<T> &inValue) {
+    void addAll(const Vector<T> &inValue) {
         ensureCapacity(this->size() + inValue.size());
         for (size_t i = 0; i < inValue.size(); i++) {
             add(inValue[i]);
         }
     }
 
-    void clearAndAddAll(Vector<T> &inValue) {
+    void clearAndAddAll(const Vector<T> &inValue) {
         this->clear();
         this->addAll(inValue);
     }
@@ -199,6 +203,13 @@ public:
         return _buffer;
     }
 
+    Vector &operator=(const Vector &inVector) {
+        if (this != &inVector) {
+            clearAndAddAll(inVector);
+        }
+        return *this;
+    }
+
 private:
     size_t _size;
     size_t _capacity;
@@ -227,8 +238,6 @@ private:
     inline void destroy(T *buffer) {
         buffer->~T();
     }
-
-    // Vector &operator=(const Vector &inVector) {};
 };
 } // namespace spine
 

@@ -65,6 +65,7 @@ const _uvs = [
 ];
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
+const CC_USE_EMBEDDED_ALPHA = 'CC_USE_EMBEDDED_ALPHA';
 
 const CC_RENDER_MODE = 'CC_RENDER_MODE';
 const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
@@ -729,6 +730,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
+            const texture = mat.getProperty('mainTexture', 0) as Texture2D | null;
+            if (texture && texture.isAlphaAtlas) {
+                textureModule.scaleNumTilesXY(2);
+                this._defines[CC_USE_EMBEDDED_ALPHA] = true;
+            }
             Vec4.copy(this._tmp_velLenScale, vlenScale); // fix textureModule switch bug
             Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
             pass.setUniform(this._uLenHandle, this._tmp_velLenScale);
@@ -771,6 +777,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _matInsInfo.subModelIdx = 0;
             }
             mat = mat || this._defaultTrailMat!;
+            const texture = mat.getProperty('mainTexture', 0) as Texture2D | null;
+            if (texture && texture.isAlphaAtlas) {
+                this._trailDefines[CC_USE_EMBEDDED_ALPHA] = true;
+            }
             mat.recompileShaders(this._trailDefines);
             trailModule.updateMaterial();
         }

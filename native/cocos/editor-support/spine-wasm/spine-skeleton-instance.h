@@ -6,7 +6,21 @@
 #include <string>
 #include "mesh-type-define.h"
 #include "spine-model.h"
+#include "AtlasAttachmentLoaderExtension.h"
 
+namespace {
+    struct SpineEventInfo {
+        spine::TrackEntry *entry{nullptr};
+        spine::EventType eventType{spine::EventType::EventType_Start};
+        spine::Event *event{nullptr};
+    };
+
+    struct SlotCacheInfo {
+        bool isOwner{false};
+        spine::Attachment *attachment{nullptr};
+        AttachmentVertices *attachmentVertices{nullptr};
+    };
+}
 enum DEBUG_SHAPE_TYPE {
     DEBUG_REGION = 0,
     DEBUG_MESH = 1
@@ -59,10 +73,16 @@ public:
     void setSlotTexture(const spine::String &slotName, const spine::String& textureUuid);
     void destroy();
     bool isCache{false};
-    bool enable{true};
     float dtRate{1.0F};
+
+    // Used internal for cache event
+    spine::Vector<SpineEventInfo> animationEvents;
+    spine::Vector<SpineEventInfo> trackEvents;
+    // Used internal for dispatch event
+    void dispatchEvents();
 private:
     void collectMeshData();
+    void releaseSlotCacheInfo(SlotCacheInfo &info);
 
 private:
     spine::Skeleton *_skeleton = nullptr;
@@ -78,5 +98,9 @@ private:
     spine::HashMap<spine::TrackEntry *, uint32_t> _trackListenerSet{};
     UserData _userData;
     spine::Vector<SpineDebugShape> _debugShapes{};
-    spine::HashMap<spine::Slot*, spine::String> _slotTextureSet{};
+    /**
+     * The slot's attachment may be modified when calling AnimationState::apply(), which can cause custom attachments to malfunction. 
+     * To prevent this, we need to cache the original attachment.
+     */
+    spine::HashMap<spine::Slot*, SlotCacheInfo> _slotTextureSet{};
 };

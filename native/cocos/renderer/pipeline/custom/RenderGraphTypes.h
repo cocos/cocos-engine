@@ -50,6 +50,7 @@
 #include "cocos/renderer/pipeline/custom/details/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/scene/Camera.h"
+#include "cocos/scene/Model.h"
 
 namespace cc {
 
@@ -947,18 +948,36 @@ struct Dispatch {
     uint32_t threadGroupCountZ{0};
 };
 
+enum class BlitType : uint8_t {
+    FULLSCREEN_QUAD,
+    DRAW_2D,
+    DRAW_PROFILE,
+    DRAW_3D,
+};
+
 struct Blit {
-    Blit() = default;
-    Blit(IntrusivePtr<Material> materialIn, uint32_t passIDIn, SceneFlags sceneFlagsIn, scene::Camera* cameraIn) noexcept
-    : material(std::move(materialIn)),
-      passID(passIDIn),
-      sceneFlags(sceneFlagsIn),
-      camera(cameraIn) {}
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {models.get_allocator().resource()};
+    }
+
+    Blit(const allocator_type& alloc) noexcept; // NOLINT
+    Blit(IntrusivePtr<Material> materialIn, uint32_t passIDIn, SceneFlags sceneFlagsIn, const scene::Camera* cameraIn, BlitType blitTypeIn, const allocator_type& alloc) noexcept;
+    Blit(const scene::Camera* cameraIn, BlitType blitTypeIn, ccstd::pmr::vector<IntrusivePtr<scene::Model>> modelsIn, const allocator_type& alloc);
+    Blit(Blit&& rhs, const allocator_type& alloc);
+    Blit(Blit const& rhs, const allocator_type& alloc);
+
+    Blit(Blit&& rhs) noexcept = default;
+    Blit(Blit const& rhs) = delete;
+    Blit& operator=(Blit&& rhs) noexcept = default;
+    Blit& operator=(Blit const& rhs) = default;
 
     IntrusivePtr<Material> material;
     uint32_t passID{0};
     SceneFlags sceneFlags{SceneFlags::NONE};
-    scene::Camera* camera{nullptr};
+    const scene::Camera* camera{nullptr};
+    BlitType blitType{BlitType::FULLSCREEN_QUAD};
+    ccstd::pmr::vector<IntrusivePtr<scene::Model>> models;
 };
 
 struct RenderData {

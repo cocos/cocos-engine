@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation, menu } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../misc/model-renderer';
@@ -1201,6 +1201,7 @@ export class TerrainBlock {
  */
 @ccclass('cc.Terrain')
 @help('i18n:cc.Terrain')
+@menu('Terrain/Terrain')
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {

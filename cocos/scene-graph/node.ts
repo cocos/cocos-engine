@@ -2290,7 +2290,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         while (i >= 0) {
             cur = dirtyNodes[i--];
             hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+            if (cur.isValid && !cur.isSkipTransformUpdate && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._transformFlags |= dirtyBit;
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
@@ -2987,6 +2987,24 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     _getUITransformComp (): UITransform | null {
         return this._uiProps.uiTransformComp;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set isSkipTransformUpdate (skip: boolean) {
+        if (skip) {
+            this._objFlags |= CCObjectFlags.IsSkipTransformUpdate;
+        } else {
+            this._objFlags &= ~CCObjectFlags.IsSkipTransformUpdate;
+        }
+    }
+
+    /**
+     * @engineInternal
+     */
+    get isSkipTransformUpdate (): boolean {
+        return (this._objFlags & CCObjectFlags.IsSkipTransformUpdate) !== 0;
     }
 }
 

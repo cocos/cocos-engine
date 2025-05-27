@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { TEST, USE_XR } from 'internal:constants';
+import { USE_XR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
 import { Material } from '../asset/assets/material';
@@ -33,7 +33,7 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, settings, warnID, SettingsCategory, CCObjectFlags } from '../core';
+import { preTransforms, System, sys, cclegacy, settings, warnID, SettingsCategory, CCObjectFlags, Color } from '../core';
 import { Root } from '../root';
 import { director, DirectorEvent, Game, game } from '../game';
 import { ccwindow } from '../core/global-exports';
@@ -100,8 +100,8 @@ export class Profiler extends System {
     private _device: Device | null = null;
     private _swapchain: Swapchain | null = null;
     private _meshRenderer: MeshRenderer = null!;
-    private readonly _canvas: HTMLCanvasElement | null = null;
-    private readonly _ctx: CanvasRenderingContext2D | null = null;
+    private _canvas: HTMLCanvasElement | null = null;
+    private _ctx: CanvasRenderingContext2D | null = null;
     private _texture: Texture | null = null;
     private readonly _region: BufferTextureCopy = new BufferTextureCopy();
     private readonly _canvasArr: HTMLCanvasElement[] = [];
@@ -114,20 +114,17 @@ export class Profiler extends System {
     private _statsDone = false;
     private _inited = false;
 
-    private _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
+    private readonly _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
     private _wordHeight = 0;
     private _eachNumWidth = 0;
     private _totalLines = 0; // total lines to display
 
     private lastTime = 0;   // update use time
+    private _backgroundColor = new Color(150, 150, 150, 100);
+    private _fontColor = Color.WHITE.clone();
 
     constructor () {
         super();
-        if (!TEST) {
-            this._canvas = ccwindow.document.createElement('canvas');
-            this._ctx = this._canvas.getContext('2d')!;
-            this._canvasArr.push(this._canvas);
-        }
     }
 
     init (): void {
@@ -136,6 +133,28 @@ export class Profiler extends System {
             this.showStats();
         } else {
             this.hideStats();
+        }
+    }
+
+    public setBackgroundColor (color: Readonly<Color>): void {
+        if (this._backgroundColor.equals(color)) {
+            return;
+        }
+        this._backgroundColor.set(color);
+        if (this._showFPS) {
+            this.hideStats();
+            this.showStats();
+        }
+    }
+
+    public setFontColor (color: Readonly<Color>): void {
+        if (this._fontColor.equals(color)) {
+            return;
+        }
+        this._fontColor.set(color);
+        if (this._showFPS) {
+            this.hideStats();
+            this.showStats();
         }
     }
 
@@ -160,19 +179,50 @@ export class Profiler extends System {
     }
 
     public hideStats (): void {
-        if (this._showFPS) {
-            if (this._rootNode) {
-                this._rootNode.active = false;
+        const self = this;
+        if (self._showFPS) {
+            self._profilerStats = null;
+            if (self._rootNode) {
+                self._rootNode.destroy();
+                self._rootNode = null;
+            }
+            self._device = null;
+            self._swapchain = null;
+            const meshRenderer = self._meshRenderer;
+            if (meshRenderer) {
+                meshRenderer.sharedMaterial?.destroy();
+                meshRenderer.mesh?.destroy();
+                meshRenderer.destroy();
+                self._meshRenderer = null!;
+            }
+            self._canvas = null;
+            self._ctx = null;
+            if (self._texture) {
+                self._texture.destroy();
+                self._texture = null;
             }
 
-            director.off(DirectorEvent.BEFORE_UPDATE, this.beforeUpdate, this);
-            director.off(DirectorEvent.AFTER_UPDATE, this.afterUpdate, this);
-            director.off(DirectorEvent.BEFORE_PHYSICS, this.beforePhysics, this);
-            director.off(DirectorEvent.AFTER_PHYSICS, this.afterPhysics, this);
-            director.off(DirectorEvent.BEFORE_DRAW, this.beforeDraw, this);
-            director.off(DirectorEvent.AFTER_RENDER, this.afterRender, this);
-            director.off(DirectorEvent.AFTER_DRAW, this.afterPresent, this);
-            this._showFPS = false;
+            self._canvasArr.length = 0;
+            self.digitsData = null!;
+            self.offsetData = null!;
+            self.pass = null!; // Pass was destroyed in the material
+            self._canvasDone = false;
+            self._statsDone = false;
+            self._inited = false;
+
+            self._wordHeight = 0;
+            self._eachNumWidth = 0;
+            self._totalLines = 0;
+            self.lastTime = 0;
+
+            director.off(DirectorEvent.BEFORE_UPDATE, self.beforeUpdate, self);
+            director.off(DirectorEvent.AFTER_UPDATE, self.afterUpdate, self);
+            director.off(DirectorEvent.BEFORE_PHYSICS, self.beforePhysics, self);
+            director.off(DirectorEvent.AFTER_PHYSICS, self.afterPhysics, self);
+            director.off(DirectorEvent.BEFORE_DRAW, self.beforeDraw, self);
+            director.off(DirectorEvent.AFTER_RENDER, self.afterRender, self);
+            director.off(DirectorEvent.AFTER_DRAW, self.afterPresent, self);
+            self._showFPS = false;
             director.root!.pipeline.profiler = null;
             cclegacy.game.config.showFPS = false;
         }
@@ -181,6 +231,10 @@ export class Profiler extends System {
     public showStats (): void {
         const game: Game = cclegacy.game;
         if (!this._showFPS) {
+            this._canvas = ccwindow.document.createElement('canvas');
+            this._ctx = this._canvas.getContext('2d')!;
+            this._canvasArr.push(this._canvas);
+
             if (!this._device) {
                 const root = cclegacy.director.root as Root;
                 this._device = deviceManager.gfxDevice;
@@ -232,7 +286,9 @@ export class Profiler extends System {
 
         ctx.font = `${_constants.fontSize}px Arial`;
         ctx.textBaseline = 'top';
-        ctx.fillStyle = '#fff';
+
+        const fontColor = this._fontColor;
+        ctx.fillStyle = `rgba(${fontColor.r}, ${fontColor.g}, ${fontColor.b}, ${fontColor.a / 255})`;
 
         this._texture = this._device!.createTexture(new TextureInfo(
             TextureType.TEX2D,
@@ -277,7 +333,8 @@ export class Profiler extends System {
             ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        const bgColor = this._backgroundColor;
+        ctx.fillStyle = `rgba(${bgColor.r}, ${bgColor.g}, ${bgColor.b}, ${bgColor.a / 255})`;
         ctx.fillRect(canvas.width - 4, canvas.height - 4, 4, 4);
 
         this._eachNumWidth /= canvas.width;

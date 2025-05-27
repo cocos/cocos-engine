@@ -36,7 +36,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 
 const nativePageLifecycle :context = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
 const engineUtils :context = nativerender.getContext(ContextType.ENGINE_UTILS);
-
+const mouseWheelNapi :context = nativerender.getContext(ContextType.MOUSE_WHEEL_NAPI);
 
 function executeMethodAsync(nativeFunc: Function, funcData: string, funCb: Function): void {
   nativeFunc && nativeFunc(funcData, funCb);
@@ -107,6 +107,7 @@ struct Index {
   private webViewIndexMap: Map<number, number> = new Map<number, number>();
   private videoIndexMap: Map<number, number> = new Map<number, number>();
   private workPort: PortProxy = new PortProxy(WorkerManager.getInstance().getWorker());
+  private panOption: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Up | PanDirection.Down});
   dialogController: CustomDialogController = new CustomDialogController({
     builder: EditBoxDialog({
       showInfo: this.showInfo,
@@ -431,6 +432,12 @@ struct Index {
     }
   }
 
+  onMouseWheel(eventType: string, event: PanGestureEvent) {
+      if(event.source == SourceType.Mouse) {
+        mouseWheelNapi.onMouseWheel(eventType, event.offsetY);
+      }
+  }
+
   build() {
     Flex({
       direction: FlexDirection.Column,
@@ -438,6 +445,20 @@ struct Index {
       justifyContent: FlexAlign.Center
     } as FlexOptions) {
       XComponent({ id: 'xcomponentId', type: 'surface', libraryname: 'cocos' })
+        .focusable(true)
+        .defaultFocus(true)
+        .gesture(
+          PanGesture(this.panOption)
+            .onActionStart((event: GestureEvent) => {
+              this.onMouseWheel("actionStart", event);
+            })
+            .onActionUpdate((event: GestureEvent) => {
+              this.onMouseWheel("actionUpdate", event);
+            })
+            .onActionEnd((event: GestureEvent) => {
+              this.onMouseWheel("actionEnd", event);
+            })
+        )
         .onLoad((context) => {
           // Set the cache directory in the ts layer.
           this.workPort.postMessage("onXCLoad", "XComponent");

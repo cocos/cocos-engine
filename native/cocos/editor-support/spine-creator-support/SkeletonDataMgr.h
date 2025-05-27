@@ -33,6 +33,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "base/RefCounted.h"
 #include "spine/SkeletonData.h"
 #include "spine/spine.h"
@@ -41,6 +42,7 @@ using namespace spine;
 namespace cc {
 
 class SkeletonDataInfo;
+class AttachmentVertices;
 
 /**
  * Cache skeleton data.
@@ -71,6 +73,9 @@ public:
     // equal to 'deleteByUUID'
     void releaseByUUID(const std::string &uuid);
 
+    std::unordered_map<Attachment *, AttachmentVertices *>
+        *getSkeletonDataInfo(const std::string &uuid);
+
     using destroyCallback = std::function<void(int)>;
     void setDestroyCallback(destroyCallback callback) {
         _destroyCallback = std::move(callback);
@@ -81,5 +86,4 @@ private:
     destroyCallback _destroyCallback = nullptr;
     std::map<std::string, SkeletonDataInfo *> _dataMap;
 };
-
 } // namespace cc

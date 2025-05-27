@@ -55,17 +55,22 @@ MeshBuffer *MiddlewareManager::getMeshBuffer(int format) {
 }
 
 void MiddlewareManager::updateOperateCache() {
-    for (auto &iter: _operateCacheMap) {
-        auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
-        if (iter.second) {
+    for (const auto &op : _operateCacheQueue) {
+        IMiddleware *editor = op.first;
+        bool isAddOperation = op.second;
+
+        auto it = std::find(_updateList.begin(), _updateList.end(), editor);
+        if (isAddOperation) {
             if (it == _updateList.end()) {
-                _updateList.push_back(iter.first);
+                _updateList.push_back(editor);
             }
-        } else if (it != _updateList.end()) {
-            _updateList.erase(it);
+        } else {
+            if (it != _updateList.end()) {
+                _updateList.erase(it);
+            }
         }
     }
-    _operateCacheMap.clear();
+    _operateCacheQueue.clear();
 }
 
 void MiddlewareManager::update(float dt) {
@@ -85,7 +90,7 @@ void MiddlewareManager::update(float dt) {
 void MiddlewareManager::render(float dt) {
     // Object._deferredDestroy is called after component update in Director.tick and before emitting BEFORE_DRAW event in which MiddlewareManager::render is invoked, 
     // so the native object may be released here and it needs to be erased from _updateList.
-    for (auto &iter : _operateCacheMap) {
+    for (auto &iter : _operateCacheQueue) {
         auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
         if (!iter.second && it != _updateList.end()) {
             _updateList.erase(it);
@@ -126,11 +131,11 @@ void MiddlewareManager::render(float dt) {
 }
 
 void MiddlewareManager::addTimer(IMiddleware *editor) {
-    _operateCacheMap[editor] = true;
+    _operateCacheQueue.emplace_back(editor, true);
 }
 
 void MiddlewareManager::removeTimer(IMiddleware *editor) {
-    _operateCacheMap[editor] = false;
+    _operateCacheQueue.emplace_back(editor, false);
 }
 
 se_object_ptr MiddlewareManager::getVBTypedArray(int format, int bufferPos) {

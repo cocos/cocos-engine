@@ -48,7 +48,7 @@ CC_ENUM_BITWISE_OPERATORS(TransformBit);
  * @en Node's mobility
  * @zh 节点的移动性
  */
-enum class MobilityMode {
+enum class MobilityMode : uint8_t {
     /**
      * @en Static node
      * @zh 静态节点

@@ -389,6 +389,7 @@ class RadialFilled implements IAssembler {
     }
 
     private createQuadIndices (indexCount: number): void {
+        if (!JSB) return;
         QUAD_INDICES = null;
         QUAD_INDICES = new Uint16Array(indexCount);
         let offset = 0;
@@ -424,6 +425,7 @@ class RadialFilled implements IAssembler {
     }
 
     private updateWorldUVData (sprite: Sprite): void {
+        if (!JSB) return;
         const renderData = sprite.renderData;
         if (!renderData) return;
         const stride = renderData.floatStride;

@@ -51,8 +51,13 @@ Node::Node() : Node(EMPTY_NODE_NAME) {
 }
 
 Node::Node(const ccstd::string &name) {
-#define NODE_SHARED_MEMORY_BYTE_LENGTH (28)
-    static_assert(offsetof(Node, _skewY) + sizeof(_skewY) - offsetof(Node, _eventMask) == NODE_SHARED_MEMORY_BYTE_LENGTH, "Wrong shared memory size");
+    _activeInHierarchy = 0;
+    _active = 1;
+    _isStatic = 0;
+    _colorDirty = 1;
+    
+#define NODE_SHARED_MEMORY_BYTE_LENGTH (36)
+    static_assert(offsetof(Node, _finalOpacity) + sizeof(_finalOpacity) - offsetof(Node, _eventMask) == NODE_SHARED_MEMORY_BYTE_LENGTH, "Wrong shared memory size");
     _sharedMemoryActor.initialize(&_eventMask, NODE_SHARED_MEMORY_BYTE_LENGTH);
 #undef NODE_SHARED_MEMORY_BYTE_LENGTH
 
@@ -597,7 +602,7 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
     auto curDirtyBit{static_cast<uint32_t>(dirtyBit)};
     const uint32_t hasChangedFlags = getChangedFlags();
     const uint32_t transformFlags = _transformFlags;
-    if (isValid() && (transformFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
+    if (isValid() && !getIsSkipTransformUpdate() && (transformFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
         _transformFlags = (transformFlags | curDirtyBit);
         setChangedFlags(hasChangedFlags | curDirtyBit);
 

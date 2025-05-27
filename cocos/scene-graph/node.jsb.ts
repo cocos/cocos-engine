@@ -1053,10 +1053,10 @@ Object.defineProperty(nodeProto, 'activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
+        return (this._sharedUint8Arr[0] & 0x01) !== 0; // Uint8, 0:0, activeInHierarchy
     },
     set(v) {
-        this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
+        v ? this._sharedUint8Arr[0] |= 0x01 : this._sharedUint8Arr[0] &= ~0x01; // Uint8, 0:0, activeInHierarchy
     },
 });
 
@@ -1064,10 +1064,10 @@ Object.defineProperty(nodeProto, '_activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
+        return (this._sharedUint8Arr[0] & 0x01) !== 0; // Uint8, 0:0, activeInHierarchy
     },
     set(v) {
-        this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
+        v ? this._sharedUint8Arr[0] |= 0x01 : this._sharedUint8Arr[0] &= ~0x01; // Uint8, 0:0, activeInHierarchy
     },
 });
 
@@ -1161,10 +1161,10 @@ Object.defineProperty(nodeProto, '_active', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
+        return (this._sharedUint8Arr[0] & 0x02) !== 0; // Uint8, 0:1, active
     },
     set(v) {
-        this._sharedUint8Arr[1] = (v ? 1 : 0); // Uint8, 1: active
+        v ? this._sharedUint8Arr[0] |= 0x02 : this._sharedUint8Arr[0] &= ~0x02; // Uint8, 0:1, active
     },
 });
 
@@ -1172,7 +1172,7 @@ Object.defineProperty(nodeProto, 'active', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
+        return (this._sharedUint8Arr[0] & 0x02) !== 0; // Uint8, 0:1, active
     },
     set(v) {
         this.setActive(!!v);
@@ -1183,10 +1183,21 @@ Object.defineProperty(nodeProto, '_static', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[2] != 0;
+        return (this._sharedUint8Arr[0] & 0x04) !== 0; // Uint8, 0:2, static
     },
     set(v) {
-        this._sharedUint8Arr[2] = (v ? 1 : 0);
+        v ? this._sharedUint8Arr[0] |= 0x04 : this._sharedUint8Arr[0] &= ~0x04; // Uint8, 0:2, static
+    },
+});
+
+Object.defineProperty(nodeProto, '_colorDirty', {
+    configurable: true,
+    enumerable: true,
+    get(): Readonly<Boolean> {
+        return (this._sharedUint8Arr[0] & 0x08) !== 0; // Uint8, 0:3, _colorDirty
+    },
+    set(v) {
+        v ? this._sharedUint8Arr[0] |= 0x08 : this._sharedUint8Arr[0] &= ~0x08; // Uint8, 0:3, _colorDirty
     },
 });
 
@@ -1194,10 +1205,10 @@ Object.defineProperty(nodeProto, '_skewType', {
     configurable: true,
     enumerable: true,
     get(): number {
-        return this._sharedUint8Arr[3];
+        return this._sharedUint8Arr[1];
     },
     set(v) {
-        this._sharedUint8Arr[3] = v;
+        this._sharedUint8Arr[1] = v;
     },
 });
 
@@ -1511,6 +1522,22 @@ nodeProto._setSkewY = function (v: number) {
     this._sharedFloat32Arr[1] = v;
 }
 
+nodeProto._getLocalOpacity = function (): number {
+    return this._sharedFloat32Arr[2];
+};
+
+nodeProto._setLocalOpacity = function (v: number): void {
+    this._sharedFloat32Arr[2] = v;
+}
+
+nodeProto._getFinalOpacity = function (): number {
+    return this._sharedFloat32Arr[3];
+};
+
+nodeProto._setFinalOpacity = function (v: number): void {
+    this._sharedFloat32Arr[3] = v;
+}
+
 //
 nodeProto._ctor = function (name?: string) {
     this.__nativeRefs = {};
@@ -1528,10 +1555,10 @@ nodeProto._ctor = function (name?: string) {
     this._sharedUint32Arr = new Uint32Array(sharedArrayBuffer, 0, 3);
     // Int32Array with 1 element: siblingIndex
     this._sharedInt32Arr = new Int32Array(sharedArrayBuffer, 12, 1);
-    // Uint8Array with 4 elements: activeInHierarchy, active, static, _hasSkewComp
+    // Uint8Array with 4 elements: (activeInHierarchy, active, static, localOpacityDirty) uses 1 bytes for booleans, skewType, 2 bytes padding
     this._sharedUint8Arr = new Uint8Array(sharedArrayBuffer, 16, 4);
-    // Float32Array with 2 elements: skewX, skewY
-    this._sharedFloat32Arr = new Float32Array(sharedArrayBuffer, 20, 2);
+    // Float32Array with 4 elements: skewX, skewY, localOpacity, finalOpacity
+    this._sharedFloat32Arr = new Float32Array(sharedArrayBuffer, 20, 4);
 
     this._sharedUint32Arr[1] = Layers.Enum.DEFAULT; // this._sharedUint32Arr[1] is layer
     this._scene = null;

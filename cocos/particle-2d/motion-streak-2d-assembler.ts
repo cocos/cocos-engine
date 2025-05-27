@@ -89,7 +89,8 @@ class MotionStreakAssembler implements IAssembler {
         const cr = color.r;
         const cg = color.g;
         const cb = color.b;
-        const ca = color.a;
+
+        const ca = node._uiProps.opacity * color.a;
 
         const prev = points[1];
         prev.distance = Vec2.subtract(_vec2, cur.point, prev.point).length();
@@ -153,6 +154,7 @@ class MotionStreakAssembler implements IAssembler {
         indexCount = vertexCount <= 2 ? 0 : (vertexCount - 2) * 3;
 
         renderData.resize(vertexCount, indexCount); // resize
+
         if (JSB) {
             const indexCount = renderData.indexCount;
             this.createQuadIndices(comp, indexCount);
@@ -167,12 +169,14 @@ class MotionStreakAssembler implements IAssembler {
     }
 
     private updateWorldVertexAllData (comp: MotionStreak): void {
+        if (!JSB) return;
         const renderData = comp.renderData;
         if (!renderData) return;
         const stride = renderData.floatStride;
         const dataList = renderData.data;
         const vData = renderData.chunk.vb;
-        for (let i  = 0; i < dataList.length; i++) {
+        const vertexCount = renderData.vertexCount;
+        for (let i  = 0; i < vertexCount; i++) {
             const offset = i * stride;
             vData[offset + 0] = dataList[i].x;
             vData[offset + 1] = dataList[i].y;
@@ -184,6 +188,7 @@ class MotionStreakAssembler implements IAssembler {
     }
 
     private createQuadIndices (comp: MotionStreak, indexCount: number): void {
+        if (!JSB) return;
         const renderData = comp.renderData;
         if (!renderData) return;
         const chunk = renderData.chunk;

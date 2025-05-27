@@ -37,7 +37,7 @@ import type { CopyPair, MovePair, ResolvePair, UploadPair } from './types';
 import { AccessType, AttachmentType, ClearValueType, LightInfo, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, RenderCommonObjectPool } from './types';
 import type { RenderScene } from '../../render-scene/core/render-scene';
 import type { RenderWindow } from '../../render-scene/core/render-window';
-import type { Light } from '../../render-scene/scene';
+import type { Light, Model } from '../../render-scene/scene';
 import { RecyclePool } from '../../core/memop';
 
 function resetColor (v: Color): void {
@@ -1080,23 +1080,47 @@ export class Dispatch {
     declare threadGroupCountZ: number;
 }
 
+export const enum BlitType {
+    FULLSCREEN_QUAD,
+    DRAW_2D,
+    DRAW_PROFILE,
+    DRAW_3D,
+}
+
 export class Blit {
-    constructor (material: Material | null = null, passID = 0, sceneFlags: SceneFlags = SceneFlags.NONE, camera: Camera | null = null) {
+    constructor (
+        material: Material | null = null,
+        passID = 0,
+        sceneFlags: SceneFlags = SceneFlags.NONE,
+        camera: Camera | null = null,
+        blitType: BlitType = BlitType.FULLSCREEN_QUAD,
+    ) {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
         this.camera = camera;
+        this.blitType = blitType;
     }
-    reset (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null): void {
+    reset (
+        material: Material | null,
+        passID: number,
+        sceneFlags: SceneFlags,
+        camera: Camera | null,
+        blitType: BlitType,
+    ): void {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
         this.camera = camera;
+        this.blitType = blitType;
+        this.models.length = 0;
     }
     declare /*refcount*/ material: Material | null;
     declare passID: number;
     declare sceneFlags: SceneFlags;
     declare /*pointer*/ camera: Camera | null;
+    declare blitType: BlitType;
+    readonly models: Model[] = [];
 }
 
 export class RenderData {
@@ -1761,9 +1785,10 @@ export class RenderGraphObjectPool {
         passID = 0,
         sceneFlags: SceneFlags = SceneFlags.NONE,
         camera: Camera | null = null,
+        blitType: BlitType = BlitType.FULLSCREEN_QUAD,
     ): Blit {
         const v = this.b.add(); // Blit
-        v.reset(material, passID, sceneFlags, camera);
+        v.reset(material, passID, sceneFlags, camera, blitType);
         return v;
     }
     createRenderData (): RenderData {

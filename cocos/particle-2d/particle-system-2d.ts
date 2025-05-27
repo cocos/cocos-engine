@@ -955,6 +955,7 @@ export class ParticleSystem2D extends UIRenderer {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid: string = dict.spriteFrameUuid;
             assetManager.loadAny(spriteFrameUuid, (err: Error, spriteFrame: SpriteFrame): void => {
+                if (!this.isValid) return;
                 if (err) {
                     dict.spriteFrameUuid = undefined;
                     this._initTextureWithDictionary(dict);
@@ -969,6 +970,7 @@ export class ParticleSystem2D extends UIRenderer {
             if (dict.textureFileName) {
                 // Try to get the texture from the cache
                 assetManager.loadRemote<ImageAsset>(imgPath, (err: Error | null, imageAsset: ImageAsset): void => {
+                    if (!this.isValid) return;
                     if (err) {
                         dict.textureFileName = undefined;
                         this._initTextureWithDictionary(dict);

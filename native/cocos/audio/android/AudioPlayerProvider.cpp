@@ -382,6 +382,12 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
         FILE *fp = fopen(audioFilePath.c_str(), "rb");
         if (fp != nullptr) {
             fseek(fp, 0, SEEK_END);
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+            int fd = fileno(fp);
+            if (fd > 0) {
+                assetFd = dup(fd);
+            }
+#endif
             fileSize = ftell(fp);
             fclose(fp);
         } else {
@@ -399,12 +405,6 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
 bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info) { //NOLINT(readability-convert-member-functions-to-static)
     //REFINE: If file size is smaller than 100k, we think it's a small file. This value should be set by developers.
     auto &audioFileInfo = const_cast<AudioFileInfo &>(info);
-    #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    if(audioFileInfo.url[0] == '/') {
-        // avplayer does not support playing audio files in sandbox path currently.
-        return true;
-    }
-    #endif
     size_t judgeCount = sizeof(gAudioFileIndicator) / sizeof(gAudioFileIndicator[0]);
     size_t pos = audioFileInfo.url.rfind('.');
     ccstd::string extension;

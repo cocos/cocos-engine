@@ -213,6 +213,10 @@ public:
         _eventCallback = callback;
     };
 
+    /** @brief Cancel update
+     */
+    void cancelUpdate();
+
 protected:
     void init(const std::string &manifestUrl, const std::string &storagePath);
 
@@ -417,6 +421,12 @@ private:
     static AssetsManagerEx *assetsManager;
     //! Marker for whether the assets manager is inited
     bool _inited = false;
+
+    //! Marker for whether the update is canceled
+    bool _canceled = false;
+
+    //! Downloading task container
+    std::unordered_map<std::string, std::shared_ptr<const network::DownloadTask>> _downloadingTask;
 };
 
 NS_CC_EXT_END

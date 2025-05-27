@@ -57,7 +57,9 @@ export class StaticVBChunk {
         public vb: Float32Array,
         public indexCount: number,
     ) {
-        this._ib = new Uint16Array(indexCount); // JSB
+        if (JSB) {
+            this._ib = new Uint16Array(indexCount); // JSB
+        }
         assertIsTrue(meshBuffer === vertexAccessor.getMeshBuffer(bufferId));
     }
 
@@ -163,8 +165,11 @@ export class StaticVBAccessor extends BufferAccessor {
             errorID(9004, byteLength);
             return null;
         }
-        let buf: MeshBuffer = null!; let freeList: IFreeEntry[];
-        let bid = 0; let eid = -1; let entry: IFreeEntry | null = null;
+        let buf: MeshBuffer = null!;
+        let freeList: IFreeEntry[];
+        let bid = 0;
+        let eid = -1;
+        let entry: IFreeEntry | null = null;
         // Loop buffers
         for (let i = 0; i < this._buffers.length; ++i) {
             buf = this._buffers[i];

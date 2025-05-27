@@ -507,6 +507,7 @@ void Skeleton::getBounds(float &outX, float &outY, float &outWidth,
 		} else if (attachment != NULL &&
 				   attachment->getRTTI().instanceOf(ClippingAttachment::rtti) && clipper != NULL) {
 			clipper->clipStart(*slot, static_cast<ClippingAttachment *>(attachment));
+            continue;
 		}
 
 		if (verticesLength > 0) {

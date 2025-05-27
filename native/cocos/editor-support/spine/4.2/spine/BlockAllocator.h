@@ -77,7 +77,10 @@ namespace spine {
         }
 
         void compress() {
-            if (blocks.size() == 1) return;
+            if (blocks.size() == 1) {
+                blocks[0].allocated = 0;
+                return;
+            }
             int totalSize = 0;
             for (int i = 0, n = (int)blocks.size(); i < n; i++) {
                 totalSize += blocks[i].size;

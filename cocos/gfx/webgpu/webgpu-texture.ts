@@ -174,14 +174,15 @@ export class WebGPUTexture extends Texture {
     }
 
     public destroy (): void {
+        this._hasChange = true;
         if (this._isTextureView || (!this._isTextureView && !this._gpuTexture)) {
+            this._gpuTexture = null;
             return;
         }
         WebGPUCmdFuncDestroyTexture(this._gpuTexture!);
         const device = WebGPUDeviceManager.instance;
         device.memoryStatus.textureSize -= this._size;
         this._gpuTexture = null;
-        this._hasChange = true;
     }
 
     public resize (width: number, height: number): void {

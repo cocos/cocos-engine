@@ -1,0 +1,188 @@
+name: Gen Simulator
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_simulator_ts:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { spine: spine-3.8 }
+          - { spine: spine-4.2 }
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download external libraries
+        run: |
+          EXT_VERSION=`node .github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
+      - run: npm install
+
+      - name: Build Simulator TS files to JS
+        run: |
+          rm -rf bin
+          mkdir bin
+          cd .github/workflows
+          node build-simulator-ts.js ${{ matrix.config.spine }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: native-preview-${{ matrix.config.spine }}
+          path: bin
+
+  win_gen_simulator:
+    runs-on: windows-2019
+    name: Windows
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { spine: 3.8 }
+          - { spine: 4.2 }
+          
+    steps:
+      - uses: actions/checkout@v4
+      - name: npm install
+        run: |
+          cd native
+          npm install
+
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`node .github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
+      - name: Install deps
+        uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
+        with:
+          vulkan-query-version: 1.2.189.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: false
+      - name: gen simulator
+        shell: bash
+        run: |
+          cd native
+          SPINE_VERSION=${{ matrix.config.spine }} npx gulp gen-simulator-release
+      
+      - name: check result and make dist
+        shell: bash
+        run: |
+          ls -l ./native/simulator/Release
+          mkdir dist
+          cp -r ./native/simulator/Release dist/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: SimulatorApp-Win32-spine-${{ matrix.config.spine }}
+          path: dist
+
+  mac_gen_simulator:
+    runs-on: macos-latest
+    name: MacOS
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { spine: 3.8 }
+          - { spine: 4.2 }
+    steps:
+      - uses: actions/checkout@v4
+      - name: npm install
+        run: |
+          cd native
+          npm install
+
+      - name: Download external libraries
+        run: |
+          EXT_VERSION=`node .github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
+      - name: gen simulator
+        run: |
+          cd native
+          SPINE_VERSION=${{ matrix.config.spine }} npx gulp gen-simulator-release
+
+      - name: check result and make dist
+        run: |
+          cd native
+          ls -l ./simulator/Release
+          rm -rf ./simulator/Release/*.a
+          find ./ -name SimulatorApp-Mac
+          echo "==> Show lipo info: "
+          lipo -info simulator/Release/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac
+
+          cd ..
+          mkdir dist
+          cp -r ./native/simulator/Release dist/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: SimulatorApp-Mac-spine-${{ matrix.config.spine }}
+          path: dist
+
+  release_package:
+    if: github.event_name == 'release'
+    name: "Release packages"
+    runs-on: macOS-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { spine: 3.8 }
+          - { spine: 4.2 }
+    permissions:
+      contents: write
+    needs: [build_simulator_ts, win_gen_simulator, mac_gen_simulator]
+    steps:
+    - name: Download native-preview-spine-${{ matrix.config.spine }}
+      uses: actions/download-artifact@v4
+      with:
+        name: native-preview-spine-${{ matrix.config.spine }}
+        path: artifacts/native-preview-spine-${{ matrix.config.spine }}
+
+    - name: Download SimulatorApp-Win32-spine-${{ matrix.config.spine }}
+      uses: actions/download-artifact@v4
+      with:
+        name: SimulatorApp-Win32-spine-${{ matrix.config.spine }}
+        path: artifacts/SimulatorApp-Win32-spine-${{ matrix.config.spine }}
+
+    - name: Download SimulatorApp-Mac-spine-${{ matrix.config.spine }}
+      uses: actions/download-artifact@v4
+      with:
+        name: SimulatorApp-Mac-spine-${{ matrix.config.spine }}
+        path: artifacts/SimulatorApp-Mac-spine-${{ matrix.config.spine }}
+
+    - name: Show exe permission
+      run: |
+        echo "Before modify exe permission"
+        ls -l artifacts/SimulatorApp-Mac-spine-${{ matrix.config.spine }}/Release/SimulatorApp-Mac.app/Contents/MacOS
+        chmod +x artifacts/SimulatorApp-Mac-spine-${{ matrix.config.spine }}/Release/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac
+        echo "After modify exe permission"
+        ls -l artifacts/SimulatorApp-Mac-spine-${{ matrix.config.spine }}/Release/SimulatorApp-Mac.app/Contents/MacOS
+
+    - name: Pack dist files
+      if: github.event_name == 'release'
+      uses: thedoctor0/zip-release@main
+      with:
+        type: 'zip'
+        directory: 'artifacts'
+        path: '.'
+        filename: 'cocos-creator-simulator-${{ github.event.release.tag_name }}-spine-${{ matrix.config.spine }}.zip'
+
+    - name: Upload to Release
+      if: github.event_name == 'release'
+      uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: artifacts/cocos-creator-simulator-${{ github.event.release.tag_name }}-spine-${{ matrix.config.spine }}.zip
+        asset_name: cocos-creator-simulator-${{ github.event.release.tag_name }}-spine-${{ matrix.config.spine }}.zip
+        tag: ${{ github.ref }}

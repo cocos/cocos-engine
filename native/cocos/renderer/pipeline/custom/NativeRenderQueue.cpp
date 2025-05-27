@@ -141,7 +141,8 @@ void RenderDrawQueue::recordCommandBuffer(
         auto *inputAssembler = subModel->getInputAssembler();
         const auto *pass = subModel->getPass(passIdx);
         auto *shader = subModel->getShader(passIdx);
-        auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
+        auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+            pass, shader, inputAssembler, renderPass, subpassIndex);
 
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindDescriptorSet(pipeline::materialSet, pass->getDescriptorSet());

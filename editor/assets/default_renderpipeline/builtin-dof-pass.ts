@@ -288,7 +288,6 @@ export class BuiltinDepthOfFieldPass extends BuiltinPipelinePassBuilder
         const blurPass = ppl.addRenderPass(width, height, 'cc-dof-blur');
         blurPass.addRenderTarget(tempRadiance, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         blurPass.addTexture(inputRadiance, 'screenTex');
-        blurPass.setVec4('g_platform', pplConfigs.platform);
         blurPass.setVec4('blurParams', this._cocParams);
         blurPass.setVec4('mainTexTexelSize', this._cocTexSize);
         blurPass
@@ -300,7 +299,6 @@ export class BuiltinDepthOfFieldPass extends BuiltinPipelinePassBuilder
         cocPass.addTexture(tempRadiance, 'colorTex');
         cocPass.addTexture(inputDepthStencil, "DepthTex");
         cocPass.addTexture(inputRadiance, "screenTex");
-        cocPass.setVec4('g_platform', pplConfigs.platform);
         cocPass.setMat4('proj', camera.matProj);
         cocPass.setMat4('invProj', camera.matProjInv);
         cocPass.setMat4('viewMatInv', camera.node.worldMatrix);

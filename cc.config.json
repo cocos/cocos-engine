@@ -82,6 +82,13 @@
         "affine-transform": {
             "modules": ["affine-transform"]
         },
+        "sorting-2d": {
+            "modules": ["sorting-2d"],
+            "overrideConstants": {
+                "USE_SORTING_2D": true
+            },
+            "dependentModules": ["2d"]
+        },
         "particle": {
             "modules": ["particle"],
             "dependentAssets": [
@@ -191,7 +198,10 @@
             "dependentModules": ["2d"]
         },
         "vendor-google": {
-            "modules": ["vendor-google"]
+            "modules": ["vendor-google"],
+            "intrinsicFlags": {
+                "USE_VENDOR_GOOGLE": true
+            }
         },
         "spine-3.8": {
             "modules": ["spine"],
@@ -246,7 +256,8 @@
             "dependentScripts": [
                 "ff9b0199-ce04-4cfe-86cc-6c719f08d6e4",
                 "de1c2107-70c8-4021-8459-6399f24d01c6",
-                "cbf30902-517f-40dc-af90-a550bac27cf1"
+                "cbf30902-517f-40dc-af90-a550bac27cf1",
+                "5c601d96-e4c7-4698-991b-7ee674b11079"
             ]
         },
         "custom-pipeline-post-process": {
@@ -458,6 +469,13 @@
             "overrides": {
                 "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-4.2.ts",
                 "cocos/spine/lib/spine-instantiate.ts": "cocos/spine/lib/spine-instantiate-4.2.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.USE_VENDOR_GOOGLE",
+            "isVirtualModule": false,
+            "overrides": {
+                "vendor/google/index.ts": "vendor/google/impl.ts"
             }
         }
     ],
@@ -788,6 +806,12 @@
             "type": "boolean",
             "value": false,
             "internal": true
+        },
+        "USE_SORTING_2D": {
+            "comment": "An internal constant to indicate whether we're using sorting-2d module.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
         }
     },
 
@@ -809,6 +833,7 @@
 
     "treeShake": {
         "noSideEffectFiles": [
+            "cocos/sorting/sorting-layers.ts",
             "cocos/xr/event/xr-event-handle.ts",
             "cocos/xr/xr-enums.ts",
             "cocos/serialization/instantiate-jit.ts",

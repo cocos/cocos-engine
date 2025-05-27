@@ -46,17 +46,19 @@ struct TrackEntryListeners {
 };
 
 void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->onAnimationStateEvent(entry, type, event);
+    auto *skeletonAnimation = static_cast<SkeletonAnimation *>(state->getRendererObject());
+    skeletonAnimation->cacheAnimationEvent(entry, type, event);
+    if (type == EventType::EventType_Dispose) {
+         /**
+         * In the official implementation of Spine's AnimationState class, the animationCallback is invoked after the trackEntryCallback. 
+         * After the AnimationState completes the EventType_Dispose callback, the TrackEntry will be reclaimed, so this event must be dispatched immediately.
+         */
+        skeletonAnimation->dispatchEvents();
+    }
 }
 
 void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->onTrackEntryEvent(entry, type, event);
-    if (type == EventType_Dispose) {
-        if (entry->getRendererObject()) {
-            delete static_cast<TrackEntryListeners *>(entry->getRendererObject());
-            entry->setRendererObject(nullptr);
-        }
-    }
+    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->cacheTrackEvent(entry, type, event);
 }
 
 static TrackEntryListeners *getListeners(TrackEntry *entry) {
@@ -72,6 +74,24 @@ void SkeletonAnimation::setGlobalTimeScale(float timeScale) {
     GlobalTimeScale = timeScale;
 }
 
+void SkeletonAnimation::cacheAnimationEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event) {
+    _vecAnimationEvents.push_back({type, entry, event});
+}
+
+void SkeletonAnimation::cacheTrackEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event) {
+    _vecTrackEvents.push_back({type, entry, event});
+}
+
+void SkeletonAnimation::dispatchEvents() {
+    auto animationEvents = std::move(_vecAnimationEvents);
+    auto trackEvents = std::move(_vecTrackEvents);
+    for (const auto &info : animationEvents) {
+        onAnimationStateEvent(info.entry, info.type, info.event);
+    }
+    for (const auto &info : trackEvents) {
+        onTrackEntryEvent(info.entry, info.type, info.event);
+    }
+}
 SkeletonAnimation *SkeletonAnimation::create() {
     auto *skeleton = new SkeletonAnimation();
     return skeleton;
@@ -104,7 +124,10 @@ void SkeletonAnimation::initialize() {
     _state->setListener(animationCallback);
 }
 
-SkeletonAnimation::SkeletonAnimation() = default;
+SkeletonAnimation::SkeletonAnimation() {
+    _vecAnimationEvents.reserve(EventType::EventType_Event + 1);
+    _vecTrackEvents.reserve(EventType::EventType_Event + 1);
+}
 
 SkeletonAnimation::~SkeletonAnimation() {
     _startListener = nullptr;
@@ -133,6 +156,7 @@ void SkeletonAnimation::update(float deltaTime) {
         _skeleton->updateWorldTransform(Physics::Physics_Update);
 #endif
     }
+    dispatchEvents();
 }
 
 void SkeletonAnimation::setAnimationStateData(AnimationStateData *stateData) {
@@ -265,6 +289,8 @@ void SkeletonAnimation::onTrackEntryEvent(TrackEntry *entry, EventType type, Eve
             break;
         case EventType_Dispose:
             if (listeners->disposeListener) listeners->disposeListener(entry);
+            delete static_cast<TrackEntryListeners *>(entry->getRendererObject());
+            entry->setRendererObject(nullptr);
             break;
         case EventType_Complete:
             if (listeners->completeListener) listeners->completeListener(entry);

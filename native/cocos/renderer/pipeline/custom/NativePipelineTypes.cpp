@@ -154,16 +154,6 @@ LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, 
   descriptorSetPool(std::move(rhs.descriptorSetPool), alloc),
   programResources(std::move(rhs.programResources), alloc) {}
 
-SceneResource::SceneResource(const allocator_type& alloc) noexcept
-: resourceIndex(alloc),
-  storageBuffers(alloc),
-  storageImages(alloc) {}
-
-SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
-: resourceIndex(std::move(rhs.resourceIndex), alloc),
-  storageBuffers(std::move(rhs.storageBuffers), alloc),
-  storageImages(std::move(rhs.storageImages), alloc) {}
-
 FrustumCulling::FrustumCulling(const allocator_type& alloc) noexcept
 : resultIndex(alloc) {}
 
@@ -210,14 +200,27 @@ LightResource::LightResource(const allocator_type& alloc) noexcept
   lights(alloc),
   lightIndex(alloc) {}
 
+DeviceRenderData::DeviceRenderData(const allocator_type& alloc) noexcept
+: buffers(alloc),
+  textures(alloc),
+  samplers(alloc) {}
+
+DeviceRenderData::DeviceRenderData(DeviceRenderData&& rhs, const allocator_type& alloc)
+: hasConstants(rhs.hasConstants),
+  required(rhs.required),
+  buffers(std::move(rhs.buffers), alloc),
+  textures(std::move(rhs.textures), alloc),
+  samplers(std::move(rhs.samplers), alloc) {}
+
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
-  renderSceneResources(alloc),
   sceneCulling(alloc),
   lightResources(alloc),
-  graphNodeContexts(alloc) {}
+  resourceGraphIndex(alloc),
+  graphNodeRenderData(alloc),
+  graphNodeDescriptorSets(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),

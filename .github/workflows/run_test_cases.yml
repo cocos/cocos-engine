@@ -348,7 +348,7 @@ jobs:
 
   Win-RunTestCasesCustom:
     if: |
-      contains(github.event.comment.body, '@cocos-robot run test cases custom')
+      contains(github.event.comment.body, '@cocos-robot run-test-cases-custom')
 
     runs-on: self-hosted-win
 
@@ -511,7 +511,7 @@ jobs:
 
   macOS-RunTestCasesCustom:
     if: |
-      contains(github.event.comment.body, '@cocos-robot run test cases custom')
+      contains(github.event.comment.body, '@cocos-robot run-test-cases-custom')
     runs-on: self-hosted-mac
 
     steps:

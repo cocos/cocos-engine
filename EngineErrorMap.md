@@ -3501,6 +3501,10 @@ The effect('%s') you are looking for does not exist, please confirm the effect n
 
 The asset replacing failed, can not found override asset('%s') for '%s'
 
+### 16300
+
+node '%s' doesn't have any UIRenderer component, this component will not work. please add UIRenderer component first
+
 ### 16301
 
 node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first

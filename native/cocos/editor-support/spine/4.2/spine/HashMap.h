@@ -165,7 +165,7 @@ namespace spine {
 			if (entry) return entry->_value;
 			else {
 				assert(false);
-				return 0;
+				return {};
 			}
 		}
 

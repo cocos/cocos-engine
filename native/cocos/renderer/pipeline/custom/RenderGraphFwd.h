@@ -87,6 +87,9 @@ enum class CullingFlags : uint32_t;
 
 struct SceneData;
 struct Dispatch;
+
+enum class BlitType : uint8_t;
+
 struct Blit;
 struct RenderData;
 struct RenderGraph;

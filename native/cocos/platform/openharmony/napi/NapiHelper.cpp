@@ -54,7 +54,8 @@ enum ContextType {
     WEBVIEW_UTILS,
     DISPLAY_UTILS,
     UV_ASYNC_SEND,
-    VIDEO_UTILS
+    VIDEO_UTILS,
+    MOUSE_WHEEL_NAPI
 };
 
 #define KEYCODE_BACK_OH 6
@@ -325,6 +326,16 @@ static void napiOnVideoEvent(const Napi::CallbackInfo &info) {
     }
 }
 
+static void napiOnMouseWheel(const Napi::CallbackInfo &info) {
+    if(info.Length() != 2) {
+        Napi::Error::New(info.Env(), "napiOnMouseWheel , 1 argument expected").ThrowAsJavaScriptException();
+        return;
+    }
+    std::string eventType = info[0].As<Napi::String>().ToString();
+    float offsetY = info[1].As<Napi::Number>().FloatValue();
+    OpenHarmonyPlatform::getInstance()->dispatchMouseWheelCB(eventType, offsetY);
+}
+
 // NAPI Interface
 static Napi::Value getContext(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
@@ -399,6 +410,9 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
         } break;
         case VIDEO_UTILS: {
             exports["onVideoEvent"] = Napi::Function::New(env, napiOnVideoEvent);
+        } break;
+        case MOUSE_WHEEL_NAPI: {
+            exports["onMouseWheel"] = Napi::Function::New(env, napiOnMouseWheel);
         } break;
         default:
             CC_LOG_ERROR("unknown type");
