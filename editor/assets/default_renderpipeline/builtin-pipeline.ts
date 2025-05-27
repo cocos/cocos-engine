@@ -989,7 +989,7 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
         config: CameraConfigs & BloomPassConfigs): void {
         const { bloom } = config.settings;
         const hasValidMaterial = (
-            bloom.type === BloomType.KawaseDualFilter && !!bloom.kawaseFilterMaterial ||
+            bloom.type === BloomType.KawaseDualFilter && !!bloom.material ||
                 bloom.type === BloomType.MipmapFilter && !!bloom.mipmapFilterMaterial
         );
         config.enableBloom = bloom.enabled && hasValidMaterial;
@@ -1070,7 +1070,7 @@ export class BuiltinBloomPassBuilder implements rendering.PipelinePassBuilder {
         assert(cameraConfigs.remainingPasses >= 0);
         const id = camera.window.renderWindowId;
         const bloomType = bloom.type;
-        let currMat = bloom.kawaseFilterMaterial;
+        let currMat = bloom.material;
         let bloomFunc = this._addKawaseDualFilterBloomPasses;
         if (bloomType === BloomType.MipmapFilter) {
             currMat = bloom.mipmapFilterMaterial;

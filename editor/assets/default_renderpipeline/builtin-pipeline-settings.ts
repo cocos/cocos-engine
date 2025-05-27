@@ -204,17 +204,17 @@ export class BuiltinPipelineSettings extends Component {
         group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
         type: Material,
     })
-    set kawaseBloomMaterial(value: Material) {
-        if (this._settings.bloom.kawaseFilterMaterial === value) {
+    set material(value: Material) {
+        if (this._settings.bloom.material === value) {
             return;
         }
-        this._settings.bloom.kawaseFilterMaterial = value;
+        this._settings.bloom.material = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
     }
-    get kawaseBloomMaterial(): Material {
-        return this._settings.bloom.kawaseFilterMaterial!;
+    get material(): Material {
+        return this._settings.bloom.material!;
     }
 
     @property({
