@@ -39,7 +39,7 @@ import { PortProxy } from '../common/PortProxy';
   }
   globalThis.importPolyfill();
   globalThis.oh = {};
-  <% } %>
+<% } %>
 
 if (!(console as any).assert) {
   (console as any).assert = function (cond, msg) {
@@ -86,7 +86,7 @@ uiPort.on("onXCLoad", () => {
     }).catch(e => {
       console.error('launch CC engine failed');
     });
-    <% } %>
+  <% } %>
   // @ts-ignore
   globalThis.oh.postMessage = nativeContext.postMessage;
   // @ts-ignore

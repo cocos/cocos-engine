@@ -15,7 +15,6 @@ export default class EntryAbility extends UIAbility {
   private windowStageType: windowStageType = windowStageType.hide;
 
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
-    globalThis.abilityWant = want;
     nativeAppLifecycle.onCreate();
     nativeContext.resourceManagerInit(this.context.resourceManager);
   }

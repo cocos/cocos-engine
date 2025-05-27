@@ -23,7 +23,7 @@
 */
 
 import { CallbacksInvoker } from './CallbacksInvoker';
-import { createMap } from './utils';
+import { createMap } from './Utils';
 
 type Constructor<T> = new (...args: any[]) => T;
 

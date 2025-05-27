@@ -23,8 +23,8 @@
  THE SOFTWARE.
 */
 
-import { Pool } from './pool';
-import { createMap } from './utils';
+import { Pool } from './Pool';
+import { createMap } from './Utils';
 
 
 enum MessageType {

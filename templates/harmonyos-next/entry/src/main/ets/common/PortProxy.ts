@@ -24,8 +24,8 @@
  ****************************************************************************/
 import worker, { ThreadWorkerGlobalScope } from '@ohos.worker';
 import { MessageEvent } from '@ohos.worker';
-import { EventTarget } from  './EventTarget'
 import { MessageEvents } from '@kit.ArkTS';
+import { EventTarget } from  './EventTarget'
 
 let portProxy: PortProxy;
 export class PortProxy extends EventTarget {

@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Eventify } from './eventify';
+import { Eventify } from './Eventify';
 
 class Empty { }
 
