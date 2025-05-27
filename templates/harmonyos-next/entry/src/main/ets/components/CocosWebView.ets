@@ -30,6 +30,12 @@ interface param {
   url: string,
 }
 
+export enum LoadType {
+  URL,
+  HTML_STRING,
+  DATA,
+}
+
 @Observed
 export class WebViewInfo {
   // position
@@ -39,11 +45,18 @@ export class WebViewInfo {
   public w: number = 0;
   public h: number = 0;
   // url
-  public url: string = '';
+  public url?: string;
   // tag
   public viewTag: number = 0;
   // Whether to display
   public visible: boolean = true;
+  public isInited: boolean = false;
+  public contents?: string;
+  public baseUrl?: string;
+  public mimeType?: string;
+  public encoding?: string;
+  public loadType: LoadType = LoadType.URL;
+  public jsContents?: string;
   /*
    * doc : https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/reference/arkui-ts/ts-basic-components-web.md#webcontroller
    */
@@ -57,9 +70,27 @@ export class WebViewInfo {
     this.viewTag = viewTag;
 
     web.once("webInited", () => {
-      if (this.url != '') {
-        this.controller.loadUrl(this.url);
-      }
+        this.isInited = true;
+        if(this.loadType == LoadType.URL) {
+          this.controller.loadUrl(this.url);
+        } else if(this.loadType == LoadType.DATA) {
+          this.controller.loadData(
+            this.contents,
+            this.mimeType,
+            this.encoding,
+            this.baseUrl
+          );
+        } else if(this.loadType == LoadType.  HTML_STRING) {
+          this.controller.loadData(
+            this.contents,
+            "text/html",
+            "UTF-8",
+            this.baseUrl
+          );
+        }
+        if(this.jsContents && this.jsContents?.length > 0) {
+          this.controller.runJavaScript(this.jsContents);
+        }
     });
   }
 }

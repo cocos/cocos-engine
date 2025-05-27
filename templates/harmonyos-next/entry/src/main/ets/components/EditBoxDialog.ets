@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import { PortProxy } from '../common/PortProxy';
 @Observed
 export class EditboxShowInfo {
   public backgroundColor: number = 0xFFFFFFFF;
@@ -40,18 +41,17 @@ export class EditboxShowInfo {
 export struct EditBoxDialog {
   private inputMessage: string = ''
   @ObjectLink showInfo: EditboxShowInfo;
-  onTextChange?: (msg: string) => void;
-  accept?: (msg: string) => void;
+
   controller?: CustomDialogController;
-  cancel?: () => void;
-  confirm?: (msg: string) => void;
+  workPort?: PortProxy;
+
+
 
   build() {
     Column() {
       Row() {
         TextInput({ text: this.showInfo.defaultMessage })
           .defaultFocus(true)
-          .backgroundColor('#ffffff')
           .backgroundColor(this.showInfo.backgroundColor)
           .type(this.showInfo.type)
           .maxLength(this.showInfo.maxLength)
@@ -60,22 +60,20 @@ export struct EditBoxDialog {
           .enterKeyType(this.showInfo.enterKeyType)
           .layoutWeight(1)
           .onChange((value) => {
-            if (this.onTextChange) {
-              this.onTextChange(value);
-            }
+            this.showInfo.defaultMessage = value;
+            this.workPort?.postMessage('onTextInput', value);
             this.inputMessage = value;
           })
           .onSubmit((value) => {
-            if(this.confirm) {
-              this.confirm(this.inputMessage);
-            }
+            this.showInfo.defaultMessage = this.inputMessage;
+            this.workPort?.postMessage('onConfirm', this.inputMessage);
+            this.workPort?.postMessage('onComplete', this.inputMessage);
             this.controller?.close();
           })
         Blank(8).width(16)
         Button('完成').onClick(() => {
-          if (this.accept) {
-            this.accept(this.inputMessage);
-          }
+          this.showInfo.defaultMessage = this.inputMessage;
+          this.workPort?.postMessage('onComplete', this.inputMessage);
           this.controller?.close();
         })
       }.padding({ left: 8, right: 8, top: 8, bottom: 8 })
