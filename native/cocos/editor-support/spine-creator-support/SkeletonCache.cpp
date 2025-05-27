@@ -201,6 +201,7 @@ void SkeletonCache::update(float deltaTime) {
 #else
     _skeleton->updateWorldTransform(Physics::Physics_Update);
 #endif
+    dispatchEvents();
 }
 
 void SkeletonCache::updateToFrame(const std::string &animationName, int toFrameIdx /*= -1*/) {
