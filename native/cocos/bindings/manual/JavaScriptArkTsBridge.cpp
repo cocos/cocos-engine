@@ -155,12 +155,12 @@ static bool JavaScriptArkTsBridge_callStaticMethod(se::State& s) {
         methodName = seval_to_type<std::string>(args[1], ok);
         SE_PRECONDITION2(ok, false, "Converting methodName failed!");
         
-        if(argc == 3) {
+        if(argc > 2) {
             paramStr = seval_to_type<std::string>(args[2], ok);
             SE_PRECONDITION2(ok, false, "Converting paramStr failed!");
         }
 
-        if (argc == 4) {
+        if (argc > 3) {
             ok = args[3].isBoolean();
             SE_PRECONDITION2(ok, false, "isSync must be boolean type");
             isSync = args[3].toBoolean();
