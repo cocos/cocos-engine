@@ -105,13 +105,14 @@ export function fillRequiredHBAO(value: HBAO): void {
 }
 
 export enum BloomType {
-    MipmapFilter,
     KawaseDualFilter,
+    MipmapFilter,
 }
 ccenum(BloomType);
 export interface Bloom {
     enabled: boolean; /* false */
     type: BloomType;
+    material: Material | null;
     /* refcount */ kawaseFilterMaterial: Material | null;
     mipmapFilterMaterial: Material | null;
     enableAlphaMask: boolean; /* false */
@@ -125,6 +126,7 @@ export function makeBloom(): Bloom {
     return {
         enabled: false,
         type: BloomType.KawaseDualFilter,
+        material: null,
         kawaseFilterMaterial: null,
         mipmapFilterMaterial: null,
         enableAlphaMask: false,
@@ -142,7 +144,7 @@ export function fillRequiredBloom(value: Bloom): void {
         value.type = BloomType.KawaseDualFilter;
     }
     if (!value.kawaseFilterMaterial) {
-        value.kawaseFilterMaterial = null;
+        value.kawaseFilterMaterial = value.material || null;
     }
     if (!value.mipmapFilterMaterial) {
         value.mipmapFilterMaterial = null;
