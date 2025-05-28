@@ -380,9 +380,9 @@ export class BulletWorld implements IPhysicsWorld {
         pool: RecyclePool<PhysicsRayResult>,
         results: PhysicsRayResult[],
     ): boolean {
-        const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
-        const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
-        const BT_orientation = BulletCache.instance.BT_QUAT_0;
+        const BT_fromTransform = bt.Transform_new();
+        const BT_toTransform = bt.Transform_new();
+        const BT_orientation = bt.Quat_new(0, 0, 0, 1);
 
         // from transform
         cocos2BulletVec3(bt.Transform_getOrigin(BT_fromTransform), worldRay.o);
@@ -398,6 +398,9 @@ export class BulletWorld implements IPhysicsWorld {
         const allHitsCB = bt.ccAllConvexCallback_static();
         bt.ccAllConvexCallback_reset(allHitsCB, BT_fromTransform, BT_toTransform, options.mask >>> 0, options.queryTrigger);
         bt.CollisionWorld_convexSweepTest(this._world, btShapePtr, BT_fromTransform, BT_toTransform, allHitsCB, 0);
+        bt._safe_delete(BT_fromTransform, EBulletType.EBulletTypeTransform);
+        bt._safe_delete(BT_toTransform, EBulletType.EBulletTypeTransform);
+        bt._safe_delete(BT_orientation, EBulletType.EBulletTypeQuat);
         if (bt.ConvexCallback_hasHit(allHitsCB)) {
             const posArray = bt.ccAllConvexCallback_getHitPointWorld(allHitsCB);
             const normalArray = bt.ccAllConvexCallback_getHitNormalWorld(allHitsCB);
@@ -422,9 +425,9 @@ export class BulletWorld implements IPhysicsWorld {
         options: IRaycastOptions,
         result: PhysicsRayResult,
     ): boolean {
-        const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
-        const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
-        const BT_orientation = BulletCache.instance.BT_QUAT_0;
+        const BT_fromTransform = bt.Transform_new();
+        const BT_toTransform = bt.Transform_new();
+        const BT_orientation = bt.Quat_new(0, 0, 0, 1);
 
         // from transform
         cocos2BulletVec3(bt.Transform_getOrigin(BT_fromTransform), worldRay.o);
@@ -440,6 +443,9 @@ export class BulletWorld implements IPhysicsWorld {
         const closeHitCB = bt.ccClosestConvexCallback_static();
         bt.ccClosestConvexCallback_reset(closeHitCB, BT_fromTransform, BT_toTransform, options.mask >>> 0, options.queryTrigger);
         bt.CollisionWorld_convexSweepTest(this._world, btShapePtr, BT_fromTransform, BT_toTransform, closeHitCB, 0);
+        bt._safe_delete(BT_fromTransform, EBulletType.EBulletTypeTransform);
+        bt._safe_delete(BT_toTransform, EBulletType.EBulletTypeTransform);
+        bt._safe_delete(BT_orientation, EBulletType.EBulletTypeQuat);
         if (bt.ConvexCallback_hasHit(closeHitCB)) {
             bullet2CocosVec3(v3_0, bt.ccClosestConvexCallback_getHitPointWorld(closeHitCB));
             bullet2CocosVec3(v3_1, bt.ccClosestConvexCallback_getHitNormalWorld(closeHitCB));

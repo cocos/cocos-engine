@@ -39,6 +39,7 @@ const ccMaterialBooks = {};
 /** @mangle */
 export abstract class BulletShape implements IBaseShape {
     updateEventListener (): void {
+        if (!this._sharedBody.wrappedWorld) return;
         this._sharedBody.wrappedWorld.updateNeedEmitEvents(this.collider.needCollisionEvent || this.collider.needTriggerEvent);
     }
 

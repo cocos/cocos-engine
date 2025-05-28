@@ -163,6 +163,14 @@ export class BulletSharedBody {
                 || (this.bodyStruct.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy);
 
             if (isRemoveBody) {
+                const impl = this.body;
+                const constraints = this.wrappedWorld.constraints;
+                constraints.forEach((worldConstraint) => {
+                    if (worldConstraint.constraint.attachedBody.body.impl === impl) {
+                        this.wrappedWorld.removeConstraint(worldConstraint);
+                    }
+                });
+
                 bt.RigidBody_clearState(this.body); // clear velocity etc.
                 this.bodyIndex = -1;
                 this.wrappedWorld.removeSharedBody(this);

@@ -27,7 +27,7 @@ import { BulletConstraint } from './bullet-constraint';
 import { IConfigurableConstraint } from '../../spec/i-physics-constraint';
 import { error, IVec3Like, Mat4, Quat, Vec3, toRadian } from '../../../core';
 import { ConfigurableConstraint, EConstraintMode, EDriverMode, PhysicsSystem } from '../../framework';
-import { bt } from '../instantiated';
+import { bt, EBulletType } from '../instantiated';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_QUAT_0, CC_QUAT_1, CC_V3_0, CC_MAT4_0, CC_V3_1 } from '../bullet-cache';
 import { cocos2BulletQuat, cocos2BulletVec3, force2Impulse } from '../bullet-utils';
@@ -370,10 +370,10 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         const v3_0 = CC_V3_0;
         const rot_0 = CC_QUAT_0;
         const rot_1 = CC_QUAT_1;
-        const trans0 = BulletCache.instance.BT_TRANSFORM_0;
+        const trans0 = bt.Transform_new();
         Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
         cocos2BulletVec3(bt.Transform_getOrigin(trans0), v3_0);
-        const quat = BulletCache.instance.BT_QUAT_0;
+        const quat = bt.Quat_new(0, 0, 0, 1);
 
         const axisX = cs.axis;
         const axisY = cs.secondaryAxis;
@@ -403,7 +403,7 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         cocos2BulletQuat(quat, rot_0);
         bt.Transform_setRotation(trans0, quat);
 
-        const trans1 = BulletCache.instance.BT_TRANSFORM_1;
+        const trans1 = bt.Transform_new();
         const cb = this.constraint.connectedBody;
         if (cb) {
             Quat.multiply(rot_0, node.worldRotation, rot_0);
@@ -428,6 +428,10 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         cocos2BulletQuat(quat, rot_0);
         bt.Transform_setRotation(trans1, quat);
         bt.Generic6DofSpring2Constraint_setFrames(this._impl, trans0, trans1);
+
+        bt._safe_delete(trans0, EBulletType.EBulletTypeTransform);
+        bt._safe_delete(trans1, EBulletType.EBulletTypeTransform);
+        bt._safe_delete(quat, EBulletType.EBulletTypeQuat);
     }
 
     updateScale0 (): void {
