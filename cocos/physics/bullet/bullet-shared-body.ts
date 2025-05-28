@@ -166,7 +166,7 @@ export class BulletSharedBody {
                 const impl = this.body;
                 const constraints = this.wrappedWorld.constraints;
                 constraints.forEach((worldConstraint) => {
-                    if (worldConstraint.constraint.attachedBody.body.impl === impl) {
+                    if (worldConstraint.constraint.attachedBody?.body?.impl === impl) {
                         this.wrappedWorld.removeConstraint(worldConstraint);
                     }
                 });
