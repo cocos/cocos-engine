@@ -561,10 +561,13 @@ bool Object::call(const ValueArray& args, Object* thisObject, Value* rval) {
     });
     NODE_API_CALL(status, _env,
                   OH_JSVM_CallFunction(_env, thisObj, _getJSObject(), argc, argv.data(), &return_val));
-    if (rval) {
-        internal::jsToSeValue(return_val, rval);
+    if (status == JSVM_OK) {
+        if (rval) {
+            internal::jsToSeValue(return_val, rval);
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 
 void Object::_setFinalizeCallback(JSVM_Finalize finalizeCb) {
