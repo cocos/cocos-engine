@@ -975,7 +975,6 @@ export class Skeleton extends UIRenderer {
             this._animationName = name;
             trackEntry = this._instance!.setAnimation(trackIndex, name, loop);
         }
-        this._markForUpdateRenderData();
         return trackEntry;
     }
     /**

@@ -190,7 +190,6 @@ TrackEntry *SkeletonAnimation::setAnimation(int trackIndex, const std::string &n
         return nullptr;
     }
     auto *trackEntry = _state->setAnimation(trackIndex, animation, loop);
-    _state->apply(*_skeleton);
     return trackEntry;
 }
 
@@ -241,7 +240,6 @@ TrackEntry *SkeletonAnimation::getCurrent(int trackIndex) {
 void SkeletonAnimation::clearTracks() {
     if (_state) {
         _state->clearTracks();
-        super::setToSetupPose();
     }
 }
 
