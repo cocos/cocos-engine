@@ -125,6 +125,17 @@ Napi::Value NapiHelper::napiCallFunction(const char *functionName, float duratio
     return funcVal.As<Napi::Function>().Call(env.Global(), args);
 }
 
+/* static */
+Napi::Value NapiHelper::napiCallFunction(const char *functionName, const std::string& str) {
+    auto env = getWorkerEnv();
+    auto funcVal = env.Global().Get(functionName);
+    if (!funcVal.IsFunction()) {
+        return {};
+    }
+    const std::initializer_list<napi_value> args = { Napi::String::New(env, str) };
+    return funcVal.As<Napi::Function>().Call(env.Global(), args);
+}
+
 // NAPI Interface
 static bool exportFunctions(Napi::Object exports) {
     Napi::MaybeOrValue<Napi::Value> xcomponentObject = exports.Get(OH_NATIVE_XCOMPONENT_OBJ);
