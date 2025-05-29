@@ -308,6 +308,9 @@ void ScriptEngine::closeEngine() {
     JSVM_Env env = _env;
     _env = nullptr;
 
+    if (isDebuggerEnabled()) {
+        OH_JSVM_CloseInspector(_env);
+    }
     JSVM_Status status;
     NODE_API_CALL(status, env, OH_JSVM_CloseEnvScope(env, _envScope));
     NODE_API_CALL(status, env, OH_JSVM_DestroyEnv(env));
@@ -324,6 +327,19 @@ bool ScriptEngine::start() {
     if (!init()) {
         return false;
     }
+        // debugger
+    if (isDebuggerEnabled()) {
+        if(_debuggerServerAddr == "0.0.0.0") {
+            OH_JSVM_OpenInspector(_env, "localhost", _debuggerServerPort);    
+        } else {
+            OH_JSVM_OpenInspector(_env, _debuggerServerAddr.c_str(), _debuggerServerPort);
+        }
+        SE_LOGD("Debugger listening..., visit [ http://localhost:6068/json ] to configuration debugging information and copy the devtoolsFrontendUrl value to the browser!");
+        if(_isWaitForConnect) {
+            OH_JSVM_WaitForDebugger(_env, true);
+        }
+    }
+
     se::AutoHandleScope hs;
 
     _startTime = std::chrono::steady_clock::now();
@@ -434,8 +450,14 @@ const std::chrono::steady_clock::time_point &ScriptEngine::getStartTime() const 
 bool ScriptEngine::isValid() const { return _isValid; }
 
 void ScriptEngine::enableDebugger(const std::string &serverAddr, uint32_t port, bool isWait) {
-    //not impl
+    _debuggerServerAddr = serverAddr;
+    _debuggerServerPort = port;
+    _isWaitForConnect = isWait;
     return;
+}
+
+bool ScriptEngine::isDebuggerEnabled() const {
+    return !_debuggerServerAddr.empty() && _debuggerServerPort > 0;
 }
 
 bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string &pathBc) {

@@ -239,6 +239,17 @@ bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port,
         debuggerInfo.isWait = isWaitForConnect;
         se::ScriptEngine::_setDebuggerInfo(debuggerInfo);
     }
+#elif SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSVM
+    if (debuggerServerAddr.empty() || port == 0) {
+        return false;
+    }
+
+    port = static_cast<uint32_t>(selectPort(static_cast<int>(port)));
+
+    auto *se = se::ScriptEngine::getInstance();
+    if (se != nullptr) {
+        se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
+    }
 #endif
     return true;
 }

@@ -316,6 +316,11 @@ private:
     bool _isInCleanup{false};
     bool _isErrorHandleWorking{false};
     bool _isneedCallConstructor{true};
+    
+    bool _isWaitForConnect{false};
+    uint32_t _debuggerServerPort{0};
+    ccstd::string _debuggerServerAddr;
+
     std::chrono::steady_clock::time_point _startTime;
 
     JSVM_HandleScope _handleScope;
