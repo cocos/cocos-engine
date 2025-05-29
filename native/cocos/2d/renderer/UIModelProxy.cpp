@@ -129,6 +129,9 @@ void UIModelProxy::destroy() {
 }
 
 void UIModelProxy::clear() {
+    if (_model == nullptr) {
+        return;
+    }
     const auto& subModels = _model->getSubModels();
     for (const auto &subModel : subModels) {
         auto *ia = subModel->getInputAssembler();
