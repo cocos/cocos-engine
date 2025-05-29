@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { PortProxy } from '../common/PortProxy';
+import { WorkerPort } from '../common/WorkerPort';
 
 enum EventType {
   PLAYING = 0,
@@ -76,7 +76,7 @@ export class VideoInfo {
 @Component
 export struct CocosVideoPlayer {
   @ObjectLink videoInfo: VideoInfo;
-  public workPort: PortProxy | null = null;
+  public workPort: WorkerPort | null = null;
 
   build() {
     Video({

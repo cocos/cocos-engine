@@ -30,7 +30,7 @@ import { EditBoxDialog, EditboxShowInfo } from '../components/EditBoxDialog';
 import { CocosWebView, LoadType, WebViewInfo } from '../components/CocosWebView';
 import { CocosVideoPlayer, VideoInfo } from '../components/CocosVideoPlayer';
 import { MessageEvent } from '@ohos.worker';
-import { PortProxy } from '../common/PortProxy';
+import { WorkerPort } from '../common/WorkerPort';
 import { common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 
@@ -46,7 +46,7 @@ function executeMethodSync(nativeFunc: Function, funcData: string): string|boole
 }
 engineUtils.registerFunction("executeMethodAsync", executeMethodAsync);
 engineUtils.registerFunction("executeMethodSync", executeMethodSync);
-PortProxy.getInstance().initPort(WorkerManager.getInstance().getWorker());
+WorkerPort.getInstance().initPort(WorkerManager.getInstance().getWorker());
 
 @Entry
 @Component
@@ -56,7 +56,7 @@ struct Index {
   @State videoArray: VideoInfo[] = [];
   private webViewIndexMap: Map<number, number> = new Map<number, number>();
   private videoIndexMap: Map<number, number> = new Map<number, number>();
-  private workPort: PortProxy = PortProxy.getInstance();
+  private workPort: WorkerPort = WorkerPort.getInstance();
   private panOption: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Up | PanDirection.Down});
   dialogController: CustomDialogController = new CustomDialogController({
     builder: EditBoxDialog({

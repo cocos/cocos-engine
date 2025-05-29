@@ -31,7 +31,7 @@ import { ContextType } from '../common/Constants';
 <% if(!useV8) { %>
 import { launchEngine } from '../cocos/game';
 <% } %>
-import { PortProxy } from '../common/PortProxy';
+import { UiPort } from './ui_port';
 
 <% if(useV8) { %>
   globalThis.importPolyfill = async function () {
@@ -58,14 +58,14 @@ const appLifecycle = cocos.getContext(ContextType.APP_LIFECYCLE);
 const nativeVideo = cocos.getContext(ContextType.VIDEO_UTILS);
 
 
-PortProxy.getInstance().initPort(worker.workerPort);
+UiPort.getInstance().initPort(worker.workerPort);
 
-const uiPort = PortProxy.getInstance();
-nativeContext.postMessage = function (msgType: string, msgData: string): void {
+const uiPort = UiPort.getInstance();
+nativeContext.postMessage = (msgType: string, msgData: string): void => {
   uiPort.postMessage(msgType, msgData);
 }
 
-nativeContext.postSyncMessage = async function (msgType: string, msgData: string): Promise<boolean | string | number> {
+nativeContext.postSyncMessage = async (msgType: string, msgData: string): Promise<boolean | string | number> => {
   return uiPort.postSyncMessage(msgType, msgData);
 }
 
@@ -73,8 +73,12 @@ nativeContext.postSyncMessage = async function (msgType: string, msgData: string
 nativeContext.setPostMessageFunction.call(nativeContext, nativeContext.postMessage)
 nativeContext.setPostSyncMessageFunction.call(nativeContext, nativeContext.postSyncMessage)
 
-globalThis.terminateProcess = function () {
+globalThis.terminateProcess = () => {
   uiPort.postMessage("exitGame", 0);
+}
+
+globalThis.openUrl = (url: string) => {
+  uiPort.postMessage("openUrl", url);
 }
 
 uiPort.on("onXCLoad", () => {

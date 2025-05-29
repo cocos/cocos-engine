@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { PortProxy } from '../common/PortProxy';
+import { WorkerPort } from '../common/WorkerPort';
 @Observed
 export class EditboxShowInfo {
   public backgroundColor: number = 0xFFFFFFFF;
@@ -43,9 +43,7 @@ export struct EditBoxDialog {
   @ObjectLink showInfo: EditboxShowInfo;
 
   controller?: CustomDialogController;
-  workPort?: PortProxy;
-
-
+  workPort?: WorkerPort;
 
   build() {
     Column() {

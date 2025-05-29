@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { PortProxy } from '../common/PortProxy';
+import { WorkerPort } from '../common/WorkerPort';
 import web from '@ohos.web.webview';
 
 interface param {
@@ -98,7 +98,7 @@ export class WebViewInfo {
 @Component
 export struct CocosWebView {
   @ObjectLink viewInfo: WebViewInfo;
-  public workPort: PortProxy | null = null;
+  public workPort: WorkerPort | null = null;
 
   build() {
     Web({ src: this.viewInfo.url, controller: this.viewInfo.controller })

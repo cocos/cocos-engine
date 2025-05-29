@@ -27,11 +27,12 @@ import { MessageEvent } from '@ohos.worker';
 import { MessageEvents } from '@kit.ArkTS';
 import { EventTarget } from  './EventTarget'
 
-let portProxy: PortProxy;
-export class PortProxy extends EventTarget {
+let port: WorkerPort;
+
+export class WorkerPort extends EventTarget {
   private autoId: number = 0;
   public actionHandleMap = {}
-  private port: ThreadWorkerGlobalScope | worker.ThreadWorker = null;
+  private port: worker.ThreadWorker = null;
 
   public _messageHandle?: (e: MessageEvent<any>) => void;
 
@@ -39,19 +40,19 @@ export class PortProxy extends EventTarget {
     super();
   }
 
-  static getInstance (): PortProxy {
-    if (!portProxy) {
-      portProxy = new PortProxy();
+  static getInstance (): WorkerPort {
+    if (!port) {
+      port = new WorkerPort();
     }
-    return portProxy;
+    return port;
   }
 
-  public initPort(worker: ThreadWorkerGlobalScope | worker.ThreadWorker) {
+  public initPort(worker: worker.ThreadWorker) {
     this.port = worker;
     this.port.onmessage = this.onMessage.bind(this);
   }
 
-  public getPort() : ThreadWorkerGlobalScope | worker.ThreadWorker {
+  public getPort() : worker.ThreadWorker {
     return this.port;
   }
 
