@@ -30,7 +30,7 @@ export class WorkerManager {
   private cocosWorker: worker.ThreadWorker;
 
   private constructor() {
-    this.cocosWorker = new worker.ThreadWorker("entry/ets/workers/cocos_worker.ts", {
+    this.cocosWorker = new worker.ThreadWorker("entry/ets/workers/cocos_worker.ets", {
       type: "classic",
       name: "CocosWorker"
     });

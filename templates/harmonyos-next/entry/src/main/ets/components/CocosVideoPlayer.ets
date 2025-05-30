@@ -101,6 +101,12 @@ export struct CocosVideoPlayer {
           videoEvent: EventType.PAUSED as EventType
         } as param);
       })
+      .onStop(()=>{
+        this.workPort?.postMessage("onVideoEvent", {
+          videoTag: this.videoInfo.viewTag,
+          videoEvent: EventType.STOPPED
+        } as param);
+      })
       .onFinish(() => {
         this.workPort?.postMessage("onVideoEvent", {
           videoTag: this.videoInfo.viewTag,

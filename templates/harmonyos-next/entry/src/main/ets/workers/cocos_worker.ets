@@ -27,27 +27,19 @@ import worker from '@ohos.worker';
 import cocos from 'libcocos.so';
 import hilog from '@ohos.hilog';
 
-import { ContextType } from '../common/Constants';
+import { ContextType, AnyType } from '../common/Constants';
+import { patchConsoleAssert } from '../common/Utils';
 <% if(!useV8) { %>
 import { launchEngine } from '../cocos/game';
 <% } %>
 import { UiPort } from './ui_port';
-
+import '../cocos/oh-adapter/sys-ability-polyfill';
 <% if(useV8) { %>
-  globalThis.importPolyfill = async function () {
-    await import('../cocos/oh-adapter/sys-ability-polyfill.js');
-  }
-  globalThis.importPolyfill();
   globalThis.oh = {};
 <% } %>
 
-if (!(console as any).assert) {
-  (console as any).assert = function (cond, msg) {
-    if (!cond) {
-      throw new Error(msg);
-    }
-  };
-}
+patchConsoleAssert();
+
 
 const nativeContext = cocos.getContext(ContextType.WORKER_INIT);
 nativeContext.workerInit();
@@ -70,8 +62,8 @@ nativeContext.postSyncMessage = async (msgType: string, msgData: string): Promis
 }
 
 // The purpose of this is to avoid being GC
-nativeContext.setPostMessageFunction.call(nativeContext, nativeContext.postMessage)
-nativeContext.setPostSyncMessageFunction.call(nativeContext, nativeContext.postSyncMessage)
+nativeContext.setPostMessageFunction(nativeContext.postMessage);
+nativeContext.setPostSyncMessageFunction(nativeContext.postSyncMessage);
 
 globalThis.terminateProcess = () => {
   uiPort.postMessage("exitGame", 0);
@@ -87,14 +79,10 @@ uiPort.on("onXCLoad", () => {
   <% if(!useV8) { %>
     launchEngine().then(() => {
       console.info('launch CC engine finished');
-    }).catch(e => {
+    }).catch(() => {
       console.error('launch CC engine failed');
     });
   <% } %>
-  // @ts-ignore
-  globalThis.oh.postMessage = nativeContext.postMessage;
-  // @ts-ignore
-  globalThis.oh.postSyncMessage = nativeContext.postSyncMessage;
   renderContext.nativeEngineStart();
 });
 
@@ -122,7 +110,7 @@ uiPort.on("onErrorReceive", (viewTag: number, url: string) => {
   nativeWebView.failLoading(viewTag, url);
 })
 
-uiPort.on("onVideoEvent", (videoTag: number, videoEvent: number, arg?: any) => {
+uiPort.on("onVideoEvent", (videoTag: number, videoEvent: number, arg?: AnyType ) => {
   nativeVideo.onVideoEvent(JSON.stringify({videoTag: videoTag, videoEvent: videoEvent, arg: arg ?? null}));
 })
 

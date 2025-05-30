@@ -34,41 +34,47 @@ import cocos from "libcocos.so";
 
 const displayUtils = cocos.getContext(ContextType.DISPLAY_UTILS);
 
-let pro = new process.ProcessManager();
-let cutout = {
+interface CutOut {
+    left: number,
+    top: number,
+    width: number,
+    height: number
+}
+
+let cutOut: CutOut = {
     left: 0,
     top: 0,
     width: 0,
     height: 0
 };
 
-globalThis.getSystemLanguage = function () {
+globalThis.getSystemLanguage = () => {
     return I18n.System.getSystemLanguage();
 }
 
-globalThis.getOSFullName = function () {
+globalThis.getOSFullName = () => {
     return deviceInfo.osFullName;
 }
 
-globalThis.getDeviceModel = function () {
+globalThis.getDeviceModel = () => {
     return deviceInfo.productModel;
 }
 
-globalThis.getBatteryLevel = function () {
+globalThis.getBatteryLevel = () => {
     return batteryInfo.batterySOC;
 }
 
-globalThis.getDPI = function () {
-    var displayClass = display.getDefaultDisplaySync();
+globalThis.getDPI = () => {
+    let displayClass = display.getDefaultDisplaySync();
     return displayClass.densityDPI;
 }
 
-globalThis.getPixelRation = function () {
-    var displayClass = display.getDefaultDisplaySync();
+globalThis.getPixelRation = () => {
+    let displayClass = display.getDefaultDisplaySync();
     return displayClass.densityPixels;
 }
 
-let onDisplayChange = (data) => {
+let onDisplayChange = () => {
     // Monitor changes in screen orientation.
     displayUtils.onDisplayChange(globalThis.getDeviceOrientation());
 
@@ -82,14 +88,14 @@ try {
     console.log('Failed to register callback. Code: ' + JSON.stringify(exception));
 }
 
-globalThis.getDeviceOrientation = function () {
-    var displayClass = display.getDefaultDisplaySync();
+globalThis.getDeviceOrientation = (): display.Orientation => {
+    let displayClass = display.getDefaultDisplaySync();
     return displayClass.rotation;
 }
 
-globalThis.getNetworkType = function () {
+globalThis.getNetworkType = () => {
     let netHandle = connection.getDefaultNetSync();
-    if(netHandle && netHandle.netId != 0) {
+    if (netHandle && netHandle.netId != 0) {
         let result = connection.getNetCapabilitiesSync(netHandle);
         if (result && result.bearerTypes) {
             return result.bearerTypes[0];
@@ -98,7 +104,7 @@ globalThis.getNetworkType = function () {
     return -1;
 }
 
-globalThis.vibrate = function (duration) {
+globalThis.vibrate = (duration: number) => {
     console.log('begin to vibrate, duration is.' + duration);
     try {
         vibrator.startVibration({
@@ -109,7 +115,7 @@ globalThis.vibrate = function (duration) {
             usage: 'alarm'
         }, (error) => {
             if (error) {
-                console.error('vibrate fail, error.code: ' + error.code + 'error.message: ', + error.message);
+                console.error('vibrate fail, error.code: ' + error.code + 'error.message: ' + error.message);
                 return error.code;
             }
             console.log('Vibration start sucessful.');
@@ -120,49 +126,44 @@ globalThis.vibrate = function (duration) {
       }
 }
 
-globalThis.terminateProcess = function () {
-    pro.exit(0);
-}
-
-globalThis.initScreenInfo = function () {
+globalThis.initScreenInfo = () => {
     display.getDefaultDisplaySync().getCutoutInfo().then((data) => {
         if (data.boundingRects.length == 0) {
             return;
         }
-
-        cutout.left = data.boundingRects[0].left;
-        cutout.top = data.boundingRects[0].top;
-        cutout.width = data.boundingRects[0].width;
-        cutout.height = data.boundingRects[0].height;
-    }).catch((err) => {
+        cutOut.left = data.boundingRects[0].left;
+        cutOut.top = data.boundingRects[0].top;
+        cutOut.width = data.boundingRects[0].width;
+        cutOut.height = data.boundingRects[0].height;
+    }).catch(() => {
         console.log("get cutout info error!");
     });
 };
 globalThis.initScreenInfo();
 
-globalThis.getCutoutWidth = function () {
-    if(!cutout.width) {
+globalThis.getCutoutWidth = () => {
+    if (!cutOut.width) {
         return 0;
     }
 
     let disPlayWidth = display.getDefaultDisplaySync().width;
-    if(cutout.left + cutout.width > disPlayWidth - cutout.left) {
-        return disPlayWidth - cutout.left;
+    if (cutOut.left + cutOut.width > disPlayWidth - cutOut.left) {
+        return disPlayWidth - cutOut.left;
     }
-    return cutout.left + cutout.width;
+    return cutOut.left + cutOut.width;
 }
 
-globalThis.getCutoutHeight = function () {
-    if(!cutout.height) {
+globalThis.getCutoutHeight = () => {
+    if (!cutOut.height) {
         return 0;
     }
 
-    let orientation = globalThis.getDeviceOrientation();
+    let orientation: display.Orientation = globalThis.getDeviceOrientation();
     if (orientation == display.Orientation.PORTRAIT) {
-        return cutout.top + cutout.height;
-    } else if(orientation == display.Orientation.PORTRAIT_INVERTED) {
+        return cutOut.top + cutOut.height;
+    } else if (orientation == display.Orientation.PORTRAIT_INVERTED) {
         let displayHeight = display.getDefaultDisplaySync().height;
-        return displayHeight - cutout.top;
+        return displayHeight - cutOut.top;
     }
     return 0;
 }

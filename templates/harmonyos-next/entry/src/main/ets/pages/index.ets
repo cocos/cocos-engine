@@ -345,10 +345,16 @@ struct Index {
 
     this.workPort?.on("openUrl", (url: string) => {
       let context = getContext() as common.UIAbilityContext;
+
+      let trimmedUrl = url.trim();
+      const schemeRegex  = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
+      if (!schemeRegex.test(trimmedUrl)) {
+        trimmedUrl = "https://" + trimmedUrl;
+      }
       let wantInfo: Want = {
         'action': 'ohos.want.action.viewData',
         'entities': ['entity.system.browsable'],
-        'uri': url,
+        'uri': trimmedUrl,
         'parameters': {
           'ohos.ability.params.showDefaultPicker': true
         }
