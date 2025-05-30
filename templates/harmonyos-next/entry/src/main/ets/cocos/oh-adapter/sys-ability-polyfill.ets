@@ -41,9 +41,19 @@ interface CutOut {
     height: number
 }
 
+interface ScreenInfo {
+    width: number,
+    height: number
+}
+
 let cutOut: CutOut = {
     left: 0,
     top: 0,
+    width: 0,
+    height: 0
+};
+
+let sceneInfo: ScreenInfo = {
     width: 0,
     height: 0
 };
@@ -135,35 +145,74 @@ globalThis.initScreenInfo = () => {
         cutOut.top = data.boundingRects[0].top;
         cutOut.width = data.boundingRects[0].width;
         cutOut.height = data.boundingRects[0].height;
+
+        sceneInfo.width = display.getDefaultDisplaySync().width;
+        sceneInfo.height = display.getDefaultDisplaySync().height;
     }).catch(() => {
         console.log("get cutout info error!");
     });
 };
 globalThis.initScreenInfo();
 
-globalThis.getCutoutWidth = () => {
-    if (!cutOut.width) {
+globalThis.getCutoutToTop = () => {
+    if(!cutOut.height) {
         return 0;
     }
 
-    let disPlayWidth = display.getDefaultDisplaySync().width;
-    if (cutOut.left + cutOut.width > disPlayWidth - cutOut.left) {
-        return disPlayWidth - cutOut.left;
+    return cutOut.top + cutOut.height;
+}
+
+globalThis.getCutoutToRight = () => {
+    if(!sceneInfo.width) {
+        return 0;
     }
+
+    return sceneInfo.width - cutOut.left;
+}
+
+globalThis.getCutoutToBottom = () => {
+    if(!sceneInfo.height) {
+        return 0;
+    }
+
+    return sceneInfo.height - cutOut.top;
+}
+
+globalThis.getCutoutToLeft = () => {
+    if(!cutOut.width) {
+        return 0;
+    }
+
     return cutOut.left + cutOut.width;
 }
 
-globalThis.getCutoutHeight = () => {
-    if (!cutOut.height) {
-        return 0;
+globalThis.getAvoidSide = () => {
+    if (!sceneInfo.width || !sceneInfo.height) {
+        console.log("get scene info error!");
+        return -1;
     }
 
-    let orientation: display.Orientation = globalThis.getDeviceOrientation();
-    if (orientation == display.Orientation.PORTRAIT) {
-        return cutOut.top + cutOut.height;
-    } else if (orientation == display.Orientation.PORTRAIT_INVERTED) {
-        let displayHeight = display.getDefaultDisplaySync().height;
-        return displayHeight - cutOut.top;
+    // Calculate which side to yield by the yield area, return 0 means the yield area is top;return 1 means right; return 2 means bottom; return 3 means left
+    let upAvoidArea = sceneInfo.width * (cutOut.top + cutOut.height);
+    let minIndex = 0;
+    let minAvoidArea = upAvoidArea;
+
+    let rightAvoidArea = sceneInfo.height * (sceneInfo.width - cutOut.left);
+    if (rightAvoidArea < minAvoidArea) {
+        minAvoidArea = rightAvoidArea;
+        minIndex = 1;
     }
-    return 0;
+
+    let bottomAvoidArea = sceneInfo.width * (sceneInfo.height - cutOut.top);
+    if (bottomAvoidArea < minAvoidArea) {
+        minAvoidArea = bottomAvoidArea;
+        minIndex = 2;
+    }
+
+    let leftAvoidArea = sceneInfo.height * (cutOut.left + cutOut.width);
+    if (leftAvoidArea < minAvoidArea) {
+        minIndex = 3
+    }
+
+    return minIndex;
 }
