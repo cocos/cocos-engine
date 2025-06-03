@@ -1900,6 +1900,7 @@ if (rendering) {
                 pass.showStatistics = true;
                 queue.addProfiler(camera);
             }
+            queue.addScene(camera, SceneFlags.BLEND);
         }
 
         private _buildForwardPipeline(
