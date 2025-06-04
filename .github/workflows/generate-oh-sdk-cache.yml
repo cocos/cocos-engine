@@ -16,7 +16,6 @@ jobs:
 
       - name: Output cache dir
         run: |
-          rm ${{ steps.oh-sdk-cache-dir-path.outputs.dir }} -rf
           echo "Output cache dir: ${{ steps.oh-sdk-cache-dir-path.outputs.dir }}"
 
       - name: Cache OH SDK
