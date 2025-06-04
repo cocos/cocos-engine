@@ -16,6 +16,7 @@ jobs:
 
       - name: Output cache dir
         run: |
+          rm ${{ steps.oh-sdk-cache-dir-path.outputs.dir }} -rf
           echo "Output cache dir: ${{ steps.oh-sdk-cache-dir-path.outputs.dir }}"
 
       - name: Cache OH SDK
@@ -33,13 +34,13 @@ jobs:
         run: |
           if [ ! -d "$HOME/openharmony" ]; then
             mkdir -p $HOME/openharmony
-            echo "Download commandline-tools-linux-x64-5.0.7.200.zip ..."
+            echo "Download commandline-tools-linux-x64-5.0.13.200.zip ..."
             wget -q https://github.com/cocos/oh-sdk-for-ci/releases/download/api-15/commandline-tools-linux-x64-5.0.13.200.zip.001
             wget -q https://github.com/cocos/oh-sdk-for-ci/releases/download/api-15/commandline-tools-linux-x64-5.0.13.200.zip.002
-            echo "Unzip commandline-tools-linux-x64-5.0.7.200.zip ..."
-            7z x commandline-tools-linux-x64-5.0.7.200.zip.001 -o$HOME/openharmony > /dev/null
+            echo "Unzip commandline-tools-linux-x64-5.0.13.200.zip ..."
+            7z x commandline-tools-linux-x64-5.0.13.200.zip.001 -o$HOME/openharmony > /dev/null
             cd $HOME/openharmony
             ls -l
-            cd commandline-tools-linux-x64-5.0.7.200
+            cd command-line-tools
             ls -l
           fi
