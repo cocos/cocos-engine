@@ -278,10 +278,10 @@ export class Label extends UIRenderer {
 
     /**
      * @en
-     * The actual rendering font size in shrink mode.
+     * The actual rendering font size.
      *
      * @zh
-     * SHRINK 模式下面文本实际渲染的字体大小。
+     * 文本实际渲染的字体大小。
      */
     get actualFontSize (): number {
         return this._actualFontSize;
@@ -460,14 +460,12 @@ export class Label extends UIRenderer {
     @displayOrder(13)
     @visible(function (this: Label) { return !this._isSystemFontUsed; })
     get font (): Font | null {
-        // return this._N$file;
         return this._font;
     }
     set font (value) {
         if (this._font === value) {
             return;
         }
-
         // if delete the font, we should change isSystemFontUsed to true
         this._isSystemFontUsed = !value;
 
@@ -475,10 +473,7 @@ export class Label extends UIRenderer {
             this._userDefinedFont = value;
         }
 
-        // this._N$file = value;
         this._font = value;
-        // if (value && this._isSystemFontUsed)
-        //     this._isSystemFontUsed = false;
 
         this.destroyRenderData();
 
@@ -797,8 +792,6 @@ export class Label extends UIRenderer {
     @serializable
     protected _verticalAlign = VerticalTextAlignment.CENTER;
     @serializable
-    protected _actualFontSize = 0;
-    @serializable
     protected _fontSize = 40;
     @serializable
     protected _fontFamily = 'Arial';
@@ -840,8 +833,7 @@ export class Label extends UIRenderer {
     protected _shadowBlur = 2;
 
     // don't need serialize
-    // 这个保存了旧项目的 file 数据
-    protected _N$file: Font | null = null;
+    protected _actualFontSize = 0;
     protected _texture: SpriteFrame | LetterRenderTexture | null = null;
     protected _ttfSpriteFrame: SpriteFrame | null = null;
     protected _userDefinedFont: Font | null = null;
