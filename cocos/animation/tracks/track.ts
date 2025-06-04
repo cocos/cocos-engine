@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /*
  Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -238,7 +239,7 @@ class TrackPath {
     /**
      * @internal
      */
-    public [parseTrsPathTag] (): { node: string; property: "position" | "scale" | "rotation" | "eulerAngles"; } | null {
+    public [parseTrsPathTag] (): { node: string; property: 'position' | 'scale' | 'rotation' | 'eulerAngles'; } | null {
         const { _paths: paths } = this;
         const nPaths = paths.length;
 
@@ -331,7 +332,7 @@ export class TrackBinding {
 
     private static _animationFunctions = new WeakMap<Constructor, Map<string | number, AnimationFunction>>();
 
-    public parseTrsPath (): { node: string; property: "position" | "scale" | "rotation" | "eulerAngles"; } | null {
+    public parseTrsPath (): { node: string; property: 'position' | 'scale' | 'rotation' | 'eulerAngles'; } | null {
         if (this.proxy) {
             return null;
         } else {
@@ -339,57 +340,17 @@ export class TrackBinding {
         }
     }
 
+    // eslint-disable-next-line max-len
     public createRuntimeBinding (target: unknown, poseOutput: PoseOutput | undefined, isConstant: boolean): RuntimeBinding<unknown> | { target: any; setValue: any; getValue: any; } | null {
         const { path, proxy } = this;
         const nPaths = path.length;
         const iLastPath = nPaths - 1;
-        if (nPaths !== 0 && (path.isPropertyAt(iLastPath) || path.isElementAt(iLastPath)) && !proxy) {
-            const lastPropertyKey = path.isPropertyAt(iLastPath)
-                ? path.parsePropertyAt(iLastPath)
-                : path.parseElementAt(iLastPath);
-            const resultTarget = path[normalizedFollowTag](target, 0, nPaths - 1) as any;
-            if (resultTarget === null) {
+        // 提前返回，减少嵌套
+        if (nPaths === 0 || !(path.isPropertyAt(iLastPath) || path.isElementAt(iLastPath)) || proxy) {
+            if (!proxy) {
+                errorID(3921);
                 return null;
             }
-            if (poseOutput && resultTarget instanceof Node && isTrsPropertyName(lastPropertyKey)) {
-                const blendStateWriter = poseOutput.createPoseWriter(resultTarget, lastPropertyKey, isConstant);
-                return blendStateWriter;
-            }
-            let setValue; let getValue;
-            if (SUPPORT_JIT) {
-                let animationFunction = TrackBinding._animationFunctions.get(resultTarget.constructor);
-                if (!animationFunction) {
-                    animationFunction = new Map();
-                    TrackBinding._animationFunctions.set(resultTarget.constructor, animationFunction);
-                }
-
-                let accessor = animationFunction.get(lastPropertyKey);
-                if (!accessor) {
-                    accessor = {
-                        // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-                        setValue: Function('value', `this.target.${lastPropertyKey} = value;`) as (val: any) => void,
-                        // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-                        getValue: Function(`return this.target.${lastPropertyKey};`) as () => any,
-                    };
-                    animationFunction.set(lastPropertyKey, accessor);
-                }
-                setValue = accessor.setValue;
-                getValue = accessor.getValue;
-            } else {
-                setValue = (value: unknown): void => {
-                    resultTarget[lastPropertyKey] = value;
-                };
-                getValue = (): unknown => resultTarget[lastPropertyKey] as unknown;
-            }
-            return {
-                target: resultTarget,
-                setValue,
-                getValue,
-            };
-        } else if (!proxy) {
-            errorID(3921);
-            return null;
-        } else {
             const resultTarget = path[normalizedFollowTag](target, 0, nPaths);
             if (resultTarget === null) {
                 return null;
@@ -399,9 +360,7 @@ export class TrackBinding {
                 return null;
             }
             const binding: RuntimeBinding = {
-                setValue: (value): void => {
-                    runtimeProxy.set(value);
-                },
+                setValue: (value): void => runtimeProxy.set(value),
             };
             const proxyGet = runtimeProxy.get;
             if (proxyGet) {
@@ -410,6 +369,51 @@ export class TrackBinding {
             }
             return binding;
         }
+
+        // 处理标准属性路径
+        const lastPropertyKey = path.isPropertyAt(iLastPath)
+            ? path.parsePropertyAt(iLastPath)
+            : path.parseElementAt(iLastPath);
+
+        const resultTarget = path[normalizedFollowTag](target, 0, iLastPath) as any;
+        if (resultTarget === null) {
+            return null;
+        }
+        // 特殊处理 Node 的变换属性
+        if (poseOutput && resultTarget instanceof Node && isTrsPropertyName(lastPropertyKey)) {
+            return poseOutput.createPoseWriter(resultTarget, lastPropertyKey, isConstant);
+        }
+        // 获取或创建访问器函数
+        let animationFunction = TrackBinding._animationFunctions.get(resultTarget.constructor);
+        if (!animationFunction) {
+            animationFunction = new Map();
+            TrackBinding._animationFunctions.set(resultTarget.constructor, animationFunction);
+        }
+        let accessor = animationFunction.get(lastPropertyKey);
+        if (!accessor) {
+            if (SUPPORT_JIT) {
+                accessor = {
+                    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+                    setValue: Function('value', `this.target[${lastPropertyKey}] = value;`) as (val: any) => void,
+                    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+                    getValue: Function(`return this.target[${lastPropertyKey}];`) as () => any,
+                };
+            } else {
+                // 非 JIT 模式下使用闭包
+                const key = lastPropertyKey; // 捕获变量，避免闭包引用外部变量
+                accessor = {
+                    setValue: (value: unknown): void => { resultTarget[key] = value; },
+                    getValue: (): unknown => resultTarget[key] as unknown,
+                };
+            }
+            animationFunction.set(lastPropertyKey, accessor);
+        }
+
+        return {
+            target: resultTarget,
+            setValue: accessor.setValue,
+            getValue: accessor.getValue,
+        };
     }
 
     public isMaskedOff (mask: AnimationMask): boolean {
