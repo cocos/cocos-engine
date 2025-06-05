@@ -26,7 +26,7 @@
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import { SUPPORT_JIT } from 'internal:constants';
 import type { Component } from '../../scene-graph/component';
-import { error, ObjectCurve, QuatCurve, RealCurve, errorID, warnID, js } from '../../core';
+import { ObjectCurve, QuatCurve, RealCurve, errorID, warnID, js } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 
 import { Node } from '../../scene-graph';
@@ -345,7 +345,7 @@ export class TrackBinding {
         const { path, proxy } = this;
         const nPaths = path.length;
         const iLastPath = nPaths - 1;
-        // 提前返回，减少嵌套
+        // return error in adanvance
         if (nPaths === 0 || !(path.isPropertyAt(iLastPath) || path.isElementAt(iLastPath)) || proxy) {
             if (!proxy) {
                 errorID(3921);
@@ -370,7 +370,6 @@ export class TrackBinding {
             return binding;
         }
 
-        // 处理标准属性路径
         const lastPropertyKey = path.isPropertyAt(iLastPath)
             ? path.parsePropertyAt(iLastPath)
             : path.parseElementAt(iLastPath);
@@ -379,11 +378,11 @@ export class TrackBinding {
         if (resultTarget === null) {
             return null;
         }
-        // 特殊处理 Node 的变换属性
+        // tackle Node properties
         if (poseOutput && resultTarget instanceof Node && isTrsPropertyName(lastPropertyKey)) {
             return poseOutput.createPoseWriter(resultTarget, lastPropertyKey, isConstant);
         }
-        // 获取或创建访问器函数
+        // get handle constructor
         let animationFunction = TrackBinding._animationFunctions.get(resultTarget.constructor);
         if (!animationFunction) {
             animationFunction = new Map();
@@ -399,8 +398,8 @@ export class TrackBinding {
                     getValue: Function(`return this.target[${lastPropertyKey}];`) as () => any,
                 };
             } else {
-                // 非 JIT 模式下使用闭包
-                const key = lastPropertyKey; // 捕获变量，避免闭包引用外部变量
+                // Non JIT Mode
+                const key = lastPropertyKey;
                 accessor = {
                     setValue: (value: unknown): void => { resultTarget[key] = value; },
                     getValue: (): unknown => resultTarget[key] as unknown,
