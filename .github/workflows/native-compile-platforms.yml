@@ -342,14 +342,14 @@ jobs:
         run: |
           if [ ! -d "$HOME/openharmony" ]; then
             mkdir -p $HOME/openharmony
-            echo "Download commandline-tools-linux-x64-5.0.7.200.zip ..."
+            echo "Download commandline-tools-linux-x64-5.0.13.200.zip ..."
             wget -q https://github.com/cocos/oh-sdk-for-ci/releases/download/api-15/commandline-tools-linux-x64-5.0.13.200.zip.001
             wget -q https://github.com/cocos/oh-sdk-for-ci/releases/download/api-15/commandline-tools-linux-x64-5.0.13.200.zip.002
-            echo "Unzip commandline-tools-linux-x64-5.0.7.200.zip ..."
-            7z x commandline-tools-linux-x64-5.0.7.200.zip.001 -o$HOME/openharmony > /dev/null
+            echo "Unzip commandline-tools-linux-x64-5.0.13.200.zip ..."
+            7z x commandline-tools-linux-x64-5.0.13.200.zip.001 -o$HOME/openharmony > /dev/null
             cd $HOME/openharmony
             ls -l
-            cd commandline-tools-linux-x64-5.0.7.200
+            cd command-line-tools
             ls -l
           fi
 
@@ -362,14 +362,16 @@ jobs:
           npm -v
           java --version
           echo "=============== list files in oh sdk ($HOME/openharmony) ==============="
-          pushd $HOME/openharmony/commandline-tools-linux-x64-5.0.7.200
+          pushd $HOME/openharmony/command-line-tools
           ls -l
           popd
 
-          export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
+          export PATH=$PATH:$HOME/openharmony/command-line-tools/bin
           echo "PATH=$PATH"
           echo "hvigorw path:"
           which hvigorw
+          echo "ohpm path:"
+          which ohpm
 
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling Openharmony ... "
@@ -418,6 +420,7 @@ jobs:
           ls -l ./entry/src/main/ets/workers/cocos_worker.ets
 
           echo "=============== EXECUTE hvigorw ==============="
+          ohpm install
           hvigorw clean -i
           hvigorw --stop-daemon -i
           hvigorw --mode module -p product=default assembleHap --parallel --incremental debuggable=true --no-daemon -d
