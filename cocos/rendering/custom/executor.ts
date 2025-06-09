@@ -781,6 +781,7 @@ class DeviceRenderPass implements RecordingInterface {
             }
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
+            const isLoadAttachment = rasterV.loadOp === LoadOp.LOAD;
             if (rasterV.attachmentType === AttachmentType.RENDER_TARGET) {
                 if (!resTex.swapchain && !resTex.framebuffer) colorTexs.push(resTex.texture!);
                 const colAtt = new ColorAttachment();
@@ -789,7 +790,7 @@ class DeviceRenderPass implements RecordingInterface {
                 colAtt.loadOp = rasterV.loadOp;
                 colAtt.storeOp = rasterV.storeOp;
                 colAtt.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
-                    rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                    isLoadAttachment ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                     rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                 ));
                 const currCol = new Color();
@@ -802,7 +803,7 @@ class DeviceRenderPass implements RecordingInterface {
                 depAtt.depthLoadOp = rasterV.loadOp;
                 depAtt.stencilLoadOp = rasterV.loadOp;
                 depAtt.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
-                    rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                    isLoadAttachment ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                     rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                 ));
                 if (!resTex.swapchain && !resTex.framebuffer) {
@@ -891,6 +892,7 @@ class DeviceRenderPass implements RecordingInterface {
     }
 
     beginPass (): void {
+        if (!this._rasterPass.needBeginRP) return;
         const tex = this.framebuffer.colorTextures[0]!;
         this._applyViewport(tex);
         const cmdBuff = context.commandBuffer;
@@ -922,6 +924,7 @@ class DeviceRenderPass implements RecordingInterface {
     }
 
     endPass (): void {
+        if (!this._rasterPass.needEndRP) return;
         const cmdBuff = context.commandBuffer;
         cmdBuff.endRenderPass();
     }

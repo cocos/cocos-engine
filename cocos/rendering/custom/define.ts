@@ -860,45 +860,99 @@ export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: Layout
     return layoutId;
 }
 
-export function genHashValue (pass: RasterPass): void {
-    let hashCode = '';
-    for (const [name, raster] of pass.rasterViews) {
-        hashCode += hashCombineKey(name);
-        hashCode += hashCombineKey(raster.slotName);
-        hashCode += hashCombineKey(raster.accessType);
-        hashCode += hashCombineKey(raster.attachmentType);
-        hashCode += hashCombineKey(raster.loadOp);
-        hashCode += hashCombineKey(raster.storeOp);
-        hashCode += hashCombineKey(raster.clearFlags);
-        hashCode += hashCombineKey(raster.clearColor.x);
-        hashCode += hashCombineKey(raster.clearColor.y);
-        hashCode += hashCombineKey(raster.clearColor.z);
-        hashCode += hashCombineKey(raster.clearColor.w);
-        hashCode += hashCombineKey(raster.slotID);
-        hashCode += hashCombineKey(raster.shaderStageFlags);
+function hashRasterView (name: string, raster: any, forCombine: boolean): string {
+    let str = '';
+    str += hashCombineKey(name);
+    str += hashCombineKey(raster.slotName);
+    str += hashCombineKey(raster.accessType);
+    str += hashCombineKey(raster.attachmentType);
+    if (!forCombine) str += hashCombineKey(raster.loadOp);
+    str += hashCombineKey(raster.storeOp);
+    str += hashCombineKey(raster.clearFlags);
+    if (!forCombine) {
+        str += hashCombineKey(raster.clearColor.x);
+        str += hashCombineKey(raster.clearColor.y);
+        str += hashCombineKey(raster.clearColor.z);
+        str += hashCombineKey(raster.clearColor.w);
     }
-    for (const [name, computes] of pass.computeViews) {
-        hashCode += hashCombineKey(name);
-        for (const compute of computes) {
-            hashCode += hashCombineKey(compute.name);
-            hashCode += hashCombineKey(compute.accessType);
-            hashCode += hashCombineKey(compute.clearFlags);
-            hashCode += hashCombineKey(compute.clearValueType);
-            hashCode += hashCombineKey(compute.clearValue.x);
-            hashCode += hashCombineKey(compute.clearValue.y);
-            hashCode += hashCombineKey(compute.clearValue.z);
-            hashCode += hashCombineKey(compute.clearValue.w);
-            hashCode += hashCombineKey(compute.shaderStageFlags);
+    str += hashCombineKey(raster.slotID);
+    str += hashCombineKey(raster.shaderStageFlags);
+    return str;
+}
+
+function hashComputeView (name: string, compute: any): string {
+    let str = '';
+    str += hashCombineKey(name);
+    str += hashCombineKey(compute.name);
+    str += hashCombineKey(compute.accessType);
+    str += hashCombineKey(compute.clearFlags);
+    str += hashCombineKey(compute.clearValueType);
+    str += hashCombineKey(compute.clearValue.x);
+    str += hashCombineKey(compute.clearValue.y);
+    str += hashCombineKey(compute.clearValue.z);
+    str += hashCombineKey(compute.clearValue.w);
+    str += hashCombineKey(compute.shaderStageFlags);
+    return str;
+}
+
+const combineHashes: number[] = [];
+const passOrders: RasterPass[] = [];
+export function resetPassMGState (): void {
+    combineHashes.length = 0;
+    passOrders.length = 0;
+}
+export function processPassMG (pass: RasterPass): void {
+    const hasKey = combineHashes.includes(pass.combineHash);
+    if (!hasKey) {
+        combineHashes.push(pass.combineHash);
+    } else {
+        const poLen = passOrders.length;
+        let isLoadOP = false;
+        for (const [name, raster] of pass.rasterViews) {
+            if (raster.loadOp === LoadOp.LOAD) {
+                isLoadOP = true;
+                break;
+            }
+        }
+        const prevPass = passOrders[poLen - 1];
+        if (isLoadOP && prevPass.combineHash === pass.combineHash) {
+            prevPass.needEndRP = false;
+            pass.needBeginRP = false;
         }
     }
-    hashCode += hashCombineKey(pass.width);
-    hashCode += hashCombineKey(pass.height);
-    hashCode += hashCombineKey(pass.viewport.left);
-    hashCode += hashCombineKey(pass.viewport.top);
-    hashCode += hashCombineKey(pass.viewport.width);
-    hashCode += hashCombineKey(pass.viewport.height);
-    hashCode += hashCombineKey(pass.viewport.minDepth);
-    hashCode += hashCombineKey(pass.viewport.maxDepth);
-    hashCode += hashCombineKey(pass.showStatistics ? 1 : 0);
+    passOrders.push(pass);
+}
+
+export function genHashValue (pass: RasterPass): void {
+    let hashCode = '';
+    let combineHash = '';
+
+    for (const [name, raster] of pass.rasterViews) {
+        hashCode += hashRasterView(name, raster, false);
+        combineHash += hashRasterView(name, raster, true);
+    }
+    for (const [name, computes] of pass.computeViews) {
+        for (const compute of computes) {
+            hashCode += hashComputeView(name, compute);
+            combineHash += hashComputeView(name, compute);
+        }
+    }
+    const appendCommon = (str: string): string => {
+        str += hashCombineKey(pass.width);
+        str += hashCombineKey(pass.height);
+        str += hashCombineKey(pass.viewport.left);
+        str += hashCombineKey(pass.viewport.top);
+        str += hashCombineKey(pass.viewport.width);
+        str += hashCombineKey(pass.viewport.height);
+        str += hashCombineKey(pass.viewport.minDepth);
+        str += hashCombineKey(pass.viewport.maxDepth);
+        str += hashCombineKey(pass.showStatistics ? 1 : 0);
+        return str;
+    };
+    hashCode = appendCommon(hashCode);
+    combineHash = appendCommon(combineHash);
+
     pass.hashValue = hashCombineStr(hashCode);
+    pass.combineHash = hashCombineStr(combineHash);
+    processPassMG(pass);
 }
