@@ -891,12 +891,23 @@ class DeviceRenderPass implements RecordingInterface {
         }
     }
 
+    bindGlobalDesc (): void {
+        const cmdBuff = context.commandBuffer;
+        if (context.passDescriptorSet) {
+            cmdBuff.bindDescriptorSet(
+                SetIndex.GLOBAL,
+                context.passDescriptorSet,
+            );
+        }
+    }
     beginPass (): void {
-        if (!this._rasterPass.needBeginRP) return;
+        if (!this._rasterPass.needBeginRP) {
+            this.bindGlobalDesc();
+            return;
+        }
+        const cmdBuff = context.commandBuffer;
         const tex = this.framebuffer.colorTextures[0]!;
         this._applyViewport(tex);
-        const cmdBuff = context.commandBuffer;
-
         if (this._viewport) {
             renderPassArea.x = this._viewport.left;
             renderPassArea.y = this._viewport.top;
@@ -915,12 +926,7 @@ class DeviceRenderPass implements RecordingInterface {
             this.clearDepth,
             this.clearStencil,
         );
-        if (context.passDescriptorSet) {
-            cmdBuff.bindDescriptorSet(
-                SetIndex.GLOBAL,
-                context.passDescriptorSet,
-            );
-        }
+        this.bindGlobalDesc();
     }
 
     endPass (): void {
