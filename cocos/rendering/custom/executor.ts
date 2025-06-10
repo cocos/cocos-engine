@@ -132,6 +132,8 @@ import {
     bool,
     getDescriptorSetDataFromLayout,
     getRenderArea,
+    RenderPassMergeInfo,
+    rpMergeInfos,
     updateGlobalDescBinding,
 } from './define';
 import { LightResource, SceneCulling } from './scene-culling';
@@ -836,6 +838,7 @@ class DeviceRenderPass implements RecordingInterface {
             swapchain ? swapchain.depthStencilTexture : depthTex,
         );
     }
+    get passMergeInfo (): RenderPassMergeInfo { return rpMergeInfos.get(this._rasterPass)!; }
     get indexOfRD (): number { return this._idxOfRenderData; }
     get rasterID (): number { return this._rasterID; }
     get layoutName (): string { return this._layoutName; }
@@ -901,7 +904,7 @@ class DeviceRenderPass implements RecordingInterface {
         }
     }
     beginPass (): void {
-        if (!this._rasterPass.needBeginRP) {
+        if (!this.passMergeInfo.needBeginRP) {
             this.bindGlobalDesc();
             return;
         }
@@ -930,7 +933,7 @@ class DeviceRenderPass implements RecordingInterface {
     }
 
     endPass (): void {
-        if (!this._rasterPass.needEndRP) return;
+        if (!this.passMergeInfo.needEndRP) return;
         const cmdBuff = context.commandBuffer;
         cmdBuff.endRenderPass();
     }

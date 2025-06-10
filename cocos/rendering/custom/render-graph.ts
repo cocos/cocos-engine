@@ -487,9 +487,6 @@ export class RasterPass {
         this.attachmentIndexMap.clear();
         this.textures.clear();
         this.subpassGraph.clear();
-        this.needBeginRP = true;
-        this.needEndRP = true;
-        this.combineHash = 0;
         this.width = 0;
         this.height = 0;
         this.count = 1;
@@ -513,10 +510,7 @@ export class RasterPass {
     versionName = '';
     version = 0;
     hashValue = 0;
-    combineHash = 0;
     showStatistics = false;
-    needBeginRP = true;
-    needEndRP = true;
 }
 
 export class PersistentRenderPassAndFramebuffer {

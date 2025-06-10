@@ -43,13 +43,14 @@ import {
     AttachmentType, LightInfo,
     QueueHint, ResourceResidency, SceneFlags, UpdateFrequency,
 } from './types';
-import { Vec4, geometry, toRadian, cclegacy } from '../../core';
+import { Vec4, geometry, toRadian, cclegacy, RecyclePool } from '../../core';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RasterPass, RenderData, RenderGraph } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData, LayoutGraphData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { getUBOTypeCount } from './utils';
+import { init } from '.';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
@@ -895,29 +896,54 @@ function hashComputeView (name: string, compute: any): string {
     return str;
 }
 
-const combineHashes: number[] = [];
+export class RenderPassMergeInfo {
+    constructor (
+        public combineHash: number = 0,
+        public needBeginRP: boolean = true,
+        public needEndRP: boolean = true,
+    ) {}
+    init (
+        combineHash: number,
+        needBeginRP: boolean = true,
+        needEndRP: boolean = true,
+    ): void {
+        this.combineHash = combineHash;
+        this.needBeginRP = needBeginRP;
+        this.needEndRP = needEndRP;
+    }
+}
+
 const passOrders: RasterPass[] = [];
+const rpCombineMap: Map<RasterPass, number> = new Map();
+export const rpMergeInfos: Map<RasterPass, RenderPassMergeInfo> = new Map();
+const rpMergeInfoPool = new RecyclePool<RenderPassMergeInfo>((): RenderPassMergeInfo => new RenderPassMergeInfo(), 16);
 export function resetPassMGState (): void {
-    combineHashes.length = 0;
+    rpMergeInfoPool.reset();
+    rpMergeInfos.clear();
+    rpCombineMap.clear();
     passOrders.length = 0;
 }
 export function processPassMG (pass: RasterPass): void {
-    const hasKey = combineHashes.includes(pass.combineHash);
-    if (!hasKey) {
-        combineHashes.push(pass.combineHash);
-    } else {
-        const poLen = passOrders.length;
+    const currCHash = rpCombineMap.get(pass)!;
+    const currRPInfo = rpMergeInfoPool.add();
+    if (!rpMergeInfos.has(pass)) {
+        rpMergeInfos.set(pass, currRPInfo);
+    }
+    currRPInfo.init(currCHash);
+    const poLen = passOrders.length;
+    if (poLen !== 0) {
         let isLoadOP = false;
-        for (const [name, raster] of pass.rasterViews) {
+        for (const [_, raster] of pass.rasterViews) {
             if (raster.loadOp === LoadOp.LOAD) {
                 isLoadOP = true;
                 break;
             }
         }
         const prevPass = passOrders[poLen - 1];
-        if (isLoadOP && prevPass.combineHash === pass.combineHash) {
-            prevPass.needEndRP = false;
-            pass.needBeginRP = false;
+        if (isLoadOP &&  rpCombineMap.get(prevPass) === currCHash) {
+            const prevInfo = rpMergeInfos.get(prevPass)!;
+            prevInfo.needEndRP = false;
+            currRPInfo.needBeginRP = false;
         }
     }
     passOrders.push(pass);
@@ -953,6 +979,6 @@ export function genHashValue (pass: RasterPass): void {
     combineHash = appendCommon(combineHash);
 
     pass.hashValue = hashCombineStr(hashCode);
-    pass.combineHash = hashCombineStr(combineHash);
+    rpCombineMap.set(pass, hashCombineStr(combineHash));
     processPassMG(pass);
 }
