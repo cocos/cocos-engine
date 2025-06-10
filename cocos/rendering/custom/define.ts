@@ -861,41 +861,6 @@ export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: Layout
     return layoutId;
 }
 
-function hashRasterView (name: string, raster: any, forCombine: boolean): string {
-    let str = '';
-    str += hashCombineKey(name);
-    str += hashCombineKey(raster.slotName);
-    str += hashCombineKey(raster.accessType);
-    str += hashCombineKey(raster.attachmentType);
-    if (!forCombine) str += hashCombineKey(raster.loadOp);
-    str += hashCombineKey(raster.storeOp);
-    str += hashCombineKey(raster.clearFlags);
-    if (!forCombine) {
-        str += hashCombineKey(raster.clearColor.x);
-        str += hashCombineKey(raster.clearColor.y);
-        str += hashCombineKey(raster.clearColor.z);
-        str += hashCombineKey(raster.clearColor.w);
-    }
-    str += hashCombineKey(raster.slotID);
-    str += hashCombineKey(raster.shaderStageFlags);
-    return str;
-}
-
-function hashComputeView (name: string, compute: any): string {
-    let str = '';
-    str += hashCombineKey(name);
-    str += hashCombineKey(compute.name);
-    str += hashCombineKey(compute.accessType);
-    str += hashCombineKey(compute.clearFlags);
-    str += hashCombineKey(compute.clearValueType);
-    str += hashCombineKey(compute.clearValue.x);
-    str += hashCombineKey(compute.clearValue.y);
-    str += hashCombineKey(compute.clearValue.z);
-    str += hashCombineKey(compute.clearValue.w);
-    str += hashCombineKey(compute.shaderStageFlags);
-    return str;
-}
-
 export class RenderPassMergeInfo {
     constructor (
         public combineHash: number = 0,
@@ -950,35 +915,70 @@ export function processPassMG (pass: RasterPass): void {
 }
 
 export function genHashValue (pass: RasterPass): void {
-    let hashCode = '';
-    let combineHash = '';
-
+    const hashCodeParts: string[] = [];
+    const combineHashParts: string[] = [];
     for (const [name, raster] of pass.rasterViews) {
-        hashCode += hashRasterView(name, raster, false);
-        combineHash += hashRasterView(name, raster, true);
+        const commonParts = [
+            hashCombineKey(name),
+            hashCombineKey(raster.slotName),
+            hashCombineKey(raster.accessType),
+            hashCombineKey(raster.attachmentType),
+            hashCombineKey(raster.storeOp),
+            hashCombineKey(raster.clearFlags),
+            hashCombineKey(raster.slotID),
+            hashCombineKey(raster.shaderStageFlags),
+        ];
+
+        const extraParts = [
+            hashCombineKey(raster.loadOp),
+            hashCombineKey(raster.clearColor.x),
+            hashCombineKey(raster.clearColor.y),
+            hashCombineKey(raster.clearColor.z),
+            hashCombineKey(raster.clearColor.w),
+        ];
+
+        const fullHash = commonParts.concat(extraParts).join('');
+        const combineHash = commonParts.join('');
+
+        hashCodeParts.push(fullHash);
+        combineHashParts.push(combineHash);
     }
     for (const [name, computes] of pass.computeViews) {
         for (const compute of computes) {
-            hashCode += hashComputeView(name, compute);
-            combineHash += hashComputeView(name, compute);
+            const parts = [
+                hashCombineKey(name),
+                hashCombineKey(compute.name),
+                hashCombineKey(compute.accessType),
+                hashCombineKey(compute.clearFlags),
+                hashCombineKey(compute.clearValueType),
+                hashCombineKey(compute.clearValue.x),
+                hashCombineKey(compute.clearValue.y),
+                hashCombineKey(compute.clearValue.z),
+                hashCombineKey(compute.clearValue.w),
+                hashCombineKey(compute.shaderStageFlags),
+            ];
+            const str = parts.join('');
+            hashCodeParts.push(str);
         }
     }
-    const appendCommon = (str: string): string => {
-        str += hashCombineKey(pass.width);
-        str += hashCombineKey(pass.height);
-        str += hashCombineKey(pass.viewport.left);
-        str += hashCombineKey(pass.viewport.top);
-        str += hashCombineKey(pass.viewport.width);
-        str += hashCombineKey(pass.viewport.height);
-        str += hashCombineKey(pass.viewport.minDepth);
-        str += hashCombineKey(pass.viewport.maxDepth);
-        str += hashCombineKey(pass.showStatistics ? 1 : 0);
-        return str;
+    const appendCommon = (): void => {
+        const parts = [
+            hashCombineKey(pass.width),
+            hashCombineKey(pass.height),
+            hashCombineKey(pass.viewport.left),
+            hashCombineKey(pass.viewport.top),
+            hashCombineKey(pass.viewport.width),
+            hashCombineKey(pass.viewport.height),
+            hashCombineKey(pass.viewport.minDepth),
+            hashCombineKey(pass.viewport.maxDepth),
+            hashCombineKey(pass.showStatistics ? 1 : 0),
+        ];
+        const str = parts.join('');
+        hashCodeParts.push(str);
     };
-    hashCode = appendCommon(hashCode);
-    combineHash = appendCommon(combineHash);
+    appendCommon();
 
-    pass.hashValue = hashCombineStr(hashCode);
-    rpCombineMap.set(pass, hashCombineStr(combineHash));
+    pass.hashValue = hashCombineStr(hashCodeParts.join(''));
+    rpCombineMap.set(pass, hashCombineStr(combineHashParts.join('')));
     processPassMG(pass);
 }
