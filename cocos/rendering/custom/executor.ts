@@ -1150,8 +1150,6 @@ class DeviceRenderScene implements RecordingInterface {
             this._currentQueue.createBlitDesc(this._blit);
             this._currentQueue.blitDesc!.update();
         }
-        context.lightResource.buildLightBuffer(context.commandBuffer);
-        context.lightResource.tryUpdateRenderSceneLocalDescriptorSet(context.culling);
     }
     postRecord (): void {
         // nothing to do
@@ -1683,6 +1681,8 @@ export class Executor {
         context.lightResource.buildLights(culling, context.pipelineSceneData.isHDR, context.pipelineSceneData.shadows);
         this._removeDeviceResource();
         cmdBuff.begin();
+        context.lightResource.buildLightBuffer(cmdBuff);
+        context.lightResource.tryUpdateRenderSceneLocalDescriptorSet(context.culling);
         culling.uploadInstancing(cmdBuff);
         if (!this._visitor) this._visitor = new RenderVisitor();
         depthFirstSearch(this._visitor.graphView, this._visitor, this._visitor.colorMap);
