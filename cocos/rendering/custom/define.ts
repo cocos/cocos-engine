@@ -943,24 +943,6 @@ export function genHashValue (pass: RasterPass): void {
         hashCodeParts.push(fullHash);
         combineHashParts.push(combineHash);
     }
-    for (const [name, computes] of pass.computeViews) {
-        for (const compute of computes) {
-            const parts = [
-                hashCombineKey(name),
-                hashCombineKey(compute.name),
-                hashCombineKey(compute.accessType),
-                hashCombineKey(compute.clearFlags),
-                hashCombineKey(compute.clearValueType),
-                hashCombineKey(compute.clearValue.x),
-                hashCombineKey(compute.clearValue.y),
-                hashCombineKey(compute.clearValue.z),
-                hashCombineKey(compute.clearValue.w),
-                hashCombineKey(compute.shaderStageFlags),
-            ];
-            const str = parts.join('');
-            hashCodeParts.push(str);
-        }
-    }
     const appendCommon = (): void => {
         const parts = [
             hashCombineKey(pass.width),
