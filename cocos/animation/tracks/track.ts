@@ -369,9 +369,9 @@ export class TrackBinding {
                 if (!accessor) {
                     accessor = {
                         // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-                        setValue: Function('value', `this.target[${lastPropertyKey}] = value;`) as (val: any) => void,
+                        setValue: Function('value', `this.target["${lastPropertyKey}"] = value;`) as (val: any) => void,
                         // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-                        getValue: Function(`return this.target[${lastPropertyKey}];`) as () => any,
+                        getValue: Function(`return this.target["${lastPropertyKey}"];`) as () => any,
                     };
                     animationFunction.set(lastPropertyKey, accessor);
                 }
