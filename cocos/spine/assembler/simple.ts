@@ -181,7 +181,7 @@ function realTimeTraverse (comp: Skeleton): void {
     for (let i = 0; i < count; i += 5) {
         indexCount = data.get(i + 3);
         const material = _getSlotMaterial(data.get(i + 4) as number, comp);
-        comp.requestDrawData(material, textures.get(i / 5), indexOffset, indexCount);
+        comp.requestDrawData(material, textures.get(i / 5) as string, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 
@@ -328,7 +328,7 @@ function cacheTraverse (comp: Skeleton): void {
         const material = _getSlotMaterial(mesh.blendMode as number, comp);
         const textureID = mesh.textureID;
         indexCount = mesh.iCount;
-        comp.requestDrawData(material, textureID, indexOffset, indexCount);
+        comp.requestDrawData(material, textureID as string, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 
