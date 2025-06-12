@@ -36,6 +36,12 @@ import { Color, EPSILON, Vec3 } from '../../core';
 import type { MaterialInstance } from '../../render-scene';
 import type { IBatcher } from '../../2d/renderer/i-batcher';
 
+/**
+ * If Spine instance counts exceeding thresholds cause issues, first adjust the ADJUST_SIZE_RATE value.
+    Going forward, we need to implement independent memory management for Spine that bypasses the chunk approach.
+    Similar to native IOBuffers where populated content transfers directly to GPU buffers without going through static_vb_accessor.
+    For now, provide the minimal viable change.
+ */
 const ADJUST_SIZE_RATE = 1.1;
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
