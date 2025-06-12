@@ -29,7 +29,6 @@ import { DispatcherEventType, NodeEventProcessor } from '../../scene-graph/node-
 import { CCObjectFlags, js } from '../../core';
 import { InputEventType } from '../../input/types/event-enum';
 import { EventDispatcherPriority, IEventDispatcher } from '../../input/input';
-import { boolean } from '../../core/data/class-decorator';
 
 const mouseEvents = [
     InputEventType.MOUSE_DOWN,
