@@ -44,7 +44,7 @@ const touchEvents = [
     InputEventType.TOUCH_END,
     InputEventType.TOUCH_CANCEL,
 ];
-const isDestroy = (node: Node): boolean => !!(node._objFlags & CCObjectFlags.Destroying || node._objFlags & CCObjectFlags.Destroyed);
+const isDestroy = (node: Node): boolean => !!((node._objFlags & CCObjectFlags.Destroying) || (node._objFlags & CCObjectFlags.Destroyed));
 class PointerEventDispatcher implements IEventDispatcher {
     public priority: EventDispatcherPriority = EventDispatcherPriority.UI;
 
