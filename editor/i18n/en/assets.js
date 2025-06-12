@@ -431,8 +431,8 @@ module.exports = {
                 },
             },
             animationBakeRate: {
-                name: 'Animation Bake Rate',
-                title: 'Specify the animation bake rate in frames per second (fps).',
+                name: 'Animation Bake Sample Rate',
+                title: 'Specify the animation bake sample rate in frames per second (fps).',
                 auto: 'Auto',
             },
             promoteSingleRootNode: {
