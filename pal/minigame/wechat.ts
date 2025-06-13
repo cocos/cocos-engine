@@ -42,35 +42,6 @@ minigame.wx.onMouseUp = wx.onMouseUp?.bind(wx);
 minigame.wx.onWheel = wx.onWheel?.bind(wx);
 // #endregion platform related
 
-// #region SystemInfo
-let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
-
-function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number): void {
-    let successfullyTestTimes = 0;
-    let intervalTimer: number | null = null;
-    function testCachedSystemInfo (): void {
-        const currentSystemInfo = wx.getSystemInfoSync() as SystemInfo;
-        if (_cachedSystemInfo.screenWidth === currentSystemInfo.screenWidth && _cachedSystemInfo.screenHeight === currentSystemInfo.screenHeight) {
-            if (++successfullyTestTimes >= testAmount && intervalTimer !== null) {
-                clearInterval(intervalTimer);
-                intervalTimer = null;
-            }
-        } else {
-            successfullyTestTimes = 0;
-        }
-        _cachedSystemInfo = currentSystemInfo;
-    }
-    intervalTimer = setInterval(testCachedSystemInfo, testInterval);
-}
-testAndUpdateSystemInfoCache(10, 500);
-
-minigame.onWindowResize?.(() => {
-    // update cached system info
-    _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
-});
-minigame.getSystemInfoSync = function (): SystemInfo {
-    return _cachedSystemInfo;
-};
 
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');

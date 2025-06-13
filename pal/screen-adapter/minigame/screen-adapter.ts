@@ -23,7 +23,7 @@
 */
 
 import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
-import { minigame } from 'pal/minigame';
+import { minigame, SystemInfo } from 'pal/minigame';
 import { IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { getError, warnID } from '../../../cocos/core/platform/debug';
@@ -56,6 +56,37 @@ try {
     // eslint-disable-next-line no-console
     console.error(e);
 }
+
+const originalGetSystemInfoSync = minigame.getSystemInfoSync;
+let _cachedSystemInfo: SystemInfo = originalGetSystemInfoSync.call(minigame);
+
+function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number): void {
+    let successfullyTestTimes = 0;
+    let intervalTimer: number | null = null;
+    function testCachedSystemInfo (): void {
+        const currentSystemInfo = originalGetSystemInfoSync.call(minigame);
+        if (_cachedSystemInfo.screenWidth === currentSystemInfo.screenWidth && _cachedSystemInfo.screenHeight === currentSystemInfo.screenHeight) {
+            if (++successfullyTestTimes >= testAmount && intervalTimer !== null) {
+                clearInterval(intervalTimer);
+                intervalTimer = null;
+            }
+        } else {
+            successfullyTestTimes = 0;
+        }
+        _cachedSystemInfo = currentSystemInfo;
+    }
+    intervalTimer = setInterval(testCachedSystemInfo, testInterval);
+}
+testAndUpdateSystemInfoCache(10, 500);
+
+minigame.onWindowResize?.(() => {
+    // update cached system info
+    _cachedSystemInfo = originalGetSystemInfoSync.call(minigame);
+});
+
+minigame.getSystemInfoSync = function (): SystemInfo {
+    return _cachedSystemInfo;
+};
 
 class ScreenAdapter extends EventTarget {
     public isFrameRotated = false;
