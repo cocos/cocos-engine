@@ -46,36 +46,6 @@ minigame.wx.onMouseUp = wx.onMouseUp?.bind(wx);
 minigame.wx.onWheel = wx.onWheel?.bind(wx);
 // #endregion platform related
 
-// #region SystemInfo
-let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error TODO: move into minigame.d.ts
-minigame.testAndUpdateSystemInfoCache = (testAmount: number, testInterval: number): void => {
-    let successfullyTestTimes = 0;
-    let intervalTimer: number | null = null;
-    function testCachedSystemInfo (): void {
-        const currentSystemInfo = wx.getSystemInfoSync() as SystemInfo;
-        if (_cachedSystemInfo.screenWidth === currentSystemInfo.screenWidth && _cachedSystemInfo.screenHeight === currentSystemInfo.screenHeight) {
-            if (++successfullyTestTimes >= testAmount && intervalTimer !== null) {
-                clearInterval(intervalTimer);
-                intervalTimer = null;
-            }
-        } else {
-            successfullyTestTimes = 0;
-        }
-        _cachedSystemInfo = currentSystemInfo;
-    }
-    intervalTimer = setInterval(testCachedSystemInfo, testInterval);
-};
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error TODO: update when view resize
-minigame.testAndUpdateSystemInfoCache(10, 500);
-minigame.onWindowResize?.((): void => {
-    // update cached system info
-    _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
-});
-minigame.getSystemInfoSync = (): SystemInfo => _cachedSystemInfo;
-
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 // NOTE: size and orientation info is wrong at the init phase, especially on iOS device
