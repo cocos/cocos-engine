@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO, WECHAT } from 'internal:constants';
 import { minigame, SystemInfo } from 'pal/minigame';
 import { IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -77,7 +77,10 @@ function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number)
     }
     intervalTimer = setInterval(testCachedSystemInfo, testInterval);
 }
-testAndUpdateSystemInfoCache(10, 500);
+
+if (WECHAT) {
+    testAndUpdateSystemInfoCache(10, 500);
+}
 
 minigame.onWindowResize?.(() => {
     // update cached system info
