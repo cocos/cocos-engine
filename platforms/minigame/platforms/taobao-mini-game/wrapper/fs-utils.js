@@ -31,7 +31,7 @@ const fsUtils = {
     fs,
 
     isOutOfStorage (errorCode) {
-        return errorCode != null && errorCode.toString() === outOfStorageErrorCode;
+        return errorCode != null && String(errorCode) === outOfStorageErrorCode;
     },
 
     getUserDataPath () {
