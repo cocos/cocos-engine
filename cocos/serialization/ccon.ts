@@ -141,6 +141,30 @@ export function decodeCCONBinary (bytes: Uint8Array): CCON {
     return new CCON(json, chunks);
 }
 
+export function isCconb (bytes: Uint8Array | null): boolean {
+    if (!bytes || bytes.length < 16) {
+        return false;
+    }
+
+    const dataView = new DataView(
+        bytes.buffer,
+        bytes.byteOffset,
+        bytes.byteLength,
+    );
+
+    const magic = dataView.getUint32(0, true);
+    if (magic !== MAGIC) {
+        return false;
+    }
+
+    const version = dataView.getUint32(4, true);
+    if (version !== VERSION) {
+        return false;
+    }
+
+    return true;
+}
+
 /**
  * Partial signature of Node.js `Buffer`: https://nodejs.org/api/buffer.html
  */

@@ -31,7 +31,7 @@ import downloadScript from './download-script';
 import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
-import { CCON, decodeCCONBinary } from '../../serialization/ccon';
+import { CCON, decodeCCONBinary, isCconb } from '../../serialization/ccon';
 import type { AssetManager } from './asset-manager';
 
 export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void;
@@ -65,7 +65,16 @@ const downloadJson = (url: string, options: Record<string, any>, onComplete: ((e
 
 const downloadArrayBuffer = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void => {
     options.xhrResponseType = 'arraybuffer';
-    downloadFile(url, options, options.onFileProgress as FileProgressCallback, onComplete);
+    downloadFile(url, options, options.onFileProgress as FileProgressCallback, (err: Error | null, data?: any) => {
+        if (!err && data && (data instanceof ArrayBuffer || data instanceof Uint8Array)) {
+            const uint8Array = data instanceof Uint8Array ? data : new Uint8Array(data as ArrayBuffer);
+            if (isCconb(uint8Array)) {
+                onComplete(null, decodeCCONBinary(uint8Array));
+                return;
+            }
+        }
+        onComplete(err, data);
+    });
 };
 
 const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
