@@ -647,6 +647,12 @@ export class Skeleton extends UIRenderer {
         this._markForUpdateRenderData();
     }
 
+    /**
+     * @deprecated Since v3.8.7, it will be removed in the future.
+     * Using customMaterialInstance carries a potential issue: when blendMode changes within animations,
+     * it causes all blendModes to be overridden by the final value (only the last change takes effect).
+     * Solution: Switch to customMaterial. Whenever its value is modified, immediately call updateMaterial at the exact point of change.
+     */
     get customMaterialInstance (): MaterialInstance | null {
         if (!this._customMaterial) {
             return null;
