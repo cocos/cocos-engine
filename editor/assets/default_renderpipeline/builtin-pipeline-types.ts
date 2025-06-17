@@ -104,6 +104,15 @@ export function fillRequiredHBAO(value: HBAO): void {
     }
 }
 
+export enum PipelineType {
+    None = 0,
+    UI = 1,
+    Forward = 2,
+    // Mixing UI and Forward Pipelines
+    Overlay = 4,
+}
+ccenum(PipelineType);
+
 export enum BloomType {
     KawaseDualFilter,
     MipmapFilter,
@@ -265,6 +274,9 @@ export interface PipelineSettings {
     readonly msaa: MSAA;
     enableShadingScale: boolean; /* false */
     shadingScale: number; /* 0.5 */
+    pipelineType: PipelineType;
+    outputColor: string;
+    outputDepthStencil: string;
     readonly bloom: Bloom;
     readonly toneMapping: ToneMapping;
     readonly colorGrading: ColorGrading;
@@ -277,7 +289,10 @@ export function makePipelineSettings(): PipelineSettings {
     return {
         msaa: makeMSAA(),
         enableShadingScale: false,
+        pipelineType: PipelineType.None,
         shadingScale: 0.5,
+        outputColor: '',
+        outputDepthStencil: '',
         bloom: makeBloom(),
         toneMapping: makeToneMapping(),
         colorGrading: makeColorGrading(),
@@ -292,8 +307,17 @@ export function fillRequiredPipelineSettings(value: PipelineSettings): void {
     } else {
         fillRequiredMSAA(value.msaa);
     }
-    if (value.enableShadingScale === undefined) {
+    if (!value.enableShadingScale) {
         value.enableShadingScale = false;
+    }
+    if (!value.pipelineType) {
+        value.pipelineType = PipelineType.None;
+    }
+    if (!value.outputColor) {
+        value.outputColor = '';
+    }
+    if (!value.outputDepthStencil) {
+        value.outputDepthStencil = '';
     }
     if (value.shadingScale === undefined) {
         value.shadingScale = 0.5;

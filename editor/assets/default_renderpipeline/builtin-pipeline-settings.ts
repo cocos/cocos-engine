@@ -32,6 +32,7 @@ import { EDITOR } from 'cc/env';
 import {
     BloomType,
     fillRequiredPipelineSettings, makePipelineSettings, PipelineSettings,
+    PipelineType,
 } from './builtin-pipeline-types';
 
 const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireComponent, type } = _decorator;
@@ -62,11 +63,25 @@ export class BuiltinPipelineSettings extends Component {
     onDisable(): void {
         const cameraComponent = this.getComponent(Camera)!;
         const camera = cameraComponent.camera;
+        if (!camera) { return; }
         camera.pipelineSettings = null;
 
         if (EDITOR) {
             this._disableEditorPreview();
         }
+    }
+
+    @type(PipelineType)
+    @property
+    set pipelineType(value: PipelineType) {
+        this._settings.pipelineType = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+
+    get pipelineType(): PipelineType {
+        return this._settings.pipelineType;
     }
 
     // Editor Preview
