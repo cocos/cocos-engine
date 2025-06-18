@@ -723,9 +723,10 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         mesh->updateRegion();
 #endif
 
-         AttachmentVertices *attachmentVertices = nullptr;
-        if (attachmentVerticesMap->containsKey(attachment)) {
-            attachmentVertices = (*attachmentVerticesMap)[attachment];
+        auto *oldAttachment = slot->getAttachment();
+        AttachmentVertices *attachmentVertices = nullptr;
+        if (attachmentVerticesMap->containsKey(oldAttachment)) {
+            attachmentVertices = (*attachmentVerticesMap)[oldAttachment];
         }
         if (!attachmentVertices) return;
         if (createNew) {
