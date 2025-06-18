@@ -169,6 +169,9 @@ private:
                 if (kls != nullptr && kls != itr->second->_getClass()) {
                     continue;
                 }
+                if(itr->second->_getJSObject() == nullptr){
+                    continue;
+                }
                 eleCount++;
                 CC_ASSERT_LT(eleCount, 2);
                 eachCallback(itr->second);
