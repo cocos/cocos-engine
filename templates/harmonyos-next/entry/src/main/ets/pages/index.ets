@@ -307,7 +307,7 @@ struct Index {
       let index = this.videoIndexMap.get(tag) as number;
       this.videoArray[index].controller.pause();
     });
-    this.workPort?.on("pauseVideo",(tag: number) => {
+    this.workPort?.on("stopVideo",(tag: number) => {
       let index = this.videoIndexMap.get(tag) as number;
       this.videoArray[index].controller.stop();
     });
