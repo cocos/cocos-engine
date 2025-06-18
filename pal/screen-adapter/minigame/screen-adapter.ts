@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO, WECHAT } from 'internal:constants';
-import { minigame, SystemInfo } from 'pal/minigame';
+import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
+import { minigame } from 'pal/minigame';
 import { IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { getError, warnID } from '../../../cocos/core/platform/debug';
