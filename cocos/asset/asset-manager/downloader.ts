@@ -79,18 +79,7 @@ const downloadArrayBuffer = (url: string, options: Record<string, any>, onComple
 
 const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
     url = url.replace('.cconb', '.bin');
-    downloader._downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer): void => {
-        if (err) {
-            onComplete(err);
-            return;
-        }
-        try {
-            const ccon = decodeCCONBinary(new Uint8Array(arrayBuffer));
-            onComplete(null, ccon);
-        } catch (err) {
-            onComplete(err as Error);
-        }
-    });
+    downloader._downloadArrayBuffer(url, options, onComplete);
 };
 
 const downloadText = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void => {
