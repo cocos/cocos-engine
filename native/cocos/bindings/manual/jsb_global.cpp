@@ -52,7 +52,7 @@
     #include "platform/java/jni/JniImp.h"
 #endif
 
-#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     #include "platform/openharmony/napi/NapiHelper.h"
 #endif
 
@@ -1433,7 +1433,7 @@ static bool JSB_process_get_argv(se::State &s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_GET(JSB_process_get_argv)
 
-#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
 
 static bool sevalue_to_napivalue(const se::Value &seVal, Napi::Value *napiVal, Napi::Env env);
 
@@ -1619,12 +1619,10 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->setProperty("performance", se::Value(performanceObj));
 
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
     se::HandleObject ohObj(se::Object::createPlainObject());
     global->setProperty("oh", se::Value(ohObj));
     ohObj->defineFunction("postMessage", _SE(JSB_openharmony_postMessage));
     ohObj->defineFunction("postSyncMessage", _SE(JSB_openharmony_postSyncMessage));
-    #endif
 #endif
 
     jsb_register_TextEncoder(global);
