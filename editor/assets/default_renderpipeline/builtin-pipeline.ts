@@ -1779,7 +1779,8 @@ if (rendering) {
             // Render Window (UI)
             const id = window.renderWindowId;
 
-            ppl.addRenderWindow(this._cameraConfigs.colorName,
+            ppl.addRenderWindow(
+                this._cameraConfigs.colorName,
                 Format.RGBA8, nativeWidth, nativeHeight, window,
                 this._cameraConfigs.depthStencilName);
 
