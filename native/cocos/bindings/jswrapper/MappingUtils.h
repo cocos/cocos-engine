@@ -169,9 +169,12 @@ private:
                 if (kls != nullptr && kls != itr->second->_getClass()) {
                     continue;
                 }
-                if(itr->second->_getJSObject() == nullptr){
-                    continue;
-                }
+                // JS object may be null when it is obtained on zhe JSVM brach of the 5.1 ROMS
+                #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSVM
+                    if(itr->second->_getJSObject() == nullptr) {
+                        continue;
+                    }
+                #endif
                 eleCount++;
                 CC_ASSERT_LT(eleCount, 2);
                 eachCallback(itr->second);

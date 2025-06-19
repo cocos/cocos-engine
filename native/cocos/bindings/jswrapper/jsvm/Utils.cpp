@@ -178,7 +178,7 @@ bool seToJsArgs(JSVM_Env env, const ValueArray& args, std::vector<target_value>*
     assert(outArr != nullptr);
     for (const auto& data : args) {
         JSVM_Value jsval;
-        ret &= seToJsValue(data, &jsval);
+        ret = ret && seToJsValue(data, &jsval);
         outArr->push_back(jsval);
     }
     return ret;
