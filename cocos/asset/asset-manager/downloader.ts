@@ -73,8 +73,7 @@ const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((
         try {
             const ccon = decodeCCONBinary(new Uint8Array(arrayBuffer));
             onComplete(null, ccon);
-        }
-        catch (err) {
+        } catch (err) {
             onComplete(err as Error);
         }
     };

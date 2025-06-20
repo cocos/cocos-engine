@@ -114,11 +114,10 @@ export function decodeCCONBinary (bytes: Uint8Array): CCON {
     chunksStart += jsonDataLength;
     let json: unknown;
     try {
-        if (version == 1) {
+        if (version === 1) {
             const jsonString = decodeJson(jsonData);
             json = JSON.parse(jsonString);
-        }
-        else if (version == 2) {
+        } else if (version === 2) {
             json = notepackDecode(jsonData);
         }
     } catch (err) {
