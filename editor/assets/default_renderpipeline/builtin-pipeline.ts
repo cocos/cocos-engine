@@ -25,7 +25,7 @@
 import {
     assert, cclegacy, clamp, geometry, gfx, Layers, Material, pipeline,
     PipelineEventProcessor, PipelineEventType, ReflectionProbeManager, renderer,
-    rendering, sys, Vec2, Vec3, Vec4, warn,
+    rendering, sys, Vec2, Vec3, Vec4, warn, RecyclePool,
 } from 'cc';
 
 import { DEBUG, EDITOR } from 'cc/env';
@@ -35,6 +35,7 @@ import {
     ForwardPassConfigs,
     makePipelineSettings,
     PipelineSettings,
+    PipelineType,
 } from './builtin-pipeline-types';
 
 const { AABB, Sphere, intersect } = geometry;
@@ -111,7 +112,8 @@ export class PipelineConfigs {
     screenSpaceSignY = 1;
     supportDepthSample = false;
     mobileMaxSpotLightShadowMaps = 1;
-
+    preColorName = '';
+    preDSName = '';
     platform = new Vec4(0, 0, 0, 0);
 }
 
@@ -125,7 +127,7 @@ function setupPipelineConfigs(
     configs.isWebGL1 = device.gfxAPI === gfx.API.WEBGL;
     configs.isWebGPU = device.gfxAPI === gfx.API.WEBGPU;
     configs.isMobile = sys.isMobile;
-
+    configs.preColorName = configs.preDSName = '';
     // Rendering
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
@@ -211,7 +213,7 @@ function addCopyToScreenPass(
     return pass;
 }
 
-export function getPingPongRenderTarget(prevName: string, prefix: string, id: number): string {
+export function getPingPongRenderTarget(prevName: string, prefix: string, id: string): string {
     if (prevName.startsWith(prefix)) {
         return `${prefix}${1 - Number(prevName.charAt(prefix.length))}_${id}`;
     } else {
@@ -402,6 +404,45 @@ class ForwardLighting {
     }
 }
 
+function updateContextColorAndDepth(
+    context: PipelineContext,
+    camera: renderer.scene.Camera,
+): CameraContext {
+    const currContext = cameraContext.get(camera)!;
+    context.colorName = currContext.outputColor;
+    context.depthStencilName = currContext.outputDepthStencil;
+    // const id = camera.window.renderWindowId;
+    // let preColorName;
+    // let preDSName;
+    // let preOffScreen = false;
+    // if (cameraConfigs.remainingPasses > 0 || cameraConfigs.enableShadingScale) {
+    //     preColorName = context.colorName = cameraConfigs.enableShadingScale
+    //         ? `ScaledRadiance0_${id}`
+    //         : `Radiance0_${id}`;
+    //     preDSName = context.depthStencilName = cameraConfigs.enableShadingScale
+    //         ? `ScaledSceneDepth_${id}`
+    //         : `SceneDepth_${id}`;
+    // } else {
+    //     context.colorName = cameraConfigs.colorName;
+    //     context.depthStencilName = cameraConfigs.depthStencilName;
+    // }
+
+    // if (!forwardNeedClearColor(camera) && pplConfigs.preColorName) {
+    //     preColorName = context.colorName = pplConfigs.preColorName;
+    //     preOffScreen = true;
+    // }
+
+    // if (!(camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) && pplConfigs.preDSName) {
+    //     preDSName = context.depthStencilName = pplConfigs.preDSName;
+    // }
+
+    // if (preColorName) {
+    //     pplConfigs.preColorName = preColorName;
+    //     pplConfigs.preDSName = preDSName;
+    // }
+    return currContext;
+}
+
 export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder {
     static ConfigOrder = 100;
     static RenderOrder = 100;
@@ -515,9 +556,6 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
         cameraConfigs: CameraConfigs & ForwardPassConfigs,
         camera: renderer.scene.Camera,
         context: PipelineContext): rendering.BasicRenderPassBuilder | undefined {
-        // Add global constants
-        ppl.setVec4('g_platform', pplConfigs.platform);
-
         const id = camera.window.renderWindowId;
 
         const scene = camera.scene!;
@@ -543,19 +581,8 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
         }
 
         this._tryAddReflectionProbePasses(cameraConfigs, id, mainLight, camera.scene);
-
-        if (cameraConfigs.remainingPasses > 0 || cameraConfigs.enableShadingScale) {
-            context.colorName = cameraConfigs.enableShadingScale
-                ? `ScaledRadiance0_${id}`
-                : `Radiance0_${id}`;
-            context.depthStencilName = cameraConfigs.enableShadingScale
-                ? `ScaledSceneDepth_${id}`
-                : `SceneDepth_${id}`;
-        } else {
-            context.colorName = cameraConfigs.colorName;
-            context.depthStencilName = cameraConfigs.depthStencilName;
-        }
-
+        const cameraContext = updateContextColorAndDepth(context, camera);
+        cameraContext.copyTexToTarget(context.colorName, cameraConfigs);
         const pass = this._addForwardRadiancePasses(
             cameraConfigs, id, camera,
             cameraConfigs.width, cameraConfigs.height, mainLight,
@@ -566,8 +593,7 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
         if (!cameraConfigs.enableStoreSceneDepth) {
             context.depthStencilName = '';
         }
-
-        if (cameraConfigs.remainingPasses === 0 && cameraConfigs.enableShadingScale) {
+        if (cameraConfigs.remainingPasses === 0 && cameraContext.needCopyToScreen()) {
             return addCopyToScreenPass(cameraConfigs, context.colorName);
         } else {
             return pass;
@@ -1326,7 +1352,10 @@ export class BuiltinToneMappingPassBuilder implements rendering.PipelinePassBuil
                 cameraConfigs.width, cameraConfigs.height,
                 context.colorName, cameraConfigs.colorName);
         } else {
-            const id = cameraConfigs.renderWindowId;
+            let id = `${cameraConfigs.renderWindowId}`;
+            if (cameraConfigs.enableShadingScale) {
+                id = `${id}_${cameraConfigs.shadingScale}`;
+            }
             const ldrColorPrefix = cameraConfigs.enableShadingScale
                 ? `ScaledLdrColor`
                 : `LdrColor`;
@@ -1420,7 +1449,10 @@ export class BuiltinFXAAPassBuilder implements rendering.PipelinePassBuilder {
         --cameraConfigs.remainingPasses;
         assert(cameraConfigs.remainingPasses >= 0);
 
-        const id = cameraConfigs.renderWindowId;
+        let id = `${cameraConfigs.renderWindowId}`;
+        if (cameraConfigs.enableShadingScale) {
+            id = `${id}_${cameraConfigs.shadingScale}`;
+        }
         const ldrColorPrefix = cameraConfigs.enableShadingScale
             ? `ScaledLdrColor`
             : `LdrColor`;
@@ -1591,19 +1623,143 @@ export class BuiltinFsrPassBuilder implements rendering.PipelinePassBuilder {
 }
 
 export class BuiltinUiPassBuilder implements rendering.PipelinePassBuilder {
+    private _cameraConfigs: CameraConfigs;
+    private readonly _clearColor = new Color(0, 0, 0, 1);
+    private readonly _viewport = new Viewport();
     getConfigOrder(): number {
         return 0;
     }
     getRenderOrder(): number {
-        return 1000;
+        return 150;
+    }
+
+    configCamera(
+        camera: Readonly<renderer.scene.Camera>,
+        cameraConfigs: CameraConfigs & ForwardPassConfigs): void {
+        // MSAA
+        cameraConfigs.enableMSAA = cameraConfigs.settings.msaa.enabled
+            && !cameraConfigs.enableStoreSceneDepth // Cannot store MS depth, resolve depth is also not cross-platform
+            && !pplConfigs.isWeb // TODO(zhouzhenglong): remove this constraint
+            && !pplConfigs.isWebGL1;
+
+        ++cameraConfigs.remainingPasses;
+    }
+    windowResize(
+        cameraConfigs: Readonly<CameraConfigs & ForwardPassConfigs>,
+        window: renderer.RenderWindow,
+        camera: renderer.scene.Camera,
+        nativeWidth: number,
+        nativeHeight: number): void {
+        const ResourceFlags = rendering.ResourceFlags;
+        const ResourceResidency = rendering.ResourceResidency;
+        const id = window.renderWindowId;
+        const settings = cameraConfigs.settings;
+
+        const width = cameraConfigs.enableShadingScale
+            ? Math.max(Math.floor(nativeWidth * cameraConfigs.shadingScale), 1)
+            : nativeWidth;
+        const height = cameraConfigs.enableShadingScale
+            ? Math.max(Math.floor(nativeHeight * cameraConfigs.shadingScale), 1)
+            : nativeHeight;
+
+        // MsaaRadiance
+        if (cameraConfigs.enableMSAA) {
+            // Notice: We never store multisample results.
+            // These samples are always resolved and discarded at the end of the render pass.
+            // So the ResourceResidency should be MEMORYLESS.
+            if (cameraConfigs.enableHDR) {
+                ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, cameraConfigs.radianceFormat, width, height, 1, 1, 1,
+                    settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
+            } else {
+                ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA8, width, height, 1, 1, 1,
+                    settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
+            }
+            ppl.addTexture(`MsaaDepthStencil${id}`, TextureType.TEX2D, Format.DEPTH_STENCIL, width, height, 1, 1, 1,
+                settings.msaa.sampleCount, ResourceFlags.DEPTH_STENCIL_ATTACHMENT, ResourceResidency.MEMORYLESS);
+        }
+    }
+
+    private _buildUIPass(
+        camera: renderer.scene.Camera,
+        cameraConfigs: CameraConfigs,
+        context: PipelineContext,
+    ): void {
+        const camContext = updateContextColorAndDepth(context, camera);
+        const width = cameraConfigs.width;
+        const height = cameraConfigs.height;
+        const colorName = context.colorName;
+        const depthStencilName = context.depthStencilName;
+
+        const viewport = camera.viewport;  // Reduce C++/TS interop
+        this._viewport.left = Math.round(viewport.x * width);
+        this._viewport.top = Math.round(viewport.y * height);
+        // Here we must use camera.viewport.width instead of camera.viewport.z, which
+        // is undefined on native platform. The same as camera.viewport.height.
+        this._viewport.width = Math.max(Math.round(viewport.width * width), 1);
+        this._viewport.height = Math.max(Math.round(viewport.height * height), 1);
+
+        const clearColor = camera.clearColor;  // Reduce C++/TS interop
+        this._clearColor.x = clearColor.x;
+        this._clearColor.y = clearColor.y;
+        this._clearColor.z = clearColor.z;
+        this._clearColor.w = clearColor.w;
+        camContext.copyTexToTarget(colorName, cameraConfigs);
+
+        const pass = ppl.addRenderPass(width, height, 'default');
+
+        // bind output render target
+        if (forwardNeedClearColor(camera)) {
+            pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColor);
+        } else {
+            pass.addRenderTarget(colorName, LoadOp.LOAD, StoreOp.STORE);
+        }
+
+        // bind depth stencil buffer
+        if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
+            pass.addDepthStencil(
+                depthStencilName,
+                LoadOp.CLEAR,
+                StoreOp.DISCARD,
+                camera.clearDepth,
+                camera.clearStencil,
+                camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
+            );
+        } else {
+            pass.addDepthStencil(depthStencilName, LoadOp.LOAD, StoreOp.DISCARD);
+        }
+
+        pass.setViewport(this._viewport);
+
+        // The opaque queue is used for Reflection probe preview
+        pass.addQueue(rendering.QueueHint.OPAQUE)
+            .addScene(camera, rendering.SceneFlags.OPAQUE);
+
+        // The blend queue is used for UI and Gizmos
+        const queue = pass.addQueue(rendering.QueueHint.BLEND);
+        queue.addDraw2D(camera);
+        if (this._cameraConfigs.enableProfiler) {
+            pass.showStatistics = true;
+            queue.addProfiler(camera);
+        }
+        queue.addScene(camera, rendering.SceneFlags.BLEND);
+        if (cameraConfigs.remainingPasses === 0 && camContext.needCopyToScreen()) {
+            return addCopyToScreenPass(cameraConfigs, context.colorName);
+        } else {
+            return pass;
+        }
     }
     setup(
-        cameraConfigs: CameraConfigs & FSRPassConfigs,
+        cameraConfigs: CameraConfigs,
         camera: renderer.scene.Camera,
         context: PipelineContext,
         prevRenderPass?: rendering.BasicRenderPassBuilder)
         : rendering.BasicRenderPassBuilder | undefined {
-        assert(!!prevRenderPass);
+        --cameraConfigs.remainingPasses;
+        assert(cameraConfigs.remainingPasses >= 0);
+        this._cameraConfigs = cameraConfigs;
+        if (!prevRenderPass) {
+            return this._buildUIPass(camera, cameraConfigs, context);
+        }
         const queue = prevRenderPass
             .addQueue(rendering.QueueHint.BLEND, 'default', 'default');
         queue.addDraw2D(camera);
@@ -1611,9 +1767,55 @@ export class BuiltinUiPassBuilder implements rendering.PipelinePassBuilder {
             prevRenderPass.showStatistics = true;
             queue.addProfiler(camera);
         }
-        return prevRenderPass;
+        const camContext = updateContextColorAndDepth(context, camera);
+        if (cameraConfigs.remainingPasses === 0 && camContext.needCopyToScreen()) {
+            return addCopyToScreenPass(cameraConfigs, context.colorName);
+        } else {
+            return prevRenderPass;
+        }
     }
 }
+
+class CameraContext {
+    public isOffscreen: boolean;
+    public isPostprocess: boolean;
+    // preoutput
+    public preColor: string;
+    public preDepthStencil: string;
+    // output
+    public outputColor: string;
+    public outputDepthStencil: string;
+    init() {
+        this.isOffscreen = false;
+        this.isPostprocess = false;
+        this.outputDepthStencil = this.outputColor = this.preColor = this.preDepthStencil = '';
+    }
+    needCopyToScreen() {
+        return !this.isOffscreen && this.isPostprocess;
+    }
+    copyTexToTarget(targetName: string, cameraConfigs: CameraConfigs): boolean {
+        let needLoad = false;
+        if (this.preColor && this.preColor !== this.outputColor) {
+            needLoad = true;
+            const pass = buildScreenQuadPass(
+                cameraConfigs.width,
+                cameraConfigs.height,
+                'cc-tone-mapping',
+                targetName,
+                cameraConfigs.copyAndTonemapMaterial,
+                1,
+            );
+            pass.addTexture(this.preColor, 'inputTexture');
+        }
+        return needLoad;
+    }
+}
+
+// If the previous camera has post-processing, preColor must have a value
+// If the previous camera has no post-processing, and the next camera has post-processing, preColor must also have a value
+const cameraContext: Map<renderer.scene.Camera, CameraContext> = new Map();
+const cameraWindowIDs: Map<number, renderer.scene.Camera[]> = new Map();
+const camContextPools = new RecyclePool<CameraContext>((): CameraContext => new CameraContext(), 16);
 
 if (rendering) {
 
@@ -1634,6 +1836,7 @@ if (rendering) {
         private readonly _cameraConfigs = new CameraConfigs();
         // Materials
         private readonly _copyAndTonemapMaterial = new Material();
+        private _cameras: renderer.scene.Camera[];
 
         // Internal States
         private _initialized = false; // TODO(zhouzhenglong): Make default effect asset loading earlier and remove this flag
@@ -1673,23 +1876,31 @@ if (rendering) {
                 }
                 assert(passBuilders.length === settings._passes.length);
             }
-
-            passBuilders.push(this._forwardPass);
-
-            if (settings.bloom.enabled) {
-                passBuilders.push(this._bloomPass);
+            const pipelineType = settings.pipelineType;
+            // "default" layer
+            const isDefaultPipe = !pipelineType && cameraConfigs.enableFullPipeline;
+            if (isDefaultPipe || pipelineType === PipelineType.Forward || pipelineType === PipelineType.Overlay) {
+                passBuilders.push(this._forwardPass);
             }
-
-            passBuilders.push(this._toneMappingPass);
-
-            if (settings.fxaa.enabled) {
-                passBuilders.push(this._fxaaPass);
+            if (pipelineType === PipelineType.UI || pipelineType === PipelineType.Overlay || (!pipelineType && !cameraConfigs.enableFullPipeline)) {
+                passBuilders.push(this._uiPass);
             }
+            if (pipelineType) {
+                if (settings.bloom.enabled) {
+                    passBuilders.push(this._bloomPass);
+                }
+                passBuilders.push(this._toneMappingPass);
+                if (settings.fxaa.enabled) {
+                    passBuilders.push(this._fxaaPass);
+                }
 
-            if (settings.fsr.enabled) {
-                passBuilders.push(this._fsrPass);
+                if (settings.fsr.enabled) {
+                    passBuilders.push(this._fsrPass);
+                }
             }
-            passBuilders.push(this._uiPass);
+            if (pipelineType === PipelineType.Forward || isDefaultPipe) {
+                passBuilders.push(this._uiPass);
+            }
         }
 
         private _setupBuiltinCameraConfigs(
@@ -1746,12 +1957,11 @@ if (rendering) {
             cameraConfigs: CameraConfigs
         ): void {
             this._setupPipelinePreview(camera, cameraConfigs);
+            this._setupBuiltinCameraConfigs(camera, cameraConfigs);
 
             this._preparePipelinePasses(cameraConfigs);
 
             sortPipelinePassBuildersByConfigOrder(this._passBuilders);
-
-            this._setupBuiltinCameraConfigs(camera, cameraConfigs);
 
             for (const builder of this._passBuilders) {
                 if (builder.configCamera) {
@@ -1776,22 +1986,21 @@ if (rendering) {
 
             this._setupCameraConfigs(camera, this._cameraConfigs);
 
-            // Render Window (UI)
-            const id = window.renderWindowId;
-
             ppl.addRenderWindow(this._cameraConfigs.colorName,
                 Format.RGBA8, nativeWidth, nativeHeight, window,
                 this._cameraConfigs.depthStencilName);
 
             const width = this._cameraConfigs.width;
             const height = this._cameraConfigs.height;
-
+            // Render Window (UI)
+            const id = window.renderWindowId;
             if (this._cameraConfigs.enableShadingScale) {
-                ppl.addDepthStencil(`ScaledSceneDepth_${id}`, Format.DEPTH_STENCIL, width, height);
-                ppl.addRenderTarget(`ScaledRadiance0_${id}`, this._cameraConfigs.radianceFormat, width, height);
-                ppl.addRenderTarget(`ScaledRadiance1_${id}`, this._cameraConfigs.radianceFormat, width, height);
-                ppl.addRenderTarget(`ScaledLdrColor0_${id}`, Format.RGBA8, width, height);
-                ppl.addRenderTarget(`ScaledLdrColor1_${id}`, Format.RGBA8, width, height);
+                const sid = `${id}_${this._cameraConfigs.shadingScale}`;
+                ppl.addDepthStencil(`ScaledSceneDepth_${sid}`, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`ScaledRadiance0_${sid}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`ScaledRadiance1_${sid}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`ScaledLdrColor0_${sid}`, Format.RGBA8, width, height);
+                ppl.addRenderTarget(`ScaledLdrColor1_${sid}`, Format.RGBA8, width, height);
             } else {
                 ppl.addDepthStencil(`SceneDepth_${id}`, Format.DEPTH_STENCIL, width, height);
                 ppl.addRenderTarget(`Radiance0_${id}`, this._cameraConfigs.radianceFormat, width, height);
@@ -1808,13 +2017,92 @@ if (rendering) {
                 }
             }
         }
+
+        private _hasPostprocess(camera: renderer.scene.Camera): boolean {
+            const pipeSettings = camera.pipelineSettings;
+            if (!pipeSettings) {
+                return false;
+            }
+            return pipeSettings.enableShadingScale ||
+            pipeSettings.msaa.enabled ||
+            pipeSettings.bloom.enabled ||
+            pipeSettings.fxaa.enabled ||
+            pipeSettings.colorGrading.enabled ||
+            pipeSettings.fsr.enabled;
+        }
+
+        private _applyCameraContextInfo(camera: renderer.scene.Camera, context: CameraContext, forceOffscreen: boolean = false): void {
+            context.isOffscreen = forceOffscreen;
+            context.isPostprocess = this._hasPostprocess(camera);
+            const winColor = camera.window.colorName;
+            const winDepth = camera.window.depthStencilName;
+            context.outputColor = winColor;
+            context.outputDepthStencil = winDepth;
+            if (context.isOffscreen || context.isPostprocess) {
+                const id = camera.window.renderWindowId;
+                // context.isOffscreen = true;
+                const pipeSettings = camera.pipelineSettings;
+                context.outputColor = `Radiance0_${id}`;
+                context.outputDepthStencil = `SceneDepth_${id}`;
+                if (pipeSettings && pipeSettings.enableShadingScale && pipeSettings.shadingScale !== 1) {
+                    const scaleName = 'Scaled';
+                    context.outputColor = `${scaleName}${context.outputColor}_${pipeSettings.shadingScale}`;
+                    context.outputDepthStencil = `${scaleName}${context.outputDepthStencil}_${pipeSettings.shadingScale}`;
+                }
+            }
+        }
+
+        private _setupCameraContext(): void {
+            camContextPools.reset();
+            cameraWindowIDs.clear();
+            cameraContext.clear();
+            for (const camera of this._cameras) {
+                if (!camera.scene || !camera.window) {
+                    continue;
+                }
+                const id = camera.window.renderWindowId;
+                let tarWins = cameraWindowIDs.get(id);
+                if (!tarWins) {
+                    tarWins = [];
+                    cameraWindowIDs.set(id, tarWins);
+                    const context = camContextPools.add();
+                    context.init();
+                    this._applyCameraContextInfo(camera, context);
+                    cameraContext.set(camera, context);
+                } else {
+                    const currContext = camContextPools.add();
+                    currContext.init();
+                    this._applyCameraContextInfo(camera, currContext);
+                    cameraContext.set(camera, currContext);
+                    const lastCam = tarWins[tarWins.length - 1];
+                    const lastContext = cameraContext.get(lastCam)!;
+                    if (!forwardNeedClearColor(camera)) {
+                        if (!lastContext.isOffscreen) {
+                            lastContext.isOffscreen = true;
+                            if (!lastContext.isPostprocess) {
+                                this._applyCameraContextInfo(lastCam, lastContext, true);
+                            }
+                        }
+                        currContext.preColor = lastContext.outputColor;
+                        currContext.preDepthStencil = lastContext.outputDepthStencil;
+                    }
+                }
+                tarWins.push(camera);
+            }
+        }
+
         setup(cameras: renderer.scene.Camera[], pipeline: rendering.BasicPipeline): void {
             ppl = pipeline;
+            // Add global constants
+            ppl.setVec4('g_platform', pplConfigs.platform);
             // TODO(zhouzhenglong): Make default effect asset loading earlier and remove _initMaterials
             if (this._initMaterials()) {
                 return;
             }
-
+            this._cameras = cameras;
+            pplConfigs.preColorName = pplConfigs.preDSName = '';
+            this._setupCameraContext();
+            // const configs = this._cameraConfigs;
             // Render cameras
             // log(`==================== One Frame ====================`);
             for (const camera of cameras) {
@@ -1830,11 +2118,11 @@ if (rendering) {
                 this._pipelineEvent.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
 
                 // Build pipeline
-                if (this._cameraConfigs.enableFullPipeline) {
-                    this._buildForwardPipeline(camera, camera.scene, this._passBuilders);
-                } else {
-                    this._buildSimplePipeline(camera);
-                }
+                // if (configs.settings.pipelineType === PipelineType.Forward) {
+                this._buildBuiltinPipeline(camera);
+                // } else {
+                //   this._buildSimplePipeline(camera);
+                // }
 
                 this._pipelineEvent.emit(PipelineEventType.RENDER_CAMERA_END, camera);
             }
@@ -1842,74 +2130,11 @@ if (rendering) {
         // ----------------------------------------------------------------
         // Pipelines
         // ----------------------------------------------------------------
-        private _buildSimplePipeline(
+        private _buildBuiltinPipeline(
             camera: renderer.scene.Camera,
         ): void {
-            const width = Math.max(Math.floor(camera.window.width), 1);
-            const height = Math.max(Math.floor(camera.window.height), 1);
-            const colorName = this._cameraConfigs.colorName;
-            const depthStencilName = this._cameraConfigs.depthStencilName;
-
-            const viewport = camera.viewport;  // Reduce C++/TS interop
-            this._viewport.left = Math.round(viewport.x * width);
-            this._viewport.top = Math.round(viewport.y * height);
-            // Here we must use camera.viewport.width instead of camera.viewport.z, which
-            // is undefined on native platform. The same as camera.viewport.height.
-            this._viewport.width = Math.max(Math.round(viewport.width * width), 1);
-            this._viewport.height = Math.max(Math.round(viewport.height * height), 1);
-
-            const clearColor = camera.clearColor;  // Reduce C++/TS interop
-            this._clearColor.x = clearColor.x;
-            this._clearColor.y = clearColor.y;
-            this._clearColor.z = clearColor.z;
-            this._clearColor.w = clearColor.w;
-
-            const pass = ppl.addRenderPass(width, height, 'default');
-
-            // bind output render target
-            if (forwardNeedClearColor(camera)) {
-                pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColor);
-            } else {
-                pass.addRenderTarget(colorName, LoadOp.LOAD, StoreOp.STORE);
-            }
-
-            // bind depth stencil buffer
-            if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
-                pass.addDepthStencil(
-                    depthStencilName,
-                    LoadOp.CLEAR,
-                    StoreOp.DISCARD,
-                    camera.clearDepth,
-                    camera.clearStencil,
-                    camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
-                );
-            } else {
-                pass.addDepthStencil(depthStencilName, LoadOp.LOAD, StoreOp.DISCARD);
-            }
-
-            pass.setViewport(this._viewport);
-
-            // The opaque queue is used for Reflection probe preview
-            pass.addQueue(QueueHint.OPAQUE)
-                .addScene(camera, SceneFlags.OPAQUE);
-
-            // The blend queue is used for UI and Gizmos
-            const queue = pass.addQueue(QueueHint.BLEND);
-            queue.addDraw2D(camera);
-            if (this._cameraConfigs.enableProfiler) {
-                pass.showStatistics = true;
-                queue.addProfiler(camera);
-            }
-            queue.addScene(camera, SceneFlags.BLEND);
-        }
-
-        private _buildForwardPipeline(
-            camera: renderer.scene.Camera,
-            scene: renderer.RenderScene,
-            passBuilders: rendering.PipelinePassBuilder[],
-        ): void {
+            const passBuilders = this._passBuilders;
             sortPipelinePassBuildersByRenderOrder(passBuilders);
-
             const context: PipelineContext = {
                 colorName: '',
                 depthStencilName: '',
