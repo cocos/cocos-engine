@@ -220,13 +220,13 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNI
     touchEvent.windowId = windowId;
     touchEvent.type = cc::TouchEvent::Type::MOVED;
     int size = env->GetArrayLength(ids);
-    jint id[size];
-    jfloat x[size];
-    jfloat y[size];
+    std::vector<jint> id(size);
+    std::vector<jfloat> x(size);
+    std::vector<jfloat> y(size);
 
-    env->GetIntArrayRegion(ids, 0, size, id);
-    env->GetFloatArrayRegion(xs, 0, size, x);
-    env->GetFloatArrayRegion(ys, 0, size, y);
+    env->GetIntArrayRegion(ids, 0, size, id.data());
+    env->GetFloatArrayRegion(xs, 0, size, x.data());
+    env->GetFloatArrayRegion(ys, 0, size, y.data());
     for (int i = 0; i < size; i++) {
         touchEvent.touches.emplace_back(x[i], y[i], id[i]);
     }
@@ -247,13 +247,13 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(J
     touchEvent.windowId = windowId;
     touchEvent.type = cc::TouchEvent::Type::CANCELLED;
     int size = env->GetArrayLength(ids);
-    jint id[size];
-    jfloat x[size];
-    jfloat y[size];
+    std::vector<jint> id(size);
+    std::vector<jfloat> x(size);
+    std::vector<jfloat> y(size);
 
-    env->GetIntArrayRegion(ids, 0, size, id);
-    env->GetFloatArrayRegion(xs, 0, size, x);
-    env->GetFloatArrayRegion(ys, 0, size, y);
+    env->GetIntArrayRegion(ids, 0, size, id.data());
+    env->GetFloatArrayRegion(xs, 0, size, x.data());
+    env->GetFloatArrayRegion(ys, 0, size, y.data());
     for (int i = 0; i < size; i++) {
         touchEvent.touches.emplace_back(x[i], y[i], id[i]);
     }
