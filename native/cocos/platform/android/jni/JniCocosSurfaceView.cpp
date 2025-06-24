@@ -219,7 +219,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNI
 
     touchEvent.windowId = windowId;
     touchEvent.type = cc::TouchEvent::Type::MOVED;
-    int size = env->GetArrayLength(ids);
+    const int size = env->GetArrayLength(ids);
     std::vector<jint> id(size);
     std::vector<jfloat> x(size);
     std::vector<jfloat> y(size);
@@ -246,7 +246,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(J
 
     touchEvent.windowId = windowId;
     touchEvent.type = cc::TouchEvent::Type::CANCELLED;
-    int size = env->GetArrayLength(ids);
+    const int size = env->GetArrayLength(ids);
     std::vector<jint> id(size);
     std::vector<jfloat> x(size);
     std::vector<jfloat> y(size);
