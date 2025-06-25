@@ -29,6 +29,7 @@ AttachmentVertices *getAttachmentVertices(Attachment *attachment) {
             return (*attachmentVerticesMap)[attachment];
         }
     }
+    return nullptr;
 }
 
 template<typename VertexType, typename UVArrayType>
