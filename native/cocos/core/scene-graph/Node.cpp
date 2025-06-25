@@ -57,7 +57,14 @@ Node::Node(const ccstd::string &name) {
     _colorDirty = 1;
     
 #define NODE_SHARED_MEMORY_BYTE_LENGTH (36)
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#endif
     static_assert(offsetof(Node, _finalOpacity) + sizeof(_finalOpacity) - offsetof(Node, _eventMask) == NODE_SHARED_MEMORY_BYTE_LENGTH, "Wrong shared memory size");
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     _sharedMemoryActor.initialize(&_eventMask, NODE_SHARED_MEMORY_BYTE_LENGTH);
 #undef NODE_SHARED_MEMORY_BYTE_LENGTH
 
