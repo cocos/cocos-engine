@@ -564,7 +564,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             copyInfo.srcSubres.layerCount = copy.numSlices;
 
             copyInfo.dstSubres.mipLevel = copy.targetMostDetailedMip + i;
-
             copyInfo.dstSubres.baseArrayLayer = copy.targetFirstSlice;
             copyInfo.dstSubres.layerCount = copy.numSlices;
 
