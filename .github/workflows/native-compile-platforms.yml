@@ -79,7 +79,7 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r21e
+          ndk-version: r28b
           add-to-path: false
           local-cache: true
       - uses: actions/setup-java@v4
@@ -93,6 +93,7 @@ jobs:
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
           ANDROID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK_VERSION=${{ steps.setup-ndk.outputs.ndk-full-version }}
           NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
@@ -119,7 +120,7 @@ jobs:
 
           ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
 
-          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDROID_NDK@g" gradle.properties
+          sed -i "s@^PROP_NDK_VERSION.*@PROP_NDK_VERSION=$NDK_VERSION@g" gradle.properties
           sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
           sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
           sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$NATIVE_ROOT@g" gradle.properties
@@ -178,7 +179,7 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r21e
+          ndk-version: r28b
           add-to-path: false
           local-cache: true
       - uses: actions/setup-java@v4
@@ -192,6 +193,7 @@ jobs:
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
           ANDROID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK_VERSION=${{ steps.setup-ndk.outputs.ndk-full-version }}
           NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
@@ -228,7 +230,7 @@ jobs:
 
           ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
 
-          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDROID_NDK@g" gradle.properties
+          sed -i "s@^PROP_NDK_VERSION.*@PROP_NDK_VERSION=$NDK_VERSION@g" gradle.properties
           sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
           sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
           sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$NATIVE_ROOT@g" gradle.properties
