@@ -17,6 +17,6 @@ jobs:
       - name: Setup Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
         with:
-          vulkan-query-version: 1.3.296.0
+          vulkan-query-version: ${{ github.event.inputs.vulkan_sdk_version }}
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
