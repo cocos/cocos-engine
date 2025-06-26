@@ -9,35 +9,42 @@ techniques:
     - passes:
           - vert: base-vs:vert
             frag: prefilter-fs:frag
-            pass: cc-bloom-prefilter
+            pass: cc-bloom-mipmap-prefilter
             depthStencilState:
                 depthTest: false
                 depthWrite: false
           - vert: downsample-vs:vert
             frag: downsample-fs:frag
-            pass: cc-bloom-downsample
+            pass: cc-bloom-mipmap-downsample
             depthStencilState:
                 depthTest: false
                 depthWrite: false
           - vert: upsample-vs:vert
             frag: upsample-fs:frag
-            pass: cc-bloom-upsample
+            pass: cc-bloom-mipmap-upsample
             depthStencilState:
                 depthTest: false
                 depthWrite: false
           - vert: base-vs:vert
             frag: combine-fs:frag
-            pass: cc-bloom-combine
+            pass: cc-bloom-mipmap-combine
             depthStencilState:
                 depthTest: false
                 depthWrite: false
+            blendState:
+                targets:
+                    - blend: true
+                      blendSrc: one
+                      blendDst: one
+                      blendSrcAlpha: zero
+                      blendDstAlpha: one
 
 }%
 
 CCProgram base-vs %{
 precision mediump float;
-#include <legacy/decode>
-#include <builtin/uniforms/cc-global>
+#include <legacy/decode-standard>
+#include <post-process/pipeline>
 
 out vec2 vUv;
 out vec2 vUv00;
@@ -49,19 +56,21 @@ out vec2 vUv04;
 vec4 vert() {
     vUv = a_texCoord;
     
-    vec4 position;
-    CCDecode(position);
-    
-    return position;
+    StandardVertInput In;
+    CCDecode(In);
+    FLIP_VULKAN_NDC(In.position);
+    return In.position;
 }
 }%
 
 
 CCProgram prefilter-fs %{
 precision mediump float;
-#include <builtin/uniforms/cc-global>
 
-#define bloomParams cc_debug_view_mode
+#pragma rate BloomUBO pass
+uniform BloomUBO {
+  mediump vec4 bloomParams; // x: useHDRIlluminance z: threshold, w: enableAlphaMask
+};
 
 in vec2 vUv;
 #pragma rate mainTexture pass
@@ -81,10 +90,13 @@ vec4 frag() {
 
 CCProgram downsample-vs %{
 precision mediump float;
-#include <legacy/decode>
-#include <builtin/uniforms/cc-global>
+#include <legacy/decode-standard>
+#include <post-process/pipeline>
 
-#define bloomParams cc_debug_view_mode
+#pragma rate BloomUBO pass
+uniform BloomUBO {
+  mediump vec4 bloomParams; // x: useHDRIlluminance z: threshold, w: enableAlphaMask
+};
 
 out vec2 vUv;
 out vec2 vUv00;
@@ -118,19 +130,19 @@ vec4 vert() {
     vUv10 = vUv + bloomParams.xy * vec2(0.0, - 2.0);
     vUv11 = vUv + bloomParams.xy * vec2(2.0, - 2.0);
     
-    vec4 position;
-    CCDecode(position);
-    
-    return position;
+    StandardVertInput In;
+    CCDecode(In);
+    FLIP_VULKAN_NDC(In.position);
+    return In.position;
 }
 }%
 
 CCProgram downsample-fs %{
 precision mediump float;
 
-// (1 / 4) * 0.5 = 0.125                                  
+// (1 / 4) * 0.5 = 0.125
 #define WEIGHT_INNER 0.125
-// (1 / 9) * 0.5 = 0.0555555                                  
+// (1 / 9) * 0.5 = 0.0555555
 #define WEIGHT_OUTER 0.0555555
 
 in vec2 vUv;
@@ -201,10 +213,13 @@ vec4 frag() {
 
 CCProgram upsample-vs %{
 precision mediump float;
-#include <legacy/decode>
-#include <builtin/uniforms/cc-global>
+#include <legacy/decode-standard>
+#include <post-process/pipeline>
 
-#define bloomParams cc_debug_view_mode
+#pragma rate BloomUBO pass
+uniform BloomUBO {
+  mediump vec4 bloomParams; // x: useHDRIlluminance z: threshold, w: enableAlphaMask
+};
 
 out vec2 vUv;
 out vec2 vUv0;
@@ -230,16 +245,15 @@ vec4 vert() {
     vUv6 = vUv + bloomParams.xy * vec2(0.0, - 1.0);
     vUv7 = vUv + bloomParams.xy * vec2(1.0, - 1.0);
     
-    vec4 position;
-    CCDecode(position);
-    
-    return position;
+    StandardVertInput In;
+    CCDecode(In);
+    FLIP_VULKAN_NDC(In.position);
+    return In.position;
 }
 }%
 
 CCProgram upsample-fs %{
 precision mediump float;
-#include <builtin/uniforms/cc-global>
 
 in vec2 vUv;
 in vec2 vUv0;
@@ -276,21 +290,20 @@ vec4 frag() {
 
 CCProgram combine-fs %{
 precision mediump float;
-#include <builtin/uniforms/cc-global>
 
-#define bloomParams cc_debug_view_mode
+#pragma rate BloomUBO pass
+uniform BloomUBO {
+  mediump vec4 bloomParams; // x: useHDRIlluminance z: threshold, w: enableAlphaMask
+};
 
 in vec2 vUv;
 
 #pragma rate bloomTexture pass
-uniform lowp sampler2D bloomTexture;
-#pragma rate mainTexture pass
-uniform sampler2D mainTexture;
+uniform sampler2D bloomTexture;
 
 vec4 frag() {
-    vec4 baseColor = texture(mainTexture, vUv);
     vec4 bloomColor = texture(bloomTexture, vUv);
-    vec3 color = baseColor.rgb + bloomColor.rgb * bloomParams.w;
-    return vec4(color, baseColor.a);
+    vec3 color = bloomColor.rgb * bloomParams.w;
+    return vec4(color, 1);
 }
 }%
