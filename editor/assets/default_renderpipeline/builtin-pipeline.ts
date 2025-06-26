@@ -33,9 +33,12 @@ import { DEBUG, EDITOR } from 'cc/env';
 import {
     BloomType,
     ForwardPassConfigs,
-    makePipelineSettings,
+    PipelineConfigs,
     PipelineSettings,
+    CameraConfigs,
+    defaultSettings,
 } from './builtin-pipeline-types';
+import { config } from 'yargs';
 
 const { AABB, Sphere, intersect } = geometry;
 const { ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, TextureType, Viewport } = gfx;
@@ -96,25 +99,6 @@ function getCsmMainLightViewport(
     vp.height = Math.max(1, vp.height);
 }
 
-export class PipelineConfigs {
-    isWeb = false;
-    isWebGL1 = false;
-    isWebGPU = false;
-    isMobile = false;
-    isHDR = false;
-    useFloatOutput = false;
-    toneMappingType = 0; // 0: ACES, 1: None
-    shadowEnabled = false;
-    shadowMapFormat = Format.R32F;
-    shadowMapSize = new Vec2(1, 1);
-    usePlanarShadow = false;
-    screenSpaceSignY = 1;
-    supportDepthSample = false;
-    mobileMaxSpotLightShadowMaps = 1;
-
-    platform = new Vec4(0, 0, 0, 0);
-}
-
 function setupPipelineConfigs(
     configs: PipelineConfigs,
 ): void {
@@ -147,37 +131,6 @@ function setupPipelineConfigs(
 
 export interface PipelineSettings2 extends PipelineSettings {
     _passes?: rendering.PipelinePassBuilder[];
-}
-
-const defaultSettings = makePipelineSettings();
-
-export class CameraConfigs {
-    settings: PipelineSettings = defaultSettings;
-    // Window
-    isMainGameWindow = false;
-    renderWindowId = 0;
-    // Camera
-    colorName = '';
-    depthStencilName = '';
-    // Pipeline
-    enableFullPipeline = false;
-    enableProfiler = false;
-    remainingPasses = 0;
-    // Shading Scale
-    enableShadingScale = false;
-    shadingScale = 1.0;
-    nativeWidth = 1;
-    nativeHeight = 1;
-    width = 1; // Scaled width
-    height = 1; // Scaled height
-    // Radiance
-    enableHDR = false;
-    radianceFormat = gfx.Format.RGBA8;
-    // Tone Mapping
-    copyAndTonemapMaterial: Material | null = null;
-    // Depth
-    /** @en mutable */
-    enableStoreSceneDepth = false;
 }
 
 const sClearColorTransparentBlack = new Color(0, 0, 0, 0);
@@ -1699,7 +1652,8 @@ if (rendering) {
             const window = camera.window;
             const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!window.swapchain;
             const isGameView = isMainGameWindow || camera.cameraUsage === CameraUsage.GAME_VIEW;
-
+            cameraConfigs.ppl = ppl;
+            cameraConfigs.pplConfigs = pplConfigs;
             // Window
             cameraConfigs.isMainGameWindow = isMainGameWindow;
             cameraConfigs.renderWindowId = window.renderWindowId;

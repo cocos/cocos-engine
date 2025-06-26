@@ -38,11 +38,10 @@ import {
 } from './builtin-pipeline-pass';
 
 import {
-    CameraConfigs,
     getPingPongRenderTarget,
-    PipelineConfigs,
     PipelineContext,
 } from './builtin-pipeline';
+import { CameraConfigs, PipelineConfigs } from './builtin-pipeline-types';
 
 const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireComponent, type } = _decorator;
 
@@ -63,12 +62,12 @@ export class BuiltinDepthOfFieldPass extends BuiltinPipelinePassBuilder
         group: { id: 'BuiltinPass', name: 'Pass Settings', style: 'section' },
         type: CCInteger,
     })
-    configOrder = 0;
+        configOrder = 0;
     @property({
         group: { id: 'BuiltinPass', name: 'Pass Settings', style: 'section' },
         type: CCInteger,
     })
-    renderOrder = 150;
+        renderOrder = 150;
 
     @property
     private _enableDof = false;
@@ -196,9 +195,8 @@ export class BuiltinDepthOfFieldPass extends BuiltinPipelinePassBuilder
     }
     configCamera(
         camera: Readonly<renderer.scene.Camera>,
-        pplConfigs: Readonly<PipelineConfigs>,
         cameraConfigs: CameraConfigs & DofPassConfigs): void {
-        cameraConfigs.enableDof = pplConfigs.supportDepthSample
+        cameraConfigs.enableDof = cameraConfigs.pplConfigs!.supportDepthSample
             && this._enableDof
             && !!this._material;
 
@@ -209,21 +207,17 @@ export class BuiltinDepthOfFieldPass extends BuiltinPipelinePassBuilder
         }
     }
     windowResize(
-        ppl: rendering.BasicPipeline,
-        pplConfigs: Readonly<PipelineConfigs>,
         cameraConfigs: Readonly<CameraConfigs & DofPassConfigs>,
         window: renderer.RenderWindow): void {
         const id = window.renderWindowId;
         if (cameraConfigs.enableDof) {
-            ppl.addRenderTarget(`DofRadiance${id}`,
+            cameraConfigs.ppl.addRenderTarget(`DofRadiance${id}`,
                 cameraConfigs.radianceFormat,
                 cameraConfigs.width,
                 cameraConfigs.height);
         }
     }
     setup(
-        ppl: rendering.BasicPipeline,
-        pplConfigs: Readonly<PipelineConfigs>,
         cameraConfigs: CameraConfigs & Readonly<DofPassConfigs>,
         camera: renderer.scene.Camera,
         context: PipelineContext,
@@ -232,7 +226,8 @@ export class BuiltinDepthOfFieldPass extends BuiltinPipelinePassBuilder
             return prevRenderPass;
         }
         --cameraConfigs.remainingPasses;
-
+        const ppl = cameraConfigs.ppl;
+        const pplConfigs = cameraConfigs.pplConfigs!;
         assert(!!this._material);
         if (cameraConfigs.remainingPasses === 0) {
             return this._addDepthOfFieldPasses(ppl, pplConfigs,
