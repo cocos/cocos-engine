@@ -28,9 +28,9 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Material, Texture2D, gfx, ccenum } from 'cc';
+import { Material, Texture2D, gfx, ccenum, Vec2, Vec4, rendering } from 'cc';
 
-const { SampleCount } = gfx;
+const { SampleCount, Format } = gfx;
 
 export interface MSAA {
     enabled: boolean; /* false */
@@ -261,6 +261,25 @@ export function fillRequiredToneMapping(value: ToneMapping): void {
     }
 }
 
+export class PipelineConfigs {
+    isWeb = false;
+    isWebGL1 = false;
+    isWebGPU = false;
+    isMobile = false;
+    isHDR = false;
+    useFloatOutput = false;
+    toneMappingType = 0; // 0: ACES, 1: None
+    shadowEnabled = false;
+    shadowMapFormat = Format.R32F;
+    shadowMapSize = new Vec2(1, 1);
+    usePlanarShadow = false;
+    screenSpaceSignY = 1;
+    supportDepthSample = false;
+    mobileMaxSpotLightShadowMaps = 1;
+
+    platform = new Vec4(0, 0, 0, 0);
+}
+
 export interface PipelineSettings {
     readonly msaa: MSAA;
     enableShadingScale: boolean; /* false */
@@ -273,10 +292,45 @@ export interface PipelineSettings {
     [name: string]: unknown;
 }
 
+export const defaultSettings = makePipelineSettings();
+
+export class CameraConfigs {
+    settings: PipelineSettings = defaultSettings;
+    // Window
+    isMainGameWindow = false;
+    renderWindowId = 0;
+    // Camera
+    colorName = '';
+    depthStencilName = '';
+    // Pipeline
+    enableFullPipeline = false;
+    enableProfiler = false;
+    remainingPasses = 0;
+    // Shading Scale
+    enableShadingScale = false;
+    shadingScale = 1.0;
+    nativeWidth = 1;
+    nativeHeight = 1;
+    width = 1; // Scaled width
+    height = 1; // Scaled height
+    // Radiance
+    enableHDR = false;
+    radianceFormat = gfx.Format.RGBA8;
+    // Tone Mapping
+    copyAndTonemapMaterial: Material | null = null;
+    // Depth
+    /** @en mutable */
+    enableStoreSceneDepth = false;
+    ppl: rendering.BasicPipeline;
+    pplConfigs: PipelineConfigs | null;
+}
+
 export function makePipelineSettings(): PipelineSettings {
     return {
         msaa: makeMSAA(),
         enableShadingScale: false,
+        ppl: null,
+        pplConfigs: null,
         shadingScale: 0.5,
         bloom: makeBloom(),
         toneMapping: makeToneMapping(),
