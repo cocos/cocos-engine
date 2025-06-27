@@ -41,6 +41,12 @@ android {
         assets.srcDir "${RES_PATH}/data"
     }
 
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging false
+        }
+    }
+    
     externalNativeBuild {
         cmake {
             version "3.22.1"

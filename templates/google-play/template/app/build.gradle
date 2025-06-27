@@ -45,6 +45,12 @@ android {
         }
     }
 
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging false
+        }
+    }
+
     externalNativeBuild {
         cmake {
             version "3.22.1"
