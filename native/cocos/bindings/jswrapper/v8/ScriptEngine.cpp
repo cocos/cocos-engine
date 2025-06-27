@@ -708,7 +708,7 @@ bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Val
         return false;
     }
 
-    v8::ScriptOrigin origin(_isolate, originStr.ToLocalChecked());
+    v8::ScriptOrigin origin(originStr.ToLocalChecked());
     v8::MaybeLocal<v8::Script> maybeScript = v8::Script::Compile(_context.Get(_isolate), source.ToLocalChecked(), &origin);
 
     bool success = false;
@@ -798,7 +798,7 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
     v8::Local<v8::String> const code = v8::String::NewFromUtf8(_isolate, scriptBuffer.c_str(), v8::NewStringType::kNormal, static_cast<int>(scriptBuffer.length())).ToLocalChecked();
     v8::Local<v8::Value> const scriptPath = v8::String::NewFromUtf8(_isolate, path.data(), v8::NewStringType::kNormal).ToLocalChecked();
     // create unbound script
-    v8::ScriptOrigin const origin(_isolate, scriptPath);
+    v8::ScriptOrigin const origin(scriptPath);
     v8::ScriptCompiler::Source source(code, origin);
     v8::Local<v8::Context> const parsingContext = v8::Local<v8::Context>::New(_isolate, _context);
     v8::Context::Scope const parsingScope(parsingContext);
@@ -859,7 +859,7 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
 
     // setup ScriptOrigin
     v8::Local<v8::Value> const scriptPath = v8::String::NewFromUtf8(_isolate, pathBc.data(), v8::NewStringType::kNormal).ToLocalChecked();
-    v8::ScriptOrigin const origin(_isolate, scriptPath, 0, 0, true);
+    v8::ScriptOrigin const origin(scriptPath, 0, 0, true);
 
     // restore CacheData
     auto *v8CacheData = ccnew v8::ScriptCompiler::CachedData(cachedData.getBytes(), static_cast<int>(cachedData.getSize()));
