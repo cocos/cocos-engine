@@ -51,7 +51,8 @@ export interface IAndroidParams {
     resizeableActivity: boolean;
     googleBilling: boolean;
     playGames: boolean;
-    customIconInfo: ICustomIconInfo,
+    customIconInfo: ICustomIconInfo;
+    isSoFileCompressed: boolean;
 }
 
 const DefaultAPILevel = 27;
@@ -406,6 +407,7 @@ export class GooglePlayPackTool extends NativePackTool {
 
             content = content.replace(/PROP_ENABLE_GOOGLE_BILLING=.*/, `PROP_ENABLE_GOOGLE_BILLING=${options.googleBilling ? "true" : "false"}`);
             content = content.replace(/PROP_ENABLE_GOOGLE_PLAY_GAMES=.*/, `PROP_ENABLE_GOOGLE_PLAY_GAMES=${options.playGames ? "true" : "false"}`);
+            content = content.replace(/PROP_ENABLE_COMPRESS_SO=.*/, `PROP_ENABLE_COMPRESS_SO=${options.isSoFileCompressed ? "true" : "false"}`);
 
             const ndkPropertiesPath = cchelper.join(options.ndkPath, 'source.properties');
             if (fs.existsSync(ndkPropertiesPath)) {

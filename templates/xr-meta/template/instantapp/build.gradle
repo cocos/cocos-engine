@@ -43,7 +43,7 @@ android {
 
     packagingOptions {
         jniLibs {
-            useLegacyPackaging false
+            useLegacyPackaging Boolean.parseBoolean(PROP_ENABLE_COMPRESS_SO)
         }
     }
 

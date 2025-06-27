@@ -21,6 +21,7 @@ export interface IAndroidParams {
     javaHome: string;
     javaPath: string;
     androidInstant: boolean,
+    isSoFileCompressed: boolean;
     maxAspectRatio: string;
     remoteUrl?: string;
     apiLevel: number;
@@ -363,6 +364,7 @@ export class AndroidPackTool extends NativePackTool {
             content = content.replace(/COCOS_ENGINE_PATH=.*/, `COCOS_ENGINE_PATH=${cchelper.fixPath(Paths.nativeRoot)}`);
             content = content.replace(/APPLICATION_ID=.*/, `APPLICATION_ID=${options.packageName}`);
             content = content.replace(/NATIVE_DIR=.*/, `NATIVE_DIR=${cchelper.fixPath(this.paths.platformTemplateDirInPrj)}`);
+            content = content.replace(/PROP_ENABLE_COMPRESS_SO=.*/, `PROP_ENABLE_COMPRESS_SO=${options.isSoFileCompressed ? "true" : "false"}`);
 
 
             const ndkPropertiesPath = cchelper.join(options.ndkPath, 'source.properties');
