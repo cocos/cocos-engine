@@ -577,6 +577,8 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/napi/NapiHelper.h
         cocos/platform/openharmony/napi/NapiValueConverter.cpp
         cocos/platform/openharmony/napi/NapiValueConverter.h
+        cocos/platform/openharmony/napi/NapiPromiseBridge.cpp
+        cocos/platform/openharmony/napi/NapiPromiseBridge.h
         cocos/platform/openharmony/napi/native_common.h
         cocos/platform/openharmony/WorkerMessageQueue.cpp
         cocos/platform/openharmony/WorkerMessageQueue.h

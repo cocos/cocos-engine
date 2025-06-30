@@ -172,7 +172,7 @@ void Object::resolverPromise(Object *object, const Value &value) {
         v8::Isolate *isolate = __isolate;
         v8::HandleScope scope(isolate);
         v8::Local<v8::Context> context = isolate->GetCurrentContext();
-        auto resolver = it->second;
+        auto* resolver = it->second;
         v8::Local<v8::Value> v8Val;
         se::internal::seToJsValue(__isolate, value, &v8Val);
         resolver->Get(isolate)->Resolve(context, v8Val).ToChecked();
@@ -188,7 +188,7 @@ void Object::rejectPromise(Object *object, const Value &value) {
         v8::Isolate *isolate = __isolate;
         v8::HandleScope scope(isolate);
         v8::Local<v8::Context> context = isolate->GetCurrentContext();
-        auto resolver = it->second;
+        auto* resolver = it->second;
         v8::Local<v8::Value> v8Val;
         se::internal::seToJsValue(__isolate, value, &v8Val);
         resolver->Get(isolate)->Reject(context, v8Val).ToChecked();
