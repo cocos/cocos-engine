@@ -31,6 +31,7 @@
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"
 #include "platform/openharmony/modules/SystemWindow.h"
+#include <thread>
 
 #if CC_USE_EDITBOX
     #include "ui/edit-box/EditBox-openharmony.h"
@@ -63,6 +64,7 @@ enum ContextType {
 static Napi::Env gWorkerEnv(nullptr);
 static Napi::FunctionReference *gPostMessageToUIThreadFunc = nullptr;
 static Napi::FunctionReference *gPostSyncMessageToUIThreadFunc = nullptr;
+static std::thread::id gMainThreadId;
 
 #define DEFINE_FUNCTION_CALLBACK(functionName, cachedFunctionRefPtr)                                             \
     static void functionName(const Napi::CallbackInfo &info) {                                                   \
@@ -498,17 +500,32 @@ Napi::Value evalString(const Napi::CallbackInfo &info){
         return env.Undefined();
     }
 
-    se::AutoHandleScope hs;
-    
     size_t length = value.length();
     char* cValue = new char[length + 1];
     strcpy(cValue, value.c_str());
-    se::Value ret;
-    se::ScriptEngine::getInstance()->evalString(cValue, length, &ret);
-    delete[] cValue;
-    Napi::Value result;
-    sevalue_to_napivalue(ret, &result, env);
-        
+
+    BaseEngine::SchedulerPtr scheduler =
+        CC_CURRENT_APPLICATION() ? CC_CURRENT_APPLICATION()->getEngine()->getScheduler() : nullptr;
+    if (!scheduler) {
+        delete[] cValue;
+        return env.Undefined();
+    }
+    Napi::Value result = env.Undefined();
+    if(gMainThreadId == std::this_thread::get_id()) {
+        scheduler->performFunctionInCocosThread([cValue, length]() {
+            se::AutoHandleScope hs;
+            se::Value ret;
+            se::ScriptEngine::getInstance()->evalString(cValue, length, &ret);
+            delete[] cValue;
+        });
+    } else {
+        se::AutoHandleScope hs;
+        se::Value ret;
+        se::ScriptEngine::getInstance()->evalString(cValue, length, &ret);
+        delete[] cValue;
+        sevalue_to_napivalue(ret, &result, env);
+    }
+
     return result;
 }
 
@@ -519,7 +536,10 @@ Napi::Object NapiHelper::init(Napi::Env env, Napi::Object exports) {
     bool ret = exportFunctions(exports);
     if (!ret) {
         CC_LOG_ERROR("NapiHelper init failed");
+    } else {
+        gMainThreadId = std::this_thread::get_id();
     }
+
     return exports;
 }
 

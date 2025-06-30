@@ -31,4 +31,7 @@ export interface context {
 }
 
 export const getContext: (type: ContextType) => context;
+
+// This function is thread-safe and can be called on the main thread. 
+// However, there is no return value when calling it on the main thread.
 export const evalString: (value: string) => boolean | number | string;
