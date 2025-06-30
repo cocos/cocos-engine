@@ -859,7 +859,7 @@ std::unordered_map<Object*, JSVM_Deferred> Object::resolverMap;
 void Object::resolverPromise(Object* object, const Value& value) {
     auto it = resolverMap.find(object);
     if (it != resolverMap.end()) {
-        auto resolver = it->second;
+        auto* resolver = it->second;
         JSVM_Value jsvmValue;
         se::internal::seToJsValue(value, &jsvmValue);
         OH_JSVM_ResolveDeferred(ScriptEngine::getEnv(), resolver, jsvmValue);
@@ -870,7 +870,7 @@ void Object::resolverPromise(Object* object, const Value& value) {
 void Object::rejectPromise(Object* object, const Value& value) {
     auto it = resolverMap.find(object);
     if (it != resolverMap.end()) {
-        auto resolver = it->second;
+        auto* resolver = it->second;
         JSVM_Value jsvmValue;
         se::internal::seToJsValue(value, &jsvmValue);
         OH_JSVM_ResolveDeferred(ScriptEngine::getEnv(), resolver, jsvmValue);
