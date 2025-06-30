@@ -434,9 +434,9 @@ public:
 
     static Object *createUTF8String(const std::string &str);
 
-    static Object *createPromise(int *currentId);
-    static void rejectPromise(int id, const Value& value);
-    static void resolverPromise(int id, const Value& value);
+    static Object *createPromise();
+    static void rejectPromise(Object * object, const Value& value);
+    static void resolverPromise(Object * object, const Value& value);
     
 private:
     //     Object();
@@ -459,8 +459,7 @@ private:
     bool _onCleaingPrivateData = false;
     internal::PrivateData *_internalData;
     
-    static int resolverId;
-    static std::map<int, JSVM_Deferred> resolverMap;
+    static std::unordered_map<Object*, JSVM_Deferred> resolverMap;
     
     friend class ObjectRef;
     friend class ScriptEngine;

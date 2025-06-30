@@ -85,9 +85,9 @@ public:
      */
     static Object *createArrayObject(size_t length);
 
-    static Object *createPromise(int *currentId);
-    static void rejectPromise(int id, const Value& value);
-    static void resolverPromise(int id, const Value& value);
+    static Object *createPromise();
+    static void rejectPromise(Object* object, const Value& value);
+    static void resolverPromise(Object* object, const Value& value);
     /**
      *  @brief Creates a JavaScript Typed Array Object with uint8 format from an existing pointer.
      *  @param[in] bytes A pointer to the byte buffer to be used as the backing store of the Typed Array object.
@@ -708,8 +708,7 @@ private:
     ccstd::string _objectCreationStackFrame;
     #endif
 
-    static int resolverId;
-    static std::map<int, v8::Persistent<v8::Promise::Resolver>*> resolverMap;
+    static std::unordered_map<Object*, v8::Persistent<v8::Promise::Resolver>*> resolverMap;
 
     friend class ScriptEngine;
     friend class JSBPersistentHandleVisitor;

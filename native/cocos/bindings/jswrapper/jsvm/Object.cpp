@@ -854,11 +854,10 @@ Object* Object::createUTF8String(const std::string& str) {
     return obj;
 }
 
-int Object::resolverId{0};
-std::map<int, JSVM_Deferred> Object::resolverMap;
+std::unordered_map<Object*, JSVM_Deferred> Object::resolverMap;
 
-void Object::resolverPromise(int id, const Value& value) {
-    auto it = resolverMap.find(id);
+void Object::resolverPromise(Object* object, const Value& value) {
+    auto it = resolverMap.find(object);
     if (it != resolverMap.end()) {
         auto resolver = it->second;
         JSVM_Value jsvmValue;
@@ -868,8 +867,8 @@ void Object::resolverPromise(int id, const Value& value) {
     }
 }
 
-void Object::rejectPromise(int id, const Value& value) {
-    auto it = resolverMap.find(id);
+void Object::rejectPromise(Object* object, const Value& value) {
+    auto it = resolverMap.find(object);
     if (it != resolverMap.end()) {
         auto resolver = it->second;
         JSVM_Value jsvmValue;
@@ -879,17 +878,16 @@ void Object::rejectPromise(int id, const Value& value) {
     }
 }
 
-
-Object * Object::createPromise(int* currentId) {
+Object * Object::createPromise() {
     JSVM_Deferred deferred = nullptr;
     JSVM_Value promise = nullptr;
     JSVM_Status createStatus = OH_JSVM_CreatePromise(ScriptEngine::getEnv(), &deferred, &promise);
     if (createStatus != JSVM_OK) {
         return nullptr;
     }
-    *currentId = resolverId++;
-    resolverMap[*currentId] = deferred;
-    return Object::_createJSObject(ScriptEngine::getEnv(), promise, nullptr);
+    Object* object = Object::_createJSObject(ScriptEngine::getEnv(), promise, nullptr);
+    resolverMap[object] = deferred;
+    return object;
 }
 
 

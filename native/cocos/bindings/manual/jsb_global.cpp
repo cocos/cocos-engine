@@ -54,6 +54,7 @@
 
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     #include "platform/openharmony/napi/NapiHelper.h"
+    #include "platform/openharmony/napi/NapiPromiseBridge.h"
 #endif
 
 extern void jsb_register_ADPF(se::Object *); // NOLINT
@@ -1537,63 +1538,8 @@ static bool JSB_openharmony_postSyncMessage(se::State &s) { // NOLINT(readabilit
             SE_REPORT_ERROR("postMessage, Unsupported type");
             return false;
         }
-        #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSVM) || (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8)
-        int currentId = 0;
-        auto* v8Promise = se::Object::createPromise(&currentId);
-
-        struct CallbackData {
-            int id;
-        };
-        auto cbData = new CallbackData{currentId};
-        napi_value onFulfilled;
-        napi_create_function(env, "onFulfilled", -1, [](napi_env env, napi_callback_info info) -> napi_value {
-            se::AutoHandleScope hs;
-            size_t argc = 1;
-            napi_value argv[1];
-            void* data;
-            napi_get_cb_info(env, info, &argc, argv, nullptr, &data);
-            se::Value seArg;
-            NapiValueConverter::NapiValueToSeValue(env, argv[0], &seArg);
-            auto cbData = static_cast<CallbackData*>(data);
-            int currentId = cbData->id;
-            se::Object::resolverPromise(currentId, seArg);
-
-            napi_value undefined;
-            napi_get_undefined(env, &undefined);
-            delete cbData;
-            return undefined;
-        }, cbData, &onFulfilled);
-
-        napi_value onRejected;
-        napi_create_function(env, "onRejected", -1, [](napi_env env, napi_callback_info info) -> napi_value {
-            se::AutoHandleScope hs;
-            size_t argc = 1;
-            napi_value argv[1];
-            void* data;
-            napi_get_cb_info(env, info, &argc, argv, nullptr, &data);
-            se::Value seArg;
-            NapiValueConverter::NapiValueToSeValue(env, argv[0], &seArg);
-            auto cbData = static_cast<CallbackData*>(data);
-            int currentId = cbData->id;
-            se::Object::rejectPromise(currentId, seArg);
-            napi_value undefined;
-            napi_get_undefined(env, &undefined);
-            delete cbData;
-            return undefined;
-        }, nullptr, &onRejected);
         Napi::Value napiPromise = NapiHelper::postSyncMessageToUIThread(msgType.c_str(), napiArg1);
-        napi_value thenFunc;
-        napi_get_named_property(env, napiPromise, "then", &thenFunc);
-
-        napi_value argvThen[2] = { onFulfilled, onRejected };
-        napi_value thenResult;
-        napi_call_function(env, napiPromise, thenFunc, 2, argvThen, &thenResult);
-        s.rval().setObject(v8Promise);
-        #else
-        Napi::Value napiPromise = NapiHelper::postSyncMessageToUIThread(msgType.c_str(), napiArg1);
-        s.rval().setObject(se::Object::_createJSObject(env, napiPromise, nullptr));
-        #endif
-       
+        s.rval().setObject(NapiPromiseBridge::createPromise(napiPromise));
         return true;
     }
 
