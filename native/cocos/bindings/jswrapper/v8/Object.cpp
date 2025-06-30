@@ -190,7 +190,7 @@ void Object::rejectPromise(Object *object, const Value &value) {
         v8::Local<v8::Context> context = isolate->GetCurrentContext();
         auto* resolver = it->second;
         v8::Local<v8::Value> v8Val;
-        se::internal::seToJsValue(__isolate, value, &v8Val);
+        se::internal::seToJsValue(isolate, value, &v8Val);
         resolver->Get(isolate)->Reject(context, v8Val).ToChecked();
         resolver->Reset();
         delete resolver;
@@ -203,7 +203,7 @@ Object *Object::createPromise() {
     v8::HandleScope handleScope(isolate);
     v8::Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(isolate->GetCurrentContext()).ToLocalChecked();
     v8::Local<v8::Promise> v8Promise = resolver->GetPromise();
-    v8::Persistent<v8::Promise::Resolver> *persistentResolver = new v8::Persistent<v8::Promise::Resolver>(isolate, resolver);
+    auto *persistentResolver = new v8::Persistent<v8::Promise::Resolver>(isolate, resolver);
 
     v8::Local<v8::Object> jsobj = v8::Local<v8::Object>::Cast(v8Promise);
     auto *obj = Object::_createJSObject(nullptr, jsobj);
