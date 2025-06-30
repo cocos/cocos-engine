@@ -458,10 +458,8 @@ Object *Object::createJSONObject(std::u16string &&jsonStr) {
 
     v8::Local<v8::Context> context = __isolate->GetCurrentContext();
     v8::MaybeLocal<v8::Value> ret = v8::JSON::Parse(context, v8Str.ToLocalChecked());
-
     // After v8::JSON::Parse, the memory of u16string could be freed.
     external->freeMemory();
-
     if (ret.IsEmpty()) {
         return nullptr;
     }
