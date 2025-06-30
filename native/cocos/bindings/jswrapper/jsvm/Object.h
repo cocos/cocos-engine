@@ -33,6 +33,7 @@
 #include "CommonHeader.h"
 #include "HelperMacros.h"
 #include "Utils.h"
+#include <map>
 
 namespace se {
 class Class;
@@ -433,6 +434,10 @@ public:
 
     static Object *createUTF8String(const std::string &str);
 
+    static Object *createPromise(int *currentId);
+    static void rejectPromise(int id, const Value& value);
+    static void resolverPromise(int id, const Value& value);
+    
 private:
     //     Object();
     //     virtual ~Object();
@@ -453,7 +458,10 @@ private:
     uint32_t _rootCount = 0;
     bool _onCleaingPrivateData = false;
     internal::PrivateData *_internalData;
-
+    
+    static int resolverId;
+    static std::map<int, JSVM_Deferred> resolverMap;
+    
     friend class ObjectRef;
     friend class ScriptEngine;
 };
