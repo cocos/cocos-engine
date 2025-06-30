@@ -878,7 +878,7 @@ void Object::rejectPromise(Object* object, const Value& value) {
     }
 }
 
-Object * Object::createPromise() {
+Object* Object::createPromise() {
     JSVM_Deferred deferred = nullptr;
     JSVM_Value promise = nullptr;
     JSVM_Status createStatus = OH_JSVM_CreatePromise(ScriptEngine::getEnv(), &deferred, &promise);
@@ -889,7 +889,6 @@ Object * Object::createPromise() {
     resolverMap[object] = deferred;
     return object;
 }
-
 
 ObjectRef::ObjectRef(Object *parent)
 : _parent(parent) {

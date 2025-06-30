@@ -86,8 +86,8 @@ public:
     static Object *createArrayObject(size_t length);
 
     static Object *createPromise();
-    static void rejectPromise(Object* object, const Value& value);
-    static void resolverPromise(Object* object, const Value& value);
+    static void rejectPromise(Object *object, const Value &value);
+    static void resolverPromise(Object *object, const Value &value);
     /**
      *  @brief Creates a JavaScript Typed Array Object with uint8 format from an existing pointer.
      *  @param[in] bytes A pointer to the byte buffer to be used as the backing store of the Typed Array object.

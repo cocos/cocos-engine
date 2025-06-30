@@ -33,7 +33,7 @@
 #include "CommonHeader.h"
 #include "HelperMacros.h"
 #include "Utils.h"
-#include <map>
+#include <unordered_map>
 
 namespace se {
 class Class;
@@ -435,9 +435,9 @@ public:
     static Object *createUTF8String(const std::string &str);
 
     static Object *createPromise();
-    static void rejectPromise(Object * object, const Value& value);
-    static void resolverPromise(Object * object, const Value& value);
-    
+    static void rejectPromise(Object *object, const Value &value);
+    static void resolverPromise(Object *object, const Value &value);
+
 private:
     //     Object();
     //     virtual ~Object();

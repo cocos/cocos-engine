@@ -169,7 +169,7 @@ std::unordered_map<Object*, v8::Persistent<v8::Promise::Resolver>*> Object::reso
 void Object::resolverPromise(Object *object, const Value &value) {
     auto it = resolverMap.find(object);
     if (it != resolverMap.end()) {
-        v8::Isolate* isolate = __isolate;
+        v8::Isolate *isolate = __isolate;
         v8::HandleScope scope(isolate);
         v8::Local<v8::Context> context = isolate->GetCurrentContext();
         auto resolver = it->second;
@@ -185,7 +185,7 @@ void Object::resolverPromise(Object *object, const Value &value) {
 void Object::rejectPromise(Object *object, const Value &value) {
     auto it = resolverMap.find(object);
     if (it != resolverMap.end()) {
-        v8::Isolate* isolate = __isolate;
+        v8::Isolate *isolate = __isolate;
         v8::HandleScope scope(isolate);
         v8::Local<v8::Context> context = isolate->GetCurrentContext();
         auto resolver = it->second;
@@ -198,15 +198,15 @@ void Object::rejectPromise(Object *object, const Value &value) {
     }
 }
 
-Object * Object::createPromise() {
-    v8::Isolate* isolate = __isolate;
+Object *Object::createPromise() {
+    v8::Isolate *isolate = __isolate;
     v8::HandleScope handleScope(isolate);
     v8::Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(isolate->GetCurrentContext()).ToLocalChecked();
     v8::Local<v8::Promise> v8Promise = resolver->GetPromise();
-    v8::Persistent<v8::Promise::Resolver>* persistentResolver = new v8::Persistent<v8::Promise::Resolver>(isolate, resolver);
+    v8::Persistent<v8::Promise::Resolver> *persistentResolver = new v8::Persistent<v8::Promise::Resolver>(isolate, resolver);
 
     v8::Local<v8::Object> jsobj = v8::Local<v8::Object>::Cast(v8Promise);
-    auto* obj = Object::_createJSObject(nullptr, jsobj);
+    auto *obj = Object::_createJSObject(nullptr, jsobj);
     resolverMap[obj] = persistentResolver;
 
     return obj;
