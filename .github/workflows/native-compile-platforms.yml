@@ -60,7 +60,7 @@ jobs:
           cd build-win64
           RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win64
           COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
-          cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
+          cmake ../ -G"Visual Studio 17 2022" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
           cmake --build . --config ${{ matrix.config.buildtype }}
           echo "Compile Win64 ${{ matrix.config.buildtype }} Done!"
 
