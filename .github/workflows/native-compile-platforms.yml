@@ -258,7 +258,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { arch: arm64-v8a }
+          - { arch: arm64-v8a, jsEngine: V8 }
+          - { arch: arm64-v8a, jsEngine: ARK }
+          - { arch: arm64-v8a, jsEngine: JSVM }
+
     steps:
       - name: Show PATH env
         run: |
@@ -391,9 +394,22 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-oh/proj/cfg.cmake
           echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-oh/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-oh/proj/cfg.cmake
-          echo "set(USE_SE_V8 ON)" >> build-oh/proj/cfg.cmake
-          echo "set(USE_SE_NAPI OFF)" >> build-oh/proj/cfg.cmake
-          echo "set(USE_SE_JSVM OFF)" >> build-oh/proj/cfg.cmake
+          if [ "${{ matrix.config.jsEngine }}" = "V8" ]; then
+            echo "=============== JsEngine: V8 ==============="
+            echo "set(USE_SE_V8 ON)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM OFF)" >> build-oh/proj/cfg.cmake
+          elif [ "${{ matrix.config.jsEngine }}" = "JSVM" ]; then
+            echo "=============== JsEngine: JSVM ==============="
+            echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM ON)" >> build-oh/proj/cfg.cmake
+          else
+            echo "=============== JsEngine: ARK ==============="
+            echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI ON)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM OFF)" >> build-oh/proj/cfg.cmake
+          fi
 
           echo "=============== cat build-oh/proj/cfg.cmake ==============="
           cat build-oh/proj/cfg.cmake
