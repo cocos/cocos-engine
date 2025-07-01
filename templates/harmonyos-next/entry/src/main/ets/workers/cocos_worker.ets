@@ -110,8 +110,8 @@ uiPort.on("onErrorReceive", (viewTag: number, url: string) => {
   nativeWebView.failLoading(viewTag, url);
 })
 
-uiPort.on("onVideoEvent", (videoTag: number, videoEvent: number, arg?: AnyType ) => {
-  nativeVideo.onVideoEvent(JSON.stringify({videoTag: videoTag, videoEvent: videoEvent, arg: arg ?? null}));
+uiPort.on("onVideoEvent", (videoTag: number, videoEvent: number, args?: AnyType ) => {
+  nativeVideo.onVideoEvent(JSON.stringify({videoTag: videoTag, videoEvent: videoEvent, args: args ?? null}));
 })
 
 uiPort.on("backPress", () => {
