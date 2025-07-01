@@ -44,7 +44,7 @@ se::Object* NapiPromiseBridge::createPromise(Napi::Value napiPromise) {
     bindArkPromise(napiPromise, sePromise);
     return sePromise;
 #else
-    return se::Object::_createJSObject(env, napiPromise, nullptr)
+    return se::Object::_createJSObject(env, napiPromise, nullptr);
 #endif
 }
 
