@@ -101,6 +101,7 @@ if(NOT WINDOWS)
     add_definitions(-DBOOST_NO_CXX98_FUNCTION_BASE)
 endif()
 
+# https://stackoverflow.com/questions/78598141/first-stdmutexlock-crashes-in-application-built-with-latest-visual-studio
 if(WINDOWS)
     add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 endif()
