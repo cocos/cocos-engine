@@ -50,6 +50,7 @@ public:
     static Napi::Object init(Napi::Env env, Napi::Object exports);
     static Napi::Value napiCallFunction(const char *functionName);
     static Napi::Value napiCallFunction(const char *functionName, float duration);
+    static Napi::Value napiCallFunction(const char *functionName, const std::string& str);
     static void postMessageToUIThread(const std::string &type, Napi::Value param);
     static Napi::Value postSyncMessageToUIThread(const std::string &type, Napi::Value param);
 };

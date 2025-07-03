@@ -24,7 +24,7 @@
 
 import {
     _decorator, Camera, CCBoolean, CCFloat, CCInteger, Component,
-    Material, rendering, Texture2D, visible,
+    Material, rendering, Texture2D,
 } from 'cc';
 
 import { EDITOR } from 'cc/env';
@@ -55,6 +55,7 @@ export class BuiltinPipelineSettings extends Component {
         const cameraComponent = this.getComponent(Camera)!;
         const camera = cameraComponent.camera;
         camera.pipelineSettings = this._settings;
+
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
@@ -62,8 +63,9 @@ export class BuiltinPipelineSettings extends Component {
     onDisable(): void {
         const cameraComponent = this.getComponent(Camera)!;
         const camera = cameraComponent.camera;
-        camera.pipelineSettings = null;
-
+        if (camera) {
+            camera.pipelineSettings = null;
+        }
         if (EDITOR) {
             this._disableEditorPreview();
         }
@@ -392,6 +394,7 @@ export class BuiltinPipelineSettings extends Component {
         type: CCBoolean,
     })
     set fsrEnable(value: boolean) {
+        this._settings.fsr.enabled = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }

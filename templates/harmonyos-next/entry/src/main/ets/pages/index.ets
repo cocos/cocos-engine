@@ -31,7 +31,7 @@ import { CocosWebView, LoadType, WebViewInfo } from '../components/CocosWebView'
 import { CocosVideoPlayer, VideoInfo } from '../components/CocosVideoPlayer';
 import { MessageEvent } from '@ohos.worker';
 import { WorkerPort } from '../common/WorkerPort';
-import { common } from '@kit.AbilityKit';
+import { common, Want } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 
 const nativePageLifecycle :context = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
@@ -307,7 +307,7 @@ struct Index {
       let index = this.videoIndexMap.get(tag) as number;
       this.videoArray[index].controller.pause();
     });
-    this.workPort?.on("pauseVideo",(tag: number) => {
+    this.workPort?.on("stopVideo",(tag: number) => {
       let index = this.videoIndexMap.get(tag) as number;
       this.videoArray[index].controller.stop();
     });
@@ -342,6 +342,29 @@ struct Index {
     this.workPort?.on("exitGame",() => {
       this.terminateSelf();
     });
+
+    this.workPort?.on("openUrl", (url: string) => {
+      let context = getContext() as common.UIAbilityContext;
+
+      let trimmedUrl = url.trim();
+      const schemeRegex  = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
+      if (!schemeRegex.test(trimmedUrl)) {
+        trimmedUrl = "https://" + trimmedUrl;
+      }
+      let wantInfo: Want = {
+        'action': 'ohos.want.action.viewData',
+        'entities': ['entity.system.browsable'],
+        'uri': trimmedUrl,
+        'parameters': {
+          'ohos.ability.params.showDefaultPicker': true
+        }
+      }
+      context.startAbility(wantInfo).then(()=>{
+        console.log('openUrl success');
+      }).catch((err: BusinessError)=>{
+        console.warn('openUrl err:', err.code, err.message);
+      })
+    })
   }
 
   aboutToDisappear(): void {

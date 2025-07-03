@@ -542,7 +542,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ResourceGraph::vertex_descriptor srcID,
         ResourceGraph::vertex_descriptor dstID) const {
         auto& resg = ctx.resourceGraph;
-        std::vector<gfx::TextureCopy> copyInfos(copy.mipLevels, gfx::TextureCopy{});
 
         gfx::Texture* srcTexture = resg.getTexture(srcID);
         gfx::Texture* dstTexture = resg.getTexture(dstID);
@@ -551,13 +550,21 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (!srcTexture || !dstTexture) {
             return;
         }
+
         const auto& srcInfo = srcTexture->getInfo();
         const auto& dstInfo = dstTexture->getInfo();
         CC_ENSURES(srcInfo.width == dstInfo.width);
         CC_ENSURES(srcInfo.height == dstInfo.height);
         CC_ENSURES(srcInfo.depth == dstInfo.depth);
+        CC_ENSURES(srcInfo.levelCount == dstInfo.levelCount);
 
-        for (uint32_t i = 0; i < copy.mipLevels; ++i) {
+        const uint32_t mipLevels = std::min(
+            copy.mipLevels,
+            srcTexture->getInfo().levelCount);
+
+        std::vector<gfx::TextureCopy> copyInfos(mipLevels, gfx::TextureCopy{});
+
+        for (uint32_t i = 0; i < mipLevels; ++i) {
             auto& copyInfo = copyInfos[i];
             copyInfo.srcSubres.mipLevel = copy.sourceMostDetailedMip + i;
             copyInfo.srcSubres.baseArrayLayer = copy.sourceFirstSlice;

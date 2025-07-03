@@ -26,7 +26,7 @@ import { Node } from '../../scene-graph/node';
 import { Input, input } from '../../input';
 import { Event, EventMouse, EventTouch } from '../../input/types';
 import { DispatcherEventType, NodeEventProcessor } from '../../scene-graph/node-event-processor';
-import { js } from '../../core';
+import { CCObjectFlags, js } from '../../core';
 import { InputEventType } from '../../input/types/event-enum';
 import { EventDispatcherPriority, IEventDispatcher } from '../../input/input';
 
@@ -44,7 +44,7 @@ const touchEvents = [
     InputEventType.TOUCH_END,
     InputEventType.TOUCH_CANCEL,
 ];
-
+const isDestroy = (node: Node): boolean => !!((node._objFlags & CCObjectFlags.Destroying) || (node._objFlags & CCObjectFlags.Destroyed));
 class PointerEventDispatcher implements IEventDispatcher {
     public priority: EventDispatcherPriority = EventDispatcherPriority.UI;
 
@@ -227,9 +227,9 @@ class PointerEventDispatcher implements IEventDispatcher {
     private _sortByPriority (p1: NodeEventProcessor, p2: NodeEventProcessor): number {
         const node1: Node = p1.node;
         const node2: Node = p2.node;
-        if (!p2 || !node2 || !node2.activeInHierarchy || !node2._getUITransformComp()) {
+        if (!p2 || !node2 || isDestroy(node2) || !node2.activeInHierarchy || !node2._getUITransformComp()) {
             return -1;
-        } else if (!p1 || !node1 || !node1.activeInHierarchy || !node1._getUITransformComp()) {
+        } else if (!p1 || !node1 || isDestroy(node1) || !node1.activeInHierarchy || !node1._getUITransformComp()) {
             return 1;
         }
 

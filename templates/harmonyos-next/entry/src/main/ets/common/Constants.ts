@@ -38,6 +38,8 @@ export enum ContextType {
     MOUSE_WHEEL_NAPI
 }
 
+export type AnyType = number | boolean | string | object | null | undefined | bigint;
+
 export class Constants {
     static readonly APP_KEY_WORKER_MANAGER = "app_key_worker_manager";
 }

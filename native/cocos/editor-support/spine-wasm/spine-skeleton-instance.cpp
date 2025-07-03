@@ -16,6 +16,21 @@ using namespace spine;
 extern HashMap<SkeletonData *, HashMap<Attachment *, AttachmentVertices *>*> spineAttachmentVerticesMap;
 extern HashMap<SkeletonData *, HashMap<spine::String, spine::String>*> spineTexturesMap;
 
+/**
+ * The slot-associated attachment may exist on different skeletonData, so setSlotTexture needs to traverse all skeletonData.
+ */
+AttachmentVertices *getAttachmentVertices(Attachment *attachment) {
+    auto entries = spineAttachmentVerticesMap.getEntries();
+    while (entries.hasNext()) {
+        auto entry = entries.next();
+        auto *skeletonData = entry.key;
+        auto *attachmentVerticesMap = entry.value;
+        if (attachmentVerticesMap->containsKey(attachment)) {
+            return (*attachmentVerticesMap)[attachment];
+        }
+    }
+    return nullptr;
+}
 
 template<typename VertexType, typename UVArrayType>
 void loopUVCoords(VertexType* tmp, const UVArrayType& uvs, int count) {
@@ -621,11 +636,6 @@ void SpineSkeletonInstance::onAnimationStateEvent(TrackEntry *entry, EventType t
 
 void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint32_t width, uint32_t height, bool createNew) {
     if (!_skeleton) return;
-    HashMap<Attachment *, AttachmentVertices *> *attachmentVerticesMap = nullptr;
-    if (spineAttachmentVerticesMap.containsKey(_skeletonData)) {
-        attachmentVerticesMap = spineAttachmentVerticesMap[_skeletonData];
-    }
-    if (!attachmentVerticesMap) return;
     auto* slot = _skeleton->findSlot(slotName);
     if (!slot) return;
     auto *attachment = slot->getAttachment();
@@ -674,10 +684,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         region->updateRegion();
 #endif
 
-        AttachmentVertices *attachmentVertices = nullptr;
-        if (attachmentVerticesMap->containsKey(attachment)) {
-            attachmentVertices = (*attachmentVerticesMap)[attachment];
-        }
+        auto *attachmentVertices = getAttachmentVertices(slot->getAttachment());
         if (!attachmentVertices) return;
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
@@ -723,10 +730,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const spine::String &slotName, uint
         mesh->updateRegion();
 #endif
 
-         AttachmentVertices *attachmentVertices = nullptr;
-        if (attachmentVerticesMap->containsKey(attachment)) {
-            attachmentVertices = (*attachmentVerticesMap)[attachment];
-        }
+        auto *attachmentVertices = getAttachmentVertices(slot->getAttachment());
         if (!attachmentVertices) return;
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();

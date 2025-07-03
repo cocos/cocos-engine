@@ -71,7 +71,49 @@ void Screen::setKeepScreenOn(bool value) {
 }
 
 Vec4 Screen::getSafeAreaEdge() const {
-    return cc::Vec4();
+    // screen with enabled cutout area
+    auto value = NapiHelper::napiCallFunction("getAvoidSide");
+    int32_t avoidSide = 0;
+    if (value.IsNumber()) {
+        avoidSide = value.As<Napi::Number>().Int32Value();
+    }
+
+    float safearea_top = 0.0f;
+    float safearea_left = 0.0f;
+    float safearea_bottom = 0.0f;
+    float safearea_right = 0.0f;
+
+    if(0 == avoidSide) {
+        auto top = NapiHelper::napiCallFunction("getCutoutToTop");
+        int32_t cutout_top = 0;
+        if (top.IsNumber()) {
+            cutout_top = top.As<Napi::Number>().Int32Value();
+        }
+        safearea_top += cutout_top;
+    } else if(1 == avoidSide) {
+        auto right = NapiHelper::napiCallFunction("getCutoutToRight");
+        int32_t cutout_right = 0;
+        if (right.IsNumber()) {
+            cutout_right = right.As<Napi::Number>().Int32Value();
+        }
+        safearea_right += cutout_right;
+    } else if(2 == avoidSide) {
+        auto bottom = NapiHelper::napiCallFunction("getCutoutToBottom");
+        int32_t cutout_bottom = 0;
+        if (bottom.IsNumber()) {
+            cutout_bottom = bottom.As<Napi::Number>().Int32Value();
+        }
+        safearea_bottom += cutout_bottom;
+    } else if(3 == avoidSide) {
+        auto left = NapiHelper::napiCallFunction("getCutoutToLeft");
+        int32_t cutout_left = 0;
+        if (left.IsNumber()) {
+            cutout_left = left.As<Napi::Number>().Int32Value();
+        }
+        safearea_left += cutout_left;
+    }
+    
+    return Vec4(safearea_top, safearea_left, safearea_bottom, safearea_right);
 }
 
 bool Screen::isDisplayStats() {

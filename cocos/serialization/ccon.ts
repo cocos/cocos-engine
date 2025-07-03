@@ -26,7 +26,7 @@ import { getError, cclegacy } from '../core';
 import { notepackDecode } from '../../external/deserialize/notepack_decode';
 import { notepackEncode } from '../../external/deserialize/notepack_encode';
 
-const VERSION = 1;
+const VERSION = 2;
 
 const MAGIC = 0x4E4F4343;
 
@@ -100,9 +100,6 @@ export function decodeCCONBinary (bytes: Uint8Array): CCON {
     }
 
     const version = dataView.getUint32(4, true);
-    if (version !== VERSION) {
-        throw new InvalidCCONError(getError(13101, version));
-    }
 
     const dataByteLength = dataView.getUint32(8, true);
     if (dataByteLength !== dataView.byteLength) {
@@ -117,7 +114,12 @@ export function decodeCCONBinary (bytes: Uint8Array): CCON {
     chunksStart += jsonDataLength;
     let json: unknown;
     try {
-        json = notepackDecode(jsonData);
+        if (version === 1) {
+            const jsonString = decodeJson(jsonData);
+            json = JSON.parse(jsonString);
+        } else if (version === 2) {
+            json = notepackDecode(jsonData);
+        }
     } catch (err) {
         throw new InvalidCCONError(err as string);
     }
@@ -155,6 +157,18 @@ interface BufferConstructor {
     from(input: string, encoding: 'utf8'): Buffer;
 
     from(buffer: ArrayBuffer, byteOffset?: number, byteLength?: number): Buffer;
+}
+
+function decodeJson (data: Uint8Array): string {
+    if (typeof TextDecoder !== 'undefined') {
+        return new TextDecoder().decode(data);
+    } else if ('Buffer' in globalThis) {
+        const { Buffer } = (globalThis as unknown as { Buffer: BufferConstructor });
+        // eslint-disable-next-line no-buffer-constructor
+        return Buffer.from(data.buffer, data.byteOffset, data.byteLength).toString();
+    } else {
+        throw new Error(getError(13104));
+    }
 }
 
 export class InvalidCCONError extends Error { }

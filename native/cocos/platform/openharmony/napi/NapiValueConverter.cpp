@@ -1,5 +1,7 @@
 #include "NapiValueConverter.h"
 #include <stdexcept>
+#include "cocos/bindings/jswrapper/Value.h"
+#include "base/Log.h"
 
 napi_valuetype GetNapiValueType(napi_env env, napi_value value) {
   napi_valuetype type;
@@ -86,4 +88,78 @@ napi_value NapiValueConverter::ToNapiValue(napi_env env, const char* value) {
 
 napi_value NapiValueConverter::ToNapiValue(napi_env env, std::string value) {
     return ToNapiValue(env, value.c_str());
+}
+
+bool NapiValueConverter::NapiValueToSeValue(napi_env env, napi_value value, se::Value* v) {
+    napi_status status;
+    napi_valuetype valType;
+    int64_t iRet = 0;
+    double dRet = 0.0;
+    bool bRet = false;
+    bool lossless = false;
+    size_t len = 0;
+    if (!value) {
+        valType = napi_valuetype::napi_undefined;
+    } else {
+        status = napi_typeof(env, value, &valType);
+        if (status != napi_ok) {
+            CC_LOG_WARNING("warning:%d", status);
+            return false;
+        }
+    }
+
+    switch (valType) {
+        case napi_valuetype::napi_undefined:
+            v->setUndefined();
+            break;
+        case napi_valuetype::napi_null:
+            v->setNull();
+            break;
+        case napi_valuetype::napi_number:
+            status = napi_get_value_double(env, value, &dRet);
+            if (status == napi_ok) {
+                v->setDouble(dRet);
+            } else {
+                CC_LOG_WARNING("warning:%d", status);
+                v->setUndefined();
+            }
+            break;
+        case napi_valuetype::napi_bigint:
+            status = napi_get_value_bigint_int64(env, value, &iRet, &lossless);
+            if (lossless) {
+                v->setInt64(iRet);
+            } else {
+                v->setUndefined();
+            }
+
+            break;
+        case napi_valuetype::napi_string:
+            status = napi_get_value_string_utf8(env, value, nullptr, 0, &len);
+            if (status == napi_ok) {
+                std::string valueStr;
+                len += 1;
+                valueStr.resize(len);
+                status = napi_get_value_string_utf8(env, value, const_cast<char*>(valueStr.data()), valueStr.size(), &len);
+                if (valueStr.length() != len) {
+                    valueStr.resize(len);
+                }
+                v->setString(valueStr);
+            } else {
+                CC_LOG_WARNING("warning:%d", status);
+                v->setUndefined();
+            }
+            break;
+        case napi_valuetype::napi_boolean:
+            status = napi_get_value_bool(env, value, &bRet);
+            if (status == napi_ok) {
+                v->setBoolean(bRet);
+            } else {
+                CC_LOG_WARNING("warning:%d", status);
+                v->setUndefined();
+            }
+            break;
+        default:
+            break;
+    }
+    return true;
 }

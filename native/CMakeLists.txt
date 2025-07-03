@@ -101,6 +101,11 @@ if(NOT WINDOWS)
     add_definitions(-DBOOST_NO_CXX98_FUNCTION_BASE)
 endif()
 
+# https://stackoverflow.com/questions/78598141/first-stdmutexlock-crashes-in-application-built-with-latest-visual-studio
+if(WINDOWS)
+    add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
+endif()
+
 add_definitions(-DCC_NETMODE_CLIENT=0)
 add_definitions(-DCC_NETMODE_LISTEN_SERVER=1)
 add_definitions(-DCC_NETMODE_HOST_SERVER=2)
@@ -577,6 +582,8 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/napi/NapiHelper.h
         cocos/platform/openharmony/napi/NapiValueConverter.cpp
         cocos/platform/openharmony/napi/NapiValueConverter.h
+        cocos/platform/openharmony/napi/NapiPromiseBridge.cpp
+        cocos/platform/openharmony/napi/NapiPromiseBridge.h
         cocos/platform/openharmony/napi/native_common.h
         cocos/platform/openharmony/WorkerMessageQueue.cpp
         cocos/platform/openharmony/WorkerMessageQueue.h

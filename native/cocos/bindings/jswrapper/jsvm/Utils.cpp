@@ -173,13 +173,15 @@ bool seToJsValue(const Value& v, target_value* outJsVal) {
     return ret;
 }
 
-void seToJsArgs(JSVM_Env env, const ValueArray& args, std::vector<target_value>* outArr) {
+bool seToJsArgs(JSVM_Env env, const ValueArray& args, std::vector<target_value>* outArr) {
+    bool ret = true;
     assert(outArr != nullptr);
     for (const auto& data : args) {
         JSVM_Value jsval;
-        seToJsValue(data, &jsval);
+        ret = ret && seToJsValue(data, &jsval);
         outArr->push_back(jsval);
     }
+    return ret;
 }
 
 bool setReturnValue(const Value& data, target_value& argv) {
@@ -188,6 +190,9 @@ bool setReturnValue(const Value& data, target_value& argv) {
         auto env = ScriptEngine::getEnv();
         JSVM_Status status;
         NODE_API_CALL(status, env, OH_JSVM_CreateDouble(env, data.toDouble(), &argv));
+        if (status != JSVM_OK) {
+            return false;
+        }
         return true;
     }
 

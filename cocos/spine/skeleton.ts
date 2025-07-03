@@ -647,6 +647,13 @@ export class Skeleton extends UIRenderer {
         this._markForUpdateRenderData();
     }
 
+    /**
+     * @deprecated Since v3.8.7, it will be removed in the future.
+     * We are deprecating the `customMaterialInstance` field because it leads to shared material state across all slots,
+     * causing unexpected behavior (like the last blendMode change affecting all slots).
+     * Workaround:
+     *    Switch to customMaterial. Whenever its value is modified, immediately call updateMaterial at the exact point of change.
+     */
     get customMaterialInstance (): MaterialInstance | null {
         if (!this._customMaterial) {
             return null;

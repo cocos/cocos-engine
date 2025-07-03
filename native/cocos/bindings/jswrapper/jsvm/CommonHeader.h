@@ -52,6 +52,15 @@
         }                                                                 \
     } while (0)
 
+#define NODE_API_CALL_RESULT(status, env, the_call, ret_val)                 \
+    do {                                                                     \
+        status = the_call;                                                   \
+        if (status != JSVM_OK) {                                             \
+            se::internal::logJsException((env), __FILE_NAME__, __LINE__);    \
+            return ret_val;                                                  \
+        }                                                                    \
+    } while (0)
+
 // Returns nullptr if the_call doesn't return JSVM_OK.
 #define NODE_API_CALL(status, env, the_call)                                 \
     do {                                                                     \

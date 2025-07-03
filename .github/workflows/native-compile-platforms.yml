@@ -17,7 +17,7 @@ jobs:
     name: "Windows"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: windows-2019
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
@@ -35,7 +35,7 @@ jobs:
       - name: Install deps
         uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
         with:
-          vulkan-query-version: 1.2.189.0
+          vulkan-query-version: 1.3.243.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: false
       - name: Compile win64
@@ -60,7 +60,7 @@ jobs:
           cd build-win64
           RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win64
           COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
-          cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
+          cmake ../ -G"Visual Studio 17 2022" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
           cmake --build . --config ${{ matrix.config.buildtype }}
           echo "Compile Win64 ${{ matrix.config.buildtype }} Done!"
 
@@ -258,7 +258,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { arch: arm64-v8a }
+          - { arch: arm64-v8a, jsEngine: V8 }
+          - { arch: arm64-v8a, jsEngine: ARK }
+          - { arch: arm64-v8a, jsEngine: JSVM }
+
     steps:
       - name: Show PATH env
         run: |
@@ -342,14 +345,14 @@ jobs:
         run: |
           if [ ! -d "$HOME/openharmony" ]; then
             mkdir -p $HOME/openharmony
-            echo "Download commandline-tools-linux-x64-5.0.7.200.zip ..."
-            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-13/commandline-tools-linux-x64-5.0.7.200.zip.001
-            wget -q https://github.com/dumganhar/oh-sdk-for-ci/releases/download/api-13/commandline-tools-linux-x64-5.0.7.200.zip.002
-            echo "Unzip commandline-tools-linux-x64-5.0.7.200.zip ..."
-            7z x commandline-tools-linux-x64-5.0.7.200.zip.001 -o$HOME/openharmony > /dev/null
+            echo "Download commandline-tools-linux-x64-5.0.13.200.zip ..."
+            wget -q https://github.com/cocos/oh-sdk-for-ci/releases/download/api-15/commandline-tools-linux-x64-5.0.13.200.zip.001
+            wget -q https://github.com/cocos/oh-sdk-for-ci/releases/download/api-15/commandline-tools-linux-x64-5.0.13.200.zip.002
+            echo "Unzip commandline-tools-linux-x64-5.0.13.200.zip ..."
+            7z x commandline-tools-linux-x64-5.0.13.200.zip.001 -o$HOME/openharmony > /dev/null
             cd $HOME/openharmony
             ls -l
-            cd commandline-tools-linux-x64-5.0.7.200
+            cd command-line-tools
             ls -l
           fi
 
@@ -362,14 +365,16 @@ jobs:
           npm -v
           java --version
           echo "=============== list files in oh sdk ($HOME/openharmony) ==============="
-          pushd $HOME/openharmony/commandline-tools-linux-x64-5.0.7.200
+          pushd $HOME/openharmony/command-line-tools
           ls -l
           popd
 
-          export PATH=$PATH:$HOME/openharmony/commandline-tools-linux-x64-5.0.7.200/bin
+          export PATH=$PATH:$HOME/openharmony/command-line-tools/bin
           echo "PATH=$PATH"
           echo "hvigorw path:"
           which hvigorw
+          echo "ohpm path:"
+          which ohpm
 
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling Openharmony ... "
@@ -389,9 +394,22 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-oh/proj/cfg.cmake
           echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-oh/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-oh/proj/cfg.cmake
-          echo "set(USE_SE_V8 ON)" >> build-oh/proj/cfg.cmake
-          echo "set(USE_SE_NAPI OFF)" >> build-oh/proj/cfg.cmake
-          echo "set(USE_SE_JSVM OFF)" >> build-oh/proj/cfg.cmake
+          if [ "${{ matrix.config.jsEngine }}" = "V8" ]; then
+            echo "=============== JsEngine: V8 ==============="
+            echo "set(USE_SE_V8 ON)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM OFF)" >> build-oh/proj/cfg.cmake
+          elif [ "${{ matrix.config.jsEngine }}" = "JSVM" ]; then
+            echo "=============== JsEngine: JSVM ==============="
+            echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM ON)" >> build-oh/proj/cfg.cmake
+          else
+            echo "=============== JsEngine: ARK ==============="
+            echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI ON)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM OFF)" >> build-oh/proj/cfg.cmake
+          fi
 
           echo "=============== cat build-oh/proj/cfg.cmake ==============="
           cat build-oh/proj/cfg.cmake
@@ -412,12 +430,13 @@ jobs:
           # echo "=============== UPDATE ./hvigor/hvigor-config.json5 ==============="
           # echo "{\"hvigorVersion\":\"3.0.2\",\"dependencies\":{\"@ohos/hvigor-ohos-plugin\":\"3.0.2\"}}" > ./hvigor/hvigor-config.json5
 
-          echo "=============== Do not import game.ts for cocos_worker.ts ==============="
-          sed -i '/<% if(!useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ts
-          sed -i '/<% if(useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ts
-          ls -l ./entry/src/main/ets/workers/cocos_worker.ts
+          echo "=============== Do not import game.ts for cocos_worker.ets ==============="
+          sed -i '/<% if(!useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ets
+          sed -i '/<% if(useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ets
+          ls -l ./entry/src/main/ets/workers/cocos_worker.ets
 
           echo "=============== EXECUTE hvigorw ==============="
+          ohpm install
           hvigorw clean -i
           hvigorw --stop-daemon -i
           hvigorw --mode module -p product=default assembleHap --parallel --incremental debuggable=true --no-daemon -d

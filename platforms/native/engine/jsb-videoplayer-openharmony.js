@@ -381,9 +381,7 @@ if (cc.internal.VideoPlayer) {
 
         stop () {
             if (this.video) {
-                //this._ignorePause = true;
-                this.video.seekTo(0);
-                this._cachedCurrentTime = 0;
+                this._ignorePause = true;
                 this.video.stop();
             }
         }

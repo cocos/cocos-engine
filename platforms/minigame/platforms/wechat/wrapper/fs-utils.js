@@ -169,7 +169,24 @@ const fsUtils = {
     },
 
     readArrayBuffer (filePath, onComplete) {
-        fsUtils.readFile(filePath, '', onComplete);
+        // Should pass undefined to 'encoding' parameter instead of passing an empty string,
+        // otherwise, the new version of WeChat mini-game IDE will report an error:
+        //
+        // Error: readFile:fail Parameter check error:
+        //     parameter.encoding 字段需为 'ascii' | 'base64' | 'binary' | 'hex' | 'latin1' | 'ucs-2' | 'ucs2' | 'utf-16le' | 'utf-8' | 'utf16le' | 'utf8'
+        //         at Object.fail (web-adapter.js? [sm]:1)
+        //         at Object.t (VM31 WAGameSubContext.js:1)
+        //         at Function.C.forEach.v.<computed> (VM20 WAGame.js:1)
+        //         at p (VM20 WAGame.js:1)
+        //         at Object.fail (VM20 WAGame.js:1)
+        //         at VM20 WAGame.js:1
+        //         at oe (VM20 WAGame.js:1)
+        //         at VM20 WAGame.js:1
+        //         at r (VM20 WAGame.js:1)
+        //         at s (VM20 WAGame.js:1)
+        //
+        // API Reference: https://developers.weixin.qq.com/miniprogram/dev/api/file/FileSystemManager.readFile.html
+        fsUtils.readFile(filePath, undefined, onComplete);
     },
 
     readJson (filePath, onComplete) {

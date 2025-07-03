@@ -41,7 +41,7 @@ bool setReturnValue(const Value &data, target_value &argv);
 void jsToSeValue(const target_value &value, Value *v);
 void jsToSeArgs(size_t argc, target_value *argv, ValueArray *outArr);
 bool seToJsValue(const Value &v, target_value *jsval);
-void seToJsArgs(JSVM_Env env, const ValueArray &args, std::vector<target_value> *outArr);
+bool seToJsArgs(JSVM_Env env, const ValueArray &args, std::vector<target_value> *outArr);
 std::string jsToString(const target_value &value);
 void logJsException(JSVM_Env env, const char *file, int line);
 

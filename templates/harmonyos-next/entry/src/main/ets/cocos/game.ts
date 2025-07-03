@@ -76,39 +76,37 @@ export function launchEngine (): Promise<void> {
     window.global = window;
     // @ts-ignore
     window.oh = window.oh || {};
-    return import('./oh-adapter/sys-ability-polyfill.js').then(() => {
-            // @ts-ignore
-            window.oh.loadModule = loadModule;
-            return import('./jsb-adapter/web-adapter.js').then(() => {
-                return import('./src/<%= systemBundleUrl%>').then(() => {
-                    System.warmup({
-                        importMap,
-                        importMapUrl: './src/<%= importMapUrl%>',
-                        defaultHandler: (urlNoSchema: string) => {
-                            console.info('urlNoSchema ', urlNoSchema);
-                            return loadModule(urlNoSchema);
-                        },
-                    });
-                    return System.import('./<%= applicationUrl%>').then(({ Application }) => {
-                        return new Application();
-                    }).then((application) => {
-                        <% if(useAotOptimization) { %>
-                        return import('./src/cocos-js/cc').then(() => {
-                        <% } %>
-                            return System.import('cc').then((cc) => {
-                                return import('./jsb-adapter/engine-adapter.js').then(() => {
-                                    cc.macro.CLEANUP_IMAGE_CACHE = false;
-                                    return application.init(cc);
-                                });
-                            }).then(() => {
-                                return application.start();
-                            });
-                        <% if(useAotOptimization) { %>
+    // @ts-ignore
+    window.oh.loadModule = loadModule;
+    return import('./jsb-adapter/web-adapter.js').then(() => {
+        return import('./src/<%= systemBundleUrl%>').then(() => {
+            System.warmup({
+                importMap,
+                importMapUrl: './src/<%= importMapUrl%>',
+                defaultHandler: (urlNoSchema: string) => {
+                    console.info('urlNoSchema ', urlNoSchema);
+                    return loadModule(urlNoSchema);
+                },
+            });
+            return System.import('./<%= applicationUrl%>').then(({ Application }) => {
+                return new Application();
+            }).then((application) => {
+                <% if(useAotOptimization) { %>
+                return import('./src/cocos-js/cc').then(() => {
+                <% } %>
+                    return System.import('cc').then((cc) => {
+                        return import('./jsb-adapter/engine-adapter.js').then(() => {
+                            cc.macro.CLEANUP_IMAGE_CACHE = false;
+                            return application.init(cc);
                         });
-                        <% } %>
+                    }).then(() => {
+                        return application.start();
                     });
+                <% if(useAotOptimization) { %>
                 });
-            });             
+                <% } %>
+            });
+        });           
     }).catch((e: any) => {
         console.error('imported failed', e.message, e.stack)
     });

@@ -27,3 +27,13 @@ export function createMap (forceDictMode?: boolean): any {
   }
   return map;
 }
+
+export function patchConsoleAssert() {
+  if (!(console as any).assert) {
+    (console as any).assert = (cond, msg) => {
+      if (!cond) {
+        throw new Error(msg);
+      }
+    };
+  }
+}

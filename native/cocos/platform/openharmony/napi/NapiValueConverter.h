@@ -1,6 +1,9 @@
 #include <napi/native_api.h>
 #include <string>
 
+namespace se {
+    class Value;
+}
 class NapiValueConverter {
 public:
     template<typename ReturnType>
@@ -13,4 +16,5 @@ public:
     static napi_value ToNapiValue(napi_env env, const char* value);
     static napi_value ToNapiValue(napi_env env, std::string value);
 
+    static bool NapiValueToSeValue(napi_env env, napi_value value, se::Value *v);
 };

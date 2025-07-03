@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   win_gen_simulator:
-    runs-on: windows-2019
+    runs-on: windows-2022
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     name: Windows
@@ -36,7 +36,7 @@ jobs:
       - name: Install deps
         uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
         with:
-          vulkan-query-version: 1.2.189.0
+          vulkan-query-version: 1.3.243.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: false
       - name: gen simulator

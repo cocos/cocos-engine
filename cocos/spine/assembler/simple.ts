@@ -36,6 +36,13 @@ import { Color, EPSILON, Vec3 } from '../../core';
 import type { MaterialInstance } from '../../render-scene';
 import type { IBatcher } from '../../2d/renderer/i-batcher';
 
+/**
+ * If Spine instance counts exceeding thresholds cause issues, first adjust the ADJUST_SIZE_RATE value.
+    Going forward, we need to implement independent memory management for Spine that bypasses the chunk approach.
+    Similar to native IOBuffers where populated content transfers directly to GPU buffers without going through static_vb_accessor.
+    For now, provide the minimal viable change.
+ */
+const ADJUST_SIZE_RATE = 1.1;
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
 const _originColor = new Color(0, 255, 0, 255);
@@ -151,10 +158,12 @@ function realTimeTraverse (comp: Skeleton): void {
     if (!rd || vc < 1 || ic < 1) return;
 
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
-        rd.resize(vc, ic);
+        if (rd.vertexCount < vc || rd.indexCount < ic) {
+            rd.resize(Math.ceil(vc * ADJUST_SIZE_RATE), Math.ceil(ic * ADJUST_SIZE_RATE));
+        }
         rd.indices = new Uint16Array(ic);
         comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
-        comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, Float32Array.BYTES_PER_ELEMENT * rd.chunk.vb.length);
+        comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, comp._vLength);
         comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         comp._iBuffer = new Uint8Array(rd.indices.buffer);
     }
@@ -178,7 +187,7 @@ function realTimeTraverse (comp: Skeleton): void {
     for (let i = 0; i < count; i += 5) {
         indexCount = data.get(i + 3);
         const material = _getSlotMaterial(data.get(i + 4) as number, comp);
-        comp.requestDrawData(material, textures.get(i / 5), indexOffset, indexCount);
+        comp.requestDrawData(material, textures.get(i / 5) as string, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 
@@ -272,7 +281,9 @@ function cacheTraverse (comp: Skeleton): void {
     const rd = comp.renderData;
     if (!rd || vc < 1 || ic < 1) return;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
-        rd.resize(vc, ic);
+        if (rd.vertexCount < vc || rd.indexCount < ic) {
+            rd.resize(Math.ceil(vc * ADJUST_SIZE_RATE), Math.ceil(ic * ADJUST_SIZE_RATE));
+        }
         rd.indices = new Uint16Array(ic);
     }
 
@@ -323,7 +334,7 @@ function cacheTraverse (comp: Skeleton): void {
         const material = _getSlotMaterial(mesh.blendMode as number, comp);
         const textureID = mesh.textureID;
         indexCount = mesh.iCount;
-        comp.requestDrawData(material, textureID, indexOffset, indexCount);
+        comp.requestDrawData(material, textureID as string, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 

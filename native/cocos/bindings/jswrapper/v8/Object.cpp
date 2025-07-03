@@ -25,6 +25,7 @@
 
 #include "Object.h"
 #include "v8/HelperMacros.h"
+#include "application/ApplicationManager.h"
 
 // Use node::Buffer to replace v8 api,to avoid link err in editor platform.
 #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -160,6 +161,54 @@ Object *Object::createProxyTarget(se::Object *proxy) {
 Object *Object::createPlainObject() {
     v8::Local<v8::Object> jsobj = v8::Object::New(__isolate);
     Object *obj = _createJSObject(nullptr, jsobj);
+    return obj;
+}
+
+std::unordered_map<Object*, v8::Persistent<v8::Promise::Resolver>*> Object::resolverMap;
+
+void Object::resolverPromise(Object *object, const Value &value) {
+    auto it = resolverMap.find(object);
+    if (it != resolverMap.end()) {
+        v8::Isolate *isolate = __isolate;
+        v8::HandleScope scope(isolate);
+        v8::Local<v8::Context> context = isolate->GetCurrentContext();
+        auto* resolver = it->second;
+        v8::Local<v8::Value> v8Val;
+        se::internal::seToJsValue(__isolate, value, &v8Val);
+        resolver->Get(isolate)->Resolve(context, v8Val).ToChecked();
+        resolver->Reset();
+        delete resolver;
+        resolverMap.erase(it);
+    }
+}
+
+void Object::rejectPromise(Object *object, const Value &value) {
+    auto it = resolverMap.find(object);
+    if (it != resolverMap.end()) {
+        v8::Isolate *isolate = __isolate;
+        v8::HandleScope scope(isolate);
+        v8::Local<v8::Context> context = isolate->GetCurrentContext();
+        auto* resolver = it->second;
+        v8::Local<v8::Value> v8Val;
+        se::internal::seToJsValue(isolate, value, &v8Val);
+        resolver->Get(isolate)->Reject(context, v8Val).ToChecked();
+        resolver->Reset();
+        delete resolver;
+        resolverMap.erase(it);
+    }
+}
+
+Object *Object::createPromise() {
+    v8::Isolate *isolate = __isolate;
+    v8::HandleScope handleScope(isolate);
+    v8::Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(isolate->GetCurrentContext()).ToLocalChecked();
+    v8::Local<v8::Promise> v8Promise = resolver->GetPromise();
+    auto *persistentResolver = new v8::Persistent<v8::Promise::Resolver>(isolate, resolver);
+
+    v8::Local<v8::Object> jsobj = v8::Local<v8::Object>::Cast(v8Promise);
+    auto *obj = Object::_createJSObject(nullptr, jsobj);
+    resolverMap[obj] = persistentResolver;
+
     return obj;
 }
 
@@ -409,10 +458,8 @@ Object *Object::createJSONObject(std::u16string &&jsonStr) {
 
     v8::Local<v8::Context> context = __isolate->GetCurrentContext();
     v8::MaybeLocal<v8::Value> ret = v8::JSON::Parse(context, v8Str.ToLocalChecked());
-    
     // After v8::JSON::Parse, the memory of u16string could be freed.
     external->freeMemory();
-    
     if (ret.IsEmpty()) {
         return nullptr;
     }

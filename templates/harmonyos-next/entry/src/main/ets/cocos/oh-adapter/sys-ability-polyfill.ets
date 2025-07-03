@@ -34,41 +34,57 @@ import cocos from "libcocos.so";
 
 const displayUtils = cocos.getContext(ContextType.DISPLAY_UTILS);
 
-let pro = new process.ProcessManager();
-let cutout = {
+interface CutOut {
+    left: number,
+    top: number,
+    width: number,
+    height: number
+}
+
+interface ScreenInfo {
+    width: number,
+    height: number
+}
+
+let cutOut: CutOut = {
     left: 0,
     top: 0,
     width: 0,
     height: 0
 };
 
-globalThis.getSystemLanguage = function () {
+let sceneInfo: ScreenInfo = {
+    width: 0,
+    height: 0
+};
+
+globalThis.getSystemLanguage = () => {
     return I18n.System.getSystemLanguage();
 }
 
-globalThis.getOSFullName = function () {
+globalThis.getOSFullName = () => {
     return deviceInfo.osFullName;
 }
 
-globalThis.getDeviceModel = function () {
+globalThis.getDeviceModel = () => {
     return deviceInfo.productModel;
 }
 
-globalThis.getBatteryLevel = function () {
+globalThis.getBatteryLevel = () => {
     return batteryInfo.batterySOC;
 }
 
-globalThis.getDPI = function () {
-    var displayClass = display.getDefaultDisplaySync();
+globalThis.getDPI = () => {
+    let displayClass = display.getDefaultDisplaySync();
     return displayClass.densityDPI;
 }
 
-globalThis.getPixelRation = function () {
-    var displayClass = display.getDefaultDisplaySync();
+globalThis.getPixelRation = () => {
+    let displayClass = display.getDefaultDisplaySync();
     return displayClass.densityPixels;
 }
 
-let onDisplayChange = (data) => {
+let onDisplayChange = () => {
     // Monitor changes in screen orientation.
     displayUtils.onDisplayChange(globalThis.getDeviceOrientation());
 
@@ -82,14 +98,14 @@ try {
     console.log('Failed to register callback. Code: ' + JSON.stringify(exception));
 }
 
-globalThis.getDeviceOrientation = function () {
-    var displayClass = display.getDefaultDisplaySync();
+globalThis.getDeviceOrientation = (): display.Orientation => {
+    let displayClass = display.getDefaultDisplaySync();
     return displayClass.rotation;
 }
 
-globalThis.getNetworkType = function () {
+globalThis.getNetworkType = () => {
     let netHandle = connection.getDefaultNetSync();
-    if(netHandle && netHandle.netId != 0) {
+    if (netHandle && netHandle.netId != 0) {
         let result = connection.getNetCapabilitiesSync(netHandle);
         if (result && result.bearerTypes) {
             return result.bearerTypes[0];
@@ -98,7 +114,7 @@ globalThis.getNetworkType = function () {
     return -1;
 }
 
-globalThis.vibrate = function (duration) {
+globalThis.vibrate = (duration: number) => {
     console.log('begin to vibrate, duration is.' + duration);
     try {
         vibrator.startVibration({
@@ -109,7 +125,7 @@ globalThis.vibrate = function (duration) {
             usage: 'alarm'
         }, (error) => {
             if (error) {
-                console.error('vibrate fail, error.code: ' + error.code + 'error.message: ', + error.message);
+                console.error('vibrate fail, error.code: ' + error.code + 'error.message: ' + error.message);
                 return error.code;
             }
             console.log('Vibration start sucessful.');
@@ -120,49 +136,83 @@ globalThis.vibrate = function (duration) {
       }
 }
 
-globalThis.terminateProcess = function () {
-    pro.exit(0);
-}
-
-globalThis.initScreenInfo = function () {
+globalThis.initScreenInfo = () => {
     display.getDefaultDisplaySync().getCutoutInfo().then((data) => {
         if (data.boundingRects.length == 0) {
             return;
         }
+        cutOut.left = data.boundingRects[0].left;
+        cutOut.top = data.boundingRects[0].top;
+        cutOut.width = data.boundingRects[0].width;
+        cutOut.height = data.boundingRects[0].height;
 
-        cutout.left = data.boundingRects[0].left;
-        cutout.top = data.boundingRects[0].top;
-        cutout.width = data.boundingRects[0].width;
-        cutout.height = data.boundingRects[0].height;
-    }).catch((err) => {
+        sceneInfo.width = display.getDefaultDisplaySync().width;
+        sceneInfo.height = display.getDefaultDisplaySync().height;
+    }).catch(() => {
         console.log("get cutout info error!");
     });
 };
 globalThis.initScreenInfo();
 
-globalThis.getCutoutWidth = function () {
-    if(!cutout.width) {
+globalThis.getCutoutToTop = () => {
+    if(!cutOut.height) {
         return 0;
     }
 
-    let disPlayWidth = display.getDefaultDisplaySync().width;
-    if(cutout.left + cutout.width > disPlayWidth - cutout.left) {
-        return disPlayWidth - cutout.left;
-    }
-    return cutout.left + cutout.width;
+    return cutOut.top + cutOut.height;
 }
 
-globalThis.getCutoutHeight = function () {
-    if(!cutout.height) {
+globalThis.getCutoutToRight = () => {
+    if(!sceneInfo.width) {
         return 0;
     }
 
-    let orientation = globalThis.getDeviceOrientation();
-    if (orientation == display.Orientation.PORTRAIT) {
-        return cutout.top + cutout.height;
-    } else if(orientation == display.Orientation.PORTRAIT_INVERTED) {
-        let displayHeight = display.getDefaultDisplaySync().height;
-        return displayHeight - cutout.top;
+    return sceneInfo.width - cutOut.left;
+}
+
+globalThis.getCutoutToBottom = () => {
+    if(!sceneInfo.height) {
+        return 0;
     }
-    return 0;
+
+    return sceneInfo.height - cutOut.top;
+}
+
+globalThis.getCutoutToLeft = () => {
+    if(!cutOut.width) {
+        return 0;
+    }
+
+    return cutOut.left + cutOut.width;
+}
+
+globalThis.getAvoidSide = () => {
+    if (!sceneInfo.width || !sceneInfo.height) {
+        console.log("get scene info error!");
+        return -1;
+    }
+
+    // Calculate which side to yield by the yield area, return 0 means the yield area is top;return 1 means right; return 2 means bottom; return 3 means left
+    let upAvoidArea = sceneInfo.width * (cutOut.top + cutOut.height);
+    let minIndex = 0;
+    let minAvoidArea = upAvoidArea;
+
+    let rightAvoidArea = sceneInfo.height * (sceneInfo.width - cutOut.left);
+    if (rightAvoidArea < minAvoidArea) {
+        minAvoidArea = rightAvoidArea;
+        minIndex = 1;
+    }
+
+    let bottomAvoidArea = sceneInfo.width * (sceneInfo.height - cutOut.top);
+    if (bottomAvoidArea < minAvoidArea) {
+        minAvoidArea = bottomAvoidArea;
+        minIndex = 2;
+    }
+
+    let leftAvoidArea = sceneInfo.height * (cutOut.left + cutOut.width);
+    if (leftAvoidArea < minAvoidArea) {
+        minIndex = 3
+    }
+
+    return minIndex;
 }
