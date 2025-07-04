@@ -23,12 +23,13 @@
 */
 
 import { ALIPAY, BYTEDANCE, HUAWEI, OPPO, RUNTIME_BASED, VIVO, MIGU, HONOR, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
-import { minigame, SystemInfo as MinigameSystenInfo } from 'pal/minigame';
+import { minigame, SystemInfo as MinigameSystemInfo } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 import { warn } from '../../../cocos/core/platform/debug';
+import { versionCompare } from '../../utils';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -94,7 +95,7 @@ if (BYTEDANCE) {
 }
 
 const originalGetSystemInfoSync = minigame.getSystemInfoSync;
-let _cachedSystemInfo: MinigameSystenInfo = originalGetSystemInfoSync.call(minigame);
+let _cachedSystemInfo: MinigameSystemInfo = originalGetSystemInfoSync.call(minigame);
 
 function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number): void {
     let successfullyTestTimes = 0;
@@ -114,7 +115,7 @@ function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number)
     intervalTimer = setInterval(testCachedSystemInfo, testInterval);
 }
 
-if (WECHAT) {
+if (WECHAT && versionCompare(minigame.getAppBaseInfo().SDKVersion, '2.25.3') < 0) {
     testAndUpdateSystemInfoCache(10, 500);
 }
 
@@ -123,7 +124,7 @@ minigame.onWindowResize?.(() => {
     _cachedSystemInfo = originalGetSystemInfoSync.call(minigame);
 });
 
-minigame.getSystemInfoSync = function (): MinigameSystenInfo {
+minigame.getSystemInfoSync = function (): MinigameSystemInfo {
     return _cachedSystemInfo;
 };
 

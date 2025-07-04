@@ -11,6 +11,11 @@ declare module 'pal/minigame' {
         isDevTool: boolean;
         isLandscape: boolean;
         orientation: import('pal/screen-adapter/enum-type').Orientation;
+        /**
+         * Most mini game platforms have performance issues calling this interface, so the engine does caching internally.
+         * This interface is deprecated in WeChat mini games, please use 'getSystemSetting', 'getAppAuthorizeSetting','getSystemSetting',
+         * 'getDeviceInfo','getWindowInfo', 'getAppBaseInfo' instead.
+         */
         getSystemInfoSync(): SystemInfo;
         onShow(callback: () => void): void;
         offShow(callback: () => void): void;
@@ -57,6 +62,13 @@ declare module 'pal/minigame' {
         offAccelerometerChange(cb?: AccelerometerChangeCallback);
         startAccelerometer(obj: AccelerometerStartParameter);
         stopAccelerometer(obj: AccelerometerStopParameter);
+
+        // New interfaces for base libraries 2.25.3 and above
+        getSystemSetting(): SystemSetting;
+        getAppAuthorizeSetting(): AppAuthorizeSetting,
+        getDeviceInfo(): DeviceInfo;
+        getWindowInfo(): WindowInfo;
+        getAppBaseInfo(): AppBaseInfo;
     }
 
     interface WeChatAPI {
@@ -123,6 +135,8 @@ declare module 'pal/minigame' {
     }
 
     export interface SystemInfo {
+        abi: string;
+        deviceAbi: string;
         brand: string;
         model: string;
         pixelRatio: number;
@@ -136,6 +150,7 @@ declare module 'pal/minigame' {
         system: string;
         platform: string;
         fontSizeSetting: number;
+        enableDebug: boolean;
         SDKVersion: string;
         benchmarkLevel: number;
         albumAuthorized: boolean;
@@ -146,15 +161,77 @@ declare module 'pal/minigame' {
         notificationAlertAuthorized: boolean;
         notificationBadgeAuthorized: boolean;
         notificationSoundAuthorized: boolean;
+        phoneCalendarAuthorized: string;
+        host: HostInfo;
+        bluetoothAuthorized: string;
         bluetoothEnabled: boolean;
         locationEnabled: boolean;
         wifiEnabled: boolean;
         safeArea: SafeArea;
         locationReducedAccuracy: boolean;
         theme: string;
+        cpuType: string;
+        memorySize: string;
+        screenTop: number;
+        mode: string;
+        fontSizeScaleFactor: number;
         deviceOrientation?: 'portrait' | 'landscape';
     }
+    export interface SystemSetting {
+         bluetoothEnabled: boolean;
+         locationEnabled: boolean;
+         wifiEnabled: boolean;
+         deviceOrientation?: 'portrait' | 'landscape';
+    }
+    export interface AppAuthorizeSetting {
+        albumAuthorized: string | undefined;
+        bluetoothAuthorized: string | undefined;
+        cameraAuthorized: string | undefined;
+        locationAuthorized: string | undefined;
+        locationReducedAccuracy: boolean | undefined;
+        microphoneAuthorized: string | undefined;
+        notificationAuthorized: string | undefined;
+        notificationAlertAuthorized: string | undefined;
+        notificationBadgeAuthorized: string | undefined;
+        notificationSoundAuthorized: string | undefined;
+        phoneCalendarAuthorized: string | undefined;
+    }
+    export interface HostInfo {
+        appId: string;
+    }
+    export interface AppBaseInfo {
+        SDKVersion: string;
+        enableDebug: boolean;
+        host: HostInfo;
+        language: string;
+        version: string;
+        theme: string;
+        fontSizeScaleFactor: number;
+        fontSizeSetting: number;
+        mode: string;
+    }
+    export interface DeviceInfo {
+        abi: string;
+        deviceAbi: string;
+        benchmarkLevel: number;
+        brand: string;
+        model: string;
+        system: string;
+        platform: string;
+        cpuType: string;
+        memorySize: string;
+    }
 
+    export interface WindowInfo {
+        pixelRatio: number;
+        screenWidth: number;
+        screenHeight: number;
+        windowWidth: number;
+        windowHeight: number;
+        statusBarHeight: number;
+        safeArea: SafeArea;
+        screenTop: number;
+    }
 }
 
 declare interface BatteryInfo {
@@ -247,7 +324,7 @@ declare class InnerAudioContext {
     onWaiting(callback: () => void): any;
     pause(): any;
     play(): any;
-    seek(position:number): any;
+    seek(position: number): any;
     stop(): any;
 }
 
