@@ -4,7 +4,7 @@ const { updateElementReadonly } = require('../../utils/assets');
 const { extname } = require('path');
 const { ParseAtlasFile } = require('./parse-atlas');
 
-exports.template = /* html */`
+exports.template = /* html */ `
 <div class="asset-texture">
     <!-- dont delete, for insert -->
     <div class="content">
@@ -62,7 +62,7 @@ exports.template = /* html */`
 </div>
 `;
 
-exports.style = /* css */`
+exports.style = /* css */ `
 .asset-texture {
     display: flex;
     flex: 1;
@@ -395,9 +395,10 @@ const Elements = {
             panel.$.mipfilterSelect.innerHTML = optionsHtml;
 
             panel.$.mipfilterSelect.value = panel.userData.mipfilter || 'nearest';
-            panel.metaList && panel.metaList.forEach((meta) => {
-                Editor.Profile.setTemp('inspector', `${meta.uuid}.texture.mipfilter`, panel.userData.mipfilter);
-            });
+            panel.metaList &&
+                panel.metaList.forEach((meta) => {
+                    Editor.Profile.setTemp('inspector', `${meta.uuid}.texture.mipfilter`, panel.userData.mipfilter);
+                });
             panel.updateInvalid(panel.$.mipfilterSelect, 'mipfilter');
             updateElementReadonly.call(panel, panel.$.mipfilterSelect);
         },
@@ -589,9 +590,13 @@ const Elements = {
     },
     checkAtlasFileConfig: {
         async ready() {
-            this.$.atlasFileName.addEventListener('click', () => {
-                Editor.Message.send('assets', 'twinkle', this.$.atlasFileName.getAttribute('data-uuid'));
-            }, false);
+            this.$.atlasFileName.addEventListener(
+                'click',
+                () => {
+                    Editor.Message.send('assets', 'twinkle', this.$.atlasFileName.getAttribute('data-uuid'));
+                },
+                false,
+            );
         },
         async update() {
             try {
@@ -600,17 +605,13 @@ const Elements = {
                     return;
                 }
                 const parentPath = this.parentAssetList[0].path.replace(/\/[^/]+$/, '/*');
-                let assets = await Editor.Message.request(
-                    'asset-db',
-                    'query-assets',
-                    { pattern: parentPath, ccType: "cc.Asset" }
-                );
-                assets = assets.filter(v => extname(v.file) === '.atlas');
+                let assets = await Editor.Message.request('asset-db', 'query-assets', { pattern: parentPath, ccType: 'cc.Asset' });
+                assets = assets.filter((v) => extname(v.file) === '.atlas');
 
                 let matchedAsset;
                 let matchedAtlasJson;
                 for (const asset of assets) {
-                    const json = await (new ParseAtlasFile()).parse(asset.file);
+                    const json = await new ParseAtlasFile().parse(asset.file);
 
                     // the asset.displayName is not a full name, miss the extname
                     // so, we should use RegExp to get the extname
@@ -626,7 +627,6 @@ const Elements = {
                     }
                 }
                 if (matchedAsset) {
-
                     let atlasFileFilter = matchedAtlasJson.filter;
                     if (Array.isArray(atlasFileFilter)) {
                         atlasFileFilter = atlasFileFilter.join();
@@ -635,9 +635,12 @@ const Elements = {
                     }
                     const userDataFilter = `${this.meta.userData.minfilter},${this.meta.userData.magfilter}`;
 
-                    if (atlasFileFilter.toLowerCase() !== userDataFilter.toLowerCase()) {
+                    if (atlasFileFilter && atlasFileFilter.toLowerCase() !== userDataFilter.toLowerCase()) {
                         this.$.filterDifferent.style.display = 'block';
-                        const tipHtml = Editor.I18n.t('ENGINE.assets.texture.filterDiffenent').replace('{atlasFile}', `<span>${matchedAsset.name}</span>`);
+                        const tipHtml = Editor.I18n.t('ENGINE.assets.texture.filterDiffenent').replace(
+                            '{atlasFile}',
+                            `<span>${matchedAsset.name}</span>`,
+                        );
                         this.$.atlasFileName.innerHTML = tipHtml;
                         this.$.atlasFileName.setAttribute('data-uuid', matchedAsset.uuid);
                     } else {
