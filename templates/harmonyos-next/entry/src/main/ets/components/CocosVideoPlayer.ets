@@ -112,6 +112,8 @@ export struct CocosVideoPlayer {
           videoTag: this.videoInfo.viewTag,
           videoEvent: EventType.COMPLETED
         } as param);
+        //make it playable again.
+        this.videoInfo.controller.setCurrentTime(0, SeekMode.Accurate);
       })
       .onPrepared((event): void => {
         this.videoInfo.isPreparedStart && this.videoInfo.controller.start();
