@@ -66,15 +66,29 @@ export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, w
     ppl.addDepthStencil(`ShadowDepth${id}`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
 }
 
-const _resizedWindows: RenderWindow[] = [];
+// Map to store throttle timers by cameraId
+const throttleTimers = new Map();
+// Map to store last resize time by cameraId
+let lastResizeTimes = 0;
 
+// Throttle delay in milliseconds (when detected frequent resizing)
+const THROTTLE_DELAY = 500;
+// Window time in milliseconds to detect frequent resizing
+const FREQUENCY_WINDOW = 200;
+
+// Adaptive throttled version of dispatchResizeEvents function using cameraId
 export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilder, ppl: BasicPipeline): void {
-    if (!builder.windowResize) {
+    if (!builder.windowResize || !cameras.some((camera) => camera.window.isRenderWindowResized())) {
         // No game window resize handler defined.
-        // Following old prodecure, do nothing
+        // Following old procedure, do nothing
         return;
     }
-
+    const now = Date.now();
+    let isFrequentResizing = false;
+    if (now - lastResizeTimes <= FREQUENCY_WINDOW) {
+        isFrequentResizing = true;
+    }
+    lastResizeTimes = now;
     // Resize all windows.
     // Notice: A window might be resized multiple times with different cameras.
     // User should avoid resource collision between different cameras.
@@ -83,22 +97,29 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             continue;
         }
 
+        const cameraId = camera.cameraId; // Unique identifier for each camera
+
+        // Skip execution if a timer exists and we're in frequent resizing mode
+        if (isFrequentResizing && throttleTimers.has(cameraId)) {
+            continue;
+        }
+
         const width = Math.max(Math.floor(camera.window.width), 1);
         const height = Math.max(Math.floor(camera.window.height), 1);
 
-        builder.windowResize(ppl, camera.window, camera, width, height);
-
-        _resizedWindows.push(camera.window);
+        if (isFrequentResizing) {
+            // Apply throttle only when frequent resizing is detected
+            throttleTimers.set(cameraId, setTimeout(() => {
+                builder.windowResize!(ppl, camera.window, camera, width, height);
+                camera.window.setRenderWindowResizeHandled();
+                throttleTimers.delete(cameraId);
+            }, THROTTLE_DELAY));
+        } else {
+            // Normal resize - execute immediately
+            builder.windowResize(ppl, camera.window, camera, width, height);
+            camera.window.setRenderWindowResizeHandled();
+        }
     }
-
-    // Reset resize flags
-    for (const window of _resizedWindows) {
-        window.setRenderWindowResizeHandled();
-    }
-
-    // Clear resized windows
-    _resizedWindows.length = 0;
-
     // For editor preview
     forceResize = false;
 }
