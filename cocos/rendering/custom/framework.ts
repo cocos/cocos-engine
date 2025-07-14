@@ -66,6 +66,10 @@ export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, w
     ppl.addDepthStencil(`ShadowDepth${id}`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
 }
 
+function getRenderWindowSize (window: RenderWindow): [number, number] {
+    return [Math.max(Math.floor(window.width), 1), Math.max(Math.floor(window.height), 1)];
+}
+
 // Map to store throttle timers by cameraId
 const throttleTimers = new Map();
 // Map to store last resize time by cameraId
@@ -103,18 +107,16 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
         if (isFrequentResizing && throttleTimers.has(cameraId)) {
             continue;
         }
-
-        const width = Math.max(Math.floor(camera.window.width), 1);
-        const height = Math.max(Math.floor(camera.window.height), 1);
-
         if (isFrequentResizing) {
             // Apply throttle only when frequent resizing is detected
             throttleTimers.set(cameraId, setTimeout(() => {
+                const [width, height] = getRenderWindowSize(camera.window);
                 builder.windowResize!(ppl, camera.window, camera, width, height);
                 camera.window.setRenderWindowResizeHandled();
                 throttleTimers.delete(cameraId);
             }, THROTTLE_DELAY));
         } else {
+            const [width, height] = getRenderWindowSize(camera.window);
             // Normal resize - execute immediately
             builder.windowResize(ppl, camera.window, camera, width, height);
             camera.window.setRenderWindowResizeHandled();
