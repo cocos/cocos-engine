@@ -624,10 +624,12 @@ export class AssetManager {
      * Note that `loadRemote` uses the extension name in the url to determine how to load the asset.
      * If you pass in a url without the extension name, you need to specify the `ext` parameter
      * in the `options` to indicate how you want the asset loaded. See the third example below.
+     * `options` can also specify the `format` parameter to indicate the compressed texture format. See the example below.
      *
      * @zh
      * 使用 url 加载远程资源，例如音频，图片，文本等等。需要注意的是 `loadRemote` 是通过 url 中的扩展名判断以何种方式加载该资源，
      * 如果你传入的 url 中没有携带后缀名，你需要额外指定 `options` 中的 `ext` 参数来表明你需要何种方式加载该资源。请参考下面的第三个示例。
+     * `options` 中的 `format` 参数可以指定压缩纹理格式. 请参考下面的第四个示例。
      *
      * @param url @en The url of asset. @zh 资源的 URL 链接。
      * @param options @en Some optional parameters. @zh 一些可选参数。
@@ -644,7 +646,8 @@ export class AssetManager {
      * assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => console.log(err));
      * assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => console.log(err));
      * assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
-     *
+     * assetManager.loadRemote('http://www.cloud.com/test5.astc', { format: Texture2D.PixelFormat.RGBA_ASTC_8x8 }, (err, texture) => console.log(err));
+     * 
      */
     public loadRemote<T extends Asset> (url: string, options: { [k: string]: any, ext?: string } | null, onComplete?: ((err: Error | null, data: T) => void) | null): void;
     public loadRemote<T extends Asset> (url: string, onComplete?: ((err: Error | null, data: T) => void) | null): void;
