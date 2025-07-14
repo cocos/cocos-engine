@@ -45,6 +45,9 @@ function createImageAsset (id: string, data: HTMLImageElement, options: Record<s
     try {
         out = new ImageAsset();
         out._nativeUrl = id;
+        if (options.format) {
+            (out as any).format = options.format;
+        }
         out._nativeAsset = data;
     } catch (e) {
         err = e as Error;
