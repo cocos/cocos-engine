@@ -407,6 +407,14 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         }
     }
     addDraw2D (camera: Camera): void {
+        const layoutName = this.getParentLayout();
+        setCameraUBOValues(
+            this,
+            camera,
+            this._pipeline,
+            camera.scene,
+            layoutName,
+        );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit,
             renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_2D),
@@ -419,15 +427,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
     addProfiler (camera: Camera): void {
         const passOrSubpassId = this._renderGraph.getParent(this._vertID);
-        this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit,
-            renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_PROFILE),
-            'DrawProfiler',
-            '',
-            emptyRenderData,
-            !DEBUG,
-            this._vertID,
-        );
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
             RenderGraphValue.Queue,
             this._queue,

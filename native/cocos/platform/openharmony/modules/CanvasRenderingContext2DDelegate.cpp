@@ -206,6 +206,11 @@ void CanvasRenderingContext2DDelegate::fillText(const ccstd::string &text, float
         return;
     }
     Size  textSize    = {0, 0};
+    uint8_t r = static_cast<uint8_t>(_fillStyle[0]);
+    uint8_t g = static_cast<uint8_t>(_fillStyle[1]);
+    uint8_t b = static_cast<uint8_t>(_fillStyle[2]);
+    uint8_t a = static_cast<uint8_t>(_fillStyle[3]);
+    OH_Drawing_SetTextStyleColor(_textStyle, OH_Drawing_ColorSetArgb(a, r, g, b));
     Point offsetPoint = convertDrawPoint(Point{x, y}, text, _textStyle);
     drawText(text, (int)offsetPoint[0], (int)offsetPoint[1]);
     if (!_premultiply) {
@@ -308,7 +313,6 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
 
 void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     _fillStyle = {static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)};
-    OH_Drawing_SetTextStyleColor(_textStyle, OH_Drawing_ColorSetArgb(a, r, g, b));
 }
 
 void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
