@@ -27,6 +27,7 @@ import { Camera } from '../../render-scene/scene/camera';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { supportsR32FloatTexture } from '../define';
 import { Format } from '../../gfx/base/define';
+import { sys } from '../../core/platform';
 
 export { packRGBE } from '../../core/math/color';
 
@@ -89,7 +90,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
     }
     const now = Date.now();
     let isFrequentResizing = false;
-    if (now - lastResizeTimes <= FREQUENCY_WINDOW) {
+    if (!sys.isNative && now - lastResizeTimes <= FREQUENCY_WINDOW) {
         isFrequentResizing = true;
     }
     lastResizeTimes = now;
