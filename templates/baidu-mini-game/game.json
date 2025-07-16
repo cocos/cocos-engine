@@ -1,0 +1,11 @@
+{
+    "deviceOrientation": "landscape",
+    "openDataContext": "",
+    "networkTimeout":
+    {
+        "request": 5000,
+        "connectSocket": 5000,
+        "uploadFile": 5000,
+        "downloadFile": 500000
+    }
+}

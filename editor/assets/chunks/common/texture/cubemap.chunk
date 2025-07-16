@@ -1,0 +1,65 @@
+// for specular-gloss workflow which support by legacy compatible lighting
+float RoughnessToPerceptualRoughness(float roughness)
+{
+  return sqrt(roughness);
+}
+
+// for legacy only
+#pragma extension([GL_OES_standard_derivatives, __VERSION__ < 110])
+  vec3 EnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
+    #if CC_USE_IBL
+      // simulate GGX convolution
+      #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
+        roughness = RoughnessToPerceptualRoughness(roughness);
+      #endif
+
+      //#todo: add GL400 calcmip
+    	float mip = roughness * (mipCount - 1.0);
+    	float delta = (dot(dFdx(R), dFdy(R))) * 1000.0;
+    	float mipBias = mix(0.0, 5.0, clamp(delta, 0.0, 1.0));
+
+      vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+    	vec4 biased = fragTextureLod(cc_environment, rotationDir, mip + mipBias);
+     	vec4 filtered = texture(cc_environment, rotationDir);
+
+      #if CC_USE_IBL == IBL_RGBE
+      	biased.rgb = unpackRGBE(biased);
+      	filtered.rgb = unpackRGBE(filtered);
+      #else
+      	biased.rgb = SRGBToLinear(biased.rgb);
+      	filtered.rgb = SRGBToLinear(filtered.rgb);
+      #endif
+      	
+      return mix(biased.rgb, filtered.rgb, denoiseIntensity);
+    #else
+      return vec3(0.0, 0.0, 0.0);
+    #endif
+  }
+
+  // for skybox IBL
+  vec3 EnvReflection(samplerCube tex, vec3 R, float roughness, float mipCount) {
+    // simulate GGX convolution
+    #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
+      roughness = RoughnessToPerceptualRoughness(roughness);
+    #endif
+
+    vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+    vec4 envmap = fragTextureLod(tex, rotationDir, roughness * (mipCount - 1.0));
+    #if CC_USE_IBL == IBL_RGBE
+      return unpackRGBE(envmap);
+    #else
+      return SRGBToLinear(envmap.rgb);
+    #endif
+
+  }
+
+  // for reflection probe
+  vec3 EnvReflectionOfReflectionProbe(samplerCube tex, vec3 R, float roughness, float mipCount, bool isRGBE) {
+    // simulate GGX convolution
+    #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
+      roughness = RoughnessToPerceptualRoughness(roughness);
+    #endif
+
+    vec4 envmap = fragTextureLod(tex, R, roughness * (mipCount - 1.0));
+    return isRGBE ? unpackRGBE(envmap) : SRGBToLinear(envmap.rgb);
+  }

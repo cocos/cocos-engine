@@ -1,0 +1,15 @@
+import { _decorator, Component, Node, RenderFlow } from "cc";
+const { ccclass, property } = _decorator;
+
+@ccclass("<%UnderscoreCaseClassName%>")
+export class <%UnderscoreCaseClassName%> extends RenderFlow {
+
+    rebuild() {
+
+    }
+
+    destroy() {
+
+    }
+    
+}

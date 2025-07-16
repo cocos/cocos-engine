@@ -1,0 +1,54 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
+    namespace 'com.cocos.lib'
+    defaultConfig {
+        minSdkVersion PROP_MIN_SDK_VERSION
+        targetSdkVersion PROP_TARGET_SDK_VERSION
+        versionCode 1
+        versionName "1.0"
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    sourceSets.main {
+        aidl.srcDir "../java/src"
+        java.srcDirs = ["../java/src"]
+        manifest.srcFile "AndroidManifest.xml"
+    }
+
+    if(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean()) {
+        sourceSets.main.java.srcDirs += ["../java/vendor/billing"]
+    }
+
+    if(project.hasProperty("PROP_ENABLE_GOOGLE_PLAY_GAMES") && project.PROP_ENABLE_GOOGLE_PLAY_GAMES.toBoolean()) {
+        sourceSets.main.java.srcDirs += ["../java/vendor/play"]
+    }
+
+    buildDir = new File(rootProject.buildDir, project.name)
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: '../java/libs')
+    if(project.hasProperty("PROP_ENABLE_GOOGLE_BILLING") && project.PROP_ENABLE_GOOGLE_BILLING.toBoolean()) {
+        implementation "com.android.billingclient:billing:7.1.0"
+    }
+    if(project.hasProperty("PROP_ENABLE_GOOGLE_PLAY_GAMES") && project.PROP_ENABLE_GOOGLE_PLAY_GAMES.toBoolean()) {
+        implementation "com.google.android.gms:play-services-games-v2:+"
+    }
+}

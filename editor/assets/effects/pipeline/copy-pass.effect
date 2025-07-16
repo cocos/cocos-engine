@@ -1,0 +1,60 @@
+// Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+techniques:
+  - passes:
+      - vert: copy-pass-vs
+        frag: copy-pass-fs
+        pass: copy-pass
+        depthStencilState:
+          depthTest: false
+          depthWrite: false
+        rasterizerState:
+          cullMode: none
+        blendState:
+          targets:
+            - blend: true
+              blendSrc: src_alpha
+              blendDst: one_minus_src_alpha
+              blendSrcAlpha: src_alpha
+              blendDstAlpha: one_minus_src_alpha
+
+}%
+
+CCProgram ubo %{
+#pragma rate CopyPassUBO pass
+uniform CopyPassUBO {
+  float flip;
+};
+#pragma rate outputResultMap pass
+uniform sampler2D outputResultMap;
+}%
+
+CCProgram copy-pass-vs %{
+precision highp float;
+
+#include <legacy/decode-standard>
+#include <common/common-define>
+#include <ubo>
+out vec2 v_uv;
+
+void main() {
+  StandardVertInput In;
+  CCDecode(In);
+  CC_HANDLE_CLIP_FLIP_FROM_VAL(In.position.xy, flip);
+  gl_Position = In.position;
+  v_uv = a_texCoord;
+}
+}%
+
+CCProgram copy-pass-fs %{
+precision highp float;
+in vec2 v_uv;
+#include <ubo>
+
+layout(location = 0)out vec4 fragColor;
+
+void main() {
+  fragColor = texture(outputResultMap, v_uv);
+}
+}%

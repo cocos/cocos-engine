@@ -1,0 +1,50 @@
+struct LightingResult
+{
+  // material-dependent lighting data
+  vec3 diffuseColorWithLighting, specularColorWithLighting;
+
+  // pure lighting
+  vec3 directDiffuse, directSpecular, directGF;
+  vec3 environmentDiffuse, environmentSpecular, environmentGF;
+  float shadow, ao;
+  vec3 lightmapColor;
+  vec3 emissive;
+
+  // advanced
+  vec3 fresnel; // for transmit materials , rim or special effects
+
+#if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+  vec3 directDiffuseSubLayers, directSpecularSubLayers;
+  vec3 environmentDiffuseSubLayers, environmentSpecularSubLayers;
+#endif
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+  vec3 directTransmitSpecular, environmentTransmitSpecular;
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec3 directTransmitDiffuse, environmentTransmitDiffuse;
+#endif
+  // used for retro/internal-reflection such as TRT, Dual-Lobe Specular, Sheen...
+  // multi-layer (coat) just temporary use here, it should be moved to LightingResultPerLayer member
+#if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+  vec3 direct2ndSpecular, environment2ndSpecular;
+  vec3 specularColorWithLighting2ndSpecular;
+  vec3 directGF2ndSpecular, environmentGF2ndSpecular;
+  vec3 directSubLayerF, environmentSubLayerF;
+#endif
+#if CC_SURFACES_LIGHTING_TT
+  vec3 directTT;
+  vec3 diffuseColorWithLightingTT;
+#endif
+  //vec3 scattered;
+};
+
+
+/* for multi-layer materials, should define:
+struct LightingResultPerLayer
+{
+  vec3 diffuseColorWithLighting, specularColorWithLighting;
+  vec3 directDiffuse, directSpecular, directGF;
+  vec3 environmentDiffuse, environmentSpecular, environmentGF;
+  vec3 directSubLayerF, environmentSubLayerF;
+}*/

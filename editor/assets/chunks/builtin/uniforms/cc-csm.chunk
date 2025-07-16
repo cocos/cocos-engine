@@ -1,0 +1,14 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma define NUMCASCADES 4
+#pragma builtin(global)
+layout(set = 0, binding = 3) uniform CCCSM {
+  highp vec4 cc_csmViewDir0[NUMCASCADES]; //[0].w->layer blank threshold
+  highp vec4 cc_csmViewDir1[NUMCASCADES]; //[i].w->layer split camera near
+  highp vec4 cc_csmViewDir2[NUMCASCADES]; //[i].w->layer split camera far
+  highp vec4 cc_csmAtlas[NUMCASCADES];
+  highp mat4 cc_matCSMViewProj[NUMCASCADES];
+  highp vec4 cc_csmProjDepthInfo[NUMCASCADES];
+  highp vec4 cc_csmProjInfo[NUMCASCADES];
+  highp vec4 cc_csmSplitsInfo;            // x-> Layers.skirtRange
+};

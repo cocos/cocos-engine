@@ -1,0 +1,424 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      properties: &props
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: BaseColor, type: color } }
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: BaseColorMap } }
+        baseWeightMap:        { value: grey }
+        albedoScale:          { value: 1.0, editor: { displayName: BaseWeight } }
+        roughness:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughnessMap:         { value: grey }
+        metallic:             { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallicMap:          { value: grey }
+        occlusion:            { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusionMap:         { value: white }
+        specularIntensity:    { value: 0.5, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        emissiveScale:        { value: 1.0 }
+        emissiveScaleMap:     { value: grey }
+        emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { displayName: EmissiveColor, type: color} }
+        emissiveMap:          { value: grey, editor: { displayName: EmissiveColorMap } }
+        alphaSource:          { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSourceMap:       { value: grey, editor: { parent: USE_OPACITY_MAP } }
+        alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        normalStrength:       { value: 1.0, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        normalMap:            { value: normal }
+    - &forward-add
+      vert: standard-vs
+      frag: standard-fs
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+    - &shadow-caster
+      vert: shadow-caster-vs
+      frag: shadow-caster-fs
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
+      properties:
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: 1.0, editor: { displayName: BaseWeight } }
+        alphaThreshold: { value: 0.5, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        alphaSource:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSourceMap: { value: grey, editor: { parent: USE_OPACITY_MAP } }
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      propertyIndex: 0
+      phase: deferred-forward
+  - name: transparent
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState: &b1
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+    - *forward-add
+    - *shadow-caster
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 tilingOffset;
+    vec4 albedo;
+    vec4 emissive;
+    float emissiveScale;
+    float occlusion;
+    float roughness;
+    float metallic;
+    float normalStrength;
+    float alphaSource;
+    float albedoScale;
+    float alphaThreshold;
+    float specularIntensity;
+  };
+}%
+
+CCProgram macro-remapping %{
+  // ui displayed macros
+  #pragma define-meta HAS_SECOND_UV
+  #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_REFLECTION_DENOISE
+  #pragma define-meta IS_ANISOTROPY
+  #pragma define-meta USE_VERTEX_COLOR
+
+  #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
+  #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
+  #define CC_SURFACES_USE_REFLECTION_DENOISE USE_REFLECTION_DENOISE
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
+  #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
+
+  // if disabled, simulate convoluted IBL without convolution
+  #pragma define-meta USE_COMPATIBLE_LIGHTING
+  #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING USE_COMPATIBLE_LIGHTING
+
+  // depend on UI macros
+#if IS_ANISOTROPY || USE_NORMAL_MAP
+  #define CC_SURFACES_USE_TANGENT_SPACE 1
+#endif
+
+  // functionality for each effect
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 31
+}%
+
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_UV
+  void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
+  {
+    In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
+  #if CC_SURFACES_USE_SECOND_UV
+    In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
+  #endif
+  }
+}%
+
+CCProgram surface-fragment %{
+  #pragma define-meta TEXTURE_UV options([v_uv, v_uv1])
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+  #endif
+
+  #if USE_WEIGHT_MAP
+    uniform sampler2D baseWeightMap;
+  #endif
+
+  #if USE_METALLIC_MAP
+    #pragma define-meta METALLIC_CHANNEL options([r, g, b, a])
+    uniform sampler2D metallicMap;
+  #endif
+
+  #if USE_ROUGHNESS_MAP
+    #pragma define-meta ROUGHNESS_CHANNEL options([r, g, b, a])
+    uniform sampler2D roughnessMap;
+  #endif
+
+  #if USE_OCCLUSION_MAP
+    #pragma define-meta OCCLUSION_CHANNEL options([r, g, b, a])
+    uniform sampler2D occlusionMap;
+  #endif
+
+  #if USE_TRANSPARENCY_MAP
+    uniform sampler2D transparencyMap;
+  #endif
+
+  #if USE_TRANSPARENCYCOLOR_MAP
+    uniform sampler2D transparencyColorMap;
+  #endif
+
+  #if USE_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
+  #endif
+  #if USE_EMISSIVESCALE_MAP
+    uniform sampler2D emissiveScaleMap;
+  #endif
+
+  #if USE_OPACITY_MAP
+    #pragma define-meta ALPHA_SOURCE_CHANNEL options([r, g, b, a])
+    uniform sampler2D alphaSourceMap;
+  #endif
+
+  #if USE_NORMAL_MAP
+    uniform sampler2D normalMap;
+    #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
+  #endif
+
+  float discolor(vec3 srcColor) {
+    return dot(GRAY_VECTOR, srcColor);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+  {
+    vec4 baseColor = albedo;
+    #if USE_VERTEX_COLOR
+      baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
+      baseColor.a *= FSInput_vertexColor.a;
+    #endif
+
+    #if USE_ALBEDO_MAP
+      vec4 texColor = texture(albedoMap, TEXTURE_UV);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      baseColor = texColor;
+    #endif
+
+    #if USE_WEIGHT_MAP
+        vec4 weightColor = texture(baseWeightMap, TEXTURE_UV);
+        weightColor.rgb = SRGBToLinear(weightColor.rgb);
+        baseColor.rgb *= weightColor.rgb;
+    #else
+        baseColor.rgb *= albedoScale;
+    #endif
+    #if ALPHA_SOURCE_IS_OPACITY
+      #if USE_OPACITY_MAP
+        baseColor.a = 1.0 - texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+      #else
+        baseColor.a = 1.0 - alphaSource;
+      #endif
+    #else
+      #if USE_OPACITY_MAP
+        baseColor.a = texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+      #else
+        baseColor.a = alphaSource;
+      #endif
+    #endif
+    #if USE_ALPHA_TEST
+      if (baseColor.a < alphaThreshold) discard;
+    #endif
+    return baseColor;
+  }
+
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+      #if USE_ALPHA_TEST
+        float alpha = albedo.a;
+        #if USE_ALBEDO_MAP
+          alpha = texture(albedoMap, TEXTURE_UV).a;
+        #endif
+
+        #if ALPHA_SOURCE_IS_OPACITY
+          #if USE_OPACITY_MAP
+            alpha = 1.0 - texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+          #else
+            alpha = 1.0 - alphaSource;
+          #endif
+        #else
+          #if USE_OPACITY_MAP
+            alpha = texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+          #else
+            alpha = alphaSource;
+          #endif
+        #endif
+
+        if (alpha < alphaThreshold) discard;
+      #endif
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+  vec3 SurfacesFragmentModifyWorldNormal()
+  {
+    vec3 normal = FSInput_worldNormal;
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
+      normal = CalculateNormalFromTangentSpace(nmmp, normalStrength, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
+    #endif
+
+    return normalize(normal);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
+  vec3 SurfacesFragmentModifyEmissive()
+  {
+    //emissive color
+    vec3 emissiveColor = emissive.rgb;
+    #if USE_EMISSIVE_MAP
+        emissiveColor.rgb = SRGBToLinear(texture(emissiveMap, TEXTURE_UV).rgb);
+    #endif
+    //emissive color scale
+    #if USE_EMISSIVESCALE_MAP
+        vec4 emissiveScaleColor = texture(emissiveScaleMap, TEXTURE_UV);
+        emissiveScaleColor.rgb = SRGBToLinear(emissiveScaleColor.rgb);
+        emissiveColor.rgb *= emissiveScaleColor.rgb;
+    #else
+        emissiveColor.rgb *= emissiveScale;
+    #endif
+
+    return emissiveColor.rgb;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
+  vec4 SurfacesFragmentModifyPBRParams()
+  {
+    vec4 pbr = vec4(1.0,1.0,1.0,1.0);
+    //ao
+    float occlusionValue = 1.0;
+    #if USE_OCCLUSION_MAP
+       vec4 occlusionColor = texture(occlusionMap, TEXTURE_UV);
+       float occlusionColorValue = discolor(occlusionColor.rgb);
+       #if USE_OCCLUSION_CHANNEL
+           occlusionColor.rgb = SRGBToLinear(occlusionColor.rgb);
+           occlusionColorValue = occlusionColor.OCCLUSION_CHANNEL;
+       #endif
+       occlusionValue = mix(1.0, occlusionColorValue, occlusion);
+    #endif
+    pbr.x = occlusionValue;
+
+    //roughness
+    float roughnessValue = roughness;
+    #if USE_ROUGHNESS_MAP
+       vec4 roughnessColor = texture(roughnessMap, TEXTURE_UV);
+       roughnessValue = discolor(roughnessColor.rgb);
+       #if USE_ROUGHNESS_CHANNEL
+           roughnessColor.rgb = SRGBToLinear(roughnessColor.rgb);
+           roughnessValue = roughnessColor.ROUGHNESS_CHANNEL;
+       #endif
+    #endif
+    //fit specular ior=1.5
+    pbr.y = max(0.02, roughnessValue);
+
+    //metallic
+    float metallicValue = metallic;
+    #if USE_METALLIC_MAP
+       vec4 metallicColor = texture(metallicMap, TEXTURE_UV);
+       metallicValue = discolor(metallicColor.rgb);
+       #if USE_METALLIC_CHANNEL
+           metallicColor.rgb = SRGBToLinear(metallicColor.rgb);
+           metallicValue = metallicColor.METALLIC_CHANNEL;
+       #endif
+    #endif
+    pbr.z = metallicValue;
+
+    //specularIntensity
+    pbr.w = specularIntensity;
+    return pbr;
+  }
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-vs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-vertex>
+
+  // 4. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-vs>
+
+  // 5. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/vs>
+}%
+
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-to-shadowmap/vs>
+}%
+
+
+
+CCProgram standard-fs %{
+  // shading-model : standard
+  // lighting-model : standard (isotropy / anisotropy pbr)
+  // shader stage : fs
+  // technique usage/type : render-to-scene
+
+  precision highp float;
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-fs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-fragment>
+
+  // 4. lighting-model (optional)
+  #include <lighting-models/includes/standard>
+
+  // 5. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-fs>
+
+  // 6. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/fs>
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%

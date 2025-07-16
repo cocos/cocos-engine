@@ -1,0 +1,122 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs-easu
+      pass: post-process
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: zero
+    - vert: vs
+      frag: fs-rcas
+      pass: post-process
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: zero
+}%
+
+
+CCProgram vs %{
+  #include <./chunks/vs>
+}%
+
+CCProgram ubo %{
+    uniform PostUBO {
+        vec4 fsrParams;
+        vec4 texSize;
+    };
+    #pragma rate outputResultMap pass
+    uniform sampler2D outputResultMap;
+}%
+
+CCProgram fs-easu %{
+  precision highp float;
+
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/output-standard>
+  #include <unpack>
+
+  #include <./chunks/fsr>
+
+  in vec2 v_uv;
+  #include <ubo>
+
+  vec4 FsrRcasLoadF(vec2 p) {
+    vec4 color = texture(outputResultMap, p/texSize.zw);
+    // color = CCFragOutput(color);
+    return color;
+  }
+  vec3 FsrEasuCF(vec2 p) {
+    vec4 color = texture(outputResultMap, p);
+    // color = CCFragOutput(color);
+    return color.rgb;
+  }
+
+  layout(location = 0) out vec4 fragColor;
+  void main () {
+    vec3 c;
+    vec4 con0, con1, con2, con3;
+
+    // "rendersize" refers to size of source image before upscaling.
+    vec2 rendersize = texSize.xy;
+    FsrEasuCon(
+      con0, con1, con2, con3,
+      rendersize, rendersize, texSize.zw
+    );
+    FsrEasuF(c, gl_FragCoord.xy, con0, con1, con2, con3);
+    float alpha = texture(outputResultMap, v_uv).a;
+    fragColor = vec4(c.xyz, alpha);
+  }
+
+}%
+
+
+CCProgram fs-rcas %{
+  precision highp float;
+
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/output-standard>
+  #include <unpack>
+
+  #include <./chunks/fsr>
+
+  in vec2 v_uv;
+  #include <ubo>
+
+  vec4 FsrRcasLoadF(vec2 p) {
+    vec4 color = texture(outputResultMap, p/texSize.zw);
+    return color;
+  }
+  vec3 FsrEasuCF(vec2 p) {
+    vec4 color = texture(outputResultMap, p);
+    return color.rgb;
+  }
+
+  layout(location = 0) out vec4 fragColor;
+  void main () {
+    // Set up constants
+    float con;
+    FsrRcasCon(con, fsrParams.x);
+
+    // Perform RCAS pass
+    vec3 col = FsrRcasF(gl_FragCoord.xy, con);
+    float alpha = texture(outputResultMap, v_uv).a;
+    fragColor = vec4(col, alpha);
+  }
+}%

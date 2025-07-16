@@ -1,0 +1,14 @@
+in highp float v_dist;
+
+layout(location = 0) out vec4 fragColorX;
+
+void main () {
+  // better performance than SurfacesFragmentModifyBaseColorAndTransparency
+#ifdef CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  SurfacesFragmentAlphaClipOnly();
+#endif
+
+  if(v_dist < 0.0)
+    discard;
+  fragColorX = cc_shadowColor;
+}

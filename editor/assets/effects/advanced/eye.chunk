@@ -1,0 +1,169 @@
+#include <common/graph-expression/base>
+
+vec3 lerp_3Color(vec3 A, vec3 B, vec3 C, float alpha)
+{
+  float alpha1 = saturate(alpha * 2.0);
+  float alpha2 = saturate(alpha * 2.0 - 1.0);
+  vec3 AB = lerp(A, B, alpha1);
+  return lerp(AB, C, alpha2);
+}
+
+vec3 GetIrisUVMask(float IrisUVRadius)
+{
+  const float IrisBorderWidth = 0.04, IrisBleedWidth = 0.035, IrisMaskWidth = 0.045;
+
+  vec3 arg3_LimbusUVWidth = vec3(IrisBorderWidth, IrisBleedWidth, IrisMaskWidth);
+  float arg8_IrisUVRadius = IrisUVRadius * 0.03 + 0.15;
+  // vec3 out_IrisUVMask = Custom1(IrisUVRadius,UV,LimbusUVWidth)
+  {
+    float IrisUVRadiusTemp = arg8_IrisUVRadius;
+    vec2 UV = FSInput_texcoord;
+    vec3 LimbusUVWidth = arg3_LimbusUVWidth;
+    UV = UV - vec2(0.5, 0.5);
+
+    vec3 r = (vec3(length(UV)) - (vec3(IrisUVRadiusTemp) - LimbusUVWidth)) / LimbusUVWidth;
+    return smoothstep(0.0, 1.0, saturate(vec3(1.0) - r));
+  }
+}
+
+vec2 GetIrisUV(vec2 refractedUV, float IrisUVRadius, float PupilScale)
+{
+  // code between Refract->Parallax, for control pupil size
+  const float PupilShiftX = 0.0, PupilShiftY = 0.0, ScaleIrisWithinMask = 1.0;
+
+  float uvRadius = (IrisUVRadius*0.03+0.15) * 2.0;
+  vec2 UV1 = refractedUV - vec2(0.5);
+  vec2 UV =(UV1 / uvRadius) + vec2(0.5);
+
+  vec2 UVscaled;// = ScalePupils(UV,PupilScale1,PupilShiftX1,PupilShiftY1)
+  {
+    float ShiftMask = pow(saturate(-4.0 * (distance(vec2(0.5), UV) - 0.45)),0.7);
+    vec2 UVshifted = UV + vec2(PupilShiftX * (ShiftMask * -0.1), PupilShiftY * (ShiftMask * 0.1));
+    vec2 UVcentered = UVshifted - vec2(0.5, 0.5);
+    float UVlength = length(UVcentered);
+    // UV on circle at distance 0.5 from the center, in direction of original UV
+    vec2 UVmax = normalize(UVcentered) * 0.5;
+    UVscaled = lerp(UVmax, vec2(0.0, 0.0), saturate((1.0 - UVlength * 2.0) * PupilScale)) + vec2(0.5, 0.5);
+  }
+  float TextureScale = ScaleIrisWithinMask;
+  vec2 UVs_out;// = ScaleUVsByCenter(UVscaled,TextureScale)
+  {
+    UVs_out = (UVscaled - vec2(0.5)) * TextureScale + vec2(0.5);
+  }
+
+  return UVs_out;
+}
+
+vec3 GetGeneratedColorForIris(vec2 irisUV, sampler2D irisColorMap, float IrisColor1U, float IrisColor2U, float IrisColor1Bright, float IrisColor2Bright)
+{
+  //MF_irisGenerator
+  // custom pupil spherical scaling, should after refraction
+/*      vec2 centeredUV = (irisUV - vec2(0.5)) * 2.0;
+      float lengthUV = length(centeredUV);
+      vec2 dirUV = normalize(centeredUV);
+      irisUV = pow(lengthUV, pupilScale) * dirUV * 0.5 + vec2(0.5);
+*/
+  const float IrisColor1V = 0.3, IrisColor2V = 0.3, IrisColorValueVariation = 0.25, IrisColorHueVariation = 0.1;
+  const float IrisColorBalance = 0.5, IrisColorBalanceSmoothness = 0.5, IrisSaturationVariation = 0.25;
+  const float RadialStructuralBlendSwitch = 0.0, LimbusDarkAmount = 0.5, AOinIris = 0.7;
+
+  vec4 M_Tex = texture(irisColorMap/*T_Iris_A_M*/, irisUV);
+
+  vec2 uv1 = vec2(IrisColor2U - IrisColorHueVariation, IrisColor2V + IrisColorValueVariation);
+  vec2 uv2 = vec2(IrisColor2U + IrisColorHueVariation, IrisColor2V - IrisColorHueVariation);
+  vec2 uv3 = vec2(IrisColor1U - IrisColorHueVariation, IrisColor1V + IrisColorValueVariation);
+  vec2 uv4 = vec2(IrisColor1U + IrisColorHueVariation, IrisColor1V - IrisColorValueVariation);
+  vec3 col2 = SRGBToLinear(texture(irisGradientMap, vec2(IrisColor2U, IrisColor2V)).rgb) * IrisColor2Bright;
+  vec3 col2_hue1 = SRGBToLinear(texture(irisGradientMap, uv1).rgb) * IrisColor2Bright;
+  vec3 col2_hue2 = SRGBToLinear(texture(irisGradientMap, uv2).rgb) * IrisColor2Bright;
+  vec3 col1 = SRGBToLinear(texture(irisGradientMap, vec2(IrisColor1U, IrisColor1V)).rgb) * IrisColor1Bright;
+  vec3 col1_hue1 = SRGBToLinear(texture(irisGradientMap, uv3).rgb) * IrisColor1Bright;
+  vec3 col1_hue2 = SRGBToLinear(texture(irisGradientMap, uv4).rgb) * IrisColor1Bright;
+
+  float minValue = IrisColorBalance - IrisColorBalanceSmoothness;
+  float maxValue = IrisColorBalance + IrisColorBalanceSmoothness;
+  vec2 invMaskRB = vec2(1.0) - M_Tex.rb;
+  vec2 alphaRB = smoothstep(minValue, maxValue, invMaskRB);
+  float Fraction = lerp(-1.0, 1.0, M_Tex.r) * IrisSaturationVariation;
+  vec3 desat_col1 = Desaturation(lerp_3Color(col1_hue2, col1, col1_hue1, M_Tex.r), Fraction);
+  vec3 desat_col2 = Desaturation(lerp_3Color(col2_hue2, col2, col2_hue1, M_Tex.r), Fraction);
+  vec3 b = lerp(desat_col2, desat_col1, alphaRB.x);
+  vec3 a = lerp(desat_col2, desat_col1, alphaRB.y);
+  vec3 lerpedColor = lerp(a, b, RadialStructuralBlendSwitch) * M_Tex.a;
+  vec3 base = lerpedColor * lerp(1.0, M_Tex.g, AOinIris);
+
+  float radius = distance(irisUV - vec2(0.5), vec2(0.0));
+  float alpha = smoothstep(0.275, 0.5, radius);
+  return lerp(base, pow(base, vec3(LimbusDarkAmount + 1.0)), alpha);
+}
+
+vec3 GetBlendColorForIrisAndSclera(vec3 irisUVMask, vec3 irisGeneratedColor, sampler2D irisHeightMapAlpha, sampler2D scleraDiffuse, sampler2D T_Veins_D, vec3 scleraTintColor, float VeinsPower, float scleraBright)
+{
+  const float ScleraCornerDarkRadius = 0.6, ScleraCornerDarkHardness = 0.4, ScleraBrightness = 0.5, ScleraPower = 1.0, ScleraTintU = 0.2, ScleraTintV = 0.2, ScleraRotate = 0.0;
+  const float VeinsRotate = 0.0, IrisBrightness = 1.0, IrisSaturation = 0.5, CloudyIrisRadius = 0.13, CloudyIrisHardness = 0.0;
+  const vec4 ScleraCornerDarkColor = vec4(0.745,0.213,0.237,1), IrisBleedTint = vec4(1.0,1.0,1.0,1.0), CloudyIrisColor = vec4(0.009684,0.011247,0.015625,1.0);
+
+  float heightAlpha = texture(irisHeightMapAlpha, FSInput_texcoord).r;
+  vec2 scleraUV = Rotator(FSInput_texcoord,  vec2(0.5,0.5), heightAlpha * ScleraRotate, 6.283);
+  vec2 veinsUV = Rotator(FSInput_texcoord, vec2(0.5,0.5), heightAlpha * VeinsRotate, 6.283);
+  vec3 scleraTexColor = SRGBToLinear(texture(/*T_Sclera_D*/scleraDiffuse, scleraUV).rgb) * scleraBright;
+  vec3 veinsTexColor = SRGBToLinear(texture(T_Veins_D, veinsUV).rgb) * scleraBright;
+  // use fixed color for optimizing, scleraTintColor = texture(T_sclera_tint_picker, vec2(ScleraTintU,ScleraTintV)).rgb;
+  vec3 scleraColor = pow(scleraTexColor, vec3(ScleraPower))*ScleraBrightness*1.1 + vec3(0.8);
+  scleraColor *= scleraTintColor;
+  vec3 bleededScleraColor = lerp(scleraColor, IrisBleedTint.rgb * scleraColor, irisUVMask.g);
+  vec3 veinsColor = pow(veinsTexColor, vec3(VeinsPower));
+  vec3 ScleraColor = bleededScleraColor * veinsColor;
+
+  vec3 irisColor = Desaturation(irisGeneratedColor * IrisBrightness, (IrisSaturation - 0.5) * -2.0);
+  vec3 lerpedScleraAndIris = lerp(ScleraColor, irisColor, irisUVMask.r);
+  vec3 cloudyPupilAddColor = SphereMask(FSInput_texcoord, vec2(0.5), CloudyIrisRadius, CloudyIrisHardness) * CloudyIrisColor.rgb;
+
+  float scleraCornerDarkMask = SphereMask(FSInput_texcoord, vec2(0.5), ScleraCornerDarkRadius, ScleraCornerDarkHardness);
+  vec3 ScleraCorner = lerp(ScleraCornerDarkColor.rgb, vec3(1.0), scleraCornerDarkMask);
+  vec3 BaseColor = ScleraCorner * (cloudyPupilAddColor + lerpedScleraAndIris);
+  return BaseColor;
+}
+
+
+
+// unused
+// out_RefractedUV = GetRefractedUV(out_IrisUVMask, irisHeightMap, irisNormalMap, viewDir, IrisUVRadius, CONREAL_IOR);
+vec2 GetRefractedUV(vec3 irisUVMask, sampler2D irisHeightMap, sampler2D T_Eye_N, vec3 viewDir, float IrisUVRadius, float internalIoR)
+{
+  const float RefractionDepthScale = 1.2;
+  vec3 normalW = normalize(FSInput_worldNormal), cameraW = viewDir;
+  vec3 RefractionDirection;
+  // RefractionDirection = custom2(internalloR,normalW,cameraW)
+  {
+    float n = internalIoR;
+    float facing = dot(normalW, cameraW);
+    float w = n * facing;
+    float k = sqrt(1.0+(w-n)*(w+n));
+    vec3 t;
+    t = (w - k)*normalW - n*cameraW;
+    t = normalize(t);
+    RefractionDirection = -t;
+  }
+  float arg8_IrisUVRadius = IrisUVRadius * 0.03 + 0.15;
+  vec2 arg2_UV = FSInput_texcoord;
+  float arg4_DepthScale = RefractionDepthScale;
+  float arg5_DepthPlaneOffset = SampleTextureExr(irisHeightMap, vec2(arg8_IrisUVRadius + 0.5, 0.5)).r;
+  vec3 arg6_MidPlaneDisplacement = SampleTextureExr(irisHeightMap, FSInput_texcoord).rgb;
+  vec3 arg7_EyeDirectionWorld = TransformNormalMap(texture(T_Eye_N, FSInput_texcoord).rgb);
+  vec3 a5 = max(arg6_MidPlaneDisplacement -  arg5_DepthPlaneOffset, vec3(0.0)) * arg4_DepthScale;
+  float b5 = lerp(0.325, 1.0, dot(cameraW,arg7_EyeDirectionWorld) * dot(cameraW,arg7_EyeDirectionWorld));
+  vec3 heightW = a5 / b5;
+  vec3 b3 = RefractionDirection*heightW;
+  vec3 tangent = normalize(FSInput_worldTangent);
+  vec3 a3 = normalize(tangent - dot(tangent, arg7_EyeDirectionWorld) * arg7_EyeDirectionWorld);
+  vec3 a4 = cross(a3,arg7_EyeDirectionWorld);
+  vec3 b4 = b3;
+  vec2 b2 = vec2(dot(a3,b3),dot(a4,b4));
+  // float VectorLength = distance(vec2(0.0), vec2(arg8_IrisUVRadius*vec2(-1.0,1.0)*b2));
+  // float out_Transparency = VectorLength - arg8_IrisUVRadius;
+  vec2 a1 = arg2_UV;
+  vec2 b1 = vec2(arg8_IrisUVRadius) * vec2(-1.0,1.0)*b2 + arg2_UV;
+  float alpha1 = irisUVMask.r;
+  return lerp(a1,b1,alpha1);
+}

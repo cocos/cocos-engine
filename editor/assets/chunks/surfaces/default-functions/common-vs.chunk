@@ -1,0 +1,93 @@
+#ifndef CC_SURFACES_VERTEX_MODIFY_LOCAL_POS
+// depends on CC_SURFACES_VERTEX_MODIFY_LOCAL_POS
+vec3 SurfacesVertexModifyLocalPos(in SurfacesStandardVertexIntermediate In)
+{
+  // compatible issue: crash with vulkan + MI6
+  return vec3(In.position.xyz);
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_LOCAL_NORMAL
+// depends on CC_SURFACES_VERTEX_MODIFY_LOCAL_NORMAL
+vec3 SurfacesVertexModifyLocalNormal(in SurfacesStandardVertexIntermediate In)
+{
+  return In.normal.xyz;
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_LOCAL_TANGENT
+  #if CC_SURFACES_USE_TANGENT_SPACE
+// depends on CC_SURFACES_VERTEX_MODIFY_LOCAL_TANGENT
+  vec4 SurfacesVertexModifyLocalTangent(in SurfacesStandardVertexIntermediate In)
+    {
+      return In.tangent;
+    }
+  #endif
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_LOCAL_SHARED_DATA
+// depends on CC_SURFACES_VERTEX_MODIFY_LOCAL_SHARED_DATA
+// some vertex datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
+// this function invokes before world transform
+void SurfacesVertexModifyLocalSharedData(inout SurfacesStandardVertexIntermediate In)
+{
+}
+#endif
+
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_WORLD_POS
+// depends on CC_SURFACES_VERTEX_MODIFY_WORLD_POS
+vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
+{
+  return In.worldPos;
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_CLIP_POS
+// depends on CC_SURFACES_VERTEX_MODIFY_CLIP_POS
+vec4 SurfacesVertexModifyClipPos(in SurfacesStandardVertexIntermediate In)
+{
+  return In.clipPos;
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_UV
+// depends on CC_SURFACES_VERTEX_MODIFY_UV
+void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
+{
+//   In.texCoord = In.texCoord;
+// #if CC_SURFACES_USE_SECOND_UV
+//   In.texCoord1 = In.texCoord1;
+// #endif
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_WORLD_NORMAL
+// depends on CC_SURFACES_VERTEX_MODIFY_WORLD_NORMAL
+vec3 SurfacesVertexModifyWorldNormal(in SurfacesStandardVertexIntermediate In)
+{
+    vec3 worldNormal = In.worldNormal.xyz;
+  #if CC_SURFACES_USE_TWO_SIDED
+      worldNormal.xyz *= In.worldNormal.w;
+  #endif
+  return worldNormal;
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_SHADOW_BIAS
+// depends on CC_SURFACES_VERTEX_MODIFY_SHADOW_BIAS
+// shadow bias for submesh-level
+vec2 SurfacesVertexModifyShadowBias(in SurfacesStandardVertexIntermediate In, vec2 originShadowBias)
+{
+  return originShadowBias;
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_SHARED_DATA
+// depends on CC_SURFACES_VERTEX_MODIFY_SHARED_DATA
+// some vertex datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
+// this function invokes at last
+void SurfacesVertexModifySharedData(inout SurfacesStandardVertexIntermediate In)
+{
+}
+#endif

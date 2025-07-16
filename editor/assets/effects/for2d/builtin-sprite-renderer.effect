@@ -1,0 +1,56 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: default
+    passes:
+    - vert: spriteRender-vs:vert
+      frag: spriteRender-fs:frag
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram spriteRender-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+
+  in vec3 a_position;
+  in vec2 a_texCoord;
+
+  out vec2 uv0;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+
+    pos = cc_matViewProj * cc_matWorld * pos;
+
+    uv0 = vec2(a_texCoord.x, 1.0 - a_texCoord.y);
+
+    return pos;
+  }
+}%
+
+CCProgram spriteRender-fs %{
+  precision highp float;
+
+  in vec2 uv0;
+  #pragma builtin(local)
+  layout(set = 2, binding = 12) uniform sampler2D cc_spriteTexture;
+
+  vec4 frag () {
+    vec4 o = vec4(1, 1, 1, 1);
+
+    o *= texture(cc_spriteTexture, uv0);
+
+    return o;
+  }
+}%

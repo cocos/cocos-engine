@@ -1,0 +1,266 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs
+      pass: DeferredTAA0
+      rasterizerState: &rasterizerState
+        cullMode: none
+      blendState: &blendState
+        targets:
+          - blend: true
+            blendSrc: one
+            blendDst: zero
+      depthStencilState: &depthStencilState
+        depthTest: false
+        depthWrite: false
+    - vert: vs
+      frag: fs
+      pass: DeferredTAA1
+      rasterizerState: *rasterizerState
+      depthStencilState: *depthStencilState
+      blendState: *blendState
+    - vert: vs
+      frag: fs
+      pass: DeferredTAA-1
+      rasterizerState: *rasterizerState
+      depthStencilState: *depthStencilState
+      blendState: *blendState
+}%
+
+
+CCProgram vs %{
+  #include <./chunks/vs>
+}%
+
+
+CCProgram fs %{
+  precision highp float;
+
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/output-standard>
+
+  #include <unpack>
+
+  in vec2 v_uv;
+
+  uniform TaaUBO {
+    vec4 inputViewPort;
+    vec4 taaTextureSize;
+    vec4 taaParams1;      // xy: offset, z: feedback
+    mat4 taaPrevViewProj;
+  };
+
+  #pragma rate motionMaskTex
+  uniform highp sampler2D motionMaskTex;
+
+  #pragma rate inputTexture pass
+  uniform sampler2D inputTexture;
+  #pragma rate depthTex pass
+  uniform highp sampler2D depthTex;
+  #pragma rate taaPrevTexture pass
+  uniform sampler2D taaPrevTexture;
+
+  // screen position (0-1)
+  vec3 screen2WS(vec3 screenPos) {
+    vec4 ndc = vec4(screenPos.xyz * 2. - 1.0, 1.0);
+    vec4 world = cc_matViewProjInv * ndc;
+    world = world / world.w;
+    return world.xyz;
+  }
+
+  vec2 taaInputTexSize();
+  vec2 taaPrevTexSize();
+
+  vec3 Reinhard(in vec3 hdr) {
+    return hdr / (hdr + 1.0);
+  }
+  vec3 ReinhardInverse(in vec3 sdr) {
+    return sdr / max(1.0 - sdr, 1e-5);
+  }
+
+  // metal NDC y up while texture coord y down,
+  // keep ndc and texture coord same y direction.
+  vec2 NDCScToUV(vec4 ndc) {
+      ndc /= ndc.w;
+      vec2 uv = ndc.xy * 0.5 + 0.5;
+      float epsilon = cc_cameraPos.w - 1.0;
+      if ((epsilon > -0.1) && (epsilon < 0.1)) { // == 1.0
+          uv.y = -uv.y;
+      }
+      return uv;
+  }
+
+  vec2 getVelocity(vec2 unjittedUV, vec2 uv, out float depth) {
+    // vec3 worldPos = texture(posTex, uv).xyz;
+
+    // use unjitted depth for unjitter matrix
+    depth = texture(depthTex, unjittedUV).r;
+    vec3 worldPos = screen2WS(vec3(uv, depth));
+
+    if (abs(worldPos.x) < 0.0001 && abs(worldPos.y) < 0.0001) {
+      return vec2(0.);
+    }
+
+    vec4 historyNDC = taaPrevViewProj * vec4(worldPos, 1.);
+
+    vec2 screenPos = NDCScToUV(historyNDC);
+
+    return screenPos - uv;
+  }
+
+
+  vec4 clip_aabb(vec3 aabb_min, vec3 aabb_max, vec4 avg, vec4 input_texel) {
+    vec3 p_clip = 0.5 * (aabb_max + aabb_min);
+    vec3 e_clip = 0.5 * (aabb_max - aabb_min) + 5.960464478e-8;
+    vec4 v_clip = input_texel - vec4(p_clip, avg.w);
+    vec3 v_unit = v_clip.xyz / e_clip;
+    vec3 a_unit = abs(v_unit);
+    float ma_unit = max(a_unit.x, max(a_unit.y, a_unit.z));
+
+    if (ma_unit > 1.0)
+        return vec4(p_clip, avg.w) + v_clip / ma_unit;
+    else
+        return input_texel;
+  }
+
+  vec3 RGBToYCoCg( vec3 RGB ) {
+    float Y  = dot( RGB, vec3(  1, 2,  1 ) );
+    float Co = dot( RGB, vec3(  2, 0, -2 ) );
+    float Cg = dot( RGB, vec3( -1, 2, -1 ) );
+
+    return vec3( Y, Co, Cg );
+  }
+
+  vec3 YCoCgToRGB( vec3 YCoCg ) {
+    float Y  = YCoCg.x * 0.25;
+    float Co = YCoCg.y * 0.25;
+    float Cg = YCoCg.z * 0.25;
+
+    float R = Y + Co - Cg;
+    float G = Y + Cg;
+    float B = Y - Co - Cg;
+
+    return vec3( R, G, B );
+  }
+
+  vec4 taaSampleTex(sampler2D tex, vec2 uv) {
+      vec4 color = texture(tex, uv);
+
+      color.rgb = RGBToYCoCg(color.rgb);
+      // color.rgb = Reinhard(color.rgb);
+
+      return color;
+  }
+
+  void minmax(sampler2D mainTex, in vec2 uv, out vec4 colorMin, out vec4 colorMax) {
+    vec2 texSize = taaInputTexSize();
+
+    vec2 du = vec2(texSize.x, 0.0);
+    vec2 dv = vec2(0.0, texSize.y);
+
+    vec4 t = taaSampleTex(mainTex, uv - dv);
+    vec4 l = taaSampleTex(mainTex, uv - du);
+    vec4 c = taaSampleTex(mainTex, uv);
+    vec4 r = taaSampleTex(mainTex, uv + du);
+    vec4 b = taaSampleTex(mainTex, uv + dv);
+
+    colorMin = min(t, min(l, min(c, min(r, b))));
+    colorMax = max(t, max(l, max(c, max(r, b))));
+    // colorAvg = (t + l + c + r + b) / 5.0;
+  }
+
+  float HdrWeightY(float Color, float Exposure) {
+  	return 1. / (Color * Exposure + 4.0);
+    // return Color;
+  }
+
+  vec2 WeightedLerpFactors(float WeightA, float WeightB, float Blend) {
+  	float BlendA = (1.0 - Blend) * WeightA;
+  	float BlendB = Blend * WeightB;
+  	float RcpBlend = 1. / (BlendA + BlendB);
+  	BlendA *= RcpBlend;
+  	BlendB *= RcpBlend;
+  	return vec2(BlendA, BlendB);
+  }
+
+  vec4 temporalAAPS (sampler2D taaPrevTexture, sampler2D inputTexture, vec2 uv) {
+      vec2 unjittedUV = uv - taaParams1.xy / 2.;
+      vec2 scaledUnjittedUV = unjittedUV;
+      // vec2 scaledUnjittedUV = (uv - taaParams1.xy / 2.) * cc_view_pr_parameters.x;
+      // scaledUnjittedUV = min(vec2(cc_view_pr_parameters.x - taaInputTexSize()*2.), scaledUnjittedUV);
+
+      float depth = 0.;
+      vec2 velocity = getVelocity(scaledUnjittedUV, uv, depth);
+
+      vec4 prevColor = taaSampleTex(taaPrevTexture, uv + velocity);
+
+      vec4 color = taaSampleTex(inputTexture, scaledUnjittedUV);
+
+      vec4 colorMin, colorMax;
+      minmax(inputTexture, scaledUnjittedUV, colorMin, colorMax);
+
+      vec3 resultColor;
+
+      // clamp
+      {
+        // if (cc_view_taa_params2.y == 0. && cc_view_taa_params2.z == 1.) {
+          prevColor.rgb = clamp(prevColor.rgb, colorMin.rgb, colorMax.rgb);
+        // }
+
+        float blendFinal = 1. - taaParams1.z;
+
+        float currentWeight = HdrWeightY(color.x, 1.);
+        float historyWeight = HdrWeightY(prevColor.x, 1.);
+
+        vec2 weights = WeightedLerpFactors(historyWeight, currentWeight, blendFinal);
+        resultColor = prevColor.rgb * weights.x + color.rgb * weights.y;
+
+        // resultColor = mix(color.rgb, prevColor.rgb, blendFinal);
+      }
+
+      // clip
+      // {
+      //   prevColor = clip_aabb(colorMin.xyz, colorMax.xyz, colorAvg, prevColor);
+      //   resultColor = lerp(color.rgb, prevColor.rgb, cc_view_taa_params2.y);
+      // }
+
+      // if (cc_view_taa_params2.y != 0.) {
+      //   resultColor = prevColor.rgb;
+      // }
+
+      // resultColor = ReinhardInverse(resultColor);
+      resultColor = YCoCgToRGB(resultColor.rgb);
+
+      return vec4(resultColor, color.a);
+  }
+
+
+
+  layout(location = 0) out vec4 fragColor;
+
+  vec2 taaInputTexSize() {
+    return taaTextureSize.xy;
+  }
+  vec2 taaPrevTexSize () {
+    return taaTextureSize.zw;
+  }
+
+  void main () {
+    vec4 mask = vec4(0.);
+    #if USE_TAA_MASK
+      mask = texture(motionMaskTex, v_uv);
+    #endif
+
+    if (mask.r > 0.) {
+      fragColor = texture(inputTexture, v_uv);
+    }
+    else {
+      fragColor = temporalAAPS(taaPrevTexture, inputTexture, v_uv);
+    }
+  }
+
+}%
+

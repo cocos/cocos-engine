@@ -1,0 +1,29 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="org.khronos.openxr.permission.OPENXR" />
+    <uses-permission android:name="org.khronos.openxr.permission.OPENXR_SYSTEM" />
+    <queries>
+        <provider android:authorities="org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker" />
+
+        <package android:name="org.freedesktop.monado.openxr_runtime.in_process" />
+        <package android:name="com.rokid.mobile.air" />
+    </queries>
+
+    <application>
+        <meta-data
+            android:name="com.rokid.uxr.sdk.version"
+            android:value="10706" />
+        <meta-data
+            android:name="com.rokid.uxr.application.mode"
+            android:value="3d" />
+
+        <activity
+            android:name="com.cocos.game.AppActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.cocos.intent.category.XR" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

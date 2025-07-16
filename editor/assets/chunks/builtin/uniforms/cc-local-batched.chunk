@@ -1,0 +1,5 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#if !USE_INSTANCING
+  #include <builtin/uniforms/cc-local>
+#endif

@@ -1,0 +1,84 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+// float <--> RGBA8
+vec4 packDepthToRGBA (float depth) {
+  vec4 ret = vec4(1.0, 255.0, 65025.0, 16581375.0) * depth;
+  ret = fract(ret);
+  ret -= vec4(ret.yzw, 0.0) / 255.0;
+  return ret;
+}
+
+#pragma define unpackRGBAToDepth(color) dot(color, vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0))
+
+
+// float <--> binary bits, max 8bits per float
+#define UnpackBitFromFloat(value, bit) (mod(floor(value / pow(10.0, float(bit))), 10.0) > 0.0)
+
+
+// highp <--> 2 * mediump
+#pragma define DEFINE_PACK_HIGHP_FUNC(type) \
+highp type unpackHighpData (type mainPart, type modPart) {\
+  highp type data = mainPart;\
+  return data + modPart;\
+}\
+void packHighpData (out type mainPart, out type modPart, highp type data) {\
+  mainPart = fract(data);\
+  modPart = data - mainPart;\
+}\
+highp type unpackHighpData (type mainPart, type modPart, const float modValue) {\
+  highp type data = mainPart * modValue;\
+  return data + modPart * modValue;\
+}\
+void packHighpData (out type mainPart, out type modPart, highp type data, const float modValue) {\
+  highp type divide = data / modValue;\
+  mainPart = floor(divide);\
+  modPart = (data - mainPart * modValue) / modValue;\
+}
+
+DEFINE_PACK_HIGHP_FUNC(float)
+DEFINE_PACK_HIGHP_FUNC(vec2)
+DEFINE_PACK_HIGHP_FUNC(vec3)
+DEFINE_PACK_HIGHP_FUNC(vec4)
+
+// Use these macros to define and assign high precision values in fs structs, otherwise will loss precisions with android + webgl platform
+#pragma define HIGHP_VALUE_STRUCT_DEFINE(type, name) \
+#if CC_PLATFORM_ANDROID_AND_WEBGL && CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES\
+type name, name##_fract_part;\
+#else\
+type name;\
+#endif\
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+
+// used for large range such as position
+#pragma define HIGHP_VALUE_FROM_STRUCT_DEFINED(value, defined) \
+#if CC_PLATFORM_ANDROID_AND_WEBGL && CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES\
+value = unpackHighpData(defined, defined##_fract_part);\
+#else\
+value = defined;\
+#endif\
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+
+#pragma define HIGHP_VALUE_TO_STRUCT_DEFINED(value, defined) \
+#if CC_PLATFORM_ANDROID_AND_WEBGL && CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES\
+packHighpData(defined, defined##_fract_part, value);\
+#else\
+defined = value;\
+#endif\
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+
+// used for small range such as -1-1 normalized
+#pragma define HIGHP_VALUE_FROM_STRUCT_DEFINED_SMALL_RANGE(value, defined) \
+#if CC_PLATFORM_ANDROID_AND_WEBGL && CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES\
+value = unpackHighpData(defined, defined##_fract_part, 1000.0);\
+#else\
+value = defined;\
+#endif\
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+
+#pragma define HIGHP_VALUE_TO_STRUCT_DEFINED_SMALL_RANGE(value, defined) \
+#if CC_PLATFORM_ANDROID_AND_WEBGL && CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES\
+packHighpData(defined, defined##_fract_part, value, 1000.0);\
+#else\
+defined = value;\
+#endif\
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time

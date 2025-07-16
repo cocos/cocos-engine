@@ -1,0 +1,108 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: hbao-vs
+      frag: hbao-fs
+      pass: hbao-pass
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+    - vert: hbao-vs
+      frag: blurx-fs
+      pass: blurx-pass
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+    - vert: hbao-vs
+      frag: blury-fs
+      pass: blury-pass
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+    - vert: hbao-vs
+      frag: combine-fs
+      pass: combine-pass
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: zero
+          blendDst: src_alpha
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+}%
+
+CCProgram hbao-vs %{
+  #include <./chunks/vs>
+}%
+
+CCProgram hbao-fs %{
+  precision highp float;
+  #include <chunks/hbao>
+  #include <common/common-define>
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float ao = CalculateAO(v_uv);
+  	fragColor = vec4(ao, ao, ao, 1.0);
+  }
+}%
+
+CCProgram blurx-fs %{
+  precision highp float;
+  #include <chunks/hbao>
+  #include <common/common-define>
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float ao = BlurCore(v_uv, vec2(1.0, 0.0));
+  	fragColor = vec4(ao, ao, ao, 1.0);
+  }
+}%
+
+CCProgram blury-fs %{
+  precision highp float;
+  #include <chunks/hbao>
+  #include <common/common-define>
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float ao = BlurCore(v_uv, vec2(0.0, 1.0));
+  	fragColor = vec4(ao, ao, ao, 1.0);
+  }
+}%
+
+CCProgram combine-fs %{
+  precision highp float;
+  #include <chunks/hbao>
+  #include <common/common-define>
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float ao = Combine(v_uv);
+  	fragColor = vec4(1.0, 1.0, 1.0, ao);
+  }
+}%

@@ -1,0 +1,851 @@
+{
+    "$schema": "./cc.config.schema.json",
+    "features": {
+        "base": {
+            "modules": ["base"],
+            "dependentAssets": [
+                "970b0598-bcb0-4714-91fb-2e81440dccd8",
+                "bcd64cc6-2dd9-43f6-abbe-66318d332032",
+                "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
+                "a3cd009f-0ab0-420d-9278-b9fdab939bbc"
+            ]
+        },
+        "gfx-webgl": {
+            "modules": ["gfx-webgl"]
+        },
+        "gfx-webgl2": {
+            "modules": ["gfx-webgl2"]
+        },
+        "gfx-empty": {
+            "modules": ["gfx-empty"]
+        },
+        "gfx-webgpu": {
+            "modules": [
+                "gfx-webgpu"
+            ]
+        },
+        "3d": {
+            "modules": ["3d"],
+            "overrideConstants": {
+                "USE_3D": true
+            },
+            "dependentAssets": [
+                "511d2633-09a7-4bdd-ac42-f778032124b3",
+                "5d45aa00-e064-4938-b314-4265f0c2258c",
+                "9361fd90-ba52-4f84-aa93-6e878fd576ca"
+            ]
+        },
+        "animation": {
+            "modules": ["animation"]
+        },
+        "skeletal-animation": {
+            "modules": ["animation", "skeletal-animation"]
+        },
+        "2d": {
+            "modules": ["2d", "sorting"],
+            "dependentAssets": [
+                "60f7195c-ec2a-45eb-ba94-8955f60e81d0",
+                "1c02ae6f-4492-4915-b8f8-7492a3b1e4cd",
+                "810e96e4-e456-4468-9b59-f4e8f39732c0",
+                "efe8e2a3-eace-427b-b4f1-cb8a937ec77d",
+                "e9aa9a3e-5b2b-4ac7-a2c7-073de2b2b24f",
+                "8bbdbcdd-5cd4-4100-b6d5-b7c9625b6107",
+                "50f4348b-c883-4e2f-8f11-ce233b859fa1",
+                "fda095cb-831d-4601-ad94-846013963de8",
+                "f92806d7-1768-443f-afe8-12bcde84d0f0",
+                "dd3a144d-ab7f-41f0-82b8-2e43a090d496",
+                "f0416e68-0200-4b77-a926-4f9d16e494da"
+            ]
+        },
+        "rich-text": {
+            "modules": ["rich-text"],
+            "dependentModules": ["2d"]
+        },
+        "mask": {
+            "modules": ["mask"],
+            "dependentModules": ["2d"]
+        },
+        "graphics": {
+            "modules": ["graphics"],
+            "dependentModules": ["2d"]
+        },
+        "ui-skew": {
+            "modules": ["ui-skew"],
+            "overrideConstants": {
+                "USE_UI_SKEW": true
+            },
+            "dependentModules": ["2d"]
+        },
+        "ui": {
+            "modules": ["ui", "2d"]
+        },
+        "affine-transform": {
+            "modules": ["affine-transform"]
+        },
+        "sorting-2d": {
+            "modules": ["sorting-2d"],
+            "overrideConstants": {
+                "USE_SORTING_2D": true
+            },
+            "dependentModules": ["2d"]
+        },
+        "particle": {
+            "modules": ["particle"],
+            "dependentAssets": [
+                "d1346436-ac96-4271-b863-1f4fdead95b0",
+                "971bdb23-3ff6-43eb-b422-1c30165a3663",
+                "17debcc3-0a6b-4b8a-b00b-dc58b885581e",
+                "711ebe11-f673-4cd9-9a83-63c60ba54c5b",
+                "c0143906-9aed-447e-9436-2ae8512d1b6e",
+                "14da1725-c4c2-42b4-ab08-ee0aeb6898b3",
+                "081cab31-dccd-428e-8652-f2404cc81c47",
+                "78e0584a-4343-4727-8f37-e14e65c2a2db"
+            ]
+        },
+        "particle-2d": {
+            "modules": ["particle-2d"],
+            "dependentModules": ["2d"]
+        },
+        "physics-framework": {
+            "modules": ["physics-framework"]
+        },
+        "physics-cannon": {
+            "modules": ["physics-cannon", "physics-framework"],
+            "dependentAssets": ["ba21476f-2866-4f81-9c4d-6e359316e448"]
+        },
+        "physics-physx": {
+            "modules": ["physics-physx", "physics-framework"],
+            "dependentAssets": ["ba21476f-2866-4f81-9c4d-6e359316e448"]
+        },
+        "physics-ammo": {
+            "modules": ["physics-ammo", "physics-framework"],
+            "dependentAssets": ["ba21476f-2866-4f81-9c4d-6e359316e448"]
+        },
+        "physics-builtin": {
+            "modules": ["physics-builtin", "physics-framework"],
+            "dependentAssets": ["ba21476f-2866-4f81-9c4d-6e359316e448"]
+        },
+        "physics-2d-framework": {
+            "modules": ["physics-2d-framework"]
+        },
+        "physics-2d-box2d-jsb": {
+            "modules": ["physics-2d-box2d-jsb", "physics-2d-framework"]
+        },
+        "physics-2d-box2d": {
+            "modules": ["physics-2d-box2d", "physics-2d-framework"]
+        },
+        "physics-2d-builtin": {
+            "modules": ["physics-2d-builtin", "physics-2d-framework"]
+        },
+        "physics-2d-box2d-wasm": {
+            "modules": ["physics-2d-box2d-wasm", "physics-2d-framework"]
+        },
+        "intersection-2d": {
+            "modules": ["intersection-2d"]
+        },
+        "primitive": {
+            "modules": ["primitive"]
+        },
+        "profiler": {
+            "modules": ["profiler"],
+            "dependentAssets": ["871c3b6c-7379-419d-bda3-794b239ab90d"]
+        },
+        "occlusion-query": {
+            "modules": [],
+            "dependentAssets": ["d9937e59-61fe-4ec6-92ab-7ac5a19c89b0"]
+        },
+        "geometry-renderer": {
+            "modules": ["geometry-renderer"],
+            "dependentAssets": ["4bb480dd-8384-4bc9-987f-de67cc53052a"]
+        },
+        "debug-renderer": {
+            "modules": [],
+            "dependentAssets": [
+                "ff9be190-20a4-4e48-b68c-76e3c7cff085",
+                "0835f102-5471-47a3-9a76-01c07ac9cdb2",
+                "b5475517-23b9-4873-bc1a-968d96616081",
+                "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed",
+                "b23391b6-52eb-46a6-8da1-6244d9d315fb"
+            ]
+        },
+        "audio": {
+            "modules": ["audio"]
+        },
+        "video": {
+            "modules": ["video"]
+        },
+        "xr": {
+            "modules": ["xr"],
+            "overrideConstants": {
+                "USE_XR": true
+            }
+        },
+        "light-probe": { 
+            "modules": [ "light-probe" ] 
+        },
+        "terrain": {
+            "modules": ["terrain"],
+            "dependentAssets": ["1d08ef62-a503-4ce2-8b9a-46c90873f7d3"]
+        },
+        "webview": {
+            "modules": ["webview"]
+        },
+        "tween": {
+            "modules": ["tween"]
+        },
+        "tiled-map": {
+            "modules": ["tiled-map"],
+            "dependentModules": ["2d"]
+        },
+        "vendor-google": {
+            "modules": ["vendor-google"],
+            "intrinsicFlags": {
+                "USE_VENDOR_GOOGLE": true
+            }
+        },
+        "spine-3.8": {
+            "modules": ["spine"],
+            "dependentAssets": [
+                "c27215d8-6835-4b68-bfbb-bdeac6100c04",
+                "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
+            ],
+            "dependentModules": ["2d"],
+            "intrinsicFlags": {
+                "SPINE_3_8": true
+            }
+        },
+        "spine-4.2": {
+            "modules": ["spine"],
+            "dependentAssets": [
+                "c27215d8-6835-4b68-bfbb-bdeac6100c04",
+                "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
+            ],
+            "dependentModules": ["2d"],
+            "intrinsicFlags": {
+                "SPINE_4_2": true
+            }
+        },
+        "dragon-bones": {
+            "modules": ["dragon-bones"],
+            "dependentAssets":[ 
+                "c27215d8-6835-4b68-bfbb-bdeac6100c04",
+                "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
+            ],
+            "dependentModules": ["2d"]
+        },
+        "marionette": {
+            "modules": [],
+            "intrinsicFlags": {
+                "MARIONETTE": true
+            }
+        },
+        "procedural-animation": {
+            "modules": [],
+            "intrinsicFlags": {
+                "PROCEDURAL_ANIMATION": true
+            }
+        },
+        "custom-pipeline": {
+            "modules": ["custom-pipeline"],
+            "dependentAssets": [
+                "6a2d0734-bd9e-4ddf-946e-caa52498cb75"
+            ]
+        },
+        "custom-pipeline-builtin-scripts": {
+            "modules": [],
+            "dependentScripts": [
+                "ff9b0199-ce04-4cfe-86cc-6c719f08d6e4",
+                "de1c2107-70c8-4021-8459-6399f24d01c6",
+                "cbf30902-517f-40dc-af90-a550bac27cf1",
+                "5c601d96-e4c7-4698-991b-7ee674b11079"
+            ]
+        },
+        "custom-pipeline-post-process": {
+            "modules": ["custom-pipeline-post-process"],
+            "dependentAssets":[ 
+                "15049ccd-4dd7-451e-a8ae-af66735c929e",
+                "521c5f6e-1a26-42e2-8108-4400c912d9bf",
+                "4c3ce6de-e6d1-47f7-aa36-36b9b58f72d3",
+                "4361db28-3f24-44cc-8e51-32ee5fd651ac",
+                "cafd95c9-c558-46f9-9812-1224b65c09ee",
+                "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
+                "2df0a40b-26c2-47ce-be0d-4d3cd4164737",
+                "dace6a58-1705-48c7-a275-70afc9534e88",
+                "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
+                "39f74202-ead5-4a45-b966-273d526adbf1",
+                "8f6ac413-2f1e-4b88-b26f-54556b5dd510",
+                "45e7c0c8-2699-4912-b45f-d42bb8384189",
+                "84ac6f69-3086-455a-86a4-561da8ee710b",
+                "5c601d96-e4c7-4698-991b-7ee674b11079",
+                "bf0a6d94-58f0-4ad2-bdf2-c4a31c7dd856"
+            ],
+            "dependentModules": ["custom-pipeline"]
+        },
+        "legacy-pipeline": {
+            "modules": ["legacy-pipeline"],
+            "dependentScripts": [
+                "b2bd1fa7-8d7c-49c5-a158-df29a6d3a594"
+            ]
+        },
+        "websocket": {
+            "modules": [],
+            "isNativeOnly": true
+        },
+        "websocket-server": {
+            "modules": [],
+            "isNativeOnly": true
+        },
+        "meshopt": {
+            "modules": [],
+            "overrideConstants": {
+                "CULL_MESHOPT": false
+            }
+        }
+    },
+    "moduleOverrides": [{
+            "test": "true",
+            "isVirtualModule": true,
+            "overrides": {
+                "internal:native": "cocos/native-binding/impl.ts"
+            }
+        },
+        {
+            "test": "context.mode === 'BUILD'",
+            "isVirtualModule": false,
+            "overrides": {}
+        },
+        {
+            "test": "!context.buildTimeConstants.NATIVE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d-empty.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.NATIVE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/rendering/index.ts": "cocos/rendering/index.jsb.ts",
+                "cocos/rendering/render-pipeline.ts": "cocos/rendering/render-pipeline.jsb.ts",
+                "cocos/rendering/render-stage.ts": "cocos/rendering/render-stage.jsb.ts",
+                "cocos/rendering/geometry-renderer.ts": "cocos/rendering/geometry-renderer.jsb.ts",
+                "cocos/rendering/custom/index.ts": "cocos/rendering/custom/index.jsb.ts",
+                "cocos/rendering/legacy/index.ts": "cocos/rendering/legacy/index.jsb.ts",
+                "cocos/render-scene/core/native-pools.ts": "cocos/render-scene/core/native-pools.jsb.ts",
+                "cocos/render-scene/core/material-instance.ts": "cocos/render-scene/core/material-instance.jsb.ts",
+                "cocos/render-scene/core/pass.ts": "cocos/render-scene/core/pass.jsb.ts",
+                "cocos/render-scene/core/program-lib.ts": "cocos/render-scene/core/program-lib.jsb.ts",
+                "cocos/render-scene/core/render-window.ts": "cocos/render-scene/core/render-window.jsb.ts",
+                "cocos/render-scene/scene/camera.ts": "cocos/render-scene/scene/camera.jsb.ts",
+                "cocos/render-scene/scene/model.ts": "cocos/render-scene/scene/model.jsb.ts",
+                "cocos/render-scene/core/render-scene.ts": "cocos/render-scene/core/render-scene.jsb.ts",
+                "cocos/render-scene/scene/submodel.ts": "cocos/render-scene/scene/submodel.jsb.ts",
+                "cocos/render-scene/scene/index.ts": "cocos/render-scene/scene/index.jsb.ts",
+                "cocos/render-scene/scene/reflection-probe.ts": "cocos/render-scene/scene/reflection-probe.jsb.ts",
+                "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d.jsb.ts",
+                "cocos/gfx/base/pipeline-state.ts": "cocos/gfx/base/pipeline-state.jsb.ts",
+                "cocos/gfx/base/pipeline-sub-state.ts": "cocos/gfx/base/pipeline-sub-state.jsb.ts",
+                "cocos/gfx/index.ts": "cocos/gfx/index.jsb.ts",
+                "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
+                "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
+                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
+                "cocos/scene-graph/node.ts": "cocos/scene-graph/node.jsb.ts",
+                "cocos/scene-graph/scene.ts": "cocos/scene-graph/scene.jsb.ts",
+                "cocos/scene-graph/scene-globals.ts": "cocos/scene-graph/scene-globals.jsb.ts",
+                "cocos/scene-graph/index.ts": "cocos/scene-graph/index.jsb.ts",
+                "cocos/root.ts": "cocos/root.jsb.ts",
+                "cocos/asset/asset-manager/builtin-res-mgr.ts": "cocos/asset/asset-manager/builtin-res-mgr.jsb.ts",
+                "cocos/asset/assets/index.ts": "cocos/asset/assets/index.jsb.ts",
+                "cocos/asset/assets/asset.ts": "cocos/asset/assets/asset.jsb.ts",
+                "cocos/asset/assets/buffer-asset.ts": "cocos/asset/assets/buffer-asset.jsb.ts",
+                "cocos/asset/assets/render-texture.ts": "cocos/asset/assets/render-texture.jsb.ts",
+                "cocos/asset/assets/simple-texture.ts": "cocos/asset/assets/simple-texture.jsb.ts",
+                "cocos/asset/assets/scene-asset.ts": "cocos/asset/assets/scene-asset.jsb.ts",
+                "cocos/asset/assets/effect-asset.ts": "cocos/asset/assets/effect-asset.jsb.ts",
+                "cocos/asset/assets/image-asset.ts": "cocos/asset/assets/image-asset.jsb.ts",
+                "cocos/asset/assets/texture-base.ts": "cocos/asset/assets/texture-base.jsb.ts",
+                "cocos/asset/assets/texture-2d.ts": "cocos/asset/assets/texture-2d.jsb.ts",
+                "cocos/asset/assets/texture-cube.ts": "cocos/asset/assets/texture-cube.jsb.ts",
+                "cocos/asset/assets/material.ts": "cocos/asset/assets/material.jsb.ts",
+                "cocos/asset/assets/rendering-sub-mesh.ts": "cocos/asset/assets/rendering-sub-mesh.jsb.ts",
+                "cocos/3d/assets/mesh.ts": "cocos/3d/assets/mesh.jsb.ts",
+                "cocos/3d/assets/skeleton.ts": "cocos/3d/assets/skeleton.jsb.ts",
+                "cocos/3d/models/morph-model.ts": "cocos/3d/models/morph-model.jsb.ts",
+                "cocos/3d/models/skinning-model.ts": "cocos/3d/models/skinning-model.jsb.ts",
+                "cocos/3d/models/baked-skinning-model.ts": "cocos/3d/models/baked-skinning-model.jsb.ts",
+                "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts",
+                "cocos/gi/light-probe/light-probe.ts": "cocos/gi/light-probe/light-probe.jsb.ts",
+                "cocos/gi/light-probe/delaunay.ts": "cocos/gi/light-probe/delaunay.jsb.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/non-minigame.ts",
+                "pal/audio": "pal/audio/web/player.ts",
+                "pal/system-info": "pal/system-info/web/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
+                "pal/input": "pal/input/web/index.ts",
+                "pal/env": "pal/env/web/env.ts",
+                "pal/pacer": "pal/pacer/pacer-web.ts",
+                "pal/wasm": "pal/wasm/wasm-web.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.NATIVE",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/non-minigame.ts",
+                "pal/audio": "pal/audio/native/player.ts",
+                "pal/system-info": "pal/system-info/native/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
+                "pal/input": "pal/input/native/index.ts",
+                "pal/env": "pal/env/native/env.ts",
+                "pal/pacer": "pal/pacer/pacer-native.ts",
+                "pal/wasm": "pal/wasm/wasm-native.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
+                "pal/audio": "pal/audio/minigame/player.ts",
+                "pal/system-info": "pal/system-info/minigame/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
+                "pal/input": "pal/input/minigame/index.ts",
+                "pal/env": "pal/env/minigame/env.ts",
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "pal/wasm": "pal/wasm/wasm-minigame.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.RUNTIME_BASED",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/runtime.ts",
+                "pal/audio": "pal/audio/minigame/player.ts",
+                "pal/system-info": "pal/system-info/minigame/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
+                "pal/input": "pal/input/minigame/index.ts",
+                "pal/env": "pal/env/runtime/env.ts",
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "pal/wasm": "pal/wasm/wasm-minigame.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.NOT_PACK_PHYSX_LIBS",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
+            }
+        },
+        {
+            "test": "!context.buildTimeConstants.MARIONETTE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/animation/marionette/runtime-exports.ts": "cocos/animation/marionette/index-empty.ts"
+            }
+        },
+        {
+            "test": "!context.buildTimeConstants.PROCEDURAL_ANIMATION",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/animation/marionette/pose-graph/runtime-exports.ts": "cocos/animation/marionette/pose-graph/runtime-exports-empty.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.SPINE_3_8",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-3.8.ts",
+                "cocos/spine/lib/spine-instantiate.ts": "cocos/spine/lib/spine-instantiate-3.8.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.SPINE_4_2",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/spine/lib/spine-version.ts": "cocos/spine/lib/spine-version-4.2.ts",
+                "cocos/spine/lib/spine-instantiate.ts": "cocos/spine/lib/spine-instantiate-4.2.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.USE_VENDOR_GOOGLE",
+            "isVirtualModule": false,
+            "overrides": {
+                "vendor/google/index.ts": "vendor/google/impl.ts"
+            }
+        }
+    ],
+    "includes": [
+        "./exports/**/*.{ts,js,json}",
+        "./editor/exports/**/*.{ts,js,json}",
+        "./cocos/**/*.{ts,js,json}",
+        "./pal/**/*.{ts,js,json}"
+    ],
+
+    "constants": {
+        "HTML5": {
+            "comment": "Running in Web platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": true
+        },
+        "NATIVE": {
+            "comment": "Running in native platform (mobile app, desktop app, or simulator).",
+            "type": "boolean",
+            "value": "$ANDROID || $IOS || $MAC || $WINDOWS || $LINUX || $OHOS || $OPEN_HARMONY",
+            "internal": false,
+            "dynamic": true
+        },
+        "ANDROID": {
+            "comment": "Running in ANDROID platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "IOS": {
+            "comment": "Running in IOS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "MAC": {
+            "comment": "Running in MAC platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "WINDOWS": {
+            "comment": "Running in WINDOWS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "LINUX": {
+            "comment": "Running in LINUX platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },        
+        "OHOS": {
+            "comment": "Running in OHOS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "OPEN_HARMONY": {
+            "comment": "Running in OPEN_HARMONY platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "WECHAT": {
+            "comment": "Running in the Wechat's mini game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "WECHAT_MINI_PROGRAM": {
+            "comment": "Running in the Wechat's mini program.",
+            "type": "boolean",
+            "value": false,
+            "internal": false
+        },
+        "XIAOMI": {
+            "comment": "Running in the xiaomi's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "ALIPAY": {
+            "comment": "Running in the alipay's mini game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "TAOBAO": {
+            "comment": "Running in the taobao creative app.",
+            "type": "boolean",
+            "value": false,
+            "internal": false
+        },
+        "TAOBAO_MINIGAME": {
+            "comment": "Running in the taobao mini game.",
+            "type": "boolean",
+            "value": false,
+            "internal": false
+        },
+        "BYTEDANCE": {
+            "comment": "Running in the ByteDance's mini game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "OPPO": {
+            "comment": "Running in the oppo's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "VIVO": {
+            "comment": "Running in the vivo's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "HUAWEI": {
+            "comment": "Running in the huawei's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "MIGU": {
+            "comment": "Running in the migu's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "HONOR": {
+            "comment": "Running in the honor's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "COCOS_RUNTIME": {
+            "comment": "Running in the cocos runtime.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "EDITOR": {
+            "comment": "Running in the editor.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "EDITOR_NOT_IN_PREVIEW" : {
+            "comment": "Run in editor but not in editor preview.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": false,
+            "internal": false,
+            "dynamic": true
+        },
+        "PREVIEW": {
+            "comment": "Preview in browser or simulator.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "BUILD": {
+            "comment": "Running in published project.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "TEST": {
+            "comment": "Running in the engine's unit test.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+
+        "DEBUG": {
+            "comment": "Running debug mode.",
+            "type": "boolean",
+            "value": true,
+            "ccGlobal": true,
+            "internal": false
+        },
+
+        "SERVER_MODE": {
+            "comment": "Running in the server mode.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "DEV": {
+            "comment": "Running in the editor or preview.",
+            "type": "boolean",
+            "value": "$EDITOR || $PREVIEW || $TEST",
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "MINIGAME": {
+            "comment": "Running in mini game.",
+            "type": "boolean",
+            "value": "$WECHAT || $WECHAT_MINI_PROGRAM || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
+            "ccGlobal": true,
+            "internal": false
+        },
+        "RUNTIME_BASED": {
+            "comment": "Running in runtime based environment.",
+            "type": "boolean",
+            "value": "$OPPO || $VIVO || $HUAWEI || $MIGU || $HONOR || $COCOS_RUNTIME",
+            "ccGlobal": true,
+            "internal": false
+        },
+        "SUPPORT_JIT": {
+            "comment": "Support JIT.",
+            "type": "boolean",
+            "value": "!(($PREVIEW && !$NATIVE) || $MINIGAME || $RUNTIME_BASED || $OPEN_HARMONY)",
+            "ccGlobal": true,
+            "internal": false
+        },
+        "JSB": {
+            "comment": "Running in environment where using JSB as the JavaScript interface binding scheme.",
+            "type": "boolean",
+            "value": "$NATIVE",
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "NOT_PACK_PHYSX_LIBS": {
+            "comment": "This is an internal constant to determine whether pack physx libs.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "NET_MODE": {
+            "comment": "The network access mode.\n- 0 Client\n- 1 ListenServer\n- 2 HostServer",
+            "type": "number",
+            "value": 0,
+            "internal": false
+        },
+        "WEBGPU": {
+            "comment": "Running with webgpu rendering backend.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "NATIVE_CODE_BUNDLE_MODE": {
+            "comment": "Native code (wasm/asmjs) bundle mode, 0: asmjs, 1: wasm, 2: both",
+            "type": "number",
+            "value": 2, 
+            "internal": true
+        },
+        "WASM_SUBPACKAGE": {
+            "comment": "An internal constant to indicate whether we use wasm assets as minigame subpackage.\nThis is useful when we need to reduce code size.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "CULL_MESHOPT": {
+            "comment": "An internal constant to indicate whether we cull the meshopt wasm module and asm.js module.",
+            "type": "boolean",
+            "value": true,
+            "internal": true
+        },
+        "LOAD_SPINE_MANUALLY": {
+            "comment": "An internal constant to indicate whether we need to load spine wasm/asmjs module manually.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "LOAD_BOX2D_MANUALLY": {
+            "comment": "An internal constant to indicate whether we need to load box2d wasm/asmjs module manually.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "LOAD_BULLET_MANUALLY": {
+            "comment": "An internal constant to indicate whether we need to load bullet wasm/asmjs module manually.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "LOAD_PHYSX_MANUALLY": {
+            "comment": "An internal constant to indicate whether we need to load physx wasm/asmjs module manually.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "USE_3D": {
+            "comment": "An internal constant to indicate whether we're using 3d module.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "USE_UI_SKEW": {
+            "comment": "An internal constant to indicate whether we're using ui-skew module.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "USE_XR": {
+            "comment": "An internal constant to indicate whether we're using xr module.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "USE_SORTING_2D": {
+            "comment": "An internal constant to indicate whether we're using sorting-2d module.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        }
+    },
+
+    "optimizeDecorators": {
+        "fieldDecorators": [
+            "property", "serializable", "formerlySerializedAs", "editorOnly", "uniquelyReferenced",
+            "type", "override", "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help",
+            "editable", "visible", "readOnly", "displayName", "tooltip", "group", "range", "rangeMin",
+            "rangeMax", "rangeStep", "slide", "displayOrder", "unit", "radian", "multiline", "disallowAnimation",
+            "requireComponent", "executionOrder", "disallowMultiple", "allowReplicated", "ccclass"
+        ],
+        
+        "editorDecorators": [
+            "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help", "editable", "visible",
+            "readOnly", "displayName", "tooltip", "group", "range", "rangeMin", "rangeMax", "rangeStep", "slide",
+            "displayOrder", "unit", "radian", "multiline", "disallowAnimation"
+        ]
+    },
+
+    "treeShake": {
+        "noSideEffectFiles": [
+            "cocos/sorting/sorting-layers.ts",
+            "cocos/xr/event/xr-event-handle.ts",
+            "cocos/xr/xr-enums.ts",
+            "cocos/serialization/instantiate-jit.ts",
+            "cocos/game/splash-screen.ts",
+            "cocos/core/utils/jsb-utils.ts",
+            "cocos/asset/asset-manager/weak-cache.ts",
+            "cocos/2d/framework/ui-skew-utils.ts",
+            "cocos/spine/lib/spine-binary.ts",
+            "pal/input/minigame/gamepad-input.ts",
+            "pal/input/minigame/handheld-input.ts",
+            "pal/input/minigame/handle-input.ts",
+            "pal/input/minigame/hmd-input.ts"
+        ]
+    }
+}

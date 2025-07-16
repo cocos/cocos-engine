@@ -1,0 +1,4 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma builtin(local)
+layout(set = 2, binding = 12) uniform sampler2D cc_spriteTexture;

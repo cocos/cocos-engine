@@ -1,0 +1,13 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma builtin(local)
+layout(set = 2, binding = 0) uniform CCLocal {
+  highp mat4 cc_matWorld;
+  highp mat4 cc_matWorldIT;
+  highp vec4 cc_lightingMapUVParam;
+  highp vec4 cc_localShadowBias; // x:shadow bias, y:shadow normal bias, z: reflection probe id, w: blend reflection probe id
+  highp vec4 cc_reflectionProbeData1; // xyzw: plane                      or xyz: cube center
+  highp vec4 cc_reflectionProbeData2; // x: planar reflection depth scale or xyz: cube box half size, w: isRGBE(1000) and mipCount
+  highp vec4 cc_reflectionProbeBlendData1; //xyz: blend cube center w:blend weight
+  highp vec4 cc_reflectionProbeBlendData2; //xyz: blend cube box half size, w: isRGBE(1000) and mipCount
+};

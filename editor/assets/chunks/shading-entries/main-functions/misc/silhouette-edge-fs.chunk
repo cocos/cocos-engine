@@ -1,0 +1,17 @@
+layout(location = 0) out vec4 fragColorX;
+
+void main () {
+  // for alpha clip
+  vec4 color = SurfacesFragmentModifyBaseColorAndTransparency();
+
+  //#uniformStyle need sync here
+
+  // Color output
+  #if CC_USE_RGBE_OUTPUT
+    color = packRGBE(color.rgb);
+  #elif !CC_USE_FLOAT_OUTPUT
+    color.rgb = LinearToSRGB(color.rgb);
+  #endif
+
+  fragColorX = color;
+}

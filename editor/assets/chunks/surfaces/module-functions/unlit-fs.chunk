@@ -1,0 +1,95 @@
+#include <common/lighting/brdf>
+
+// Surface
+void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
+{
+  HIGHP_VALUE_TO_STRUCT_DEFINED(FSInput_worldPos, surfaceData.worldPos);
+
+  surfaceData.baseColor = SurfacesFragmentModifyBaseColorAndTransparency();
+  SurfacesFragmentModifySharedData(surfaceData);
+
+#if CC_USE_DEBUG_VIEW
+  if (!IS_DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO)
+  {
+      surfaceData.baseColor.rgb = vec3(1.0);
+  }
+#endif
+}
+
+// Intrinsic function, make connection of material data and lighting data
+vec3 CCSurfacesGetDiffuseColor(in SurfacesMaterialData surfaceData)
+{
+  return surfaceData.baseColor.rgb;
+}
+vec3 CCSurfacesGetSpecularColor(in SurfacesMaterialData surfaceData)
+{
+  return vec3(0.0);
+}
+
+// Diffuse/Specular Color with BRDF lighting preparation
+void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+{
+  diffuseColorWithLighting = CCSurfacesGetDiffuseColor(surfaceData);
+  specularColorWithLighting = CCSurfacesGetSpecularColor(surfaceData).xyz;
+}
+// Update two colors with BRDF which depend on lights (optional)
+void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+{
+}
+
+
+#if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED
+  vec4 CCSurfacesDeferredOutputBaseColor(in SurfacesMaterialData surfaceData)
+  {
+    return surfaceData.baseColor;
+  }
+  vec4 CCSurfacesDeferredOutputNormalMR(in SurfacesMaterialData surfaceData)
+  {
+    return vec4(float32x3_to_oct(vec3(0.0, 1.0, 0.0)), 0.0, 0.0);
+  }
+  vec4 CCSurfacesDeferredOutputEmissiveAO(in SurfacesMaterialData surfaceData)
+  {
+    return vec4(0.0, 0.0, 0.0, 1.0);
+  }
+#endif
+
+
+// Shading
+vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult lightingResult)
+{
+  vec4 color = surfaceData.baseColor;
+#if CC_FORWARD_ADD
+  color.xyz = vec3(0.0);
+#endif
+
+  return color;
+}
+
+
+// Debug view
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
+bool CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
+{
+    bool enableMaterialAlpha = true;
+    vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
+    float scalar;
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSPARENCY)) {
+        scalar = surfaceData.baseColor.a;
+        color = vec4(scalar, scalar, scalar, 1.0);
+        enableMaterialAlpha = false;
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
+        color = vec4(LinearToSRGB(surfaceData.baseColor.rgb), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR))
+        color = vec4(LinearToSRGB(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR))
+        color = vec4(LinearToSRGB(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
+
+    return enableMaterialAlpha;
+}
+#endif
+
+#include <lighting-models/lighting-flow/unlit-flow>

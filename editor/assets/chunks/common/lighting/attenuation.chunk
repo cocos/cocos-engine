@@ -1,0 +1,60 @@
+// base
+float SmoothDistAtt2 (float distSqr, float invSqrAttRadius) {
+  float factor = distSqr * invSqrAttRadius; // ^2
+  float factor2 = factor * factor; // ^4
+  float factor3 = factor2 * factor2; // ^8
+  float smoothFactor = clamp(1.0 - factor3 * factor3, 0.0, 1.0);
+  return smoothFactor * smoothFactor;
+}
+
+float SmoothDistAtt (float distSqr, float invSqrAttRadius) {
+  float factor = distSqr * invSqrAttRadius;
+  float smoothFactor = clamp(1.0 - factor * factor, 0.0, 1.0);
+  return smoothFactor * smoothFactor;
+}
+
+float GetDistAtt (float distSqr, float invSqrAttRadius) {
+  float attenuation = 1.0 / max(distSqr, 0.01*0.01);
+  attenuation *= SmoothDistAtt(distSqr , invSqrAttRadius);
+  return attenuation;
+}
+
+float GetAngleAtt (vec3 L, vec3 litDir, float litAngleScale, float litAngleOffset) {
+  float cd = dot(litDir, L);
+  float attenuation = clamp(cd * litAngleScale + litAngleOffset, 0.0, 1.0);
+  return (attenuation * attenuation);
+}
+
+
+float GetOutOfRange (vec3 worldPos, vec3 lightPos, vec3 lookAt, vec3 right, vec3 BoundingHalfSizeVS) {
+  vec3 v = vec3(0.0);
+  vec3 up = cross(right, lookAt);
+  worldPos -= lightPos;
+  v.x = dot(worldPos, right);
+  v.y = dot(worldPos, up);
+  v.z = dot(worldPos, lookAt);
+  vec3 result = step(abs(v), BoundingHalfSizeVS);
+  return result.x * result.y * result.z;
+}
+
+// advanced
+float CalculateDistanceAttenuation(float distToLightSqr, float lightRadius, float lightRange, float lightType)
+{
+  // physical attenuation
+  float attRadiusSqrInv = 1.0 / max(lightRange, 0.01);
+  attRadiusSqrInv *= attRadiusSqrInv;
+
+  // artical soft edge fading
+  float litRadiusSqr = lightRadius * lightRadius;
+  float edgeAttenuation = (IS_POINT_LIGHT(lightType) || IS_RANGED_DIRECTIONAL_LIGHT(lightType)) ? 1.0 : litRadiusSqr / max(litRadiusSqr, distToLightSqr);
+
+  return GetDistAtt(distToLightSqr, attRadiusSqrInv) * edgeAttenuation;
+}
+
+float CalculateAngleAttenuation(vec3 spotLightDir, vec3 L, float cosAngleOuter)
+{
+  float cosInner = max(dot(spotLightDir, L), 0.01);
+  float litAngleScale = 1.0 / max(0.001, cosInner - cosAngleOuter);
+  float litAngleOffset = -cosAngleOuter * litAngleScale;
+  return GetAngleAtt(L, spotLightDir, litAngleScale, litAngleOffset);
+}

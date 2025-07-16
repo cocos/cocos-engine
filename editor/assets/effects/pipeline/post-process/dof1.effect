@@ -1,0 +1,106 @@
+// Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+techniques:
+  - passes:
+      - vert: dof-vs
+        frag: dof-blur-fs
+        pass: cc-dof-blur
+        depthStencilState:
+          depthTest: false
+          depthWrite: false
+      - vert: dof-vs
+        frag: dof-coc-fs
+        pass: cc-dof-coc
+        depthStencilState:
+          depthTest: false
+          depthWrite: false
+
+}%
+
+CCProgram ubo %{
+#include <common/common-define>
+
+#define focusDistance params.x
+#define focusRange params.y
+#define blurRadius params.z
+}%
+CCProgram dof-vs %{
+#include <./chunks/vs1>
+}%
+
+CCProgram dof-blur-fs %{
+precision highp float;
+#pragma rate DofUBO pass
+uniform DofUBO {
+  vec4 blurParams;
+  vec4 mainTexTexelSize;
+};
+layout(location = 0)out vec4 fragColor;
+#pragma rate screenTex pass
+uniform sampler2D screenTex;
+in vec2 v_uv;
+vec4 blur(sampler2D image, vec2 uv) {
+  vec4 color = vec4(0.0);
+  vec2 resolution = mainTexTexelSize.zw;
+  vec2 off1 = vec2(1.411764705882353);
+  vec2 off2 = vec2(3.2941176470588234);
+  vec2 off3 = vec2(5.176470588235294);
+  color += texture(image, uv) * 0.1964825501511404;
+  color += texture(image, uv + (off1 / resolution)) * 0.2969069646728344;
+  color += texture(image, uv - (off1 / resolution)) * 0.2969069646728344;
+  color += texture(image, uv + (off2 / resolution)) * 0.09447039785044732;
+  color += texture(image, uv - (off2 / resolution)) * 0.09447039785044732;
+  color += texture(image, uv + (off3 / resolution)) * 0.010381362401148057;
+  color += texture(image, uv - (off3 / resolution)) * 0.010381362401148057;
+  return color;
+}
+void main() {
+  vec4 pixelOffset = vec4(-1.0, - 1.0, 1.0, 1.0);
+  vec4 offsets = mainTexTexelSize.xyxy * pixelOffset * blurParams.z;
+  vec4 outColor = blur(screenTex, v_uv + offsets.xy);
+  outColor += blur(screenTex, v_uv + offsets.zy);
+  outColor += blur(screenTex, v_uv + offsets.xw);
+  outColor += blur(screenTex, v_uv + offsets.zw);
+  fragColor = outColor * blurParams.w * 0.25;
+}
+}%
+
+CCProgram dof-coc-fs %{
+precision highp float;
+#include <./chunks/depth>
+
+layout(location = 0)out vec4 fragColor;
+in vec2 v_uv;
+#pragma rate screenTex pass
+uniform sampler2D screenTex;
+#pragma rate colorTex pass
+uniform sampler2D colorTex;
+#pragma rate DofCocUBO pass
+uniform DofCocUBO {
+  mat4 proj;
+  mat4 invProj;
+  mat4 viewMatInv;
+  vec4 focus;
+  vec4 cocParams;
+};
+void main() {
+  vec4 blurPixel = texture(colorTex, v_uv);
+  vec4 screenPixel = texture(screenTex, v_uv);
+  float depth = GetDepthFromTex(v_uv);
+  #if __VERSION__ < 450
+    depth = 2.0 * depth - 1.0;
+  #endif
+  vec4 screenPos = vec4(v_uv.x * 2.0 - 1.0, v_uv.y * 2.0 - 1.0, depth, 1.0);
+  vec4 viewPos = invProj * screenPos;
+  viewPos /= viewPos.w;
+  vec4 worldPos = viewMatInv * viewPos;
+  float blur =
+  smoothstep
+  (cocParams.x
+    , cocParams.y
+    , length(worldPos - vec4(focus.xyz, 1.0))
+  );
+  fragColor = mix(screenPixel, blurPixel, blur);
+  
+}
+}%

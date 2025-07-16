@@ -1,0 +1,62 @@
+
+// saturated N dot V
+// for env reflection with dielectric(non-metal) and smooth surfaces
+float CalculateFresnelCoefficient(float ior, float NoVSat)
+{
+	float g, c, n, prev, next;
+	n = ior;
+	c = ior * NoVSat;
+	g = sqrt(1.0 + c * c - c);
+	prev = (g - c) / (g + c);
+	next = (c * (g+c) - n*n) / (c * (g-c) + n*n);
+	prev *= prev;
+	next *= next;
+	return 0.5 * prev * (1.0 + next);
+}
+
+// for arbitary smooth surfaces
+float CalculateFresnelCoefficient(float F0, float F90, float NoVSat)
+{
+  return mix(F90, F0, NoVSat);
+}
+
+vec3 CalculateScattering(vec3 unscatteredColor, float distance, float outScatterExtinctCoef, float inScatterExtinctCoef, float inScatterCoef, vec3 inScatterColor, vec3 outScatterColor)
+{
+  vec2 e = vec2(outScatterExtinctCoef, inScatterExtinctCoef * inScatterCoef);
+  vec2 extinction = exp(-e * distance);
+  vec3 inScattered = (1.0 - extinction.y) * inScatterColor;
+  vec3 outScattered = unscatteredColor * extinction.x * outScatterColor;
+  return outScattered + inScattered;
+}
+
+
+// LastLayerF for temporary use
+// S is spec without GF
+void InitializeLayerBlending(out vec3 blendedBaseLayerD, out vec3 blendedBaseLayerS,
+                             out vec3 blendedSubLayerD, out vec3 blendedSubLayerS,
+                             out vec3 lastLayerF,
+                             in vec3 baseD, in vec3 baseS
+                             )
+{
+  blendedBaseLayerD = baseD;
+  blendedBaseLayerS = baseS;
+  blendedSubLayerD = blendedSubLayerS = vec3(0.0);
+  lastLayerF = vec3(1.0);
+}
+
+// use subLayerF instead of subLayerGF for ior-dependent 0-1 range
+void CalculateLayerBlending(inout vec3 blendedBaseLayerD, inout vec3 blendedBaseLayerS,
+                            inout vec3 blendedSubLayerD, inout vec3 blendedSubLayerS,
+                            inout vec3 lastLayerF,
+                            in vec3 subLayerD, in vec3 subLayerDiffuseColor,
+                            in vec3 subLayerS, in vec3 subLayerSpecularColor,
+                            in float subLayerOpacity, inout vec3 subLayerF
+                            )
+{
+  subLayerF = saturate(subLayerF * subLayerOpacity);
+  blendedSubLayerD = blendedSubLayerD * (vec3(1.0) - lastLayerF) + subLayerD * subLayerDiffuseColor * subLayerF;
+  blendedSubLayerS = blendedSubLayerS *(vec3(1.0) - lastLayerF) + subLayerS * subLayerSpecularColor * subLayerF;
+  blendedBaseLayerD *= vec3(1.0) - subLayerF;
+  blendedBaseLayerS *= vec3(1.0) - subLayerF;
+  lastLayerF = subLayerF;
+}

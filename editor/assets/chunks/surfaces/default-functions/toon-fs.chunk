@@ -1,0 +1,34 @@
+#include <surfaces/default-functions/standard-fs>
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TOONSHADE
+// depends on CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TOONSHADE
+void SurfacesFragmentModifyBaseColorAndToonShade(out vec4 baseColorAndTransparency, out vec3 shade1, out vec3 shade2, in vec3 baseColor)
+{
+    baseColorAndTransparency = FSInput_vertexColor;
+    shade1 = shade2 = vec3(0.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TOON_STEP_AND_FEATHER
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TOON_STEP_AND_FEATHER
+vec4 SurfacesFragmentModifyToonStepAndFeather()
+{
+    return vec3(0.8, 0.001, 0.5, 0.001);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TOON_SHADOW_COVER
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TOON_SHADOW_COVER
+float SurfacesFragmentModifyToonShadowCover()
+{
+    return 0.5;
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TOON_SPECULAR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TOON_SPECULAR
+vec4 SurfacesFragmentModifyToonSpecular()
+{
+    return vec4(1.0, 1.0, 1.0, 0.3);
+}
+#endif

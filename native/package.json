@@ -1,0 +1,31 @@
+{
+  "name": "cocos-engine-native",
+  "description": "Native implementation of Cocos Creator.",
+  "main": "gulpfile.js",
+  "scripts": {
+    "clear-platform": "node ./utils/clear-platform.js"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "@types/fs-extra": "^9.0.1",
+    "async": "^2.6.1",
+    "del": "^6.0.0",
+    "fs-extra": "^9.0.0",
+    "tmp": "^0.2.1",
+    "yargs": "^15.3.1",
+    "which": "^2.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cocos/cocos-engine.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cocos/cocos-engine/issues"
+  },
+  "homepage": "https://github.com/cocos/cocos-engine#readme",
+  "dependencies": {
+    "@types/node": "^14.0.27"
+  }
+}

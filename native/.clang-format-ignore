@@ -1,0 +1,5 @@
+# ignore third_party code from clang-format checks
+./cocos/bindings/auto/*
+./cocos/gi/light-probe/predicates.cpp
+./cocos/gi/light-probe/tetgen.cpp
+./cocos/gi/light-probe/tetgen.h

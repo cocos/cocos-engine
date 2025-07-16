@@ -1,0 +1,48 @@
+name: run test cases PR comment
+on:
+  workflow_run:
+    workflows: ["run test cases"]
+    types:
+    - completed
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  post-pr-comment:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          merge-multiple: true
+          path: ./artifacts
+
+      - name: Display structure of downloaded files
+        run: |
+          ls -R ./artifacts
+          
+      - name: Set PR environment variable
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const pr = Number(fs.readFileSync('./artifacts/pr.txt', 'utf8'));
+            core.exportVariable('PR_NUMBER', pr);
+
+      - name: Update Mac Comment
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        with:
+          issue-number: ${{ env.PR_NUMBER }}
+          body-path: './artifacts/comment.txt'
+
+      - name: Update Win Comment
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        with:
+          issue-number: ${{ env.PR_NUMBER }}
+          body-path: './artifacts/commentwin.txt'

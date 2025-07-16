@@ -1,0 +1,10 @@
+{
+    "title": {
+        "zh": "图形后端抽象",
+        "en": "GFX"
+    },
+    "description": {
+        "zh": "图形后端抽象类，用于抹平不同渲染后端 API 差异",
+        "en": "Graphical backend abstraction classes for unifying APIs of different rendering backends"
+    }
+}

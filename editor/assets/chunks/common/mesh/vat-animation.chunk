@@ -1,0 +1,272 @@
+#include <common/math/transform>
+#include <common/texture/texture-misc>
+
+// Vertex Animation Texture (VAT), baked physically simulation result for rigid-body, soft-body and fluid
+
+// Houdini VAT Plugin Version:
+    // 1. Soft-body and fluids use 3.0, Select Unity mode, otherwise animation will become crack
+    // 2. Rigid-body use 2.0, Select UE mode with initialize settings, needs export json for numOfFrames(frameCount) and max/min values
+
+// Houdini misc export settings:
+    // 1. Select LDR
+    // 2. Do not check paddle, two-position textures and pack normals
+
+// Cocos import settings:
+    // 1. LUT texture should set filter to "nearest" and uncheck "fix alpha transparency"
+    // 2. Rigid-body select import normal and tangent
+    // 3. Rigid-body and soft-body need check HAS_SECOND_UV
+    // 4. If no sign texture with exr image, use white texture instead
+
+// For resources exported by UE mode, invoke functions like:
+    // 1. VATFunction(inout_pos.xzy / VAT_FBX_TO_COCOS_COORDINATE_SCALE, inout_vector.xzy);
+    // 2. out_pos.xyz = inout_pos.xzy * VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+    // 2. out_vector.xyz = inout_vector.xzy;
+
+#define VAT_FBX_TO_COCOS_COORDINATE_SCALE 0.01
+#define VAT_LUT_PRECISION_VALUE_LDR 255.0
+#define VAT_LUT_PRECISION_VALUE_HDR 2048.0
+
+float CalculateVATAnimationUV(out vec2 deltaV, float frameCount, float animSpeed, float elapseTime)
+{
+  float thisFrame = fract(animSpeed * elapseTime);
+  thisFrame = floor(thisFrame * frameCount);
+  float thisFrameDeltaV = thisFrame / frameCount;
+  float nextFrameDeltaV = (thisFrame + 1.0) / frameCount;
+  deltaV = vec2(thisFrameDeltaV, nextFrameDeltaV);
+  float frameLerp = fract(thisFrame * frameCount);
+  return frameLerp;
+}
+
+
+
+///////////////////////////////////////////// public functions
+// auto calculation frame count for fluid
+float VATCalculateFrameCount(vec2 lutTexResolution, float meshVertexCount)
+{
+    float lineCountPerFrame = ceil(meshVertexCount / lutTexResolution.x);
+    return floor(lutTexResolution.y / lineCountPerFrame);
+}
+
+// meshUV use texCoord0 for fluid
+// meshUV use texCoord1 for rigid-body and soft-body
+float VATGetAnimUV(out vec2 thisFrameUV, out vec2 nextFrameUV, vec2 meshUV, float frameCount, float animSpeed, float elapseTime)
+{
+  vec2 frameDeltaV;
+  float frameLerp = CalculateVATAnimationUV(frameDeltaV, frameCount, animSpeed, elapseTime);
+  thisFrameUV = meshUV + vec2(0.0, frameDeltaV.x);
+  nextFrameUV = meshUV + vec2(0.0, frameDeltaV.y);
+  return frameLerp;
+}
+// VAT with LUT, fluid only
+float VATGetAnimUV(out vec2 thisFrameUV, out vec2 nextFrameUV, vec2 meshUV, float frameCount, float animSpeed, float elapseTime, sampler2D lutTexture)
+{
+  vec2 frameDeltaV;
+  float frameLerp = CalculateVATAnimationUV(frameDeltaV, frameCount, animSpeed, elapseTime);
+  vec4 thisFramelookUpValue = texture(lutTexture, meshUV + vec2(0.0, frameDeltaV.x));
+  thisFrameUV = thisFramelookUpValue.xz + thisFramelookUpValue.yw / VAT_LUT_PRECISION_VALUE_LDR;
+  vec4 nextFramelookUpValue = texture(lutTexture, meshUV + vec2(0.0, frameDeltaV.y));
+  nextFrameUV = nextFramelookUpValue.xz + nextFramelookUpValue.yw / VAT_LUT_PRECISION_VALUE_LDR;
+  return frameLerp;
+}
+
+// return absolute position for fluid
+// return position offset for soft-body
+vec3 VATGetLocalPosition(vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture)
+{
+  vec3 thisFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
+  return thisFramePos * VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+}
+// meshNormal is up-axis for fluid
+vec3 VATGetLocalNormal(vec3 meshNormal, vec2 thisFrameUV, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  vec4 thisFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  rotateVecFromQuat(meshNormal, thisFrameData);
+  return meshNormal;
+}
+
+// for smooth animation
+vec3 VATGetLocalPosition(vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture)
+{
+  vec3 thisFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
+  vec3 nextFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, nextFrameUV);
+  return mix(thisFramePos, nextFramePos, frameLerp) * VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+}
+vec3 VATGetLocalNormal(vec3 meshNormal, vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  vec4 thisFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  vec4 nextFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, nextFrameUV);
+  vec4 data = mix(thisFrameData, nextFrameData, frameLerp);
+
+  rotateVecFromQuat(meshNormal, data);
+  return meshNormal;
+}
+
+// calculate simulation voxel coordinates
+vec3 VATCalculateFluidVoxelUV(vec3 vatBoundingBoxMin, vec3 vatBoundingBoxMax, vec3 localPos)
+{
+  // bounding box in exported json is unscaled
+  vatBoundingBoxMin *= VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+  vatBoundingBoxMax *= VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+
+  vec3 size = vatBoundingBoxMax - vatBoundingBoxMin;
+  vec3 coef = (localPos - vatBoundingBoxMin) / size;
+  return coef;
+}
+
+
+
+
+
+////////////////////////////////////////////////////////////////Rigid-body
+void VATGetLocalPositionRigidBody20(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec4 meshVertexColor, vec2 thisFrameUV, float pivMax, float pivMin, float posMax, float posMin, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  // pivot
+  float pivExpand = pivMax - pivMin;
+  float posExpand = posMax - posMin;
+
+  vec3 pivot = meshVertexColor.xyz;
+  pivot.xyz *= pivExpand;
+  pivot.xyz += vec3(pivMin);
+
+  // anim pos
+  vec3 posData = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
+  vec3 texturePos = posData;
+  texturePos.xyz *= posExpand;
+  texturePos.xyz += posMin;
+
+  // rotate pos
+  vec4 quat = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  quat = quat * 2.0 - vec4(1.0);
+
+  vec3 originPos = meshLocalPos - pivot;
+  vec3 rotatedPos;
+  rotatedPos = 2.0 * cross(quat.xyz, cross(quat.xyz, originPos.xyz) + quat.w * originPos.xyz);
+
+  // result
+  meshLocalPos = meshLocalPos + rotatedPos + texturePos;
+  rotateVecFromQuat(meshLocalNormal, quat);
+  rotateVecFromQuat(meshLocalTangent, quat);
+}
+
+void VATGetLocalPositionRigidBody20_UE(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec4 meshVertexColor, vec2 thisFrameUV, float pivMax, float pivMin, float posMax, float posMin, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  // input
+  vec3 preSkinnedPos = meshLocalPos.xzy / VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+  vec3 preSkinnedNorm = meshLocalNormal.xzy;
+  vec3 preSkinnedTangent = meshLocalTangent.xzy;
+
+  VATGetLocalPositionRigidBody20(preSkinnedPos, preSkinnedNorm, preSkinnedTangent, meshVertexColor, thisFrameUV, pivMax, pivMin, posMax, posMin, vatPositionTexture, vatPositionSignTexture, vatPositionAlphaTexture, vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture);
+
+  // output
+  meshLocalPos.xyz = preSkinnedPos.xzy * VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+  meshLocalNormal.xyz = preSkinnedNorm.xzy;
+  meshLocalTangent.xyz = preSkinnedTangent.xzy;
+}
+
+
+// Experimental
+float CalculateVATDecodeUV(float A, float B)
+{
+#if __VERSION__ >= 110
+  uint a = floatBitsToUint(A); //asuint(A)
+  uint b = floatBitsToUint(B);
+  a = ((a >> 16u) & 0x8000u) |
+         ((((a >> 23u) & 0xFFu) - 112u) << 10u) |
+         ((a >> 13u) & 0x3FFu);
+  b = ((b >> 16u) & 0x8000u) |
+         ((((b >> 23u) & 0xFFu) - 112u) << 10u) |
+         ((b >> 13u) & 0x3FFu);
+  a = (a & 0x8000u) | ((a << 2u) & 0x7FF8u);
+  b = (b & 0x8000u) | ((b << 2u) & 0x7FF8u);
+  a = (a << 16u) | (b << 3u);
+  return uintBitsToFloat(a); //asfloat(a);
+#endif
+  return 0.0;
+}
+void VATGetLocalPositionRigidBody30(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec2 meshUV2, in vec2 meshUV3, vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture, bool isZUp)
+{
+  // pivot offset
+  vec3 direction;
+  direction.x = meshUV2.x;
+  direction.y = sqrt(1.0 - (meshUV2.x*meshUV2.x + meshUV3.x*meshUV3.x));
+  direction.z = meshUV3.x;
+  float Magnitude = CalculateVATDecodeUV(meshUV2.y, meshUV3.y);
+  float Up = Magnitude;
+
+  vec3 org, pivot;
+  org = vec3(meshUV2.x, Up, meshUV3.x);
+  if(abs(meshUV3.y) > 2.0)
+    pivot = direction.xyz * Magnitude;
+  else
+    pivot = org.xyz;
+
+  if(isZUp)
+    pivot.xyz = pivot.xzy / VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+  vec3 originPos = meshLocalPos - pivot;
+
+  // rotation offset
+  vec4 posData = SampleTextureExrWithAlpha(vatPositionTexture, vatPositionSignTexture, vatPositionAlphaTexture, thisFrameUV);
+  vec4 XYZW = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  float w = sqrt(1.0 - dot(XYZW.xyz, XYZW.xyz)); //sqrt(1.0 - quat.x*quat.x - quat.y*quat.y - quat.z*quat.z); //r
+  // restore origin quaternion for slerp between frames
+  // float cycle_count = XYZW.w; // rotation cycle count for slerp between frames
+  // float rot_angle = cycle_count * PI2 + acos(w);
+  // w = cos(rot_angle);
+  vec4 quat = vec4(0.0, 0.0, 0.0, 1.0);
+
+  // upper is UE, lower is Houdini
+  float maxComponent = floor(posData.a * 4.0);
+  if(equalf_epsilon(maxComponent, 1.0, 0.01)) {
+      quat = vec4(-w, XYZW.yzx);
+      quat = vec4(w, XYZW.yzx);
+  }
+  else if(equalf_epsilon(maxComponent, 2.0, 0.01)) {
+      quat = vec4(XYZW.xy, -w, -XYZW.z);
+      quat = vec4(XYZW.x, w, XYZW.zy);
+  }
+  else if(equalf_epsilon(maxComponent, 3.0, 0.01)) {
+      quat = vec4(XYZW.x, -w, -XYZW.zy);
+      quat = vec4(XYZW.xy, w, XYZW.z);
+  }
+  else
+      quat = vec4(XYZW.xyz, w);
+
+  // quat = quat.xzyw;
+
+  vec3 rotatedPos;
+  rotatedPos = 2.0 * cross(quat.xyz, cross(quat.xyz, originPos.xyz) + quat.w * originPos.xyz);
+
+  // result
+  meshLocalPos = originPos + rotatedPos + posData.xyz;
+  meshLocalNormal = 2.0 * cross(quat.xyz, cross(quat.xyz, meshLocalNormal.xyz)+ quat.w * meshLocalNormal.xyz);
+  meshLocalTangent = 2.0 * cross(quat.xyz, cross(quat.xyz, meshLocalTangent.xyz)+ quat.w * meshLocalTangent.xyz);
+}
+
+void VATGetLocalPositionRigidBody30_UE(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec2 meshUV2, in vec2 meshUV3, vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  // input
+  vec3 preSkinnedPos = meshLocalPos.xzy / VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+  vec3 preSkinnedNorm = meshLocalNormal.xzy;
+  vec3 preSkinnedTangent = meshLocalTangent.xzy;
+
+  VATGetLocalPositionRigidBody30(preSkinnedPos, preSkinnedNorm, preSkinnedTangent, meshUV2, meshUV3, thisFrameUV, vatPositionTexture, vatPositionSignTexture, vatPositionAlphaTexture, vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, true);
+
+  // output
+  meshLocalPos = preSkinnedPos.xzy * VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+  meshLocalNormal = preSkinnedNorm.xzy;
+  meshLocalTangent = preSkinnedTangent.xzy;
+}
+void VATGetLocalPositionRigidBody30_Cocos(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec2 meshUV2, in vec2 meshUV3, vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  // input
+  vec3 preSkinnedPos = meshLocalPos.xyz / VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+  vec3 preSkinnedNorm = meshLocalNormal.xyz;
+  vec3 preSkinnedTangent = meshLocalTangent.xyz;
+
+  VATGetLocalPositionRigidBody30(preSkinnedPos, preSkinnedNorm, preSkinnedTangent, meshUV2, meshUV3, thisFrameUV, vatPositionTexture, vatPositionSignTexture, vatPositionAlphaTexture, vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, false);
+
+  // output
+  meshLocalPos = preSkinnedPos.xyz * VAT_FBX_TO_COCOS_COORDINATE_SCALE;
+  meshLocalNormal = preSkinnedNorm.xyz;
+  meshLocalTangent = preSkinnedTangent.xyz;
+}

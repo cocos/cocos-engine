@@ -1,0 +1,34 @@
+// for legacy effects
+void SampleAndDecodeLightMapColor(out vec3 lightmapColor, out float dirShadow, out float ao, sampler2D lightingMap, vec2 luv, float lum, vec3 worldNormal)
+{
+	// has radiant basis
+#if CC_LIGHT_MAP_VERSION > 2
+	// has high precision data
+#elif CC_LIGHT_MAP_VERSION > 1
+	vec4 dataLow = texture(lightingMap, luv);
+	vec4 dataHigh = texture(lightingMap, luv + vec2(0.5, 0.0));
+	lightmapColor.xyz = dataLow.xyz + dataHigh.xyz * 0.00392156862745098;
+    lightmapColor.rgb *= lum;
+	dirShadow = dataLow.a;
+	ao = dataHigh.a;
+#else
+    vec4 lightmap = texture(lightingMap, luv);
+    lightmapColor = lightmap.rgb * lum;
+	dirShadow = lightmap.a;
+	ao = 1.0;
+#endif
+}
+
+// for surface shader
+void GetLightMapColor(out vec3 lightmapColor, out float dirShadow, out float ao, sampler2D lightingMap, vec2 luv, float lum, vec3 worldNormal)
+{
+	vec4 lightmap;
+	vec2 occlusion;
+	SampleAndDecodeLightMapColor(lightmapColor, dirShadow, ao, lightingMap, luv, lum, worldNormal);
+
+#if CC_USE_HDR
+    // convert from standard camera exposure parameters to current exposure value
+    // baked in LDR scene still regarded as exposured with standard camera parameters
+    lightmapColor.rgb *= cc_exposure.w * cc_exposure.x;
+#endif
+}

@@ -1,0 +1,145 @@
+// When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
+// cc_cameraPos.w is flipNDCSign
+#pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv, flipNDCSign) uv = flipNDCSign == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
+
+#if defined(CC_USE_METAL) || defined(CC_USE_WGPU)
+#define CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(y) y = -y
+#else
+#define CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(y)
+#endif
+
+
+// return 0-1
+vec2 GetScreenUV(vec4 clipPos, float flipNDCSign)
+{
+  vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
+  screenUV = vec2(screenUV.x, screenUV.y);
+  CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
+  return screenUV;
+}
+
+vec2 GetScreenUV(vec3 worldPos, mat4 matViewProj, float flipNDCSign)
+{
+  vec4 clipPos = matViewProj * vec4(worldPos, 1.0);
+  return GetScreenUV(clipPos, flipNDCSign);
+}
+
+vec2 GetPlanarReflectScreenUV(vec3 worldPos, mat4 matVirtualCameraViewProj, float flipNDCSign, vec3 viewDir, vec3 reflectDir)
+{
+  vec4 clipPos = matVirtualCameraViewProj * vec4(worldPos, 1.0);
+  vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
+  screenUV = vec2(1.0 - screenUV.x, screenUV.y);
+  CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
+  return screenUV;
+}
+
+// depthHS (Z) = ndc depth(-1 ~ +1)
+// return camera depth (W), negative in RH
+float GetCameraDepthRH(float depthHS, mat4 matProj)
+{
+    return -matProj[3][2] / (depthHS + matProj[2][2]);
+}
+float GetCameraDepthRH(float depthHS, float matProj32, float matProj22)
+{
+    return -matProj32 / (depthHS + matProj22);
+}
+
+// posHS = ndc pos (xyz: -1 ~ +1)
+vec4 GetViewPosFromNDCPosRH(vec3 posHS, mat4 matProj, mat4 matProjInv)
+{
+    float w = -GetCameraDepthRH(posHS.z, matProj);
+    return matProjInv * vec4(posHS * w, w);
+}
+
+vec4 GetWorldPosFromNDCPosRH(vec3 posHS, mat4 matProj, mat4 matViewProjInv)
+{
+    float w = -GetCameraDepthRH(posHS.z, matProj);
+    return matViewProjInv * vec4(posHS * w, w);
+}
+
+float GetLinearDepthFromViewSpace(vec3 viewPos, float near, float far) {
+  float dist = length(viewPos);
+  return (dist - near) / (far - near);
+}
+
+// for right-hand coordinates, params must be normalized
+vec3 CalculateBinormal(vec3 normal, vec3 tangent, float mirrorNormal)
+{
+    return cross(normal, tangent) * mirrorNormal;
+}
+vec3 CalculateTangent(vec3 normal, vec3 binormal)
+{
+    return cross(binormal, normal);
+}
+vec3 CalculateNormal(vec3 tangent, vec3 binormal)
+{
+    return cross(tangent, binormal);
+}
+
+
+// param1 is normal from normalmap
+// return value is un-normalized
+vec3 CalculateNormalFromTangentSpace(vec3 normalFromTangentSpace, float normalStrength, vec3 normal, vec3 tangent, float mirrorNormal)
+{
+    vec3 binormal = CalculateBinormal(normal, tangent, mirrorNormal);
+    return (normalFromTangentSpace.x * normalStrength) * normalize(tangent) +
+           (normalFromTangentSpace.y * normalStrength) * normalize(binormal) +
+            normalFromTangentSpace.z * normalize(normal);
+}
+
+vec3 RotationVecFromAxisY(vec3 v, float cosTheta, float sinTheta)
+{
+    vec3 result;
+    result.x = dot(v, vec3(cosTheta, 0.0, -sinTheta));
+    result.y = v.y;
+    result.z = dot(v, vec3(sinTheta, 0.0,  cosTheta));
+    return result;
+}
+
+vec3 RotationVecFromAxisY(vec3 v, float rotateAngleArc)
+{
+  return RotationVecFromAxisY(v, cos(rotateAngleArc), sin(rotateAngleArc));
+}
+
+vec3 RotationVecFromAxis(vec3 v, vec3 axis, float rotateAngleArc)
+{
+    float cosAngle = cos(rotateAngleArc);
+    float sinAngle = sin(rotateAngleArc);
+    vec3 crossProd = cross(axis, v);
+    float dotProd = dot(axis, v);
+    vec3 axisScaled = axis * dotProd * (1.0 - cosAngle);
+    return v * cosAngle + crossProd * sinAngle + axisScaled;
+}
+
+// rotationAngle: radians, 0-2Pi
+void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 normal, float rotationAngle)
+{
+    float cosTheta = cos(rotationAngle), sinTheta = sin(rotationAngle);
+    vec3 B = RotationVecFromAxisY(vec3(1.0, 0.0, 0.0), cosTheta, sinTheta);
+    vec3 T = RotationVecFromAxisY(vec3(0.0, 0.0, 1.0), cosTheta, sinTheta);
+
+    vec3 tangentNew, binormalNew;
+    binormalNew = B.x * binormal + B.y * normal + B.z * tangent;
+    binormal = normalize(binormalNew);
+
+    tangentNew = T.x * binormal + T.y * normal + T.z * tangent;
+    tangent = normalize(tangentNew);
+}
+
+// fast rotation for anisotropic offset
+// rotationAngle: -1 - +1
+void RotateNormalAndBinormal(inout vec3 binormal, inout vec3 normal, in vec3 tangent, float rotationAngle, float mirrorNormal)
+{
+  if(rotationAngle > 0.0)
+  {
+    normal += (binormal - normal) * rotationAngle;
+    normal = normalize(normal);
+    binormal = CalculateBinormal(normal, tangent, mirrorNormal);
+  }
+  else if(rotationAngle < 0.0)
+  {
+    binormal += (binormal - normal) * rotationAngle;
+    binormal = normalize(binormal);
+    normal = CalculateNormal(tangent, binormal);
+  }
+}

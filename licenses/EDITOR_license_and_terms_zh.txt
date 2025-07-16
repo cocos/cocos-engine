@@ -1,0 +1,160 @@
+
+授权协议
+
+本授权协议中“Cocos Creator”是指由厦门雅基软件有限公司开发的可以跨平台运行的桌面应用程序软件，可用于开发制作在 Android、iOS、Web Standard、Windows、Mac 等平台运行的游戏软件和多媒体交互程序。Cocos Creator 软件包括开源的 JavaScript 引擎和编辑器扩展，以及开源的 C++ 引擎部分，和非开源的编辑器程序。
+
+开源的 JavaScript 和 C++ 引擎以及开源编辑器扩展可以由开发者用户自由定制并用于面向最终用户的游戏和多媒体交互软件的开发，但不能用于同类产品（游戏开发工具）的制作和再次发行。
+
+根据本授权协议条款授权用户使用 Cocos Creator 产品。本授权协议构成用户与厦门雅基软件有限公司（“厦门雅基”是一家中国厦门公司，地址位于中国厦门市思明区塔埔东路 167 号 1301 室，邮编 361008）之间就用户使用 Cocos Creator 产品而订立的合法有效之协议。
+
+为使用 Cocos Creator 产品，用户必须同意并接受本协议，用户下载、安装、复制或以其他途径使用 Cocos Creator 产品，均构成对本协议条款的认可和接受。如果用户不接受本协议，用户将被禁止使用 Cocos Creator 产品，即无权进行下载、复制、安装或其他使用 Cocos Creator 产品或任何相关部分的操作。
+
+1.  授权授予与接受
+1.1  通过下载、安装、复制或以其他方式使用 Cocos Creator 产品的，表示用户据此不作修订地接受本授权协议下所有条款和条件。如果用户为用户雇主或其他实体之利益下载、安装、复制或以其他方式使用 Cocos Creator 产品，用户据此同意用户代表用户雇主或其他实体订立本授权协议，用户声明且保证用户有完整合法的权利使用户雇主或相关实体受本授权协议之约束。如果用户没有上述完整合法之权利，用户不得接受本授权协议且不得为用户雇主或其他实体之利益使用 Cocos Creator 产品。
+1.2  根据本授权协议之条款，厦门雅基授予用户有限的、全球范围内的、免版税的、不可转让的、可撤销的、非排他性授权，用户可使用 Cocos Creator 产品在用户目标平台上独自开发应用和游戏。本授权协议约定的软件或工具仅被授权使用，绝非出售。
+1.3  用户不得超出本授权协议的授权范围使用 Cocos Creator 产品。包括但不限于用户不得：
+（1）复制（备份目的除外）、改变、修改、二次散布、反编译、逆向工程、拆分或创作 Cocos Creator 产品任何部分的衍生产品；（2）用其他软件组合 Cocos Creator 产品的任何部分；（3）创建 Cocos Creator 产品的“代码分支”或者其他衍生产品，或散布、参与创作或以任何途径推销 Cocos Creator 产品的任何衍生产品。（4）将 Cocos Creator 产品作为任何开发工具箱或程序库、应用程序生成器、网站生成器之部分，或任何为软件、应用或网站的开发者或设计者所用的软件或工具之部分进行二次散布。
+1.4  用户同意仅在（1）本授权协议以及（2）任何适用的法律、法规或相关司法管辖区普遍认同的实践和指南允许的前提下使用 Cocos Creator 产品和编写应用程序。
+1.5  用户同意对其创作、传播或通过 Cocos Creator 产品展示的任何数据、内容或资源，以及用户行为之后果（包括厦门雅基可能遭受的任何损失或损害）独自承担责任（厦门雅基对用户或任何第三方不承担责任）。
+1.6  用户对违反任何适用的法律法规、本授权协议项下的义务、任何适用的第三方合同或服务条款，以及用户对上述违反行为造成的后果（包括厦门雅基或任何第三方可能遭受的任何损失或损害）独自承担责任（厦门雅基对用户或任何第三方不承担责任）。
+1.7  若用户被用户居民身份所属国家或用户使用 Cocos Creator 产品所在国家之法律禁止接收 Cocos Creator 产品，用户则不得使用 Cocos Creator 产品且不得接受本授权协议。
+
+2.  所有权
+2.1  用户同意厦门雅基或第三方拥有 Cocos Creator 产品的所有合法权利，包括但不限于所有权及与 Cocos Creator 产品有关的任何知识产权等。“知识产权”指专利法、著作权法、商业秘密法、商标权法下的所有权利以及其他所有权利，厦门雅基保留未明确授予用户的所有权利。
+2.2  本授权协议未授予用户使用厦门雅基商号、商标、服务商标、标识、域名或其他特色品牌特征的权利。用户保证不会移除、隐藏或更改带有或包含 Cocos Creator 产品的任何所有权标识（包括但不限于著作权和商标标识等）。
+2.3  厦门雅基同意其对用户（或用户的授权人）根据本授权协议使用 Cocos Creator 产品开发的任何应用及该等产品中包含的知识产权，不享有知识产权或所有权。
+
+3.  使用规则
+3.1  用户在申请使用 Cocos Creator 产品时，必须注册账号，账号注册成功后，登录账号方可进行下载、安装、复制或以其他方式使用 Cocos Creator 产品。
+
+4.  期限及终止
+4.1 本授权协议的期限将持续至用户或厦门雅基根据下述约定终止协议。
+4.2  若用户想终止本授权协议，用户可以通过停止使用 Cocos Creator 产品实现。
+4.3  在下列情形下，厦门雅基可以在任何时间终止本授权协议：
+4.3.1  用户违反本授权协议的任何条款；
+4.3.2  厦门雅基按照法律法规的相关规定终止本授权协议；
+4.3.3  与厦门雅基一同向用户提供 Cocos Creator 产品某部分的任何合伙人终止其与厦门雅基的合作关系或者停止向用户提供 Cocos Creator 产品某部分；
+4.3.4  厦门雅基决定不再向用户居民身份所属国家或用户使用 Cocos Creator 产品所在国家之用户提供 Cocos Creator 产品或 Cocos Creator 产品某部分；
+4.3.5  厦门雅基向用户提供的 Cocos Creator 产品不具备商业可行性；
+4.3.6  厦门雅基有权自主决定随时终止本授权协议。
+4.4  本授权协议因任何原因终止后，根据本授权协议授予用户的所有权利立即终止，终止后用户应当停止使用 Cocos Creator 产品。
+
+5.  免责声明
+5.1  用户明确了解且同意，用户使用 Cocos Creator 产品风险自担，厦门雅基不提供任何保证。
+5.2  用户使用 Cocos Creator 产品和通过使用 Cocos Creator 产品下载或获得任何材料均由用户自行决定且风险自担，用户对该使用造成的对用户电脑系统或其他设备的损害或数据的丢失独自承担责任。
+5.3  厦门雅基不保证提供的服务一定能满足用户的要求，也不对网络服务的及时性、安全性、准确性作保证。
+5.4  在法律允许的最大程度内，厦门雅基进一步明确否认所有明示或默示的保证及类似条件，包括但不限于适销性的默示担保和条件，适用于特定用途和非侵权性的担保和条件等。
+
+6.  责任限制及赔偿
+6.1  在法律允许的最大程度内，用户明确了解并且同意厦门雅基、其子公司和分支机构及其授权商在任何责任理论下就用户发生的任何直接的、间接的、附带的、特殊的、后果性的或惩罚性的损害均不对用户承担责任，包括任何数据丢失，无论厦门雅基或其代表人是否被劝勉或是否应当意识到损失发生的可能性。部分司法管辖区不允许限制某些责任，因此上述责任限制条款在用户所在司法管辖区允许程度内适用于用户。
+6.2  在法律允许的最大程度内，用户同意使厦门雅基、其附属公司、相应的董事、管理人员、员工或代理人免于因下述原因而产生的任何索赔或诉讼，并同意承担相应的损失、责任、损害、成本和费用（包括合理律师费）：（1）用户通过 Cocos Creator 产品开发的任何应用实际或据称损害任何人的任何著作权、商标权、商业秘密、商业包装、专利权或其他知识产权，或诽谤任何人或侵害他们公开或隐私权利，以及（2）用户未遵守本授权协议。
+
+7.  法律管辖
+7.1  本授权协议的订立、执行和解释及争议的解决均应适用中国法律并受中国法院管辖。
+7.2  如双方就本授权协议内容或其执行发生任何争议，双方应尽量友好协商解决；协商不成时，任何一方均可向厦门雅基所在地的人民法院提起诉讼。
+7.3   Cocos Creator 产品受国际著作权法及其他知识产权法律和条约的保护。
+
+8.  协议修改
+8.1  厦门雅基有权随时修改本授权协议的任何条款，一旦本授权协议的内容发生变动，厦门雅基将会直接在网站上公布修改之后的协议内容，该公布行为视为厦门雅基已经通知用户修改内容，厦门雅基也可通过其他适当方式向用户提示修改内容。
+8.2  如果用户不同意厦门雅基对本授权协议相关条款所做的修改，用户有权停止使用 Cocos Creator 产品。用户的继续使用行为，将视为用户接受厦门雅基对本授权协议相关条款所
+做的修改。
+
+9.  通知送达
+9.1  本授权协议项下厦门雅基对于用户所有的通知均可通过网页公告、电子邮件、手机短信或常规的信件传送等方式进行；该等通知于发送之日视为已送达收件人。
+9.2  用户对于厦门雅基的通知应当通过厦门雅基对外正式公布的通信地址、传真号码、电子邮件地址等联系信息进行送达。
+
+10.  其它
+10.1  为持续创新和改进 Cocos Creator 产品，厦门雅基可以收集软件的某些使用数据，包括但不限于唯一识别符、关联 IP地址、软件的版本号和 Cocos Creator 产品中工具和/或服务的使用和被使用的信息。在该等信息被收集前，Cocos Creator 产品将通知用户并征得用户的同意。如果用户不同意，信息将不得被收集。收集的数据将合计使用以改进 Cocos Creator 产品，并且将根据厦门雅基的保密规则进行保密。
+10.2  用户同意，如果厦门雅基不行使或不执行本授权协议中的任何法律权利或救济（或在任何法律规定下有利于厦门雅基的），该等行为不被认为是厦门雅基对该等权利或救济的放弃且厦门雅基仍然可以使用该等权利或救济。
+10.3  用户同意被认定为是厦门雅基的客户，且用户同意厦门雅基通过名称、商号、商标提及用户，若适用，厦门雅基可在营销材料及网站上简单描述用户业务。
+10.4  本授权协议下，厦门雅基未授予任何默示授权或其他默示权利，且除本授权协议下明示授予的权利外，其他所有权利由厦门雅基及其授权商享有。
+10.5  如果任何对本授权协议有司法管辖权的法院认定本授权协议的任何条款无效，则该条款将从本授权协议中移除，且不影响本授权协议的其余条款。本授权协议的其余条款继续有效且可执行。 
+10.6  用户了解且同意，以厦门雅基为母公司的公司集团成员是本授权协议的第三方受益人，且该类公司有权直接执行和依赖本授权协议中授予它们利益（或有利权利）的任何条款。除此之外，任何其他人或公司均不是本授权协议的第三方受益人。
+10.7  未征得厦门雅基事先书面同意，用户不得将本协议项下的权利或义务转让给其他第三方。
+10.8  本授权协议构成用户与厦门雅基之间的全部合法协议，规定用户对 Cocos Creator 产品的使用，并且完全替代之前用户与厦门雅基之间关于 Cocos Creator 产品的任何协定。
+10.9  本授权协议中的任何条款无论因何种原因完全或部分无效或不具有执行力，其余条款仍应有效并且有约束力。
+10.10  本协议含附件。用户了解且同意，其将受附件所含条款的约束。附件与主协议一并构成厦门雅基与用户之间完整的协议。
+10.11  以上条款的解释权归厦门雅基最终所有。
+
+附件一：
+Cocos2d-x Software License
+Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+Copyright (c) 2013-2016 Chukong Technologies
+Copyright (c) 2010-2012 cocos2d-x community
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+附件二：
+Spine Runtimes Software License
+Version 2.5 
+Copyright (c) 2013-2016, Esoteric Software
+All rights reserved.
+You are granted a perpetual, non-exclusive, non-sublicensable, and non-transferable license to use, install, execute, and perform the Spine Runtimes software and derivative works solely for personal or internal use. Without the written permission of Esoteric Software (see Section 2 of the Spine Software License Agreement), you may not (a) modify, translate, adapt, or develop new applications using the Spine Runtimes or otherwise create derivative works or improvements of the Spine Runtimes or (b) remove, delete, alter, or obscure any trademarks or any copyright, trademark, patent, or other intellectual property or proprietary rights notices on or in the Software, including any copy thereof. Redistributions in binary or source form must include this license and terms.
+THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+附件三：
+DragonBones Runtimes Software License
+The MIT License (MIT)
+Copyright (c) 2012-2018 The DragonBones team and other contributors.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+附件四：
+Microsoft tslib License
+
+Apache License
+
+Version 2.0, January 2004
+
+http://www.apache.org/licenses/ 
+
+TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+1. Definitions.
+
+"License" shall mean the terms and conditions for use, reproduction, and distribution as defined by Sections 1 through 9 of this document.
+
+"Licensor" shall mean the copyright owner or entity authorized by the copyright owner that is granting the License.
+
+"Legal Entity" shall mean the union of the acting entity and all other entities that control, are controlled by, or are under common control with that entity. For the purposes of this definition, "control" means (i) the power, direct or indirect, to cause the direction or management of such entity, whether by contract or otherwise, or (ii) ownership of fifty percent (50%) or more of the outstanding shares, or (iii) beneficial ownership of such entity.
+
+"You" (or "Your") shall mean an individual or Legal Entity exercising permissions granted by this License.
+
+"Source" form shall mean the preferred form for making modifications, including but not limited to software source code, documentation source, and configuration files.
+
+"Object" form shall mean any form resulting from mechanical transformation or translation of a Source form, including but not limited to compiled object code, generated documentation, and conversions to other media types.
+
+"Work" shall mean the work of authorship, whether in Source or Object form, made available under the License, as indicated by a copyright notice that is included in or attached to the work (an example is provided in the Appendix below).
+
+"Derivative Works" shall mean any work, whether in Source or Object form, that is based on (or derived from) the Work and for which the editorial revisions, annotations, elaborations, or other modifications represent, as a whole, an original work of authorship. For the purposes of this License, Derivative Works shall not include works that remain separable from, or merely link (or bind by name) to the interfaces of, the Work and Derivative Works thereof.
+
+"Contribution" shall mean any work of authorship, including the original version of the Work and any modifications or additions to that Work or Derivative Works thereof, that is intentionally submitted to Licensor for inclusion in the Work by the copyright owner or by an individual or Legal Entity authorized to submit on behalf of the copyright owner. For the purposes of this definition, "submitted" means any form of electronic, verbal, or written communication sent to the Licensor or its representatives, including but not limited to communication on electronic mailing lists, source code control systems, and issue tracking systems that are managed by, or on behalf of, the Licensor for the purpose of discussing and improving the Work, but excluding communication that is conspicuously marked or otherwise designated in writing by the copyright owner as "Not a Contribution."
+
+"Contributor" shall mean Licensor and any individual or Legal Entity on behalf of whom a Contribution has been received by Licensor and subsequently incorporated within the Work.
+
+2. Grant of Copyright License. Subject to the terms and conditions of this License, each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare Derivative Works of, publicly display, publicly perform, sublicense, and distribute the Work and such Derivative Works in Source or Object form.
+
+3. Grant of Patent License. Subject to the terms and conditions of this License, each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable (except as stated in this section) patent license to make, have made, use, offer to sell, sell, import, and otherwise transfer the Work, where such license applies only to those patent claims licensable by such Contributor that are necessarily infringed by their Contribution(s) alone or by combination of their Contribution(s) with the Work to which such Contribution(s) was submitted. If You institute patent litigation against any entity (including a cross-claim or counterclaim in a lawsuit) alleging that the Work or a Contribution incorporated within the Work constitutes direct or contributory patent infringement, then any patent licenses granted to You under this License for that Work shall terminate as of the date such litigation is filed.
+
+4. Redistribution. You may reproduce and distribute copies of the Work or Derivative Works thereof in any medium, with or without modifications, and in Source or Object form, provided that You meet the following conditions:
+
+You must give any other recipients of the Work or Derivative Works a copy of this License; and
+
+You must cause any modified files to carry prominent notices stating that You changed the files; and
+
+You must retain, in the Source form of any Derivative Works that You distribute, all copyright, patent, trademark, and attribution notices from the Source form of the Work, excluding those notices that do not pertain to any part of the Derivative Works; and
+
+If the Work includes a "NOTICE" text file as part of its distribution, then any Derivative Works that You distribute must include a readable copy of the attribution notices contained within such NOTICE file, excluding those notices that do not pertain to any part of the Derivative Works, in at least one of the following places: within a NOTICE text file distributed as part of the Derivative Works; within the Source form or documentation, if provided along with the Derivative Works; or, within a display generated by the Derivative Works, if and wherever such third-party notices normally appear. The contents of the NOTICE file are for informational purposes only and do not modify the License. You may add Your own attribution notices within Derivative Works that You distribute, alongside or as an addendum to the NOTICE text from the Work, provided that such additional attribution notices cannot be construed as modifying the License. You may add Your own copyright statement to Your modifications and may provide additional or different license terms and conditions for use, reproduction, or distribution of Your modifications, or for any such Derivative Works as a whole, provided Your use, reproduction, and distribution of the Work otherwise complies with the conditions stated in this License.
+
+5. Submission of Contributions. Unless You explicitly state otherwise, any Contribution intentionally submitted for inclusion in the Work by You to the Licensor shall be under the terms and conditions of this License, without any additional terms or conditions. Notwithstanding the above, nothing herein shall supersede or modify the terms of any separate license agreement you may have executed with Licensor regarding such Contributions.
+
+6. Trademarks. This License does not grant permission to use the trade names, trademarks, service marks, or product names of the Licensor, except as required for reasonable and customary use in describing the origin of the Work and reproducing the content of the NOTICE file.
+
+7. Disclaimer of Warranty. Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Work and assume any risks associated with Your exercise of permissions under this License.
+
+8. Limitation of Liability. In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall any Contributor be liable to You for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising as a result of this License or out of the use or inability to use the Work (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if such Contributor has been advised of the possibility of such damages.
+
+9. Accepting Warranty or Additional Liability. While redistributing the Work or Derivative Works thereof, You may choose to offer, and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations and/or rights consistent with this License. However, in accepting such obligations, You may act only on Your own behalf and on Your sole responsibility, not on behalf of any other Contributor, and only if You agree to indemnify, defend, and hold each Contributor harmless for any liability incurred by, or claims asserted against, such Contributor by reason of your accepting any such warranty or additional liability.
+
+END OF TERMS AND CONDITIONS
+

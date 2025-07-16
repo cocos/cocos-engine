@@ -1,0 +1,4 @@
+// Lighting-model includes
+#include <lighting-models/includes/common>
+#include <lighting-models/default-functions/toon>
+#include <lighting-models/model-functions/toon>

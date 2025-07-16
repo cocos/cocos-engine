@@ -1,0 +1,196 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: lighting-vs
+      frag: lighting-fs
+      pass: deferred-lighting
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+CCProgram lighting-vs %{
+  precision highp float;
+  #include <legacy/decode>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+
+  out vec2 v_uv;
+
+  void main () {
+    vec4 position;
+    CCDecode(position);
+    CC_HANDLE_GET_CLIP_FLIP(position.xy);
+    gl_Position = vec4(position.x, position.y, 1.0, 1.0);
+    v_uv = a_texCoord;
+  }
+}%
+
+CCProgram lighting-fs-tiled %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/shading-standard-base>
+  #include <legacy/shading-standard-additive>
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
+  #include <legacy/shading-cluster-additive>
+#endif
+  #include <legacy/output-standard>
+  #include <legacy/fog-base>
+  #include <common/math/octahedron-transform>
+  #include <common/math/coordinates>
+  #include <common/common-define>
+
+  #pragma subpass
+  #pragma subpassColor in albedoMap
+  #pragma subpassColor in normalMap
+  #pragma subpassColor in emissiveMap
+  #pragma subpassDepth in depthStencil
+
+  layout(location = 0) out vec4 fragColor;
+
+  vec4 screen2WS(vec3 coord) {
+    vec3 ndc = vec3(
+  	  2.0 * (coord.x - cc_viewPort.x) / cc_viewPort.z - 1.0,
+      2.0 * (coord.y - cc_viewPort.y) / cc_viewPort.w - 1.0,
+      #if __VERSION__ >= 450
+      coord.z);
+      #else
+      2.0 * coord.z - 1.0);
+      #endif
+
+
+    CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(ndc.y);
+    return GetWorldPosFromNDCPosRH(ndc, cc_matProj, cc_matViewProjInv);
+  }
+
+  void main () {
+    StandardSurface s;
+
+    vec4 albedo = subpassLoad(albedoMap);
+    vec4 normal = subpassLoad(normalMap);
+    vec4 emissive = subpassLoad(emissiveMap);
+    float depth = subpassLoad(depthStencil).x;
+
+    s.albedo = albedo;
+    vec3 position = screen2WS(vec3(gl_FragCoord.xy, depth)).xyz;
+    s.position = position;
+    s.roughness = normal.z;
+    s.normal = oct_to_float32x3(normal.xy);
+    s.specularIntensity = 0.5;
+    s.metallic = normal.w;
+    s.emissive = emissive.xyz;
+    s.occlusion = emissive.w;
+#if CC_RECEIVE_SHADOW
+    s.shadowBias = vec2(0, 0);
+#endif
+    // fixme: default value is 0, and give black result
+    float fogFactor;
+    CC_TRANSFER_FOG_BASE(vec4(position, 1), fogFactor);
+
+    vec4 shadowPos;
+    CC_TRANSFER_SHADOW_BASE(vec4(position, 1), shadowPos);
+
+    vec4 color = CCStandardShadingBase(s, shadowPos) +
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
+                 CCClusterShadingAdditive(s, shadowPos);
+#else
+                 CCStandardShadingAdditive(s, shadowPos);
+#endif
+    CC_APPLY_FOG_BASE(color, fogFactor);
+    color = CCFragOutput(color);
+
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
+    color = vec4(albedoMap.rgb, 1.0);
+#endif
+
+    fragColor = color;
+  }
+}%
+
+CCProgram lighting-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/shading-standard-base>
+  #include <legacy/shading-standard-additive>
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
+  #include <legacy/shading-cluster-additive>
+#endif
+  #include <legacy/output-standard>
+  #include <legacy/fog-base>
+  #include <common/math/octahedron-transform>
+  #include <common/math/coordinates>
+  #include <common/common-define>
+
+  in vec2 v_uv;
+  #pragma rate albedoMap pass
+  layout(binding = 0) uniform sampler2D albedoMap;
+  #pragma rate normalMap pass
+  layout(binding = 1) uniform sampler2D normalMap;
+  #pragma rate emissiveMap pass
+  layout(binding = 2) uniform sampler2D emissiveMap;
+  #pragma rate depthStencil pass
+  layout(binding = 3) uniform sampler2D depthStencil;
+
+  layout(location = 0) out vec4 fragColor;
+
+  vec4 screen2WS(vec3 coord) {
+    vec3 ndc = vec3(
+  	  2.0 * (coord.x - cc_viewPort.x) / cc_viewPort.z - 1.0,
+      2.0 * (coord.y - cc_viewPort.y) / cc_viewPort.w - 1.0,
+      #if __VERSION__ >= 450
+      coord.z);
+      #else
+      2.0 * coord.z - 1.0);
+      #endif
+
+    CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(ndc.y);
+    return GetWorldPosFromNDCPosRH(ndc, cc_matProj, cc_matViewProjInv);
+  }
+
+  void main () {
+    StandardSurface s;
+
+    vec4 albedo = texture(albedoMap, v_uv);
+    vec4 normal = texture(normalMap, v_uv);
+    vec4 emissive = texture(emissiveMap, v_uv);
+    float depth = texture(depthStencil, v_uv).x;
+
+    s.albedo = albedo;
+    vec3 position = screen2WS(vec3(gl_FragCoord.xy, depth)).xyz;
+    s.position = position;
+    s.roughness = normal.z;
+    s.normal = oct_to_float32x3(normal.xy);
+    s.specularIntensity = 0.5;
+    s.metallic = normal.w;
+    s.emissive = emissive.xyz;
+    s.occlusion = emissive.w;
+#if CC_RECEIVE_SHADOW
+    s.shadowBias = vec2(0, 0);
+#endif
+    // fixme: default value is 0, and give black result
+    float fogFactor;
+    CC_TRANSFER_FOG_BASE(vec4(position, 1), fogFactor);
+
+    vec4 shadowPos;
+    CC_TRANSFER_SHADOW_BASE(vec4(position, 1), shadowPos);
+
+    vec4 color = CCStandardShadingBase(s, shadowPos) +
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
+                 CCClusterShadingAdditive(s, shadowPos);
+#else
+                 CCStandardShadingAdditive(s, shadowPos);
+#endif
+    CC_APPLY_FOG_BASE(color, fogFactor);
+    color = CCFragOutput(color);
+
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
+    color = vec4(albedoMap.rgb, 1.0);
+#endif
+
+    fragColor = color;
+  }
+}%

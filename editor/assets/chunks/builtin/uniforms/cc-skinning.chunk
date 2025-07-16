@@ -1,0 +1,43 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma extension([GL_EXT_shader_explicit_arithmetic_types_int32, __VERSION__ > 310, require])
+
+#if CC_USE_BAKED_ANIMATION
+  #pragma builtin(local)
+  layout(set = 2, binding = 3) uniform CCSkinningTexture {
+    highp vec4 cc_jointTextureInfo; // length, totalJoints, offset, invLength
+  };
+  #pragma builtin(local)
+  layout(set = 2, binding = 2) uniform CCSkinningAnimation {
+    highp vec4 cc_jointAnimInfo; // frameID
+  };
+  #pragma builtin(local)
+  layout(set = 2, binding = 7) uniform highp sampler2D cc_jointTexture;
+  /**
+   * Although tempting, don't opt the offset arithmetics out to CPU (could
+   * be reduced to a single MAD). The enlarged numerical range could require
+   * more precision than what's actually provided on some devices.
+   */
+  void CCGetJointTextureCoords(float pixelsPerJoint, float jointIdx, out highp float x, out highp float y, out highp float invSize)
+  {
+    #if USE_INSTANCING
+      highp float temp = pixelsPerJoint * (a_jointAnimInfo.x * a_jointAnimInfo.y + jointIdx) + a_jointAnimInfo.z;
+    #else
+      highp float temp = pixelsPerJoint * (cc_jointAnimInfo.x * cc_jointTextureInfo.y + jointIdx) + cc_jointTextureInfo.z;
+    #endif
+    invSize = cc_jointTextureInfo.w;
+    highp float tempY = floor(temp * invSize);
+    x = floor(temp - tempY * cc_jointTextureInfo.x);
+    y = (tempY + 0.5) * invSize;
+  }
+#else
+  #if CC_USE_REAL_TIME_JOINT_TEXTURE
+    #pragma builtin(local)
+    layout(set = 2, binding = 7) uniform highp sampler2D cc_realtimeJoint;
+  #else
+    #pragma builtin(local)
+    layout(set = 2, binding = 3) uniform CCSkinning {
+      highp vec4 cc_joints[CC_JOINT_UNIFORM_CAPACITY * 3];
+    };
+  #endif
+#endif

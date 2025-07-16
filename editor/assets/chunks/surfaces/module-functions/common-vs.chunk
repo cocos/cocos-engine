@@ -1,0 +1,170 @@
+// IA Input->Intermediate
+void CCSurfacesVertexInput(out SurfacesStandardVertexIntermediate In)
+{
+  In.position = vec4(a_position, 1.0);
+  In.normal = a_normal;
+
+#if CC_SURFACES_USE_TANGENT_SPACE
+  In.tangent = a_tangent;
+#endif
+
+#if CC_SURFACES_USE_VERTEX_COLOR
+  In.color = a_color;
+#endif
+
+  In.texCoord = a_texCoord;
+#if CC_SURFACES_USE_SECOND_UV
+  In.texCoord1 = a_texCoord1;
+#endif
+}
+
+void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
+{
+  gl_Position = In.clipPos;
+  VSOutput_worldNormal = In.worldNormal.xyz;
+  VSOutput_faceSideSign = In.worldNormal.w;
+  VSOutput_worldPos = In.worldPos;
+
+#if CC_SURFACES_USE_TANGENT_SPACE
+  VSOutput_worldTangent = In.worldTangent.xyz;
+  // VSOutput_worldBitangent = In.worldBinormal;
+  VSOutput_mirrorNormal = In.tangent.w > 0.0 ? 1.0 : -1.0; // for compatibility #14121
+#endif
+
+#if CC_SURFACES_USE_VERTEX_COLOR
+  VSOutput_vertexColor = In.color;
+#endif
+
+  VSOutput_texcoord = In.texCoord;
+#if CC_SURFACES_USE_SECOND_UV
+  VSOutput_texcoord1 = In.texCoord1;
+#endif
+
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+  VSOutput_fogFactor = In.fogFactor;
+#endif
+
+#if CC_RECEIVE_SHADOW
+  VSOutput_shadowBias = In.shadowBiasAndProbeId.xy;
+#endif
+
+#if CC_USE_REFLECTION_PROBE
+  VSOutput_reflectionProbeId = In.shadowBiasAndProbeId.z;
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    VSOutput_reflectionProbeBlendId = In.shadowBiasAndProbeId.w;
+  #endif
+  #if USE_INSTANCING
+    v_reflectionProbeData = a_reflectionProbeData;
+  #endif
+#endif
+
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+  VSOutput_lightMapUV = In.lightmapUV;
+#endif
+
+#if CC_SURFACES_TRANSFER_LOCAL_POS
+  VSOutput_localPos = In.position;
+#endif
+
+#if CC_SURFACES_TRANSFER_CLIP_POS
+  VSOutput_clipPos = In.clipPos;
+#endif
+
+#if CC_USE_LIGHT_PROBE
+  #if USE_INSTANCING
+    v_sh_linear_const_r = a_sh_linear_const_r;
+    v_sh_linear_const_g = a_sh_linear_const_g;
+    v_sh_linear_const_b = a_sh_linear_const_b;
+  #endif
+#endif
+}
+
+// Morph & Skinning
+void CCSurfacesVertexAnimation(inout SurfacesStandardVertexIntermediate In)
+{
+vec4 temp = vec4(0.0);
+#if CC_USE_MORPH
+  #if CC_SURFACES_USE_TANGENT_SPACE
+    applyMorph(In.position, In.normal, In.tangent);
+  #else
+    applyMorph(In.position, In.normal, temp);
+  #endif
+#endif
+
+#if CC_USE_SKINNING
+  #if CC_SURFACES_USE_TANGENT_SPACE
+    CCSkin(In.position, In.normal, In.tangent);
+  #else
+    CCSkin(In.position, In.normal, temp);
+  #endif
+#endif
+}
+
+// Space Transform
+void CCSurfacesVertexWorldTransform(inout SurfacesStandardVertexIntermediate In)
+{
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    In.worldPos = (matWorld * In.position).xyz;
+    In.worldNormal.xyz = normalize((matWorldIT * vec4(In.normal.xyz, 0.0)).xyz);
+
+    #if CC_SURFACES_USE_TANGENT_SPACE
+      In.worldTangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      In.worldBinormal = cross(In.worldNormal.xyz, In.worldTangent) * In.tangent.w; // note the cross order
+    #endif
+}
+
+void CCSurfacesVertexTransformUV(inout SurfacesStandardVertexIntermediate In)
+{
+  #if CC_SURFACES_FLIP_UV
+    CC_HANDLE_RT_SAMPLE_FLIP(In.texCoord);
+    #if CC_SURFACES_USE_SECOND_UV
+      CC_HANDLE_RT_SAMPLE_FLIP(In.texCoord1);
+    #endif
+  #endif
+}
+
+// Shading
+void CCSurfacesVertexTransferFog(inout SurfacesStandardVertexIntermediate In)
+{
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+    CC_TRANSFER_FOG_BASE(vec4(In.worldPos, 1.0), In.fogFactor);
+#endif
+}
+
+void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
+{
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    In.shadowBiasAndProbeId = vec4(0.0);
+  #endif
+  #if CC_RECEIVE_SHADOW
+    In.shadowBiasAndProbeId.xy = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
+    #if USE_INSTANCING
+      In.shadowBiasAndProbeId.xy += a_localShadowBiasAndProbeId.xy;
+    #else
+      In.shadowBiasAndProbeId.xy += cc_localShadowBias.xy;
+    #endif
+  #endif
+
+  #if CC_USE_REFLECTION_PROBE
+    #if USE_INSTANCING
+      In.shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;
+    #else
+      In.shadowBiasAndProbeId.zw = cc_localShadowBias.zw;
+    #endif
+  #endif
+}
+
+void CCSurfacesVertexTransferLightMapUV(inout SurfacesStandardVertexIntermediate In)
+{
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+  #if USE_INSTANCING
+    In.lightmapUV.xy = a_lightingMapUVParam.xy + a_texCoord1 * a_lightingMapUVParam.z;
+    In.lightmapUV.z = a_lightingMapUVParam.w;
+  #else
+    In.lightmapUV.xy = cc_lightingMapUVParam.xy + a_texCoord1 * cc_lightingMapUVParam.z;
+    In.lightmapUV.z = cc_lightingMapUVParam.w;
+  #endif
+#endif
+}

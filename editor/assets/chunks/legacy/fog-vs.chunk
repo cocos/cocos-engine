@@ -1,0 +1,15 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#include <legacy/fog-base>
+
+#if !CC_USE_ACCURATE_FOG
+out mediump float v_fog_factor;
+#endif
+
+#pragma define CC_FOG_FACTOR v_fog_factor
+
+void CC_TRANSFER_FOG(vec4 pos) {
+#if !CC_USE_ACCURATE_FOG
+    CC_TRANSFER_FOG_BASE(pos, CC_FOG_FACTOR);
+#endif
+}

@@ -1,0 +1,12 @@
+// modify final lighting result for user-defined lighting models
+// this function invokes at end of lighting flow
+// should use lightingData for light direction and distance, and miscData for light color and intensity
+// should use common lighting-model and corresponding shading-model header before function define
+  //#include <lighting-models/includes/common>
+  //#include <surfaces/data-structures/XXX>
+
+// #define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+// void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+// {
+// }
+

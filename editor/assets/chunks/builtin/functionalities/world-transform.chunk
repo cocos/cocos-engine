@@ -1,0 +1,40 @@
+#include <builtin/uniforms/cc-local-batched>
+
+void CCGetWorldMatrix(out mat4 matWorld)
+{
+  #if USE_INSTANCING
+    matWorld = mat4(
+      vec4(a_matWorld0.xyz, 0.0),
+      vec4(a_matWorld1.xyz, 0.0),
+      vec4(a_matWorld2.xyz, 0.0),
+      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0)
+    );
+  #else
+    matWorld = cc_matWorld;
+  #endif
+}
+
+void CCGetWorldMatrixFull(out mat4 matWorld, out mat4 matWorldIT)
+{
+  #if USE_INSTANCING
+    matWorld = mat4(
+      vec4(a_matWorld0.xyz, 0.0),
+      vec4(a_matWorld1.xyz, 0.0),
+      vec4(a_matWorld2.xyz, 0.0),
+      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0)
+    );
+
+    // non-uniform scaling for normals
+    vec3 scale = 1.0 / vec3(length(a_matWorld0.xyz), length(a_matWorld1.xyz), length(a_matWorld2.xyz));
+    vec3 scale2 = scale * scale;
+    matWorldIT = mat4(
+      vec4(a_matWorld0.xyz * scale2.x, 0.0),
+      vec4(a_matWorld1.xyz * scale2.y, 0.0),
+      vec4(a_matWorld2.xyz * scale2.z, 0.0),
+      vec4(0.0, 0.0, 0.0, 1.0)
+    );
+  #else
+    matWorld = cc_matWorld;
+    matWorldIT = cc_matWorldIT;
+  #endif
+}

@@ -1,0 +1,17 @@
+{
+    "__type__": "Test.SpriteNeedsDeferredLoad",
+    "rawTexture": null,
+    "texture": {
+        "__uuid__": "748321"
+    },
+    "_native": "JareWontTellYou",
+    "rotated": false,
+    "trim": false,
+    "trimThreshold": 1,
+    "trimX": 0,
+    "trimY": 0,
+    "width": 0,
+    "height": 0,
+    "x": 0,
+    "y": 0
+}

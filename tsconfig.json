@@ -1,0 +1,62 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es2015", "es2017", "dom"],
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "./bin/.ts",
+    "rootDir": "./",
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
+    "paths": {
+        "cc.decorator": [
+            "cocos/core/data/decorators/index.ts"
+        ]
+    },
+    "types": [
+      "./@types/globals",
+      "./@types/consts",
+      "./@types/jsb",
+      "./@types/box2d-jsb",
+      "./@types/editor-extends",
+      "./@types/webGL.extras",
+      "./@types/webGL2.extras",
+      "./@types/webGPU",
+      "./node_modules/@cocos/cannon/CANNON",
+      "./node_modules/@types/jest/index",
+
+      // external types
+      "./native/external/emscripten/external-wasm",
+      "./native/external/emscripten/bullet/bullet",
+      "./native/external/emscripten/physx/physx",
+      "./native/external/emscripten/webgpu/webgpu",
+      "./native/external/emscripten/spine/spine",
+      "./native/external/emscripten/meshopt/meshopt_decoder",
+      "./native/external/emscripten/box2d/box2d",
+
+      // pal
+      "./@types/pal/system-info",
+      "./@types/pal/screen-adapter",
+      "./@types/pal/minigame",
+      "./@types/pal/audio",
+      "./@types/pal/input",
+      "./@types/pal/env",
+      "./@types/pal/pacer",
+      "./@types/pal/wasm"
+    ]
+  },
+  "include": [
+      "exports/**/*.ts",
+      "editor/exports/**/*.ts",
+      "typedoc-index.ts",
+      "pal/**/*.ts",
+      "vendor/**/*.ts"
+  ]
+}

@@ -1,0 +1,74 @@
+// Effect Syntax Guide: https://github.com/cocos-creator/docs-3d/blob/master/zh/material-system/effect-syntax.md
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs:vert
+      frag: fs:frag
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: one
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+CCProgram vs %{
+  precision highp float;
+
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+
+  in vec3 a_position;
+
+  in vec4 a_color;
+  out vec4 v_color;
+
+  in float a_dist;
+  out float v_dist;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+    pos = cc_matViewProj * cc_matWorld * pos;
+
+    v_color = a_color;
+    v_dist = a_dist;
+
+    return pos;
+  }
+}%
+
+CCProgram fs %{
+  #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])
+
+  precision highp float;
+
+  in vec4 v_color;
+  in float v_dist;
+
+  vec4 frag () {
+    vec4 o = v_color;
+
+    #if __VERSION__ < 300
+      #ifdef GL_OES_standard_derivatives
+        float aa = fwidth(v_dist);
+      #else
+        float aa = 0.05;
+      #endif
+    #else
+      float aa = fwidth(v_dist);
+    #endif
+
+    float alpha = 1. - smoothstep(-aa, 0., abs(v_dist) - 1.0);
+    o.rgb *= o.a;
+    o *= alpha;
+
+    return o;
+  }
+}%

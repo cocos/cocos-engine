@@ -1,0 +1,10 @@
+// for user modified lighting result
+struct LightingMiscData
+{
+  // local light source raw attributes, same as CCForwardLight
+  // use lightingData.L for actual lighting vector, lightDir may be zero with point lights
+  float lightType;
+  vec3 lightPos, lightDir;
+  vec4 lightColorAndIntensity;
+  vec4 lightSizeRangeAngle;
+};

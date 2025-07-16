@@ -1,0 +1,87 @@
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - passes:
+    - vert: line-vs:vert
+      frag: line-fs:front
+      properties:
+        selectedColor:       { value: [1, 1, 0, 0.0784313] }
+        selectedFaceForward: { value: [0, 0, 0, 0        ] }
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+}%
+
+CCProgram line-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+
+  in highp vec3 a_position;
+  in vec3 a_normal;
+  out vec3 normal;
+  #if USE_DASHED_LINE
+    in float a_lineDistance;
+    out float lineDistance;
+  #endif
+
+  vec4 vert () {
+    normal = a_normal;
+    vec4 pos = cc_matProj * (cc_matView * cc_matWorld) * vec4(a_position, 1);
+    pos.z -= 0.000001;
+    #if USE_DASHED_LINE
+      lineDistance = a_lineDistance;
+    #endif
+    return pos;
+  }
+}%
+
+CCProgram line-fs %{
+  precision mediump float;
+  #include <legacy/output>
+  in vec3 normal;
+  in float lineDistance;
+  uniform Constant {
+    vec4 mainColor;
+    vec4 selectedColor;
+    vec4 selectedFaceForward;
+  };
+
+  vec4 front() {
+    vec4 outputColor = mainColor;
+
+    // dot
+    vec3 d = normal.xyz * selectedFaceForward.xyz;
+    float m = max(max(d.x, d.y), d.z);
+    float selected = step(0.9999,m);
+
+    outputColor = selected==1. ? selectedColor : mainColor ;
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(outputColor);
+    #else
+        #if USE_DASHED_LINE
+            if (mod(lineDistance, 10.0) > 5.0) {
+                discard;
+            }
+        #endif
+      return outputColor;
+    #endif
+  }
+  vec4 back() {
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(vec4(mainColor.rgb, mainColor.a * 0.2));
+    #else
+      return vec4(mainColor.rgb, mainColor.a * 0.2);
+    #endif
+  }
+}%

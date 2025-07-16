@@ -1,0 +1,10 @@
+{
+    "title": {
+        "zh": "核心模块",
+        "en": "Core"
+    },
+    "description": {
+        "zh": "Cocos Creator 核心功能。",
+        "en": "Cocos Creator core functionalities."
+    }
+}

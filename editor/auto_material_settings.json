@@ -1,0 +1,61 @@
+{
+    "properties": {
+        "mainTexture": {
+            "matchString": "basecolor",
+            "defineName": "USE_ALBEDO_MAP"
+        },
+        "normalMap": {
+            "matchString": "normal",
+            "defineName": "USE_NORMAL_MAP"
+        },
+        "pbrMap": {
+            "matchString": "orms",
+            "defineName": "USE_PBR_MAP"
+        },
+        "occlusionMap": {
+            "matchString": "occlusion",
+            "defineName": "USE_OCCLUSION_MAP"
+        },
+        "emissiveMap": {
+            "matchString": "emissive",
+            "defineName": "USE_EMISSIVE_MAP"
+        },
+        "anisotropyMap": {
+            "matchString": "anisotropy",
+            "defineName": "IS_ANISOTROPY"
+        },
+        "coatDataMap": {
+            "matchString": "coatdata",
+            "defineName": "USE_COAT_DATA_MAP"
+        },
+        "coatNormalMap": {
+            "matchString": "coatnormal",
+            "defineName": "USE_FLAKE"
+        },
+        "sheenDataMap": {
+            "matchString": "sheendata",
+            "defineName": "USE_SHEEN_DATA_MAP"
+        },
+        "sheenColorMap": {
+            "matchString": "sheencolor",
+            "defineName": "USE_SHEEN_COLOR_MAP"
+        },
+        "sssMap": {
+            "matchString": "scatterdata",
+            "defineName": "USE_SSS_MAP",
+            "effect": "4a31bd46-8da1-4d9a-add5-9ac43967159e"
+        }
+    },
+    "effectMap": {
+        "default": "c8f66d17-351a-48da-a12c-0212d28575c4",
+        "sheenDataMap": "b25c7601-1d07-4a56-86c5-62e83ea7c61e",
+        "coatDataMap": "304a12db-3955-46e4-b712-e5e26f45258b",
+        "sssMap": "4a31bd46-8da1-4d9a-add5-9ac43967159e"
+    },
+    "effectPriority": [
+        "coatDataMap",
+        "sheenDataMap",
+        "sssMap",
+        "default"
+    ]
+}

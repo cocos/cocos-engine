@@ -1,0 +1,63 @@
+// base coordinates & color expressions for shader-graph
+
+
+// fraction is saturation percentage, 0 means gray
+vec3 Desaturation(vec3 color, float fraction)
+{
+  vec3 gray = vec3(dot(color, GRAY_VECTOR));
+  return mix(color, gray, fraction);
+}
+
+vec2 Rotator(vec2 uv, vec2 centerUV, float time, float speed)
+{
+  uv -= centerUV;
+  vec3 dir = vec3(uv.x, 0.0, uv.y);
+  float dirLength = length(dir);
+  dir /= dirLength + EPSILON;
+  dir = RotationVecFromAxisY(dir, time * speed) * dirLength;
+  return vec2(dir.x, dir.z) + centerUV;
+}
+
+// return 0.0 when out of range
+// hardness: 0 - 1
+float SphereMask(vec2 center, vec2 point, float radius, float hardness)
+{
+  float length = length(center - point);
+  float coef = pow(saturate(length / radius), 1.0 / (1.0 - saturate(sqrt(hardness)) + EPSILON));
+  return length > radius ? 0.0 : 1.0 - coef;
+}
+float SphereMask(vec3 center, vec3 point, float radius, float hardness)
+{
+  float length = length(center - point);
+  float coef = pow(saturate(length / radius), 1.0 / (1.0 - saturate(sqrt(hardness)) + EPSILON));
+  return length > radius ? 0.0 : 1.0 - coef;
+}
+
+
+// For Fragment Shader
+
+// tangent space -> world space
+// same as TransformVector
+vec3 TransformNormalMap(vec3 vectorFromNormalMap)
+{
+  vec3 vectorTS = normalize(vectorFromNormalMap - vec3(0.5));
+  vec3 normal = normalize(FSInput_worldNormal);
+  vec3 tangent = normalize(FSInput_worldTangent);
+  vec3 binormal = CalculateBinormal(normal, tangent, FSInput_mirrorNormal);
+  vec3 vecWS = vectorTS.x * tangent + vectorTS.y * binormal + vectorTS.z * normal;
+  return vecWS * vec3(1.0, 1.0, -1.0); // inverse Z for RH
+}
+
+// WorldPos -> UV
+vec2 GetTriplanarMappingUV()
+{
+  vec3 Up = vec3(0.0, 1.0, 0.0);
+  vec3 U = cross(Up, FSInput_worldNormal.xyz);
+  if (length(U) < 0.01)
+    U = vec3(1.0, 0.0, 0.0);
+  else
+    U = normalize(U);
+  vec3 V = cross(U, FSInput_worldNormal.xyz);
+  V = normalize(V);
+  return fract(vec2(dot(FSInput_worldPos.xyz, U), dot(FSInput_worldPos.xyz, V)));
+}

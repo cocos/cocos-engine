@@ -1,0 +1,59 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - passes:
+    - vert: grid-vs:vert
+      frag: grid-fs:frag
+      priority: min + 11
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+}%
+
+CCProgram grid-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 a_position;
+  in vec4 a_color;
+  out vec4 color;
+  out vec3 pos_w;
+
+  vec4 vert () {
+    vec4 position = vec4(a_position, 0, 1);
+    vec4 pos = cc_matWorld * position;
+    pos_w = pos.xyz;
+    color = a_color;
+
+    pos = cc_matProj * (cc_matView * cc_matWorld) * position;
+    return pos;
+  }
+}%
+
+CCProgram grid-fs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/output>
+
+  in vec4 color;
+  in vec3 pos_w;
+
+  vec4 frag () {
+    vec4 o = color;
+
+    // fade out at grazing angles
+    float scale = abs(normalize(cc_cameraPos.xyz - pos_w).y);
+    if (scale < 0.5) o.a *= max(0.3, scale * 2.0);
+
+    return CCFragOutput(o);
+  }
+}%

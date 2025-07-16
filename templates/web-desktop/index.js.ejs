@@ -1,0 +1,17 @@
+
+import { Application } from '<%= applicationJS %>';
+
+function topLevelImport (url) {
+    return System.import(url);
+}
+
+const application = new Application();
+
+topLevelImport('cc')
+.then((engine) => {
+    return application.init(engine);
+}).then(() => {
+    return application.start();
+}).catch((err) => {
+    console.error(err);
+});

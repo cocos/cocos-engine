@@ -1,0 +1,50 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - passes:
+    - vert: grid-vs:vert
+      frag: grid-fs:frag
+      priority: max - 11
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+}%
+
+CCProgram grid-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+  in vec2 a_position;
+
+  in vec4 a_color;
+  out vec4 color;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 0, 1);
+
+    pos = cc_matViewProj * cc_matWorld * pos;
+    color = a_color;
+
+    return pos;
+  }
+}%
+
+CCProgram grid-fs %{
+  precision mediump float;
+  in vec4 color;
+  #include <legacy/output>
+
+  vec4 frag () {
+    vec4 o = vec4(1, 1, 1, 1);
+    o *= color;
+    return CCFragOutput(o);
+  }
+}%

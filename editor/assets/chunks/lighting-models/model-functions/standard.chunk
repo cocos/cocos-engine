@@ -1,0 +1,351 @@
+#include <common/lighting/brdf>
+#include <common/lighting/bxdf>
+#include <common/lighting/attenuation>
+#include <common/lighting/functions>
+#include <lighting-models/model-functions/standard-common>
+
+bool CCSurfacesLightingEnableShadow(in float NoL)
+{
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  // for back light shadows
+  return true;
+#elif CC_SURFACES_LIGHTING_SSS
+  // for over-bumped surfaces
+  return true;
+#else
+  return NoL > 0.0;
+#endif
+}
+
+float CCSurfacesLightingCalculateDistanceAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in float lightType)
+{
+  return CalculateDistanceAttenuation(lightingData.distToLightSqr, lightSizeRangeAngle.x, lightSizeRangeAngle.y, lightType);
+}
+
+float CCSurfacesLightingCalculateAngleAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in vec3 spotLightDir)
+{
+  return CalculateAngleAttenuation(spotLightDir, lightingData.L, lightSizeRangeAngle.z);
+}
+
+void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+{
+#if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
+  lightingDiffuse = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
+#else
+  lightingDiffuse = vec3(0.0);
+#endif
+
+#if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+  lightingSpecular = CalculateDirectSpecular(lightingData, lightSourceColorAndIntensity);
+#else
+  lightingSpecular = vec3(0.0);
+#endif
+}
+
+
+void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, float lightIntensity)
+{
+#if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
+  lightingDiffuse = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
+#else
+  lightingDiffuse = vec3(0.0);
+#endif
+
+#if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+  lightingSpecular = CalculateEnvironmentSpecular(lightingData, lightIntensity);
+#else
+  lightingSpecular = vec3(0.0);
+#endif
+}
+
+vec3 CCSurfaceLightingCalculateExtraFresnel(in LightingIntermediateData lightingData)
+{
+    float fresnel = CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVAbsSat); //NoVSat for single side, and NoVAbsSat for two sided
+    return vec3(fresnel);
+}
+
+void CCSurfaceLightingCalculateDirectFresnel(out vec3 directGF, in LightingIntermediateData lightingData, vec3 specularColor, in vec3 environmentGF)
+{
+  #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
+    // local lighting also use EnvIntegratedFresnel for estimated GF terms, calculate accurate GF instead in the future, CCSurfacesDebugViewLightingResult also needs modified
+    directGF = environmentGF;
+  #else
+    float roughness = lightingData.specularParam;
+    directGF = F_SchlickMultiplier(specularColor, lightingData.VoHAbsSat) * G_Schlick(roughness, lightingData.NoVSat, lightingData.NoLSat);
+  #endif
+}
+
+void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 integratedF, in LightingIntermediateData lightingData, vec3 specularColor)
+{
+  float roughness = lightingData.specularParam;
+  IntegratedGFMultiplier(integratedGF, integratedF, specularColor, roughness, lightingData.NoVAbsSat);
+}
+
+#if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+  void CCSurfaceLightingCalculateDirectSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
+  {
+    float VoH = lightingData.VoHAbsSat;
+  	subLayerF = vec3(exp2( (-5.55473 * VoH - 6.98316) * VoH ));
+  }
+  void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
+  {
+    // ior related:
+    subLayerF = vec3(CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVSat));
+    // F0 F90 related:
+    // if (equalf(lightingData.ior, 0.0))
+    // subLayerF = vec3(CalculateFresnelCoefficient(lightingData.F0, lightingData.F90, lightingData.NoVSat));
+  }
+#endif
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+  // do not support anisotropy
+  void CCSurfacesLightingCalculateDirectTransmitSpecular(out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+  {
+    float roughness = lightingData.specularParam;
+    float NoLSat = saturate(dot(lightingData.N, -lightingData.L));
+    vec3 irradiance = NoLSat * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+
+    vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
+    float RoL = dot(lightingData.L, normalize(R));
+    float calcSpec = D_GGX(roughness, saturate(RoL));
+
+    lightingSpecular = irradiance * calcSpec;
+  }
+  void CCSurfacesLightingCalculateEnvironmentTransmitSpecular(out vec3 lightingSpecular, in LightingIntermediateData lightingData, float lightIntensity)
+  {
+    vec3 envSpec = vec3(0.0);
+    vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
+    float roughness = lightingData.specularParam;
+
+  #if CC_USE_REFLECTION_PROBE
+    #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+      envSpec = EnvReflection(cc_reflectionProbeCubemap, R, roughness, cc_ambientGround.w);
+    #endif
+    // todo: planar refraction from scene color when use planar probe or no probe
+  #endif
+
+  #if CC_USE_IBL && CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_CUBE
+    envSpec = EnvReflection(cc_environment, R, roughness, cc_ambientGround.w);
+  #endif
+
+    lightingSpecular = CalculateScattering(envSpec * lightIntensity, lightingData.transmitScatteringParams.w, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
+  }
+#endif
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  #define objectThickness lightingData.transmitDiffuseParams.x
+  #define transmitMask lightingData.transmitDiffuseParams.y
+  #define envTransmitScale lightingData.transmitDiffuseParams.z
+  #define envFixedDistanceScale lightingData.transmitScatteringParams.w
+  #define transmitDistanceScale lightingData.transmitDiffuseParams.w
+  #define DONOT_USE_SHADOWMAP_DISTANCE (equalf(lightingData.shadowPosAndDepth.z, lightingData.shadowPosAndDepth.w) && equalf(lightingData.shadowPosAndDepth.z, SURFACES_MAX_TRANSMIT_DEPTH_VALUE))
+  // view space depth is negative value, so use shadowMap - current
+  #define SHADOWMAP_DISTANCE max(lightingData.shadowPosAndDepth.w - lightingData.shadowPosAndDepth.z, 0.0)
+  //clamp(lightingData.shadowPosAndDepth.w - lightingData.shadowPosAndDepth.z, lightingData.transmitDiffuseParams.z, lightingData.transmitDiffuseParams.w)
+
+  void CCSurfacesLightingCalculateDirectTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float shadow)
+  {
+  #if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
+    float distance = lightingData.transmitScatteringParams.w;
+    if (!DONOT_USE_SHADOWMAP_DISTANCE)
+    {
+      distance = transmitDistanceScale * SHADOWMAP_DISTANCE;
+      shadow = step(SHADOWMAP_DISTANCE, objectThickness) > 0.0 ? 1.0 : shadow;
+    }
+
+    vec3 backIrradiance = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
+    backIrradiance *= shadow * transmitMask;
+    transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
+  #else
+    transmitDiffuse = vec3(0.0);
+  #endif
+  }
+  // depend on dir-light shadow direction, if there are some occluders in front of the light source, env transmit will dark
+  void CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, float lightIntensity, float ao, vec3 shadowLightDirection)
+  {
+  #if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
+    float distance = lightingData.transmitScatteringParams.w;
+    if (!DONOT_USE_SHADOWMAP_DISTANCE)
+    {
+      float shadowMapDistance = transmitDistanceScale * SHADOWMAP_DISTANCE;
+      float fixedDistance = transmitDistanceScale * envFixedDistanceScale;
+      // lerp between shadowmap distance and fix distance to fix shadow and normal direction not match
+      float lerpCoef = saturate(dot(lightingData.N, shadowLightDirection));
+      distance = mix(fixedDistance, shadowMapDistance, lerpCoef);
+    }
+
+    vec3 backIrradiance = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
+    backIrradiance *= ao * transmitMask;
+    transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
+    transmitDiffuse *= envTransmitScale;
+  #else
+    transmitDiffuse = vec3(0.0);
+  #endif
+  }
+
+  #undef objectThickness
+  #undef transmitMask
+  #undef envTransmitScale
+  #undef envFixedDistanceScale
+  #undef DONOT_USE_SHADOWMAP_DISTANCE
+  #undef SHADOWMAP_DISTANCE
+#endif
+
+#if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+  // this surface function used for adjust TRT color with brdf lighting, input are lighting result and surface data
+  // the default function can only be defined here
+  #ifndef CC_SURFACES_FRAGMENT_MODIFY_2ND_SPECULAR_COLOR
+    vec3 SurfacesLightingGet2ndSpecularColor(float specBRDF, bool isSaturated)
+    {
+      return vec3(saturate(specBRDF));
+    }
+  #endif
+
+  void CCSurfacesLightingCalculateDirect2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float intensitySpecular, in vec3 originalSpecular)
+  {
+  #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+    vec3 unused;
+    // light color has less influence
+    CCSurfacesLightingCalculateDirect(unused, specularLighting, lightingData, lightSourceColorAndIntensity);
+    // float brdf = specularLighting.x;
+    // vec3 Color = SurfacesLightingGet2ndSpecularColor(brdf, true);
+    // todo: modify Color to add some light color influence
+    // specularLighting *= Color * lightSourceColorAndIntensity.w;
+    specularLighting *= intensitySpecular;
+    // specularLighting -= originalSpecular;
+  #else
+    specularLighting = vec3(0.0);
+  #endif
+  }
+
+  void CCSurfacesLightingCalculateEnvironment2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, float lightIntensity, float intensitySpecular, in vec3 originalSpecular)
+  {
+  #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+    vec3 unused;
+    // light color has less influence
+    specularLighting = CalculateEnvironmentSpecular(lightingData, lightIntensity);
+    // float brdf = length(specularLighting);
+    // vec3 Color = SurfacesLightingGet2ndSpecularColor(brdf, false);
+    // todo: modify Color to add some light color influence
+    // specularLighting *= Color * lightIntensity;
+    specularLighting *= intensitySpecular;
+    // specularLighting -= originalSpecular;
+  #else
+    specularLighting = vec3(0.0);
+  #endif
+  }
+
+  void CCSurfacesLightingCalculateDirectSheen(out vec3 specularLighting, out vec3 directGF, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float intensitySpecular)
+  {
+  #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+    float sheen = Sheen(lightingData.NoHSat, lightingData.NoL, lightingData.NoV, lightingData.specularParam);
+    specularLighting = vec3(sheen) * intensitySpecular * lightSourceColorAndIntensity.xyz * lightSourceColorAndIntensity.w;
+    directGF = vec3(1.0);
+  #else
+    specularLighting = vec3(0.0);
+  #endif
+  }
+
+  void CCSurfacesLightingCalculateEnvironmentSheen(out vec3 specularLighting, out vec3 environmentGF, in LightingIntermediateData lightingData, float lightIntensity, float intensitySpecular)
+  {
+  #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+    LightingIntermediateData lightingDataSheen = lightingData;
+    float roughness = lightingData.specularParam;
+
+    // sample max distribute normal-vertical-direction reflection with fixed roughness
+    vec3 L = normalize(mix(lightingDataSheen.B, lightingDataSheen.N, 0.3));
+    lightingDataSheen.specularParam = mix(0.5, 0.9, roughness);
+    lightingDataSheen.V = lightingDataSheen.N = L;
+    specularLighting = CalculateEnvironmentSpecular(lightingDataSheen, lightIntensity);
+    specularLighting *= intensitySpecular;
+
+    // range limitation
+    environmentGF = vec3(Sheen(lightingData.NoV, roughness));
+  #else
+    specularLighting = vec3(0.0);
+  #endif
+  }  
+#endif
+
+#if CC_SURFACES_LIGHTING_TT
+  // TT is a hacked fabric simulation algorithm
+  void CCSurfacesLightingCalculateDirectTT(inout LightingResult lightingResult, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+  {
+    lightingResult.diffuseColorWithLightingTT = lightingResult.diffuseColorWithLighting;
+    float w = lightingData.ttIntensity;
+    // w = 0 equals to diffuse lighting without scattering
+    // ttScatterCoef start from 0.0
+    vec3 scatteredLighting = pow(saturate(lightingData.baseColorTT * w + lightingData.NoLSat) * lightingData.NoLSat, vec3(mix(0.5, 0.5 + lightingData.ttScatterCoef, w)));
+    // scattered = tt + origin diffuse
+    vec3 ttLighting = scatteredLighting - lightingData.NoLSat;
+    lightingResult.directTT = ttLighting * DiffuseCoefficient_EnergyConservation * lightSourceColorAndIntensity.xyz* lightSourceColorAndIntensity.w;
+  }
+#endif
+
+#if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+  // todo: layer result in LightingResult separate to single structure like LightingResultPerLayer
+  // todo: after structuring, add TRT/Sheen to eachLayer's direct/environmentSpecular before blending
+  void CCSurfacesLightingCalculateDirectMultiLayerBlending(inout LightingResult lightingResult
+      , in LightingIntermediateData lightingData2ndLayer
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1
+      // add more layers...
+    #endif
+    )
+  {
+    vec3 lastLayerF, zeroDiffuse = vec3(0.0);
+    vec3 blendedBaseD = lightingResult.directDiffuse, blendedBaseS = lightingResult.directSpecular;
+    InitializeLayerBlending(blendedBaseD, blendedBaseS,
+                            lightingResult.directDiffuseSubLayers, lightingResult.directSpecularSubLayers,
+                            lastLayerF,
+                            lightingResult.directDiffuse, lightingResult.directSpecular
+                            );
+
+      CCSurfaceLightingCalculateDirectSubLayerFresnel(lightingResult.directSubLayerF, lightingData2ndLayer, lightingResult.specularColorWithLighting2ndSpecular);
+      CalculateLayerBlending (blendedBaseD, blendedBaseS,
+                              lightingResult.directDiffuseSubLayers, lightingResult.directSpecularSubLayers,
+                              lastLayerF,
+                              zeroDiffuse, zeroDiffuse,
+                              lightingResult.direct2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular,
+                              lightingData2ndLayer.layerOpacity, lightingResult.directSubLayerF
+                              );
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1
+      // add more layers...
+    #endif
+
+    // output
+    lightingResult.directDiffuse = blendedBaseD;
+    lightingResult.directSpecular = blendedBaseS;
+  }
+
+  void CCSurfacesLightingCalculateEnvironmentMultiLayerBlending(inout LightingResult lightingResult
+      , in LightingIntermediateData lightingData2ndLayer
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1
+      // add more layers...
+    #endif
+    )
+  {
+    vec3 lastLayerF, zeroDiffuse = vec3(0.0);
+    vec3 blendedBaseD = lightingResult.environmentDiffuse, blendedBaseS = lightingResult.environmentSpecular;
+    InitializeLayerBlending(blendedBaseD, blendedBaseS,
+                            lightingResult.environmentDiffuseSubLayers, lightingResult.environmentSpecularSubLayers,
+                            lastLayerF,
+                            lightingResult.environmentDiffuse, lightingResult.environmentSpecular
+                            );
+
+      CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(lightingResult.environmentSubLayerF, lightingData2ndLayer, lightingResult.specularColorWithLighting2ndSpecular);
+      CalculateLayerBlending (blendedBaseD, blendedBaseS,
+                              lightingResult.environmentDiffuseSubLayers, lightingResult.environmentSpecularSubLayers,
+                              lastLayerF,
+                              zeroDiffuse, zeroDiffuse,
+                              lightingResult.environment2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular,
+                              lightingData2ndLayer.layerOpacity, lightingResult.environmentSubLayerF
+                              );
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1
+      // add more layers...
+    #endif
+
+    // output
+    lightingResult.environmentDiffuse = blendedBaseD;
+    lightingResult.environmentSpecular = blendedBaseS;
+  }
+#endif

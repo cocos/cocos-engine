@@ -1,0 +1,22 @@
+name: <Native> Generate Vulkan SDK Cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      vulkan_sdk_version:
+        description: 'Vulkan SDK version'
+        type: string
+        default: '1.3.243.0'
+        required: true
+
+jobs:
+  generate_vulkan_sdk_cache:
+    name: "Generate Vulkan SDK cache"
+    runs-on: windows-latest
+    steps:
+      - name: Setup Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
+        with:
+          vulkan-query-version: ${{ github.event.inputs.vulkan_sdk_version }}
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true

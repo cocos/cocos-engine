@@ -1,0 +1,155 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      properties: &props
+        __metadata__: { editor: { visible: false } } # all the custom data will be overriden anyways, so hide all from inspector
+        colorArr:        { value: [1, 1, 1, 1], editor: { type: color } } # note the 'Arr' suffix
+        tilingOffsetArr: { value: [1, 1, 0, 0] } # default value here is applied to every array elements
+        mainTexture:     { value: grey         }
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+// This is the batched reference for 'builtin-unlit.effect',
+// can be used in BatchedSkinningModel as the master material.
+
+CCProgram unlit-vs %{
+  precision highp float;
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+
+  // array lengths need to be determined at resource-import-time
+  // so we can't define this as a runtime macro
+  #pragma define BATCHED_UNITS 6
+
+  #if USE_VERTEX_COLOR
+    in lowp vec4 a_color;
+    out lowp vec4 v_color;
+  #endif
+
+  #if USE_TEXTURE
+    out vec2 v_uv;
+    uniform TexCoords {
+      vec4 tilingOffsetArr[BATCHED_UNITS];
+    };
+  #endif
+
+  ////////////////
+
+  in float a_batch_id;
+  out float v_batch_id;
+  in vec2 a_batch_uv;
+  out vec2 v_batch_uv;
+
+  highp vec4 vert () {
+    int id = int(a_batch_id);
+    #if USE_TEXTURE
+      vec4 tilingOffset = tilingOffsetArr[id];
+      v_batch_uv = a_batch_uv;
+    #endif
+
+    v_batch_id = a_batch_id;
+
+    ////////////////
+
+    highp vec4 position;
+    CCVertInput(position);
+
+    highp mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    #if USE_TEXTURE
+      v_uv = a_texCoord;
+      #if FLIP_UV
+        v_uv.y = 1.0 - v_uv.y;
+      #endif
+      v_uv = v_uv * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
+    #endif
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <legacy/output>
+  #pragma define BATCHED_UNITS 6
+
+  #if USE_TEXTURE
+    in vec2 v_uv;
+    uniform sampler2D mainTexture;
+  #endif
+
+  #if USE_COLOR
+    uniform Constant {
+      vec4 colorArr[BATCHED_UNITS];
+    };
+  #endif
+
+  #if USE_VERTEX_COLOR
+    in lowp vec4 v_color;
+  #endif
+
+  ////////////////
+
+  in float v_batch_id;
+  in vec2 v_batch_uv;
+  vec4 getVec4Uniform (vec4 uniformArr[BATCHED_UNITS]) {
+    if (v_batch_id < 1.0) { return uniformArr[0]; }
+    else if (v_batch_id < 2.0) { return uniformArr[1]; }
+    else if (v_batch_id < 3.0) { return uniformArr[2]; }
+    else if (v_batch_id < 4.0) { return uniformArr[3]; }
+    else if (v_batch_id < 5.0) { return uniformArr[4]; }
+    else { return uniformArr[5]; }
+  }
+
+  vec4 frag () {
+    #if USE_COLOR
+      vec4 color = getVec4Uniform(colorArr);
+    #endif
+
+    ////////////////
+
+    vec4 o = vec4(1, 1, 1, 1);
+
+    #if USE_TEXTURE
+      #if BATCH_TEXTURE // need to use batched UV if texture is specified as batchable
+        o *= texture(mainTexture, v_batch_uv);
+      #else
+        o *= texture(mainTexture, v_uv);
+      #endif
+    #endif
+
+    #if USE_COLOR
+      o *= color;
+    #endif
+
+    #if USE_VERTEX_COLOR
+      o *= v_color;
+    #endif
+
+    return CCFragOutput(o);
+  }
+}%

@@ -1,0 +1,11 @@
+{
+  "__type__": "cc.RenderTexture",
+  "_objFlags": 0,
+  "_native": "",
+  "content": {
+    "base": "2,2,0,0,0,0",
+    "w": 256,
+    "h": 256,
+    "n": ""
+  }
+}

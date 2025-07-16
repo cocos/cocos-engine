@@ -1,0 +1,107 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  temporaries:
+    s1: &s1 {
+      minFilter: linear,
+      magFilter: linear,
+      addressU: clamp,
+      addressV: clamp,
+    }
+  techniques:
+  - name: tonemap
+    passes:
+    - vert: tonemap-vs:vert
+      frag: tonemap-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      properties:
+        u_texSampler: { sampler: *s1 }
+        u_blendTexSampler: { sampler: *s1 }
+}%
+
+CCProgram tonemap-vs %{
+  precision highp float;
+  #include <common/common-define>
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+  out vec4 v_offset;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 0, 1);
+    v_uv = a_texCoord * cc_screenScale.xy;
+    v_offset = v_uv.xyxy + cc_nativeSize.zwzw * vec4(1.0, 0.0, 0.0, -1.0);
+
+    return pos;
+  }
+}%
+
+CCProgram tonemap-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+  #include <common/color/gamma>
+  #include <common/color/aces>
+
+  in vec2 v_uv;
+  in vec4 v_offset;
+
+  uniform sampler2D u_texSampler;
+  uniform sampler2D u_blendTexSampler;
+
+  vec3 ToLDR(vec3 color) {
+    #if CC_USE_HDR
+      color *= cc_exposure.x * FP_SCALE_INV;
+      color = ACESToneMap(color);
+      color = LinearToSRGB(color);
+    #endif
+    return color;
+  }
+
+  vec4 frag () {
+    #if CC_USE_SMAA
+      // Fetch the blending weights for current pixel:
+      vec4 a;
+      a.rb = texture(u_blendTexSampler, v_uv).rb; // Bottom / Left
+      a.g = texture(u_blendTexSampler, v_offset.zw).g; // Top
+      a.a = texture(u_blendTexSampler, v_offset.xy).a; // Right
+
+      // Is there any blending weight with a value greater than 0.0?
+      if (dot(a, vec4(1.0)) < 1e-5) {
+        vec4 o = texture(u_texSampler, v_uv);
+        o.rgb = ToLDR(o.rgb);
+        return o;
+      } else {
+        vec2 offset;
+        offset.x = a.a > a.b ? a.a : -a.b;
+        offset.y = a.g > a.r ? -a.g : a.r;
+        if (abs(offset.x) > abs(offset.y)) {
+          offset.y = 0.0;
+        } else {
+          offset.x = 0.0;
+        }
+        vec4 C = texture(u_texSampler, v_uv);
+        C.rgb = ToLDR(C.rgb);
+
+        vec2 uv = v_uv + sign(offset) * cc_nativeSize.zw;
+        vec4 Cop = texture(u_texSampler, uv);
+        Cop.rgb = ToLDR(Cop.rgb);
+
+        float s = abs(offset.x) > abs(offset.y) ? abs(offset.x) : abs(offset.y);
+        C.rgb = pow(C.rgb, vec3(2.2));
+        Cop.rgb = pow(Cop.rgb, vec3(2.2));
+        vec4 mixed = mix(C, Cop, s);
+        mixed.rgb = pow(mixed.rgb, vec3(1.0 / 2.2));
+        return mixed;
+      }
+    #else
+      vec4 o = texture(u_texSampler, v_uv);
+      //o = texture(u_blendTexSampler, v_uv);
+      o.rgb = ToLDR(o.rgb);
+      return o;
+    #endif
+  }
+}%

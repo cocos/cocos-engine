@@ -1,0 +1,177 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "definitions": {
+        "CategoryInfo": {
+            "additionalProperties": false,
+            "properties": {
+                "checkable": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "Features": {
+            "additionalProperties": {
+                "$ref": "#/definitions/IModuleItem"
+            },
+            "type": "object"
+        },
+        "IFeatureGroup": {
+            "additionalProperties": false,
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "boolean"
+                },
+                "dependencies": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hidden": {
+                    "type": "boolean"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "options": {
+                    "additionalProperties": {
+                        "$ref": "#/definitions/IFeatureItem"
+                    },
+                    "type": "object"
+                },
+                "readonly": {
+                    "type": "boolean"
+                },
+                "required": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "IFeatureItem": {
+            "additionalProperties": false,
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "cmakeConfig": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "boolean"
+                },
+                "dependencies": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enginePlugin": {
+                    "type": "boolean"
+                },
+                "envCondition": {
+                    "type": "string"
+                },
+                "fallback": {
+                    "type": "string"
+                },
+                "flags": {
+                    "additionalProperties": {
+                        "additionalProperties": false,
+                        "properties": {
+                            "default": {
+                                "type": "boolean"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "label": {
+                                "type": "string"
+                            },
+                            "ui-type": {
+                                "enum": [
+                                    "checkbox",
+                                    "select"
+                                ],
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "object"
+                },
+                "hidden": {
+                    "type": "boolean"
+                },
+                "isNativeModule": {
+                    "type": "boolean"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "readonly": {
+                    "type": "boolean"
+                },
+                "required": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "IModuleItem": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/IFeatureItem"
+                },
+                {
+                    "$ref": "#/definitions/IFeatureGroup"
+                }
+            ]
+        }
+    },
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "categories": {
+            "additionalProperties": {
+                "$ref": "#/definitions/CategoryInfo"
+            },
+            "description": "The categories info",
+            "type": "object"
+        },
+        "features": {
+            "$ref": "#/definitions/Features",
+            "description": "The modules info"
+        },
+        "migrationScript": {
+            "description": "The script to migrate, this script should export a const migrations: Migration[]`.",
+            "type": "string"
+        },
+        "version": {
+            "type": "string"
+        }
+    },
+    "type": "object"
+}
+

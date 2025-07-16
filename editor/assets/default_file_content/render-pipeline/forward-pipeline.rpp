@@ -1,0 +1,54 @@
+[
+  {
+    "__type__": "ForwardPipeline",
+    "_flows": [
+      {
+        "__id__": 1
+      }
+    ],
+    "renderTextures": [
+    ]
+  },
+  {
+    "__type__": "ForwardFlow",
+    "_name": "ForwardFlow",
+    "_priority": 0,
+    "_material": null,
+    "_stages": [
+      {
+        "__id__": 2
+      }
+    ]
+  },
+  {
+    "__type__": "ForwardStage",
+    "_name": "ForwardStage",
+    "_priority": 0,
+    "frameBuffer": "",
+    "renderQueues": [
+      {
+        "__id__": 3
+      },
+      {
+        "__id__": 4
+      }
+    ]
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": false,
+    "sortMode": 0,
+    "stages": [
+      "default"
+    ]
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": true,
+    "sortMode": 1,
+    "stages": [
+      "default",
+      "planarShadow"
+    ]
+  }
+]

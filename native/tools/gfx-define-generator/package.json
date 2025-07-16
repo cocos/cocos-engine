@@ -1,0 +1,14 @@
+{
+  "name": "gfx-define-generator",
+  "version": "1.0.0",
+  "description": "GFX layer definition generator",
+  "main": "generate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "YunHsiao",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.0.0"
+  }
+}

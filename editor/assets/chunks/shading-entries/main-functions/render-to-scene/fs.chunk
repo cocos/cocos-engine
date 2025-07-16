@@ -1,0 +1,5 @@
+#if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
+  #include <shading-entries/main-functions/render-to-scene/pipeline/forward-fs>
+#elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED
+  #include <shading-entries/main-functions/render-to-scene/pipeline/deferred-fs>
+#endif

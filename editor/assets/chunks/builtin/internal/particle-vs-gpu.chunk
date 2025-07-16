@@ -1,0 +1,389 @@
+
+precision mediump float;
+#include <common/math/transform>
+#include <builtin/internal/particle-common>
+#include <builtin/uniforms/cc-local>
+
+#pragma define CURVE_MODE_FIX 1
+#pragma define CURVE_MODE_BLEND 2
+
+#pragma define GRADIENT_MODE_FIX 1
+#pragma define GRADIENT_MODE_BLEND 2
+
+#pragma define SIMULATE_SPACE_LOCAL 0
+#pragma define SIMULATE_SPACE_WORLD 1
+
+#pragma define ANIMATION_MODE_WHOLE_SHEET 0
+#pragma define ANIMATION_MODE_SINGLE_ROW 1
+
+#pragma define COLOR_OVERTIME_RAND_OFFSET 91041.
+#pragma define FORCE_OVERTIME_RAND_OFFSET 212165.
+#pragma define ROTATION_OVERTIME_RAND_OFFSET 125292.
+#pragma define SIZE_OVERTIME_RAND_OFFSET 39825.
+#pragma define TEXTURE_ANIMATION_RAND_OFFSET 90794.
+#pragma define VELOCITY_OVERTIME_RAND_OFFSET 197866.
+
+uniform SampleConstants {
+  vec4 u_sampleInfo;
+};
+
+uniform TickConstants {
+  vec4 u_worldRot;
+  vec4 u_timeDelta;
+};
+
+in vec4 a_position_starttime; // center position,particle start time
+in vec4 a_color;
+in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
+in float a_rndSeed;
+
+#if !CC_INSTANCE_PARTICLE
+  in vec4 a_size_uv;  // xyz:size, w:uv_0
+  in vec4 a_rotation_uv;  // xyz:rotation, w:uv_1
+#endif
+#if CC_INSTANCE_PARTICLE
+  in vec4 a_size_fid;  // xyz:size, w:fid
+  in vec3 a_rotation;  // xyz:rotation
+  in vec3 a_uv;
+#endif
+
+#if CC_RENDER_MODE == RENDER_MODE_MESH
+  in vec3 a_texCoord;   // mesh uv
+  in vec3 a_texCoord3;  // mesh vertices
+  in vec3 a_normal;     // mesh normal
+  in vec4 a_color1;     // mesh color
+#endif
+
+vec3 unpackCurveData (sampler2D tex, vec2 coord) {
+  vec4 a = texture(tex, coord);
+  vec4 b = texture(tex, coord + u_sampleInfo.y);
+  float c = fract(coord.x * u_sampleInfo.x);
+
+  return mix(a.xyz, b.xyz, c);
+}
+
+vec3 unpackCurveData (sampler2D tex, vec2 coord, out float w) {
+  vec4 a = texture(tex, coord);
+  vec4 b = texture(tex, coord + u_sampleInfo.y);
+  float c = fract(coord.x * u_sampleInfo.x);
+
+  w = mix(a.w, b.w, c);
+
+  return mix(a.xyz, b.xyz, c);
+}
+
+vec4 unpackGradientData (sampler2D tex, vec2 coord) {
+  return texture(tex, coord);
+}
+
+vec4 scaleAndAdd (vec4 a, vec4 b, float scale) {
+  a.x += b.x * scale;
+  a.y += b.y * scale;
+  a.z += b.z * scale;
+
+  return a;
+}
+
+// Vulkan compatible issue#9858, do not use large number (more than 100) in mod function
+float pseudoRandom(float x) {
+#if USE_VK_SHADER
+  float o = x;
+  x = mod(x - 1.0, 2.0) - 1.0;
+  float freqVar = 10.16640753482; //3.1415927*(sqrt(5.0)+1.0);
+  float y = sin(freqVar * floor(o * 0.5 - 0.5)); // some pseudorandom hash
+  float v = max(0.0, 1.0-abs(x));
+  v *= 0.7071067812; // fix sheared 'distance' measurements - but this is 1D so unsure it's even a good thing to try
+  v = y < 0.0 ? -v : v;
+  return v;
+#endif
+#if !USE_VK_SHADER
+  float seed = mod(x, 233280.);
+  float q = (seed * 9301. + 49297.) / 233280.;
+  return fract(q);
+#endif
+}
+
+#if COLOR_OVER_TIME_MODULE_ENABLE
+  uniform sampler2D color_over_time_tex0;
+  uniform ColorConstant {
+    int u_color_mode;
+  };
+#endif
+
+#if ROTATION_OVER_TIME_MODULE_ENABLE
+  uniform sampler2D rotation_over_time_tex0;
+  uniform RotationConstant {
+    int u_rotation_mode;
+  };
+#endif
+
+#if SIZE_OVER_TIME_MODULE_ENABLE
+  uniform sampler2D size_over_time_tex0;
+  uniform SizeConstant {
+    int u_size_mode;
+  };
+#endif
+
+#if FORCE_OVER_TIME_MODULE_ENABLE
+  uniform sampler2D force_over_time_tex0;
+  uniform ForceConstant {
+    int u_force_mode;
+    int u_force_space;
+  };
+#endif
+
+#if VELOCITY_OVER_TIME_MODULE_ENABLE
+  uniform sampler2D velocity_over_time_tex0;
+  uniform VelocityConstant {
+    int u_velocity_mode;
+    int u_velocity_space;
+  };
+#endif
+
+#if TEXTURE_ANIMATION_MODULE_ENABLE
+  uniform sampler2D texture_animation_tex0;
+  uniform AnimationConstant {
+    vec4 u_anim_info;
+  };
+#endif
+
+float repeat (float t, float length) {
+  return t - floor(t / length) * length;
+}
+
+vec4 rotateQuat (vec4 p, vec4 q) {
+  vec3 iv = cross(q.xyz, p.xyz) + q.w * p.xyz;
+  vec3 res = p.xyz + 2.0 * cross(q.xyz, iv);
+  return vec4(res.xyz, p.w);
+}
+
+float random (float seed) {
+  seed = mod(seed, 233280.);
+  float q = (seed * 9301. + 49297.) / 233280.;
+  return fract(q);
+}
+
+#pragma define INDENTIFY_NEG_QUAT 10.0
+
+vec4 toQuat(vec3 rotation) {
+  vec3 rotTmp = rotation;
+  float mulFactor = 1.0;
+  if (rotTmp.x > INDENTIFY_NEG_QUAT * 0.5) {
+    rotTmp.x -= INDENTIFY_NEG_QUAT;
+    mulFactor = -1.0;
+  }
+  vec4 rot = vec4(rotTmp, 0.0);
+  rot.w = mulFactor * sqrt(abs(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z));
+  return rot;
+}
+
+vec4 gpvs_main () {
+  float activeTime = u_timeDelta.x - a_position_starttime.w;
+  float normalizedTime = clamp(activeTime / a_dir_life.w, 0.0, 1.0);
+
+  vec2 timeCoord0 = vec2(normalizedTime, 0.);
+  vec2 timeCoord1 = vec2(normalizedTime, 1.);
+
+  #if CC_RENDER_MODE == RENDER_MODE_MESH
+    vec2 vertIdx = vec2(a_texCoord.x, a_texCoord.y);
+  #endif
+  #if CC_RENDER_MODE != RENDER_MODE_MESH
+    #if !CC_INSTANCE_PARTICLE
+      vec2 vertIdx = vec2(a_size_uv.w, a_rotation_uv.w);
+    #endif
+    #if CC_INSTANCE_PARTICLE
+      vec2 vertIdx = a_uv.xy;
+    #endif
+  #endif
+
+  vec4 velocity = vec4(a_dir_life.xyz, 0.);
+  vec4 pos = vec4(a_position_starttime.xyz, 1.);
+
+  // size
+  #if !CC_INSTANCE_PARTICLE
+    vec3 size = a_size_uv.xyz;
+  #endif
+  #if CC_INSTANCE_PARTICLE
+    vec3 size = a_size_fid.xyz;
+  #endif
+  #if SIZE_OVER_TIME_MODULE_ENABLE
+    if (u_size_mode == CURVE_MODE_FIX) {
+      size *= unpackCurveData(size_over_time_tex0, timeCoord0);
+    } else {
+      vec3 size_0 = unpackCurveData(size_over_time_tex0, timeCoord0);
+      vec3 size_1 = unpackCurveData(size_over_time_tex0, timeCoord1);
+      float factor_s = pseudoRandom(a_rndSeed + SIZE_OVERTIME_RAND_OFFSET);
+      size *= mix(size_0, size_1, factor_s);
+    }
+  #endif
+
+  vec3 compScale = scale.xyz * size;
+
+  // force
+  #if FORCE_OVER_TIME_MODULE_ENABLE
+    vec3 forceAnim = vec3(0.);
+    if (u_force_mode == CURVE_MODE_FIX) {
+      forceAnim = unpackCurveData(force_over_time_tex0, timeCoord0);
+    } else {
+      vec3 force_0 = unpackCurveData(force_over_time_tex0, timeCoord0);
+      vec3 force_1 = unpackCurveData(force_over_time_tex0, timeCoord1);
+      float factor_f =  pseudoRandom(a_rndSeed + FORCE_OVERTIME_RAND_OFFSET);
+      forceAnim = mix(force_0, force_1, factor_f);
+    }
+    vec4 forceTrack = vec4(forceAnim, 0.);
+    if (u_force_space == SIMULATE_SPACE_LOCAL) {
+      forceTrack = rotateQuat(forceTrack, u_worldRot);
+    }
+    velocity.xyz += forceTrack.xyz;
+  #endif
+
+  // velocity
+  #if VELOCITY_OVER_TIME_MODULE_ENABLE
+    float speedModifier0 = 1.;
+    float speedModifier1 = 1.;
+    vec3 velocityAnim = vec3(0.);
+    if (u_velocity_mode == CURVE_MODE_FIX) {
+      velocityAnim = unpackCurveData(velocity_over_time_tex0, timeCoord0, speedModifier0);
+    } else {
+      vec3 vectory_0 = unpackCurveData(velocity_over_time_tex0, timeCoord0, speedModifier0);
+      vec3 vectory_1 = unpackCurveData(velocity_over_time_tex0, timeCoord1, speedModifier1);
+      float factor_v = pseudoRandom(a_rndSeed + VELOCITY_OVERTIME_RAND_OFFSET);
+      velocityAnim = mix(vectory_0, vectory_1, factor_v);
+      speedModifier0 = mix(speedModifier0, speedModifier1, factor_v);
+    }
+    vec4 velocityTrack = vec4(velocityAnim, 0.);
+    if (u_velocity_space == SIMULATE_SPACE_LOCAL) {
+      velocityTrack = rotateQuat(velocityTrack, u_worldRot);
+    }
+    velocity.xyz += velocityTrack.xyz;
+    velocity.xyz *= speedModifier0;
+  #endif
+
+  pos.xyz += velocity.xyz * normalizedTime * a_dir_life.w;
+
+  #if !CC_USE_WORLD_SPACE
+    pos = cc_matWorld * pos;
+    #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+      velocity = rotateQuat(velocity, u_worldRot);
+    #endif
+  #endif
+
+  // rotation
+  #if !CC_INSTANCE_PARTICLE
+    vec3 startRotation = a_rotation_uv.xyz;
+  #endif
+  #if CC_INSTANCE_PARTICLE
+    vec3 startRotation = a_rotation;
+  #endif
+  #if CC_RENDER_MODE != RENDER_MODE_MESH
+    #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
+      vec3 rotEuler = startRotation.xyz;
+    #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+      vec3 rotEuler = vec3(0.);
+    #endif
+    #if CC_RENDER_MODE != RENDER_MODE_BILLBOARD && CC_RENDER_MODE != RENDER_MODE_STRETCHED_BILLBOARD
+      vec3 rotEuler = vec3(0., 0., startRotation.z);
+    #endif
+    vec4 rot = quaternionFromEuler(rotEuler);
+  #endif
+  #if CC_RENDER_MODE == RENDER_MODE_MESH
+    vec4 rot = quaternionFromEuler(startRotation);
+  #endif
+
+  #if ROTATION_OVER_TIME_MODULE_ENABLE
+    if (u_rotation_mode == CURVE_MODE_FIX) {
+      vec3 euler = unpackCurveData(rotation_over_time_tex0, timeCoord0) * normalizedTime * a_dir_life.w;
+      vec4 quat = eulerToQuat(euler);
+      mat3 mLocal = quatToMat3(quat);
+      mat3 mStart = quatToMat3(rot);
+      rot = mat3ToQuat(mStart * mLocal);
+    } else {
+      vec3 rotation_0 = unpackCurveData(rotation_over_time_tex0, timeCoord0);
+      vec3 rotation_1 = unpackCurveData(rotation_over_time_tex0, timeCoord1);
+      float factor_r = pseudoRandom(a_rndSeed + ROTATION_OVERTIME_RAND_OFFSET);
+      vec3 euler = mix(rotation_0, rotation_1, factor_r) * normalizedTime * a_dir_life.w;
+      #if CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_HORIZONTAL_BILLBOARD
+        euler = vec3(0.0, 0.0, euler.z);
+      #endif
+      vec4 quat = eulerToQuat(euler);
+      mat3 mLocal = quatToMat3(quat);
+      mat3 mStart = quatToMat3(rot);
+      rot = mat3ToQuat(mStart * mLocal);
+    }
+  #endif
+
+  // color
+  #if COLOR_OVER_TIME_MODULE_ENABLE
+    if (u_color_mode == GRADIENT_MODE_FIX) {
+      color = a_color * texture(color_over_time_tex0, timeCoord0);
+    } else {
+      vec4 color_0 = texture(color_over_time_tex0, timeCoord0);
+      vec4 color_1 = texture(color_over_time_tex0, timeCoord1);
+      float factor_c = pseudoRandom(a_rndSeed + COLOR_OVERTIME_RAND_OFFSET);
+      color = a_color * mix(color_0, color_1, factor_c);
+    }
+  #endif
+  #if !COLOR_OVER_TIME_MODULE_ENABLE
+    color = a_color;
+  #endif
+
+  #if CC_RENDER_MODE != RENDER_MODE_MESH
+    vec2 cornerOffset = vec2((vertIdx - 0.5));
+
+    #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+      rot = vec4(0.0, 0.0, 0.0, 1.0);
+    #endif
+
+    computeVertPos(pos, cornerOffset, rot, compScale
+      #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
+        , cc_matViewInv
+      #endif
+      #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+        , cc_cameraPos.xyz
+        , velocity
+        , frameTile_velLenScale.z
+        , frameTile_velLenScale.w
+        #if !CC_INSTANCE_PARTICLE
+          , a_size_uv.w
+        #endif
+        #if CC_INSTANCE_PARTICLE
+          , a_uv.x
+        #endif
+      #endif
+    );
+  #endif
+  #if CC_RENDER_MODE == RENDER_MODE_MESH
+    mat3 rotMat = quatToMat3(rot);
+    mat3 nodeMat = quatToMat3(nodeRotation);
+    rotMat = nodeMat * rotMat;
+    rot = mat3ToQuat(rotMat);
+
+    mat4 xformNoScale = matrixFromRT(rot, pos.xyz);
+    mat4 xform = matFromRTS(rot, pos.xyz, compScale);
+    pos = xform * vec4(a_texCoord3, 1);
+    vec4 normal = xformNoScale * vec4(a_normal, 0);
+    color *= a_color1;
+  #endif
+
+  pos = cc_matViewProj * pos;
+
+  float frameIndex = 0.;
+  #if TEXTURE_ANIMATION_MODULE_ENABLE
+    float startFrame = 0.;
+    vec3 frameInfo = vec3(0.);
+    if (int(u_anim_info.x) == GRADIENT_MODE_FIX) {
+      frameInfo = unpackCurveData(texture_animation_tex0, timeCoord0);
+    } else {
+      vec3 frameInfo0 = unpackCurveData(texture_animation_tex0, timeCoord0);
+      vec3 frameInfo1 = unpackCurveData(texture_animation_tex0, timeCoord1);
+      float factor_t = pseudoRandom(a_rndSeed + TEXTURE_ANIMATION_RAND_OFFSET);
+      frameInfo = mix(frameInfo0, frameInfo1, factor_t);
+    }
+    startFrame = frameInfo.x / u_anim_info.y;
+    float EPSILON = 1e-6;
+    frameIndex = repeat(u_anim_info.z * (frameInfo.y + startFrame), 1. + EPSILON);
+  #endif
+  uv = computeUV(frameIndex, vertIdx, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
+
+  return pos;
+}

@@ -1,0 +1,6 @@
+{
+    "constantOverrides": {
+        "SUPPORT_JIT": true,
+        "BUILD": true
+    }
+}

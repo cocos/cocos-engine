@@ -1,0 +1,71 @@
+#if __VERSION__ < 300
+    #pragma define CC_SURFACES_VARING_MODIFIER varying
+#else
+    #pragma define CC_SURFACES_VARING_MODIFIER in
+#endif
+
+#include <shading-entries/data-structures/vs-fs>
+
+// FS Input
+/*struct SurfacesStandardFragmentInput
+{
+}
+void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
+{
+}
+*/
+
+// Use macros instead of structure to avoid structure precision issues
+#define FSInput_worldPos v_worldPos
+#define FSInput_worldNormal v_normal.xyz // unnormalized
+#define FSInput_faceSideSign v_normal.w // physical face side, has no relation to USE_TWO_SIDED
+#define FSInput_texcoord v_uv
+
+#if CC_SURFACES_USE_VERTEX_COLOR
+  #define FSInput_vertexColor v_color
+#else
+  #define FSInput_vertexColor vec4(1.0) // for compatible user-surface functions in other render usage
+#endif
+
+#if CC_SURFACES_USE_TANGENT_SPACE
+  #define FSInput_worldTangent v_tangent.xyz // unnormalized
+  #define FSInput_mirrorNormal v_tangent.w
+#else
+  #define FSInput_worldTangent vec3(1.0, 1.0, 1.0) // normalize zero vector may crash on webgpu, use 1 instead
+  #define FSInput_mirrorNormal 1.0
+#endif
+
+#if CC_SURFACES_USE_SECOND_UV
+  #define FSInput_texcoord1 v_uv1
+#else
+  #define FSInput_texcoord1 vec2(0.0, 0.0)
+#endif
+
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+  #define FSInput_lightMapUV v_luv
+#endif
+
+#if CC_RECEIVE_SHADOW
+  #define FSInput_shadowBias v_shadowBiasAndProbeId.xy
+#endif
+#if CC_USE_REFLECTION_PROBE
+  #define FSInput_reflectionProbeId v_shadowBiasAndProbeId.z
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    #define FSInput_reflectionProbeBlendId v_shadowBiasAndProbeId.w
+  #endif
+  #if USE_INSTANCING
+    #define FSInput_reflectionProbeData v_reflectionProbeData
+  #endif
+#endif
+
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+  #define FSInput_fogFactor v_fogFactor
+#endif
+
+#if CC_SURFACES_TRANSFER_LOCAL_POS
+  #define FSInput_localPos v_localPos
+#endif
+
+#if CC_SURFACES_TRANSFER_CLIP_POS
+  #define FSInput_clipPos v_clipPos
+#endif

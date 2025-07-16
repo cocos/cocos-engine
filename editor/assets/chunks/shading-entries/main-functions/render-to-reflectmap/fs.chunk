@@ -1,0 +1,54 @@
+layout(location = 0) out vec4 fragColorX;
+
+#if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED && !CC_FORCE_FORWARD_SHADING
+  void main()  { fragColorX = vec4(0.0, 1.0, 0.0, 1.0); }
+#else
+  void main()  {
+  #if CC_DISABLE_STRUCTURE_IN_FRAGMENT_SHADER
+    float NoL = dot(-cc_mainLitDir.xyz, FSInput_worldNormal.xyz); //trigger ubo binding
+    vec4 color = SurfacesFragmentModifyBaseColorAndTransparency();
+    float fogFactor = 1.0;
+    #if CC_FORWARD_ADD
+      color.rgb = vec3(0.0);
+    #endif
+  #else
+    // Surface
+    SurfacesMaterialData surfaceData;
+    CCSurfacesFragmentGetMaterialData(surfaceData);
+
+    // Shadow parameters
+    vec2 shadowBias = vec2(0.0);
+    #if CC_RECEIVE_SHADOW
+      shadowBias = FSInput_shadowBias;
+    #endif
+
+
+    // Fog factor
+    #if !CC_FORWARD_ADD
+      float fogFactor = 1.0;
+      #if CC_USE_FOG != CC_FOG_NONE
+        #if !CC_USE_ACCURATE_FOG
+          fogFactor = FSInput_fogFactor;
+        #else
+          CC_TRANSFER_FOG_BASE(vec4(FSInput_worldPos, 1.0), fogFactor);
+        #endif
+      #endif
+    #endif
+
+
+    // Lighting
+    LightingResult lightingResult;
+    CCSurfacesLighting(lightingResult, surfaceData, shadowBias);
+
+    // Shading
+    vec4 color = CCSurfacesShading(surfaceData, lightingResult);
+  #endif
+
+    #if !CC_FORWARD_ADD
+      CC_APPLY_FOG_BASE(color, fogFactor);
+    #endif
+
+    // Color output (RGBE)
+    fragColorX = packRGBE(color.rgb);
+  }
+#endif

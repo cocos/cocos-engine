@@ -1,0 +1,27 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+// #pragma define SRGBToLinear(gamma) pow(gamma, vec3(2.2))
+vec3 SRGBToLinear (vec3 gamma) {
+#ifdef CC_USE_SURFACE_SHADER
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION) {
+      return gamma;
+    }
+  #endif
+#endif
+
+  return gamma * gamma;
+}
+
+// #pragma define LinearToSRGB(linear) pow(linear, vec3(0.454545))
+vec3 LinearToSRGB(vec3 linear) {
+#ifdef CC_USE_SURFACE_SHADER
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION) {
+      return linear;
+    }
+  #endif
+#endif
+
+  return sqrt(linear);
+}

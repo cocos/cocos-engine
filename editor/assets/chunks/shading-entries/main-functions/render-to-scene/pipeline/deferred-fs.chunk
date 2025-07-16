@@ -1,0 +1,24 @@
+  layout(location = 0) out vec4 albedoOut;
+  layout(location = 1) out vec4 emissiveOut;
+  layout(location = 2) out vec4 normalOut;
+
+  void main () {
+    // Surface
+    SurfacesMaterialData surfaceData;
+    CCSurfacesFragmentGetMaterialData(surfaceData);
+
+    // location of subpass output should be ordered by name.
+    albedoOut = CCSurfacesDeferredOutputBaseColor(surfaceData);
+    normalOut = CCSurfacesDeferredOutputNormalMR(surfaceData);
+    emissiveOut = CCSurfacesDeferredOutputEmissiveAO(surfaceData);
+
+  // Debug view
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE && CC_SURFACES_ENABLE_DEBUG_VIEW
+    vec4 debugColor = vec4(0.0, 0.0, 0.0, 1.0);
+    CCSurfacesDebugViewMeshData(debugColor);
+    CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
+    if (IS_DEBUG_VIEW_ENABLE_WITH_CAMERA) {
+      albedoOut = debugColor;
+    }
+  #endif
+  }

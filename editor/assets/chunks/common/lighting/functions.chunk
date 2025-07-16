@@ -1,0 +1,103 @@
+// helper functions for lighting model-functions
+
+// return unnormalized vector, support oppo-side
+// V from pixel to camera
+vec3 CalculateRefractDirection(vec3 N, vec3 V, float NoV, float ior)
+{
+  // two sided
+  float sideSign = NoV < 0.0 ? -1.0 : 1.0;
+  N *= sideSign;
+
+  // A: NV  B:NR
+  float cosA = abs(NoV);
+  float sinA = sqrt(1.0 - cosA * cosA);
+  float sinB = saturate(sinA / ior);
+  float cosB = sqrt(1.0 - sinB * sinB);
+
+  vec3 edgeA = -V + N * cosA;
+  vec3 edgeB = normalize(edgeA) * sinB;
+  vec3 R = edgeB - N * cosB;
+  return R;
+}
+
+vec3 CalculateRefractDirectionFast(vec3 N, vec3 V, float NoV, float ior)
+{
+  // two sided
+  float sideSign = NoV < 0.0 ? -1.0 : 1.0;
+  N *= sideSign;
+
+  float w = ior * NoV;
+  float k = sqrt(1.0 + (w - ior) * (w + ior)); // 1 + ior2 * (NoV2 - 1)
+  vec3 R = (w - k) * N - ior * V;
+  return -R;
+}
+
+vec3 CalculateReflectDirection(vec3 N, vec3 V, float NoV)
+{
+  // two sided
+  float sideSign = NoV < 0.0 ? -1.0 : 1.0;
+  N *= sideSign;
+  return reflect(-V, N);
+}
+
+// for bumped planar reflection
+vec3 CalculatePlanarReflectPositionOnPlane(vec3 N, vec3 V, vec3 worldPos, vec4 plane, vec3 cameraPos, float probeReflectedDepth)
+{
+  float distPixelToPlane = -dot(plane, vec4(worldPos, 1.0));
+  // bring plane to worldPos, avoid artifacts when reflected point away from plane (do not bring worldPos to plane)
+  plane.w += distPixelToPlane;
+  float distCameraToPlane = abs(-dot(plane, vec4(cameraPos, 1.0)));
+  vec3 planeN = plane.xyz;
+  vec3 virtualCameraPos = cameraPos - 2.0 * distCameraToPlane * planeN;
+  /*support for two-sided reflections
+  float sideSignPlaneN = dot(planeN, V) < 0.0 ? -1.0 : 1.0;
+  float sideSignN = dot(N, V) < 0.0 ? -1.0 : 1.0;
+  planeN *= sideSignPlaneN;
+  N *= sideSignN;*/
+  vec3 bumpedR = normalize(reflect(-V, N)); //R'
+
+  // actually reflected pos alone bumpedR direction, avoid tracing by specified a fake depth
+  vec3 reflectedPointPos = worldPos + probeReflectedDepth * bumpedR;
+  vec3 virtualCameraToReflectedPoint = normalize(reflectedPointPos - virtualCameraPos);
+
+  // the ray from virtual camera to reflected point, will intersect with plane on P'
+  float y = distCameraToPlane / max(EPSILON_LOWP, dot(planeN, virtualCameraToReflectedPoint));
+  return virtualCameraPos + y * virtualCameraToReflectedPoint;
+}
+
+
+
+// fix cubemap direction with box projection
+// return unnormalized vector and weight for exceeding
+vec4 CalculateBoxProjectedDirection(vec3 R, vec3 worldPos, vec3 cubeCenterPos, vec3 cubeBoxHalfSize)
+{
+  // point W is the worldPos in the space origin align with cube center
+  vec3 W = worldPos - cubeCenterPos;
+  // find point P which intersected with cube box border from W alone R
+  vec3 projectedLength = (sign(R) * cubeBoxHalfSize - W) / (R + vec3(EPSILON));
+  float len = min(min(projectedLength.x, projectedLength.y), projectedLength.z);
+  vec3 P = W + len * R;
+  float weight = len < 0.0 ? 0.0 : 1.0;
+  return vec4(P, weight);
+}
+
+// calculate planar world pos
+vec4 CalculatePlanarShadowPos(vec3 meshWorldPos, vec3 cameraPos, vec3 lightDir, vec4 plane) {
+  vec3 P = meshWorldPos;
+  vec3 L = lightDir;
+  vec3 N = plane.xyz;
+  float d = plane.w + EPSILON_LOWP;
+  float dist = (-d - dot(P, N)) / (dot(L, N) + EPSILON_LOWP);
+  vec3 shadowPos = P + L * dist;
+
+  return vec4(shadowPos, dist);
+}
+// calculate planar clip pos from world pos
+vec4 CalculatePlanarShadowClipPos(vec4 shadowPos, vec3 cameraPos, mat4 matView, mat4 matProj, vec4 nearFar, float bias) {
+  vec4 camPos = matView * vec4(shadowPos.xyz, 1.0);
+  // avoid z-fighting with shadow receive plane, add camera bias with perspective correction
+  // notice that near plane should not be too small, assume near 1, far 1000
+  float lerpCoef = saturate((nearFar.z < 0.0 ? -camPos.z : camPos.z) / (nearFar.y - nearFar.x));
+  camPos.z += mix(nearFar.x * 0.01, nearFar.y * EPSILON_LOWP * bias, lerpCoef);
+  return matProj * camPos;
+}

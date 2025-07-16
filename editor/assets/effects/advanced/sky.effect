@@ -1,0 +1,94 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: sky-vs
+      frag: sky-fs
+      properties: &props
+        environmentMap:      { value: grey }
+        positionScaling:     { value: 1.0, target: params.w, editor: { tooltip: 'Set a smaller value (such as less than 1.0) to remove the effects of fog' } }
+        blendEnvironmentMap: { value: grey, editor: { parent: BLEND_ENV_MAP } }
+        blendWeight:         { value: 0.0, target: params.x, editor: { parent: BLEND_ENV_MAP } }
+        brightMultiplier:    { value: 1.0, target: params.y }
+      priority : max - 10
+      rasterizerState : &r1
+        cullMode : none
+      depthStencilState : &d1
+        depthTest: true
+        depthWrite : false
+
+    - vert: sky-vs
+      frag: sky-fs
+      phase: deferred-forward
+      propertyIndex: 0
+      priority: max - 10
+      rasterizerState: *r1
+      depthStencilState: *d1
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 params;
+  };
+}%
+
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
+  vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
+  {
+    // Apply uniform scaling for atmosphere effects
+    return cc_cameraPos.xyz + In.worldPos * params.w;
+  }
+}%
+
+CCProgram surface-fragment %{
+  uniform samplerCube environmentMap;
+  #if BLEND_ENV_MAP
+    uniform samplerCube blendEnvironmentMap;
+  #endif
+  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+  vec3 sampleEnvMap(samplerCube tex, vec3 R)
+  {
+    vec3 c = vec3(1.0);
+    #if USE_RGBE_CUBEMAP
+      c *= unpackRGBE(fragTextureLod(tex, R, 0.0));
+    #else
+      c *= SRGBToLinear(fragTextureLod(tex, R, 0.0).rgb);
+    #endif
+    return c;
+  }
+  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+  {
+    vec3 c = vec3(1.0);
+    vec3 normal = normalize(FSInput_worldNormal);
+    vec3 rotationDir = RotationVecFromAxisY(normal.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+    c = sampleEnvMap(environmentMap, rotationDir);
+    #if BLEND_ENV_MAP
+      c = mix(c, sampleEnvMap(blendEnvironmentMap, rotationDir), params.x);
+    #endif
+    return vec4(c * cc_ambientSky.w * params.y, 1.0);
+  }
+}%
+
+CCProgram sky-vs %{
+  precision highp float;
+
+  #include <surfaces/effect-macros/sky>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/misc/sky-vs>
+}%
+
+
+CCProgram sky-fs %{
+  precision highp float;
+
+  #include <surfaces/effect-macros/sky>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/misc/sky-fs>
+}%

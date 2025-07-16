@@ -1,0 +1,56 @@
+#if __VERSION__ < 300
+    #pragma define CC_SURFACES_VARING_MODIFIER varying
+#else
+    #pragma define CC_SURFACES_VARING_MODIFIER out
+#endif
+
+#include <shading-entries/data-structures/vs-fs>
+
+
+// Output item macros
+#define VSOutput_worldPos v_worldPos
+#define VSOutput_worldNormal v_normal.xyz
+#define VSOutput_faceSideSign v_normal.w
+#define VSOutput_texcoord v_uv
+
+#if CC_SURFACES_USE_VERTEX_COLOR
+  #define VSOutput_vertexColor v_color
+#endif
+
+#if CC_SURFACES_USE_TANGENT_SPACE
+  #define VSOutput_worldTangent v_tangent.xyz
+  #define VSOutput_mirrorNormal v_tangent.w
+#endif
+
+#if CC_SURFACES_USE_SECOND_UV
+  #define VSOutput_texcoord1 v_uv1
+#endif
+
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+  #define VSOutput_lightMapUV v_luv
+#endif
+
+#if CC_RECEIVE_SHADOW
+  #define VSOutput_shadowBias v_shadowBiasAndProbeId.xy
+#endif
+#if CC_USE_REFLECTION_PROBE
+  #define VSOutput_reflectionProbeId v_shadowBiasAndProbeId.z
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    #define VSOutput_reflectionProbeBlendId v_shadowBiasAndProbeId.w
+  #endif
+  #if USE_INSTANCING
+    #define VSOutput_reflectionProbeData v_reflectionProbeData
+  #endif
+#endif
+
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+  #define VSOutput_fogFactor v_fogFactor
+#endif
+
+#if CC_SURFACES_TRANSFER_LOCAL_POS
+  #define VSOutput_localPos v_localPos
+#endif
+
+#if CC_SURFACES_TRANSFER_CLIP_POS
+  #define VSOutput_clipPos v_clipPos
+#endif

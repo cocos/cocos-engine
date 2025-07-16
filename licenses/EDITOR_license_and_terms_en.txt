@@ -1,0 +1,161 @@
+
+LICENSE AGREEMENT
+
+For purposes of this License Agreement, Cocos Creator created by Xiamen Yaji Software Co., Ltd is a cross-platform desktop software for developing game software and interactive rich media that can be published to Android, iOS, Web Standard, Windows and Mac.
+
+Cocos Creator as a software includes open sourced JavaScript game engine, editor extension and C++ game engine. It also includes close sourced editor program.
+
+Open sourced JavaScript and C++ game engine, with editor extension can be modified and customized by developer user. The modified and customized version of software can be used to develop game software and interactive rich media for end users, but not allowed to redistribute or publish game development software based on Cocos Creator's open sourced code.
+
+Cocos Creator is licensed to you subject to the terms of this License Agreement ("License Agreement"). This License Agreement forms a legally binding contract between you and Xiamen Yaji Software Co., Ltd, a Chinese Xiamen corporation located at Unit 1301, No. 167, East Tapu Road, Xiamen 361008, China ("Xiamen Yaji") in relation to your use of Cocos Creator.
+
+In order to use Cocos Creator, you must first agree to this License Agreement. By downloading, installing, copying or otherwise using Cocos Creator, you accept the terms and conditions of this License Agreement. If you do not agree with any of the terms or conditions of this License Agreement, do not proceed with downloading, copying, installing or any other use of Cocos Creator or any portion thereof as you have no rights to do so.
+
+1. License Grant and Acceptance.
+
+1.1 By downloading, installing, copying or otherwise using Cocos Creator, you hereby accept all of the terms of this License Agreement without modification. If you are downloading, installing, copying or otherwise using Cocos Creator on behalf of your employer or other entity, then you hereby agree that you are entering into this License Agreement on behalf of your employer or other entity, and you represent and warrant that you have full legal authority to bind your employer or such entity to this License Agreement. If you do not have the requisite authority, you may not accept the License Agreement or use Cocos Creator on behalf of your employer or other entity.
+1.2 Subject to the terms of this License Agreement, Xiamen Yaji grants you a limited, worldwide, royalty-free, non-assignable, revocable and non-exclusive license to use Cocos Creator solely to develop applications and games on your target platforms. The softwares or tools in this License Agreement are licensed, not sold.
+1.3 You may not use Cocos Creator for any purpose not expressly permitted by this License Agreement, including but not limited to:
+1.3.1 Copy (except for backup purposes), modify, adapt, redistribute, de-compile, reverse engineer, disassemble, or create derivative works of Cocos Creator or any part of Cocos Creator;
+1.3.2 Combine any part of Cocos Creator with other software;
+1.3.3 Create "forks" or other derivative works of Cocos Creator, or distribute, participate in the creation of, or promote in any way any derivative works of Cocos Creator.
+1.3.4 Redistribute Cocos Creator as part of any development toolkit or library, an application builder, a website builder or any software or tool that is intended for use by software, application, or website developers or designers.
+1.4 You agree to use Cocos Creator and write applications only for purposes that are permitted by (a) this License Agreement and (b) any applicable law, regulation or generally accepted practices or guidelines in the relevant jurisdictions.
+1.5 You agree that you are solely responsible for (and that Xiamen Yaji has no responsibility to you or to any third party for) any data, content, or resources that you create, transmit or display through Cocos Creator, and for the consequences of your actions (including any loss or damage which Xiamen Yaji may suffer) by doing so.
+1.6 You agree that you are solely responsible for (and that Xiamen Yaji has no responsibility to you or to any third party for) any breach of your obligations under this License Agreement, any applicable third party contract or Terms of Service, or any applicable law or regulation, and for the consequences (including any loss or damage which Xiamen Yaji or any third party may suffer) of any such breach.
+1.7 You may not use Cocos Creator and may not accept the License Agreement if you are a person barred from receiving Cocos Creator under the laws of the country in which you are resident or from which you use Cocos Creator.
+
+2. Ownership.
+2.1 You agree that Xiamen Yaji or third parties own all legal right, including but not limited to ownership and any Intellectual Property Rights that subsist in Cocos Creator. "Intellectual Property Rights" includes patent law, copyright law, trade secret law, trademark law, and any and all other proprietary rights. Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+2.2 Nothing in this License Agreement gives you a right to use any of Xiamen Yaji's trade names, trademarks, service marks, logos, domain names, or other distinctive brand features. You agree that you will not remove, obscure, or alter any proprietary rights notices (including but not limited to copyright and trademark notices) that may be affixed to or contained within Cocos Creator. 
+2.3 Xiamen Yaji agrees that it obtains no right or interest from you (or your licensors) under this License Agreement in or to any applications that you develop using Cocos Creator, including ownership and any Intellectual Property Rights that exist in those products.
+
+3. Usage Rules.
+3.1 You must create an account to use Cocos Creator. After registration, you may log into your account to download, install, copy or otherwise use Cocos Creator.
+
+4. Term and Termination.
+4.1 The term of this License Agreement will continue until terminated by either you or Xiamen Yaji as set out below.
+4.2 In the event that you want to terminate this License Agreement, you shall do so by ceasing your use of Cocos Creator.
+4.3 Xiamen Yaji may terminate this License Agreement with you at any time if:
+4.3.1 You breach any provision of this License Agreement;
+4.3.2 Xiamen Yaji is required to do so by law;
+4.3.3 Any partner with whom Xiamen Yaji offered certain parts of Cocos Creator to you has terminated its relationship with Xiamen Yaji or ceased to offer certain parts of Cocos Creator to you;
+4.3.4 Xiamen Yaji decides to no longer provide Cocos Creator or certain parts of Cocos Creator to users in the country in which you are resident or from which you use Cocos Creator;
+4.3.5 The Cocos Creator provided by Xiamen Yaji to you is no longer commercially viable;
+4.3.6 Xiamen Yaji shall be entitled in its sole discretion to terminate this License Agreement at any time.
+4.4 Upon termination of this License Agreement for any reasons, all licenses granted to you under this License Agreement immediately terminate, and you shall cease using Cocos Creator following termination.
+
+5. Disclaimer of Warranty.
+5.1 You expressly understand and agree that your use of Cocos Creator is at your sole risk and that Xiamen Yaji disclaims any and all warranty.
+5.2 Your use of Cocos Creator and any material downloaded or otherwise obtained through the use of Cocos Creator is at your own discretion and risk, and you are solely responsible for any damage to your computer system or other device or loss of data that results from such use.
+5.3 Xiamen Yaji makes no warranty about whether the services will meet your requirements or the timeliness, security and accuracy of the web service.
+5.4 To that maximum extent permitted by law, Xiamen Yaji further expressly disclaims all warranties and conditions of any kind, where express or implied, including but not limited to the implied warranties and conditions of merchantability, fitness for a particular purpose and non-infringement.
+
+6. Limitation of Liability and Indemnification.
+6.1 To that maximum extent permitted by law, you expressly understand and agree that Xiamen Yaji, its subsidiaries and affiliates, and its licensors shall not be liable to you under any theory of liability for any direct, indirect, incidental, special, consequential or exemplary damages that may be incurred by you, including but not limited to any loss of data, whether or not Xiamen Yaji or its representatives should have been aware of the possibility of any such losses arising. Some jurisdictions do not permit limitations on certain liabilities, and the foregoing limitation of liability do not apply to you to the extent they are not permitted in your jurisdiction.
+6.2 To the maximum extent permitted by law, you agree to defend, indemnify and hold harmless Xiamen Yaji, its affiliates and their respective directors, officers, employees and agents from and against any and all claims, actions, suits or proceedings, as well as any and all losses, liabilities, damages, costs and expenses (including reasonable attorneys' fees) arising out of or accruing from (a) any Application you develop via Cocos Creator that actually or allegedly infringes any copyright, trademark, trade secret, trade dress, patent or other intellectual property right of any person or defames any person or violates their rights of publicity or privacy, and (b) any non-compliance by you with this License Agreement.
+
+7. Governing Law
+7.1 The conclusion, enforcement and dispute settlement of this License Agreement shall be governed by and construed in accordance with the laws of China and is subject to the jurisdiction of the courts of China.
+7.2 In the event of any dispute with respect to the content or enforcement of this License Agreement, the parties shall negotiate in good faith to resolve the dispute. In case no settlement has been reached, either party may submit the relevant dispute to the people's court where Xiamen Yaji is located.
+7.3Cocos Creator are protected by international copyright laws, as well as other international property laws and treaties.
+
+8. Modification of Agreement
+8.1 Xiamen Yaji has the right to modify any provision in this License Agreement at any time. Once this License agreement is modified, Xiamen Yaji shall directly publish the modified License Agreement on its website. Such action is deemed to have notified you about the modification. Xiamen Yaji may also inform you the modification in other reasonable ways.
+8.2 In the event that you do not agree with Xiamen Yaji 's modifications of related provisions in this License Agreement, you shall have the right to cease using Cocos Creator. Your continuous use of Cocos Creator shall be deemed to accept modification of related provisions of this License Agreement.
+
+9. Delivery of Notices
+9.1Under this License Agreement, all notices from Xiamen Yaji to you shall be delivered by means of webpage announcement, email, short message or conventional mail delivery service. Notices shall be deemed to have been received on the day it is so delivered.
+9.2 Your notices shall be delivered to Xiamen Yaji by the address, fax number, e-mail address and other contact information officially announced by Xiamen Yaji.
+
+10. Miscellaneous.
+10.1 In order to continually innovate and improve Cocos Creator, Xiamen Yaji may collect certain usage statistics from the software including but not limited to a unique identifier, associated IP address, version number of the software, and information on which tools and/or services in Cocos Creator are being used and how they are being used. Before any of this information is collected, Cocos Creator shall notify you and seek your consent. In the event that you withhold consent, the information shall not be collected. The data collected is examined in the aggregate to improve Cocos Creator and is maintained in accordance with Xiamen Yaji 's Privacy Policy.
+10.2 You agree that if Xiamen Yaji does not exercise or enforce any legal right or remedy which is contained in this License Agreement (or which Xiamen Yaji has the benefit of under any law), this shall not be taken to be a formal waiver of Xiamen Yaji rights and that those rights or remedies shall still be available to Xiamen Yaji.
+10.3 You agree to be identified as a customer of Xiamen Yaji and you agree that Xiamen Yaji may refer to you by name, trade name and trademark, if applicable, and may briefly describe your business in our marketing materials and web site.
+10.4 There are no implied licenses or other implied rights granted by Xiamen Yaji under this License Agreement, and all rights, except for those expressly granted hereunder, shall remain with Xiamen Yaji and its licensors.
+10.5 In the event that any court of law, having the jurisdiction to decide on this matter, rules that any provision of this License Agreement is invalid, then that provision shall be removed from this License Agreement without affecting the rest of this License Agreement. The remaining provisions of this License Agreement shall continue to be valid and enforceable.
+10.6 You acknowledge and agree that each member of the group of companies of which Xiamen Yaji is the parent shall be third party beneficiaries to this License Agreement and that such other companies shall be entitled to directly enforce, and rely upon, any provision of this License Agreement that confers a benefit on (or rights in favor of) them. Other than this, no other person or company shall be third party beneficiaries to this License Agreement.
+10.7 The rights granted in this License Agreement may not be assigned or transferred by you to a Third Party without the prior written approval of Xiamen Yaji.
+10.8 This License Agreement constitutes the whole legal agreement between you and Xiamen Yaji and governs your use of Cocos Creator, and entirely replaces any prior agreements between you and Xiamen Yaji in relation to Cocos Creator.
+10.9 If any provision of this License Agreement is held to be invalid or unenforceable for whatever reason, the remaining provisions of this Agreement remain in full force and effect.
+10.10 This contract is composed of official texts, appendixes, and etc. Appendixes are inseparable components of this contract with equal authenticity.
+10.11 Xiamen Yaji reserves the right of interpretation of the above provisions.
+
+Appendix A: Cocos2d-x Software License
+Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+Copyright (c) 2013-2016 Chukong Technologies
+Copyright (c) 2010-2012 cocos2d-x community
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Appendix B：Spine Runtimes Software License
+Version 2.5 
+Copyright (c) 2013-2016, Esoteric Software
+All rights reserved.
+You are granted a perpetual, non-exclusive, non-sub-licensable, and non-transferable license to use, install, execute, and perform the Spine Runtimes software and derivative works solely for personal or internal use. Without the written permission of Esoteric Software (see Section 2 of the Spine Software License Agreement), you may not (a) modify, translate, adapt, or develop new applications using the Spine Runtimes or otherwise create derivative works or improvements of the Spine Runtimes or (b) remove, delete, alter, or obscure any trademarks or any copyright, trademark, patent, or other intellectual property or proprietary rights notices on or in the Software, including any copy thereof. Redistributions in binary or source form must include this license and terms.
+THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Appendix C：DragonBones Runtimes Software License
+The MIT License (MIT)
+Copyright (c) 2012-2018 The DragonBones team and other contributors.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Appendix D：Microsoft tslib License
+
+Apache License
+
+Version 2.0, January 2004
+
+http://www.apache.org/licenses/ 
+
+TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+1. Definitions.
+
+"License" shall mean the terms and conditions for use, reproduction, and distribution as defined by Sections 1 through 9 of this document.
+
+"Licensor" shall mean the copyright owner or entity authorized by the copyright owner that is granting the License.
+
+"Legal Entity" shall mean the union of the acting entity and all other entities that control, are controlled by, or are under common control with that entity. For the purposes of this definition, "control" means (i) the power, direct or indirect, to cause the direction or management of such entity, whether by contract or otherwise, or (ii) ownership of fifty percent (50%) or more of the outstanding shares, or (iii) beneficial ownership of such entity.
+
+"You" (or "Your") shall mean an individual or Legal Entity exercising permissions granted by this License.
+
+"Source" form shall mean the preferred form for making modifications, including but not limited to software source code, documentation source, and configuration files.
+
+"Object" form shall mean any form resulting from mechanical transformation or translation of a Source form, including but not limited to compiled object code, generated documentation, and conversions to other media types.
+
+"Work" shall mean the work of authorship, whether in Source or Object form, made available under the License, as indicated by a copyright notice that is included in or attached to the work (an example is provided in the Appendix below).
+
+"Derivative Works" shall mean any work, whether in Source or Object form, that is based on (or derived from) the Work and for which the editorial revisions, annotations, elaborations, or other modifications represent, as a whole, an original work of authorship. For the purposes of this License, Derivative Works shall not include works that remain separable from, or merely link (or bind by name) to the interfaces of, the Work and Derivative Works thereof.
+
+"Contribution" shall mean any work of authorship, including the original version of the Work and any modifications or additions to that Work or Derivative Works thereof, that is intentionally submitted to Licensor for inclusion in the Work by the copyright owner or by an individual or Legal Entity authorized to submit on behalf of the copyright owner. For the purposes of this definition, "submitted" means any form of electronic, verbal, or written communication sent to the Licensor or its representatives, including but not limited to communication on electronic mailing lists, source code control systems, and issue tracking systems that are managed by, or on behalf of, the Licensor for the purpose of discussing and improving the Work, but excluding communication that is conspicuously marked or otherwise designated in writing by the copyright owner as "Not a Contribution."
+
+"Contributor" shall mean Licensor and any individual or Legal Entity on behalf of whom a Contribution has been received by Licensor and subsequently incorporated within the Work.
+
+2. Grant of Copyright License. Subject to the terms and conditions of this License, each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare Derivative Works of, publicly display, publicly perform, sublicense, and distribute the Work and such Derivative Works in Source or Object form.
+
+3. Grant of Patent License. Subject to the terms and conditions of this License, each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable (except as stated in this section) patent license to make, have made, use, offer to sell, sell, import, and otherwise transfer the Work, where such license applies only to those patent claims licensable by such Contributor that are necessarily infringed by their Contribution(s) alone or by combination of their Contribution(s) with the Work to which such Contribution(s) was submitted. If You institute patent litigation against any entity (including a cross-claim or counterclaim in a lawsuit) alleging that the Work or a Contribution incorporated within the Work constitutes direct or contributory patent infringement, then any patent licenses granted to You under this License for that Work shall terminate as of the date such litigation is filed.
+
+4. Redistribution. You may reproduce and distribute copies of the Work or Derivative Works thereof in any medium, with or without modifications, and in Source or Object form, provided that You meet the following conditions:
+
+You must give any other recipients of the Work or Derivative Works a copy of this License; and
+
+You must cause any modified files to carry prominent notices stating that You changed the files; and
+
+You must retain, in the Source form of any Derivative Works that You distribute, all copyright, patent, trademark, and attribution notices from the Source form of the Work, excluding those notices that do not pertain to any part of the Derivative Works; and
+
+If the Work includes a "NOTICE" text file as part of its distribution, then any Derivative Works that You distribute must include a readable copy of the attribution notices contained within such NOTICE file, excluding those notices that do not pertain to any part of the Derivative Works, in at least one of the following places: within a NOTICE text file distributed as part of the Derivative Works; within the Source form or documentation, if provided along with the Derivative Works; or, within a display generated by the Derivative Works, if and wherever such third-party notices normally appear. The contents of the NOTICE file are for informational purposes only and do not modify the License. You may add Your own attribution notices within Derivative Works that You distribute, alongside or as an addendum to the NOTICE text from the Work, provided that such additional attribution notices cannot be construed as modifying the License. You may add Your own copyright statement to Your modifications and may provide additional or different license terms and conditions for use, reproduction, or distribution of Your modifications, or for any such Derivative Works as a whole, provided Your use, reproduction, and distribution of the Work otherwise complies with the conditions stated in this License.
+
+5. Submission of Contributions. Unless You explicitly state otherwise, any Contribution intentionally submitted for inclusion in the Work by You to the Licensor shall be under the terms and conditions of this License, without any additional terms or conditions. Notwithstanding the above, nothing herein shall supersede or modify the terms of any separate license agreement you may have executed with Licensor regarding such Contributions.
+
+6. Trademarks. This License does not grant permission to use the trade names, trademarks, service marks, or product names of the Licensor, except as required for reasonable and customary use in describing the origin of the Work and reproducing the content of the NOTICE file.
+
+7. Disclaimer of Warranty. Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Work and assume any risks associated with Your exercise of permissions under this License.
+
+8. Limitation of Liability. In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall any Contributor be liable to You for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising as a result of this License or out of the use or inability to use the Work (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if such Contributor has been advised of the possibility of such damages.
+
+9. Accepting Warranty or Additional Liability. While redistributing the Work or Derivative Works thereof, You may choose to offer, and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations and/or rights consistent with this License. However, in accepting such obligations, You may act only on Your own behalf and on Your sole responsibility, not on behalf of any other Contributor, and only if You agree to indemnify, defend, and hold each Contributor harmless for any liability incurred by, or claims asserted against, such Contributor by reason of your accepting any such warranty or additional liability.
+
+END OF TERMS AND CONDITIONS
+

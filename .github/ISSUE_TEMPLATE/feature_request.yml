@@ -1,0 +1,60 @@
+name: Feature request
+description: Suggest an idea for Cocos
+labels: ["Needs Triage","Feature Request"]
+body:
+
+- type: markdown
+  attributes:
+    value: |
+      - Please write a descriptive proposal title above.
+      - Search [open](https://github.com/cocos/cocos-engine/issues) and [closed](https://github.com/cocos/cocos-engine/issues?q=is%3Aissue+is%3Aclosed) issues to ensure it has not already been suggested.
+
+- type: textarea
+  attributes:
+    label: Use Case
+    description: Explain your use case, context, and rationale behind this feature request. More importantly, what is the project you are trying to build that led to the need for this feature? This is important to know the **context** in which the feature is being proposed.
+    placeholder: Example - "I am working on a MOBA game that ... With heavy use of navigation..."
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Problem Description
+    description: Please add a clear and concise description of the problem or limitation you are having in your project.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Proposed Solution
+    description: Describe the desired workflow or API set to satisfy the need in a clear and concise manner.
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: How it works
+    description: Describe how your proposal will work, with code, pseudo-code, mock-ups, and/or diagrams. If the API needs to be changed, please describe what does the proposed API look like and provide code samples. Note that you can use Markdown to format your code blocks.
+    placeholder: Example - "When the user presses ..., select all nodes that have the group..."
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: Alternatives Considered
+    description: A clear and concise description of any alternative solutions or features you've considered.
+    placeholder: Example - "It would be possible to do it with ... But ..."
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Additional Information
+    description: Add any other context about the problem here.
+  validations:
+    required: false
+
+- type: markdown
+  attributes:
+    value: |
+      Thanks for taking the time to fill out this form!

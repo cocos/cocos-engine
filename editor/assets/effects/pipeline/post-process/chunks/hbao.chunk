@@ -1,0 +1,378 @@
+precision highp float;
+#include <builtin/uniforms/cc-global>
+#include <common/common-define>
+#include <common/math/coordinates>
+#include <common/math/number>
+#include <builtin/functionalities/fog>
+
+uniform hbaoUBO {
+    vec4 uvDepthToEyePosParams;
+    vec4 radiusParam;
+    vec4 miscParam;
+    vec4 randomTexSize;
+    vec4 blurParam;
+};
+
+#define NUM_STEPS 8.0
+#define NUM_STEPS_LOOP NUM_STEPS*2.0
+#define INV_NUM_DIRECTIONS 0.125
+#define NUM_DIRECTIONS 8
+#define CONSTANT_2PI 6.2831852
+
+#define g_AOResolution cc_screenSize.xy
+#define g_InvAOResolution cc_screenSize.zw
+#define g_UVToViewA uvDepthToEyePosParams.xy
+#define g_UVToViewB uvDepthToEyePosParams.zw
+
+#define g_R radiusParam.x
+#define g_R2 radiusParam.y
+#define g_NegInvR2 radiusParam.z
+#define g_MaxRadiusPixels radiusParam.w
+
+#define g_FocalLen miscParam.xy
+#define g_TanAngleBias miscParam.z
+#define g_Strength miscParam.w
+
+#pragma rate DepthTex pass
+uniform sampler2D DepthTex; //Sample_Point_Clamp
+#pragma rate RandomTex
+uniform sampler2D RandomTex; //Sample_Point_Wrap
+
+// force clamped sample
+vec2 fixUV(vec2 uv)
+{
+  return saturate(uv);
+}
+
+//----------------------------------------------------------------------------------
+float InvLength(vec2 v)
+{
+	return rsqrt(dot(v,v));
+}
+
+//----------------------------------------------------------------------------------
+float Tangent(vec3 P, vec3 S)
+{
+	return (P.z - S.z) * InvLength(S.xy - P.xy);
+}
+
+//----------------------------------------------------------------------------------
+vec3 UVToEye(vec2 uv, float eye_z)
+{
+    uv = g_UVToViewA * uv + g_UVToViewB;
+    return vec3(uv * eye_z, eye_z);
+}
+
+//----------------------------------------------------------------------------------
+float GetLinearDepth(vec2 uv) {
+  float depthHS = 0.0;
+  #if defined(CC_USE_WGPU)
+      depthHS = textureLod(DepthTex, fixUV(uv), 0.0).r * 2.0 - 1.0;
+  #else
+      depthHS = texture(DepthTex, fixUV(uv)).r * 2.0 - 1.0; // -1.0 ~ +1.0
+  #endif
+  return -GetCameraDepthRH(depthHS, cc_matProj);
+}
+
+vec3 FetchEyePos(vec2 uv)
+{
+    float depth = GetLinearDepth(uv);
+    return UVToEye(uv, depth);
+}
+
+//----------------------------------------------------------------------------------
+float Length2(vec3 v)
+{
+  	return dot(v, v);
+}
+
+//----------------------------------------------------------------------------------
+vec3 MinDiff(vec3 P, vec3 Pr, vec3 Pl)
+{
+  	vec3 V1 = Pr - P;
+  	vec3 V2 = P - Pl;
+  	return (Length2(V1) < Length2(V2)) ? V1 : V2;
+}
+
+//----------------------------------------------------------------------------------
+float Falloff(float d2)
+{
+    // 1 scalar mad instruction
+    return d2 * g_NegInvR2 + 1.0;
+}
+
+//----------------------------------------------------------------------------------
+vec2 SnapUVOffset(vec2 uv)
+{
+    return round(uv * g_AOResolution) * g_InvAOResolution;
+}
+
+//----------------------------------------------------------------------------------
+float TanToSin(float x)
+{
+  	return x * rsqrt(x*x + 1.0);
+}
+
+//----------------------------------------------------------------------------------
+vec3 TangentVector(vec2 deltaUV, vec3 dPdu, vec3 dPdv)
+{
+  	return deltaUV.x * dPdu + deltaUV.y * dPdv;
+}
+
+//----------------------------------------------------------------------------------
+float Tangent(vec3 T)
+{
+  	return -T.z * InvLength(T.xy);
+}
+
+//----------------------------------------------------------------------------------
+float BiasedTangent(vec3 T)
+{
+    // Do not use atan() because it gets expanded by fxc to many math instructions
+    return Tangent(T) + g_TanAngleBias;
+}
+
+//----------------------------------------------------------------------------------
+vec2 RotateDirections(vec2 Dir, vec2 CosSin)
+{
+  	return vec2(Dir.x*CosSin.x - Dir.y*CosSin.y,
+  		Dir.x*CosSin.y + Dir.y*CosSin.x);
+}
+
+//----------------------------------------------------------------------------------
+float IntegerateOcclusion(vec2 uv0,
+                            vec2 snapped_duv,
+                            vec3 P,
+                            vec3 dPdu,
+                            vec3 dPdv,
+                            inout float tanH)
+{
+    float ao = 0.0;
+
+    // Compute a tangent vector for snapped_duv
+    vec3 T1 = TangentVector(snapped_duv, dPdu, dPdv);
+    float tanT = BiasedTangent(T1);
+    float sinT = TanToSin(tanT);
+
+    vec3 S = FetchEyePos(uv0 + snapped_duv);
+    float tanS = Tangent(P, S);
+
+    float sinS = TanToSin(tanS);
+    float d2 = Length2(S - P);
+
+    if ((d2 < g_R2) && (tanS > tanT))
+    {
+      // Compute AO between the tangent plane and the sample
+      ao = Falloff(d2) * (sinS - sinT);
+
+      // Update the horizon angle
+      tanH = max(tanH, tanS);
+    }
+
+    return ao;
+}
+
+//----------------------------------------------------------------------------------
+float HorizonOcclusion(vec2 deltaUV,
+                        vec2 texelDeltaUV,
+                        vec2 uv0,
+                        vec3 P,
+                        float numSteps,
+                        float randstep,
+                        vec3 dPdu,
+                        vec3 dPdv)
+{
+    float ao = 0.0;
+
+    // Randomize starting point within the first sample distance
+    vec2 uv = uv0 + SnapUVOffset( randstep * deltaUV );
+
+    // Snap increments to pixels to avoid disparities between xy
+    // and z sample locations and sample along a line
+    deltaUV = SnapUVOffset( deltaUV );
+
+    // Compute tangent vector using the tangent plane
+    vec3 T = deltaUV.x * dPdu + deltaUV.y * dPdv;
+
+    float tanH = BiasedTangent(T);
+
+#if SAMPLE_FIRST_STEP
+    // Take a first sample between uv0 and uv0 + deltaUV
+    vec2 snapped_duv = SnapUVOffset( randstep * deltaUV + texelDeltaUV );
+    ao = IntegerateOcclusion(uv0, snapped_duv, P, dPdu, dPdv, tanH);
+    --numSteps;
+#endif
+
+    float sinH = tanH / sqrt(1.0 + tanH*tanH);
+
+    // for (int j = 1; j <= numSteps; ++j)
+    for (float j = 1.0; j <= NUM_STEPS_LOOP; j += 1.0)
+    {
+      if (j <= numSteps)
+      {
+        uv += deltaUV;
+        vec3 S = FetchEyePos(uv);
+        float tanS = Tangent(P, S);
+        float d2 = Length2(S - P);
+
+        if ((d2 < g_R2) && (tanS > tanH))
+        {
+          // Accumulate AO between the horizon and the sample
+          float sinS = tanS / sqrt(1.0 + tanS*tanS);
+          ao += Falloff(d2) * (sinS - sinH);
+
+          // Update the current horizon angle
+          tanH = tanS;
+          sinH = sinS;
+        }
+      }
+    }
+
+    return ao;
+}
+
+//----------------------------------------------------------------------------------
+void ComputeSteps(inout vec2 step_size_uv, inout float numSteps, float ray_radius_pix, float rand)
+{
+    // Avoid oversampling if NUM_STEPS is greater than the kernel radius in pixels
+    numSteps = min(NUM_STEPS, ray_radius_pix);
+
+    // Divide by Ns+1 so that the farthest samples are not fully attenuated
+    float step_size_pix = ray_radius_pix / (numSteps + 1.0);
+
+    // Clamp numSteps if it is greater than the max kernel footprint
+    float maxNumSteps = g_MaxRadiusPixels / step_size_pix;
+    if (maxNumSteps < numSteps)
+    {
+      // Use dithering to avoid AO discontinuities
+      numSteps = floor(maxNumSteps + rand);
+      numSteps = max(numSteps, 1.0);
+      step_size_pix = g_MaxRadiusPixels / numSteps;
+    }
+
+    // Step size in uv space
+    step_size_uv = step_size_pix * g_InvAOResolution;
+}
+
+//----------------------------------------------------------------------------------
+float CalculateAO(vec2 uv)
+{
+    vec3 P = FetchEyePos(uv);
+
+    // (cos(alpha),sin(alpha),jitter)
+    vec3 rand = texture(RandomTex, uv * g_AOResolution.xy * randomTexSize.zw).xyz;
+
+    // Compute projection of disk of radius g_R into uv space
+    // Multiply by 0.5 to scale from [-1,1]^2 to [0,1]^2
+    vec2 ray_radius_uv = 0.5 * g_R * g_FocalLen / P.z;
+    float ray_radius_pix = ray_radius_uv.x * g_AOResolution.x;
+
+    if (ray_radius_pix < 1.0)
+    {
+      return 1.0;
+    }
+
+    float numSteps;
+    vec2 step_size;
+    ComputeSteps(step_size, numSteps, ray_radius_pix, rand.z);
+
+    // Nearest neighbor pixels on the tangent plane
+    vec3 Pr = FetchEyePos(uv + vec2(g_InvAOResolution.x, 0.0));
+    vec3 Pl = FetchEyePos(uv + vec2(-g_InvAOResolution.x, 0.0));
+    vec3 Pt = FetchEyePos(uv + vec2(0.0, g_InvAOResolution.y));
+    vec3 Pb = FetchEyePos(uv + vec2(0.0, -g_InvAOResolution.y));
+
+    // Screen-aligned basis for the tangent plane
+    vec3 dPdu = MinDiff(P, Pr, Pl);
+    vec3 dPdv = MinDiff(P, Pt, Pb) * (g_AOResolution.y * g_InvAOResolution.x);
+
+    float ao = 0.0;
+    float alpha = CONSTANT_2PI * INV_NUM_DIRECTIONS;
+
+    // this switch gets unrolled by the HLSL compiler
+    for (int d = 0; d < NUM_DIRECTIONS; ++d)
+    {
+      float angle = alpha * float(d);
+      vec2 dir = RotateDirections(vec2(cos(angle), sin(angle)), rand.xy);
+      vec2 deltaUV = dir * step_size.xy;
+      vec2 texelDeltaUV = dir * g_InvAOResolution;
+      ao += HorizonOcclusion(deltaUV, texelDeltaUV, uv, P, numSteps, rand.z, dPdu, dPdv);
+    }
+
+  ao = 1.0 - ao * INV_NUM_DIRECTIONS * g_Strength;
+
+  #if CC_USE_FOG != CC_FOG_NONE && !CC_USE_FLOAT_OUTPUT
+    float fogFactor = 1.0; // no fog
+    float depth = 0.0;
+    #if defined(CC_USE_WGPU)
+      depth = textureLod(DepthTex, uv, 0.0).r;
+    #else
+      depth = texture(DepthTex, uv).r;
+    #endif
+    vec3 posHS = vec3(uv, depth) * 2.0 - vec3(1.0);
+    CC_HANDLE_GET_CLIP_FLIP(posHS.xy);
+    vec4 worldPos = GetWorldPosFromNDCPosRH(posHS, cc_matProj, cc_matViewProjInv);
+    CC_TRANSFER_FOG_BASE(vec4(worldPos.xyz, 1.0), fogFactor);
+    // ao has less effect while fogFactor value is small
+    ao = mix(1.0, ao, pow(fogFactor * 0.9, 4.0));
+  #endif
+
+  return ao;
+  //return vec4(ao, P.z, 0, 0);
+}
+
+
+///////////////////////////////////////Blur
+#define KERNEL_FALLOFF 3.0f
+#define KERNEL_RADIUS 8
+//#define HALF_KERNEL_RADIUS (KERNEL_RADIUS/2)
+#define HALF_KERNEL_RADIUS 4 // should as same as ubo parameter calculation
+
+#define g_InvFullResolution cc_screenSize.zw
+#define g_BlurFallOff blurParam.x
+#define g_BlurDepthThreshold blurParam.y
+#define g_BlurSimpleRadius blurParam.z
+
+#pragma rate AOTexNearest pass
+uniform sampler2D AOTexNearest; //Sample_Point_Clamp
+// todo: maybe need bilinear filter
+#define AOTexBilinear AOTexNearest
+#define GetLinearDepthBilinear GetLinearDepth
+
+float CrossBilateralWeight(float r, float d, float d0, float blurFalloff, float blurDepthThreshold)
+{
+  return exp2(-r*r*blurFalloff) * (abs(d - d0) < blurDepthThreshold ? 1.0 : 0.0);
+}
+
+vec2 SumWeightedAO(int i, float centerCameraDepth, vec2 centerUV, vec2 sampleDir, float blurFalloff, float blurDepthThreshold)
+{
+  // step = 2
+  float r = 2.0 * float(i) + 0.5;
+  vec2 sampleUV = centerUV + r * sampleDir * g_InvFullResolution;
+  float d = GetLinearDepthBilinear(sampleUV);
+  float sampledAO = texture(AOTexNearest/*AOTexBilinear*/, fixUV(sampleUV)).x;
+  float w = CrossBilateralWeight(r, d, centerCameraDepth, blurFalloff, blurDepthThreshold);
+  return vec2(w * sampledAO, w);
+}
+
+float BlurCore(vec2 uv, vec2 sampleDir)
+{
+  float ao = texture(AOTexNearest, uv).x;
+  float weight = 1.0;
+  float centerCameraDepth = GetLinearDepth(uv);
+  for(int i = -HALF_KERNEL_RADIUS; i <= HALF_KERNEL_RADIUS; i++)
+  {
+    vec2 aoAndW = SumWeightedAO(i, centerCameraDepth, uv, sampleDir, g_BlurFallOff, g_BlurDepthThreshold);
+    ao += aoAndW.x;
+    weight += aoAndW.y;
+  }
+  return ao / weight;
+}
+
+///////////////////////////////////////Composite
+#define g_AOSaturation blurParam.w
+float Combine(vec2 uv)
+{
+  float ao = texture(AOTexNearest, uv).x;
+  return g_AOSaturation > 1.0 ? pow(ao, g_AOSaturation) : mix(1.0, ao, g_AOSaturation);
+}

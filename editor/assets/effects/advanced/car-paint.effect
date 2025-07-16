@@ -1,0 +1,400 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      properties: &props
+        tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
+        albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:                        { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        addOnShadowBias:                  { value: 0.0, target: emissiveScaleParam.z }
+        coatRoughness:                    { value: 0.05, target: coatParam.x, editor: { slide : true, range : [0, 1.0] , step : 0.0001 } }
+        coatIOR:                          { value: 1.0, target: coatParam.y, editor: { slide : true, range : [1.0, 1.5] , step : 0.0001 } }
+        coatOpacity:                      { value: 1.0, target: coatParam.z, editor: { slide : true, range : [0.0, 1.0] , step : 0.0001 } }
+        coatIntensity:                    { value: 1.0, target: coatParam.w, editor: { slide : true, range : [0.0, 3.0] , step : 0.0001 } }
+        coatColor:                        { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { displayName: CoatColor, type: color } }
+        flakeDensity:                     { value: 0.5, target: flakeParam.x, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
+        flakeColorIntensity:              { value: 0.2, target: flakeParam.y, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
+        flakeTiling:                      { value: 10.0, target: flakeParam.z, editor: { parent: USE_FLAKE, slide: true, range: [1.0, 100.0], step: 0.001 } }
+        coatNormalStrength:               { value: 0.1, target: flakeParam.w, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
+        gradientColor:                    { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
+        gradientIntensity:                { value: 0.5, target: emissiveScaleParam.y, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
+        mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        normalMap:                        { value: normal }
+        coatDataMap:                      { value: white, editor: { parent: USE_COAT_DATA_MAP, tooltip: 'r: Coat Roughness g: Coat Specular Intensity b: Coat Opacity.' } }
+        coatNormalMap:                    { value: normal, editor: { parent: USE_FLAKE } }
+        flakeDataMap:                     { value: white, editor: { parent: USE_FLAKE } }
+        pbrMap:                           { value: grey }
+        occlusionMap:                     { value: white }
+    - &forward-add
+      vert: standard-vs
+      frag: standard-fs
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+    - &shadow-caster
+      vert: shadow-caster-vs
+      frag: shadow-caster-fs
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
+      properties:
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+    - &reflect-map
+      vert: standard-vs
+      frag: reflect-map-fs
+      phase: reflect-map
+      propertyIndex: 0
+    - &planar-shadow
+      vert: planar-shadow-vs
+      frag: planar-shadow-fs
+      phase: planar-shadow
+      propertyIndex: 0
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: not_equal
+        stencilPassOpFront: replace
+        stencilRef: 0x80 # only use the leftmost bit
+        stencilReadMask: 0x80
+        stencilWriteMask: 0x80
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+    - &deferred
+      vert: standard-vs
+      frag: standard-fs
+      pass: gbuffer
+      phase: gbuffer
+      embeddedMacros: { CC_PIPELINE_TYPE: 1 }
+      propertyIndex: 0
+  - name: transparent
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState: &b1
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+    - *forward-add
+    - *shadow-caster
+    - *planar-shadow
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      propertyIndex: 0
+      depthStencilState: *d1
+      blendState: *b1
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 tilingOffset;
+    vec4 albedo;
+    vec4 albedoScaleAndCutoff;
+    vec4 pbrParams;
+    vec4 emissiveScaleParam;
+    vec4 coatParam;
+    vec4 coatColor;
+    vec4 flakeParam;
+    vec4 gradientColor;
+  };
+}%
+
+CCProgram macro-remapping %{
+  // ui displayed macros
+  #pragma define-meta HAS_SECOND_UV
+  #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_VERTEX_COLOR
+  #pragma define-meta USE_FLAKE
+
+  #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
+  #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
+  #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
+  #define CC_SURFACES_LIGHTING_CLEAR_COAT 1
+
+  // depend on UI macros
+#if USE_NORMAL_MAP || USE_FLAKE
+  #define CC_SURFACES_USE_TANGENT_SPACE 1
+#endif
+}%
+
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_SHADOW_BIAS
+  vec2 SurfacesVertexModifyShadowBias(in SurfacesStandardVertexIntermediate In, vec2 originShadowBias)
+  {
+    return originShadowBias + vec2(emissiveScaleParam.z, 0.0);
+  }
+
+  #define CC_SURFACES_VERTEX_MODIFY_UV
+  void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
+  {
+    In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
+  #if CC_SURFACES_USE_SECOND_UV
+    In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
+  #endif
+  }
+}%
+
+CCProgram surface-fragment %{
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
+  #endif
+  #if USE_NORMAL_MAP
+    uniform sampler2D normalMap;
+    #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
+  #endif
+  #pragma define-meta DEFAULT_UV options([v_uv, v_uv1])
+  #if USE_PBR_MAP
+    uniform sampler2D pbrMap;
+  #endif
+  #if USE_OCCLUSION_MAP
+    uniform sampler2D occlusionMap;
+  #endif
+  #if USE_FLAKE
+    uniform sampler2D coatNormalMap;
+    uniform sampler2D flakeDataMap;
+  #endif
+  #if USE_COAT_DATA_MAP
+    uniform sampler2D coatDataMap;
+  #endif
+
+  #pragma define OCCLUSION_CHANNEL          r
+  #pragma define ROUGHNESS_CHANNEL          g
+  #pragma define METALLIC_CHANNEL           b
+  #pragma define SPECULAR_INTENSITY_CHANNEL a
+
+  #if USE_ALPHA_TEST
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
+  #endif
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_PARAMS
+  vec4 SurfacesFragmentModifyClearCoatParams()
+  {
+    vec4 params = vec4(coatParam.x, coatParam.y - 0.99, coatParam.z, coatParam.w * 2.0);
+    #if USE_COAT_DATA_MAP
+      vec4 coatData = texture(coatDataMap, FSInput_texcoord);
+      params *= vec4(coatData.r, 1.0, coatData.b, coatData.g);
+    #endif
+    return params;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_COLOR
+  vec3 SurfacesFragmentModifyClearCoatColor()
+  {
+      return coatColor.xyz;
+  }
+
+  #if USE_FLAKE
+    vec4 sampleFlakeData(vec2 uv)
+    {
+        vec4 blurred = texture(flakeDataMap, uv);
+        vec4 detailed = fragTextureLod(flakeDataMap, uv, 1.0);
+        return lerp(blurred, detailed, 0.3);
+    }
+    vec4 sampleFlakeNormal(vec2 uv)
+    {
+        vec4 blurred = texture(coatNormalMap, uv);
+        vec4 detailed = fragTextureLod(coatNormalMap, uv, 1.0);
+        return lerp(blurred, detailed, 0.3);
+    }
+  #endif
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_WORLD_NORMAL
+  vec3 SurfacesFragmentModifyClearCoatWorldNormal()
+  {
+    vec3 normal = FSInput_worldNormal;
+    #if USE_FLAKE
+      float density = flakeParam.x, densityMin = 0.25, flakeTiling = flakeParam.z;
+      vec2 uv = FSInput_texcoord * flakeTiling;
+      vec4 data = sampleFlakeData(uv);
+      vec3 nmmp = (sampleFlakeNormal(uv).xyz - vec3(0.5)) * 2.0;
+      float C = (data.a - 1.0) / density + 1.0;
+      float bumpIntensity = saturate(max(densityMin, C));
+      nmmp = lerp(vec3(0.0, 0.0, 1.0), nmmp, bumpIntensity);
+      normal = CalculateNormalFromTangentSpace(nmmp, flakeParam.w, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
+    #endif
+
+    return normalize(normal);
+  }
+
+  #include <common-functions>
+
+
+  #include <surfaces/data-structures/standard>
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+  {
+    #if USE_GRADIENT_COLOR
+      vec3 viewDir = normalize(cc_cameraPos.xyz - surfaceData.worldPos);
+      float NoVSat = saturate(dot(surfaceData.worldNormal, viewDir));
+      surfaceData.baseColor.rgb = lerp(gradientColor, surfaceData.baseColor, pow(NoVSat, emissiveScaleParam.y)).rgb;
+    #endif
+
+    #if USE_FLAKE
+      float density = flakeParam.x, flakeColorIntensity = flakeParam.y, flakeTiling = flakeParam.z;
+      vec2 uv = FSInput_texcoord * flakeTiling;
+
+      vec4 data = sampleFlakeData(uv);
+      float C = (data.a - 1.0) / density + 1.0;
+      float flakeTintWeight = 1.0;
+      float flakeWeight = saturate(C) * flakeTintWeight * flakeColorIntensity;
+
+      // color
+      vec4 flakeA = vec4(0.972,0.96,0.915,1);
+      vec4 flakeB = vec4(1.0,0.78,0.344,1);
+      vec4 flakeColor = lerp(flakeA, flakeB, data.r);
+
+      vec4 color = surfaceData.baseColor;
+      color = lerp(color, flakeColor, flakeWeight);
+      color = lerp(surfaceData.baseColor, color, surfaceData.metallic);
+      surfaceData.baseColor = color;
+      surfaceData.roughness *= lerp(1.0, 0.5, flakeWeight);
+    #endif
+  }
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-vs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-vertex>
+
+  // 4. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-vs>
+
+  // 5. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/vs>
+}%
+
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-to-shadowmap/vs>
+}%
+
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-planar-shadow/vs>
+}%
+
+
+CCProgram standard-fs %{
+  // shading-model : standard
+  // lighting-model : standard (isotropy / anisotropy pbr)
+  // shader stage : fs
+  // technique usage/type : render-to-scene
+
+  precision highp float;
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-fs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-fragment>
+
+  // 4. lighting-model (optional)
+  #include <lighting-models/includes/standard>
+
+  // 5. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-fs>
+
+  // 6. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/fs>
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%
+
+CCProgram planar-shadow-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-planar-shadow/fs>
+}%
+
+CCProgram reflect-map-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <lighting-models/includes/standard>
+  #include <surfaces/includes/standard-fs>
+  #include <shading-entries/main-functions/render-to-reflectmap/fs>
+}%
+

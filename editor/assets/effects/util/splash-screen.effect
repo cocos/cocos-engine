@@ -1,0 +1,67 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: default
+    passes:
+    - vert: splash-screen-vs:vert
+      frag: splash-screen-fs:frag
+      properties:
+        mainTexture:    { value: grey }
+        resolution:     { value: [640, 960], target: u_buffer0.xy }
+        percent:        { value: 0.5, target: u_percent }
+        scale:          { value: [200, 500], target: u_buffer1.xy }
+        translate:       { value: [320, 480], target: u_buffer1.zw }
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram splash-screen-vs %{
+  precision mediump float;
+
+  #pragma define u_resolution      u_buffer0.xy
+  #pragma define u_worldScale      u_buffer1.xy
+  #pragma define u_worldTranslate  u_buffer1.zw
+
+  in vec2 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+  uniform Constant {
+    vec4 u_buffer0;
+    vec4 u_buffer1;
+    mat4 u_projection;
+  };
+
+  vec4 vert () {
+    vec2 worldPos = a_position * u_worldScale + u_worldTranslate;
+    vec2 clipSpace = worldPos / u_resolution * 2.0 - 1.0;
+    vec4 screenPos = u_projection * vec4(clipSpace, 0.0, 1.0);
+    v_uv = a_texCoord;
+    return screenPos;
+  }
+}%
+
+CCProgram splash-screen-fs %{
+  precision mediump float;
+
+  in vec2 v_uv;
+  uniform Factor {
+    float u_percent;
+  };
+  uniform sampler2D mainTexture;
+
+  vec4 frag () {
+    vec4 color = texture(mainTexture, v_uv);
+    float percent = clamp(u_percent, 0.0, 1.0);
+    color.xyz *= percent;
+    return color;
+  }
+}%

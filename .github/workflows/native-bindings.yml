@@ -1,0 +1,88 @@
+name: <Native> Generate Code
+
+on:
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  autogen-code:
+    # if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    strategy:
+      matrix:
+        node-version: [18.x]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CMake & Clang Tidy
+        run: |
+          sudo apt update --fix-missing
+          sudo apt install -y ninja-build
+      - name: Download external
+        run: |
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
+          local-cache: true
+      - name: Generate decorators
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cd native
+          echo "Generate compile_commands.json & ninja target"
+          bash ./utils/generate_compile_commands_android.sh
+          echo "Generate binding code ..."
+          ninja -C build genbindings
+          cd ..
+          npm install
+          echo " parsing ..."
+          node .github/workflows/gen_decorators.js
+          echo " generate done!"
+          git checkout HEAD package.json package-lock.json
+
+      - name: Update auto-gen source files 
+        run: |
+          cd native
+          echo "Generating DebugInfos ... "
+          node cmake/scripts/gen_debugInfos.js \
+            ../EngineErrorMap.md \
+            cocos/core/builtin/DebugInfos.cpp.in \
+            cocos/core/builtin/DebugInfos.cpp 
+          echo "Generating cocos-version.h ... "
+          node ./cmake/scripts/engine-version.js
+
+      - name: Create Pull Request 
+        uses: fish9167/create-pull-request@v3
+        if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        with:
+            title: '[ci skip][AUTO]: Automated PR to generate code'
+            body: |
+              Automated PR to genbindings & built resources
+              [X] does not change any runtime related code or build configuration
+            committer: cocos-robot <cocos-robot@cocos.com>
+            author: cocos-robot <cocos-robot@cocos.com>
+            commit-message: "[ci skip][AUTO]: Automated code generating update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
+            token: ${{ secrets.PR_TOKEN }}
+            push-to-fork: cocos-robot/engine
+            branch: t/bot/genbindings
+            branch-suffix: short-commit-hash
+            delete-branch: true
+          
+      - name: Notify PR author on error
+        if: ${{ failure() }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.payload.pull_request.number;
+            const pr_author = context.payload.pull_request.user.login;
+            const error_comment = `@${pr_author} :exclamation: There was an error during the execution of the tasks. Please check the logs for more details.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: error_comment,
+            });
+          github-token: ${{ secrets.GITHUB_TOKEN }}

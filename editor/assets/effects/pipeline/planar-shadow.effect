@@ -1,0 +1,63 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: planar-shadow-vs:vert
+      frag: planar-shadow-fs:frag
+      phase: planarShadow
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: not_equal
+        stencilPassOpFront: replace
+        stencilRef: 0x80 # only use the leftmost bit
+        stencilReadMask: 0x80
+        stencilWriteMask: 0x80
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+}%
+
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <builtin/uniforms/cc-shadow>
+  #include <common/lighting/functions>
+
+  out float v_dist;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+    // World Space
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+    vec3 worldPos = (matWorld * position).xyz;
+    vec4 shadowPos = CalculatePlanarShadowPos(worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
+    position = CalculatePlanarShadowClipPos(shadowPos, cc_cameraPos.xyz, cc_matView, cc_matProj, cc_nearFar, cc_shadowWHPBInfo.w);
+    v_dist = shadowPos.w;
+    return position;
+  }
+}%
+
+CCProgram planar-shadow-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-shadow>
+  #include <legacy/output>
+
+  in float v_dist;
+
+  vec4 frag () {
+    if(v_dist < 0.0)
+      discard;
+    return CCFragOutput(cc_shadowColor);
+  }
+}%

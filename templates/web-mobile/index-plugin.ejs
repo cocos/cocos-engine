@@ -1,0 +1,22 @@
+<% if (webDebuggerSrc) { %>
+<script src="<%=webDebuggerSrc%>"></script>
+<script type="text/javascript">
+    // open web debugger console
+    window.VConsole && (window.vConsole = new VConsole());
+</script>
+<% } %>
+
+<!-- Polyfills bundle. -->
+<% if(polyfillsBundleFile) { %>
+<script src="<%= polyfillsBundleFile %>" charset="utf-8"> </script>
+<% } %>
+
+<!-- SystemJS support. -->
+<script src="<%= systemJsBundleFile %>" charset="utf-8"> </script>
+
+<!-- Import map -->
+<script src="<%= importMapFile%>" type="systemjs-importmap" charset="utf-8"> </script>
+
+<script>
+    System.import('./<%= indexJsName %>').catch(function(err) { console.error(err); })
+</script>

@@ -1,0 +1,9 @@
+#pragma define-meta ANTIALIAS_TYPE
+
+#if ANTIALIAS_TYPE == 1
+    #include <post-process/fxaa>
+#endif
+#if ANTIALIAS_TYPE == 2
+    // #define FXAA_PRESET 5
+    #include <post-process/fxaa-hq>
+#endif

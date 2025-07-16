@@ -1,0 +1,113 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#include <builtin/uniforms/cc-skinning>
+
+#if CC_USE_BAKED_ANIMATION
+  #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
+    void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
+      highp float x, y, invSize;
+      CCGetJointTextureCoords(3.0, i, x, y, invSize);
+      Qr = texture(cc_jointTexture, vec2((x + 0.5) * invSize, y));
+      Qt = texture(cc_jointTexture, vec2((x + 1.5) * invSize, y));
+      S = texture(cc_jointTexture, vec2((x + 2.5) * invSize, y)).xyz;
+    }
+  #else
+    void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
+      highp float x, y, invSize;
+      CCGetJointTextureCoords(12.0, i, x, y, invSize);
+      Qr = vec4(
+        decode32(texture(cc_jointTexture, vec2((x + 0.5) * invSize, y))),
+        decode32(texture(cc_jointTexture, vec2((x + 1.5) * invSize, y))),
+        decode32(texture(cc_jointTexture, vec2((x + 2.5) * invSize, y))),
+        decode32(texture(cc_jointTexture, vec2((x + 3.5) * invSize, y)))
+      );
+      Qt = vec4(
+        decode32(texture(cc_jointTexture, vec2((x + 4.5) * invSize, y))),
+        decode32(texture(cc_jointTexture, vec2((x + 5.5) * invSize, y))),
+        decode32(texture(cc_jointTexture, vec2((x + 6.5) * invSize, y))),
+        decode32(texture(cc_jointTexture, vec2((x + 7.5) * invSize, y)))
+      );
+      S = vec3(
+        decode32(texture(cc_jointTexture, vec2((x + 8.5) * invSize, y))),
+        decode32(texture(cc_jointTexture, vec2((x + 9.5) * invSize, y))),
+        decode32(texture(cc_jointTexture, vec2((x + 10.5) * invSize, y)))
+      );
+    }
+  #endif
+#else
+  #if CC_USE_REAL_TIME_JOINT_TEXTURE
+    #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
+      void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
+        float x = i;
+        Qr = texture(cc_realtimeJoint, vec2( x / 256.0, 0.5 / 3.0));
+        Qt = texture(cc_realtimeJoint, vec2( x / 256.0, 1.5 / 3.0));
+        S = texture(cc_realtimeJoint, vec2( x / 256.0, 2.5 / 3.0)).xyz;
+      }
+    #else
+      void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
+        float x = 4.0 * i;
+        vec4 v1 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 0.5 / 3.0)))
+        );
+        vec4 v2 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 1.5 / 3.0)))
+        );
+        vec4 v3 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 2.5 / 3.0)))
+        );
+        Qr = v1;
+        Qt = v2;
+        S = v3.xyz;
+      }
+    #endif
+  #else
+    void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
+      int idx = int(i);
+      Qr = cc_joints[idx * 3];
+      Qt = cc_joints[idx * 3 + 1];
+      S = cc_joints[idx * 3 + 2].xyz;
+    }
+  #endif
+#endif
+
+// [Kavan07] Skinning with Dual Quaternions
+void skinRTS (out vec4 R, out vec3 T, out vec3 S) {
+  vec4 r, t, Qt = vec4(0.0); vec3 s;
+  R = vec4(0.0); S = vec3(0.0);
+
+  for (int i = 0; i < 4; i++) {
+    float w = a_weights[i];
+    getJointDQ(a_joints[i], r, t, s);
+    S += s * w; R += r * w; Qt += t * w;
+  }
+
+  float invNorm = 1.0 / length(R); R *= invNorm; Qt *= invNorm;
+  T = 2.0 * (R.w * Qt.xyz - Qt.w * R.xyz + cross(R.xyz, Qt.xyz)); // 2 * Qt * conjugate(R)
+}
+
+vec3 VectorTransformQuat (vec3 v, vec4 Q) {
+  return v + 2.0 * cross(Q.xyz, cross(Q.xyz, v) + Q.w * v);
+}
+
+void CCSkin (inout vec4 position) {
+  vec4 R; vec3 T, S;
+  skinRTS(R, T, S);
+  position.xyz = VectorTransformQuat(position.xyz * S, R) + T;
+}
+
+void CCSkin (inout vec4 position, inout vec3 normal, inout vec4 tangent) {
+  vec4 R; vec3 T, S;
+  skinRTS(R, T, S);
+  position.xyz = VectorTransformQuat(position.xyz * S, R) + T;
+  normal = VectorTransformQuat(normal, R);
+  tangent.xyz = VectorTransformQuat(tangent.xyz, R);
+}

@@ -1,0 +1,2 @@
+#pragma deprecate-chunk cc-fog (interface updated) use 'cc-fog-vs' and 'cc-fog-fs' instead
+#pragma deprecate-identifier CCPassShadowParams use 'CC_TRANSFER_SHADOW' instead

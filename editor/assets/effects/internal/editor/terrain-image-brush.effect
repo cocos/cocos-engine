@@ -1,0 +1,100 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - name: transparent
+    passes:
+    - vert: terrain-brush-vs:vert
+      frag: terrain-brush-fs:frag
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties:
+        BrushPos:         { value: [0, 0, 0, 1] }
+        BrushParams:      { value: [2.5, 2.5, 0, 0] }
+        BrushImage:       { value: grey         }
+        BrushDepthOffset: { value: 0.05 }
+}%
+
+CCProgram terrain-brush-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+
+  in vec3 a_position;
+
+  out vec4 wposition;
+
+  uniform Constant {
+      float BrushDepthOffset;
+  };
+
+  vec4 vert () {
+    vec3 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+    worldPos.y += BrushDepthOffset; // depth increment for terrain brushes
+
+    vec4 pos = vec4(worldPos, 1);
+    pos = cc_matViewProj * pos;
+
+    wposition = vec4(worldPos, 1);
+
+    return pos;
+  }
+}%
+
+CCProgram terrain-brush-fs %{
+  precision mediump float;
+  #include <legacy/output>
+
+  in vec4 wposition;
+
+  uniform TexCoords {
+    vec4 BrushPos;
+    vec4 BrushParams;
+  };
+
+  uniform sampler2D BrushImage;
+
+  vec4 frag () {
+    float Radius = BrushParams.x;
+    float Falloff = BrushParams.y;
+    float Rotation = BrushParams.z;
+    float DeltaU = BrushPos.x - wposition.x;
+    float DeltaV = BrushPos.z - wposition.z;
+
+    if (Rotation != 0.0) {
+      float sine = sin(Rotation);
+      float cosine = cos(Rotation);
+      float _11 = cosine, _21 = sine;
+      float _12 = -sine, _22 = cosine;
+      float tmpx = DeltaU * _11 + DeltaV * _21;
+      float tmpz = DeltaU * _12 + DeltaV * _22;
+      DeltaU = tmpx;
+      DeltaV = tmpz;
+    }
+
+    float k = 0.0;
+    if (abs(DeltaU) < Radius && abs(DeltaV) < Radius) {
+      float u = DeltaU / Radius * 0.5 + 0.5;
+      float v = DeltaV / Radius * 0.5 + 0.5;
+
+      k = texture(BrushImage, vec2(u, v)).r;
+    }
+
+    vec4 color = vec4(0, 0, 0, 0);
+    color.rgb = vec3(100, 100, 135) / 255.0;
+    color.a = 0.85 * k;
+
+    return CCFragOutput(color);
+  }
+}%

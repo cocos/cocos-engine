@@ -1,0 +1,35 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.huawei.vrhandle.permission.DEVICE_MANAGER"/>
+    <uses-permission android:name="com.huawei.android.permission.VR"/>
+
+    <queries>
+        <package android:name="com.huawei.vrhandle" />
+        <package android:name="com.huawei.hvrsdkserverapp" />
+        <intent>
+            <action android:name="com.huawei.vrhandle.service.vrdeviceservice"/>
+        </intent>
+    </queries>
+
+    <application>
+        <meta-data android:name="com.huawei.android.vr.application.mode" android:value="vr_only" />
+        <meta-data android:name="android.max_aspect" android:value="2.1" />
+        <meta-data android:name="com.huawei.vr.application.freeDegree" android:value="3dof|6dof" />
+        <meta-data android:name="com.huawei.android.vr.application.type" android:value="game" />
+        <!-- <meta-data android:name="com.huawei.android.vr.sensor.mode" android:value="mobile"/> -->
+
+        <activity
+            android:name="com.cocos.game.AppActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.cocos.intent.category.XR" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.huawei.android.vr.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

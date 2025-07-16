@@ -1,0 +1,23 @@
+<!--index.wxml-->
+<view class="container">
+    <view class="weui-cell weui-cell_input">
+      <input class="weui-input" 
+        auto-focus
+        bindinput="onKeyboardInput"
+        bindblur="onKeyboardComplete"
+        bindconfirm="onKeyboardConfirm"
+        confirm-type="{{confirmType}}"
+        password="{{isPassword}}"
+        maxLength="{{maxLength}}"
+        wx:if="{{showInput}}"
+        />
+    </view>
+    <canvas 
+    type="webgl"
+    id="myCanvas"
+    bindtouchstart="touchStart"
+    bindtouchmove="touchMove"
+    bindtouchend="touchEnd"
+    bindtouchcancel="touchCancel"
+    ></canvas>
+</view>

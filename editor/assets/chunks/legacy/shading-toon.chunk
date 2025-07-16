@@ -1,0 +1,132 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+#include <builtin/uniforms/cc-global>
+#include <common/common-define>
+#include <common/data/packing>
+
+struct ToonSurface {
+  vec4 baseColor;
+  vec4 specular;
+  // these two need to be in the same coordinate system
+  HIGHP_VALUE_STRUCT_DEFINE(vec3, position);
+  vec3 normal;
+  // shading params
+  vec3 shade1;
+  vec3 shade2;
+  vec3 emissive;
+  float baseStep;
+  float baseFeather;
+  float shadeStep;
+  float shadeFeather;
+  float shadowCover;
+
+  #if CC_RECEIVE_SHADOW
+    vec2 shadowBias;
+  #endif
+};
+
+// Inspired by UTS2, (C)UTJ/UCL
+#if CC_FORWARD_ADD
+  #include <legacy/lighting>
+  vec4 CCToonShading (ToonSurface s) {
+    vec3 position;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+
+    vec3 V = normalize(cc_cameraPos.xyz - position);
+    vec3 N = normalize(s.normal);
+    float specularWeight = 1.0 - pow(s.specular.a, 5.0);
+    vec3 finalColor = vec3(0.0);
+
+    for (int i = 0; i < LIGHTS_PER_PASS; i++) {
+      // lighting
+      vec3 SLU = IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w) ? -cc_lightDir[i].xyz : cc_lightPos[i].xyz - position;
+      vec3 SL = normalize(SLU);
+      vec3 SH = normalize(SL + V);
+      float SNL = 0.5 * dot(N, SL) + 0.5;
+      float SNH = 0.5 * dot(N, SH) + 0.5;
+
+      vec3 diffuse = mix(s.shade1, s.shade2,
+        clamp(1.0 + (s.shadeStep - s.shadeFeather - SNL) / s.shadeFeather, 0.0, 1.0));
+      diffuse = mix(s.baseColor.rgb, diffuse,
+        clamp(1.0 + (s.baseStep - s.baseFeather - SNL) / s.baseFeather, 0.0, 1.0));
+      float specularMask = step(specularWeight, SNH);
+      vec3 specular = s.specular.rgb * specularMask;
+
+      // attenuations
+      float illum = 1.0;
+      float att = 1.0;
+      if (IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
+        att = GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+      } else {
+        float distSqr = dot(SLU, SLU);
+        float litRadius = cc_lightSizeRangeAngle[i].x;
+        float litRadiusSqr = litRadius * litRadius;
+        illum = (IS_POINT_LIGHT(cc_lightPos[i].w) || IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) ? 1.0 : litRadiusSqr / max(litRadiusSqr , distSqr);
+        float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
+        attRadiusSqrInv *= attRadiusSqrInv;
+        att = GetDistAtt(distSqr, attRadiusSqrInv);
+
+        if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
+          float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
+          float cosOuter = cc_lightSizeRangeAngle[i].z;
+          float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
+          float litAngleOffset = -cosOuter * litAngleScale;
+          att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
+        }
+      }
+
+      finalColor += SNL * cc_lightColor[i].rgb * cc_lightColor[i].a * illum * att * s.baseStep * (diffuse + specular);
+    }
+
+    return vec4(finalColor, 0.0);
+  }
+#else
+  #if CC_RECEIVE_SHADOW
+    #include <legacy/shadow-map-fs>
+  #endif
+
+  vec4 CCToonShading (ToonSurface s) {
+    vec3 position;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+
+    vec3 V = normalize(cc_cameraPos.xyz - position);
+    vec3 N = normalize(s.normal);
+
+    vec3 L = normalize(-cc_mainLitDir.xyz);
+    float NL = 0.5 * dot(N, L) + 0.5;
+    float NH = 0.5 * dot(normalize(V + L), N) + 0.5;
+    vec3 lightColor = cc_mainLitColor.rgb * cc_mainLitColor.w * s.baseStep;
+
+    vec3 diffuse = mix(s.shade1, s.shade2,
+      clamp(1.0 + (s.shadeStep - s.shadeFeather - NL) / s.shadeFeather, 0.0, 1.0));
+
+    diffuse = mix(s.baseColor.rgb, diffuse,
+      clamp(1.0 + (s.baseStep - s.baseFeather - NL) / s.baseFeather, 0.0, 1.0));
+
+    float specularWeight = 1.0 - pow(s.specular.a, 5.0);
+    float specularMask = step(specularWeight + EPSILON_LOWP, NH);
+    vec3 specular = s.specular.rgb * specularMask;
+
+    vec3 dirlightContrib = diffuse + specular;
+
+    float shadow = 1.0;
+    #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
+    if(s.shadowCover < NL && cc_mainLitDir.w > 0.0) {
+      #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
+        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+      #endif
+      #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
+        shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, s.shadowBias);
+      #endif
+    }
+    #endif
+
+    dirlightContrib *= shadow;
+    vec3 finalColor = lightColor * dirlightContrib;
+
+    // TODO: no ambient, no IBL for now
+
+    finalColor += s.emissive;
+
+    return vec4(finalColor, s.baseColor.a);
+  }
+#endif

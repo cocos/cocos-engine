@@ -1,0 +1,31 @@
+name: <Native> Generate Android NDK Cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      android_ndk_sdk_version:
+        description: 'Android NDK Version'
+        type: string
+        default: 'r21e'
+        required: true
+
+jobs:
+  generate_android_ndk_cache:
+    name: "Generate Android NDK Cache"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: ${{ github.event.inputs.android_ndk_sdk_version }}
+          local-cache: true
+
+      - name: Verify
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cd ${ANDROID_NDK_HOME}
+          cat source.properties
+          platform=$(uname -s | tr '[:upper:]' '[:lower:]')
+          ./toolchains/llvm/prebuilt/${platform}-x86_64/bin/clang -v

@@ -1,0 +1,38 @@
+  #include <surfaces/data-structures/standard>
+  #include <lighting-models/includes/standard>
+
+  #if USE_PREINTEGRATED_SKIN
+    uniform sampler2D preIntegratedSkinMap; // engine internal assets
+  #endif
+
+  #define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+  void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, in LightingMiscData miscData)
+  {
+  #if CC_SURFACES_LIGHTING_SSS
+    float sssIntensity = surfaceData.sssParams.x;
+    // curvature needs pre-generating in vertex or texture data, otherwise disable pre-integrated skin
+    float sssCurvature = surfaceData.sssParams.y;
+    float sssColoration = surfaceData.sssParams.z;
+
+    // update lighting data for diffuse calculations
+    LightingIntermediateData lightingData3S = lightingData;
+    lightingData3S.N = normalize(FSInput_worldNormal);
+    lightingData3S.NoL = dot(lightingData3S.N, lightingData.L);
+    lightingData3S.NoL = mix(lightingData.NoL, lightingData3S.NoL, sssIntensity);
+    lightingData3S.NoLSat = saturate(lightingData3S.NoL);
+
+    float multiplier = lightingData.distAttenuation * lightingData.angleAttenuation;
+    #if USE_PREINTEGRATED_SKIN
+      result.directDiffuse = texture(preIntegratedSkinMap, vec2(lightingData3S.NoL * 0.5 + 0.5, sssCurvature)).rgb;
+      vec3 color = result.directDiffuse / (EPSILON_LOWP + max(max(result.directDiffuse.r, result.directDiffuse.g), result.directDiffuse.b));
+      result.directDiffuse *= pow(color, vec3(sssColoration));
+      result.directDiffuse *= miscData.lightColorAndIntensity.rgb * miscData.lightColorAndIntensity.w * DiffuseCoefficient_EnergyConservation;
+    #else
+      result.directDiffuse = CalculateDirectDiffuse(lightingData3S, miscData.lightColorAndIntensity) * multiplier;
+    #endif
+
+    #if !CC_FORWARD_ADD
+      result.environmentDiffuse = CalculateEnvironmentDiffuse(lightingData3S, cc_ambientSky.w);
+    #endif
+  #endif
+  }

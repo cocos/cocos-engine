@@ -1,0 +1,263 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: bloom-vs
+      frag: prefilter-fs
+      pass: bloom-prefilter
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    # Supports up to MAX_BLOOM_FILTER_PASS_NUM upsample/downsample passes
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample0
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample1
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample2
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample3
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample4
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample5
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample0
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample1
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample2
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample3
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample4
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample5
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: combine-fs
+      pass: bloom-combine
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+CCProgram bloom-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+
+  out vec2 v_uv;
+
+  void main () {
+    StandardVertInput In;
+    CCVertInput(In);
+    CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
+    gl_Position = In.position;
+    gl_Position.y = gl_Position.y;
+    v_uv = a_texCoord;
+  }
+}%
+
+CCProgram prefilter-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/color/gamma>
+  #include <common/common-define>
+
+  in vec2 v_uv;
+
+  uniform BloomUBO {
+    mediump vec4 texSize;// x: useHDRIlluminance,z: threshold, w: enableAlphaMask
+  };
+  #pragma rate outputResultMap pass
+  uniform sampler2D outputResultMap; // ldr input
+  #pragma rate hdrInputMap pass
+  uniform sampler2D hdrInputMap;     // hdr input
+
+  layout(location = 0) out vec4 fragColor;
+
+  float luminance(vec3 color) {
+    return dot(color, vec3(0.3, 0.5, 0.2));
+  }
+
+  void main() {
+    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+    #if CC_USE_FLOAT_OUTPUT
+     if(texSize.x > 0.0) {
+      color = texture(hdrInputMap, v_uv);
+     } else {
+      color = texture(outputResultMap, v_uv);
+      // color.xyz = SRGBToLinear(color.xyz);
+     }
+    #else
+      color = texture(outputResultMap, v_uv);
+      // color.xyz = SRGBToLinear(color.xyz);
+    #endif
+
+    float contribute = step(texSize.z, luminance(color.rgb));
+    contribute *= mix(1.0, step(253.0 / 255.0, color.a), texSize.w);
+
+    fragColor = vec4(color.xyz * contribute, 1.0);
+  }
+}%
+
+CCProgram downsample-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 v_uv;
+
+  uniform BloomUBO {
+    mediump vec4 texSize;
+  };
+  #pragma rate bloomTexture pass
+  uniform sampler2D bloomTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+#pragma define SAM(uv) texture(bloomTexture, uv).xyz
+
+  vec3 downsample(vec2 uv, vec2 halfpixel) {
+    vec3 sum = SAM(uv) * 4.0;
+    sum += SAM(uv - halfpixel.xy);
+    sum += SAM(uv + halfpixel.xy);
+
+    halfpixel.y = -halfpixel.y;
+    sum += SAM(uv - halfpixel.xy);
+    sum += SAM(uv + halfpixel.xy);
+    return sum / 8.0;
+  }
+
+  vec3 downsample4taps(vec2 uv, vec2 halfpixel) {
+    vec3 sum = SAM(uv + vec2(-halfpixel.x, halfpixel.y));
+        sum += SAM(uv + vec2(halfpixel.x, halfpixel.y));
+        sum += SAM(uv + vec2(halfpixel.x, -halfpixel.y));
+        sum += SAM(uv + vec2(-halfpixel.x, -halfpixel.y));
+    return sum / 4.0;
+  }
+
+  void main()
+  {
+    vec3 result = downsample4taps(v_uv, 1.0 / texSize.xy).rgb;
+
+    fragColor = vec4(result, 1.0);
+  }
+}%
+
+CCProgram upsample-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 v_uv;
+
+  uniform BloomUBO {
+    mediump vec4 texSize;
+  };
+  #pragma rate bloomTexture pass
+  uniform sampler2D bloomTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+#pragma define SAM(uv) texture(bloomTexture, uv).xyz
+
+  vec3 upsample(vec2 uv, vec2 halfpixel) {
+    vec3 sum = SAM(uv + vec2(-halfpixel.x * 2.0, 0.0));
+        sum += SAM(uv + vec2(-halfpixel.x, halfpixel.y)) * 2.0;
+        sum += SAM(uv + vec2(0.0, halfpixel.y * 2.0));
+        sum += SAM(uv + vec2(halfpixel.x, halfpixel.y)) * 2.0;
+        sum += SAM(uv + vec2(halfpixel.x * 2.0, 0.0));
+        sum += SAM(uv + vec2(halfpixel.x, -halfpixel.y)) * 2.0;
+        sum += SAM(uv + vec2(0.0, -halfpixel.y * 2.0));
+        sum += SAM(uv + vec2(-halfpixel.x, -halfpixel.y)) * 2.0;
+        return sum / 12.0;
+  }
+
+  vec3 upsample4taps(vec2 uv, vec2 halfpixel) {
+    vec3 sum = SAM(uv + vec2(-halfpixel.x, halfpixel.y));
+        sum += SAM(uv + vec2(halfpixel.x, halfpixel.y));
+        sum += SAM(uv + vec2(halfpixel.x, -halfpixel.y));
+        sum += SAM(uv + vec2(-halfpixel.x, -halfpixel.y));
+    return sum / 4.0;
+  }
+
+  void main() {
+    vec3 result = upsample4taps(v_uv, 0.5 / texSize.xy).rgb;
+
+    fragColor = vec4(result, 1.0);
+  }
+}%
+
+CCProgram combine-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 v_uv;
+
+  uniform BloomUBO {
+    mediump vec4 texSize;
+  };
+  #pragma rate outputResultMap pass
+  uniform sampler2D outputResultMap;
+  #pragma rate bloomTexture pass
+  uniform sampler2D bloomTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main() {
+    vec4 hdrColor = texture(outputResultMap, v_uv);
+    vec3 bloomColor = texture(bloomTexture, v_uv).rgb;
+    vec3 result = hdrColor.rgb + bloomColor * texSize.w;
+
+    fragColor = vec4(result, hdrColor.a);
+  }
+}%

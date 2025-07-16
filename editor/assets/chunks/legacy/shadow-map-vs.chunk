@@ -1,0 +1,20 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+out highp vec4 v_shadowPos;
+
+#include <builtin/uniforms/cc-shadow>
+#include <legacy/shadow-map-base>
+
+#pragma define CC_SHADOW_POSITION v_shadowPos
+#pragma define CC_TRANSFER_SHADOW(worldPos) CC_TRANSFER_SHADOW_BASE(worldPos, v_shadowPos)
+
+#if CC_RECEIVE_SHADOW
+vec2 CCGetShadowBias()
+{
+  #if USE_INSTANCING
+    return vec2(a_localShadowBiasAndProbeId.x + cc_shadowWHPBInfo.w, a_localShadowBiasAndProbeId.y + cc_shadowLPNNInfo.z);
+  #else
+    return vec2(cc_localShadowBias.x + cc_shadowWHPBInfo.w, cc_localShadowBias.y + cc_shadowLPNNInfo.z);
+  #endif
+}
+#endif

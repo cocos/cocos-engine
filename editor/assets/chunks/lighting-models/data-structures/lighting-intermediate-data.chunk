@@ -1,0 +1,103 @@
+struct LightingIntermediateData
+{
+  vec3 N, H, L, V; // normalized
+  float distToLight, distToLightSqr; // (pos->light)^2
+  float distToCamera, distToCameraSqr; // pos->camera
+  float angleAttenuation, distAttenuation;
+
+  float NoL, NoV, NoH, VoH;
+  float NoLSat, NoVSat, NoHSat;//, VoHSat; // clamped to 0-1
+  float NoVAbsSat, VoHAbsSat; // abs and clamped to 1
+
+  HIGHP_VALUE_STRUCT_DEFINE(vec3, worldPosition);
+
+  // for advanced material
+  vec3 T, B;
+
+  // material data
+  float specularParam; // roughness or specular power
+  // todo: add F0 & F90
+  float ior, layerOpacity;
+
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+  float anisotropyShape;
+#endif
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap, (z == w && z > 999998.0) means disable get distance from shadowmap
+  vec4 transmitDiffuseParams; //zw: min/max DepthWS for shadowmap,  x: transmit irradiance apply shadow, y: additional transmit mask, for shadowmap uncovered area
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec4 transmitScatteringParams; // xy: extinction coef for out/in-scattering, z: in-scattering coef, w: transmit distance(water depth, leaf thickness)
+  vec3 outScatteringColor, inScatteringColor;
+#endif
+#if CC_SURFACES_LIGHTING_TT
+  vec3 baseColorTT;
+  float ttIntensity, ttScatterCoef;
+#endif
+};
+
+// add overrided functions for difference shading-models in <surfaces/module-functions/>
+void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateData data, vec3 worldNormal, vec3 worldPos, vec3 worldTangent, vec3 worldBinormal
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+    , float anisotropyShape
+#endif
+)
+{
+  // N V
+  data.N = worldNormal;
+
+  data.V = cc_cameraPos.xyz - worldPos;
+  data.distToCameraSqr = dot(data.V, data.V);
+  data.distToCamera = sqrt(data.distToCameraSqr);
+  data.V /= data.distToCamera;
+
+  data.angleAttenuation = data.distAttenuation = 1.0;
+
+  data.NoV = dot(data.N, data.V);
+  data.NoVSat = max(data.NoV, 0.0);
+  data.NoVAbsSat = max(abs(data.NoV), 0.0);
+
+  HIGHP_VALUE_TO_STRUCT_DEFINED(worldPos, data.worldPosition);
+  data.T = worldTangent;
+  data.B = worldBinormal;
+
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+  data.anisotropyShape = anisotropyShape;
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  data.outScatteringColor = vec3(1.0);
+  data.inScatteringColor = vec3(0.0);
+  data.transmitScatteringParams = vec4(0.0);
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  data.shadowPosAndDepth = vec4(0.0, 0.0, SURFACES_MAX_TRANSMIT_DEPTH_VALUE, SURFACES_MAX_TRANSMIT_DEPTH_VALUE);
+#endif
+#if CC_SURFACES_LIGHTING_TT
+  data.baseColorTT = vec3(0.0);
+  data.ttIntensity = data.ttScatterCoef = 0.0;
+#endif
+}
+
+void CCSurfacesLightingGetIntermediateData_PerLight(inout LightingIntermediateData data, vec3 lightDirWithDist)
+{
+  // L H
+  data.L = lightDirWithDist;
+  data.distToLightSqr = dot(data.L, data.L);
+  data.distToLight = sqrt(data.distToLightSqr);
+
+  data.L /= data.distToLight;
+
+  data.H = normalize(data.L + data.V);
+
+  // dot
+  data.NoL = dot(data.N, data.L);
+  data.NoH = dot(data.N, data.H);
+  data.VoH = dot(data.V, data.H);
+
+  data.NoLSat = max(data.NoL, 0.0);
+  data.NoHSat = max(data.NoH, 0.0);
+  // data.VoHSat = max(data.VoH, 0.0);
+
+  data.VoHAbsSat = max(abs(data.VoH), 0.0);
+}

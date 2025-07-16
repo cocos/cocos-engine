@@ -1,0 +1,66 @@
+globalThis.__baiduRequire = require;  // FIX: require implementation in browserify conflicts with baidu webpack
+require('./web-adapter');
+
+<% if(polyfillsBundleFile) { %>
+// Polyfills bundle.
+require("<%= polyfillsBundleFile %>");
+<% } %>
+
+// SystemJS support.
+require("<%= systemJsBundleFile %>");
+// 这句只有百度需要，因为百度的 webpack 提供了假的 System
+const System = globalThis.System;
+
+// Adapt for IOS, swap if opposite
+if (canvas) {
+    var _w = canvas.width;
+    var _h = canvas.height;
+    if (screen.width < screen.height) {
+        if (canvas.width > canvas.height) {
+            _w = canvas.height;
+            _h = canvas.width;
+        }
+    } else {
+        if (canvas.width < canvas.height) {
+            _w = canvas.height;
+            _h = canvas.width;
+        }
+    }
+    canvas.width = _w;
+    canvas.height = _h;
+}
+
+// Adjust initial canvas size
+if (canvas && window.devicePixelRatio >= 2) {canvas.width *= 2; canvas.height *= 2;}
+
+const importMap = require("<%= importMapFile%>").default;
+System.warmup({
+    importMap,
+    importMapUrl: '<%= importMapFile%>',
+    defaultHandler: (urlNoSchema) => {
+        require('.' + urlNoSchema);
+    },
+});
+
+System.import('<%= applicationJs %>').then(({ Application }) => {
+    return new Application();
+}).then((application) => {
+    return onApplicationCreated(application);
+}).catch((err) => {
+    console.error(err);
+});
+
+function onApplicationCreated(application) {
+    return System.import('cc').then((cc) => {
+        require('./engine-adapter');
+
+        // post system info to open data context
+        swan.getOpenDataContext().postMessage({
+            type: 'engine',
+            event: 'systemInfo',
+            systemInfo: swan.getSystemInfoSync(),
+        });
+
+        return application.init(cc);
+    }).then(() => application.start());
+}

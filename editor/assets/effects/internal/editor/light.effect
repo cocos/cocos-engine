@@ -1,0 +1,59 @@
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - passes:
+    - vert: light-vs:vert
+      frag: light-fs:frag
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+}%
+
+CCProgram light-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    v_uv = a_texCoord;
+    return cc_matViewProj * cc_matWorld * vec4(a_position, 1.0);
+  }
+}%
+
+CCProgram light-fs %{
+  precision mediump float;
+  #include <legacy/output>
+
+  uniform Constant {
+    vec4 mainColor;
+    vec4 intensitySize; // x: intensity, y: glow
+  };
+
+  in vec2 v_uv;
+
+  float sphere(vec3 d, vec3 p) {
+    return smoothstep(1.0 - intensitySize.y, 1.0, 1.0 / length(cross(d, p)));
+  }
+
+  vec4 frag () {
+    vec2 uv = v_uv - 0.5;
+    vec3 R = normalize(vec3(1.0, uv));
+    // if (any(greaterThan(abs(uv), vec2(0.48)))) return vec4(0.0, 0.0, 0.0, 1.0);
+    return CCFragOutput(vec4(mainColor.rgb, mix(sphere(R, vec3(5.0, 0.0, 0.0)), 1.0, dot(uv, uv) < 0.0625 ? 1.0 : 0.0)));
+    // return vec4(color, sphere(R, vec3(4.5, 0.0, 0.0)));
+  }
+}%

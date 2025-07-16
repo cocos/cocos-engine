@@ -1,0 +1,73 @@
+// defines
+//#todo: #10131 Redmi5A = 1
+#pragma define-meta CC_DISABLE_STRUCTURE_IN_FRAGMENT_SHADER range([0, 1])
+
+#pragma define CC_PIPELINE_TYPE_FORWARD 0
+#pragma define CC_PIPELINE_TYPE_DEFERRED 1
+#pragma define-meta CC_PIPELINE_TYPE range([0, 1])
+#pragma define-meta CC_FORCE_FORWARD_SHADING
+
+#define CC_USE_SURFACE_SHADER 1
+
+// Surface
+#include <shading-entries/data-structures/fs-input>
+
+// Uniforms--UBO
+#include <builtin/uniforms/cc-global>
+#include <common/debug/debug-view-define>
+#if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
+  #if CC_FORWARD_ADD
+    #include <builtin/uniforms/cc-forward-light>
+  #endif
+#endif
+
+#if CC_USE_LIGHT_PROBE
+  #if !USE_INSTANCING
+    #include <builtin/uniforms/cc-sh>
+  #endif
+#endif
+
+// Uniforms--Tex
+#include <builtin/uniforms/cc-shadow>
+#if CC_SUPPORT_CASCADED_SHADOW_MAP
+  #include <builtin/uniforms/cc-csm>
+#endif
+
+#include <builtin/uniforms/cc-environment>
+#if CC_USE_IBL
+  #if CC_USE_DIFFUSEMAP
+    #include <builtin/uniforms/cc-diffusemap>
+  #endif
+#endif
+#if CC_USE_REFLECTION_PROBE
+  #include <builtin/uniforms/cc-reflection-probe>
+#endif
+
+// Base
+#include <common/common-define>
+#include <common/texture/texture-lod>
+#include <common/data/packing>
+#include <common/data/unpack>
+#include <common/color/tone-mapping>
+#include <common/color/gamma>
+#include <common/math/number>
+#include <common/math/coordinates>
+#include <common/math/octahedron-transform>
+#include <common/mesh/material>
+#include <common/texture/cubemap>
+
+// Functional
+#include <builtin/functionalities/shadow-map>
+#include <builtin/functionalities/fog>
+#if CC_USE_LIGHT_PROBE
+  #include <builtin/functionalities/sh>
+#endif
+#if CC_USE_REFLECTION_PROBE
+  #include <builtin/functionalities/probe>
+#endif
+
+// Uniform should depend on system macro, not surface macro
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+  #include <builtin/uniforms/cc-light-map>
+  #include <common/lighting/light-map>
+#endif

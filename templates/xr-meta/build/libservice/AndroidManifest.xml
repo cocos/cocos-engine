@@ -1,0 +1,29 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Volume Control -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Tell the system this app requires OpenGL ES 3.1. -->
+    <uses-feature android:glEsVersion="0x00030001" android:required="true"/>
+    <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" />
+    <!-- Tell the system this app uses experimental extensions -->
+    <uses-feature android:name="com.oculus.experimental.enabled" android:required="true" />
+    <uses-feature android:name="com.oculus.feature.PASSTHROUGH" android:required="true" />
+    <uses-permission android:name="com.oculus.permission.USE_ANCHOR_API" />
+
+    <application>
+        <meta-data
+            android:name="com.oculus.supportedDevices"
+            android:value="all" />
+
+        <activity
+            android:name="com.cocos.game.AppActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.oculus.intent.category.VR" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.cocos.intent.category.XR" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

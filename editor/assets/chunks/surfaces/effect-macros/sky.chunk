@@ -1,0 +1,10 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+#pragma define USE_INSTANCING 0
+
+// Disable unused functionality and varying data
+#define CC_SURFACES_USE_TANGENT_SPACE 0
+#define CC_SURFACES_USE_VERTEX_COLOR 0
+#define CC_SURFACES_USE_SECOND_UV 0
+#define CC_SURFACES_USE_LIGHT_MAP 0
+#define CC_SURFACES_TRANSFER_LOCAL_POS 0

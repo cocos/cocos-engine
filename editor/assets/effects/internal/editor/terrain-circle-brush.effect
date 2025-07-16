@@ -1,0 +1,124 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - name: transparent
+    passes:
+    - vert: terrain-brush-vs:vert
+      frag: terrain-brush-fs:frag
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties:
+        BrushPos:         { value: [0, 0, 0, 1] }
+        BrushParams:      { value: [2.5, 2.5, 0, 0] }
+        BrushDepthOffset: { value: 0.05 }
+}%
+
+CCProgram terrain-brush-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+
+  in vec3 a_position;
+
+  out vec4 wposition;
+
+  uniform Constant {
+    float BrushDepthOffset;
+  };
+
+  vec4 vert () {
+    vec3 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+    worldPos.y += BrushDepthOffset; // depth increment for terrain brushes
+
+    vec4 pos = vec4(worldPos, 1);
+    pos = cc_matViewProj * pos;
+
+    wposition = vec4(worldPos, 1);
+
+    return pos;
+  }
+}%
+
+CCProgram terrain-brush-fs %{
+  precision mediump float;
+  #include <legacy/output>
+
+  in vec4 wposition;
+
+  uniform TexCoords {
+    vec4 BrushPos;
+    vec4 BrushParams;
+  };
+
+  vec4 frag () {
+    float Radius = BrushParams.x;
+    float Falloff = BrushParams.y;
+    float Distance = length(wposition.xz - BrushPos.xz);
+
+    float k = 0.0;
+    #if LINEAR
+      if (Distance <= Radius) {
+        k = 1.0;
+      }
+      else if (Distance > Radius + Falloff) {
+        k = 0.0;
+      }
+      else {
+        k = max(0.0, 1.0 - (Distance - Radius) / Falloff);
+      }
+    #elif SMOOTH
+      if (Distance <= Radius) {
+        k = 1.0;
+      }
+      else if (Distance > Radius + Falloff) {
+        k = 0.0;
+      }
+      else {
+        float y = (Distance - Radius) / Falloff;
+        k = sqrt(1.0 - y * y);
+      }
+    #elif SPHERICAL
+      if (Distance <= Radius) {
+        k = 1.0;
+      }
+      else if (Distance > Radius + Falloff) {
+        k = 0.0;
+      }
+      else {
+        k = max(0.0, 1.0 - (Distance - Radius) / Falloff);
+      }
+
+      k = k*k*(3.0 - 2.0 * k);
+    #elif TIP
+      if (Distance <= Radius) {
+        k = 1.0;
+      }
+      else if (Distance > Radius + Falloff) {
+        k = 0.0;
+      }
+      else {
+        float y = (Falloff + Radius - Distance) / Falloff;
+
+        k = 1.0 - sqrt(1.0 - y * y);
+      }
+    #endif
+
+    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+    color.rgb = vec3(100, 100, 135) / 255.0;
+    color.a = 0.85 * k;
+
+    return CCFragOutput(color);
+  }
+}%

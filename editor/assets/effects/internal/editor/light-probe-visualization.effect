@@ -1,0 +1,132 @@
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - passes:
+    - vert: gizmo-vs:vert
+      frag: gizmo-fs:front
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState: &disable_depth
+        depthTest: false
+        depthWrite: false
+      blendState: &enable_blend
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+    - vert: gizmo-vs:vert
+      frag: gizmo-fs:back
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState: *disable_depth
+      blendState: *enable_blend
+}%
+
+CCProgram gizmo-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+
+  in vec3 a_position;
+  in vec3 a_normal;
+  out vec3 normal_w;
+  out vec3 pos_w;
+  out vec3 pos_l;
+  out vec3 right;
+  out vec3 up;
+  out vec3 forward;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+    vec4 normal = vec4(a_normal, 0);
+
+    pos_l = a_position;
+    pos_w = (cc_matWorld * pos).xyz;
+    normal_w = (cc_matWorldIT * normal).xyz;
+    right = vec3(cc_matView[0][0], cc_matView[1][0], cc_matView[2][0]);
+    up = vec3(cc_matView[0][1], cc_matView[1][1], cc_matView[2][1]);
+    forward = vec3(cc_matView[0][2], cc_matView[1][2], cc_matView[2][2]);
+
+    return cc_matProj * (cc_matView * cc_matWorld) * pos;
+  }
+}%
+
+CCProgram gizmo-fs %{
+  precision mediump float;
+  #include <common/lighting/rect-area-light>
+  #include <builtin/uniforms/cc-global>
+  #include <common/color/gamma>
+  #if CC_USE_LIGHT_PROBE
+    #include <legacy/output-standard>
+  #else
+    #include <legacy/output>
+  #endif
+
+  in vec3 normal_w;
+  in vec3 pos_w;
+  in vec3 pos_l;
+  in vec3 right;
+  in vec3 up;
+  in vec3 forward;
+
+  uniform Constant {
+    vec4 mainColor;
+
+    // SH coefficents used for light probe visualization
+    vec4 cc_sh_linear_const_r;
+    vec4 cc_sh_linear_const_g;
+    vec4 cc_sh_linear_const_b;
+    vec4 cc_sh_quadratic_r;
+    vec4 cc_sh_quadratic_g;
+    vec4 cc_sh_quadratic_b;
+    vec4 cc_sh_quadratic_a;
+  };
+
+  #if CC_USE_LIGHT_PROBE
+    #include <builtin/functionalities/sh>
+  #endif
+
+  vec4 gizmo_fs (float alpha) {
+    #if CC_USE_LIGHT_PROBE
+      vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
+      vec3 diffuse = SHEvaluate(N);
+
+      #if USE_FORWARD_PIPELINE
+        return CCFragOutput(vec4(diffuse, mainColor.a * alpha));
+      #else
+        return vec4(diffuse, mainColor.a * alpha);
+      #endif
+    #else
+      vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
+      vec3 V = normalize(cc_cameraPos.xyz - pos_w);
+
+      // vec3 L = normalize(cross(forward, vec3(0, 1, 0)));
+      // vec3 diffuse = color.rgb * (0.2 + max(0.0, dot(N, L)) * 0.8);
+
+      vec3 points [4];
+      //vec3 up = vec3(0, 1, 0);
+      points[0] = (forward * 3.0 + right + up) * 40.0;
+      points[1] = (forward * 3.0 - right + up) * 40.0;
+      points[2] = (forward * 3.0 - right - up) * 40.0;
+      points[3] = (forward * 3.0 + right - up) * 40.0;
+      vec3 diffuse = LinearToSRGB(mainColor.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
+      #if USE_FORWARD_PIPELINE
+        return CCFragOutput(vec4(diffuse, mainColor.a * alpha));
+      #else
+        return vec4(diffuse, mainColor.a * alpha);
+      #endif
+    #endif
+  }
+
+  vec4 front () {
+    return gizmo_fs(1.0);
+  }
+
+  vec4 back () {
+    return gizmo_fs(0.2);
+  }
+}%

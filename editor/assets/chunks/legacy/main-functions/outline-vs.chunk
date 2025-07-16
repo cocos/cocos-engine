@@ -1,0 +1,38 @@
+
+precision highp float;
+#include <legacy/input-standard>
+#include <builtin/uniforms/cc-global>
+#include <legacy/local-batch>
+
+out vec2 v_uv;
+
+uniform OutlineVert {
+  vec4 outlineParams; // x: line width, y: depth hack
+};
+
+vec4 vert () {
+  StandardVertInput In;
+  CCVertInput(In);
+
+  mat4 matWorld;
+  CCGetWorldMatrix(matWorld);
+
+  float width = outlineParams.x * 0.001;
+
+  #if USE_POSITION_SCALING
+    vec3 dir = normalize(In.position.xyz);
+    float flip = dot(dir, normalize(In.normal)) < 0.0 ? -1.0 : 1.0;
+    In.position.xyz += flip * dir * width * 2.0;
+    vec4 pos = cc_matProj * (cc_matView * matWorld) * In.position;
+  #else
+    In.position.xyz += normalize(In.normal) * width;
+    vec4 pos = cc_matProj * (cc_matView * matWorld) * In.position;
+  #endif
+
+  float scaleZ = cc_nearFar.z == 0.0 ? 0.5 : 1.0;
+  pos.z -= outlineParams.y * 0.002 * scaleZ;
+
+  v_uv = a_texCoord;
+
+  return pos;
+}

@@ -1,0 +1,213 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Polar space gradient brand interpolation Algorithm The input's direction is between two different direction examples The examples have different magnitude 1`] = `
+Object {
+  "Equal to the bigger magnitude": Object {
+    "ccw": 0.3168596289437383,
+    "cw": 0.6502105566924706,
+    "origin": 0.03292981436379107,
+  },
+  "Equal to the middle magnitude": Object {
+    "ccw": 0.2989265859181596,
+    "cw": 0.5902714914805254,
+    "origin": 0.110801922601315,
+  },
+  "Equal to the minor magnitude": Object {
+    "ccw": 0.28366638688732265,
+    "cw": 0.5392660896894322,
+    "origin": 0.17706752342324497,
+  },
+  "Greater than the bigger magnitude": Object {
+    "ccw": 0.30491192209599804,
+    "cw": 0.695088077904002,
+  },
+  "Less than both magnitudes": Object {
+    "ccw": 0.16486765633781594,
+    "cw": 0.15973168002542656,
+    "origin": 0.6754006636367574,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation Algorithm The input's direction is between two different direction examples The examples have same magnitude 1`] = `
+Object {
+  "Greater than the mag": Object {
+    "ccw": 0.33333333333333337,
+    "cw": 0.6666666666666667,
+  },
+  "Greater than the mag again": Object {
+    "ccw": 0.33333333333333337,
+    "cw": 0.6666666666666667,
+  },
+  "Input at just the mag": Object {
+    "ccw": 0.3205352705404605,
+    "cw": 0.641070541080921,
+    "origin": 0.03839418837861866,
+  },
+  "Less then the mag.": Object {
+    "ccw": 0.1648595779760476,
+    "cw": 0.1965831709644441,
+    "origin": 0.6385572510595082,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation Algorithm There are multiple examples along the input's direction 1`] = `
+Object {
+  "Input at 1/3 minor mag": Object {
+    "ccw": 0.08602309330508458,
+    "cw": 0.05841787524451817,
+    "origin": 0.5703726924902929,
+    "same_dir_example_1": 0.2851863389601044,
+  },
+  "Input at bigger mag example": Object {
+    "same_dir_example_2": 0.9999999767855615,
+  },
+  "Input at minor mag example": Object {
+    "same_dir_example_1": 0.9999999717541427,
+  },
+  "Input between the examples": Object {
+    "same_dir_example_1": 0.6666666589285206,
+    "same_dir_example_2": 0.3333333410714793,
+  },
+  "Input beyond bigger mag example": Object {
+    "same_dir_example_2": 1,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation Algorithm There is and is only one example along the input's direction The adjacent examples have different mag 1`] = `
+Object {
+  "Input at 1/3 mag": Object {
+    "cw": 0.02054480721915246,
+    "origin": 0.6529701236555586,
+    "the_dir": 0.32648506912528885,
+  },
+  "Input at the example": Object {
+    "the_dir": 0.9999999848019046,
+  },
+  "Input beyond the example": Object {
+    "the_dir": 1,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation Algorithm There is and is only one example along the input's direction The adjacent examples have same mag 1`] = `
+Object {
+  "Input at 1/3 mag": Object {
+    "origin": 0.6666666616996132,
+    "the_dir": 0.33333333830038686,
+  },
+  "Input at the example": Object {
+    "the_dir": 0.9999999850988393,
+  },
+  "Input beyond the example": Object {
+    "the_dir": 1,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation Algorithm There is and is only one example along the input's direction the adjacent examples have different mag, the direction is on axis 1`] = `
+Object {
+  "Input at 1/3 mag": Object {
+    "origin": 0.6666666616996132,
+    "the_dir": 0.33333333830038686,
+  },
+  "Input at the example": Object {
+    "the_dir": 0.9999999850988393,
+  },
+  "Input beyond the example": Object {
+    "cw_adjacent": 0.31394171978396535,
+    "the_dir": 0.6860582802160347,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation There is more than 180° between two adjacent examples points: Between 1, 2 1`] = `
+Object {
+  "Equal magnitude": Object {
+    "example_1": 0.7939990314904765,
+    "example_2": 0.19849978329369805,
+    "origin": 0.007501185215825347,
+  },
+  "Longer magnitude": Object {
+    "example_1": 0.7999999795094334,
+    "example_2": 0.20000002049056667,
+  },
+  "Shorter magnitude": Object {
+    "example_1": 0.6616280659241143,
+    "example_2": 0.1666666856394138,
+    "origin": 0.171705248436472,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation There is more than 180° between two adjacent examples points: Between 2, 3 1`] = `
+Object {
+  "Equal magnitude": Object {
+    "example_2": 0.7443741424354346,
+    "example_3": 0.24812467177667524,
+    "origin": 0.007501185787890177,
+  },
+  "Longer magnitude": Object {
+    "example_2": 0.7500000320165141,
+    "example_3": 0.24999996798348595,
+  },
+  "Shorter magnitude": Object {
+    "example_2": 0.6218666935060354,
+    "example_3": 0.20728886243978442,
+    "origin": 0.17084444405418012,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation There is more than 180° between two adjacent examples points: In the more-than-180 range, in the middle 1`] = `
+Object {
+  "Equal magnitude": Object {
+    "example_1": 0.09981031755884037,
+    "example_2": 0.8982930455035218,
+    "origin": 0.0018966369376378289,
+  },
+  "Longer magnitude": Object {
+    "example_1": 0.09999998121697959,
+    "example_2": 0.9000000187830204,
+  },
+  "Shorter magnitude": Object {
+    "example_1": 0.0909090739747374,
+    "example_2": 0.7258907473599425,
+    "origin": 0.18320017866531998,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation There is more than 180° between two adjacent examples points: In the more-than-180 range, tending to 1 1`] = `
+Object {
+  "Equal magnitude": Object {
+    "example_3": 0.8400637213479694,
+    "origin": 0.15993627865203064,
+  },
+  "Longer magnitude": Object {
+    "example_3": 1,
+  },
+  "Shorter magnitude": Object {
+    "example_3": 0.6720509770783756,
+    "origin": 0.3279490229216244,
+  },
+}
+`;
+
+exports[`Polar space gradient brand interpolation There is more than 180° between two adjacent examples points: In the more-than-180 range, tending to 3 1`] = `
+Object {
+  "Equal magnitude": Object {
+    "example_3": 0.8400637213479694,
+    "origin": 0.15993627865203064,
+  },
+  "Longer magnitude": Object {
+    "example_3": 1,
+  },
+  "Shorter magnitude": Object {
+    "example_3": 0.6720509770783756,
+    "origin": 0.3279490229216244,
+  },
+}
+`;

@@ -1,0 +1,58 @@
+//IA Input
+layout(location = 0) in vec3 a_position;
+layout(location = 1) in vec3 a_normal;
+layout(location = 2) in vec2 a_texCoord;
+#if CC_SURFACES_USE_TANGENT_SPACE
+  layout(location = 3) in vec4 a_tangent;
+#endif
+
+#if CC_SURFACES_USE_VERTEX_COLOR
+  in vec4 a_color;
+#endif
+
+// Attribute define should depend on system macro, not surface macro
+#if CC_SURFACES_USE_SECOND_UV || CC_USE_LIGHTMAP
+  in vec2 a_texCoord1;
+#endif
+
+#if CC_USE_SKINNING
+  #if __VERSION__ > 310
+    // strictly speaking this should be u16vec4, but due to poor driver support
+    // somehow it seems we can get better results on many platforms using u32vec4
+    layout(location = 4) in u32vec4 a_joints;
+  #else
+    #pragma format(RGBA16UI)
+    layout(location = 4) in vec4 a_joints;
+  #endif
+
+  layout(location = 5) in vec4 a_weights;
+#endif
+
+#if USE_INSTANCING
+  #if CC_USE_BAKED_ANIMATION
+    in highp vec4 a_jointAnimInfo; // frameID, totalJoints, offset
+  #endif
+  in vec4 a_matWorld0;
+  in vec4 a_matWorld1;
+  in vec4 a_matWorld2;
+  #if CC_USE_LIGHTMAP
+    in vec4 a_lightingMapUVParam;
+  #endif
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    in vec4 a_localShadowBiasAndProbeId; // x:shadow bias, y:shadow normal bias, z: reflection probe id, w: blend reflection probe id
+  #endif
+  #if CC_USE_REFLECTION_PROBE
+    in vec4 a_reflectionProbeData; // x:reflection probe blend weight
+  #endif
+  #if CC_USE_LIGHT_PROBE
+    in vec4 a_sh_linear_const_r;
+    in vec4 a_sh_linear_const_g;
+    in vec4 a_sh_linear_const_b;
+  #endif
+#endif
+
+#if CC_USE_MORPH
+  #if __VERSION__ < 450
+    in float a_vertexId;
+  #endif
+#endif

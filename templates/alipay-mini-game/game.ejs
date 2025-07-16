@@ -1,0 +1,34 @@
+require('./web-adapter');
+
+<% if(polyfillsBundleFile) { %>
+// Polyfills bundle.
+require("<%= polyfillsBundleFile %>");
+<% } %>
+
+// SystemJS support.
+window.self = window;
+require("<%= systemJsBundleFile %>");
+
+const importMap = require("<%= importMapFile%>").default;
+System.warmup({
+    importMap,
+    importMapUrl: '<%= importMapFile%>',
+    defaultHandler: (urlNoSchema) => {
+        require('.' + urlNoSchema);
+    },
+});
+
+System.import('<%= applicationJs %>').then(({ Application }) => {
+    return new Application();
+}).then((application) => {
+    return onApplicationCreated(application);
+}).catch((err) => {
+    console.error(err);
+});
+
+function onApplicationCreated(application) {
+    return System.import('cc').then((cc) => {
+        require('./engine-adapter');
+        return application.init(cc);
+    }).then(() => application.start());
+}

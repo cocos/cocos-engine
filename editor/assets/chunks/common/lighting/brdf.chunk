@@ -1,0 +1,165 @@
+#include <common/math/number>
+
+// for dielectric(non-metal) surfaces
+float F0ToIor(float F0)
+{
+	return 2.0f / (1.0f - sqrt(F0)) - 1.0f;
+}
+
+float IorToF0(float ior)
+{
+	float F0_sqrt = (ior-1.0) / (ior+1.0);
+	return F0_sqrt * F0_sqrt;
+}
+
+float square(float a) { return a * a;}
+vec2 square(vec2 a) { return a * a;}
+vec3 square(vec3 a) { return a * a;}
+float G_Schlick( float roughness, float NoV, float NoL )
+{
+	float k = square( 0.5 + 0.5*roughness );
+	float G_SchlickV = NoV * (1.0 - k) + k;
+	float G_SchlickL = NoL * (1.0 - k) + k;
+	return 0.25 / ( G_SchlickV * G_SchlickL );
+}
+
+vec3 F_Schlick( vec3 specularColor, float VoH )
+{
+	float Fc = exp2( (-5.55473 * VoH - 6.98316) * VoH );
+  float selfShadowTerm = saturate(50.0 * specularColor.g);
+  return specularColor * (1.0 - Fc) + vec3(selfShadowTerm * Fc);
+}
+vec3 F_SchlickMultiplier( vec3 specularColor, float VoH )
+{
+	float Fc = exp2( (-5.55473 * VoH - 6.98316) * VoH );
+  float selfShadowTerm = saturate(50.0 * specularColor.g);
+  return vec3(1.0 - Fc) + vec3(selfShadowTerm * Fc) / (specularColor + vec3(EPSILON));
+}
+
+float D_GGX(float roughness, float NoH)
+{
+    float m = roughness * roughness;
+    float m2 = m * m;
+    float d = (NoH * m2 - NoH) * NoH + 1.0;
+    return m2 / max(EPSILON, d * d);
+}
+
+float D_GGXMobile(float roughness, float NoH) {
+  float OneMinusNoHSqr = 1.0 - NoH * NoH;
+  float a = roughness * roughness;
+  float n = NoH * a;
+  float p = a / max(EPSILON, OneMinusNoHSqr + n * n);
+  return p * p;
+}
+
+void GetAnisotropicRoughness(float roughness, float anisotropyShape, out float roughnessX, out float roughnessY)
+{
+    float shapeSign = sign(anisotropyShape);
+    anisotropyShape *= anisotropyShape;
+
+    float r1 = roughness, r2 = roughness;
+    float lerpedRoughness = mix(1.0, 10.0, anisotropyShape);
+    r2 *= shapeSign < 0.0 ? lerpedRoughness : 1.0;
+    r1 *= shapeSign > 0.0 ? lerpedRoughness : 1.0;
+    roughnessX = saturate(r1);
+    roughnessY = saturate(r2);
+}
+
+// How to get an anisotropic offset along T/B:
+// 1. accurate: rotation TBN basis, let N intend to T/B, such as flow map as normalmap, output vec3(0, delta, 1) instead of vec3(0, 0, 1)
+// 2. not accurate: H intend to V, and passed to this function
+float D_GGXAniso(float RoughnessX, float RoughnessY, float NoH, vec3 H, vec3 X, vec3 Y)
+{
+    float mx = max(EPSILON_LOWP, RoughnessX * RoughnessX);
+    float my = max(EPSILON_LOWP, RoughnessY * RoughnessY);
+    float XoH = dot(X, H);
+    float YoH = dot(Y, H);
+    float d = XoH * XoH / (mx * mx) + YoH * YoH / (my * my) + NoH * NoH;
+    return 1.0 / max(EPSILON_LOWP, mx * my * d * d);
+}
+
+vec3 GetAnisotropicReflect(float roughness, float anisotropyShape, vec3 V, vec3 N, vec3 X, vec3 Y)
+{
+    float shapeSign = sign(anisotropyShape);
+    anisotropyShape *= anisotropyShape;
+
+    //clamp to shape=0.6x for invert reflection artifact
+    anisotropyShape = min(anisotropyShape, 0.4);
+
+    // roughness->0 means optical smooth surface (back to isotropic)
+    anisotropyShape *= smoothstep(0.0, 0.03, roughness);
+
+    // use view co-planar vector instead of XoH->0 plane convolution, but not accuracy
+    vec3 reflectTarget = shapeSign < 0.0 ? mix(N, -Y, anisotropyShape) :
+                         shapeSign > 0.0 ? mix(N, -X, anisotropyShape) : N;
+    return reflect(-V, reflectTarget);
+}
+
+// EnvBRDFApprox
+vec3 IntegratedGFApprox (vec3 specular, float roughness, float NoV) {
+  const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
+  const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+  vec4 r = roughness * c0 + c1;
+  float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+  vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+  AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
+  return max(vec3(0.0), specular * AB.x + AB.y);
+}
+void IntegratedGFMultiplier (out vec3 integratedGF, out vec3 integratedF, vec3 specular, float roughness, float NoV) {
+  const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
+  const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+  vec4 r = roughness * c0 + c1;
+  float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+  vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+  AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
+  integratedF = vec3(max(0.0, AB.x));
+  integratedGF = max(vec3(0.0), vec3(AB.x) + vec3(AB.y) / (specular + EPSILON_LOWP));
+}
+
+// isotropic sheen
+float Sheen_HorizonFading(float NoL)
+{
+  const float horizonFade = 1.3;
+  float horiz = saturate( 1.0 + horizonFade * NoL);
+  return horiz * horiz;
+}
+
+float Sheen(float NoHSat, float NoL, float NoV, float roughness)
+{
+  if (NoL <= 0.0 || NoV <= 0.0)
+    return 0.0;
+  float NoH2 = NoHSat*NoHSat;
+  float NoL2 = NoL*NoL;
+  float NoV2 = NoV*NoV;
+  roughness += EPSILON_LOWP;
+  float r2 = roughness*roughness;
+
+  float t = 1.0 - NoH2 + NoH2/r2;
+  float Pi_D = 1.0 / (roughness * t * t);
+
+  float Li = sqrt(1.0 - NoL2 + r2*NoL2) / NoL;
+  float Lo = sqrt(1.0 - NoV2 + r2*NoV2) / NoV;
+  float G = (1.0 - exp(-(Li + Lo))) / (Li + Lo);
+
+  return Sheen_HorizonFading(NoL) * Pi_D * G / NoV;
+}
+// simplify estimation for env lighting convolution
+float Sheen(float NoV, float roughness)
+{
+  NoV *= NoV;
+  float NoV2 = NoV*NoV;
+  roughness += EPSILON_LOWP;
+  float r2 = roughness*roughness;
+
+  float t = 1.0 - NoV2 + NoV2/r2;
+  float Pi_D = 1.0 / (roughness * t * t);
+
+  float Lo = sqrt(1.0 - NoV2 + r2*NoV2) / NoV;
+  float G = (1.0 - exp(-Lo)) / Lo;
+
+  float sheen = Pi_D * G / NoV;
+  return pow(max(0.0, sheen), 0.5);
+}
+
+// Diffuse_Lambert
+#define DiffuseCoefficient_EnergyConservation INV_PI

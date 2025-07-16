@@ -1,0 +1,47 @@
+bool GetMetallicAlbedoFromDiffuseSpecularMathematic(out float metallic, out vec3 albedo, vec3 diffuse, vec3 specular, float channelFaultTolerant /*= 0.2*/, float f0 /*= 0.04*/)
+{
+  // inaccuracy match first
+  //GetMetallicAlbedoFromDiffuseSpecular(metallic, albedo, diffuse, specular);
+
+  // avoid illegal solver
+  diffuse += vec3(f0 + 0.01);
+  specular += vec3(f0 + 0.01);
+
+  vec3 delta = (diffuse + specular) * (diffuse + specular) - 4.0 * f0 * diffuse;
+  vec3 deltaSqrt = sqrt(max(vec3(0.0), delta));
+  // solver
+  vec3 m = (-diffuse - specular + 2.0 * f0 + deltaSqrt) / (2.0 * f0);
+  vec3 weight = diffuse + specular;
+  weight /= dot(weight, vec3(1.0));
+  float solverMetallic = dot(m, weight);
+  vec3 solverAlbedo = diffuse + specular - f0 * (1.0 - solverMetallic);
+
+  bool isValidSolver = delta.x >= 0.0 && delta.y >= 0.0 &&  delta.z >= 0.0
+  	&& abs(m.x - m.y) < channelFaultTolerant && abs(m.x - m.z) < channelFaultTolerant
+  	&& m.x >= 0.0 && m.y >= 0.0 && m.z >= 0.0
+  	&& m.x <= 1.0 && m.y <= 1.0 && m.z <= 1.0;
+
+  metallic = isValidSolver ? solverMetallic : metallic;
+  albedo = isValidSolver ? solverAlbedo : albedo;
+  return isValidSolver;
+}
+
+bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out vec3 albedo, vec3 diffuse, vec3 specular, float f0 /*= 0.04*/)
+{
+	float d = max(max(diffuse.x, diffuse.y), diffuse.z);
+	vec3 normalizedColor = diffuse / (d + (d < EPSILON_LOWP ? EPSILON_LOWP : 0.0));
+	normalizedColor = d < EPSILON_LOWP ? specular : normalizedColor; //change specular to gray with intensity of max channel of specular
+
+	float s = max(max(specular.x, specular.y), specular.z);
+
+	float delta = (d + s) * (d + s)  - 4.0 * f0 * d;
+	float deltaSqrt = sqrt(max(0.0, delta));
+	// solver
+	float solverMetallic = (-d - s + 2.0 * f0 + deltaSqrt) / (2.0 * f0);
+	vec3 solverAlbedo = (d + s) * normalizedColor - vec3(f0 * (1.0 - solverMetallic));
+
+	bool isValidSolver = delta >= 0.0;
+	metallic = isValidSolver ? clamp(solverMetallic, 0.0, 1.0) : 0.0;
+	albedo = isValidSolver ? vec3(max(0.0, solverAlbedo.x), max(0.0, solverAlbedo.y), max(0.0, solverAlbedo.z)) : diffuse;
+	return isValidSolver;
+}

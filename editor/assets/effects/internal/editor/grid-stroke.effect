@@ -1,0 +1,74 @@
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - passes:
+    - vert: grid-vs:vert
+      frag: grid-fs:frag
+      priority: max - 11
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+}%
+
+/**
+ * a_texCoord.x:
+ * 1                                     1
+ * +-------------------------------------+
+ * |                                     |
+ * +-------------------------------------+
+ * 0                                     0
+ *
+ * a_texCoord.y = 0 for lines along Z axis
+ * a_texCoord.y = 1 for lines along X axis
+ */
+CCProgram grid-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 a_texCoord;
+  in vec3 a_position;
+  out vec2 uv;
+  out vec3 pos_w;
+
+  vec4 vert () {
+    uv = a_texCoord;
+    pos_w = a_position;
+    vec2 forward = vec2(cc_matView[0][2], cc_matView[2][2]);
+
+    // widen the line wrt. camera-plane distance
+    float dist = abs(cc_cameraPos.y);
+    vec2 scale = vec2(1.0 - a_texCoord.y, a_texCoord.y);
+    pos_w.xz += scale * vec2((a_texCoord.x * 2.0 - 1.0) * dist * 0.002);
+
+    vec4 pos = cc_matViewProj * vec4(pos_w, 1.0);
+	  pos.z += 0.00011; // nudge on depth to avoid z-fighting at origin
+    return pos;
+  }
+}%
+
+CCProgram grid-fs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/output>
+
+  in vec2 uv;
+  in vec3 pos_w;
+
+  vec4 frag () {
+    // alpha wrt. UVs
+    float alpha = sqrt(0.5 - abs(uv.x - 0.5));
+    // fade out at grazing angles
+    float scale = abs(normalize(cc_cameraPos.xyz - pos_w).y);
+    if (scale < 0.5) alpha *= max(0.3, scale / 0.5);
+    return CCFragOutput(vec4(0.5, 0.5, 0.5, alpha));
+  }
+}%

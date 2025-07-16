@@ -1,0 +1,55 @@
+#include <surfaces/default-functions/common-vs>
+#include <surfaces/module-functions/common-vs>
+
+vec4 CalcSkyClipPos(vec3 viewDir)
+{
+    vec4 clipPos;
+    // Clip Space
+    mat4 matViewRotOnly = mat4(mat3(cc_matView));
+    vec4 pos = matViewRotOnly * vec4(viewDir, 1.0);
+
+    // orthographic projection adaptation
+    if (cc_matProj[3].w > 0.0) {
+        mat4 matProj = cc_matProj;
+        // default ortho height 10 approximate to default FOV 45
+        // stretch x by 2 to remedy perspective effect
+        // w = sin(45/2), h = 2 * w, _11 = 2 / w, _22 = 2 / h
+        matProj[0].x = 5.2;
+        matProj[1].y = 2.6;
+        matProj[2].zw = vec2(-1.0);
+        matProj[3].zw = vec2(0.0);
+        // position is modified inside branches to work around a vk driver bug seen in
+        // low-end Qualcomm devices (Adreno 512, Oppo R11, cocos-creator/3d-tasks#9236)
+        clipPos = matProj * pos;
+    }
+    else {
+        clipPos = cc_matProj * pos;
+    }
+
+    clipPos.z = 0.99999 * clipPos.w;
+    return clipPos;
+}
+
+void main()
+{
+    SurfacesStandardVertexIntermediate In;
+
+    // Local Space
+    CCSurfacesVertexInput(In);
+
+    // cc_matWorld is undefined, so can not use mat4(mat3(cc_matWorld))
+    In.worldPos = In.position.xyz;
+    In.worldPos = SurfacesVertexModifyWorldPos(In);
+
+    In.clipPos = CalcSkyClipPos(In.position.xyz);
+
+    In.worldNormal.w = 1.0;
+    In.worldNormal.xyz = normalize(In.position.xyz);
+
+    // Other Data
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+    In.fogFactor = 0.0;
+#endif
+
+    CCSurfacesVertexOutput(In);
+}

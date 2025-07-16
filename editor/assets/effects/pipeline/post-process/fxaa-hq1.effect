@@ -1,0 +1,61 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: fxaa1
+    passes:
+    - vert: fxaa-vs
+      frag: fxaa-edge-fs:frag
+      pass: cc-fxaa
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram fxaa-vs %{
+  #include <./chunks/vs1>
+}%
+
+CCProgram fxaa-edge-fs %{
+  precision highp float;
+  precision mediump int;
+  #include <common/common-define>
+
+  //#define FXAA_PRESET 5
+  #include <post-process/fxaa-hq>
+
+  #pragma rate fxaaUBO pass
+  uniform fxaaUBO {
+    vec4 texSize;
+  };
+
+  #pragma rate sceneColorMap pass
+  uniform sampler2D sceneColorMap;
+
+  in vec2 v_uv;
+
+  vec4 frag () {
+    vec3 color = FxaaPixelShader(v_uv, sceneColorMap, texSize.zw);
+    float alpha = texture(sceneColorMap, v_uv).a;
+    return vec4(color, alpha);
+  }
+}%
+
+CCProgram copy-fs %{
+  precision highp float;
+  precision mediump int;
+
+  #pragma rate fxaaUBO pass
+  uniform fxaaUBO {
+    vec4 texSize;
+  };
+
+  in vec2 v_uv;
+  #pragma rate sceneColorMap pass
+  uniform sampler2D sceneColorMap;
+
+  vec4 frag () {
+    return texture(sceneColorMap, v_uv);
+  }
+}%

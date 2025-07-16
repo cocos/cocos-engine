@@ -1,0 +1,50 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: wireframe-vs:vert
+      frag: wireframe-fs:frag
+      properties:
+        lineColor: { value: [1, 1, 1, 1] }
+}%
+
+CCProgram wireframe-vs %{
+    precision mediump float;
+    #include <builtin/uniforms/cc-global>
+    #include <legacy/decode-base>
+    #include <legacy/local-batch>
+    #include <legacy/input>
+
+    uniform TexCoords {
+        vec4 lineColor;
+    };
+
+
+
+    out vec2 bary;
+    out vec4 lineCol;
+    vec4 vert () {
+         vec4 position;
+        CCVertInput(position);
+
+        mat4 matWorld;
+        CCGetWorldMatrix(matWorld);
+
+        bary = a_texCoord;
+        lineCol = lineColor;
+        return cc_matProj * (cc_matView * matWorld) * position;;
+    }
+}%
+
+CCProgram wireframe-fs %{
+    precision mediump float;
+    #include <legacy/output>
+
+    in vec2 bary;
+
+    in vec4 lineCol;
+    vec4 frag () {
+        return CCFragOutput(lineCol);
+    }
+}%

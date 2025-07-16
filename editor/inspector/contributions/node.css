@@ -1,0 +1,262 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+:host([type="node"][sub-type='scene']) > .container > .body > .node,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-header,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-body,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-footer,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-missing,
+:host([type="node"][sub-type='scene']) > .container > .body > .footer,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-asset {
+    display: none;
+}
+
+:host([type="node"][sub-type='scene']) > .container > .body > .scene {
+    display: block;
+}
+
+:host([type="node"][sub-type='node']) > .container > .body > .node {
+    display: block;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.container[hidden] {
+    display: none;
+}
+
+.container[hoving] {
+    outline: 2px solid var(--color-focus-fill-weaker);
+    outline-offset: -2px;
+}
+
+.container > .header {
+    display: flex;
+    flex-direction: column;
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+    margin-bottom: -1px;
+}
+
+.container > .header > .prefab {
+    display: flex;
+    padding: 4px 4px 0 4px;
+}
+
+.container > .header > .prefab[hidden] {
+    display: none;
+}
+
+.container > .header > .prefab > ui-label {
+    flex: 1;
+    color: var(--color-success-fill);
+}
+
+.container > .header > .prefab > ui-button {
+    padding: 0 8px;
+    margin-left: 4px;
+}
+
+.container > .header > .prefab .unlink-btns {
+    margin-left: 4px;
+    background-color: #3d3d3d;
+    display: flex;
+}
+
+.container > .header > .prefab .unlink-btns > ui-button:last-child {
+    width: 16px;
+    padding: 0;
+}
+
+.container > .header > .prefab .unlink-btns > ui-button:last-child > ui-icon {
+    margin-left: -1px;
+}
+
+.container > .header > .prefab[missing] > ui-label {
+    color: var(--color-danger-fill);
+}
+
+.container > .header > .node {
+    display: flex;
+    flex: 1;
+    margin: 4px 4px 4px 0;
+}
+
+.container > .header > .node > .active {
+    width: 20px;
+}
+
+.container > .header > .node > .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.container > .body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    padding-bottom: 8px;
+}
+
+.container > .body .component .component-header {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    margin-right: 2px;
+}
+
+.container > .body .component .component-header .active {
+    margin-right: 4px;
+}
+
+.container > .body .component .component-header ui-drag-item, .container > .body .component .component-header .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.container > .body .component .component-header > .menu,
+.container > .body .component .component-header > .link {
+    padding: 0 2px;
+}
+
+.container > .body .component .component-header > .menu {
+    opacity: 0.8;
+}
+
+.container > .body .component .component-header > .menu:hover {
+    opacity: 1;
+}
+
+.container > .body .component .component-header > .link {
+    display: none;
+}
+
+.container > .body .component .component-header > .link[value] {
+    display: inline-block;
+}
+
+.container > .body .component ui-prop {
+    margin-top: 4px;
+}
+
+.container > .body .component ui-prop [slot='label'] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.container > .body > .scene {
+    display: none;
+    border-top: solid 1px var(--color-normal-border);
+}
+
+.container > .body > .scene ui-prop[ui-section-config],
+.container > .body > .scene ui-section.config {
+    margin-top: 0;
+}
+
+.container > .body > .scene ui-prop[ui-section-config]:last-child {
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+}
+
+.container > .body > .scene ui-prop[ui-section-config] ui-section.config [slot="header"] {
+    flex: 1;
+    justify-content: space-between;
+    margin-right: 2px;
+}
+
+.container > .body > .scene .envmap .envmap-prop ui-prop {
+    margin-top: 0;
+    margin-left: 0;
+}
+
+.container > .body > .scene > .skybox {
+    margin-top: 4px;
+}
+
+.container > .body > .scene > .skybox > [slot="header"] {
+    justify-content: space-between;
+}
+
+.container > .body > .node .layer-content {
+    display: flex;
+}
+
+.container > .body > .node .layer-content > .layer-select {
+    flex: 1;
+    margin: 0;
+}
+
+.container > .body > .node .layer-content > .layer-edit {
+    margin-left: 4px;
+}
+
+.container > .body > .section-body ui-section.config:last-child {
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+}
+
+.container > .body > .section-missing:not(:empty) {
+    margin-top: 10px;
+    border-top: 1px solid var(--color-normal-border);
+}
+
+.container > .body > .section-missing > section {
+    display: flex;
+    padding: 0 10px;
+}
+
+.container > .body > .section-missing > section:hover {
+    background-color: var(--color-hover-fill-normal);
+}
+
+.container > .body > .section-missing .name {
+    flex: 1;
+    color: var(--color-normal-contrast-emphasis);
+}
+
+.container > .body > .section-missing .name span {
+    text-decoration: line-through;
+}
+
+.container > .body > .section-missing > section > ui-icon {
+    margin: 0 0 0 10px;
+    cursor: pointer;
+    display: none;
+}
+
+.container > .body > .section-missing > section:hover > ui-icon {
+    display: inline-block;
+}
+
+.container > .body > .section-missing > section > ui-icon:hover {
+    color: var(--color-focus-fill-weakest);
+}
+
+.container > .body > .footer {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.container > .body > .footer .add-component {
+    padding: 0 24px;
+}
+
+.container > .body > .section-asset {
+    margin-bottom: 16px;
+}
+
+.container > .body > .section-asset:empty {
+    display: none;
+}

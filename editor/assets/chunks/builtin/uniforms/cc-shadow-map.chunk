@@ -1,0 +1,5 @@
+#pragma builtin(global)
+layout(set = 0, binding = 4) uniform highp sampler2D cc_shadowMap;
+
+#pragma builtin(global)
+layout(set = 0, binding = 6) uniform highp sampler2D cc_spotShadowMap;

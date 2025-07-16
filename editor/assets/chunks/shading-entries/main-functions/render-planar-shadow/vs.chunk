@@ -1,0 +1,39 @@
+#include <surfaces/default-functions/common-vs>
+#include <surfaces/module-functions/common-vs>
+#include <common/math/number>
+#include <common/lighting/functions>
+
+out highp float v_dist;
+
+void main()
+{
+  SurfacesStandardVertexIntermediate In;
+
+  // Local Space
+  CCSurfacesVertexInput(In);
+  CCSurfacesVertexAnimation(In);
+  In.position.xyz = SurfacesVertexModifyLocalPos(In);
+  SurfacesVertexModifyLocalSharedData(In);
+
+  // World Space
+  CCSurfacesVertexWorldTransform(In);
+  In.worldPos = SurfacesVertexModifyWorldPos(In);
+  vec4 shadowPos = CalculatePlanarShadowPos(In.worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
+  In.worldPos = shadowPos.xyz;
+
+  // Clip Space
+  In.clipPos = CalculatePlanarShadowClipPos(shadowPos, cc_cameraPos.xyz, cc_matView, cc_matProj, cc_nearFar, cc_shadowWHPBInfo.w);
+  In.clipPos = SurfacesVertexModifyClipPos(In);
+
+  // Other Surfaces Function
+  SurfacesVertexModifyUV(In);
+  SurfacesVertexModifySharedData(In);
+
+  // Other Data
+  CCSurfacesVertexTransformUV(In);
+
+  CCSurfacesVertexOutput(In);
+
+  // Depth
+  v_dist = shadowPos.w;
+}

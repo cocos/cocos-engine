@@ -1,0 +1,60 @@
+struct SurfacesMaterialData
+{
+  HIGHP_VALUE_STRUCT_DEFINE(vec3, worldPos);
+
+  vec4 baseColor;
+  vec3 worldNormal;
+  vec3 emissive;
+
+  float specularIntensity;
+  float roughness;
+  float metallic;
+  float ao;
+
+  // for advanced PBR
+  vec3 worldTangent, worldBinormal;
+  float ior;
+
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+  float anisotropyShape;
+#endif
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec3 outScatteringColor, inScatteringColor;
+  vec4 transmitScatteringParams;
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec4 transmitDiffuseParams;
+#endif
+#if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+  // for storage only, copied with CCSurfacesGetSurfacesMaterialData2ndSpecular
+  // todo: use SurfacesMaterialDataPerLayer instead
+  vec3 baseColor2ndSpecular, color2ndSpecular;
+  float intensity2ndSpecular, roughness2ndSpecular, metallic2ndSpecular;
+  vec3 worldNormal2ndSpecular, worldTangent2ndSpecular, worldBinormal2ndSpecular;
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+    float anisotropyShape2ndSpecular;
+  #endif
+  float ior2ndSpecular, opacity2ndSpecular; // for multi-layer
+#endif
+#if CC_SURFACES_LIGHTING_TT
+  vec3 baseColorTT;
+  float ttIntensity, ttScatterCoef;
+#endif
+#if CC_SURFACES_LIGHTING_SSS
+  vec4 sssParams;
+#endif
+};
+
+/*
+struct SurfacesMaterialDataPerLayer
+{
+  vec3 baseColor, layerColoration;
+  float intensity, roughness, metallic;
+  vec3 worldNormal, worldTangent, worldBinormal;
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+    float anisotropyShape;
+  #endif
+  float ior, opacity;
+}
+*/

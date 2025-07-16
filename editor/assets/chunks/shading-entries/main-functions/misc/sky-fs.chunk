@@ -1,0 +1,34 @@
+// default functions
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+{
+	return vec4(cc_ambientSky.xyz * cc_ambientSky.w, 1.0);
+}
+#endif
+
+// no structure and module functions needed
+
+
+layout(location = 0) out vec4 fragColorX;
+
+void main() {
+  vec4 color = SurfacesFragmentModifyBaseColorAndTransparency();
+  color.a = 1.0;
+
+  // HDR Fog
+  // todo: apply fogColorBrightness to linear fogColor for supporting scatter lighting with HDR
+  #if CC_USE_FOG != CC_FOG_NONE
+    float fogFactor = 1.0;
+    CC_TRANSFER_FOG_BASE(vec4(FSInput_worldPos, 1.0), fogFactor);
+    CC_APPLY_FOG_BASE(color, fogFactor);
+  #endif
+
+  #if CC_USE_RGBE_OUTPUT
+    color = packRGBE(color.rgb);
+  #else//todo: change to #elif !CC_USE_FLOAT_OUTPUT when sky render queue has been fixed with custom pipeline
+    color.rgb = HDRToLDR(color.rgb);
+    color.rgb = LinearToSRGB(color.rgb);
+  #endif
+
+  fragColorX = color;
+}

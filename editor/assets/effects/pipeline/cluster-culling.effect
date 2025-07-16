@@ -1,0 +1,153 @@
+// Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - compute: cluster-main
+      pass: cluster-culling-cs
+}%
+
+
+CCProgram cluster-main %{
+  precision highp float;
+  #define LOCAL_SIZE_X 16u
+  #define LOCAL_SIZE_Y 8u
+  #define LOCAL_SIZE_Z 1u
+  #define LOCAL_SIZE (LOCAL_SIZE_X * LOCAL_SIZE_Y * LOCAL_SIZE_Z)
+
+  #pragma rate CCConst pass
+  layout(std140) uniform CCConst {
+    vec4 cc_nearFar;
+    vec4 cc_viewPort;
+    vec4 cc_workGroup;
+    mat4 cc_matView;
+    mat4 cc_matProjInv;
+  };
+
+  #pragma rate b_ccLightsBuffer pass
+  #pragma glBinding(0)
+  layout(std430) readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
+
+  #pragma rate b_clustersBuffer pass
+  #pragma glBinding(1)
+  layout(std430) readonly buffer b_clustersBuffer { vec4 b_clusters[]; };
+
+  #pragma rate b_clusterLightIndicesBuffer pass
+  #pragma glBinding(2)
+  layout(std430) buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
+
+  #pragma rate b_clusterLightGridBuffer pass
+  #pragma glBinding(3)
+  layout(std430) buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
+
+  #pragma rate b_globalIndexBuffer pass
+  #pragma glBinding(4)
+  layout(std430) buffer b_globalIndexBuffer { uint b_globalIndex[]; };
+
+  struct CCLight {
+    vec4 cc_lightPos;
+    vec4 cc_lightColor;
+    vec4 cc_lightSizeRangeAngle;
+    vec4 cc_lightDir;
+    vec4 cc_lightBoundingSizeVS;
+  };
+  uint ccLightCount()
+  {
+    return uint(b_ccLights[3].w);
+  }
+  CCLight getCCLight(uint i)
+  {
+    CCLight light;
+    light.cc_lightPos = b_ccLights[5u * i + 0u];
+    light.cc_lightColor = b_ccLights[5u * i + 1u];
+    light.cc_lightSizeRangeAngle = b_ccLights[5u * i + 2u];
+    light.cc_lightDir = b_ccLights[5u * i + 3u];
+    light.cc_lightBoundingSizeVS = b_ccLights[5u * i + 4u];
+    return light;
+  }
+  struct Cluster {
+    vec3 minBounds;
+    vec3 maxBounds;
+  };
+  struct LightGrid {
+    uint offset;
+    uint ccLights;
+  };
+  Cluster getCluster(uint index)
+  {
+    Cluster cluster;
+    cluster.minBounds = b_clusters[2u * index + 0u].xyz;
+    cluster.maxBounds = b_clusters[2u * index + 1u].xyz;
+    return cluster;
+  }
+  bool ccLightIntersectsCluster(CCLight light, Cluster cluster)
+  {
+    if (light.cc_lightPos.w > 0.0) {
+      vec3 halfExtents = (cluster.maxBounds - cluster.minBounds) * 0.5;
+      vec3 center = (cluster.minBounds + cluster.maxBounds) * 0.5;
+      float sphereRadius = sqrt(dot(halfExtents, halfExtents));
+      light.cc_lightDir = ((cc_matView) * (vec4(light.cc_lightDir.xyz, 1.0)));
+      light.cc_lightDir.xyz = (light.cc_lightDir - ((cc_matView) * (vec4(0,0,0, 1.0)))).xyz;
+      if (length(light.cc_lightDir.xyz) > 0.1) {
+        light.cc_lightDir.xyz = normalize(light.cc_lightDir.xyz);
+      }
+      vec3 v = center - light.cc_lightPos.xyz;
+      float lenSq = dot(v, v);
+      float v1Len = dot(v, light.cc_lightDir.xyz);
+      if(light.cc_lightDir.w == 1.0) {
+        v1Len = sqrt(lenSq);
+        return (v1Len <= sphereRadius  + light.cc_lightSizeRangeAngle.y);
+      }
+
+      float cosAngle = light.cc_lightSizeRangeAngle.z;
+      float sinAngle = sqrt(1.0 - cosAngle * cosAngle);
+      float distanceClosestPoint = cosAngle * sqrt(lenSq - v1Len * v1Len) - v1Len * sinAngle;
+      bool angleCull = distanceClosestPoint > sphereRadius;
+      bool frontCull = v1Len > sphereRadius + light.cc_lightSizeRangeAngle.y;
+      bool backCull = v1Len < -sphereRadius;
+      return !(angleCull || frontCull || backCull);
+    }
+    vec3 closest = max(cluster.minBounds, min(light.cc_lightPos.xyz, cluster.maxBounds));
+    vec3 dist = closest - light.cc_lightPos.xyz;
+    return dot(dist, dist) <= (light.cc_lightSizeRangeAngle.y * light.cc_lightSizeRangeAngle.y);
+  }
+  shared CCLight lights[LOCAL_SIZE];
+  layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
+  void main()
+  {
+    uint visibleLights[200];
+    uint visibleCount = 0u;
+    uint clusterIndex = gl_GlobalInvocationID.z * gl_WorkGroupSize.x * gl_WorkGroupSize.y +
+      gl_GlobalInvocationID.y * gl_WorkGroupSize.x +
+      gl_GlobalInvocationID.x;
+
+    Cluster cluster = getCluster(clusterIndex);
+    uint lightCount = ccLightCount();
+    uint lightOffset = 0u;
+    while (lightOffset < lightCount) {
+      uint batchSize = min(LOCAL_SIZE, lightCount - lightOffset);
+      if (uint(gl_LocalInvocationIndex) < batchSize) {
+        uint lightIndex = lightOffset + gl_LocalInvocationIndex;
+        CCLight light = getCCLight(lightIndex);
+        light.cc_lightPos.xyz = ((cc_matView) * (vec4(light.cc_lightPos.xyz, 1.0))).xyz;
+        lights[gl_LocalInvocationIndex] = light;
+      }
+      barrier();
+      for (uint i = 0u; i < batchSize; i++) {
+        if (visibleCount < 200u && ccLightIntersectsCluster(lights[i], cluster)) {
+          visibleLights[visibleCount] = lightOffset + i;
+          visibleCount++;
+        }
+      }
+      lightOffset += batchSize;
+    }
+    barrier();
+    uint offset = 0u;
+    offset = atomicAdd(b_globalIndex[0], visibleCount);
+    for (uint i = 0u; i < visibleCount; i++) {
+      b_clusterLightIndices[offset + i] = visibleLights[i];
+    }
+    b_clusterLightGrid[clusterIndex] = uvec4(offset, visibleCount, 0, 0);
+  }
+}%

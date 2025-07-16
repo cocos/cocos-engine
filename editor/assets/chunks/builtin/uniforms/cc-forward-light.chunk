@@ -1,0 +1,18 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD
+  #define LIGHTS_PER_PASS 1
+#else
+  #define LIGHTS_PER_PASS 10
+#endif
+
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
+#pragma builtin(local)
+layout(set = 2, binding = 1) uniform CCForwardLight {
+  highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: valid light type[0: directional light, 1: sphere light, 2: spot light, 3: point light, 4: ranged dir light, 5: unkown]
+  vec4 cc_lightColor[LIGHTS_PER_PASS]; // xyz: color, w: intensity
+  vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: cos(half outterAngle), w: enable shadow; ranged dir light: xyz is right
+  vec4 cc_lightDir[LIGHTS_PER_PASS]; // xyz: dir, w: unused
+  vec4 cc_lightBoundingSizeVS[LIGHTS_PER_PASS]; //xyz: ranged dir light node half scale, w: spot light angle attenuation strength
+};
+#endif

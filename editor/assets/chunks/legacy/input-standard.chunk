@@ -1,0 +1,21 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+#include <legacy/decode-standard>
+#include <common/data/unpack> //decode32
+
+#if CC_USE_MORPH
+  #include <legacy/morph>
+#endif
+#if CC_USE_SKINNING
+  #include <legacy/skinning>
+#endif
+
+void CCVertInput(inout StandardVertInput In)
+{
+  CCDecode(In);
+  #if CC_USE_MORPH
+    applyMorph(In.position, In.normal, In.tangent);
+  #endif
+  #if CC_USE_SKINNING
+    CCSkin(In.position, In.normal, In.tangent);
+  #endif
+}

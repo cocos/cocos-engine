@@ -1,0 +1,71 @@
+#if __VERSION__ <= 100
+bool isnan(float val) {
+  return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
+}
+bool isinf(float x) {
+  return x == x * 2.0 && x != 0.0;
+}
+#endif
+
+bool isnans(vec2 val) {
+    return isnan(val.x) || isnan(val.y);
+}
+bool isnans(vec3 val) {
+    return isnan(val.x) || isnan(val.y) || isnan(val.z);
+}
+bool isnans(vec4 val) {
+    return isnan(val.x) || isnan(val.y) || isnan(val.z) || isnan(val.w);
+}
+
+bool isinfs(vec2 val) {
+    return isinf(val.x) || isinf(val.y);
+}
+bool isinfs(vec3 val) {
+    return isinf(val.x) || isinf(val.y) || isinf(val.z);
+}
+bool isinfs(vec4 val) {
+    return isinf(val.x) || isinf(val.y) || isinf(val.z) || isinf(val.w);
+}
+
+
+// intrinsic functions
+#if __VERSION__ < 300
+  float round(float value)   {
+      float f = fract(value);
+      return value - f + (f < 0.5 ? 0.0 : 1.0);
+  }
+  vec2 round(vec2 value) { return vec2(round(value.x), round(value.y)); }
+  vec3 round(vec3 value) { return vec3(round(value.x), round(value.y), round(value.z)); }
+  vec4 round(vec4 value) { return vec4(round(value.x), round(value.y), round(value.z), round(value.w)); }
+#endif
+
+float rsqrt(float value) { return 1.0 / sqrt(value); }
+vec2 rsqrt(vec2 value) { return vec2(1.0) / sqrt(value); }
+vec3 rsqrt(vec3 value) { return vec3(1.0) / sqrt(value); }
+vec4 rsqrt(vec4 value) { return vec4(1.0) / sqrt(value); }
+
+
+// random number
+// seeds value must be between zero to one, otherwise get 0
+// such as fract(cc_time.z * FSInput_texcoord)
+float rand(vec2 seeds_zero_to_one) {
+    return fract(sin(dot(seeds_zero_to_one.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+// like smoothstep, but it's linear interpolation
+float linearstep(float minValue, float maxValue, float value) { return saturate((value - minValue) / (maxValue - minValue)); }
+vec2 linearstep(vec2 minValue, vec2 maxValue, vec2 value) { return saturate((value - minValue) / (maxValue - minValue)); }
+vec3 linearstep(vec3 minValue, vec3 maxValue, vec3 value) { return saturate((value - minValue) / (maxValue - minValue)); }
+vec4 linearstep(vec4 minValue, vec4 maxValue, vec4 value) { return saturate((value - minValue) / (maxValue - minValue)); }
+
+
+#if __VERSION__ <= 100
+  mat4 transpose(mat4 v) {
+    mat4 tmp;
+    tmp[0] = vec4(v[0].x, v[1].x, v[2].x, v[3].x);
+    tmp[1] = vec4(v[0].y, v[1].y, v[2].y, v[3].y);
+    tmp[2] = vec4(v[0].z, v[1].z, v[2].z, v[3].z);
+    tmp[3] = vec4(v[0].w, v[1].w, v[2].w, v[3].w);
+    return tmp;
+  }
+#endif

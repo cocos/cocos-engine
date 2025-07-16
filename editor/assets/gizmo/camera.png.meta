@@ -1,0 +1,44 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "bd373594-df84-486d-a34a-19d09ddaa973",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "ver": "1.0.22",
+      "importer": "texture",
+      "uuid": "bd373594-df84-486d-a34a-19d09ddaa973@6c48a",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "premultiplyAlpha": false,
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "bd373594-df84-486d-a34a-19d09ddaa973",
+        "visible": false
+      },
+      "displayName": "camera",
+      "id": "6c48a",
+      "name": "texture"
+    }
+  },
+  "userData": {
+    "type": "texture",
+    "redirect": "bd373594-df84-486d-a34a-19d09ddaa973@6c48a",
+    "flipVertical": true,
+    "hasAlpha": true,
+    "fixAlphaTransparencyArtifacts": false
+  }
+}

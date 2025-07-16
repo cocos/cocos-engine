@@ -1,0 +1,24 @@
+#include <surfaces/data-structures/standard>
+#include <lighting-models/includes/standard>
+
+#define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, in LightingMiscData miscData)
+{
+#if CC_SURFACES_LIGHTING_SSS && !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
+  float sssIntensity = surfaceData.sssParams.x;
+
+  // update lighting data for diffuse calculations
+  LightingIntermediateData lightingData3S = lightingData;
+  lightingData3S.N = normalize(FSInput_worldNormal);
+  lightingData3S.NoL = dot(lightingData3S.N, lightingData.L);
+  lightingData3S.NoL = mix(lightingData.NoL, lightingData3S.NoL, sssIntensity);
+  lightingData3S.NoLSat = saturate(lightingData3S.NoL);
+
+  float multiplier = lightingData.distAttenuation * lightingData.angleAttenuation;
+  result.directDiffuse = CalculateDirectDiffuse(lightingData3S, miscData.lightColorAndIntensity) * multiplier;
+
+  #if !CC_FORWARD_ADD
+    result.environmentDiffuse = CalculateEnvironmentDiffuse(lightingData3S, cc_ambientSky.w);
+  #endif
+#endif
+}

@@ -1,0 +1,28 @@
+{
+    "doAddNativeSupport": {
+        "appendFile": [],
+        "projectReplaceProjectName": {
+            "srcProjectName": "CocosGame",
+            "files": [
+                "proj/main.cpp",
+                "proj/main.m",
+                "${NATIVE_DIR}/CMakeLists.txt"
+            ]
+        },
+        "projectReplaceProjectNameASCII": {
+            "srcProjectName": "CocosGame",
+            "files": [
+                "proj/settings.gradle"
+            ]
+        },
+
+        "projectReplacePackageName": {
+            "srcPackageName": "com.cocos.helloworld",
+            "files": [
+                "${NATIVE_DIR}/app/build.gradle",
+                "${NATIVE_DIR}/instantapp/build.gradle",
+                "${NATIVE_DIR}/entry/src/main/config.json"
+            ]
+        }
+    }
+}

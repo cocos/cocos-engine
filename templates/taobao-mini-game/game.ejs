@@ -1,0 +1,82 @@
+
+if (!globalThis.window) {
+    globalThis.window = globalThis;
+}
+globalThis.self = $global;
+
+globalThis.__taobaoRequire = (urlNoSchema) => {
+    if (urlNoSchema.startsWith('./')) {
+        urlNoSchema = urlNoSchema.replace('./', '');
+    }
+    require('./' + urlNoSchema);
+};
+loadCC();
+
+function loadCC() {
+
+    require('./web-adapter');
+
+<% if(polyfillsBundleFile) { %>
+    // Polyfills bundle.
+    require("<%= polyfillsBundleFile %>");
+<% } %>
+
+    // SystemJS support.
+    require("<%= systemJsBundleFile %>");
+
+
+    // Adapt for IOS, swap if opposite
+    if (canvas){
+        var _w = canvas.width;
+        var _h = canvas.height;
+        if (screen.width < screen.height) {
+            if (canvas.width > canvas.height) {
+                _w = canvas.height;
+                _h = canvas.width;
+            }
+        } else {
+            if (canvas.width < canvas.height) {
+                _w = canvas.height;
+                _h = canvas.width;
+            }
+        }
+        canvas.width = _w;
+        canvas.height = _h;
+    }
+
+    let System = $global.System;
+    globalThis.System = System;
+    const importMap = require("<%= importMapFile%>").default;
+    System.warmup({
+        importMap,
+        importMapUrl: '<%= importMapFile%>',
+        defaultHandler: (urlNoSchema) => {
+            require('.' + urlNoSchema);
+        },
+        handlers: {
+            'plugin:': (urlNoSchema) => {
+                requirePlugin(urlNoSchema);
+            },
+            'project:': (urlNoSchema) => {
+                urlNoSchema = urlNoSchema.replace("//", "");
+                require("./" + urlNoSchema);
+            },
+        },
+    });
+
+    System.import('<%= applicationJs %>').then(({ Application }) => {
+        return new Application();
+    }).then((application) => {
+        return onApplicationCreated(application);
+    }).catch((err) => {
+        console.error(err);
+    });
+
+    function onApplicationCreated(application) {
+        return System.import('cc').then((cc) => {
+            require('./engine-adapter');
+            return application.init(cc);
+        }).then(() => { return application.start(); });
+    }
+
+}

@@ -1,0 +1,60 @@
+#include <common/lighting/brdf>
+#include <common/lighting/attenuation>
+#include <common/lighting/functions>
+
+bool CCSurfacesLightingEnableShadow(in float NoL)
+{
+  return NoL > 0.0;
+}
+
+float CCSurfacesLightingCalculateDistanceAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in float lightType)
+{
+  return CalculateDistanceAttenuation(lightingData.distToLightSqr, lightSizeRangeAngle.x, lightSizeRangeAngle.y, lightType);
+}
+
+float CCSurfacesLightingCalculateAngleAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in vec3 spotLightDir)
+{
+  return CalculateAngleAttenuation(spotLightDir, lightingData.L, lightSizeRangeAngle.z);
+}
+
+void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+{
+    vec3 irradiance = lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+
+    lightingDiffuse = irradiance; // no energy conservation
+
+  // punctual lighting is different from dir lighting
+#if CC_FORWARD_ADD
+    float NL = 0.5 * lightingData.NoL + 0.5;
+    lightingDiffuse *= NL;
+#endif
+
+    float NH = 0.5 * lightingData.NoH + 0.5;
+    float specularWeight = 1.0 - pow(lightingData.specularParam, 5.0);
+    float specularMask = step(specularWeight + EPSILON_LOWP, NH);
+    lightingSpecular = irradiance * specularMask;
+}
+
+void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, float lightIntensity)
+{
+  lightingDiffuse = vec3(0.0);
+  lightingSpecular = vec3(0.0);
+}
+
+
+#if CC_SURFACES_LIGHTING_USE_FRESNEL
+vec3 CCSurfaceLightingCalculateExtraFresnel(in LightingIntermediateData lightingData)
+{
+    return vec3(1.0);
+}
+#endif
+
+void CCSurfaceLightingCalculateDirectFresnel(out vec3 fresnel, in LightingIntermediateData lightingData, vec3 specularColor, in vec3 environmentGF)
+{
+    fresnel = vec3(1.0);
+}
+
+void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, out vec3 integratedF, in LightingIntermediateData lightingData, vec3 specularColor)
+{
+  integratedF = integratedGF = vec3(1.0);
+}

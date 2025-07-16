@@ -1,0 +1,263 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  temporaries:
+    s1: &s1 {
+      minFilter: linear,
+      magFilter: linear,
+      addressU: clamp,
+      addressV: clamp,
+    }
+    s2: &s2 {
+      minFilter: point,
+      magFilter: point,
+      addressU: clamp,
+      addressV: clamp,
+    }
+  techniques:
+  - name: smaa
+    passes:
+    - vert: smaa-edge-vs:vert
+      frag: smaa-edge-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      properties:
+        u_texSampler: { sampler: *s1 }
+    - vert: smaa-blend-vs:vert
+      frag: smaa-blend-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      properties:
+        u_edgeTexSampler: { sampler: *s1 }
+        u_areaTexSampler: { sampler: *s1 }
+        u_searchTexSampler: { sampler: *s2 }
+}%
+
+CCProgram smaa-edge-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+  out vec4 v_offsets[3];
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 0.0, 1.0);
+    v_uv = a_texCoord * cc_screenScale.xy;
+    v_offsets[0] = v_uv.xyxy + cc_nativeSize.zwzw * vec4(-1.0, 0.0, 0.0, 1.0);
+    v_offsets[1] = v_uv.xyxy + cc_nativeSize.zwzw * vec4( 1.0, 0.0, 0.0, -1.0);
+    v_offsets[2] = v_uv.xyxy + cc_nativeSize.zwzw * vec4(-2.0, 0.0, 0.0, 2.0);
+
+    return pos;
+  }
+}%
+
+CCProgram smaa-edge-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+  #include <common/color/gamma>
+  #include <common/color/aces>
+
+  #pragma define SMAA_THRESHOLD 0.1
+
+  in vec2 v_uv;
+  in vec4 v_offsets[3];
+  uniform sampler2D u_texSampler;
+
+  vec3 ToLDR(vec3 color) {
+  #if CC_USE_HDR
+    color *= cc_exposure.x * FP_SCALE_INV;
+    color = ACESToneMap(color);
+    color = LinearToSRGB(color);
+  #endif
+    return color;
+  }
+
+  vec4 frag () {
+    vec2 threshold = vec2(SMAA_THRESHOLD, SMAA_THRESHOLD);
+    vec4 delta;
+    vec3 C = ToLDR(texture(u_texSampler, v_uv).rgb);
+    vec3 Cleft = ToLDR(texture(u_texSampler, v_offsets[0].xy).rgb);
+    vec3 t = abs(C - Cleft);
+    delta.x = max(max(t.r, t.g), t.b);
+    vec3 Ctop = ToLDR(texture(u_texSampler, v_offsets[0].zw).rgb);
+    t = abs(C - Ctop);
+    delta.y = max(max(t.r, t.g), t.b);
+    vec2 edges = step(threshold, delta.xy);
+
+    if (dot(edges, vec2(1.0, 1.0)) == 0.0)
+      discard;
+
+    vec3 Cright = ToLDR(texture(u_texSampler, v_offsets[1].xy).rgb);
+    t = abs(C - Cright);
+    delta.z = max(max(t.r, t.g), t.b);
+    vec3 Cbottom = ToLDR(texture(u_texSampler, v_offsets[1].zw).rgb);
+    t = abs(C - Cbottom);
+    delta.w = max(max(t.r, t.g), t.b);
+    float maxDelta = max(max(max(delta.x, delta.y), delta.z), delta.w);
+    vec3 Cleftleft = ToLDR(texture(u_texSampler, v_offsets[2].xy).rgb);
+    t = abs(C - Cleftleft);
+    delta.z = max(max(t.r, t.g), t.b);
+    vec3 Ctoptop = ToLDR(texture(u_texSampler, v_offsets[2].zw).rgb);
+    t = abs(C - Ctoptop);
+    delta.w = max(max(t.r, t.g), t.b);
+    maxDelta = max(max(maxDelta, delta.z), delta.w);
+    edges.xy *= step(0.5 * maxDelta, delta.xy);
+
+    vec4 o = vec4(edges, 0.0, 0.0);
+
+    return o;
+  }
+}%
+
+CCProgram smaa-blend-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+
+  #pragma define SMAA_MAX_SEARCH_STEPS 8
+
+  in vec2 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+  out vec4 v_offsets[3];
+  out vec2 v_pixCoord;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 0.0, 1.0);
+    v_uv = a_texCoord * cc_screenScale.xy;
+    v_pixCoord = v_uv * cc_nativeSize.xy;
+    v_offsets[0] = v_uv.xyxy + cc_nativeSize.zwzw * vec4(-0.25, 0.125, 1.25, 0.125);
+    v_offsets[1] = v_uv.xyxy + cc_nativeSize.zwzw * vec4(-0.125, 0.25, -0.125, -1.25);
+    v_offsets[2] = vec4(v_offsets[0].xz, v_offsets[1].yw) + vec4(-2.0, 2.0, -2.0, 2.0) * cc_nativeSize.zzww * float(SMAA_MAX_SEARCH_STEPS);
+
+    return pos;
+  }
+}%
+
+CCProgram smaa-blend-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+
+  #pragma define SMAA_MAX_SEARCH_STEPS 8
+  #pragma define SMAA_AREATEX_MAX_DISTANCE 16
+  #pragma define SMAA_AREATEX_PIXEL_SIZE (1.0 / vec2(160.0, 560.0))
+  #pragma define SMAA_AREATEX_SUBTEX_SIZE (1.0 / 7.0)
+
+  in vec2 v_uv;
+  in vec4 v_offsets[3];
+  in vec2 v_pixCoord;
+
+  uniform sampler2D u_edgeTexSampler;
+  uniform sampler2D u_areaTexSampler;
+  uniform sampler2D u_searchTexSampler;
+
+  float SMAASearchLength(vec2 e, float bias, float scale) {
+    e.r = bias + e.r * scale;
+    return 255.0 * texture(u_searchTexSampler, e).r;
+  }
+  float SMAASearchXLeft(vec2 texcoord, float end) {
+    vec2 e = vec2(0.0, 1.0);
+    for (int i = 0; i < SMAA_MAX_SEARCH_STEPS; ++i) {
+        e = texture(u_edgeTexSampler, texcoord).rg;
+        texcoord -= vec2( 2.0, 0.0 ) * cc_nativeSize.zw;
+        if (!(texcoord.x > end && e.g > 0.8281 && e.r == 0.0))
+          break;
+    }
+    texcoord.x += 0.25 * cc_nativeSize.z;
+    texcoord.x += cc_nativeSize.z;
+    texcoord.x += 2.0 * cc_nativeSize.z;
+    texcoord.x -= cc_nativeSize.z * SMAASearchLength(e, 0.0, 0.5);
+    return texcoord.x;
+  }
+  float SMAASearchXRight(vec2 texcoord, float end) {
+    vec2 e = vec2(0.0, 1.0);
+    for (int i = 0; i < SMAA_MAX_SEARCH_STEPS; ++i) {
+        e = texture(u_edgeTexSampler, texcoord).rg;
+        texcoord += vec2( 2.0, 0.0 ) * cc_nativeSize.zw;
+        if (!(texcoord.x < end && e.g > 0.8281 && e.r == 0.0))
+          break;
+    }
+    texcoord.x -= 0.25 * cc_nativeSize.z;
+    texcoord.x -= cc_nativeSize.z;
+    texcoord.x -= 2.0 * cc_nativeSize.z;
+    texcoord.x += cc_nativeSize.z * SMAASearchLength(e, 0.5, 0.5);
+    return texcoord.x;
+  }
+  float SMAASearchYUp(vec2 texcoord, float end) {
+      vec2 e = vec2(1.0, 0.0);
+      for (int i = 0; i < SMAA_MAX_SEARCH_STEPS; ++i) {
+          e = texture(u_edgeTexSampler, texcoord).rg;
+          texcoord += vec2( 0.0, 2.0 ) * cc_nativeSize.zw;
+          if (!(texcoord.y > end && e.r > 0.8281 && e.g == 0.0))
+            break;
+      }
+      texcoord.y -= 0.25 * cc_nativeSize.w;
+      texcoord.y -= cc_nativeSize.w;
+      texcoord.y -= 2.0 * cc_nativeSize.w;
+      texcoord.y += cc_nativeSize.w * SMAASearchLength(e.gr, 0.0, 0.5);
+      return texcoord.y;
+  }
+  float SMAASearchYDown(vec2 texcoord, float end) {
+      vec2 e = vec2(1.0, 0.0);
+      for (int i = 0; i < SMAA_MAX_SEARCH_STEPS; ++i) {
+          e = texture(u_edgeTexSampler, texcoord).rg;
+          texcoord -= vec2( 0.0, 2.0 ) * cc_nativeSize.zw;
+          if (!(texcoord.y < end && e.r > 0.8281 && e.g == 0.0))
+            break;
+      }
+      texcoord.y += 0.25 * cc_nativeSize.w;
+      texcoord.y += cc_nativeSize.w;
+      texcoord.y += 2.0 * cc_nativeSize.w;
+      texcoord.y -= cc_nativeSize.w * SMAASearchLength(e.gr, 0.5, 0.5);
+      return texcoord.y;
+  }
+
+  vec2 Round(vec2 x) {
+    return sign(x) * floor(abs(x) + 0.5);
+  }
+
+  vec2 SMAAArea(vec2 dist, float e1, float e2) {
+      vec2 texcoord = float(SMAA_AREATEX_MAX_DISTANCE) * Round(4.0 * vec2(e1, e2)) + dist;
+      texcoord = SMAA_AREATEX_PIXEL_SIZE * texcoord + 0.5 * SMAA_AREATEX_PIXEL_SIZE;
+      return texture(u_areaTexSampler, texcoord).rg;
+  }
+
+  vec4 frag () {
+    vec4 weights = vec4(0.0);
+    vec2 e = texture(u_edgeTexSampler, v_uv).rg;
+    vec2 d;
+    vec2 coords;
+
+    if ( e.g > 0.0 ) {
+        coords.x = SMAASearchXLeft(v_offsets[0].xy, v_offsets[2].x);
+        coords.y = v_offsets[1].y;
+        d.x = coords.x;
+        float e1 = texture(u_edgeTexSampler, coords).r;
+        coords.x = SMAASearchXRight(v_offsets[0].zw, v_offsets[2].y);
+        d.y = coords.x;
+        d = d / cc_nativeSize.z - v_pixCoord.x;
+        vec2 sqrt_d = sqrt(abs(d));
+        coords.y -= 1.0 * cc_nativeSize.w;
+        float e2 = texture(u_edgeTexSampler, coords + vec2(cc_nativeSize.z, 0.0)).r;
+        weights.rg = SMAAArea(sqrt_d, e1, e2);
+    }
+    if ( e.r > 0.0 ) {
+        coords.y = SMAASearchYUp(v_offsets[1].xy, v_offsets[2].z);
+        coords.x = v_offsets[0].x;
+        d.x = coords.y;
+        float e1 = texture(u_edgeTexSampler, coords).g;
+        coords.y = SMAASearchYDown(v_offsets[1].zw, v_offsets[2].w);
+        d.y = coords.y;
+        d = d / cc_nativeSize.w - v_pixCoord.y;
+        vec2 sqrt_d = sqrt(abs(d));
+        coords.y -= 1.0 * cc_nativeSize.w;
+        float e2 = texture(u_edgeTexSampler, coords + vec2(0.0, cc_nativeSize.w)).g;
+        weights.ba = SMAAArea(sqrt_d, e1, e2);
+    }
+
+    return weights;
+  }
+}%

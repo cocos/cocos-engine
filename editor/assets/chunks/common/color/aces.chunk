@@ -1,0 +1,10 @@
+
+vec3 ACESToneMap (vec3 color) {
+  color = min(color, vec3(8.0)); // guard against overflow
+  const float A = 2.51;
+  const float B = 0.03;
+  const float C = 2.43;
+  const float D = 0.59;
+  const float E = 0.14;
+  return (color * (A * color + B)) / (color * (C * color + D) + E);
+}

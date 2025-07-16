@@ -1,0 +1,102 @@
+How to Use ~~bindings-generator~~
+==================
+
+> Notice: this bindings-generator approach has been deprecated in cocos engine internal usage since Cocos Creator 3.7.0, but you could still use it to generate JS binding code for your own projects. However, we recommend you to use [Swig](https://github.com/cocos/cocos-engine/blob/develop/native/tools/swig-config/README.md) which is more convenient.
+
+On Windows:
+------------
+
+* Make sure you have installed `android-ndk-r21`.
+* Download and install python3.6+ (64bit) from (<https://www.python.org/downloads/> ).(higher than python3.6)
+* Add the installed path of python (e.g. C:\Python310) to windows environment variable named 'PATH'.
+* Execute the following command from the command processor to install **PyYAML** and **Cheetah**:
+
+   ```
+   python -m pip install PyYAML==5.4.1 Cheetah3
+   ```
+
+* Set environment variables (`NDK_ROOT`) and `PYTHON_BIN`
+* Go to "native/tools/tojs" folder, and run "genbindings.py". The generated codes will be under "cocos\bindings\auto".
+
+
+On MAC:
+----------
+
+* The macOS since 12.3 has a built-in python3, and if your os don't have python3 then use [Homebrew](http://brew.sh/) to install the python and use pip install the python dependencies.
+<pre>
+	brew install python3
+</pre>
+
+* Install python dependices by pip.
+<pre>
+   python -m pip install PyYAML==5.4.1 Cheetah3
+</pre>
+    
+* Download NDK r21 or later from [Android Ndk](https://developer.android.com/ndk/downloads/index.html)
+* Run
+<pre>
+	export NDK_ROOT=/path/to/android-ndk-r21
+    ./genbindings.py
+</pre>
+
+
+# Steps of establishing associations by JSB between framework and native
+
+## Create ts and cpp classes
+Firstly, we must determine the data stream and how to transport these data, and the invoking relationship between native and framework.
+1. Build a simple windows project for subsequent debugging.
+2. Create .ts scripts and classes which contain methods and attributes that are associated with native(in step3).
+3. Create .h and .cpp scripts and classes which contain methods and attributes that are associated with framework(in step2). It is best to keep the same names.
+
+##### For example:
+- RenderEntity.ts
+```
+	public bufferId: number | undefined;
+	public vertexOffset: number | undefined;
+	public indexOffset: number | undefined;
+	public vb: Float32Array | undefined;
+	public vData: Float32Array | undefined;
+	public iData: Uint16Array | undefined;
+
+```
+- RenderEntity.h
+```
+	private:
+		index_t _bufferId{0};
+		index_t _vertexOffset{0};
+		index_t _indexOffset{0};
+
+		float_t* _vbBuffer{nullptr};
+		float_t* _vDataBuffer{nullptr};
+		uint16_t* _iDataBuffer{nullptr};
+```
+
+## Configs of ini and CMakeList
+.ini decides what should be export to framework from native.
+1. Create or edit .ini file. You can refer to other .ini files in 'native\tools\tojs' folder.
+2. Add your .ini file name to the end of defaultSections field in 'native\tools\tojs\genbindings.py'.
+![](./jsb-doc/_2_2_ini-name-default-sections.png) 
+3. Add the complete path of .h and .cpp files you created before in corresponding group in 'native\CMakeLists.txt'.
+![](./jsb-doc/_2_3_h-cpp-CMakeLists.png) 
+
+## Generate secondary configs in native
+We had finished fundamental config in native, then we handle the left part.
+1. Execute genbindings.py in 'native\tools\tojs' folder. If there is no error in .ini, jsb_xxx_auto.h and jsb_xxx_auto.cpp should be generated or refreshed in 'native\cocos\bindings\auto' (xxx is your module name).
+2. Back to CMakeList, find the title '######## auto' and subtitle 'cocos_source_files', then you should add the auto-generated files to the end of this part.
+![](./jsb-doc/_3_2_auto-h-cpp-CMakeList.png) 
+3. Firstly, find 'register_all_xxx' method in your jsb_xxx_auto.cpp; Then, find the jsb_module_register.cpp in 'native\cocos\bindings\manual' folder, register the method in 'jsb_register_all_modules'.
+![](./jsb-doc/_3_3_jsb-register.png) 
+
+## Supplement related file in framework
+So far, we finish the config in native. Then we should add the last config in framework.
+1. Create 'native_xxx.jsb.ts' in appropriate folder, such as 'cocos\core\renderer\2d'. Its function is getting the native object.
+![](./jsb-doc/_4_1_native_xxx_jsb.png) 
+2. Create 'native_xxx.ts' in the same folder. we should add some methods and attributes we need in the class. Its function is avoiding the compile error when executing on non native platform.
+![](./jsb-doc/_4_2_native_xxx.png) 
+3. Find title 'moduleOverrides' and group 'NATIVE' in 'cc.config.json', then add the file path created in step1 and step2 in this part. Its function is registering native classes.
+![](./jsb-doc/_4_3_cc-config-json.png) 
+
+## Use JSB and debug
+We finished all configs. We can validate now.
+1. Import native_xxx.ts to a script, and try invoking some methods in it.
+2. Debug in simple windows project created initially. If the process runs to the related method with the method in step1, it represents we establish a simple JSB association successfully.

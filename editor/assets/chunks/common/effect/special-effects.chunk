@@ -1,0 +1,41 @@
+
+// dithered transparency (dithered alpha test), better looking with TAA
+// arguments: FSInput_clipPos, cc_viewPort.zw, baseColor.a
+void DitheredAlphaClip(vec4 clipPos, vec2 screen_resolution, float transparency)
+{
+  // can not be floor or ceil
+  vec2 screenPos = (clipPos.xy / clipPos.w * 0.5 + vec2(0.5)) * floor(screen_resolution);
+  float dither5 = fract( ( screenPos.x + screenPos.y * 2.0 - 1.5 /*+ ResolvedView.TemporalAAParams.x*/ ) / 5.0 );
+  float noiseValue = fract( dot( vec2( 171.0, 231.0 ) / 71.0, screenPos.xy ) );
+  float dither = ( dither5 * 5.0 + noiseValue ) * (1.0 / 6.0);
+  if( transparency + dither < 0.833333333 ) discard;
+}
+
+// NormalFromMap is: texture(normalmap) - 0.5
+vec3 BlendDetailedNormalMap(vec3 baseNormalFromMap, vec3 detailedNormalFromMap, float detailedIntensity)
+{
+    return normalize(vec3(baseNormalFromMap.xy + detailedNormalFromMap.xy * detailedIntensity, baseNormalFromMap.z));
+}
+
+
+float BlendDetailedColorMap(float baseColor, float detailedColor)
+{
+  float s = baseColor, d = detailedColor;
+  if (s < 0.5)
+  {
+    return 2.0 * s * d;
+  }
+  else
+  {
+    if (d >= 0.5)
+      return 1.0 - 2.0 * (1.0 - s) * (1.0 - d);
+    else
+      return mix(2.0 * s * d, s, (2.0 * s - 1.0) * (2.0 * s - 1.0));
+  }
+}
+vec3 BlendDetailedColorMap(vec3 baseColor, vec3 detailedColor)
+{
+    return vec3(BlendDetailedColorMap(baseColor.r, detailedColor.r),
+                BlendDetailedColorMap(baseColor.g, detailedColor.g),
+                BlendDetailedColorMap(baseColor.b, detailedColor.b));
+}

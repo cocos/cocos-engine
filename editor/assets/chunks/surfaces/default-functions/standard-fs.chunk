@@ -1,0 +1,246 @@
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+// depends on CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+{
+    return FSInput_vertexColor;
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+// depends on CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+// for base shape without color usage, such as render-to-shadow
+void SurfacesFragmentAlphaClipOnly()
+{
+}
+#endif
+
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+// depends on CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+vec3 SurfacesFragmentModifyWorldNormal()
+{
+    return normalize(FSInput_worldNormal);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_WORLD_TANGENT_AND_BINORMAL
+// depends on CC_SURFACES_FRAGMENT_MODIFY_WORLD_TANGENT_AND_BINORMAL
+void SurfacesFragmentModifyWorldTangentAndBinormal(inout vec3 worldTangent, inout vec3 worldBinormal, vec3 worldNormal)
+{
+    vec3 tangent = normalize(FSInput_worldTangent);
+
+#if CC_SURFACES_USE_TANGENT_SPACE
+    vec3 binormal = normalize(CalculateBinormal(worldNormal.xyz, tangent, FSInput_mirrorNormal));
+    tangent = normalize(cross(binormal, worldNormal));
+#else
+    vec3 binormal = vec3(0.0, 0.0, 0.0);
+#endif
+
+    worldTangent = tangent;
+    worldBinormal = binormal;
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_IOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_IOR
+float SurfacesFragmentModifyIOR()
+{
+    return 1.0;
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
+// isRotation=1.0: shape(0~1), rotation(0~2PI), 0.0, 0.0
+// or
+// isRotation=0.0: shape(0~1), anisoDir.xyz(-1~1)
+vec4 SurfacesFragmentModifyAnisotropyParams(out float isRotation)
+{
+    isRotation = 1.0;
+    return vec4(1.0, 0.0, 0.0, 0.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
+// depends on CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
+vec3 SurfacesFragmentModifyEmissive()
+{
+    return vec3(0.0, 0.0, 0.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
+vec4 SurfacesFragmentModifyPBRParams()
+{
+    // ao, roughness, metallic, specularIntensity
+    return vec4(1.0, 0.5, 0.0, 0.5);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
+// scattering related parameters and colors, shared by transmit diffuse and specular
+vec4 SurfacesFragmentModifyTransmitScatteringParams()
+{
+    // x: extinction coef for out/in-scattering, 0 means disable scattering, thin object needs larger value such as 100-1000
+    // y: in-scattering coef (constant phase function)
+    // z: transmit normal type, default is 1 means using back face normal, 0 means using view-dependent normal, for shapeless materials such as hair
+    // w: transmit distance, depending on CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT macro value:
+    //    macro is 0: affect direct / env transmit lighting, 0 means disable scattering, (water depth, leaf / hair thicknessMap, ear / nose thicknessMap)
+    //    macro is 1: only affect env transmit when shadow dir not match back normal (actual mesh thickness for ear / nose, nephrite)
+    return vec4(1.0, 1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+vec3 SurfacesFragmentModifyTransmitInScatteringColor()
+{
+    // added light multiplier
+    return vec3(0.0);
+}
+#endif
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
+vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
+{
+    // transmit background multiplier
+    return vec3(1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_DIFFUSE_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_DIFFUSE_PARAMS
+vec4 SurfacesFragmentModifyTransmitDiffuseParams()
+{
+    // this param valid only when CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT is 1
+    // material should use cull none for shadow caster pass, and enable shadow casting and receive shadow
+
+    // x: object (material part) thickness (worldspace unit bounding box max length), apply shadows for backlit only when shadowmap distance > object thickness, 0 means always apply shadows(thin object), SURFACES_MAX_TRANSMIT_DEPTH_VALUE means do not apply shadows.
+    //    notice: setting too small a value for thick objects, no transmit light will disappear.
+    // y: transmit area mask, limit area to avoid shadowmap coverage precision artifacts, default 1.0 means enable full transmit, and gradient value makes transmit lighting look smoother
+    // z: environment transmit scale, useless (env transmit is not accuracy, some material should give 0 to disable, or use area mask instead)
+    // w: shadowmap transmit distance scale, useless (very large model is hard to control transmit lighting through extinction coef, should use small value to scale its distance)
+    return vec4(1.0, 1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRT_PARAMS
+vec4 SurfacesFragmentModifyTRTParams()
+{
+    //x: roughness offset
+    //y: lighting rotation offset
+    //w: intensity
+    return vec4(0.2, 0.0, 0.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRT_COLOR
+vec3 SurfacesFragmentModifyTRTColor()
+{
+    return vec3(1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TT_PARAMS
+vec4 SurfacesFragmentModifyTTParams()
+{
+    //x: scatter coef
+    //w: intensity
+    return vec4(0.0, 0.0, 0.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
+vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
+{
+    // baseColor for reference
+    return vec3(1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
+vec4 SurfacesFragmentModifySSSParams()
+{
+    // x: sssIntensity, moisture
+    // y: sssCurvature, for preintegrated sss
+    // z: sssColoration, for sss transmitted light color with dark area
+    // w: unused
+    return vec4(1.0, 0.1, 1.0, 0.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_DUAL_LOBE_SPECULAR_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_DUAL_LOBE_SPECULAR_PARAMS
+vec4 SurfacesFragmentModifyDualLobeSpecularParams(float roughness)
+{
+    //x: secondary lobe roughness, according to argument (first lobe roughness)
+    //w: intensity
+    return vec4(0.2, 0.0, 0.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_PARAMS
+vec4 SurfacesFragmentModifyClearCoatParams()
+{
+    //x: coat roughness
+    //y: coat ior
+    //z: coat opacity
+    //w: coat intensity
+    return vec4(0.2, 1.5, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_COLOR
+vec3 SurfacesFragmentModifyClearCoatColor()
+{
+    // for iridescense color variation
+    return vec3(1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_WORLD_NORMAL
+// depends on CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_WORLD_NORMAL
+vec3 SurfacesFragmentModifyClearCoatWorldNormal()
+{
+    return normalize(FSInput_worldNormal);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHEEN_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SHEEN_PARAMS
+vec4 SurfacesFragmentModifySheenParams()
+{
+    //x: sheen roughness
+    //y: sheen opacity
+    //z: unused
+    //w: sheen intensity
+    return vec4(0.7, 1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHEEN_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SHEEN_COLOR
+vec3 SurfacesFragmentModifySheenColor()
+{
+    return vec3(1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+// some material datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
+// this function invokes at last
+// should use corresponding shading-model header: #include <surfaces/data-structures/XXX> before function define
+void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+{
+}
+#endif

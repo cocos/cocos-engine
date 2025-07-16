@@ -1,0 +1,23 @@
+import { _decorator, Component, Node, RenderStage } from "cc";
+const { ccclass, property } = _decorator;
+
+@ccclass("<%UnderscoreCaseClassName%>")
+export class <%UnderscoreCaseClassName%> extends RenderStage {
+
+    resize() {
+        
+    }
+
+    render() {
+        
+    }
+
+    rebuild() {
+        
+    }
+
+    destroy() {
+        
+    }
+    
+}

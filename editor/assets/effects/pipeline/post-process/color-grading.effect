@@ -1,0 +1,93 @@
+// Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+
+  techniques:
+  - passes:
+    - vert: color-grading-vs
+      frag: color-grading-nx1-fs
+      pass: color-grading-nx1
+      rasterizerState: &rasterizerState
+        cullMode: none
+      blendState: &blendState
+        targets:
+          - blend: false
+            blendSrc: one
+            blendDst: zero
+      depthStencilState: &depthStencilState
+        depthTest: false
+        depthWrite: false
+    - vert: color-grading-vs
+      frag: color-grading-8x8-fs
+      pass: color-grading-8x8
+      rasterizerState: *rasterizerState
+      depthStencilState: *depthStencilState
+      blendState: *blendState
+}%
+
+CCProgram ubo %{
+    uniform ColorGradingUBO {
+        vec2 lutTextureSize;
+        float contribute;
+    };
+    #pragma rate sceneColorMap pass
+    uniform sampler2D sceneColorMap;
+    uniform sampler2D colorGradingMap;
+}%
+
+
+CCProgram color-grading-vs %{
+  #include <./chunks/vs>
+}%
+
+CCProgram color-grading-nx1-fs %{
+  precision highp float;
+  #include <ubo>
+  in vec2 v_uv;
+
+  vec3 ColorGrading(sampler2D lutTexture, vec3 color) {
+    float colors = lutTextureSize.x / lutTextureSize.y;
+    vec3 colorGradingScale =  vec3((colors - 1.0) / (colors * colors), (colors - 1.0) / colors, 1.0 / colors);
+    vec2 colorGradingOffset = vec2(1.0 / (2.0 * colors * colors), 1.0 / (2.0 * colors));
+
+    vec2 uv = vec2(color.r, 1.0 - color.g) * colorGradingScale.xy + colorGradingOffset;
+    float b = color.b * (colors - 1.0);
+    vec2 lr = floor(vec2(b, b + 1.0));
+    float lerp = b - lr.x;
+    lr *= colorGradingScale.z;
+    vec3 left = texture(lutTexture, uv + vec2(lr.x, 0.0)).rgb;
+    vec3 right = texture(lutTexture, uv + vec2(lr.y, 0.0)).rgb;
+    return mix(left, right, lerp);
+  }
+
+  layout(location = 0) out vec4 fragColor;
+  void main () {
+    vec4 sceneColor = texture(sceneColorMap, v_uv);
+    vec3 gradeColor = ColorGrading(colorGradingMap, sceneColor.rgb);
+    fragColor = mix(sceneColor, vec4(gradeColor, 1.0), contribute);
+  }
+}%
+
+CCProgram color-grading-8x8-fs %{
+  precision highp float;
+  #include <ubo>
+  in vec2 v_uv;
+  #define EPS 0.000001
+  #define TOTAL 64.0
+  #define SIZE 512.0
+  layout(location = 0) out vec4 fragColor;
+  void main () {
+    vec3 orgColor = texture(sceneColorMap, v_uv).rgb;
+    float bValue = (orgColor.b * 255.0) / 4.0;
+    vec2 mulB = clamp(floor(bValue) + vec2(0.0, 1.0), 0.0, 63.0);
+    vec2 row = floor(mulB / 8.0 + EPS);
+    vec4 row_col = vec4(row, mulB - row * 8.0);
+    vec4 lookup = orgColor.ggrr * (63.0 / SIZE) + row_col * (TOTAL / SIZE) + (0.5 / SIZE);
+
+    float b1w = bValue - mulB.x;
+
+    vec3 sampled1 = texture(colorGradingMap, lookup.zx).rgb;
+    vec3 sampled2 = texture(colorGradingMap, lookup.wy).rgb;
+
+    fragColor = vec4(mix(orgColor, mix(sampled1, sampled2, b1w), contribute), 1.0);
+  }
+}%

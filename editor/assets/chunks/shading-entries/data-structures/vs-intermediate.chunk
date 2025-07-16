@@ -1,0 +1,53 @@
+struct SurfacesStandardVertexIntermediate
+{
+  //local space
+  highp vec4 position;
+  vec3 normal;
+#if CC_SURFACES_USE_TANGENT_SPACE
+  vec4 tangent;
+#endif
+
+  //other data
+#if CC_SURFACES_USE_VERTEX_COLOR
+  vec4 color;
+#endif
+
+  vec2 texCoord;
+#if CC_SURFACES_USE_SECOND_UV
+  vec2 texCoord1;
+#endif
+
+  //transformed
+  highp vec4 clipPos;
+  highp vec3 worldPos;
+  vec4 worldNormal; // a: two side sign
+  #if CC_SURFACES_USE_TANGENT_SPACE
+    vec3 worldTangent, worldBinormal;
+  #endif
+
+  //transfered
+#if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+  vec4 shadowBiasAndProbeId;
+#endif
+
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+  float fogFactor;
+#endif
+
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+  vec3 lightmapUV;
+#endif
+};
+
+
+#if CC_USE_MORPH
+  #if __VERSION__ < 450
+    int getVertexId() {
+      return int(a_vertexId);
+    }
+  #else
+    int getVertexId() {
+      return gl_VertexIndex; // vulkan convension
+    }
+  #endif
+#endif

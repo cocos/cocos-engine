@@ -1,0 +1,92 @@
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: sky-vs:vert
+      frag: sky-fs:frag
+      properties: &props
+        environmentMap:     { value: grey }
+      priority: max - 10
+      rasterizerState: &r1
+        cullMode: none
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+    - vert: sky-vs:vert
+      frag: sky-fs:frag
+      propertyIndex: 0
+      priority: max - 10
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+}%
+
+CCProgram sky-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode>
+
+  out mediump vec4 viewDir;
+
+  vec4 vert () {
+    CCDecode(viewDir);
+
+    mat4 matViewRotOnly = mat4(mat3(cc_matView));
+    vec4 pos = matViewRotOnly * viewDir;
+
+    // orthographic projection adaptation
+    if (cc_matProj[3].w > 0.0) {
+      mat4 matProj = cc_matProj;
+      // default ortho height 10 approximate to default FOV 45
+      // stretch x by 2 to remedy perspective effect
+      // w = sin(45/2), h = 2 * w, _11 = 2 / w, _22 = 2 / h
+      matProj[0].x = 5.2;
+      matProj[1].y = 2.6;
+      matProj[2].zw = vec2(-1.0);
+      matProj[3].zw = vec2(0.0);
+      // position is modified inside branches to work around a vk driver bug seen in
+      // low-end Qualcomm devices (Adreno 512, Oppo R11, cocos-creator/3d-tasks#9236)
+      pos = matProj * pos;
+    } else {
+      pos = cc_matProj * pos;
+    }
+
+    pos.z = 0.99999 * pos.w;
+    return pos;
+  }
+}%
+
+CCProgram sky-fs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-environment>
+  #include <common/texture/texture-lod>
+  #include <common/data/unpack>
+  #include <common/color/gamma>
+  #include <common/color/tone-mapping>
+  #include <legacy/output-standard>
+  #include <common/math/coordinates>
+
+  in mediump vec4 viewDir;
+
+  uniform samplerCube environmentMap;
+  vec4 frag () {
+    vec3 rotationDir = RotationVecFromAxisY(viewDir.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+    #if USE_RGBE_CUBEMAP
+      vec3 c = unpackRGBE(fragTextureLod(environmentMap, rotationDir.xyz, 0.0));
+    #else
+      vec3 c = SRGBToLinear(fragTextureLod(environmentMap, rotationDir.xyz, 0.0).rgb);
+    #endif
+
+    vec4 color = vec4(c * cc_ambientSky.w, 1.0);
+    #if CC_USE_RGBE_OUTPUT
+      color = packRGBE(color.rgb);
+    #else
+      color.rgb = HDRToLDR(color.rgb);
+      color.rgb = LinearToSRGB(color.rgb);
+    #endif
+
+    //todo: change to CCFragOutput when sky render queue has been fixed with custom pipeline
+    //return CCFragOutput(color);
+    return color;
+  }
+}%

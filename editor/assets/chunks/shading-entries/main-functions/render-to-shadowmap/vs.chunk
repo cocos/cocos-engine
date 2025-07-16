@@ -1,0 +1,35 @@
+#include <surfaces/default-functions/common-vs>
+#include <surfaces/module-functions/common-vs>
+
+out highp vec2 v_clip_depth;
+
+void main()
+{
+  SurfacesStandardVertexIntermediate In;
+
+  // Local Space
+  CCSurfacesVertexInput(In);
+  CCSurfacesVertexAnimation(In);
+  In.position.xyz = SurfacesVertexModifyLocalPos(In);
+  SurfacesVertexModifyLocalSharedData(In);
+
+  // World Space
+  CCSurfacesVertexWorldTransform(In);
+  In.worldPos = SurfacesVertexModifyWorldPos(In);
+
+  // Clip Space
+  In.clipPos = cc_matLightViewProj * vec4(In.worldPos, 1.0);
+  In.clipPos = SurfacesVertexModifyClipPos(In);
+
+  // Other Surfaces Function
+  SurfacesVertexModifyUV(In);
+  SurfacesVertexModifySharedData(In);
+
+  // Other Data
+  CCSurfacesVertexTransformUV(In);
+
+  CCSurfacesVertexOutput(In);
+
+  // Depth
+  v_clip_depth = In.clipPos.zw;
+}

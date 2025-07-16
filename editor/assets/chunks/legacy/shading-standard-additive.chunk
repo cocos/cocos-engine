@@ -1,0 +1,70 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#include <legacy/lighting>
+
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
+vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
+  vec3 position;
+  HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+  // Calculate diffuse & specular
+  vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
+  vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
+  vec3 diffuseContrib = diffuse / PI;
+
+  vec3 N = normalize(s.normal);
+  vec3 V = normalize(cc_cameraPos.xyz - position);
+  float NV = max(abs(dot(N, V)), 0.0);
+  specular = BRDFApprox(specular, s.roughness, NV);
+  vec3 finalColor = vec3(0.0);
+
+  int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
+
+  for (int i = 0; i < LIGHTS_PER_PASS; i++) {
+    if (i >= numLights) break;
+
+    // lighting
+    vec3 SLU = IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w) ? -cc_lightDir[i].xyz : cc_lightPos[i].xyz - position;
+    vec3 SL = normalize(SLU);
+    vec3 SH = normalize(SL + V);
+    float SNL = max(dot(N, SL), 0.0);
+    float SNH = max(dot(N, SH), 0.0);
+    vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
+
+    // attenuations
+    float illum = 1.0;
+    float att = 1.0;
+    if (IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
+      att = GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+    } else {
+      float distSqr = dot(SLU, SLU);
+      float litRadius = cc_lightSizeRangeAngle[i].x;
+      float litRadiusSqr = litRadius * litRadius;
+      illum = (IS_POINT_LIGHT(cc_lightPos[i].w) || IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) ? 1.0 : litRadiusSqr / max(litRadiusSqr, distSqr);
+      float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
+      attRadiusSqrInv *= attRadiusSqrInv;
+      att = GetDistAtt(distSqr, attRadiusSqrInv);
+
+      if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
+        float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
+        float cosOuter = cc_lightSizeRangeAngle[i].z;
+        float strength = clamp(cc_lightBoundingSizeVS[i].w, 0.0, 1.0);
+        float litAngleScale = 1.0 / max(0.001, mix(cosInner, 1.0, strength) - cosOuter);
+        float litAngleOffset = -cosOuter * litAngleScale;
+        att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
+      }
+    }
+
+    // shadows
+    float shadow = 1.0;
+    #if CC_RECEIVE_SHADOW  && CC_SHADOW_TYPE == CC_SHADOW_MAP
+      if (IS_SPOT_LIGHT(cc_lightPos[i].w) && cc_lightSizeRangeAngle[i].w > 0.0) {
+        shadow = CCSpotShadowFactorBase(shadowPos, position, s.shadowBias);
+      }
+    #endif
+
+    finalColor += SNL * cc_lightColor[i].rgb * shadow * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
+  }
+
+  return vec4(finalColor, 0.0);
+}
+#endif

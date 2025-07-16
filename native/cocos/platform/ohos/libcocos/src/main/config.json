@@ -1,0 +1,29 @@
+{
+  "app": {
+    "bundleName": "com.cocos.libcocos",
+    "vendor": "cocos",
+    "version": {
+      "code": 1000000,
+      "name": "1.0"
+    }
+  },
+  "deviceConfig": {
+    "default": {
+      "network": {
+        "cleartextTraffic": true
+      }
+    }
+  },
+  "module": {
+    "package": "com.cocos.lib",
+    "deviceType": [
+      "phone",
+      "car"
+    ],
+    "distro": {
+      "deliveryWithInstall": true,
+      "moduleName": "libcocos",
+      "moduleType": "har"
+    }
+  }
+}

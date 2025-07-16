@@ -1,0 +1,56 @@
+$global._onShowCB = null;
+$global._onHideCB = null;
+
+// HACK: on some devices my.createCanvas is undefined
+if (!my.createCanvas) {
+	my.createCanvas = my._createCanvas;
+}
+if (!my.createOffscreenCanvas) {
+	my.createOffscreenCanvas = my._createOffscreenCanvas;
+}
+
+App({
+  onLaunch: function onLaunch(options) {
+    console.info('App onLaunched');
+
+    $global.__onCanvasCreated = function () {
+      <% if(polyfillsBundleFile) { %>
+        // Polyfills bundle.
+        require('./<%= polyfillsBundleFile %>');
+      <% } %>
+      require('./<%= systemJsBundleFile %>');
+      require('./load-module.js');
+      const importMap = require('./<%= importMapFile %>').default;
+      let System = $global.System;
+      System.warmup({
+        importMap,
+        importMapUrl: 'src/import-map.js',
+      });
+      System.import('./web-adapter.js')
+      .then(() => {
+        return System.import('cc');
+      })
+      .then((cc) => {
+        return System.import('./engine-adapter.js')
+        .then(() => {
+          require('./load-module-plugin.js');
+          return System.import('<%= applicationJs %>')
+          .then(({ Application }) => {
+            const application = new Application();
+            application.init(cc);
+            return application.start();
+          });
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });    
+    };
+  },
+  onShow: function onShow(options) {
+    $global._onShowCB && $global._onShowCB();
+  },
+  onHide: function onHide(options) {
+    $global._onHideCB && $global._onHideCB();
+  }
+});

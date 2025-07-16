@@ -1,0 +1,154 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      properties: &props
+      migrations: &migs
+        properties:
+          mainColor:    { formerlySerializedAs: color }
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      propertyIndex: 0
+      migrations: *migs
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState: &b1
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+      migrations: *migs
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+      migrations: *migs
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState: &b2
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      properties: *props
+      migrations: *migs
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
+      migrations: *migs
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: &b3
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+      migrations: *migs
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      depthStencilState: *d1
+      blendState: *b3
+      propertyIndex: 0
+      migrations: *migs
+}%
+
+CCProgram unlit-vs %{
+  precision highp float;
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <legacy/input>
+
+  #if CC_USE_REFLECTION_PROBE
+    out mediump vec4 v_shadowBiasAndProbeId;
+  #endif
+
+  out mediump vec3 v_position;
+  out mediump vec3 v_normal;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 pos = matWorld * position;
+    v_position = pos.xyz;
+    v_normal = normalize((matWorldIT * vec4(a_normal, 0.0)).xyz);
+
+    #if CC_USE_REFLECTION_PROBE
+      #if USE_INSTANCING
+        v_shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;
+      #else
+        v_shadowBiasAndProbeId.zw = cc_localShadowBias.zw;
+      #endif
+    #endif
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-reflection-probe>
+  #include <builtin/uniforms/cc-environment>
+  #include <common/texture/texture-lod>
+  #include <legacy/output-standard>
+  #include <common/data/unpack>
+  #include <builtin/uniforms/cc-global>
+
+  #if CC_USE_REFLECTION_PROBE
+    in mediump vec4 v_shadowBiasAndProbeId;
+  #endif
+
+  in mediump vec3 v_normal;
+  in vec3 v_position;
+
+  vec4 frag () {
+    #if CC_USE_REFLECTION_PROBE
+      if(v_shadowBiasAndProbeId.z < 0.0)
+      {
+        return vec4(1.0);
+      }
+    #endif
+    vec3 V = normalize(cc_cameraPos.xyz - v_position);
+    vec3 N = normalize(v_normal);
+    vec3 R = normalize(reflect(-V, N));
+    vec4 probe = fragTextureLod(cc_reflectionProbeCubemap, R, 0.0);
+    vec4 finalColor = vec4(1.0);
+    finalColor.rgb = unpackRGBE(probe);
+    return CCFragOutput(finalColor);
+  }
+}%
