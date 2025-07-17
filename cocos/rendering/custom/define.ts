@@ -891,14 +891,6 @@ export function genHashValue (pass: RasterPass): void {
             hashCode += hashCombineKey(compute.shaderStageFlags);
         }
     }
-    hashCode += hashCombineKey(pass.width);
-    hashCode += hashCombineKey(pass.height);
-    hashCode += hashCombineKey(pass.viewport.left);
-    hashCode += hashCombineKey(pass.viewport.top);
-    hashCode += hashCombineKey(pass.viewport.width);
-    hashCode += hashCombineKey(pass.viewport.height);
-    hashCode += hashCombineKey(pass.viewport.minDepth);
-    hashCode += hashCombineKey(pass.viewport.maxDepth);
     hashCode += hashCombineKey(pass.showStatistics ? 1 : 0);
     pass.hashValue = hashCombineStr(hashCode);
 }
