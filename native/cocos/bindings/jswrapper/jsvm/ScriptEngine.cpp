@@ -334,7 +334,8 @@ bool ScriptEngine::start() {
         } else {
             OH_JSVM_OpenInspector(_env, _debuggerServerAddr.c_str(), _debuggerServerPort);
         }
-        SE_LOGD("Debugger listening..., visit [ http://localhost:6068/json ] to configuration debugging information and copy the devtoolsFrontendUrl value to the browser!");
+        SE_LOGD("Debugger listening..., visit [ http://localhost:%d/json ] to configuration debugging information and copy the devtoolsFrontendUrl value to the browser!", _debuggerServerPort);
+        
         if(_isWaitForConnect) {
             OH_JSVM_WaitForDebugger(_env, true);
         }
