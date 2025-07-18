@@ -154,7 +154,11 @@ CCProgram unlit-vs %{
     #endif
 
     CC_TRANSFER_FOG(matWorld * position);
-    return cc_matProj * (cc_matView * matWorld) * position;
+    #if CC_USE_2D
+        return cc_matProj * cc_matView * position;
+    #else
+        return cc_matProj * (cc_matView * matWorld) * position;
+    #endif
   }
 }%
 
