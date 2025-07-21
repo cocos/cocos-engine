@@ -24,7 +24,7 @@
 */
 
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
-import { cclegacy, errorID, warn, editorExtrasTag } from '../../core';
+import { cclegacy, errorID, warn, editorExtrasTag, CCClass } from '../../core';
 import { Node } from '../node';
 import { Component } from '../component';
 import {
@@ -357,6 +357,14 @@ export function applyTargetOverrides (node: Node): void {
                 const targetPropName = propertyPath.pop();
                 if (!targetPropName) {
                     return;
+                }
+
+                // Check whether the class of the script declares this property. If not,
+                // skip assignment to avoid leaving invalid references when the script structure changes.
+                const attr = CCClass.Attr.getClassAttrs(targetPropOwner.constructor);
+                const attrKey = `${targetPropName + CCClass.Attr.DELIMETER}ctor`;
+                if (attr && !attr[attrKey]) {
+                    continue;
                 }
 
                 for (let i = 0; i < propertyPath.length; i++) {
