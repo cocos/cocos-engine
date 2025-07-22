@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 import { ANDROID, JSB } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
 import { cclegacy, Color, Rect, Vec2 } from '../../../core';
@@ -447,8 +448,8 @@ export class TextProcessing {
         const canvas = this._canvas!;
         const context = this._context!;
 
-        canvas.width = canvasSize.width;
-        canvas.height = canvasSize.height;
+        canvas.width = canvasSize.width * screenAdapter.devicePixelRatio;
+        canvas.height = canvasSize.height * screenAdapter.devicePixelRatio;
 
         context.font = style.fontDesc;
         // align
@@ -516,6 +517,10 @@ export class TextProcessing {
             context.fillStyle = `rgba(${style.color.r}, ${style.color.g}, ${style.color.b}, ${_invisibleAlpha})`;
             context.fillRect(0, 0, canvas.width, canvas.height);
         }
+
+        // Scale all drawing operations by the dpr, so we don't have to worry about the difference.
+        // https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio
+        context.scale(screenAdapter.devicePixelRatio,  screenAdapter.devicePixelRatio);
         context.fillStyle = `rgb(${style.color.r}, ${style.color.g}, ${style.color.b})`;
         const { startPosition } = outputLayoutData;
         // Use the value that has been amplified by fontScale
