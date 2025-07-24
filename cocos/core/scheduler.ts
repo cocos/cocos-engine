@@ -764,7 +764,7 @@ export class Scheduler extends System {
     public unscheduleForTimer (timerToUnschedule: CallbackTimer, target: ISchedulable): void {
         const targetId = (target.uuid || target.id) as string;
         const element = this._hashForTimers[targetId];
-        const timers = element.timers;
+        const timers = element?.timers;
         if (!timers || timers.length === 0) {
             return;
         }
