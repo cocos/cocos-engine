@@ -30,7 +30,7 @@ import {
     GID, MixedGID, Orientation, PropertiesInfo, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimation, TiledAnimationType,
     TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObject, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo,
 } from './tiled-types';
-import { Color, error, errorID, logID, Size, Vec2, warn } from '../core';
+import { Color, error, errorID, logID, Size, Vec2, warn, path } from '../core';
 import { SpriteFrame } from '../2d/assets';
 
 function uint8ArrayToUint32Array (uint8Arr: Uint8Array): null | Uint32Array | number[] {
@@ -623,7 +623,7 @@ export class TMXMapInfo {
             const tsxName = curTileset.getAttribute('source');
             if (tsxName) {
                 const currentFirstGID = parseInt(curTileset.getAttribute('firstgid')!);
-                const tsxXmlString = this._tsxContentMap![tsxName];
+                const tsxXmlString = this._tsxContentMap![path.basename(tsxName)];
                 if (tsxXmlString) {
                     this.parseXMLString(tsxXmlString, currentFirstGID);
                 }
