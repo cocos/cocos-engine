@@ -531,9 +531,9 @@ export class UIRenderer extends Renderer {
     public updateMaterial (): void {
         if (this._customMaterial) {
             if (this.getSharedMaterial(0) !== this._customMaterial) {
+                this._customMaterial.copy(this._customMaterial, { defines: { CC_USE_2D: true } });
                 this.setSharedMaterial(this._customMaterial, 0);
             }
-            this.getMaterialInstance(0)!.recompileShaders({ CC_USE_2D: true });
             return;
         }
         const mat = this._updateBuiltinMaterial();
