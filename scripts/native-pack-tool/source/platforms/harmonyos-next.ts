@@ -31,12 +31,16 @@ export class HarmonyOSNextPackTool extends NativePackTool {
         this.setEnv('OHOS_SDK_HOME', this.params.platformParams.sdkPath);
     }
 
+    get projectDistPath() {
+        return this.paths.platformTemplateDirInPrj;
+    }
+
     async create() {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
 
-        const ohosProjDir = this.paths.platformTemplateDirInPrj;
+        const ohosProjDir = this.projectDistPath;
         const platformParams = this.params.platformParams;
         const assetsDir = this.paths.buildAssetsDir;
         // local.properties
@@ -109,7 +113,7 @@ export class HarmonyOSNextPackTool extends NativePackTool {
         packageJson.name = this.params.projectName;
         writeFileSync(packageJsonPath, JSON5.stringify(packageJson, null, 4));
         
-        await this.encrypteScripts();
+        await this.encryptScripts();
         return true;
     }
 
@@ -129,6 +133,22 @@ export class HarmonyOSNextPackTool extends NativePackTool {
         await cchelper.runCmd('npm', ['run', 'build'], false, ohosProjDir);
         return true;
     }
+
+     static async openWithIDE(projPath: string, DevEcoDir: string) {
+        let DevEcoFile = "./devecostudio"
+        if (!DevEcoDir || !fs.existsSync(DevEcoDir)) {
+            throw new Error(`deveco's runnable file Dir not set or not exist`);
+        }
+        if (process.platform === 'win32') {
+            DevEcoFile = "devecostudio.bat"
+            projPath = projPath.replace(/\\/g, '/');
+            DevEcoDir = DevEcoDir.replace(/\\/g, '/');
+        }
+
+        cchelper.runCmd(DevEcoFile, [projPath], false, DevEcoDir);
+        return true;
+    }
+
     // --------------- run ------------------//
     async run(): Promise<boolean> {
         this.initEnv();

@@ -1,9 +1,9 @@
-import { CocosParams, NativePackTool } from "../base/default";
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import * as os from 'os';
 import { execSync } from "child_process";
-import { toolHelper } from "../utils";
+import { CocosParams, NativePackTool } from "../base/default";
+import { cchelper, toolHelper } from "../utils";
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -24,7 +24,7 @@ export abstract class MacOSPackTool extends NativePackTool {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
-        await this.excuteCocosTemplateTask();
+        await this.executeCocosTemplateTask();
         return true;
     }
 
@@ -70,6 +70,11 @@ export abstract class MacOSPackTool extends NativePackTool {
             }
             await this.xcodeFixAssetsReferences();
         }
+    }
+
+    static async openWithIDE(projPath: string) {
+        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(projPath)}"`]);
+        return true;
     }
 
     /**

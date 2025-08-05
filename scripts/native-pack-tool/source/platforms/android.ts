@@ -33,7 +33,7 @@ export interface IAndroidParams {
 
     orientation: IOrientation;
     appBundle: boolean;
-    resizeableActivity: boolean;
+    resizableActivity: boolean;
 }
 
 const DefaultAPILevel = 27;
@@ -71,11 +71,11 @@ export class AndroidPackTool extends NativePackTool {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
-        await this.excuteCocosTemplateTask();
+        await this.executeCocosTemplateTask();
 
         await this.updateAndroidGradleValues();
         await this.updateManifest();
-        await this.encrypteScripts();
+        await this.encryptScripts();
         await this.generateAppNameValues();
         return true;
     }
@@ -214,7 +214,7 @@ export class AndroidPackTool extends NativePackTool {
             return;
         }
 
-        const resizeableActivity: boolean = this.params.platformParams.resizeableActivity;
+        const resizableActivity: boolean = this.params.platformParams.resizableActivity;
         const manifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'app/AndroidManifest.xml');
         const instantManifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'instantapp/AndroidManifest.xml');
 
@@ -234,12 +234,12 @@ export class AndroidPackTool extends NativePackTool {
             const attrRef = data.manifest.application[0].activity[0].$;
             attrRef['android:screenOrientation'] = this.mapOrientationValue();
         };
-        const fnUpdateResizeableActivity = (data: any) => {
+        const fnUpdateResizableActivity = (data: any) => {
             const activityRef = data.manifest.application[0].$;
-            activityRef['android:resizeableActivity'] = resizeableActivity ? 'true' : 'false';
+            activityRef['android:resizableActivity'] = resizableActivity ? 'true' : 'false';
         };
         const fnUpdateMaxAspectRation = (data: any) => {
-            if (resizeableActivity) return; // disabled
+            if (resizableActivity) return; // disabled
             const maxAspectRatio: string = this.params.platformParams.maxAspectRatio;
             if (!maxAspectRatio) return; // value not set
             const matchFrac = maxAspectRatio.match(/^(\d+):(\d+)$/);
@@ -300,14 +300,14 @@ export class AndroidPackTool extends NativePackTool {
         if (fs.existsSync(manifestPath)) {
             const app = await fnParseXml(manifestPath);
             await fnUpdateOrientation(app.data);
-            await fnUpdateResizeableActivity(app.data);
+            await fnUpdateResizableActivity(app.data);
             await fnUpdateMaxAspectRation(app.data);
             await app.save();
         }
         if (fs.existsSync(instantManifestPath)) {
             const instant = await fnParseXml(instantManifestPath);
             await fnUpdateOrientation(instant.data);
-            await fnUpdateResizeableActivity(instant.data);
+            await fnUpdateResizableActivity(instant.data);
             await fnUpdateMaxAspectRation(instant.data);
             await fnUpdateCategory(instant.data);
             await instant.save();
@@ -585,6 +585,21 @@ export class AndroidPackTool extends NativePackTool {
                 `${this.params.platformParams.packageName}/com.cocos.game.AppActivity`,
             ],
             false);
+        return true;
+    }
+
+    static async openWithIDE(projPath: string, ASDir: string) {
+        let ASFile = "./studio"
+        if (!ASDir || !fs.existsSync(ASDir)) {
+            throw new Error(`android studio's runnable file Dir not set or not exist`);
+        }
+        if (process.platform === 'win32') {
+            ASFile = "studio.bat"
+            projPath = projPath.replace(/\\/g, '/');
+            ASDir = ASDir.replace(/\\/g, '/');
+        }
+
+        cchelper.runCmd(ASFile, [projPath], false, ASDir);
         return true;
     }
 }
