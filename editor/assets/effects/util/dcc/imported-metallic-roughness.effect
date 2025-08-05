@@ -113,10 +113,12 @@ CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_2D
   #pragma define-meta USE_REFLECTION_DENOISE
   #pragma define-meta IS_ANISOTROPY
   #pragma define-meta USE_VERTEX_COLOR
 
+  #define CC_USE_2D USE_2D
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_USE_REFLECTION_DENOISE USE_REFLECTION_DENOISE

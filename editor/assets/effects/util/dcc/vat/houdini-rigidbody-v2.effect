@@ -126,8 +126,10 @@ CCProgram shared-ubos %{
 CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_2D
   #pragma define-meta IS_ANISOTROPY
   #pragma define-meta USE_VERTEX_COLOR
+  #define CC_USE_2D USE_2D
   #define CC_SURFACES_USE_SECOND_UV 1
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
