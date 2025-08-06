@@ -77,38 +77,26 @@ extern "C" AttachmentVertices *generateAttachmentVertices(Attachment *attachment
 }
 
 namespace cc {
-class SkeletonDataInfo {
-public:
-    SkeletonDataInfo() = default;
-
-    ~SkeletonDataInfo() {
-        if (data) {
-            delete data;
-            data = nullptr;
-        }
-
-        if (atlas) {
-            delete atlas;
-            atlas = nullptr;
-        }
-
-        if (attachmentLoader) {
-            delete attachmentLoader;
-            attachmentLoader = nullptr;
-        }
-
-        for (const auto& pair : attachmentVerticesMap) {
-            delete pair.second;
-        }
+SkeletonDataInfo::~SkeletonDataInfo() {
+    if (data) {
+        delete data;
+        data = nullptr;
     }
 
-    SkeletonData *data = nullptr;
-    Atlas *atlas = nullptr;
-    AttachmentLoader *attachmentLoader = nullptr;
-    std::vector<int> texturesIndex;
-    std::unordered_map<Attachment *, AttachmentVertices *> attachmentVerticesMap;
-};
+    if (atlas) {
+        delete atlas;
+        atlas = nullptr;
+    }
 
+    if (attachmentLoader) {
+        delete attachmentLoader;
+        attachmentLoader = nullptr;
+    }
+
+    for (const auto &pair : attachmentVerticesMap) {
+        delete pair.second;
+    }
+}
 
 void saveAttachmentVertices(SkeletonDataInfo *info) {
     auto &attachmentVerticesMap = info->attachmentVerticesMap;
@@ -162,13 +150,21 @@ void SkeletonDataMgr::setSkeletonData(const std::string &uuid, SkeletonData *dat
     saveAttachmentVertices(info);
 }
 
-std::unordered_map<Attachment *, AttachmentVertices *>
-    *SkeletonDataMgr::getSkeletonDataInfo(const std::string &uuid) {
+SkeletonDataInfo *SkeletonDataMgr::getSkeletonDataInfo(const std::string &uuid) {
     auto dataIt = _dataMap.find(uuid);
     if (dataIt == _dataMap.end()) {
         return nullptr;
     }
-    return &dataIt->second->attachmentVerticesMap;
+    return dataIt->second;
+}
+
+std::vector<SkeletonDataInfo *> SkeletonDataMgr::getSkeletonDataInfos() const {
+    std::vector<SkeletonDataInfo *> infos;
+    infos.reserve(_dataMap.size());
+    for (const auto &pair : _dataMap) {
+        infos.push_back(pair.second);
+    }
+    return infos;
 }
 
 SkeletonData *SkeletonDataMgr::retainByUUID(const std::string &uuid) {
