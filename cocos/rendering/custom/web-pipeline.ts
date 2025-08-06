@@ -45,7 +45,7 @@ import { GeometryRenderer } from '../geometry-renderer';
 import { Material } from '../../asset/assets';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
-import { buildReflectionProbePass, genHashValue, resetPassMGState } from './define';
+import { buildReflectionProbePass, genHashValue } from './define';
 import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
 import { Root } from '../../root';
 import { Scene } from '../../scene-graph';
@@ -1627,7 +1627,6 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         if (!this._renderGraph) {
             throw new Error('RenderGraph cannot be built without being created');
         }
-        resetPassMGState();
         if (DEBUG) {
             if (!this._compiler) {
                 this._compiler = new Compiler(this, this._renderGraph, this._resourceGraph, this._lg);

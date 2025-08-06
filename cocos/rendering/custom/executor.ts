@@ -132,8 +132,6 @@ import {
     bool,
     getDescriptorSetDataFromLayout,
     getRenderArea,
-    RenderPassMergeInfo,
-    rpMergeInfos,
     updateGlobalDescBinding,
 } from './define';
 import { LightResource, SceneCulling } from './scene-culling';
@@ -783,7 +781,6 @@ class DeviceRenderPass implements RecordingInterface {
             }
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
-            const isLoadAttachment = rasterV.loadOp === LoadOp.LOAD;
             if (rasterV.attachmentType === AttachmentType.RENDER_TARGET) {
                 if (!resTex.swapchain && !resTex.framebuffer) colorTexs.push(resTex.texture!);
                 const colAtt = new ColorAttachment();
@@ -792,7 +789,7 @@ class DeviceRenderPass implements RecordingInterface {
                 colAtt.loadOp = rasterV.loadOp;
                 colAtt.storeOp = rasterV.storeOp;
                 colAtt.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
-                    isLoadAttachment ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                    rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                     rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                 ));
                 const currCol = new Color();
@@ -805,7 +802,7 @@ class DeviceRenderPass implements RecordingInterface {
                 depAtt.depthLoadOp = rasterV.loadOp;
                 depAtt.stencilLoadOp = rasterV.loadOp;
                 depAtt.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
-                    isLoadAttachment ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                    rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                     rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                 ));
                 if (!resTex.swapchain && !resTex.framebuffer) {
@@ -838,7 +835,6 @@ class DeviceRenderPass implements RecordingInterface {
             swapchain ? swapchain.depthStencilTexture : depthTex,
         );
     }
-    get passMergeInfo (): RenderPassMergeInfo { return rpMergeInfos.get(this._rasterPass)!; }
     get indexOfRD (): number { return this._idxOfRenderData; }
     get rasterID (): number { return this._rasterID; }
     get layoutName (): string { return this._layoutName; }
@@ -894,23 +890,11 @@ class DeviceRenderPass implements RecordingInterface {
         }
     }
 
-    bindGlobalDesc (): void {
-        const cmdBuff = context.commandBuffer;
-        if (context.passDescriptorSet) {
-            cmdBuff.bindDescriptorSet(
-                SetIndex.GLOBAL,
-                context.passDescriptorSet,
-            );
-        }
-    }
     beginPass (): void {
-        if (!this.passMergeInfo.needBeginRP) {
-            this.bindGlobalDesc();
-            return;
-        }
-        const cmdBuff = context.commandBuffer;
         const tex = this.framebuffer.colorTextures[0]!;
         this._applyViewport(tex);
+        const cmdBuff = context.commandBuffer;
+
         if (this._viewport) {
             renderPassArea.x = this._viewport.left;
             renderPassArea.y = this._viewport.top;
@@ -929,11 +913,15 @@ class DeviceRenderPass implements RecordingInterface {
             this.clearDepth,
             this.clearStencil,
         );
-        this.bindGlobalDesc();
+        if (context.passDescriptorSet) {
+            cmdBuff.bindDescriptorSet(
+                SetIndex.GLOBAL,
+                context.passDescriptorSet,
+            );
+        }
     }
 
     endPass (): void {
-        if (!this.passMergeInfo.needEndRP) return;
         const cmdBuff = context.commandBuffer;
         cmdBuff.endRenderPass();
     }
@@ -1150,6 +1138,8 @@ class DeviceRenderScene implements RecordingInterface {
             this._currentQueue.createBlitDesc(this._blit);
             this._currentQueue.blitDesc!.update();
         }
+        context.lightResource.buildLightBuffer(context.commandBuffer);
+        context.lightResource.tryUpdateRenderSceneLocalDescriptorSet(context.culling);
     }
     postRecord (): void {
         // nothing to do
@@ -1681,8 +1671,6 @@ export class Executor {
         context.lightResource.buildLights(culling, context.pipelineSceneData.isHDR, context.pipelineSceneData.shadows);
         this._removeDeviceResource();
         cmdBuff.begin();
-        context.lightResource.buildLightBuffer(cmdBuff);
-        context.lightResource.tryUpdateRenderSceneLocalDescriptorSet(context.culling);
         culling.uploadInstancing(cmdBuff);
         if (!this._visitor) this._visitor = new RenderVisitor();
         depthFirstSearch(this._visitor.graphView, this._visitor, this._visitor.colorMap);
