@@ -464,7 +464,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         if (iterAttachment != attachmentVerticesMap.end()) {
             attachmentVertices = iterAttachment->second;
         } else {
-            attachmentVertices = nullptr;
+            //attachment maybe set from other skeletonData
+            attachmentVertices = getAttachmentVertices(tmpAttachment);
         }
 
         auto iter = _slotTextureSet.find(slot);
