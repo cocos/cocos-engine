@@ -19,10 +19,10 @@ const platformPackToolMap: Record<string, () => typeof NativePackTool>  = {
         return require('../platforms/google-play').GooglePlayPackTool;
     },
     'harmonyos-next': () => {
-        return require('../platforms/harmonyos-next').OHOSPackTool;
+        return require('../platforms/harmonyos-next').HarmonyOSNextPackTool;
     },
     ohos: () => {
-        return require('../platforms/ohos').AndroidPackTool;
+        return require('../platforms/ohos').OHOSPackTool;
     },
     'huawei-agc': () => {
         return require('../platforms/huawei-agc').HuaweiAGCPackTool;
@@ -47,8 +47,8 @@ export class NativePackToolManager {
     }
 
     static getPackTool(platform: string) {
-        if (this.platformToPackTool[platform]) {
-            return this.platformToPackTool[platform];
+        if (NativePackToolManager.platformToPackTool[platform]) {
+            return NativePackToolManager.platformToPackTool[platform];
         }
         if (!platformPackToolMap[platform]) {
             throw new Error(`No pack tool for platform ${platform}}`);
