@@ -14,11 +14,21 @@ export interface IOrientation {
     portrait: boolean;
     upsideDown: boolean;
 }
+export interface deviceTypes {
+    phone: boolean;
+    tablet: boolean;
+    pc_2in1: boolean; // PC/2in1
+    tv: boolean;
+    wearable: boolean;
+    car: boolean;
+    default: boolean;
+}
 
 export interface OHOSParam {
     sdkPath: string;
     ndkPath: string;
     orientation: IOrientation;
+    deviceTypes: deviceTypes;
     packageName: string;
     appABIs: string[];
     apiLevel: number;
@@ -66,21 +76,45 @@ export class HarmonyOSNextPackTool extends NativePackTool {
 
         const moduleFile = ps.join(ohosProjDir, 'entry/src/main/module.json5');
         let moduleJSON = this.readJSON5Sync(moduleFile);
-        const cfg = platformParams.orientation;
-        if (cfg.landscapeLeft && cfg.landscapeRight && cfg.portrait) {
+        const orientationCfg = platformParams.orientation;
+        if (orientationCfg.landscapeLeft && orientationCfg.landscapeRight && orientationCfg.portrait) {
             moduleJSON.module.abilities[0].orientation = 'auto_rotation';
         }
-        else if (cfg.landscapeRight && !cfg.landscapeLeft) {
+        else if (orientationCfg.landscapeRight && !orientationCfg.landscapeLeft) {
             moduleJSON.module.abilities[0].orientation = 'landscape';
         }
-        else if (!cfg.landscapeRight && cfg.landscapeLeft) {
+        else if (!orientationCfg.landscapeRight && orientationCfg.landscapeLeft) {
             moduleJSON.module.abilities[0].orientation = 'landscape_inverted';
         }
-        else if (cfg.landscapeRight && cfg.landscapeLeft) {
+        else if (orientationCfg.landscapeRight && orientationCfg.landscapeLeft) {
             moduleJSON.module.abilities[0].orientation = 'auto_rotation_landscape';
         }
-        else if (cfg.portrait) {
+        else if (orientationCfg.portrait) {
             moduleJSON.module.abilities[0].orientation = 'portrait';
+        }
+        const deviceTypeCfg = platformParams.deviceTypes;
+        // 删除模板中的 deviceTypes 配置，重新生成
+        moduleJSON.module.deviceTypes = [];
+        if(deviceTypeCfg.phone) {
+            moduleJSON.module.deviceTypes.push('phone');
+        }
+        if(deviceTypeCfg.tablet) {
+            moduleJSON.module.deviceTypes.push('tablet');
+        }
+        if(deviceTypeCfg.pc_2in1) {
+            moduleJSON.module.deviceTypes.push('2in1');
+        }
+        if(deviceTypeCfg.tv) {
+            moduleJSON.module.deviceTypes.push('tv');
+        }
+        if(deviceTypeCfg.wearable) {
+            moduleJSON.module.deviceTypes.push('wearable');
+        }
+        if(deviceTypeCfg.car) {
+            moduleJSON.module.deviceTypes.push('car');
+        }
+        if(deviceTypeCfg.default) {
+            moduleJSON.module.deviceTypes.push('default');
         }
         outputJSONSync(moduleFile, moduleJSON, { spaces: 2 });
 
