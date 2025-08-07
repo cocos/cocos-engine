@@ -425,6 +425,8 @@ const cacheManager = require('./jsb-cache-manager');
         const node = this.node;
         if (!node) return;
 
+        this.markForUpdateRenderData();
+
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             const compColor = this.color;
             nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
