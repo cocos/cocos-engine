@@ -294,6 +294,9 @@ void SpineSkeletonInstance::collectMeshData() {
         AttachmentVertices *attachmentVertices = nullptr;
         if (attachmentVerticesMap->containsKey(attachmentSlot)) {
             attachmentVertices = (*attachmentVerticesMap)[attachmentSlot];
+        } else {
+            // attachment set from other skeletonData
+            attachmentVertices = getAttachmentVertices(attachmentSlot);
         }
         if (_userData.useSlotTexture && _slotTextureSet.containsKey(slot)) {
             auto info = _slotTextureSet[slot];
