@@ -36,7 +36,7 @@ export class Pacer {
     private _startTime = 0;
     private _isPlaying = false;
     private _frameCount = 0;
-    private _callback: (() => void) | null = null;
+    private _callback: ((stamp: number) => void) | null = null;
     private _rAF: typeof requestAnimationFrame;
     private _cAF: typeof cancelAnimationFrame;
 
@@ -86,8 +86,8 @@ export class Pacer {
     start (): void {
         if (this._isPlaying) return;
         const recordStartTime = EDITOR || this._rAF === undefined || (USE_XR && globalThis.__globalXR?.isWebXR);
-        const updateCallback = (): void => {
-            if (recordStartTime) this._startTime = performance.now();
+        const updateCallback = (stamp: number): void => {
+            if (recordStartTime) this._startTime = stamp
             if (this._isPlaying) {
                 this._stHandle = this._stTime(updateCallback);
             }
@@ -111,7 +111,7 @@ export class Pacer {
     }
 
     _handleRAF = (stamp: number): void => {
-        const currTime = performance.now();
+        const currTime = stamp;
         const elapseTime = currTime - this._startTime;
         const elapseFrame = Math.floor(elapseTime / this._frameTime);
         if (elapseFrame < 0) {
@@ -123,12 +123,12 @@ export class Pacer {
         } else {
             this._frameCount = elapseFrame + 1;
             if (this._callback) {
-                this._callback();
+                this._callback(stamp);
             }
         }
     };
 
-    private _stTime (callback: () => void): number {
+    private _stTime (callback: (stamp: number) => void): number {
         if (EDITOR || this._rAF === undefined || (USE_XR && globalThis.__globalXR?.isWebXR)) {
             const currTime = performance.now();
             const elapseTime = Math.max(0, currTime - this._startTime);
