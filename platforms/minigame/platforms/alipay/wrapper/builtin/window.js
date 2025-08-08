@@ -1,6 +1,5 @@
 export { default as navigator } from './navigator'
 export { default as XMLHttpRequest } from './XMLHttpRequest'
-export { default as WebSocket } from './WebSocket'
 export { default as Image } from './Image'
 export { default as ImageBitmap } from './ImageBitmap'
 export { default as Audio } from './Audio'

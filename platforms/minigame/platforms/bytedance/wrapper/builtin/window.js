@@ -2,7 +2,6 @@ import Canvas from './Canvas'
 
 export navigator from './navigator'
 export XMLHttpRequest from './XMLHttpRequest'
-export WebSocket from './WebSocket'
 export Image from './Image'
 export ImageBitmap from './ImageBitmap'
 export Audio from './Audio'

@@ -330,6 +330,24 @@
             "description": "i18n:ENGINE.features.tween.description",
             "enginePlugin": true
         },
+        "websocket-exports": {
+            "category": "network",
+            "default": false,
+            "label": "i18n:ENGINE.features.websocket_exports.label",
+            "description": "i18n:ENGINE.features.websocket_exports.description",
+            "cmakeConfig": "USE_SOCKET",
+            "enginePlugin": true
+        },
+        "websocket-shim": {
+            "category": "network",
+            "default": false,
+            "label": "i18n:ENGINE.features.websocket_shim.label",
+            "description": "i18n:ENGINE.features.websocket_shim.description",
+            "enginePlugin": true,
+            "dependencies": [
+                "websocket"
+            ]
+        },
         "websocket": {
             "default": true,
             "label": "i18n:ENGINE.features.websocket.label",

@@ -11,13 +11,3 @@ export location from './location'
 export requestAnimationFrame from './requestAnimationFrame'
 export cancelAnimationFrame from './cancelAnimationFrame'
 export * from './WindowProperties'
-
-
-import MultiWebSocket from './MultiWebSocket'
-import WebSocket from './WebSocket'
-const systemInfo = my.getSystemInfoSync();
-if (typeof my !== 'undefined' && my && my.canIUse && my.canIUse('connectSocket.object.multiple')) {
-    $global.WebSocket = MultiWebSocket;
-} else {
-    $global.WebSocket = WebSocket;
-}
