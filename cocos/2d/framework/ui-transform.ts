@@ -25,7 +25,7 @@
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component, Node } from '../../scene-graph';
-import { Mat4, Rect, Size, Vec2, Vec3, geometry, warnID, visibleRect, approx, EPSILON } from '../../core';
+import { Mat4, Rect, Size, Vec2, Vec3, geometry, warnID, visibleRect, approx, EPSILON, cclegacy } from '../../core';
 import { director, DirectorEvent } from '../../game/director';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { IMask } from '../../scene-graph/node-event-processor';
@@ -815,6 +815,8 @@ export class UITransform extends Component {
         UITransform.priorityChangeNodeMap.clear();
     }
 }
+
+cclegacy.UITransform = UITransform;
 
 // HACK
 director.on(DirectorEvent.AFTER_UPDATE, UITransform._sortSiblings);
