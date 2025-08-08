@@ -281,6 +281,7 @@ void Model::createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd
         _worldBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _worldBounds);
+     CC_ASSERT(!std::isnan(_worldBounds->center.x));
     _worldBoundsDirty = true;
 }
 
