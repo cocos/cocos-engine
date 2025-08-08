@@ -9,7 +9,7 @@ buildDir = "${RES_PATH}/proj/build/instantapp"
 android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
     buildToolsVersion PROP_BUILD_TOOLS_VERSION
-    ndkPath PROP_NDK_PATH
+    ndkVersion PROP_NDK_VERSION
     namespace APPLICATION_ID
 
     compileOptions {
@@ -39,6 +39,12 @@ android {
         jniLibs.srcDirs "../libs", 'libs'
         manifest.srcFile "AndroidManifest.xml"
         assets.srcDir "${RES_PATH}/data"
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging Boolean.parseBoolean(PROP_ENABLE_COMPRESS_SO)
+        }
     }
 
     externalNativeBuild {

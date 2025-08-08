@@ -21,6 +21,7 @@ export interface IAndroidParams {
     javaHome: string;
     javaPath: string;
     androidInstant: boolean,
+    isSoFileCompressed: boolean;
     maxAspectRatio: string;
     remoteUrl?: string;
     apiLevel: number;
@@ -363,13 +364,22 @@ export class AndroidPackTool extends NativePackTool {
             content = content.replace(/COCOS_ENGINE_PATH=.*/, `COCOS_ENGINE_PATH=${cchelper.fixPath(Paths.nativeRoot)}`);
             content = content.replace(/APPLICATION_ID=.*/, `APPLICATION_ID=${options.packageName}`);
             content = content.replace(/NATIVE_DIR=.*/, `NATIVE_DIR=${cchelper.fixPath(this.paths.platformTemplateDirInPrj)}`);
+            content = content.replace(/PROP_ENABLE_COMPRESS_SO=.*/, `PROP_ENABLE_COMPRESS_SO=${options.isSoFileCompressed ? "true" : "false"}`);
 
+
+            const ndkPropertiesPath = cchelper.join(options.ndkPath, 'source.properties');
+            if (fs.existsSync(ndkPropertiesPath)) {
+                const ndkContent = fs.readFileSync(ndkPropertiesPath, 'utf-8');
+                const regexp = new RegExp(`Pkg.Revision = (.*)`);
+                const r = ndkContent.match(regexp);
+                if (r) {
+                    content = content.replace(/PROP_NDK_VERSION=.*/, `PROP_NDK_VERSION=${r[1]}`);
+                }
+            }
 
             if (process.platform === 'win32') {
                 options.ndkPath = options.ndkPath.replace(/\\/g, '\\\\');
             }
-
-            content = content.replace(/PROP_NDK_PATH=.*/, `PROP_NDK_PATH=${options.ndkPath}`);
 
             const abis = (options.appABIs && options.appABIs.length > 0) ? options.appABIs.join(':') : 'armeabi-v7a';
             // todo:新的template里面有个注释也是这个字段，所以要加个g
