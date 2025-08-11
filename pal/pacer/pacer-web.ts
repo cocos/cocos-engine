@@ -30,7 +30,7 @@ const FRAME_RESET_TIME = 2000;
 
 export class Pacer {
     private _stHandle = 0;
-    private _onTick: (() => void) | null = null;
+    private _onTick: ((stamp: number) => void) | null = null;
     private _targetFrameRate = 60;
     private _frameTime = 0;
     private _startTime = 0;
@@ -75,11 +75,11 @@ export class Pacer {
         }
     }
 
-    set onTick (val: (() => void) | null) {
+    set onTick (val: ((stamp: number) => void) | null) {
         this._onTick = val;
     }
 
-    get onTick (): (() => void) | null {
+    get onTick (): ((stamp: number) => void) | null {
         return this._onTick;
     }
 
@@ -92,7 +92,7 @@ export class Pacer {
                 this._stHandle = this._stTime(updateCallback);
             }
             if (this._onTick) {
-                this._onTick();
+                this._onTick(stamp);
             }
         };
         this._startTime = performance.now();
