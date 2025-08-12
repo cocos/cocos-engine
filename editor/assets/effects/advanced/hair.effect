@@ -192,12 +192,14 @@ CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_2D
   #pragma define IS_ANISOTROPY 1
   #pragma define-meta USE_VERTEX_COLOR
   #pragma define-meta USE_DITHERED_ALPHA_TEST
   #pragma define-meta USE_BACK_LIT
   #pragma define-meta USE_HIGH_QUALITY_REFLECTION
 
+  #define CC_USE_2D USE_2D
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY

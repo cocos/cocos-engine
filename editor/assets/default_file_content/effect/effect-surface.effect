@@ -73,8 +73,10 @@ CCProgram shared-ubos %{
 CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_2D
   #pragma define-meta USE_VERTEX_COLOR
 
+  #define CC_USE_2D USE_2D
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
 }%
@@ -84,13 +86,13 @@ CCProgram surface-vertex %{
   {
     return In.worldPos;
   }
-  
+
   #define CC_SURFACES_VERTEX_MODIFY_WORLD_NORMAL
   vec3 SurfacesVertexModifyWorldNormal(in SurfacesStandardVertexIntermediate In)
   {
     return In.worldNormal.xyz;
   }
-  
+
   #define CC_SURFACES_VERTEX_MODIFY_UV
   void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
   {
@@ -112,7 +114,7 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     vec4 baseColor = albedo;
-    
+
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, ALBEDO_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
@@ -138,7 +140,7 @@ CCProgram surface-fragment %{
       #if USE_ALBEDO_MAP
         alpha = texture(albedoMap, ALBEDO_UV).ALPHA_TEST_CHANNEL;
       #endif
-  
+
       if (alpha < albedoScaleAndCutoff.w) discard;
     #endif
   }

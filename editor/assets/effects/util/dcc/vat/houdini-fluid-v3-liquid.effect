@@ -140,7 +140,9 @@ CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_2D
   #pragma define-meta USE_REFRACTION default(true)
+  #define CC_USE_2D USE_2D
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_USE_FRESNEL USE_REFRACTION
