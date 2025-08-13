@@ -143,7 +143,7 @@ export class ToggleContainer extends Component {
             }
         }
 
-        if (this.checkEvents) {
+        if (this.checkEvents && emitEvent) {
             legacyCC.Component.EventHandler.emitEvents(this.checkEvents, toggle);
         }
     }
