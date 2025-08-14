@@ -112,6 +112,9 @@
       "./cocos2d/core/graphics/graphics.js",
       "./cocos2d/core/renderer/webgl/assemblers/graphics/index.js",
       "./cocos2d/core/renderer/canvas/renderers/graphics/index.js"
+    ],
+    "internal/resources": [
+      "builtin-2d-graphics"
     ]
   },
 
@@ -384,7 +387,7 @@
     ],
     "internal/resources": [
       "builtin-3d-particle",
-      "builtin-3d-particle-trail"
+      "builtin-3d-trail"
     ],
     "dependencies": ["3D"]
   },
