@@ -256,30 +256,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
         const lightTarget = light.light;
-        const sceneData = renderGraphPool.createSceneData(
-            camera.scene,
-            camera,
-            sceneFlags,
-            lightTarget && !(sceneFlags & SceneFlags.SHADOW_CASTER) ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
-            lightTarget,
-        );
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, name, '', renderGraphPool.createRenderData(), !DEBUG, this._vertID);
-        const layoutName = this.getParentLayout();
-        const scene: Scene = cclegacy.director.getScene();
-        setCameraUBOValues(
-            this,
-            camera,
-            this._pipeline,
-            camera.scene || (scene ? scene.renderScene : null),
-            layoutName,
-        );
-        if (sceneFlags & SceneFlags.SHADOW_CASTER || (lightTarget && lightTarget.type !== LightType.DIRECTIONAL)) {
-            setShadowUBOLightView(this, camera, lightTarget!, light.level, layoutName);
-        } else {
-            setShadowUBOView(this, camera, layoutName);
-        }
+        this.addScene(camera, sceneFlags, lightTarget);
     }
-    addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined = undefined, scene: RenderScene | undefined = undefined): SceneBuilder {
+    addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined | null = null, scene: RenderScene | undefined = undefined): SceneBuilder {
         const sceneData = renderGraphPool.createSceneData(
             scene || camera.scene,
             camera,

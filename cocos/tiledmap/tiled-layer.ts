@@ -457,8 +457,8 @@ export class TiledLayer extends UIRenderer {
         this.node.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.parent!.on(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.parent!.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
-        View.instance.on('canvas-resize', this._resize);
-        screenAdapter.on('window-resize', this._resize);
+        View.instance.on('canvas-resize', this._resize, this);
+        screenAdapter.on('window-resize', this._resize, this);
         this._markForUpdateRenderData();
         // delay 1 frame, since camera's matrix data is dirty
         this.scheduleOnce(this.updateCulling.bind(this));
@@ -471,8 +471,8 @@ export class TiledLayer extends UIRenderer {
         this.node.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
-        View.instance.off('canvas-resize', this._resize);
-        screenAdapter.off('window-resize', this._resize);
+        View.instance.off('canvas-resize', this._resize, this);
+        screenAdapter.off('window-resize', this._resize, this);
         this._uninstallCamera();
     }
 

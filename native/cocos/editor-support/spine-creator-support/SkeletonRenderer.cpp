@@ -67,6 +67,21 @@ enum DebugType {
 
 extern "C" AttachmentVertices *generateAttachmentVertices(Attachment *attachment);
 namespace cc {
+
+/**
+ * The slot-associated attachment may exist on different skeletonData, so setSlotTexture needs to traverse all skeletonData.
+ */
+AttachmentVertices *getAttachmentVertices(Attachment *attachment) {
+    const auto &vecInfos = SkeletonDataMgr::getInstance()->getSkeletonDataInfos();
+    for (const auto &info : vecInfos) {
+        auto &attachmentVerticesMap = info->attachmentVerticesMap;
+        if (attachmentVerticesMap.count(attachment) > 0) {
+            return attachmentVerticesMap[attachment];
+        }
+    }
+    return nullptr;
+}
+
 SkeletonRenderer *SkeletonRenderer::create() {
     return new SkeletonRenderer();
 }
@@ -412,9 +427,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
    void *effect = nullptr;
 #endif
 
-    auto *verticesMap = SkeletonDataMgr::getInstance()->getSkeletonDataInfo(_uuid);
-    if (!verticesMap) return;
-    auto &attachmentVerticesMap = *verticesMap;
+    auto *skeletonDataInfo = SkeletonDataMgr::getInstance()->getSkeletonDataInfo(_uuid);
+    if (!skeletonDataInfo) return;
+    auto &attachmentVerticesMap = skeletonDataInfo->attachmentVerticesMap;
     auto &drawOrder = _skeleton->getDrawOrder();
     for (size_t i = 0, n = drawOrder.size(); i < n; ++i) {
         isFull = 0;
@@ -449,7 +464,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         if (iterAttachment != attachmentVerticesMap.end()) {
             attachmentVertices = iterAttachment->second;
         } else {
-            attachmentVertices = nullptr;
+            //attachment maybe set from other skeletonData
+            attachmentVertices = getAttachmentVertices(tmpAttachment);
         }
 
         auto iter = _slotTextureSet.find(slot);
@@ -1160,10 +1176,7 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
     if (!attachment) return;
     auto width = tex2d->getWidth();
     auto height = tex2d->getHeight();
-    auto *verticesMap = SkeletonDataMgr::getInstance()->getSkeletonDataInfo(_uuid);
-    if (!verticesMap) return;
-    auto &attachmentVerticesMap = *verticesMap;
-    auto *attachmentVertices = attachmentVerticesMap.at(attachment);
+    auto *attachmentVertices = getAttachmentVertices(slot->getAttachment());
 
     if (createAttachment) {
         attachment = attachment->copy();

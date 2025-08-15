@@ -317,9 +317,9 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
     }
 
 
-    auto *verticesMap = SkeletonDataMgr::getInstance()->getSkeletonDataInfo(_uuid);
-    if (!verticesMap) return;
-    auto &attachmentVerticesMap = *verticesMap;
+    auto *skeletonDataInfo = SkeletonDataMgr::getInstance()->getSkeletonDataInfo(_uuid);
+    if (!skeletonDataInfo) return;
+    auto &attachmentVerticesMap = skeletonDataInfo->attachmentVerticesMap;
     auto &drawOrder = _skeleton->getDrawOrder();
     for (size_t i = 0, n = drawOrder.size(); i < n; ++i) {
         slot = drawOrder[i];
