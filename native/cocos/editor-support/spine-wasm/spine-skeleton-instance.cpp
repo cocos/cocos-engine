@@ -190,17 +190,9 @@ TrackEntry *SpineSkeletonInstance::setAnimation(float trackIndex, const spine::S
     if (!_skeleton) return nullptr;
     spine::Animation *animation = _skeleton->getData()->findAnimation(name);
     if (!animation) {
-        _animState->clearTracks();
-        _skeleton->setToSetupPose();
         return nullptr;
     }
     auto *trackEntry = _animState->setAnimation(trackIndex, animation, loop);
-    _animState->apply(*_skeleton);
-#ifdef CC_SPINE_VERSION_3_8
-    _skeleton->updateWorldTransform();
-#else
-    _skeleton->updateWorldTransform(Physics::Physics_Update);
-#endif
     return trackEntry;
 }
 
