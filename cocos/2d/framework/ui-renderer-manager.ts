@@ -69,6 +69,7 @@ export class UIRendererManager {
                 assert(dirtyRenderers[i]._internalId !== -1);
             }
             dirtyRenderers[i].updateRenderer();
+            dirtyRenderers[i]._dirtyVersion = -1;
         }
         this._dirtyRenderers.length = 0;
         this._dirtyVersion++;
