@@ -554,7 +554,6 @@ export class CocosParams<T> {
     public platform: string;
     public platformName: string;
     public executableName: string;
-    public nativeIdeDir?: string;
 
     /**
      * engine root

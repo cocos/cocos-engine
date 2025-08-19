@@ -36,7 +36,7 @@ export class NativePackToolManager {
         NativePackToolManager.platformToPackTool[platform] = tool;
     }
 
-    getTool(platform: string): NativePackTool {
+    private getTool(platform: string): NativePackTool {
         const handler = this.PackToolMap[platform];
         if (handler) {
             return handler;
