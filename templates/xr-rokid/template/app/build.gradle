@@ -9,7 +9,7 @@ buildDir = "${RES_PATH}/proj/build/${project.name ==~ /^[_a-zA-Z0-9-]+$/ ? proje
 android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
     buildToolsVersion PROP_BUILD_TOOLS_VERSION
-    ndkPath PROP_NDK_PATH
+    ndkVersion PROP_NDK_VERSION
     namespace APPLICATION_ID
 
     compileOptions {
@@ -42,6 +42,12 @@ android {
         jniLibs {
             // Vulkan validation layer
             // srcDir "${android.ndkDirectory}/sources/third_party/vulkan/src/build-android/jniLibs"
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging Boolean.parseBoolean(PROP_ENABLE_COMPRESS_SO)
         }
     }
 
