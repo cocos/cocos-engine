@@ -33,7 +33,7 @@ export interface IAndroidParams {
 
     orientation: IOrientation;
     appBundle: boolean;
-    resizableActivity: boolean;
+    resizeableActivity: boolean;
 }
 
 const DefaultAPILevel = 27;
@@ -214,7 +214,7 @@ export class AndroidPackTool extends NativePackTool {
             return;
         }
 
-        const resizableActivity: boolean = this.params.platformParams.resizableActivity;
+        const resizeableActivity: boolean = this.params.platformParams.resizeableActivity;
         const manifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'app/AndroidManifest.xml');
         const instantManifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'instantapp/AndroidManifest.xml');
 
@@ -234,12 +234,12 @@ export class AndroidPackTool extends NativePackTool {
             const attrRef = data.manifest.application[0].activity[0].$;
             attrRef['android:screenOrientation'] = this.mapOrientationValue();
         };
-        const fnUpdateResizableActivity = (data: any) => {
+        const fnUpdateResizeableActivity = (data: any) => {
             const activityRef = data.manifest.application[0].$;
-            activityRef['android:resizableActivity'] = resizableActivity ? 'true' : 'false';
+            activityRef['android:resizeableActivity'] = resizeableActivity ? 'true' : 'false';
         };
         const fnUpdateMaxAspectRation = (data: any) => {
-            if (resizableActivity) return; // disabled
+            if (resizeableActivity) return; // disabled
             const maxAspectRatio: string = this.params.platformParams.maxAspectRatio;
             if (!maxAspectRatio) return; // value not set
             const matchFrac = maxAspectRatio.match(/^(\d+):(\d+)$/);
@@ -300,14 +300,14 @@ export class AndroidPackTool extends NativePackTool {
         if (fs.existsSync(manifestPath)) {
             const app = await fnParseXml(manifestPath);
             await fnUpdateOrientation(app.data);
-            await fnUpdateResizableActivity(app.data);
+            await fnUpdateResizeableActivity(app.data);
             await fnUpdateMaxAspectRation(app.data);
             await app.save();
         }
         if (fs.existsSync(instantManifestPath)) {
             const instant = await fnParseXml(instantManifestPath);
             await fnUpdateOrientation(instant.data);
-            await fnUpdateResizableActivity(instant.data);
+            await fnUpdateResizeableActivity(instant.data);
             await fnUpdateMaxAspectRation(instant.data);
             await fnUpdateCategory(instant.data);
             await instant.save();
