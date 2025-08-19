@@ -963,7 +963,7 @@ export class Label extends UIRenderer {
             this._flushAssembler();
             // Hack: Fixed the bug that richText wants to get the label length by _measureText,
             // _assembler.updateRenderData will update the content size immediately.
-            if (this.renderData) this.renderData.vertDirty = true;
+            if (this._renderData) this._renderData.vertDirty = true;
             this._applyFontTexture();
         }
         if (this._assembler) {
@@ -972,7 +972,7 @@ export class Label extends UIRenderer {
     }
 
     protected _render (render: IBatcher): void {
-        render.commitComp(this, this.renderData, this._texture, this._assembler!, null);
+        render.commitComp(this, this._renderData, this._texture, this._assembler!, null);
     }
 
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
@@ -1024,10 +1024,10 @@ export class Label extends UIRenderer {
             this.textRenderData.reset();
         }
 
-        if (!this.renderData) {
+        if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this) as RenderData;
-                this.renderData!.material = this.material;
+                this._renderData.material = this.material;
                 this._updateColor();
             }
         }
@@ -1040,8 +1040,8 @@ export class Label extends UIRenderer {
             const spriteFrame = font.spriteFrame;
             if (spriteFrame && spriteFrame.texture) {
                 this._texture = spriteFrame;
-                if (this.renderData) {
-                    this.renderData.textureDirty = true;
+                if (this._renderData) {
+                    this._renderData.textureDirty = true;
                 }
                 this.changeMaterialForDefine();
                 if (this._assembler) {
