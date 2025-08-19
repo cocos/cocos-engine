@@ -63,6 +63,9 @@ struct Index {
       showInfo: this.showInfo,
       workPort: this.workPort,
     }),
+    cancel: (): void => {
+      this.workPort.postMessage('onComplete', this.showInfo.defaultMessage);
+    },
     autoCancel: true,
     alignment: DialogAlignment.Bottom,
     customStyle: true,
