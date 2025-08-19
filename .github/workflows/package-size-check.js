@@ -132,6 +132,7 @@ async function buildEngineForFeatures(options) {
         console.log(`Found spine-version-4.2.ts`);
     }
 
+    /*
     await buildEngineForFeatures({
         features: allFeaturesForWeChat,
         outDir: ps.join(engineRoot, 'build-cc-out-all'),
@@ -146,7 +147,7 @@ async function buildEngineForFeatures(options) {
         outDir: ps.join(engineRoot, 'build-cc-out-all-web'),
         noDeprecatedFeatures: false,
         platform: "HTML5",
-    });
+    });*/
 
     await buildEngineForFeatures({
         features: features2DLegacyPipeline,
@@ -156,7 +157,7 @@ async function buildEngineForFeatures(options) {
         nativeCodeBundleMode: "wasm",
         // wasmCompressionMode: 'brotli',
     });
-
+/*
     await buildEngineForFeatures({
         features: features2DNewPipeline,
         outDir: ps.join(engineRoot, 'build-cc-out-2d-new-pipline'),
@@ -165,7 +166,7 @@ async function buildEngineForFeatures(options) {
         nativeCodeBundleMode: "wasm",
         // wasmCompressionMode: 'brotli',
     });
-    
+    */
     await buildEngineForFeatures({
         features: features2DEmptyLegacyPipeline,
         outDir: ps.join(engineRoot, 'build-cc-out-2d-empty-legacy-pipline'),

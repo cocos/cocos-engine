@@ -25,7 +25,7 @@
 import { Material } from '../../asset/assets';
 import { Attribute, Sampler, Texture } from '../../gfx';
 import { Node } from '../../scene-graph';
-import { Model } from '../../render-scene/scene';
+import { Model } from '../../render-scene/scene/model';
 
 export declare class NativeRenderDrawInfo {
     constructor();

@@ -36,6 +36,7 @@ const imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*ali
  * @en A utils class for parsing HTML texts. The parsed results will be an object array.
  * @zh 一个用于解析HTML文本的工具类。解析后的结果将是一个对象数组。
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ * @mangle
  */
 export interface IHtmlTextParserResultObj{
     text?: string;
@@ -46,6 +47,7 @@ export interface IHtmlTextParserResultObj{
  * @en Html Text Parser Stack interface
  * @zh Html 文本解析器接口
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ * @mangle
  */
 export interface IHtmlTextParserStack{
     color?: string;
@@ -68,6 +70,7 @@ export interface IHtmlTextParserStack{
  * @en Html Text Parser Stack
  * @zh Html 文本解析器
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ * @mangle
  */
 export class HtmlTextParser {
     private _specialSymbolArray: Array<[RegExp, string]> = [];

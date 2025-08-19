@@ -26,16 +26,27 @@ import '../deprecated';
 export { ForwardPipeline, createDefaultPipeline } from '../forward/forward-pipeline';
 export { ForwardFlow } from '../forward/forward-flow';
 export { ForwardStage } from '../forward/forward-stage';
+
+/** @export_if context.buildTimeConstants.USE_3D */
 export { DeferredPipeline } from '../deferred/deferred-pipeline';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { MainFlow } from '../deferred/main-flow';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { GbufferStage } from '../deferred/gbuffer-stage';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { LightingStage } from '../deferred/lighting-stage';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { BloomStage } from '../deferred/bloom-stage';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { PostProcessStage } from '../deferred/postprocess-stage';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { ShadowFlow } from '../shadow/shadow-flow';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { ShadowStage } from '../shadow/shadow-stage';
 
+/** @export_if context.buildTimeConstants.USE_3D */
 export { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
+/** @export_if context.buildTimeConstants.USE_3D */
 export { ReflectionProbeStage } from '../reflection-probe/reflection-probe-stage';
 
 export { RenderPipeline } from '../render-pipeline';

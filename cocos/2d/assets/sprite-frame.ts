@@ -26,7 +26,7 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { EDITOR, TEST, BUILD } from 'internal:constants';
+import { EDITOR, TEST, BUILD, USE_3D } from 'internal:constants';
 import { Rect, Size, Vec2, Vec3, Vec4, cclegacy, errorID, warnID, js, v3, mat4, rect, v4, v2, size } from '../../core';
 import { Asset } from '../../asset/assets/asset';
 import { TextureBase } from '../../asset/assets/texture-base';
@@ -34,7 +34,7 @@ import { ImageAsset, ImageSource } from '../../asset/assets/image-asset';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { Mesh } from '../../3d/assets/mesh';
-import { createMesh } from '../../3d/misc';
+import { createMesh } from '../../3d/misc/create-mesh';
 import { Attribute, AttributeName, Format, PrimitiveMode, Sampler, SamplerInfo, Texture } from '../../gfx';
 import { ccwindow } from '../../core/global-exports';
 
@@ -1543,6 +1543,7 @@ export class SpriteFrame extends Asset {
     }
 
     protected _createMesh (): void {
+        if (!USE_3D) return;
         this._mesh = createMesh({
             primitiveMode: PrimitiveMode.TRIANGLE_LIST,
             positions: this.vertices!.positions,

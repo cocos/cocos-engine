@@ -37,7 +37,7 @@ import { Triangle } from './triangle';
 import { IVec3Like } from '../math/type-define';
 import type { RenderingSubMesh }  from '../../asset/assets';
 import type { IRaySubMeshOptions, IRayModelOptions, IRayMeshOptions } from './spec';
-import type { Model } from '../../render-scene/scene';
+import type { Model } from '../../render-scene/scene/model';
 import type { Mesh } from '../../3d';
 
 const vec3SquaredDistance = Vec3.squaredDistance;

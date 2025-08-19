@@ -67,35 +67,37 @@ function getSkinPassIndex (subModel: SubModel): number {
  * @en Shadow projection mode.
  * @zh 阴影投射方式。
  */
-const ModelShadowCastingMode = Enum({
+enum ModelShadowCastingMode {
     /**
      * @en Disable shadow projection.
      * @zh 不投射阴影。
      */
-    OFF: 0,
+    OFF = 0,
     /**
      * @en Enable shadow projection.
      * @zh 开启阴影投射。
      */
-    ON: 1,
-});
+    ON = 1,
+}
+Enum(ModelShadowCastingMode);
 
 /**
  * @en Shadow receive mode.
  * @zh 阴影接收方式。
  */
-const ModelShadowReceivingMode = Enum({
+enum ModelShadowReceivingMode {
     /**
      * @en Disable shadow receiving.
      * @zh 不接收阴影。
      */
-    OFF: 0,
+    OFF = 0,
     /**
      * @en Enable shadow receiving.
      * @zh 开启阴影投射。
      */
-    ON: 1,
-});
+    ON = 1,
+}
+Enum(ModelShadowReceivingMode);
 
 enum ModelBakeSettingsEvent {
     /**

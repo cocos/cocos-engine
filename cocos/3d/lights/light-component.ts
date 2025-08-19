@@ -38,10 +38,11 @@ const _color_tmp = new Vec3();
  * @en The physical term used for light.
  * @zh 光源所使用的物理计量单位。
  */
-export const PhotometricTerm = Enum({
-    LUMINOUS_FLUX: 0,
-    LUMINANCE: 1,
-});
+export enum PhotometricTerm {
+    LUMINOUS_FLUX = 0,
+    LUMINANCE = 1,
+}
+Enum(PhotometricTerm);
 
 /**
  * @en Static light settings.

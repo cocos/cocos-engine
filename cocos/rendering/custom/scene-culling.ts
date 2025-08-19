@@ -1,4 +1,4 @@
-import { DEBUG } from 'internal:constants';
+import { DEBUG, USE_3D } from 'internal:constants';
 import { Vec3, RecyclePool, assert } from '../../core';
 import { Frustum, intersect, AABB } from '../../core/geometry';
 import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageBit, BufferUsageBit } from '../../gfx';
@@ -502,6 +502,7 @@ export class SceneCulling {
     }
 
     private getBuiltinShadowFrustum (pplSceneData: PipelineSceneData, camera: Camera, mainLight: DirectionalLight, level: number): Readonly<Frustum> {
+        if (!USE_3D) return null!;
         const csmLayers = pplSceneData.csmLayers;
         const csmLevel = mainLight.csmLevel;
         let frustum: Readonly<Frustum>;

@@ -35,9 +35,9 @@ const _v4 = new Vec4();
  * @en
  * The global fog type
  * @static
- * @enum FogInfo.FogType
+ * @enum FogType
  */
-export const FogType = Enum({
+export enum FogType {
     /**
      * @zh
      * 线性雾。
@@ -45,7 +45,7 @@ export const FogType = Enum({
      * Linear fog
      * @readonly
      */
-    LINEAR: 0,
+    LINEAR = 0,
     /**
      * @zh
      * 指数雾。
@@ -53,7 +53,7 @@ export const FogType = Enum({
      * Exponential fog
      * @readonly
      */
-    EXP: 1,
+    EXP = 1,
     /**
      * @zh
      * 指数平方雾。
@@ -61,7 +61,7 @@ export const FogType = Enum({
      * Exponential square fog
      * @readonly
      */
-    EXP_SQUARED: 2,
+    EXP_SQUARED = 2,
     /**
      * @zh
      * 层叠雾。
@@ -69,8 +69,9 @@ export const FogType = Enum({
      * Layered fog
      * @readonly
      */
-    LAYERED: 3,
-});
+    LAYERED = 3,
+}
+Enum(FogType);
 
 export const FOG_TYPE_NONE = FogType.LAYERED + 1;
 
