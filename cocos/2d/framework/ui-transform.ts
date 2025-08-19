@@ -601,12 +601,12 @@ export class UITransform extends Component {
      * const boundingBox = uiTransform.getBoundingBox();
      * ```
      */
-    public getBoundingBox (): Rect {
-        const rect = new Rect();
-        this._selfBoundingBox(rect);
+    public getBoundingBox (out?: Rect): Rect {
+        out = out || new Rect();
+        this._selfBoundingBox(out);
         Mat4.fromSRT(_matrix, this.node.rotation, this.node.position, this.node.scale);
-        rect.transformMat4(_matrix);
-        return rect;
+        out.transformMat4(_matrix);
+        return out;
     }
 
     /**
@@ -622,8 +622,8 @@ export class UITransform extends Component {
      * const newRect = uiTransform.getBoundingBoxToWorld();
      * ```
      */
-    public getBoundingBoxToWorld (): Rect {
-        const rect = new Rect();
+    public getBoundingBoxToWorld (out?: Rect): Rect {
+        out = out || new Rect();
         const locChildren = this.node.children;
         for (let i = 0; i < locChildren.length; ++i) {
             const child = locChildren[i];
@@ -633,11 +633,11 @@ export class UITransform extends Component {
                 if (uiTransform && uiTransform.contentSize.width && uiTransform.contentSize.height) {
                     uiTransform._selfBoundingBox(_rect);
                     _rect.transformMat4(child.worldMatrix);
-                    if (rect.width === 0) {
+                    if (out.width === 0) {
                         // Initializing
-                        rect.set(_rect);
+                        out.set(_rect);
                     } else {
-                        Rect.union(rect, rect, _rect);
+                        Rect.union(out, out, _rect);
                     }
                 }
             }
@@ -645,14 +645,14 @@ export class UITransform extends Component {
         if (this._contentSize.width && this._contentSize.height) {
             this._selfBoundingBox(_rect);
             _rect.transformMat4(this.node.worldMatrix);
-            if (rect.width === 0) {
+            if (out.width === 0) {
                 // Initializing
-                rect.set(_rect);
+                out.set(_rect);
             } else {
-                Rect.union(rect, rect, _rect);
+                Rect.union(out, out, _rect);
             }
         }
-        return rect;
+        return out;
     }
 
     /**
@@ -669,8 +669,8 @@ export class UITransform extends Component {
      * @returns @en The minimum bounding box containing the current bounding box and its child nodes.
      *          @zh 包含当前节点包围盒及其子节点包围盒的最小包围盒。
      */
-    public getBoundingBoxTo (targetMat: Mat4): Rect {
-        const rect = new Rect();
+    public getBoundingBoxTo (targetMat: Mat4, out?: Rect): Rect {
+        out = out || new Rect();
         const locChildren = this.node.children;
         Mat4.invert(_mat4_temp, targetMat);
         for (let i = 0; i < locChildren.length; ++i) {
@@ -683,11 +683,11 @@ export class UITransform extends Component {
                     // Must combine all matrix because rect can only be transformed once.
                     Mat4.multiply(_matrix, child.worldMatrix, _mat4_temp);
                     _rect.transformMat4(_matrix);
-                    if (rect.width === 0) {
+                    if (out.width === 0) {
                         // Initializing
-                        rect.set(_rect);
+                        out.set(_rect);
                     } else {
-                        Rect.union(rect, rect, _rect);
+                        Rect.union(out, out, _rect);
                     }
                 }
             }
@@ -697,14 +697,14 @@ export class UITransform extends Component {
             // Must combine all matrix because rect can only be transformed once.
             Mat4.multiply(_matrix, this.node.worldMatrix, _mat4_temp);
             _rect.transformMat4(_matrix);
-            if (rect.width === 0) {
+            if (out.width === 0) {
                 // Initializing
-                rect.set(_rect);
+                out.set(_rect);
             } else {
-                Rect.union(rect, rect, _rect);
+                Rect.union(out, out, _rect);
             }
         }
-        return rect;
+        return out;
     }
 
     /**
