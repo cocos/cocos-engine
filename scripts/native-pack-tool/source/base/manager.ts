@@ -73,18 +73,16 @@ export class NativePackToolManager {
         return tool;
     }
 
-    async create(platform: string) {
+    async create(platform: string): Promise<NativePackTool | null> {
         const tool = this.getTool(platform);
         if (!tool) {
             throw new Error(`No pack tool for platform ${platform}}`);
         }
-        if (!tool.create) {
-            return false;
-        }
-        return await tool.create();
+        await tool.create();
+        return tool;
     }
 
-    async generate(platform: string) {
+    async generate(platform: string): Promise<boolean> {
         const tool = this.getTool(platform);
         if (!tool) {
             throw new Error(`No pack tool for platform ${platform}}`);
@@ -95,7 +93,7 @@ export class NativePackToolManager {
         return await tool.generate();
     }
 
-    async make(platform: string) {
+    async make(platform: string): Promise<boolean> {
         const tool = this.getTool(platform);
         if (!tool.make) {
             return false;
@@ -104,7 +102,7 @@ export class NativePackToolManager {
         return true;
     }
 
-    async run(platform: string) {
+    async run(platform: string): Promise<boolean> {
         const tool = this.getTool(platform);
         if (!tool.run) {
             return false;
