@@ -3277,11 +3277,6 @@ export function WebGL2CmdFuncBlitTexture (
         gl.framebufferRenderbuffer(WebGLConstants.READ_FRAMEBUFFER, srcAttachment, WebGLConstants.RENDERBUFFER, src.glRenderbuffer);
     }
 
-    if (dst.glTexture) {
-        gl.framebufferTexture2D(WebGLConstants.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
-    } else {
-        gl.framebufferRenderbuffer(WebGLConstants.DRAW_FRAMEBUFFER, dstAttachment, WebGLConstants.RENDERBUFFER, dst.glRenderbuffer);
-    }
     const status = gl.checkFramebufferStatus(gl.READ_FRAMEBUFFER);
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
         warnID(16318);

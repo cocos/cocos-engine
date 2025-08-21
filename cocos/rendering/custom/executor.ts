@@ -838,6 +838,7 @@ class DeviceRenderPass implements RecordingInterface {
                 depAtt.depthStoreOp = rasterV.storeOp;
                 depAtt.stencilStoreOp = rasterV.storeOp;
                 depAtt.depthLoadOp = rasterV.loadOp;
+                depAtt.sampleCount = resTex.description!.sampleCount;
                 depAtt.stencilLoadOp = rasterV.loadOp;
                 depAtt.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
                     rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,

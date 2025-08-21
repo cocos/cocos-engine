@@ -550,7 +550,7 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
 
         this._tryAddReflectionProbePasses(ppl, cameraConfigs, id, mainLight, camera.scene);
 
-        if (cameraConfigs.remainingPasses > 0 || cameraConfigs.enableShadingScale) {
+        if (cameraConfigs.remainingPasses > 0 || cameraConfigs.enableShadingScale || cameraConfigs.enableMSAA) {
             context.colorName = cameraConfigs.enableShadingScale
                 ? `ScaledRadiance0_${id}`
                 : `Radiance0_${id}`;
@@ -573,7 +573,7 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
             context.depthStencilName = '';
         }
 
-        if (cameraConfigs.remainingPasses === 0 && cameraConfigs.enableShadingScale) {
+        if (cameraConfigs.remainingPasses === 0 && (cameraConfigs.enableShadingScale || cameraConfigs.enableMSAA)) {
             return addCopyToScreenPass(ppl, pplConfigs, cameraConfigs, context.colorName);
         } else {
             return pass;
