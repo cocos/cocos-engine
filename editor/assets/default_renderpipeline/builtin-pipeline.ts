@@ -438,9 +438,7 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
 
         // MSAA
         cameraConfigs.enableMSAA = cameraConfigs.settings.msaa.enabled
-            && pipelineConfigs.isWebGL2 &&
-            (cameraConfigs.remainingPasses > 0 ||
-            (!macro.ENABLE_WEBGL_ANTIALIAS && macro.ENABLE_TRANSPARENT_CANVAS))
+            && (!pipelineConfigs.isWebGL2 || (cameraConfigs.remainingPasses > 0 || (!macro.ENABLE_WEBGL_ANTIALIAS && macro.ENABLE_TRANSPARENT_CANVAS)))
             && !cameraConfigs.enableStoreSceneDepth // Cannot store MS depth, resolve depth is also not cross-platform
             && !pipelineConfigs.isWebGL1;
 
