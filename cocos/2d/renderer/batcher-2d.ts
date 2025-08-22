@@ -27,15 +27,17 @@ import { Camera, Model } from '../../render-scene/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
-import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
+import {
+    Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode,
-    DepthStencilState } from '../../gfx';
+    DepthStencilState
+} from '../../gfx';
 import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue, assert, approx, EPSILON, RecyclePool } from '../../core';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D } from './draw-batch';
-import { ModelLocalBindings, UBOLocal, UBOLocalEnum } from '../../rendering/define';
+import { ModelLocalBindings, UBOLocalEnum } from '../../rendering/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { IBatcher } from './i-batcher';
@@ -75,11 +77,27 @@ interface RecordedRendererInfo {
     opacityDirty: boolean;
 }
 
+interface WalkState {
+    node: Node;
+    stage: 'pre' | 'post';
+    parentOpacity: number;
+    wasVisible: boolean;
+    render: UIRenderer | null;
+}
+
 const recordedRendererInfoPool = new RecyclePool<RecordedRendererInfo>(() => ({
     uiRenderer: null,
     finalOpacity: 0,
     opacityDirty: false,
 }), 128);
+
+const walkStatePool = new RecyclePool<WalkState>(() => ({
+    node: null!,
+    stage: 'pre',
+    parentOpacity: 0,
+    wasVisible: false,
+    render: null,
+}), 256);
 
 /**
  * @en UI rendering process
@@ -157,6 +175,7 @@ export class Batcher2D implements IBatcher {
     private _maskModelMesh: RenderingSubMesh | null = null;
 
     private _recordedRendererInfoQueue: RecordedRendererInfo[] = [];
+    private _walkStack: WalkState[] = [];
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -903,80 +922,110 @@ export class Batcher2D implements IBatcher {
         queue.length = 0;
     }
 
-    public walk (node: Node, level = 0): void {
-        if (!node.activeInHierarchy) {
-            return;
-        }
-        const children = node.children;
-        const uiProps = node._uiProps;
-        const render = uiProps.uiComp as UIRenderer | null;
+    public walk (node: Node): void {
+        walkStatePool.reset();
+        const stack = this._walkStack;
+        stack.length = 0;
 
-        // Save opacity
-        const parentOpacity = this._pOpacity;
-        let opacity = parentOpacity;
-        // TODO Always cascade ui property's local opacity before remove it
-        const selfOpacity = render && render.color ? render.color.a / 255 : 1;
-        this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
-        // TODO Set opacity to ui property's opacity before remove it
-        uiProps.setOpacity(opacity);
+        const rootState = walkStatePool.add();
+        rootState.node = node;
+        rootState.stage = 'pre';
+        stack.push(rootState);
 
-        const visable = !approx(opacity, 0, EPSILON);
-        if (visable) {
-            if (uiProps.colorDirty) {
-                // Cascade color dirty state
-                this._opacityDirty++;
-            }
-            if (render) {
-                if (USE_SORTING_2D && sorting2DCount > 0) {
-                    if (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
-                        this._flushRecordedUIRenderers();
+        while (stack.length > 0) {
+            const state = stack.pop()!;
+            const { node: taskNode, stage } = state;
 
-                        this.autoMergeBatches(this._currComponent!);
-                        this.resetRenderStates();
+            if (stage === 'pre') {
+                if (!taskNode.activeInHierarchy) {
+                    continue;
+                }
+
+                // --- PRE-ORDER LOGIC ---
+                const uiProps = taskNode._uiProps;
+                const render = uiProps.uiComp as UIRenderer | null;
+
+                // Update opacity
+                const parentOpacity = this._pOpacity;
+                const selfOpacity = render?.color ? render.color.a / 255 : 1.0;
+                const currentOpacity = parentOpacity * selfOpacity * uiProps.localOpacity;
+                this._pOpacity = currentOpacity;
+                uiProps.setOpacity(currentOpacity);
+
+                const isVisible = !approx(currentOpacity, 0, EPSILON);
+
+                // Save state for post-order traversal
+                state.render = render;
+                state.parentOpacity = parentOpacity;
+                state.wasVisible = isVisible;
+                state.stage = 'post';
+                stack.push(state);
+
+                if (isVisible) {
+                    // Handle render component
+                    if (uiProps.colorDirty) {
+                        this._opacityDirty++;
                     }
-                    this._recordUIRenderer(render, opacity, !!this._opacityDirty);
-                } else {
-                    this._handleUIRenderer(render, opacity, !!this._opacityDirty);
-                }
-            }
 
-            if (children.length > 0 && !node._static) {
-                for (let i = 0; i < children.length; ++i) {
-                    const child = children[i];
-                    this.walk(child, level);
-                }
-            }
+                    if (render) {
+                        const opacityDirty = this._opacityDirty > 0;
+                        if (USE_SORTING_2D && sorting2DCount > 0) {
+                            if (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
+                                this._flushRecordedUIRenderers();
+                                this.autoMergeBatches(this._currComponent!);
+                                this.resetRenderStates();
+                            }
+                            this._recordUIRenderer(render, currentOpacity, opacityDirty);
+                        } else {
+                            this._handleUIRenderer(render, currentOpacity, opacityDirty);
+                        }
+                    }
 
-            if (uiProps.colorDirty) {
-                // Reduce cascaded color dirty state
-                this._opacityDirty--;
-                // Reset color dirty
-                uiProps.colorDirty = false;
+                    // Schedule children traversal
+                    const { children } = taskNode;
+                    if (children.length > 0 && !taskNode._static) {
+                        for (let i = children.length - 1; i >= 0; i--) {
+                            const child = children[i];
+                            const childState = walkStatePool.add();
+                            childState.node = child;
+                            childState.stage = 'pre';
+                            stack.push(childState);
+                        }
+                    }
+                }
+            } else { // stage === 'post'
+                const { render, wasVisible, parentOpacity } = state;
+                const uiProps = taskNode._uiProps;
+
+                // --- POST-ORDER LOGIC ---
+                this._pOpacity = parentOpacity;
+
+                if (wasVisible) {
+                    if (uiProps.colorDirty) {
+                        this._opacityDirty--;
+                        uiProps.colorDirty = false;
+                    }
+
+                    if (render && render.enabledInHierarchy) {
+                        if (!USE_SORTING_2D) {
+                            render.postUpdateAssembler(this);
+                        }
+
+                        const isMaskEntry = render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED;
+                        if (isMaskEntry) {
+                            if (USE_SORTING_2D && sorting2DCount > 0) {
+                                this._flushRecordedUIRenderers();
+                            }
+                            if (StencilManager.sharedManager!.getMaskStackSize() > 0) {
+                                this.autoMergeBatches(this._currComponent!);
+                                this.resetRenderStates();
+                                StencilManager.sharedManager!.exitMask();
+                            }
+                        }
+                    }
+                }
             }
         }
-        // Restore opacity
-        this._pOpacity = parentOpacity;
-
-        // Post render assembler update logic
-        // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
-        if (render && render.enabledInHierarchy) {
-            if (!USE_SORTING_2D) {
-                render.postUpdateAssembler(this);
-            }
-            if (visable && (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)) {
-                if (USE_SORTING_2D && sorting2DCount > 0) {
-                    this._flushRecordedUIRenderers();
-                }
-
-                if (StencilManager.sharedManager!.getMaskStackSize() > 0) {
-                    this.autoMergeBatches(this._currComponent!);
-                    this.resetRenderStates();
-                    StencilManager.sharedManager!.exitMask();
-                }
-            }
-        }
-
-        level += 1;
     }
 
     private _screenSort (a: RenderRoot2D, b: RenderRoot2D): number {
