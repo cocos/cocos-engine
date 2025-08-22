@@ -75,11 +75,21 @@ gulp.task('gen-simulator', async function () {
         var args = [];
         args.push('-G');
         if (isWin32) {
-            args.push('Visual Studio 16 2019','-A','x64');
+            args.push('Visual Studio 17 2022','-A','x64');
         } 
         else {
             args.push('Xcode');
+            args.push(`-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64`);
         }
+
+        if (process.env.SPINE_VERSION === '3.8') {
+            args.push('-DUSE_SPINE_3_8=ON')
+            args.push('-DUSE_SPINE_4_2=OFF')
+        } else if (process.env.SPINE_VERSION === '4.2') {
+            args.push('-DUSE_SPINE_3_8=OFF')
+            args.push('-DUSE_SPINE_4_2=ON')
+        }
+
         args.push('-DCC_DEBUG_FORCE=ON','-DUSE_V8_DEBUGGER_FORCE=ON');
         args.push(absolutePath('./tools/simulator/frameworks/runtime-src/'));
         const newEnv = {};
@@ -111,7 +121,13 @@ gulp.task('gen-simulator', async function () {
     await new Promise((resolve, reject) => {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
-            makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet', '-arch', 'x86_64']);
+            if (process.env.ARCH && process.env.ARCH.length > 0) {
+                console.info(`==> Found ARCH env: ${process.env.ARCH}`);
+                makeArgs = makeArgs.concat(['--config', 'Release', '--', '-arch', process.env.ARCH]);
+            } else {
+                console.info(`==> No ARCH env found, build fat binary`);
+                makeArgs = makeArgs.concat(['--config', 'Release']);
+            }
         } else {
             makeArgs = makeArgs.concat(['--config', 'Release']);
         }
@@ -152,9 +168,22 @@ gulp.task('clean-simulator', async function () {
         formatPath(Path.join(__dirname, './simulator/*')),
         formatPath(`!${Path.join(__dirname, './simulator/Release')}`),
     ];
-    if (!isWin32) {
-        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Release/libsimulator.a')));
+
+    let filesToDelete = [];
+    if (isWin32) {
+        filesToDelete = [
+            './simulator/Release/*.lib',
+            './simulator/Release/*.exp',
+        ];
+    } else {
+        filesToDelete = [
+            './simulator/Release/*.a'
+        ];
     }
+
+    filesToDelete.forEach((relativePath) => {
+        delPatterns.push(formatPath(Path.join(__dirname, relativePath)));
+    });
     console.log('delete patterns: ', JSON.stringify(delPatterns, undefined, 2));
     await del(delPatterns, { force: true });
     //check if target file exists

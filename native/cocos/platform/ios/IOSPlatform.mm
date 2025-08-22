@@ -112,7 +112,7 @@ int32_t IOSPlatform::init() {
 
 void IOSPlatform::exit() {
     if(_requestExit) {
-        // Manual quit requires a call to onDestory.
+        // Manual quit requires a call to onDestroy.
         onDestroy();
         ::exit(0);
     } else {

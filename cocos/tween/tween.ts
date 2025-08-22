@@ -23,19 +23,20 @@
 */
 
 import { TweenSystem } from './tween-system';
-import { warn } from '../core';
+import { warnID } from '../core';
 import {
     ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence,
     Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
 } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, CallFuncCallback } from './actions/action-instant';
 import { ActionUnknownDuration } from './actions/action-unknown-duration';
-import { Action, FiniteTimeAction } from './actions/action';
+import { Action, ActionEnum, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { IInternalTweenOption, TweenAction } from './tween-action';
 import { SetAction } from './set-action';
 import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph';
+import type { ActionManager } from './actions/action-manager';
 
 // https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
 type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Type ? never : Key };
@@ -60,12 +61,12 @@ export interface ITweenCustomProperty<Value> {
     value: MaybeUnionStringNumber<Value> | (() => MaybeUnionStringNumber<Value>);
     progress?: TweenCustomProgress;
     easing?: TweenCustomEasing;
-    convert?: ExtendsReturnResultOrNever<Value, string, (v: string) => number | string>;   // Supported from v3.8.5
-    clone?: ExtendsReturnResultOrNever<Value, object, (v: Value) => Value>; // Supported from v3.8.5
-    add?: (a: Value, b: Value) => Value; // Supported from v3.8.5
-    sub?: (a: Value, b: Value) => Value; // Supported from v3.8.5
-    legacyProgress?: ExtendsReturnResultOrNever<Value, object, boolean>;    // Supported from v3.8.5, the default value is true for compatiblity
-    toFixed?: ExtendsReturnResultOrNever<Value, string, number>;            // Supported from v3.8.5
+    convert?: ExtendsReturnResultOrNever<Value, string, (v: string) => number | string>;   // Supported from v3.8.4
+    clone?: ExtendsReturnResultOrNever<Value, object, (v: Value) => Value>; // Supported from v3.8.4
+    add?: (a: Value, b: Value) => Value; // Supported from v3.8.4
+    sub?: (a: Value, b: Value) => Value; // Supported from v3.8.4
+    legacyProgress?: ExtendsReturnResultOrNever<Value, object, boolean>;    // Supported from v3.8.4, the default value is true for compatiblity
+    toFixed?: ExtendsReturnResultOrNever<Value, string, number>;            // Supported from v3.8.4
     onStart?: (param: ITweenCustomPropertyStartParameter<Value>) => void;
     onStop?: () => void;
     onComplete?: () => void;
@@ -78,10 +79,12 @@ type ConstructorType<T> = OmitType<T, Function>;
 
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
-const notIntervalPrompt = 'the last action is not ActionInterval';
-
 export type TweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
 export type TweenUpdateUntilCallback<T extends object, Args extends any[]> = (target: T, dt: number, ...args: Args) => boolean;
+
+function getActionManager (): ActionManager {
+    return TweenSystem.instance.ActionManager;
+}
 
 /**
  * @en
@@ -101,11 +104,29 @@ export class Tween<T extends object = any> {
     private _actions: FiniteTimeAction[] = [];
     private _finalAction: ActionInterval | null = null;
     private _target: T | null = null;
-    private _tag = Action.TAG_INVALID;
+    private _tag = ActionEnum.TAG_INVALID;
     private _timeScale = 1;
+    private _isBindNodeState = true; // The default value is true which is compatible with Creator 2.x. See 'bindNodeState' method.
 
     constructor (target?: T | null) {
         this._target = target === undefined ? null : target;
+    }
+
+    /**
+     * @en Set whether to bind the current tween's lifecycle with node target's state. (Supported from v3.8.7)
+     * If set it to true :
+     * - When the node is activated, the tween will automatically resume.
+     * - When the node is deactivated, the tween will automatically pause.
+     * - When the node is destroyed, the tween will automatically be destroyed.
+     * @zh 设置当前缓动是否需要关联节点状态。如果设置为真，那么节点被激活，缓动会被自动恢复，节点被禁用，缓动会被自动暂停，节点销毁后，缓动会被自动销毁。 (从 v3.8.7 开始支持)
+     * @param isBindNodeState @en Whether to associate node state for the current tween. @zh 关联节点状态。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     * @note @en If not set, the default value is true which is compatible with Creator 2.x. If only works on the tween with Node target.
+     *       @zh 如果此接口未被调用，为兼容 Creator 2.x，其默认值为 true 。此方法只针对 Node 目标的 tween 有效。
+     */
+    bindNodeState (isBindNodeState: boolean): Tween<T> {
+        this._isBindNodeState = isBindNodeState;
+        return this;
     }
 
     /**
@@ -211,7 +232,7 @@ export class Tween<T extends object = any> {
 
     private reverseTween (): Tween<T> {
         if (this._actions.length === 0) {
-            warn('reverse: current tween could not be reversed, empty actions');
+            warnID(16388);
             return this.clone(this._target as T);
         }
         const action = this._union(false); // workerTarget will be updated in the following insertAction
@@ -235,9 +256,9 @@ export class Tween<T extends object = any> {
 
         if (action) {
             reversedAction = action.reverse();
-            reversedAction.workerTarget = t._target;
+            reversedAction._owner = t;
         } else {
-            warn(`reverse: could not find action id ${actionId}`);
+            warnID(16391, `${actionId}`);
         }
         return reversedAction;
     }
@@ -261,17 +282,17 @@ export class Tween<T extends object = any> {
      */
     private insertAction (other: FiniteTimeAction): Tween<T> {
         const action = other.clone();
-        this.updateWorkerTargetForAction(action);
+        this.updateOwnerForAction(action);
         this._actions.push(action);
         return this;
     }
 
-    private updateWorkerTargetForAction (action: Action | null): void {
+    private updateOwnerForAction (action: Action | null): void {
         if (!action) return;
         if (action instanceof Sequence || action instanceof Spawn) {
-            action.updateWorkerTarget(this._target);
-        } else {
-            action.workerTarget = this._target;
+            action.updateOwner(this);
+        } else if (!action._owner) {  // action's owner should never be changed, so only set owner when it's not set yet.
+            action._owner = this;
         }
     }
 
@@ -286,12 +307,6 @@ export class Tween<T extends object = any> {
      */
     target<U extends object = any> (target: U): Tween<U> {
         (this as unknown as Tween<U>)._target = target;
-
-        for (let i = 0, len = this._actions.length; i < len; ++i) {
-            const action = this._actions[i];
-            this.updateWorkerTargetForAction(action);
-        }
-
         return this as unknown as Tween<U>;
     }
 
@@ -313,11 +328,11 @@ export class Tween<T extends object = any> {
      */
     start (time: number = 0): Tween<T> {
         if (!this._target) {
-            warn('Please set target to tween first');
+            warnID(16392);
             return this;
         }
         if (this._finalAction) {
-            TweenSystem.instance.ActionManager.removeAction(this._finalAction);
+            getActionManager().removeAction(this._finalAction);
         }
         const final = this._unionForStart();
         this._finalAction = final;
@@ -326,9 +341,9 @@ export class Tween<T extends object = any> {
             final.setSpeed(this._timeScale);
             final.setStartTime(time);
             final.setPaused(false); // If a tween was paused, starting the tween again should clear the 'paused' flag for the final action.
-            TweenSystem.instance.ActionManager.addAction(final, this._target, false);
+            getActionManager().addAction(final, this._target, false, this._isBindNodeState);
         } else {
-            warn(`start: no actions in Tween`);
+            warnID(16393);
         }
         return this;
     }
@@ -344,7 +359,7 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             // ActionManager.removeAction will not stop action, so stop it before removeAction.
             this._finalAction.stop();
-            TweenSystem.instance.ActionManager.removeAction(this._finalAction);
+            getActionManager().removeAction(this._finalAction);
             this._finalAction = null;
         }
         return this;
@@ -359,7 +374,7 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             this._finalAction.setPaused(true);
         } else {
-            warn(`pause: tween wasn't started, can't pause`);
+            warnID(16389);
         }
         return this;
     }
@@ -373,7 +388,7 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             this._finalAction.setPaused(false);
         } else {
-            warn(`resume: tween wasn't started, can't resume`);
+            warnID(16390);
         }
         return this;
     }
@@ -384,7 +399,7 @@ export class Tween<T extends object = any> {
      */
     get running (): boolean {
         if (this._finalAction) {
-            return TweenSystem.instance.ActionManager.isActionRunning(this._finalAction);
+            return getActionManager().isActionRunning(this._finalAction);
         }
         return false;
     }
@@ -682,7 +697,7 @@ export class Tween<T extends object = any> {
         } else if (action instanceof ActionInterval) {
             actions.push(repeatForever(action));
         } else {
-            warn(`repeatForever: ${notIntervalPrompt}`);
+            warnID(16394);
         }
         return this;
     }
@@ -710,7 +725,7 @@ export class Tween<T extends object = any> {
         if (action instanceof ActionInterval) {
             actions.push(reverseTime(action));
         } else {
-            warn(`reverseTime: ${notIntervalPrompt}`);
+            warnID(16395);
         }
         return this;
     }
@@ -787,7 +802,7 @@ export class Tween<T extends object = any> {
      *         @zh 目标对象关联的正在运行的缓动实例的个数。
      */
     static getRunningCount<U extends object = any> (target: U): number {
-        return TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(target);
+        return getActionManager().getNumberOfRunningActionsInTarget(target);
     }
 
     /**
@@ -797,7 +812,7 @@ export class Tween<T extends object = any> {
      * 停止所有缓动实例
      */
     static stopAll (): void {
-        TweenSystem.instance.ActionManager.removeAllActions();
+        getActionManager().removeAllActions();
     }
     /**
      * @en
@@ -806,7 +821,7 @@ export class Tween<T extends object = any> {
      * 停止指定标签关联的所有缓动实例。
      */
     static stopAllByTag<U extends object = any> (tag: number, target?: U): void {
-        TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target);
+        getActionManager().removeAllActionsByTag(tag, target);
     }
     /**
      * @en
@@ -815,7 +830,7 @@ export class Tween<T extends object = any> {
      * 停止指定对象的关联的所有缓动实例。
      */
     static stopAllByTarget<U extends object = any> (target?: U): void {
-        TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
+        getActionManager().removeAllActionsFromTarget(target);
     }
 
     /**
@@ -824,7 +839,7 @@ export class Tween<T extends object = any> {
      * @param target @en The target object whose tweens should be paused. @zh 要暂停缓动的目标对象。
      */
     static pauseAllByTarget<U extends object = any> (target: U): void {
-        TweenSystem.instance.ActionManager.pauseTarget(target);
+        getActionManager().pauseTarget(target);
     }
 
     /**
@@ -833,15 +848,15 @@ export class Tween<T extends object = any> {
      * @param target @en The target object whose tweens should be resumed. @zh 要恢复缓动的目标对象。
      */
     static resumeAllByTarget<U extends object = any> (target: U): void {
-        TweenSystem.instance.ActionManager.resumeTarget(target);
+        getActionManager().resumeTarget(target);
     }
 
-    private _union (updateWorkerTarget: boolean): Sequence | null {
+    private _union (needUpdateOwner: boolean): Sequence | null {
         const actions = this._actions;
         if (actions.length === 0) return null;
         const action = sequence(actions);
-        if (updateWorkerTarget) {
-            this.updateWorkerTargetForAction(action);
+        if (needUpdateOwner) {
+            this.updateOwnerForAction(action);
         }
         return action;
     }
@@ -859,29 +874,33 @@ export class Tween<T extends object = any> {
         return action;
     }
 
-    private static readonly _tmp_args: FiniteTimeAction[] = [];
+    private static readonly _tmpArgs: FiniteTimeAction[] = [];
 
     private static _tweenToActions<U extends object = any> (args: Tween<U>[]): void {
-        const tmp_args = Tween._tmp_args;
-        tmp_args.length = 0;
+        const tmpArgs = Tween._tmpArgs;
+        tmpArgs.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
             const t = args[i];
             const action = t._union(true);
             if (action) {
                 action.setSpeed(t._timeScale);
-                tmp_args.push(action);
+                tmpArgs.push(action);
             }
         }
     }
 
     private static _wrappedSequence<U extends object = any> (args: Tween<U>[]): Sequence | null {
         Tween._tweenToActions(args);
-        return sequence(Tween._tmp_args);
+        const ret = sequence(Tween._tmpArgs);
+        this._tmpArgs.length = 0;
+        return ret;
     }
 
     private static _wrappedParallel<U extends object = any> (args: Tween<U>[]): Spawn | null {
         Tween._tweenToActions(args);
-        return spawn(Tween._tmp_args);
+        const ret = spawn(Tween._tmpArgs);
+        this._tmpArgs.length = 0;
+        return ret;
     }
 }
 legacyCC.Tween = Tween;
@@ -913,7 +932,7 @@ legacyCC.tween = tween;
  * @deprecated please use `tween` instead.
  */
 export function tweenUtil<T extends object = any> (target?: T): Tween<T> {
-    warn('tweenUtil\' is deprecated, please use \'tween\' instead ');
+    warnID(16396);
     return new Tween<T>(target);
 }
 legacyCC.tweenUtil = tweenUtil;

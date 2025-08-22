@@ -37,12 +37,14 @@ import { MorphRenderingInstance } from '../assets/morph-rendering';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
-import { settings, Settings } from '../../core/settings';
+import { settings, SettingsCategory } from '../../core/settings';
 import { ReflectionProbeType } from '../reflection-probe/reflection-probe-enum';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { SubModel } from '../../render-scene/scene';
 import { isEnableEffect } from '../../rendering/define';
 import type { Model } from '../../render-scene/scene';
+import type { ReflectionProbeManager } from '../reflection-probe';
+import { getPipelineSceneData } from '../../rendering/pipeline-scene-data-utils';
 
 const { ccclass, help, executeInEditMode, executionOrder, menu, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
@@ -95,6 +97,26 @@ const ModelShadowReceivingMode = Enum({
     ON: 1,
 });
 
+enum ModelBakeSettingsEvent {
+    /**
+     * @en The event which will be triggered when the useLightProbe is changed.
+     * @zh useLightProbe属性修改时触发的事件
+     */
+    USE_LIGHT_PROBE_CHANGED = 'use_light_probe_changed',
+
+    /**
+     * @en The event which will be triggered when the reflectionProbe is changed.
+     * @zh reflectionProbe 属性修改时触发的事件
+     */
+    REFLECTION_PROBE_CHANGED = 'reflection_probe_changed',
+
+    /**
+     * @en The event which will be triggered when the bakeToReflectionProbe is changed.
+     * @zh bakeToReflectionProbe 属性修改时触发的事件
+     */
+    BAKE_TO_REFLECTION_PROBE_CHANGED = 'bake_to_reflection_probe_changed',
+}
+
 /**
  * @en Model's bake settings.
  * @zh 模型烘焙设置
@@ -105,19 +127,19 @@ class ModelBakeSettings extends EventTarget {
      * @en The event which will be triggered when the useLightProbe is changed.
      * @zh useLightProbe属性修改时触发的事件
      */
-    public static readonly USE_LIGHT_PROBE_CHANGED = 'use_light_probe_changed';
+    public static readonly USE_LIGHT_PROBE_CHANGED = ModelBakeSettingsEvent.USE_LIGHT_PROBE_CHANGED;
 
     /**
      * @en The event which will be triggered when the reflectionProbe is changed.
      * @zh reflectionProbe 属性修改时触发的事件
      */
-    public static readonly REFLECTION_PROBE_CHANGED = 'reflection_probe_changed';
+    public static readonly REFLECTION_PROBE_CHANGED = ModelBakeSettingsEvent.REFLECTION_PROBE_CHANGED;
 
     /**
      * @en The event which will be triggered when the bakeToReflectionProbe is changed.
      * @zh bakeToReflectionProbe 属性修改时触发的事件
      */
-    public static readonly BAKE_TO_REFLECTION_PROBE_CHANGED = 'bake_to_reflection_probe_changed';
+    public static readonly BAKE_TO_REFLECTION_PROBE_CHANGED = ModelBakeSettingsEvent.BAKE_TO_REFLECTION_PROBE_CHANGED;
 
     @serializable
     public texture: Texture2D|null = null;
@@ -145,6 +167,10 @@ class ModelBakeSettings extends EventTarget {
     public probeCubemap: TextureCube | null = null;
     public probeBlendCubemap: TextureCube | null = null;
     public probePlanarmap: Texture | null = null;
+
+    constructor () {
+        super();
+    }
 
     /**
      * @en Whether the model is static and bake-able with light map.
@@ -219,7 +245,7 @@ class ModelBakeSettings extends EventTarget {
 
     set useLightProbe (val) {
         this._useLightProbe = val;
-        this.emit(ModelBakeSettings.USE_LIGHT_PROBE_CHANGED);
+        this.emit(ModelBakeSettingsEvent.USE_LIGHT_PROBE_CHANGED);
     }
 
     /**
@@ -254,7 +280,7 @@ class ModelBakeSettings extends EventTarget {
 
     set reflectionProbe (val) {
         this._reflectionProbeType = val;
-        this.emit(ModelBakeSettings.REFLECTION_PROBE_CHANGED);
+        this.emit(ModelBakeSettingsEvent.REFLECTION_PROBE_CHANGED);
     }
 
     /**
@@ -269,7 +295,7 @@ class ModelBakeSettings extends EventTarget {
 
     set bakeToReflectionProbe (val) {
         this._bakeToReflectionProbe = val;
-        this.emit(ModelBakeSettings.BAKE_TO_REFLECTION_PROBE_CHANGED);
+        this.emit(ModelBakeSettingsEvent.BAKE_TO_REFLECTION_PROBE_CHANGED);
     }
 }
 
@@ -304,7 +330,7 @@ export class MeshRenderer extends ModelRenderer {
     @editable
     @disallowAnimation
     @displayOrder(3)
-    public bakeSettings = new ModelBakeSettings(this);
+    public bakeSettings = new ModelBakeSettings();
 
     @serializable
     protected _mesh: Mesh | null = null;
@@ -516,18 +542,19 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     set isGlobalStandardSkinObject (val) {
-        (cclegacy.director.root as Root).pipeline.pipelineSceneData.standardSkinMeshRenderer = val ? this : null;
+        getPipelineSceneData().standardSkinMeshRenderer = val ? this : null;
         this._enabledGlobalStandardSkinObject = val;
     }
 
     /**
      * @engineInternal
+     * @mangle
      */
     public clearGlobalStandardSkinObjectFlag (): void {
         this._enabledGlobalStandardSkinObject = false;
     }
 
-    protected _modelType: typeof scene.Model;
+    protected _modelType: typeof scene.Model = scene.Model;
 
     protected _model: scene.Model | null = null;
 
@@ -538,9 +565,8 @@ export class MeshRenderer extends ModelRenderer {
 
     constructor () {
         super();
-        this._modelType = scene.Model;
 
-        const highQualityMode = settings.querySettings(Settings.Category.RENDERING, 'highQualityMode');
+        const highQualityMode = settings.querySettings(SettingsCategory.RENDERING, 'highQualityMode');
         if (highQualityMode) {
             this._shadowCastingMode = ModelShadowCastingMode.ON;
             this.bakeSettings.castShadow = true;
@@ -587,9 +613,9 @@ export class MeshRenderer extends ModelRenderer {
         super.onEnable();
         this.node.on(NodeEventType.MOBILITY_CHANGED, this.onMobilityChanged, this);
         this.node.on(NodeEventType.LIGHT_PROBE_BAKING_CHANGED, this.onLightProbeBakingChanged, this);
-        this.bakeSettings.on(ModelBakeSettings.USE_LIGHT_PROBE_CHANGED, this.onUseLightProbeChanged, this);
-        this.bakeSettings.on(ModelBakeSettings.REFLECTION_PROBE_CHANGED, this.onReflectionProbeChanged, this);
-        this.bakeSettings.on(ModelBakeSettings.BAKE_TO_REFLECTION_PROBE_CHANGED, this.onBakeToReflectionProbeChanged, this);
+        this.bakeSettings.on(ModelBakeSettingsEvent.USE_LIGHT_PROBE_CHANGED, this.onUseLightProbeChanged, this);
+        this.bakeSettings.on(ModelBakeSettingsEvent.REFLECTION_PROBE_CHANGED, this.onReflectionProbeChanged, this);
+        this.bakeSettings.on(ModelBakeSettingsEvent.BAKE_TO_REFLECTION_PROBE_CHANGED, this.onBakeToReflectionProbeChanged, this);
 
         if (!this._model) {
             this._updateModels();
@@ -616,14 +642,14 @@ export class MeshRenderer extends ModelRenderer {
         }
         this.node.off(NodeEventType.MOBILITY_CHANGED, this.onMobilityChanged, this);
         this.node.off(NodeEventType.LIGHT_PROBE_BAKING_CHANGED, this.onLightProbeBakingChanged, this);
-        this.bakeSettings.off(ModelBakeSettings.USE_LIGHT_PROBE_CHANGED, this.onUseLightProbeChanged, this);
-        this.bakeSettings.off(ModelBakeSettings.REFLECTION_PROBE_CHANGED, this.onReflectionProbeChanged, this);
-        this.bakeSettings.off(ModelBakeSettings.BAKE_TO_REFLECTION_PROBE_CHANGED, this.onBakeToReflectionProbeChanged, this);
+        this.bakeSettings.off(ModelBakeSettingsEvent.USE_LIGHT_PROBE_CHANGED, this.onUseLightProbeChanged, this);
+        this.bakeSettings.off(ModelBakeSettingsEvent.REFLECTION_PROBE_CHANGED, this.onReflectionProbeChanged, this);
+        this.bakeSettings.off(ModelBakeSettingsEvent.BAKE_TO_REFLECTION_PROBE_CHANGED, this.onBakeToReflectionProbeChanged, this);
     }
 
     public onDestroy (): void {
         if (this._model) {
-            cclegacy.director.root.destroyModel(this._model);
+            (cclegacy.director.root as Root).destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }
@@ -926,13 +952,13 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight.node) { return; }
 
         if (mainLight.node.mobility === MobilityMode.Static) {
+            const sceneGlobals = this.node.scene.globals;
+            const lightProbeInfoData = sceneGlobals.lightProbeInfo.data;
             let forceClose = false;
-            if (this.bakeSettings.texture && !this.node.scene.globals.disableLightmap) {
+            if (this.bakeSettings.texture && !sceneGlobals.disableLightmap) {
                 forceClose = true;
             }
-            if (this.node.scene.globals.lightProbeInfo.data
-                && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
-                && this._model.useLightProbe) {
+            if (lightProbeInfoData && lightProbeInfoData.hasCoefficients() && this._model.useLightProbe) {
                 forceClose = true;
             }
 
@@ -956,7 +982,7 @@ export class MeshRenderer extends ModelRenderer {
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;
-        this._models.push(this._model);
+        this._models.push(model);
         if (this._morphInstance && model instanceof MorphModel) {
             model.setMorphRendering(this._morphInstance);
         }
@@ -975,6 +1001,7 @@ export class MeshRenderer extends ModelRenderer {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _detachFromScene (): void {
         if (this._model && this._model.scene) {
@@ -1063,7 +1090,7 @@ export class MeshRenderer extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public _onRebuildPSO (idx: number, material: Material): void {
+    public override _onRebuildPSO (idx: number, material: Material): void {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
@@ -1144,16 +1171,18 @@ export class MeshRenderer extends ModelRenderer {
     protected onReflectionProbeChanged (): void {
         this._updateUseReflectionProbe();
         this._onUpdateLocalShadowBiasAndProbeId();
+        const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
+        const model = this._model!;
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP
             || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES
             || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
-            cclegacy.internal.reflectionProbeManager.selectReflectionProbe(this._model);
-            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, false)) {
+            reflectionProbeManager.selectReflectionProbe(model);
+            if (!reflectionProbeManager.getUsedReflectionProbe(model, false)) {
                 warnID(16302);
             }
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            cclegacy.internal.reflectionProbeManager.selectPlanarReflectionProbe(this._model);
-            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, true)) {
+            reflectionProbeManager.selectPlanarReflectionProbe(model);
+            if (!reflectionProbeManager.getUsedReflectionProbe(model, true)) {
                 warnID(16302);
             }
         }
@@ -1282,7 +1311,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     private _updateStandardSkin (): void {
-        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
+        const pipelineSceneData = getPipelineSceneData();
         if (this._enabledGlobalStandardSkinObject) {
             pipelineSceneData.standardSkinMeshRenderer = this;
             pipelineSceneData.standardSkinModel = this.model;

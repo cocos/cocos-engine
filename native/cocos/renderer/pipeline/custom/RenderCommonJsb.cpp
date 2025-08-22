@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -49,66 +49,6 @@ bool nativevalue_to_se(const cc::render::LightInfo &from, se::Value &to, se::Obj
 
     nativevalue_to_se(from.culledByLight, tmp, ctx);
     obj->setProperty("culledByLight", tmp);
-
-    to.setObject(obj);
-    return true;
-}
-
-bool nativevalue_to_se(const cc::render::Descriptor &from, se::Value &to, se::Object *ctx) { // NOLINT
-    se::HandleObject obj(se::Object::createPlainObject());
-    se::Value        tmp;
-
-    nativevalue_to_se(from.type, tmp, ctx);
-    obj->setProperty("type", tmp);
-
-    nativevalue_to_se(from.count, tmp, ctx);
-    obj->setProperty("count", tmp);
-
-    to.setObject(obj);
-    return true;
-}
-
-bool nativevalue_to_se(const cc::render::DescriptorBlockFlattened &from, se::Value &to, se::Object *ctx) { // NOLINT
-    se::HandleObject obj(se::Object::createPlainObject());
-    se::Value        tmp;
-
-    nativevalue_to_se(from.descriptorNames, tmp, ctx);
-    obj->setProperty("descriptorNames", tmp);
-
-    nativevalue_to_se(from.uniformBlockNames, tmp, ctx);
-    obj->setProperty("uniformBlockNames", tmp);
-
-    nativevalue_to_se(from.descriptors, tmp, ctx);
-    obj->setProperty("descriptors", tmp);
-
-    nativevalue_to_se(from.uniformBlocks, tmp, ctx);
-    obj->setProperty("uniformBlocks", tmp);
-
-    nativevalue_to_se(from.capacity, tmp, ctx);
-    obj->setProperty("capacity", tmp);
-
-    nativevalue_to_se(from.count, tmp, ctx);
-    obj->setProperty("count", tmp);
-
-    to.setObject(obj);
-    return true;
-}
-
-bool nativevalue_to_se(const cc::render::DescriptorBlockIndex &from, se::Value &to, se::Object *ctx) { // NOLINT
-    se::HandleObject obj(se::Object::createPlainObject());
-    se::Value        tmp;
-
-    nativevalue_to_se(from.updateFrequency, tmp, ctx);
-    obj->setProperty("updateFrequency", tmp);
-
-    nativevalue_to_se(from.parameterType, tmp, ctx);
-    obj->setProperty("parameterType", tmp);
-
-    nativevalue_to_se(from.descriptorType, tmp, ctx);
-    obj->setProperty("descriptorType", tmp);
-
-    nativevalue_to_se(from.visibility, tmp, ctx);
-    obj->setProperty("visibility", tmp);
 
     to.setObject(obj);
     return true;
@@ -255,84 +195,6 @@ bool sevalue_to_native<cc::render::LightInfo>(const se::Value &from, cc::render:
     obj->getProperty("culledByLight", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->culledByLight), ctx);
-    }
-    return ok;
-}
-
-template <>
-bool sevalue_to_native<cc::render::Descriptor>(const se::Value &from, cc::render::Descriptor *to, se::Object *ctx) { // NOLINT
-    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to Descriptor failed !");
-
-    auto *obj = const_cast<se::Object *>(from.toObject());
-    bool ok = true;
-    se::Value field;
-    obj->getProperty("type", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->type), ctx);
-    }
-    obj->getProperty("count", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->count), ctx);
-    }
-    return ok;
-}
-
-template <>
-bool sevalue_to_native<cc::render::DescriptorBlockFlattened>(const se::Value &from, cc::render::DescriptorBlockFlattened *to, se::Object *ctx) { // NOLINT
-    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to DescriptorBlockFlattened failed !");
-
-    auto *obj = const_cast<se::Object *>(from.toObject());
-    bool ok = true;
-    se::Value field;
-    obj->getProperty("descriptorNames", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->descriptorNames), ctx);
-    }
-    obj->getProperty("uniformBlockNames", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->uniformBlockNames), ctx);
-    }
-    obj->getProperty("descriptors", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->descriptors), ctx);
-    }
-    obj->getProperty("uniformBlocks", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->uniformBlocks), ctx);
-    }
-    obj->getProperty("capacity", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->capacity), ctx);
-    }
-    obj->getProperty("count", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->count), ctx);
-    }
-    return ok;
-}
-
-template <>
-bool sevalue_to_native<cc::render::DescriptorBlockIndex>(const se::Value &from, cc::render::DescriptorBlockIndex *to, se::Object *ctx) { // NOLINT
-    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to DescriptorBlockIndex failed !");
-
-    auto *obj = const_cast<se::Object *>(from.toObject());
-    bool ok = true;
-    se::Value field;
-    obj->getProperty("updateFrequency", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->updateFrequency), ctx);
-    }
-    obj->getProperty("parameterType", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->parameterType), ctx);
-    }
-    obj->getProperty("descriptorType", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->descriptorType), ctx);
-    }
-    obj->getProperty("visibility", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->visibility), ctx);
     }
     return ok;
 }

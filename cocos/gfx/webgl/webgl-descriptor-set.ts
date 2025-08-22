@@ -30,12 +30,17 @@ import { WebGLTexture } from './webgl-texture';
 import { WebGLDescriptorSetLayout } from './webgl-descriptor-set-layout';
 import { DescriptorSetInfo, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../base/define';
 
+/** @mangle */
 export class WebGLDescriptorSet extends DescriptorSet {
     get gpuDescriptorSet (): IWebGLGPUDescriptorSet {
         return this._gpuDescriptorSet as IWebGLGPUDescriptorSet;
     }
 
     private _gpuDescriptorSet: IWebGLGPUDescriptorSet | null = null;
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: Readonly<DescriptorSetInfo>): void {
         this._layout = info.layout;
@@ -51,12 +56,13 @@ export class WebGLDescriptorSet extends DescriptorSet {
         for (let i = 0; i < bindings.length; ++i) {
             const binding = bindings[i];
             for (let j = 0; j < binding.count; j++) {
-                gpuDescriptors.push({
+                const gpuDescriptor: IWebGLGPUDescriptor = {
                     type: binding.descriptorType,
                     gpuBuffer: null,
                     gpuTexture: null,
                     gpuSampler: null,
-                });
+                };
+                gpuDescriptors.push(gpuDescriptor);
             }
         }
     }

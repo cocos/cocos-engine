@@ -32,9 +32,7 @@ import { DescriptorSetLayout } from './descriptor-set-layout';
 
 import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
-import { TextureBarrier } from './states/texture-barrier';
-import { BufferBarrier } from './states/buffer-barrier';
-import { GCObject } from '../../core';
+import { GCObject } from '../../core/data/gc-object';
 
 interface ICopyable { copy (info: ICopyable): ICopyable; }
 
@@ -112,25 +110,13 @@ export enum Feature {
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
-    // This flag indicates whether the device can benefit from subpass-style usages.
-    // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
-    // extension is used to simulate input attachments, so the flag is not set when
-    // the extension is not supported, and you should switch to the fallback branch
-    // (without the extension requirement) in GLSL shader sources accordingly.
-    // Everything else can remain the same.
-    //
-    // Another caveat when using the Framebuffer Fetch extensions in shaders is that
-    // for subpasses with exactly 4 inout attachments the output is automatically set
-    // to the last attachment (taking advantage of 'inout' property), and a separate
-    // blit operation (if needed) will be added for you afterwards to transfer the
-    // rendering result to the correct subpass output texture. This is to ameliorate
-    // the max number of attachment limit(4) situation for many devices, and shader
-    // sources inside this kind of subpass must match this behavior.
-    INPUT_ATTACHMENT_BENEFIT,
+
+    INPUT_ATTACHMENT_BENEFIT, // @deprecated
     SUBPASS_COLOR_INPUT,
     SUBPASS_DEPTH_STENCIL_INPUT,
-    RASTERIZATION_ORDER_COHERENT,
-    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,
+    RASTERIZATION_ORDER_NOCOHERENT,
+
+    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,   // resolve depth stencil
     COUNT,
 }
 
@@ -298,6 +284,13 @@ export enum FormatType {
     FLOAT,
 }
 
+export enum SampleType {
+    FLOAT,
+    UNFILTERABLE_FLOAT,
+    SINT,
+    UINT,
+}
+
 export enum Type {
     UNKNOWN,
     BOOL,
@@ -366,6 +359,7 @@ export enum BufferUsageBit {
 
 export enum BufferFlagBit {
     NONE = 0,
+    ENABLE_STAGING_WRITE = 0x01,
 }
 
 export enum MemoryAccessBit {
@@ -390,6 +384,21 @@ export enum TextureType {
     TEX2D_ARRAY,
 }
 
+export enum ViewDimension {
+    UNKNOWN,
+    BUFFER,
+    TEX1D,
+    TEX1D_ARRAY,
+    TEX2D,
+    TEX2D_ARRAY,
+    TEX2DMS,
+    TEX2DMS_ARRAY,
+    TEX3D,
+    TEXCUBE,
+    TEXCUBE_ARRAY,
+    RAYTRACING_ACCELERATION_STRUCTURE,
+}
+
 export enum TextureUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
@@ -399,17 +408,18 @@ export enum TextureUsageBit {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 }
 
 export enum TextureFlagBit {
     NONE = 0,
-    GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
-    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
-    EXTERNAL_OES = 0x4, // External oes texture
-    EXTERNAL_NORMAL = 0x8, // External normal texture
-    LAZILY_ALLOCATED = 0x10, // Try lazily allocated mode.
+    GEN_MIPMAP = 0x1,           // Generate mipmaps using bilinear filter
+    GENERAL_LAYOUT = 0x2,       // @deprecated, For inout framebuffer attachments
+    EXTERNAL_OES = 0x4,         // External oes texture
+    EXTERNAL_NORMAL = 0x8,      // External normal texture
+    LAZILY_ALLOCATED = 0x10,    // Try lazily allocated mode.
     MUTABLE_VIEW_FORMAT = 0x40, // texture view as different format
-    MUTABLE_STORAGE = 0x80, // mutable storage for gl
+    MUTABLE_STORAGE = 0x80,     // mutable storage for gl image
 }
 
 export enum FormatFeatureBit {
@@ -419,6 +429,7 @@ export enum FormatFeatureBit {
     LINEAR_FILTER = 0x4,     // Allow linear filtering when sampling in shaders or blitting
     STORAGE_TEXTURE = 0x8,   // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
+    SHADING_RATE = 0x20,     // Allow usages as shading rate
 }
 
 export enum SampleCount {
@@ -581,6 +592,8 @@ export enum AccessFlagBit {
     TRANSFER_WRITE = 1 << 24,                 // Written as the destination of a transfer operation
     HOST_PREINITIALIZED = 1 << 25,            // Data pre-filled by host before device access starts
     HOST_WRITE = 1 << 26,                     // Written on the host
+
+    SHADING_RATE = 1 << 27, // Read as a shading rate image
 }
 
 export enum ResolveMode {
@@ -756,6 +769,8 @@ export class DeviceCaps {
         public maxComputeWorkGroupSize: Size = new Size(),
         public maxComputeWorkGroupCount: Size = new Size(),
         public supportQuery: boolean = false,
+        public supportVariableRateShading: boolean = false,
+        public supportSubPassShading: boolean = false,
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,
         public clipSpaceSignY: number = 1,
@@ -783,6 +798,8 @@ export class DeviceCaps {
         this.maxComputeWorkGroupSize.copy(info.maxComputeWorkGroupSize);
         this.maxComputeWorkGroupCount.copy(info.maxComputeWorkGroupCount);
         this.supportQuery = info.supportQuery;
+        this.supportVariableRateShading = info.supportVariableRateShading;
+        this.supportSubPassShading = info.supportSubPassShading;
         this.clipSpaceMinZ = info.clipSpaceMinZ;
         this.screenSpaceSignY = info.screenSpaceSignY;
         this.clipSpaceSignY = info.clipSpaceSignY;
@@ -1025,6 +1042,21 @@ export class Color {
     }
 }
 
+export class MarkerInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public name: string = '',
+        public color: Color = new Color(),
+    ) {}
+
+    public copy (info: Readonly<MarkerInfo>): MarkerInfo {
+        this.name = info.name;
+        this.color.copy(info.color);
+        return this;
+    }
+}
+
 export class BindingMappingInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
@@ -1227,6 +1259,8 @@ export class TextureViewInfo {
         public levelCount: number = 1,
         public baseLayer: number = 0,
         public layerCount: number = 1,
+        public basePlane: number = 0,
+        public planeCount: number = 1,
     ) {}
 
     public copy (info: Readonly<TextureViewInfo>): TextureViewInfo {
@@ -1237,6 +1271,8 @@ export class TextureViewInfo {
         this.levelCount = info.levelCount;
         this.baseLayer = info.baseLayer;
         this.layerCount = info.layerCount;
+        this.basePlane = info.basePlane;
+        this.planeCount = info.planeCount;
         return this;
     }
 }
@@ -1496,6 +1532,7 @@ export class ShaderInfo {
         public textures: UniformTexture[] = [],
         public images: UniformStorageImage[] = [],
         public subpassInputs: UniformInputAttachment[] = [],
+        public hash: number = 0xFFFFFFFF,
     ) {}
 
     public copy (info: Readonly<ShaderInfo>): ShaderInfo {
@@ -1509,6 +1546,7 @@ export class ShaderInfo {
         deepCopy(this.textures, info.textures, UniformTexture);
         deepCopy(this.images, info.images, UniformStorageImage);
         deepCopy(this.subpassInputs, info.subpassInputs, UniformInputAttachment);
+        this.hash = info.hash;
         return this;
     }
 }
@@ -1588,6 +1626,7 @@ export class SubpassInfo {
         public preserves: number[] = [],
         public depthStencil: number = -1,
         public depthStencilResolve: number = -1,
+        public shadingRate: number = -1,
         public depthResolveMode: ResolveMode = ResolveMode.NONE,
         public stencilResolveMode: ResolveMode = ResolveMode.NONE,
     ) {}
@@ -1599,6 +1638,7 @@ export class SubpassInfo {
         this.preserves = info.preserves.slice();
         this.depthStencil = info.depthStencil;
         this.depthStencilResolve = info.depthStencilResolve;
+        this.shadingRate = info.shadingRate;
         this.depthResolveMode = info.depthResolveMode;
         this.stencilResolveMode = info.stencilResolveMode;
         return this;
@@ -1612,16 +1652,16 @@ export class SubpassDependency {
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
         public generalBarrier: GeneralBarrier = null!,
-        public prevAccesses: AccessFlags[] = [AccessFlagBit.NONE],
-        public nextAccesses: AccessFlags[] = [AccessFlagBit.NONE],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
     ) {}
 
     public copy (info: Readonly<SubpassDependency>): SubpassDependency {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
         this.generalBarrier = info.generalBarrier;
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         return this;
     }
 }
@@ -1643,6 +1683,35 @@ export class RenderPassInfo {
         this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
         deepCopy(this.dependencies, info.dependencies, SubpassDependency);
+        return this;
+    }
+}
+
+export class ResourceRange {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public width: number = 0,
+        public height: number = 0,
+        public depthOrArraySize: number = 0,
+        public firstSlice: number = 0,
+        public numSlices: number = 0,
+        public mipLevel: number = 0,
+        public levelCount: number = 0,
+        public basePlane: number = 0,
+        public planeCount: number = 0,
+    ) {}
+
+    public copy (info: Readonly<ResourceRange>): ResourceRange {
+        this.width = info.width;
+        this.height = info.height;
+        this.depthOrArraySize = info.depthOrArraySize;
+        this.firstSlice = info.firstSlice;
+        this.numSlices = info.numSlices;
+        this.mipLevel = info.mipLevel;
+        this.levelCount = info.levelCount;
+        this.basePlane = info.basePlane;
+        this.planeCount = info.planeCount;
         return this;
     }
 }
@@ -1671,10 +1740,7 @@ export class TextureBarrierInfo {
         public prevAccesses: AccessFlags = AccessFlagBit.NONE,
         public nextAccesses: AccessFlags = AccessFlagBit.NONE,
         public type: BarrierType = BarrierType.FULL,
-        public baseMipLevel: number = 0,
-        public levelCount: number = 1,
-        public baseSlice: number = 0,
-        public sliceCount: number = 1,
+        public range: ResourceRange = new ResourceRange(),
         public discardContents: boolean = false,
         public srcQueue: Queue | null = null,
         public dstQueue: Queue | null = null,
@@ -1684,10 +1750,7 @@ export class TextureBarrierInfo {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
         this.type = info.type;
-        this.baseMipLevel = info.baseMipLevel;
-        this.levelCount = info.levelCount;
-        this.baseSlice = info.baseSlice;
-        this.sliceCount = info.sliceCount;
+        this.range.copy(info.range);
         this.discardContents = info.discardContents;
         this.srcQueue = info.srcQueue;
         this.dstQueue = info.dstQueue;
@@ -1749,6 +1812,10 @@ export class DescriptorSetLayoutBinding {
         public descriptorType: DescriptorType = DescriptorType.UNKNOWN,
         public count: number = 0,
         public stageFlags: ShaderStageFlags = ShaderStageFlagBit.NONE,
+        public access: MemoryAccess = MemoryAccessBit.READ_ONLY,
+        public viewDimension: ViewDimension = ViewDimension.UNKNOWN,
+        public sampleType: SampleType = SampleType.FLOAT,
+        public format: Format = Format.UNKNOWN,
         public immutableSamplers: Sampler[] = [],
     ) {}
 
@@ -1757,6 +1824,10 @@ export class DescriptorSetLayoutBinding {
         this.descriptorType = info.descriptorType;
         this.count = info.count;
         this.stageFlags = info.stageFlags;
+        this.access = info.access;
+        this.viewDimension = info.viewDimension;
+        this.sampleType = info.sampleType;
+        this.format = info.format;
         this.immutableSamplers = info.immutableSamplers.slice();
         return this;
     }
@@ -1772,10 +1843,6 @@ export class DescriptorSetLayoutInfo {
     public copy (info: Readonly<DescriptorSetLayoutInfo>): DescriptorSetLayoutInfo {
         deepCopy(this.bindings, info.bindings, DescriptorSetLayoutBinding);
         return this;
-    }
-
-    reset (): void {
-        this.bindings.length = 0;
     }
 }
 
@@ -1867,15 +1934,27 @@ export class FormatInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public readonly name: string = '',
-        public readonly size: number = 0,
-        public readonly count: number = 0,
-        public readonly type: FormatType = FormatType.NONE,
-        public readonly hasAlpha: boolean = false,
-        public readonly hasDepth: boolean = false,
-        public readonly hasStencil: boolean = false,
-        public readonly isCompressed: boolean = false,
+        public name: string = '',
+        public size: number = 0,
+        public count: number = 0,
+        public type: FormatType = FormatType.NONE,
+        public hasAlpha: boolean = false,
+        public hasDepth: boolean = false,
+        public hasStencil: boolean = false,
+        public isCompressed: boolean = false,
     ) {}
+
+    public copy (info: Readonly<FormatInfo>): FormatInfo {
+        this.name = info.name;
+        this.size = info.size;
+        this.count = info.count;
+        this.type = info.type;
+        this.hasAlpha = info.hasAlpha;
+        this.hasDepth = info.hasDepth;
+        this.hasStencil = info.hasStencil;
+        this.isCompressed = info.isCompressed;
+        return this;
+    }
 }
 
 export class MemoryStatus {
@@ -1968,8 +2047,11 @@ export class GFXObject extends GCObject {
         return this._typedID;
     }
 
+    /** @mangle */
     protected _objectType = ObjectType.UNKNOWN;
+    /** @mangle */
     protected _objectID = 0;
+    /** @mangle */
     protected _typedID = 0;
 
     private static _idTable = Array(ObjectType.COUNT).fill(1 << 16);
@@ -2012,137 +2094,157 @@ export enum AttributeName {
     ATTR_BATCH_UV = 'a_batch_uv',
 }
 
+function createFormatInfo (
+    name: string,
+    size?: number,
+    count?: number,
+    type?: FormatType,
+    hasAlpha?: boolean,
+    hasDepth?: boolean,
+    hasStencil?: boolean,
+    isCompressed?: boolean,
+): FormatInfo {
+    return new FormatInfo(name, size, count, type, hasAlpha, hasDepth, hasStencil, isCompressed);
+}
+
+function createFormatInfo_ASTC_SRGBA (nameSuffix: string): FormatInfo {
+    return new FormatInfo(`ASTC_SRGBA_${nameSuffix}`, 1, 4, FormatType.UNORM, true, false, false, true);
+}
+
+function createFormatInfo_ASTC_RGBA (nameSuffix: string): FormatInfo {
+    return new FormatInfo(`ASTC_RGBA_${nameSuffix}`, 1, 4, FormatType.UNORM, true, false, false, true);
+}
+
 export const FormatInfos = Object.freeze([
+    createFormatInfo('UNKNOWN'),
 
-    new FormatInfo('UNKNOWN', 0, 0, FormatType.NONE, false, false, false, false),
+    createFormatInfo('A8', 1, 1, FormatType.UNORM, true),
+    createFormatInfo('L8', 1, 1, FormatType.UNORM),
+    createFormatInfo('LA8', 1, 2, FormatType.UNORM, true),
 
-    new FormatInfo('A8', 1, 1, FormatType.UNORM, true, false, false, false),
-    new FormatInfo('L8', 1, 1, FormatType.UNORM, false, false, false, false),
-    new FormatInfo('LA8', 1, 2, FormatType.UNORM, true, false, false, false),
+    createFormatInfo('R8', 1, 1, FormatType.UNORM),
+    createFormatInfo('R8SN', 1, 1, FormatType.SNORM),
+    createFormatInfo('R8UI', 1, 1, FormatType.UINT),
+    createFormatInfo('R8I', 1, 1, FormatType.INT),
+    createFormatInfo('R16F', 2, 1, FormatType.FLOAT),
+    createFormatInfo('R16UI', 2, 1, FormatType.UINT),
+    createFormatInfo('R16I', 2, 1, FormatType.INT),
+    createFormatInfo('R32F', 4, 1, FormatType.FLOAT),
+    createFormatInfo('R32UI', 4, 1, FormatType.UINT),
+    createFormatInfo('R32I', 4, 1, FormatType.INT),
 
-    new FormatInfo('R8', 1, 1, FormatType.UNORM, false, false, false, false),
-    new FormatInfo('R8SN', 1, 1, FormatType.SNORM, false, false, false, false),
-    new FormatInfo('R8UI', 1, 1, FormatType.UINT, false, false, false, false),
-    new FormatInfo('R8I', 1, 1, FormatType.INT, false, false, false, false),
-    new FormatInfo('R16F', 2, 1, FormatType.FLOAT, false, false, false, false),
-    new FormatInfo('R16UI', 2, 1, FormatType.UINT, false, false, false, false),
-    new FormatInfo('R16I', 2, 1, FormatType.INT, false, false, false, false),
-    new FormatInfo('R32F', 4, 1, FormatType.FLOAT, false, false, false, false),
-    new FormatInfo('R32UI', 4, 1, FormatType.UINT, false, false, false, false),
-    new FormatInfo('R32I', 4, 1, FormatType.INT, false, false, false, false),
+    createFormatInfo('RG8', 2, 2, FormatType.UNORM),
+    createFormatInfo('RG8SN', 2, 2, FormatType.SNORM),
+    createFormatInfo('RG8UI', 2, 2, FormatType.UINT),
+    createFormatInfo('RG8I', 2, 2, FormatType.INT),
+    createFormatInfo('RG16F', 4, 2, FormatType.FLOAT),
+    createFormatInfo('RG16UI', 4, 2, FormatType.UINT),
+    createFormatInfo('RG16I', 4, 2, FormatType.INT),
+    createFormatInfo('RG32F', 8, 2, FormatType.FLOAT),
+    createFormatInfo('RG32UI', 8, 2, FormatType.UINT),
+    createFormatInfo('RG32I', 8, 2, FormatType.INT),
 
-    new FormatInfo('RG8', 2, 2, FormatType.UNORM, false, false, false, false),
-    new FormatInfo('RG8SN', 2, 2, FormatType.SNORM, false, false, false, false),
-    new FormatInfo('RG8UI', 2, 2, FormatType.UINT, false, false, false, false),
-    new FormatInfo('RG8I', 2, 2, FormatType.INT, false, false, false, false),
-    new FormatInfo('RG16F', 4, 2, FormatType.FLOAT, false, false, false, false),
-    new FormatInfo('RG16UI', 4, 2, FormatType.UINT, false, false, false, false),
-    new FormatInfo('RG16I', 4, 2, FormatType.INT, false, false, false, false),
-    new FormatInfo('RG32F', 8, 2, FormatType.FLOAT, false, false, false, false),
-    new FormatInfo('RG32UI', 8, 2, FormatType.UINT, false, false, false, false),
-    new FormatInfo('RG32I', 8, 2, FormatType.INT, false, false, false, false),
+    createFormatInfo('RGB8', 3, 3, FormatType.UNORM),
+    createFormatInfo('SRGB8', 3, 3, FormatType.UNORM),
+    createFormatInfo('RGB8SN', 3, 3, FormatType.SNORM),
+    createFormatInfo('RGB8UI', 3, 3, FormatType.UINT),
+    createFormatInfo('RGB8I', 3, 3, FormatType.INT),
+    createFormatInfo('RGB16F', 6, 3, FormatType.FLOAT),
+    createFormatInfo('RGB16UI', 6, 3, FormatType.UINT),
+    createFormatInfo('RGB16I', 6, 3, FormatType.INT),
+    createFormatInfo('RGB32F', 12, 3, FormatType.FLOAT),
+    createFormatInfo('RGB32UI', 12, 3, FormatType.UINT),
+    createFormatInfo('RGB32I', 12, 3, FormatType.INT),
 
-    new FormatInfo('RGB8', 3, 3, FormatType.UNORM, false, false, false, false),
-    new FormatInfo('SRGB8', 3, 3, FormatType.UNORM, false, false, false, false),
-    new FormatInfo('RGB8SN', 3, 3, FormatType.SNORM, false, false, false, false),
-    new FormatInfo('RGB8UI', 3, 3, FormatType.UINT, false, false, false, false),
-    new FormatInfo('RGB8I', 3, 3, FormatType.INT, false, false, false, false),
-    new FormatInfo('RGB16F', 6, 3, FormatType.FLOAT, false, false, false, false),
-    new FormatInfo('RGB16UI', 6, 3, FormatType.UINT, false, false, false, false),
-    new FormatInfo('RGB16I', 6, 3, FormatType.INT, false, false, false, false),
-    new FormatInfo('RGB32F', 12, 3, FormatType.FLOAT, false, false, false, false),
-    new FormatInfo('RGB32UI', 12, 3, FormatType.UINT, false, false, false, false),
-    new FormatInfo('RGB32I', 12, 3, FormatType.INT, false, false, false, false),
+    createFormatInfo('RGBA8', 4, 4, FormatType.UNORM, true),
+    createFormatInfo('BGRA8', 4, 4, FormatType.UNORM, true),
+    createFormatInfo('SRGB8_A8', 4, 4, FormatType.UNORM, true),
+    createFormatInfo('RGBA8SN', 4, 4, FormatType.SNORM, true),
+    createFormatInfo('RGBA8UI', 4, 4, FormatType.UINT, true),
+    createFormatInfo('RGBA8I', 4, 4, FormatType.INT, true),
+    createFormatInfo('RGBA16F', 8, 4, FormatType.FLOAT, true),
+    createFormatInfo('RGBA16UI', 8, 4, FormatType.UINT, true),
+    createFormatInfo('RGBA16I', 8, 4, FormatType.INT, true),
+    createFormatInfo('RGBA32F', 16, 4, FormatType.FLOAT, true),
+    createFormatInfo('RGBA32UI', 16, 4, FormatType.UINT, true),
+    createFormatInfo('RGBA32I', 16, 4, FormatType.INT, true),
 
-    new FormatInfo('RGBA8', 4, 4, FormatType.UNORM, true, false, false, false),
-    new FormatInfo('BGRA8', 4, 4, FormatType.UNORM, true, false, false, false),
-    new FormatInfo('SRGB8_A8', 4, 4, FormatType.UNORM, true, false, false, false),
-    new FormatInfo('RGBA8SN', 4, 4, FormatType.SNORM, true, false, false, false),
-    new FormatInfo('RGBA8UI', 4, 4, FormatType.UINT, true, false, false, false),
-    new FormatInfo('RGBA8I', 4, 4, FormatType.INT, true, false, false, false),
-    new FormatInfo('RGBA16F', 8, 4, FormatType.FLOAT, true, false, false, false),
-    new FormatInfo('RGBA16UI', 8, 4, FormatType.UINT, true, false, false, false),
-    new FormatInfo('RGBA16I', 8, 4, FormatType.INT, true, false, false, false),
-    new FormatInfo('RGBA32F', 16, 4, FormatType.FLOAT, true, false, false, false),
-    new FormatInfo('RGBA32UI', 16, 4, FormatType.UINT, true, false, false, false),
-    new FormatInfo('RGBA32I', 16, 4, FormatType.INT, true, false, false, false),
+    createFormatInfo('R5G6B5', 2, 3, FormatType.UNORM),
+    createFormatInfo('R11G11B10F', 4, 3, FormatType.FLOAT),
+    createFormatInfo('RGB5A1', 2, 4, FormatType.UNORM, true),
+    createFormatInfo('RGBA4', 2, 4, FormatType.UNORM, true),
+    createFormatInfo('RGB10A2', 2, 4, FormatType.UNORM, true),
+    createFormatInfo('RGB10A2UI', 2, 4, FormatType.UINT, true),
+    createFormatInfo('RGB9E5', 2, 4, FormatType.FLOAT, true),
 
-    new FormatInfo('R5G6B5', 2, 3, FormatType.UNORM, false, false, false, false),
-    new FormatInfo('R11G11B10F', 4, 3, FormatType.FLOAT, false, false, false, false),
-    new FormatInfo('RGB5A1', 2, 4, FormatType.UNORM, true, false, false, false),
-    new FormatInfo('RGBA4', 2, 4, FormatType.UNORM, true, false, false, false),
-    new FormatInfo('RGB10A2', 2, 4, FormatType.UNORM, true, false, false, false),
-    new FormatInfo('RGB10A2UI', 2, 4, FormatType.UINT, true, false, false, false),
-    new FormatInfo('RGB9E5', 2, 4, FormatType.FLOAT, true, false, false, false),
+    createFormatInfo('DEPTH', 4, 1, FormatType.FLOAT, false, true),
+    createFormatInfo('DEPTH_STENCIL', 5, 2, FormatType.FLOAT, false, true, true),
 
-    new FormatInfo('DEPTH', 4, 1, FormatType.FLOAT, false, true, false, false),
-    new FormatInfo('DEPTH_STENCIL', 5, 2, FormatType.FLOAT, false, true, true, false),
+    createFormatInfo('BC1', 1, 3, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('BC1_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('BC1_SRGB', 1, 3, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('BC1_SRGB_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('BC2', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('BC2_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('BC3', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('BC3_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('BC4', 1, 1, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('BC4_SNORM', 1, 1, FormatType.SNORM, false, false, false, true),
+    createFormatInfo('BC5', 1, 2, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('BC5_SNORM', 1, 2, FormatType.SNORM, false, false, false, true),
+    createFormatInfo('BC6H_UF16', 1, 3, FormatType.UFLOAT, false, false, false, true),
+    createFormatInfo('BC6H_SF16', 1, 3, FormatType.FLOAT, false, false, false, true),
+    createFormatInfo('BC7', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('BC7_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
 
-    new FormatInfo('BC1', 1, 3, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('BC1_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('BC1_SRGB', 1, 3, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('BC1_SRGB_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('BC2', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('BC2_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('BC3', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('BC3_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('BC4', 1, 1, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('BC4_SNORM', 1, 1, FormatType.SNORM, false, false, false, true),
-    new FormatInfo('BC5', 1, 2, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('BC5_SNORM', 1, 2, FormatType.SNORM, false, false, false, true),
-    new FormatInfo('BC6H_UF16', 1, 3, FormatType.UFLOAT, false, false, false, true),
-    new FormatInfo('BC6H_SF16', 1, 3, FormatType.FLOAT, false, false, false, true),
-    new FormatInfo('BC7', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('BC7_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('ETC_RGB8', 1, 3, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('ETC2_RGB8', 1, 3, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('ETC2_SRGB8', 1, 3, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('ETC2_RGB8_A1', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('ETC2_SRGB8_A1', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('ETC2_RGBA8', 2, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('ETC2_SRGB8_A8', 2, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('EAC_R11', 1, 1, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('EAC_R11SN', 1, 1, FormatType.SNORM, false, false, false, true),
+    createFormatInfo('EAC_RG11', 2, 2, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('EAC_RG11SN', 2, 2, FormatType.SNORM, false, false, false, true),
 
-    new FormatInfo('ETC_RGB8', 1, 3, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('ETC2_RGB8', 1, 3, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('ETC2_SRGB8', 1, 3, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('ETC2_RGB8_A1', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ETC2_SRGB8_A1', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ETC2_RGBA8', 2, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ETC2_SRGB8_A8', 2, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('EAC_R11', 1, 1, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('EAC_R11SN', 1, 1, FormatType.SNORM, false, false, false, true),
-    new FormatInfo('EAC_RG11', 2, 2, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('EAC_RG11SN', 2, 2, FormatType.SNORM, false, false, false, true),
+    createFormatInfo('PVRTC_RGB2', 2, 3, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('PVRTC_RGBA2', 2, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('PVRTC_RGB4', 2, 3, FormatType.UNORM, false, false, false, true),
+    createFormatInfo('PVRTC_RGBA4', 2, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('PVRTC2_2BPP', 2, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo('PVRTC2_4BPP', 2, 4, FormatType.UNORM, true, false, false, true),
 
-    new FormatInfo('PVRTC_RGB2', 2, 3, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('PVRTC_RGBA2', 2, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('PVRTC_RGB4', 2, 3, FormatType.UNORM, false, false, false, true),
-    new FormatInfo('PVRTC_RGBA4', 2, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('PVRTC2_2BPP', 2, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('PVRTC2_4BPP', 2, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo_ASTC_RGBA('4x4'),
+    createFormatInfo_ASTC_RGBA('5x4'),
+    createFormatInfo_ASTC_RGBA('5x5'),
+    createFormatInfo_ASTC_RGBA('6x5'),
+    createFormatInfo_ASTC_RGBA('6x6'),
+    createFormatInfo_ASTC_RGBA('8x5'),
+    createFormatInfo_ASTC_RGBA('8x6'),
+    createFormatInfo_ASTC_RGBA('8x8'),
+    createFormatInfo_ASTC_RGBA('10x5'),
+    createFormatInfo_ASTC_RGBA('10x6'),
+    createFormatInfo_ASTC_RGBA('10x8'),
+    createFormatInfo_ASTC_RGBA('10x10'),
+    createFormatInfo_ASTC_RGBA('12x10'),
+    createFormatInfo_ASTC_RGBA('12x12'),
 
-    new FormatInfo('ASTC_RGBA_4x4', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_5x4', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_5x5', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_6x5', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_6x6', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_8x5', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_8x6', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_8x8', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_10x5', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_10x6', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_10x8', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_10x10', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_12x10', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_RGBA_12x12', 1, 4, FormatType.UNORM, true, false, false, true),
-
-    new FormatInfo('ASTC_SRGBA_4x4', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_5x4', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_5x5', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_6x5', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_6x6', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_8x5', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_8x6', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_8x8', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_10x5', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_10x6', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_10x8', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_10x10', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_12x10', 1, 4, FormatType.UNORM, true, false, false, true),
-    new FormatInfo('ASTC_SRGBA_12x12', 1, 4, FormatType.UNORM, true, false, false, true),
+    createFormatInfo_ASTC_SRGBA('4x4'),
+    createFormatInfo_ASTC_SRGBA('5x4'),
+    createFormatInfo_ASTC_SRGBA('5x5'),
+    createFormatInfo_ASTC_SRGBA('6x5'),
+    createFormatInfo_ASTC_SRGBA('6x6'),
+    createFormatInfo_ASTC_SRGBA('8x5'),
+    createFormatInfo_ASTC_SRGBA('8x6'),
+    createFormatInfo_ASTC_SRGBA('8x8'),
+    createFormatInfo_ASTC_SRGBA('10x5'),
+    createFormatInfo_ASTC_SRGBA('10x6'),
+    createFormatInfo_ASTC_SRGBA('10x8'),
+    createFormatInfo_ASTC_SRGBA('10x10'),
+    createFormatInfo_ASTC_SRGBA('12x10'),
+    createFormatInfo_ASTC_SRGBA('12x12'),
 ]);
 
 export const DESCRIPTOR_BUFFER_TYPE = DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER
@@ -2153,6 +2255,8 @@ export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER_TEXTURE | Descript
 
 export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
 
+export const DESCRIPTOR_STORAGE_BUFFER_TYPE = DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
+
 export const DRAW_INFO_SIZE = 28;
 
 export type BufferSource = ArrayBuffer | IndirectBuffer;
@@ -2160,6 +2264,8 @@ export type BufferSource = ArrayBuffer | IndirectBuffer;
 export function IsPowerOf2 (x: number): boolean {
     return x > 0 && (x & (x - 1)) === 0;
 }
+
+const ceil = Math.ceil;
 
 /**
   * @en Get memory size of the specified fomat.
@@ -2178,7 +2284,7 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.BC1_ALPHA:
         case Format.BC1_SRGB:
         case Format.BC1_SRGB_ALPHA:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
         case Format.BC2:
         case Format.BC2_SRGB:
         case Format.BC3:
@@ -2189,10 +2295,10 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.BC6H_UF16:
         case Format.BC7:
         case Format.BC7_SRGB:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
         case Format.BC5:
         case Format.BC5_SNORM:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 32 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 32 * depth;
 
         case Format.ETC_RGB8:
         case Format.ETC2_RGB8:
@@ -2200,65 +2306,65 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.ETC2_RGB8_A1:
         case Format.EAC_R11:
         case Format.EAC_R11SN:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
         case Format.ETC2_RGBA8:
         case Format.ETC2_SRGB8_A1:
         case Format.EAC_RG11:
         case Format.EAC_RG11SN:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
 
         case Format.PVRTC_RGB2:
         case Format.PVRTC_RGBA2:
         case Format.PVRTC2_2BPP:
-            return Math.ceil(width / 8) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 8) * ceil(height / 4) * 8 * depth;
 
         case Format.PVRTC_RGB4:
         case Format.PVRTC_RGBA4:
         case Format.PVRTC2_4BPP:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
 
         case Format.ASTC_RGBA_4X4:
         case Format.ASTC_SRGBA_4X4:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
         case Format.ASTC_RGBA_5X4:
         case Format.ASTC_SRGBA_5X4:
-            return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 5) * ceil(height / 4) * 16 * depth;
         case Format.ASTC_RGBA_5X5:
         case Format.ASTC_SRGBA_5X5:
-            return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 5) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_6X5:
         case Format.ASTC_SRGBA_6X5:
-            return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 6) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_6X6:
         case Format.ASTC_SRGBA_6X6:
-            return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 6) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_8X5:
         case Format.ASTC_SRGBA_8X5:
-            return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_8X6:
         case Format.ASTC_SRGBA_8X6:
-            return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_8X8:
         case Format.ASTC_SRGBA_8X8:
-            return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 8) * 16 * depth;
         case Format.ASTC_RGBA_10X5:
         case Format.ASTC_SRGBA_10X5:
-            return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_10X6:
         case Format.ASTC_SRGBA_10X6:
-            return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_10X8:
         case Format.ASTC_SRGBA_10X8:
-            return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 8) * 16 * depth;
         case Format.ASTC_RGBA_10X10:
         case Format.ASTC_SRGBA_10X10:
-            return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 10) * 16 * depth;
         case Format.ASTC_RGBA_12X10:
         case Format.ASTC_SRGBA_12X10:
-            return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
+            return ceil(width / 12) * ceil(height / 10) * 16 * depth;
         case Format.ASTC_RGBA_12X12:
         case Format.ASTC_SRGBA_12X12:
-            return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
+            return ceil(width / 12) * ceil(height / 12) * 16 * depth;
 
         default: {
             return 0;
@@ -2469,7 +2575,7 @@ export function formatAlignment (format: Format): FormatAlignment {
 }
 
 export function alignTo (size: number, alignment: number): number {
-    return Math.ceil(size / alignment) * alignment;
+    return ceil(size / alignment) * alignment;
 }
 
 declare interface GPUTexture {}

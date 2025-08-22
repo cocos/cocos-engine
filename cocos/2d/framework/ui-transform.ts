@@ -26,10 +26,10 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { Component, Node } from '../../scene-graph';
 import { Mat4, Rect, Size, Vec2, Vec3, geometry, warnID, visibleRect, approx, EPSILON } from '../../core';
-import { Director, director } from '../../game/director';
+import { director, DirectorEvent } from '../../game/director';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { IMask } from '../../scene-graph/node-event-processor';
-import { Mask } from '../components/mask';
+import type { Mask } from '../components/mask';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -53,6 +53,10 @@ const _rect = new Rect();
 @disallowMultiple
 @executeInEditMode
 export class UITransform extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Size of the UI node.
@@ -760,7 +764,7 @@ export class UITransform extends Component {
     private _markRenderDataDirty (): void {
         const uiComp = this.node._uiProps.uiComp;
         if (uiComp) {
-            uiComp.markForUpdateRenderData();
+            uiComp._markForUpdateRenderData();
         }
     }
 
@@ -773,16 +777,16 @@ export class UITransform extends Component {
         }
     }
 
-    private static _sortChildrenSibling (node): void {
+    private static _sortChildrenSibling (node: Node): void {
         const siblings = node.children;
         if (siblings) {
             siblings.sort((a: Node, b: Node): number => {
-                const aComp = a._uiProps.uiTransformComp;
-                const bComp = b._uiProps.uiTransformComp;
+                const aComp = a._getUITransformComp();
+                const bComp = b._getUITransformComp();
                 const ca = aComp ? aComp._priority : 0;
                 const cb = bComp ? bComp._priority : 0;
                 const diff = ca - cb;
-                if (diff === 0) return a.getSiblingIndex() - b.getSiblingIndex();
+                if (diff === 0) return a.siblingIndex - b.siblingIndex;
                 return diff;
             });
         }
@@ -791,6 +795,7 @@ export class UITransform extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @engineInternal
+     * @mangle
      */
     public static _sortSiblings (): void {
         UITransform.priorityChangeNodeMap.forEach((node, ID): void => {
@@ -804,6 +809,7 @@ export class UITransform extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @engineInternal
+     * @mangle
      */
     public static _cleanChangeMap (): void {
         UITransform.priorityChangeNodeMap.clear();
@@ -811,5 +817,5 @@ export class UITransform extends Component {
 }
 
 // HACK
-director.on(Director.EVENT_AFTER_UPDATE, UITransform._sortSiblings);
-director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, UITransform._cleanChangeMap);
+director.on(DirectorEvent.AFTER_UPDATE, UITransform._sortSiblings);
+director.on(DirectorEvent.BEFORE_SCENE_LAUNCH, UITransform._cleanChangeMap);

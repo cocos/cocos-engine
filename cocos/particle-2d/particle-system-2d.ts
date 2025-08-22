@@ -36,13 +36,13 @@ import { ImageAsset } from '../asset/assets/image-asset';
 import { ParticleAsset } from './particle-asset';
 import { BlendFactor } from '../gfx';
 import { PNGReader } from './png-reader';
-import { TiffReader } from './tiff-reader';
+import { tiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
-import { IBatcher } from '../2d/renderer/i-batcher';
+import type { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 import { ccwindow } from '../core/global-exports';
-import type { IAssembler } from '../2d';
+import type { IAssembler, MeshRenderData } from '../2d';
 import type { TextureBase } from '../asset/assets/texture-base';
 
 /**
@@ -137,6 +137,9 @@ function getParticleComponents (node): ParticleSystem2D[] {
     }
     return getParticleComponents(parent);
 }
+
+const wrapParseInt: (str: string | number) => number = parseInt as any;
+const wrapParseFloat: (str: string | number) => number = parseFloat as any;
 
 /**
  * @en Particle System base class.
@@ -740,10 +743,9 @@ export class ParticleSystem2D extends UIRenderer {
     private _positionType = PositionType.FREE;
 
     private _stopped = true;
-    private declare _previewTimer;
+    private declare _previewTimer: number | null;
     private declare _focused: boolean;
-    private declare _plistFile;
-    private declare _tiffReader;
+    private declare _plistFile: string;
     private _useFile: boolean;
 
     constructor () {
@@ -768,9 +770,7 @@ export class ParticleSystem2D extends UIRenderer {
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator.uvFilled = 0;
 
-        if (this._simulator.renderData && this._assembler) {
-            this._assembler.removeData(this._simulator.renderData);
-        }
+        this.destroyRenderData();
     }
 
     private initProperties (): void {
@@ -836,20 +836,36 @@ export class ParticleSystem2D extends UIRenderer {
         }
     }
 
-    protected _flushAssembler (): void {
+    public override destroyRenderData (): void {
+        if (this._simulator.renderData) {
+            const assembler = this._assembler;
+            if (assembler && assembler.removeData) {
+                assembler.removeData(this._simulator.renderData);
+            }
+            this._simulator.renderData = null;
+        }
+        super.destroyRenderData();
+    }
+
+    protected override _flushAssembler (): void {
         const assembler = ParticleSystem2D.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
         if (this._assembler && this._assembler.createData) {
-            this._simulator.renderData = this._assembler.createData(this);
-            this._simulator.renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
-            this._simulator.initDrawInfo();
+            const simulator = this._simulator;
+            let renderData = simulator.renderData;
+            if (!renderData) {
+                renderData = simulator.renderData = this._assembler.createData(this) as MeshRenderData;
+                simulator.uvFilled = 0;
+                renderData.particleInitRenderDrawInfo(this.renderEntity); // Make sure renderEntity and renderData are both from simulator.
+                simulator.initDrawInfo();
+            }
         }
     }
 
-    protected lateUpdate (dt): void {
+    protected override lateUpdate (dt: number): void {
         if (!this._simulator.finished) {
             this._simulator.step(dt);
         }
@@ -888,7 +904,7 @@ export class ParticleSystem2D extends UIRenderer {
     public resetSystem (): void {
         this._stopped = false;
         this._simulator.reset();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     /**
@@ -917,7 +933,7 @@ export class ParticleSystem2D extends UIRenderer {
             if (!this._custom) {
                 const isDiffFrame = this._spriteFrame !== file.spriteFrame;
                 if (isDiffFrame) this.spriteFrame = file.spriteFrame;
-                this._initWithDictionary(file._nativeAsset);
+                this._initWithDictionary(file._nativeAsset as Record<string, number>);
             }
 
             if (!this._spriteFrame) {
@@ -937,8 +953,9 @@ export class ParticleSystem2D extends UIRenderer {
      */
     public _initTextureWithDictionary (dict: any): boolean {
         if (dict.spriteFrameUuid) {
-            const spriteFrameUuid = dict.spriteFrameUuid;
+            const spriteFrameUuid: string = dict.spriteFrameUuid;
             assetManager.loadAny(spriteFrameUuid, (err: Error, spriteFrame: SpriteFrame): void => {
+                if (!this.isValid) return;
                 if (err) {
                     dict.spriteFrameUuid = undefined;
                     this._initTextureWithDictionary(dict);
@@ -949,10 +966,11 @@ export class ParticleSystem2D extends UIRenderer {
             });
         } else {
             // texture
-            const imgPath = path.changeBasename(this._plistFile, dict.textureFileName || '');
+            const imgPath = path.changeBasename(this._plistFile, dict.textureFileName as string || '');
             if (dict.textureFileName) {
                 // Try to get the texture from the cache
                 assetManager.loadRemote<ImageAsset>(imgPath, (err: Error | null, imageAsset: ImageAsset): void => {
+                    if (!this.isValid) return;
                     if (err) {
                         dict.textureFileName = undefined;
                         this._initTextureWithDictionary(dict);
@@ -967,7 +985,7 @@ export class ParticleSystem2D extends UIRenderer {
                     }
                 });
             } else if (dict.textureImageData) {
-                const textureData = dict.textureImageData;
+                const textureData: string = dict.textureImageData;
 
                 if (textureData && textureData.length > 0) {
                     let imgPathName = imgPath;
@@ -994,10 +1012,8 @@ export class ParticleSystem2D extends UIRenderer {
                             const myPngObj = new PNGReader(buffer);
                             myPngObj.render(canvasObj);
                         } else {
-                            if (!this._tiffReader) {
-                                this._tiffReader = new TiffReader();
-                            }
-                            this._tiffReader.parseTIFF(buffer, canvasObj);
+                            tiffReader.parseTIFF(buffer, canvasObj);
+                            tiffReader.reset(); // Reset the tiff reader to avoid memory cached in it.
                         }
                         imageAsset = new ImageAsset(canvasObj);
                         assetManager.assets.add(imgPathName, imageAsset);
@@ -1023,13 +1039,13 @@ export class ParticleSystem2D extends UIRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _initWithDictionary (dict: any): boolean {
+    public _initWithDictionary (dict: Record<string, number>): boolean {
         this._useFile = true;
-        this.totalParticles = parseInt(dict.maxParticles || 0);
+        this.totalParticles = wrapParseInt(dict.maxParticles || 0);
 
         // life span
-        this.life = parseFloat(dict.particleLifespan || 0);
-        this.lifeVar = parseFloat(dict.particleLifespanVariance || 0);
+        this.life = wrapParseFloat(dict.particleLifespan || 0);
+        this.lifeVar = wrapParseFloat(dict.particleLifespanVariance || 0);
 
         // emission Rate
         const _tempEmissionRate = dict.emissionRate;
@@ -1040,76 +1056,76 @@ export class ParticleSystem2D extends UIRenderer {
         }
 
         // duration
-        this.duration = parseFloat(dict.duration || 0);
+        this.duration = wrapParseFloat(dict.duration || 0);
 
         // blend function // remove when component remove blend function
-        this._srcBlendFactor = parseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
-        this._dstBlendFactor = parseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
+        this._srcBlendFactor = wrapParseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
+        this._dstBlendFactor = wrapParseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;
-        locStartColor.r = parseFloat(dict.startColorRed || 0) * 255;
-        locStartColor.g = parseFloat(dict.startColorGreen || 0) * 255;
-        locStartColor.b = parseFloat(dict.startColorBlue || 0) * 255;
-        locStartColor.a = parseFloat(dict.startColorAlpha || 0) * 255;
+        locStartColor.r = wrapParseFloat(dict.startColorRed || 0) * 255;
+        locStartColor.g = wrapParseFloat(dict.startColorGreen || 0) * 255;
+        locStartColor.b = wrapParseFloat(dict.startColorBlue || 0) * 255;
+        locStartColor.a = wrapParseFloat(dict.startColorAlpha || 0) * 255;
 
         const locStartColorVar = this._startColorVar;
-        locStartColorVar.r = parseFloat(dict.startColorVarianceRed || 0) * 255;
-        locStartColorVar.g = parseFloat(dict.startColorVarianceGreen || 0) * 255;
-        locStartColorVar.b = parseFloat(dict.startColorVarianceBlue || 0) * 255;
-        locStartColorVar.a = parseFloat(dict.startColorVarianceAlpha || 0) * 255;
+        locStartColorVar.r = wrapParseFloat(dict.startColorVarianceRed || 0) * 255;
+        locStartColorVar.g = wrapParseFloat(dict.startColorVarianceGreen || 0) * 255;
+        locStartColorVar.b = wrapParseFloat(dict.startColorVarianceBlue || 0) * 255;
+        locStartColorVar.a = wrapParseFloat(dict.startColorVarianceAlpha || 0) * 255;
 
         const locEndColor = this._endColor;
-        locEndColor.r = parseFloat(dict.finishColorRed || 0) * 255;
-        locEndColor.g = parseFloat(dict.finishColorGreen || 0) * 255;
-        locEndColor.b = parseFloat(dict.finishColorBlue || 0) * 255;
-        locEndColor.a = parseFloat(dict.finishColorAlpha || 0) * 255;
+        locEndColor.r = wrapParseFloat(dict.finishColorRed || 0) * 255;
+        locEndColor.g = wrapParseFloat(dict.finishColorGreen || 0) * 255;
+        locEndColor.b = wrapParseFloat(dict.finishColorBlue || 0) * 255;
+        locEndColor.a = wrapParseFloat(dict.finishColorAlpha || 0) * 255;
 
         const locEndColorVar = this._endColorVar;
-        locEndColorVar.r = parseFloat(dict.finishColorVarianceRed || 0) * 255;
-        locEndColorVar.g = parseFloat(dict.finishColorVarianceGreen || 0) * 255;
-        locEndColorVar.b = parseFloat(dict.finishColorVarianceBlue || 0) * 255;
-        locEndColorVar.a = parseFloat(dict.finishColorVarianceAlpha || 0) * 255;
+        locEndColorVar.r = wrapParseFloat(dict.finishColorVarianceRed || 0) * 255;
+        locEndColorVar.g = wrapParseFloat(dict.finishColorVarianceGreen || 0) * 255;
+        locEndColorVar.b = wrapParseFloat(dict.finishColorVarianceBlue || 0) * 255;
+        locEndColorVar.a = wrapParseFloat(dict.finishColorVarianceAlpha || 0) * 255;
 
         // particle size
-        this.startSize = parseFloat(dict.startParticleSize || 0);
-        this.startSizeVar = parseFloat(dict.startParticleSizeVariance || 0);
-        this.endSize = parseFloat(dict.finishParticleSize || 0);
-        this.endSizeVar = parseFloat(dict.finishParticleSizeVariance || 0);
+        this.startSize = wrapParseFloat(dict.startParticleSize || 0);
+        this.startSizeVar = wrapParseFloat(dict.startParticleSizeVariance || 0);
+        this.endSize = wrapParseFloat(dict.finishParticleSize || 0);
+        this.endSizeVar = wrapParseFloat(dict.finishParticleSizeVariance || 0);
 
         // position
         // Make empty positionType value and old version compatible
-        this.positionType = parseFloat(dict.positionType !== undefined ? dict.positionType : PositionType.FREE);
+        this.positionType = wrapParseFloat(dict.positionType !== undefined ? dict.positionType : PositionType.FREE);
         // for
         this.sourcePos.set(0, 0);
-        this.posVar.set(parseFloat(dict.sourcePositionVariancex || 0), parseFloat(dict.sourcePositionVariancey || 0));
+        this.posVar.set(wrapParseFloat(dict.sourcePositionVariancex || 0), wrapParseFloat(dict.sourcePositionVariancey || 0));
         // angle
-        this.angle = parseFloat(dict.angle || 0);
-        this.angleVar = parseFloat(dict.angleVariance || 0);
+        this.angle = wrapParseFloat(dict.angle || 0);
+        this.angleVar = wrapParseFloat(dict.angleVariance || 0);
 
         // Spinning
-        this.startSpin = parseFloat(dict.rotationStart || 0);
-        this.startSpinVar = parseFloat(dict.rotationStartVariance || 0);
-        this.endSpin = parseFloat(dict.rotationEnd || 0);
-        this.endSpinVar = parseFloat(dict.rotationEndVariance || 0);
+        this.startSpin = wrapParseFloat(dict.rotationStart || 0);
+        this.startSpinVar = wrapParseFloat(dict.rotationStartVariance || 0);
+        this.endSpin = wrapParseFloat(dict.rotationEnd || 0);
+        this.endSpinVar = wrapParseFloat(dict.rotationEndVariance || 0);
 
-        this.emitterMode = parseInt(dict.emitterType || EmitterMode.GRAVITY);
+        this.emitterMode = wrapParseInt(dict.emitterType || EmitterMode.GRAVITY);
 
         // Mode A: Gravity + tangential accel + radial accel
         if (this.emitterMode === EmitterMode.GRAVITY) {
             // gravity
-            this.gravity.set(parseFloat(dict.gravityx || 0), parseFloat(dict.gravityy || 0));
+            this.gravity.set(wrapParseFloat(dict.gravityx || 0), wrapParseFloat(dict.gravityy || 0));
             // speed
-            this.speed = parseFloat(dict.speed || 0);
-            this.speedVar = parseFloat(dict.speedVariance || 0);
+            this.speed = wrapParseFloat(dict.speed || 0);
+            this.speedVar = wrapParseFloat(dict.speedVariance || 0);
 
             // radial acceleration
-            this.radialAccel = parseFloat(dict.radialAcceleration || 0);
-            this.radialAccelVar = parseFloat(dict.radialAccelVariance || 0);
+            this.radialAccel = wrapParseFloat(dict.radialAcceleration || 0);
+            this.radialAccelVar = wrapParseFloat(dict.radialAccelVariance || 0);
 
             // tangential acceleration
-            this.tangentialAccel = parseFloat(dict.tangentialAcceleration || 0);
-            this.tangentialAccelVar = parseFloat(dict.tangentialAccelVariance || 0);
+            this.tangentialAccel = wrapParseFloat(dict.tangentialAcceleration || 0);
+            this.tangentialAccelVar = wrapParseFloat(dict.tangentialAccelVariance || 0);
 
             // rotation is dir
             let locRotationIsDir = dict.rotationIsDir || '';
@@ -1121,12 +1137,12 @@ export class ParticleSystem2D extends UIRenderer {
             }
         } else if (this.emitterMode === EmitterMode.RADIUS) {
             // or Mode B: radius movement
-            this.startRadius = parseFloat(dict.maxRadius || 0);
-            this.startRadiusVar = parseFloat(dict.maxRadiusVariance || 0);
-            this.endRadius = parseFloat(dict.minRadius || 0);
-            this.endRadiusVar = parseFloat(dict.minRadiusVariance || 0);
-            this.rotatePerS = parseFloat(dict.rotatePerSecond || 0);
-            this.rotatePerSVar = parseFloat(dict.rotatePerSecondVariance || 0);
+            this.startRadius = wrapParseFloat(dict.maxRadius || 0);
+            this.startRadiusVar = wrapParseFloat(dict.maxRadiusVariance || 0);
+            this.endRadius = wrapParseFloat(dict.minRadius || 0);
+            this.endRadiusVar = wrapParseFloat(dict.minRadiusVariance || 0);
+            this.rotatePerS = wrapParseFloat(dict.rotatePerSecond || 0);
+            this.rotatePerSVar = wrapParseFloat(dict.rotatePerSecondVariance || 0);
         } else {
             warnID(6009);
             return false;
@@ -1159,7 +1175,7 @@ export class ParticleSystem2D extends UIRenderer {
                 this._syncAspect();
                 this._updateMaterial();
                 this._stopped = false;
-                this.markForUpdateRenderData();
+                this._markForUpdateRenderData();
             }
         } else {
             this.resetSystem();
@@ -1202,7 +1218,7 @@ export class ParticleSystem2D extends UIRenderer {
         }
         this.resetSystem();
         this.stopSystem();
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
         if (this.autoRemoveOnFinish && this._stopped) {
             this.node.destroy();
         }

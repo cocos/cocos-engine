@@ -43,6 +43,10 @@ const colors: Color[] = [new Color(1, 1, 1, 1)];
  */
 @ccclass('ShadowStage')
 export class ShadowStage extends RenderStage {
+    constructor () {
+        super();
+    }
+
     /**
      * @en A common initialization info for shadow map render stage
      * @zh 一个通用的 ShadowStage 的初始化信息对象

@@ -26,6 +26,8 @@
 declare namespace spine {
 
     class String {
+        constructor(name: string, own: boolean);
+        constructor(val: spine.String);
         length: number;
         isEmpty: boolean;
         strPtr: number;
@@ -48,10 +50,35 @@ declare namespace spine {
         apply(skeleton: Skeleton, lastTime: number, time: number, loop: boolean, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
         hasTimeline(id: number): boolean;
     }
-    interface Timeline {
+
+    abstract class Timeline {
+        /**
+         * @version 4.2
+         */
+        frames: ArrayLike<number>;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
+        /**
+         * @version 4.2
+         */
+        getPropertyIds(): ArrayLike<number>;
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         getPropertyId(): number;
+        /**
+         * @version 4.2
+         */
+        getFrameCount(): number;
+        /**
+         * @version 4.2
+         */
+        getFrameEntries(): number;
+        /**
+         * @version 4.2
+         */
+        getDuration(): number;
     }
+
     enum MixBlend {
         setup = 0,
         first = 1,
@@ -84,9 +111,28 @@ declare namespace spine {
         static readonly STEPPED: number;
         static readonly BEZIER: number;
         static readonly BEZIER_SIZE: number;
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         abstract getPropertyId(): number;
         constructor(frameCount: number);
         getFrameCount(): number;
+        /**
+         * @version 4.2
+         */
+        frames: ArrayLike<number>;
+        /**
+         * @version 4.2
+         */
+        getPropertyIds(): ArrayLike<number>;
+        /**
+         * @version 4.2
+         */
+        getFrameEntries(): number;
+        /**
+         * @version 4.2
+         */
+        getDuration(): number;
         setLinear(frameIndex: number): void;
         setStepped(frameIndex: number): void;
         getCurveType(frameIndex: number): number;
@@ -100,16 +146,28 @@ declare namespace spine {
         static PREV_ROTATION: number;
         static ROTATION: number;
         boneIndex: number;
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         frames: ArrayLike<number>;
         constructor(frameCount: number);
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         getPropertyId(): number;
         setFrame(frameIndex: number, time: number, degrees: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class TranslateTimeline extends CurveTimeline {
         static readonly ENTRIES: number;
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         frames: ArrayLike<number>;
         constructor(frameCount: number);
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         getPropertyId(): number;
         setFrame(frameIndex: number, time: number, x: number, y: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
@@ -121,9 +179,16 @@ declare namespace spine {
     }
     class ShearTimeline extends TranslateTimeline {
         constructor(frameCount: number);
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         getPropertyId(): number;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
+
+    /**
+     * @version 3.8, deprecated in 4.2
+     */
     class ColorTimeline extends CurveTimeline {
         static ENTRIES: number;
         slotIndex: number;
@@ -135,6 +200,10 @@ declare namespace spine {
         setFrame(frameIndex: number, time: number, r: number, g: number, b: number, a: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
+
+    /**
+     * @version 3.8, deprecated in 4.2
+     */
     class TwoColorTimeline extends CurveTimeline {
         static readonly ENTRIES: number;
         slotIndex: number;
@@ -146,11 +215,38 @@ declare namespace spine {
         setFrame(frameIndex: number, time: number, r: number, g: number, b: number, a: number, r2: number, g2: number, b2: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
+
+    /**
+     * @version 4.2
+     */
+    class RGBATimeline extends CurveTimeline {
+        static ENTRIES: number;
+        slotIndex: number;
+        constructor(frameCount: number, bezierCount: number, slotIndex: number);
+        getSlotIndex(): number;
+        getPropertyId(): number;
+        setSlotIndex(inValue: number): void;
+        setFrame(frameIndex: number, time: number, r: number, g: number, b: number, a: number): void;
+        apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
+    }
+
     class AttachmentTimeline implements Timeline {
         slotIndex: number;
         frames: ArrayLike<number>;
         attachmentNames: Array<string>;
         constructor(frameCount: number);
+        /**
+         * @version 4.2
+         */
+        getPropertyIds(): ArrayLike<number>;
+        /**
+         * @version 4.2
+         */
+        getFrameEntries(): number;
+        /**
+         * @version 4.2
+         */
+        getDuration(): number;
         getPropertyId(): number;
         getFrameCount(): number;
         getSlotIndex(): number;
@@ -173,6 +269,18 @@ declare namespace spine {
         frames: ArrayLike<number>;
         events: Array<Event>;
         constructor(frameCount: number);
+        /**
+         * @version 4.2
+         */
+        getPropertyIds(): ArrayLike<number>;
+        /**
+         * @version 4.2
+         */
+        getFrameEntries(): number;
+        /**
+         * @version 4.2
+         */
+        getDuration(): number;
         getPropertyId(): number;
         getFrameCount(): number;
         setFrame(frameIndex: number, event: Event): void;
@@ -182,12 +290,24 @@ declare namespace spine {
         frames: ArrayLike<number>;
         drawOrders: Array<Array<number>>;
         constructor(frameCount: number);
+        /**
+         * @version 4.2
+         */
+        getPropertyIds(): ArrayLike<number>;
+        /**
+         * @version 4.2
+         */
+        getFrameEntries(): number;
+        /**
+         * @version 4.2
+         */
+        getDuration(): number;
         getPropertyId(): number;
         getFrameCount(): number;
         setFrame(frameIndex: number, time: number, drawOrder: Array<number>): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
-    class IkConstraintTimeline extends Updatable {
+    class IkConstraintTimeline extends CurveTimeline {
         static readonly ENTRIES: number;
         frames: ArrayLike<number>;
         constructor(frameCount: number);
@@ -301,8 +421,8 @@ declare namespace spine {
         start = 0,
         interrupt = 1,
         end = 2,
-        dispose = 3,
-        complete = 4,
+        complete = 3,
+        dispose = 4,
         event = 5
     }
     interface AnimationStateListener {
@@ -526,8 +646,26 @@ declare namespace spine {
         offsetRotation: number;
         position: number;
         spacing: number;
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         rotateMix: number;
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         translateMix: number;
+        /**
+         * @version 4.2
+         */
+        mixRotate: number;
+        /**
+         * @version 4.2
+         */
+        mixX: number;
+        /**
+         * @version 4.2
+         */
+        mixY: number;
         constructor(name: string);
     }
     enum PositionMode {
@@ -686,6 +824,9 @@ declare namespace spine {
         findBone(boneName: string): BoneData;
         findBoneIndex(boneName: string): number;
         findSlot(slotName: string): SlotData;
+        /**
+         * @version 3.8, deprecated in 4.2
+         */
         findSlotIndex(slotName: string): number;
         findSkin(skinName: string): Skin;
         findEvent(eventDataName: string): EventData;
@@ -1202,20 +1343,21 @@ declare namespace spine {
         setJitterEffect(jitter: spine.VertexEffect);
         setSwirlEffect(swirl: spine.VertexEffect);
         updateRenderData();
-        setListener(id: number, type: number);
+        setListener(id: number);
         setDebugMode(debug: boolean);
         getDebugShapes();
         resizeSlotRegion(slotName: string, width: number, height: number, createNew: boolean);
-        setSlotTexture(slotName: string, index: number);
+        setSlotTexture(slotName: string, uuid: string);
     }
 
     class wasmUtil {
         static spineWasmInit(): void;
         static spineWasmDestroy(): void;
-        static queryStoreMemory(size: number): number;
+        static freeStoreMemory(): void;
+        static createStoreMemory(size: number): number;
         static querySpineSkeletonDataByUUID(uuid: string): SkeletonData;
-        static createSpineSkeletonDataWithJson(jsonStr: string, atlasText: string): SkeletonData;
-        static createSpineSkeletonDataWithBinary(byteSize: number, atlasText: string): SkeletonData;
+        static createSpineSkeletonDataWithJson(jsonStr: string, atlasText: string, textureNames: string[], textureUUIDs: string[]): SkeletonData;
+        static createSpineSkeletonDataWithBinary(byteSize: number, atlasText: string, textureNames: string[], textureUUIDs: string[]): SkeletonData;
         static registerSpineSkeletonDataWithUUID(data: SkeletonData, uuid: string);
         static destroySpineSkeletonDataWithUUID(uuid: string);
         static destroySpineSkeleton(skeleton: Skeleton): void;

@@ -31,7 +31,8 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../asset/assets/texture-2d';
-import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData, PipelineInputAssemblerData } from '../render-pipeline';
+import { PipelineInputAssemblerData } from '../render-types';
+import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData } from '../render-pipeline';
 import { MainFlow } from './main-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
@@ -41,7 +42,7 @@ import { Format, StoreOp,
     TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../render-scene/scene';
-import { errorID } from '../../core/platform/debug';
+import { errorID, log } from '../../core/platform/debug';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { PipelineEventType } from '../pipeline-event';
 
@@ -50,6 +51,10 @@ const PIPELINE_TYPE = 1;
 export class DeferredRenderData extends PipelineRenderData {
     gbufferFrameBuffer: Framebuffer = null!;
     gbufferRenderTargets: Texture[] = [];
+
+    constructor () {
+        super();
+    }
 }
 
 /**
@@ -65,6 +70,10 @@ export class DeferredPipeline extends RenderPipeline {
     @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -84,7 +93,7 @@ export class DeferredPipeline extends RenderPipeline {
 
     public activate (swapchain: Swapchain): boolean {
         if (EDITOR) {
-            console.info('Deferred render pipeline initialized. '
+            log('Deferred render pipeline initialized. '
                 + 'Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.');
         }
 

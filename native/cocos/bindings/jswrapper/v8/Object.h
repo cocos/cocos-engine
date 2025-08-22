@@ -85,6 +85,9 @@ public:
      */
     static Object *createArrayObject(size_t length);
 
+    static Object *createPromise();
+    static void rejectPromise(Object *object, const Value &value);
+    static void resolverPromise(Object *object, const Value &value);
     /**
      *  @brief Creates a JavaScript Typed Array Object with uint8 format from an existing pointer.
      *  @param[in] bytes A pointer to the byte buffer to be used as the backing store of the Typed Array object.
@@ -152,6 +155,14 @@ public:
      *  @note The return value (non-null) has to be released manually.
      */
     static Object *createJSONObject(const ccstd::string &jsonStr);
+
+    /**
+     *  @brief Creates a JavaScript Object from a JSON formatted string.
+     *  @param[in] jsonStr The utf-16 string containing the JSON string to be parsed.
+     *  @return A JavaScript Object containing the parsed value, or nullptr if the input is invalid.
+     *  @note The return value (non-null) has to be released manually. In order to avoid memory copy, use std::u16string reference directly without const, after this method is invoked, jsonStr will be empty since it was moved.
+     */
+    static Object *createJSONObject(std::u16string &&jsonStr);
 
     /**
      *  @brief Creates a JavaScript Native Binding Object from an existing se::Class instance.
@@ -696,6 +707,8 @@ private:
     #if JSB_TRACK_OBJECT_CREATION
     ccstd::string _objectCreationStackFrame;
     #endif
+
+    static std::unordered_map<Object*, v8::Persistent<v8::Promise::Resolver>*> resolverMap;
 
     friend class ScriptEngine;
     friend class JSBPersistentHandleVisitor;

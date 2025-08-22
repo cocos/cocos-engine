@@ -27,7 +27,7 @@
 */
 
 import { WEBGPU } from 'internal:constants';
-import { gfx, webgpuAdapter, glslangWasmModule, promiseForWebGPUInstantiation, spirvOptModule, twgslModule } from '../../webgpu/instantiated';
+import { gfx, webgpuAdapter, glslangWasmModule, promiseForWebGPUInstantiation, twgslModule } from '../../webgpu/instantiated';
 import {
     Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer, Shader
 } from './override';
@@ -36,6 +36,7 @@ import {
 } from '../base/define';
 
 import { ccwindow } from '../../core/global-exports';
+import { warn } from 'console';
 
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
@@ -193,7 +194,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                 }
                 buffers[i] = data;
             } else {
-                console.log('imageBmp copy not impled!');
+                warn('imageBmp copy not impled!');
             }
         }
 
@@ -216,16 +217,6 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
         // replaceAll --> es 2021 required
         let code = shaderSource;
-        // referredMap.forEach((value, key)=> {
-        //     const samplerName = key;
-        //     const samplerType = value;
-        //     const exp = new RegExp(`\\b${samplerName}\\b([^;])`);
-        //     let it = exp.exec(code);
-        //     while (it) {
-        //         code = code.replace(exp, `sampler${samplerType}(_${samplerName}, _${samplerName}_sampler)${it[1]}`);
-        //         it = exp.exec(code);
-        //     }
-        // });
         let sampReg = /.*?(\(set = \d+, binding = )(\d+)\) uniform[^;]+sampler(\w*) (\w+);/g;
         let it = sampReg.exec(code);
         while (it) {
@@ -252,7 +243,6 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         const paramTypeMap = new Map<string, string>();
         while (funcIter) {
             paramTypeMap.clear();
-
             const params = funcIter[2];
             let paramsRes = params.slice();
             if (params.includes('sampler')) {
@@ -270,7 +260,6 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                         paramTypeMap.set(paramName, samplerType);
                     }
                 }
-                // let singleParamReg = new RegExp(`(\\W?)(\\w+)\\s+\\b([^,)]+)\\b`);
 
                 code = code.replace(params, paramsRes);
 
@@ -353,7 +342,6 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         const precisionKeyWord = 'highp';
         const isNanIndex = code.indexOf('isnan');
         if (isNanIndex !== -1) {
-            // getPrecision(isNanIndex);
             functionDefs += `\n
              bool isNan(${precisionKeyWord} float val) {
                  return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
@@ -364,7 +352,6 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
         const isInfIndex = code.indexOf('isinf');
         if (isInfIndex !== -1) {
-            // getPrecision(isInfIndex);
             functionDefs += `\n
              bool isInf(${precisionKeyWord} float x) {
                  return x == x * 2.0 && x != 0.0;

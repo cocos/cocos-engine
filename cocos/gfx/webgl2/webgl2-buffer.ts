@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { warn } from '../../core';
+import { warnID } from '../../core/platform/debug';
 import { Buffer } from '../base/buffer';
 import { BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo } from '../base/define';
 import {
@@ -34,8 +34,13 @@ import {
 import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUBuffer, WebGL2IndirectDrawInfos } from './webgl2-gpu-objects';
 
+/** @mangle */
 export class WebGL2Buffer extends Buffer {
-    get gpuBuffer (): IWebGL2GPUBuffer {
+    constructor () {
+        super();
+    }
+
+    getGpuBuffer (): IWebGL2GPUBuffer {
         return  this._gpuBuffer!;
     }
 
@@ -59,9 +64,9 @@ export class WebGL2Buffer extends Buffer {
                 size: this._size,
                 stride: this._stride,
                 buffer: null,
-                indirects: buffer.gpuBuffer.indirects,
-                glTarget: buffer.gpuBuffer.glTarget,
-                glBuffer: buffer.gpuBuffer.glBuffer,
+                indirects: buffer.getGpuBuffer().indirects,
+                glTarget: buffer.getGpuBuffer().glTarget,
+                glBuffer: buffer.getGpuBuffer().glBuffer,
                 glOffset: info.offset,
             };
         } else { // native buffer
@@ -102,7 +107,7 @@ export class WebGL2Buffer extends Buffer {
 
     public resize (size: number): void {
         if (this._isBufferView) {
-            warn('cannot resize buffer views!');
+            warnID(16379);
             return;
         }
 
@@ -124,7 +129,7 @@ export class WebGL2Buffer extends Buffer {
 
     public update (buffer: Readonly<BufferSource>, size?: number): void {
         if (this._isBufferView) {
-            warn('cannot update through buffer views!');
+            warnID(16380);
             return;
         }
 

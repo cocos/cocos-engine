@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
+import { ALIPAY, XIAOMI, JSB, TEST, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy } from '../../core';
@@ -54,7 +54,7 @@ function isImageBitmap (imageSource: any): boolean {
 }
 
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || XIAOMI || BAIDU) {
+    if (ALIPAY || XIAOMI) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
     }
@@ -149,7 +149,7 @@ Object.defineProperty(imageAssetProto, 'width', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._nativeData.width || this._width;
+        return this._nativeData?.width || this._width;
     }
 });
 
@@ -157,7 +157,7 @@ Object.defineProperty(imageAssetProto, 'height', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._nativeData.height || this._height;
+        return this._nativeData?.height || this._height;
     }
 });
 

@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -28,6 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
+// NOLINTBEGIN(misc-include-cleaner, bugprone-easily-swappable-parameters)
 #include "RenderGraphTypes.h"
 
 namespace cc {
@@ -38,7 +39,7 @@ RasterView::RasterView(const allocator_type& alloc) noexcept
 : slotName(alloc),
   slotName1(alloc) {}
 
-RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept // NOLINT
+RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) // NOLINT
 : slotName(std::move(slotNameIn), alloc),
   slotName1(alloc),
   accessType(accessTypeIn),
@@ -49,7 +50,7 @@ RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, A
   clearColor(clearColorIn),
   shaderStageFlags(shaderStageFlagsIn) {}
 
-RasterView::RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept // NOLINT
+RasterView::RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) // NOLINT
 : slotName(std::move(slotNameIn), alloc),
   slotName1(std::move(slotName1In), alloc),
   accessType(accessTypeIn),
@@ -87,7 +88,7 @@ RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
 ComputeView::ComputeView(const allocator_type& alloc) noexcept
 : name(alloc) {}
 
-ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept
+ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc)
 : name(std::move(nameIn), alloc),
   accessType(accessTypeIn),
   clearFlags(clearFlagsIn),
@@ -95,7 +96,7 @@ ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx
   clearValue(clearValueIn),
   shaderStageFlags(shaderStageFlagsIn) {}
 
-ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, uint32_t planeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept
+ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, uint32_t planeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc)
 : name(std::move(nameIn), alloc),
   accessType(accessTypeIn),
   plane(planeIn),
@@ -378,7 +379,7 @@ RaytracePass::RaytracePass(RaytracePass const& rhs, const allocator_type& alloc)
 ClearView::ClearView(const allocator_type& alloc) noexcept
 : slotName(alloc) {}
 
-ClearView::ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
+ClearView::ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, const allocator_type& alloc)
 : slotName(std::move(slotNameIn), alloc),
   clearFlags(clearFlagsIn),
   clearColor(clearColorIn) {}
@@ -392,6 +393,38 @@ ClearView::ClearView(ClearView const& rhs, const allocator_type& alloc)
 : slotName(rhs.slotName, alloc),
   clearFlags(rhs.clearFlags),
   clearColor(rhs.clearColor) {}
+
+Blit::Blit(const allocator_type& alloc) noexcept
+: models(alloc) {}
+
+Blit::Blit(IntrusivePtr<Material> materialIn, uint32_t passIDIn, SceneFlags sceneFlagsIn, const scene::Camera* cameraIn, BlitType blitTypeIn, const allocator_type& alloc) noexcept
+: material(std::move(materialIn)),
+  passID(passIDIn),
+  sceneFlags(sceneFlagsIn),
+  camera(cameraIn),
+  blitType(blitTypeIn),
+  models(alloc) {}
+
+Blit::Blit(const scene::Camera* cameraIn, BlitType blitTypeIn, ccstd::pmr::vector<IntrusivePtr<scene::Model>> modelsIn, const allocator_type& alloc)
+: camera(cameraIn),
+  blitType(blitTypeIn),
+  models(std::move(modelsIn), alloc) {}
+
+Blit::Blit(Blit&& rhs, const allocator_type& alloc)
+: material(std::move(rhs.material)),
+  passID(rhs.passID),
+  sceneFlags(rhs.sceneFlags),
+  camera(rhs.camera),
+  blitType(rhs.blitType),
+  models(std::move(rhs.models), alloc) {}
+
+Blit::Blit(Blit const& rhs, const allocator_type& alloc)
+: material(rhs.material),
+  passID(rhs.passID),
+  sceneFlags(rhs.sceneFlags),
+  camera(rhs.camera),
+  blitType(rhs.blitType),
+  models(rhs.models, alloc) {}
 
 RenderData::RenderData(const allocator_type& alloc) noexcept
 : constants(alloc),
@@ -429,7 +462,8 @@ RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
   clearViews(alloc),
   viewports(alloc),
   index(alloc),
-  sortedVertices(alloc) {}
+  sortedVertices(alloc),
+  globalRenderData(alloc) {}
 
 RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
 : objects(std::move(rhs.objects), alloc),
@@ -453,7 +487,8 @@ RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
   clearViews(std::move(rhs.clearViews), alloc),
   viewports(std::move(rhs.viewports), alloc),
   index(std::move(rhs.index), alloc),
-  sortedVertices(std::move(rhs.sortedVertices), alloc) {}
+  sortedVertices(std::move(rhs.sortedVertices), alloc),
+  globalRenderData(std::move(rhs.globalRenderData), alloc) {}
 
 // ContinuousContainer
 void RenderGraph::reserve(vertices_size_type sz) {
@@ -495,4 +530,5 @@ RenderGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 
 } // namespace cc
 
+// NOLINTEND(misc-include-cleaner, bugprone-easily-swappable-parameters)
 // clang-format on

@@ -30,7 +30,7 @@ import { b2Shape2D } from './shapes/shape-2d';
 import { IPhysics2DContact, IPhysics2DImpulse, IPhysics2DManifoldPoint, IPhysics2DWorldManifold } from '../spec/i-physics-contact';
 
 export type b2ContactExtends = b2.Contact & {
-    m_userData: any
+    m_userData: any;
 }
 
 const pools: PhysicsContact[] = [];
@@ -66,6 +66,7 @@ const impulse: IPhysics2DImpulse = {
     tangentImpulses: [] as number[],
 };
 
+/** @mangle */
 export class PhysicsContact implements IPhysics2DContact {
     static get (b2contact: b2ContactExtends): PhysicsContact {
         let c = pools.pop();
@@ -211,39 +212,21 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     emit (contactType: string): void {
-        let func = '';
-        switch (contactType) {
-        case Contact2DType.BEGIN_CONTACT:
-            func = 'onBeginContact';
-            break;
-        case Contact2DType.END_CONTACT:
-            func = 'onEndContact';
-            break;
-        case Contact2DType.PRE_SOLVE:
-            func = 'onPreSolve';
-            break;
-        case Contact2DType.POST_SOLVE:
-            func = 'onPostSolve';
-            break;
-        default:
-            break;
-        }
-
         const colliderA = this.colliderA;
         const colliderB = this.colliderB;
 
-        const bodyA = colliderA!.body;
-        const bodyB = colliderB!.body;
+        const hasListenerA = colliderA?.body?.enabledContactListener;
+        const hasListenerB = colliderB?.body?.enabledContactListener;
 
-        if (bodyA!.enabledContactListener) {
-            colliderA?.emit(contactType, colliderA, colliderB, this);
+        if (hasListenerA) {
+            colliderA.emit(contactType, colliderA, colliderB, this);
         }
 
-        if (bodyB!.enabledContactListener) {
-            colliderB?.emit(contactType, colliderB, colliderA, this);
+        if (hasListenerB) {
+            colliderB.emit(contactType, colliderB, colliderA, this);
         }
 
-        if (bodyA!.enabledContactListener || bodyB!.enabledContactListener) {
+        if (hasListenerA || hasListenerB) {
             PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, this);
         }
 
@@ -253,7 +236,7 @@ export class PhysicsContact implements IPhysics2DContact {
         }
     }
 
-    setEnabled (value): void {
+    setEnabled (value: boolean): void {
         this._b2contact!.SetEnabled(value);
     }
 
@@ -261,7 +244,7 @@ export class PhysicsContact implements IPhysics2DContact {
         return this._b2contact!.IsTouching();
     }
 
-    setTangentSpeed (value): void {
+    setTangentSpeed (value: number): void {
         this._b2contact!.SetTangentSpeed(value);
     }
 
@@ -269,7 +252,7 @@ export class PhysicsContact implements IPhysics2DContact {
         return this._b2contact!.GetTangentSpeed();
     }
 
-    setFriction (value): void {
+    setFriction (value: number): void {
         this._b2contact!.SetFriction(value);
     }
 
@@ -281,7 +264,7 @@ export class PhysicsContact implements IPhysics2DContact {
         return this._b2contact!.ResetFriction();
     }
 
-    setRestitution (value): void {
+    setRestitution (value: number): void {
         this._b2contact!.SetRestitution(value);
     }
 

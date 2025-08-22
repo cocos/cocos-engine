@@ -45,4 +45,8 @@ export class PrefabLink extends Component {
     @serializable
     @visible(true)
     public prefab: Prefab | null = null;
+
+    constructor () {
+        super();
+    }
 }

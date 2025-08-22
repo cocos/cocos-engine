@@ -28,12 +28,12 @@
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/optional.hpp>
 #include <memory>
-#include <type_traits>
+#include <type_traits> // IWYU pragma: export
 #include "cocos/base/memory/Memory.h"
 #include "cocos/base/std/container/list.h"
-#include "cocos/base/std/container/string.h"
-#include "cocos/base/std/variant.h"
-#include "cocos/renderer/pipeline/custom/details/Overload.h"
+#include "cocos/base/std/container/string.h" // IWYU pragma: export
+#include "cocos/base/std/variant.h" // IWYU pragma: export
+#include "cocos/renderer/pipeline/custom/details/Overload.h" // IWYU pragma: export
 
 namespace boost {
 
@@ -53,21 +53,6 @@ template <class T>
 using PmrList = ccstd::list<T, boost::container::pmr::polymorphic_allocator<T>>;
 
 namespace render {
-
-template <class... Ts>
-struct VertexOverloaded : Overloaded<Ts...> {
-    VertexOverloaded(Ts &&...ts) // NOLINT
-    : Overloaded<Ts...>{std::forward<Ts>(ts)...} {}
-    template <class T>
-    auto operator()(T *ptr) {
-        return this->Overloaded<Ts...>::operator()(*ptr);
-    }
-};
-
-template <class GraphT, class... Ts>
-auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts &&...args) {
-    return ccstd::visit(VertexOverloaded<Ts...>{std::forward<Ts>(args)...}, value(v, g));
-}
 
 namespace impl {
 

@@ -72,10 +72,28 @@ export class PhysicsRayResult {
         return this._hitNormal;
     }
 
+    /**
+     * @en
+     * Represents the fraction (range: 0.0 to 1.0) along the ray's path where the closest collision occurs.
+     * A value of 0.0 indicates an immediate collision at the ray's starting point,
+     * while a value of 1.0 means no collision along the entire ray length.
+     * Intermediate values indicate the fraction of the ray distance at which the closest hit is detected.
+     * Warning: only take effect with Bullet.
+     * @zh
+     * 表示射线路径上最近碰撞发生的位置，以百分比形式（范围：0.0 到 1.0）。
+     * 0.0 表示射线在起点处立即发生碰撞，1.0 表示射线在整个路径上未发生碰撞。
+     * 中间值表示碰撞点在射线总长度上的比例位置。
+     * 注意：只在 Bullet 引擎起效.
+     */
+    get closestHitFraction (): number {
+        return this._closestHitFraction;
+    }
+
     protected _hitPoint: Vec3 = new Vec3();
     protected _hitNormal: Vec3 = new Vec3();
     protected _distance = 0;
     protected _collider: Collider | null = null;
+    protected _closestHitFraction = 0;
 
     /**
      * @en
@@ -85,11 +103,12 @@ export class PhysicsRayResult {
      *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like): void {
+    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, closestHitFraction?: number): void {
         Vec3.copy(this._hitPoint, hitPoint);
         Vec3.copy(this._hitNormal, hitNormal);
         this._distance = distance;
         this._collider = collider;
+        if (closestHitFraction) this._closestHitFraction = closestHitFraction;
     }
 
     /**
@@ -104,6 +123,7 @@ export class PhysicsRayResult {
         Vec3.copy(c._hitNormal, this._hitNormal);
         c._distance = this._distance;
         c._collider = this._collider;
+        c._closestHitFraction = this._closestHitFraction;
         return c;
     }
 }

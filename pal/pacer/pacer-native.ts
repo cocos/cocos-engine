@@ -31,7 +31,7 @@ export class Pacer {
     private _onTick: (() => void) | null = null;
     private _targetFrameRate = 60;
     private _isPlaying = false;
-    private _updateCallback: () => void;
+    private declare _updateCallback: () => void;
     constructor () {
         this._updateCallback = (): void => {
             if (this._isPlaying) {

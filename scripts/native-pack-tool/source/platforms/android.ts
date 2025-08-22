@@ -71,11 +71,11 @@ export class AndroidPackTool extends NativePackTool {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
-        await this.excuteCocosTemplateTask();
+        await this.executeCocosTemplateTask();
 
         await this.updateAndroidGradleValues();
         await this.updateManifest();
-        await this.encrypteScripts();
+        await this.encryptScripts();
         await this.generateAppNameValues();
         return true;
     }
@@ -585,6 +585,21 @@ export class AndroidPackTool extends NativePackTool {
                 `${this.params.platformParams.packageName}/com.cocos.game.AppActivity`,
             ],
             false);
+        return true;
+    }
+
+    static async openWithIDE(projPath: string, ASDir: string) {
+        let ASFile = "./studio"
+        if (!ASDir || !fs.existsSync(ASDir)) {
+            throw new Error(`android studio's runnable file Dir not set or not exist`);
+        }
+        if (process.platform === 'win32') {
+            ASFile = "studio.bat"
+            projPath = projPath.replace(/\\/g, '/');
+            ASDir = ASDir.replace(/\\/g, '/');
+        }
+
+        cchelper.runCmd(ASFile, [projPath], false, ASDir);
         return true;
     }
 }

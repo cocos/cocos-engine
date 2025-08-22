@@ -140,6 +140,9 @@ function createQuatKeyframeValue (params: QuatKeyframeValueParameters): QuatKeyf
  */
 @ccclass('cc.QuatCurve')
 export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
+    constructor () {
+        super();
+    }
     /**
      * @en
      * Gets or sets the pre-extrapolation-mode of this curve.
@@ -283,7 +286,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         if (values !== undefined) {
             assertIsTrue(Array.isArray(times));
             this.setKeyframes(
-                times.slice(),
+                (times as number[]).slice(),
                 values.map((value) => createQuatKeyframeValue(value)),
             );
         } else {
@@ -320,11 +323,9 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
 
         const nFrames = nKeyframes;
         const interpolationModesSize = INTERPOLATION_MODE_BYTES * (interpolationModeRepeated ? 1 : nFrames);
-        const easingMethodsSize = keyframeValues.reduce(
-            (result, { easingMethod }) => result += (Array.isArray(easingMethod)
-                ? EASING_METHOD_BYTES + (EASING_METHOD_BEZIER_COMPONENT_BYTES * 4)
-                : EASING_METHOD_BYTES), 0,
-        );
+        const easingMethodsSize = keyframeValues.reduce((result, { easingMethod }) => result += (Array.isArray(easingMethod)
+            ? EASING_METHOD_BYTES + (EASING_METHOD_BEZIER_COMPONENT_BYTES * 4)
+            : EASING_METHOD_BYTES), 0);
 
         let dataSize = 0;
         dataSize += (
@@ -342,7 +343,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
 
         // Flags
         let flags = 0;
-        if (interpolationModeRepeated) { flags |= KeyframeValueFlagMask.INTERPOLATION_MODE; }
+        if (interpolationModeRepeated) { flags |= QuatCurveKeyframeValueFlagMask.INTERPOLATION_MODE; }
         dataView.setUint32(P, flags, true); P += FLAGS_BYTES;
 
         // Frame count
@@ -407,19 +408,22 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
 
         // Flags
         const flags = dataView.getUint32(P, true); P += FLAGS_BYTES;
-        const interpolationModeRepeated = flags & KeyframeValueFlagMask.INTERPOLATION_MODE;
+        const interpolationModeRepeated = flags & QuatCurveKeyframeValueFlagMask.INTERPOLATION_MODE;
 
         // Frame count
         const nFrames = dataView.getUint32(P, true); P += FRAME_COUNT_BYTES;
 
         // Times
-        const times = Array.from({ length: nFrames },
-            (_, index) => dataView.getFloat32(P + TIME_BYTES * index, true));
+        const times = Array.from(
+            { length: nFrames },
+            (_, index) => dataView.getFloat32(P + TIME_BYTES * index, true),
+        );
         P += TIME_BYTES * nFrames;
 
         // Frame values
         const P_VALUES = P; P += VALUE_BYTES * 4 * nFrames;
-        const keyframeValues = Array.from({ length: nFrames },
+        const keyframeValues = Array.from(
+            { length: nFrames },
             (_, index) => {
                 const pQuat = P_VALUES + VALUE_BYTES * 4 * index;
                 const x = dataView.getFloat32(pQuat + VALUE_BYTES * 0, true);
@@ -443,7 +447,8 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
                     P += EASING_METHOD_BEZIER_COMPONENT_BYTES * 4;
                 }
                 return keyframeValue;
-            });
+            },
+        );
 
         if (interpolationModeRepeated) {
             const interpolationMode = dataView.getUint8(P);
@@ -464,7 +469,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     }
 }
 
-enum KeyframeValueFlagMask {
+enum QuatCurveKeyframeValueFlagMask {
     INTERPOLATION_MODE = 1 << 0,
 }
 

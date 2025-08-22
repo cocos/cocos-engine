@@ -1,0 +1,101 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs-easu
+      pass: cc-fsr-easu
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: vs
+      frag: fs-rcas
+      pass: cc-fsr-rcas
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+CCProgram vs %{
+  #include <./chunks/vs1>
+}%
+
+CCProgram ubo %{
+    #pragma rate FsrUBO pass
+    uniform FsrUBO {
+        vec4 fsrTexSize;
+        vec4 fsrParams;
+    };
+    #pragma rate outputResultMap pass
+    uniform sampler2D outputResultMap;
+}%
+
+CCProgram fs-easu %{
+  precision highp float;
+
+  #include <./chunks/fsr>
+
+  in vec2 v_uv;
+  #include <ubo>
+
+  vec4 FsrRcasLoadF(vec2 p) {
+    vec4 color = texture(outputResultMap, p/fsrTexSize.zw);
+    return color;
+  }
+  vec3 FsrEasuCF(vec2 p) {
+    vec4 color = texture(outputResultMap, p);
+    return color.rgb;
+  }
+
+  layout(location = 0) out vec4 fragColor;
+  void main () {
+    vec3 c;
+    vec4 con0, con1, con2, con3;
+
+    // "rendersize" refers to size of source image before upscaling.
+    vec2 rendersize = fsrTexSize.xy;
+    FsrEasuCon(
+      con0, con1, con2, con3,
+      rendersize, rendersize, fsrTexSize.zw
+    );
+    FsrEasuF(c, gl_FragCoord.xy, con0, con1, con2, con3);
+    float alpha = texture(outputResultMap, v_uv).a;
+    fragColor = vec4(c.xyz, alpha);
+  }
+
+}%
+
+CCProgram fs-rcas %{
+  precision highp float;
+
+  #include <./chunks/fsr>
+
+  in vec2 v_uv;
+  #include <ubo>
+
+  vec4 FsrRcasLoadF(vec2 p) {
+    vec4 color = texture(outputResultMap, p/fsrTexSize.zw);
+    return color;
+  }
+  vec3 FsrEasuCF(vec2 p) {
+    vec4 color = texture(outputResultMap, p);
+    return color.rgb;
+  }
+
+  layout(location = 0) out vec4 fragColor;
+  void main () {
+    // Set up constants
+    float con;
+    FsrRcasCon(con, fsrParams.x);
+
+    // Perform RCAS pass
+    vec3 col = FsrRcasF(gl_FragCoord.xy, con);
+    float alpha = texture(outputResultMap, v_uv).a;
+    fragColor = vec4(col, alpha);
+  }
+}%

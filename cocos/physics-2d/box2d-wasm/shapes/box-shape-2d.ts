@@ -30,8 +30,8 @@ import { IBoxShape } from '../../spec/i-physics-shape';
 import { Vec2, Rect } from '../../../core';
 
 const tempAabb = new Rect();
-const tempB2Vec2_1 = { x: 0, y: 0 };
 
+/** @mangle */
 export class B2BoxShape extends B2Shape2D implements IBoxShape {
     _worldPoints: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
     get worldPoints (): Readonly<Vec2>[] {

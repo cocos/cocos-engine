@@ -23,7 +23,6 @@
 */
 
 import { BulletShape } from './bullet-shape';
-import { warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
@@ -32,8 +31,9 @@ import { BulletCache } from '../bullet-cache';
 import { bt, EBulletType } from '../instantiated';
 import { BulletBvhTriangleMeshShape } from '../bullet-bvh-triangle-mesh-shape';
 
+/** @mangle */
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
-    private btBVHMeshShape;
+    private btBVHMeshShape: BulletBvhTriangleMeshShape | null = null;
     public get collider (): MeshCollider {
         return this._collider as MeshCollider;
     }

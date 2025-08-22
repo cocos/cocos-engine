@@ -105,7 +105,8 @@ std::string System::getSystemVersion() const {
 }
 
 bool System::openURL(const std::string& url) {
-    return false;
+    NapiHelper::napiCallFunction("openUrl", url);
+    return true;
 }
 
 void System::copyTextToClipboard(const std::string& text) {

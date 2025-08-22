@@ -24,7 +24,10 @@
 
 import { cclegacy } from '../core';
 import { RenderPipeline as NrRenderPipeline } from './render-pipeline';
-import { Buffer, InputAssembler } from '../gfx';
+export {
+    IRenderPipelineInfo, MAX_BLOOM_FILTER_PASS_NUM,
+    BloomRenderData, PipelineRenderData
+} from './render-pipeline';
 
 declare const nr: any;
 
@@ -32,9 +35,3 @@ export const RenderPipeline: typeof NrRenderPipeline = nr.RenderPipeline;
 export type RenderPipeline = NrRenderPipeline;
 // Do not delete, for the class detection of editor
 cclegacy.RenderPipeline = RenderPipeline;
-
-export class PipelineInputAssemblerData {
-    quadIB: Buffer|null = null;
-    quadVB: Buffer|null = null;
-    quadIA: InputAssembler|null = null;
-}

@@ -8,6 +8,24 @@ module.exports = {
     inspector: {
         cloneToEdit: '克隆出新资源，使用并编辑',
         cloneToDirectoryIllegal: '保存路径请限制在当前项目 /assets 路径内',
+        preview: {
+            header: '预览',
+            resetCameraView: '复位摄像机视图',
+            viewToggle: '切换 2D/3D 视图',
+        },
+        spine: {
+            skin: '皮肤',
+            animation: '动画',
+            loop: '循环',
+            timeScale: '速率',
+            enable: '启用',
+            premultipliedAlpha: '贴图预乘',
+            useTint: '染色效果',
+            debug: '调试',
+            debugSlots: '槽',
+            debugBones: '骨骼',
+            debugMesh: '网格',
+        },
     },
 
     assets: {
@@ -152,6 +170,7 @@ module.exports = {
             isRGBE: '作为 RGBE 格式',
             isRGBETip: '作为 RGBE 格式',
             flipGreenChannel: '翻转绿色通道',
+            flipGreenChannelTip: '是否翻转绿色通道',
         },
         spriteFrame: {
             packable: 'Packable',
@@ -407,8 +426,8 @@ module.exports = {
                 },
             },
             animationBakeRate: {
-                name: '动画烘焙速率',
-                title: '指定动画烘焙速率，单位为帧每秒（FPS）',
+                name: '动画烘焙采样率',
+                title: '指定动画烘焙每秒采集多少次数据，单位为帧每秒（FPS）',
                 auto: '自动',
             },
             promoteSingleRootNode: {
@@ -478,11 +497,19 @@ module.exports = {
             save: '保存',
             abort: '丢弃',
         },
+        spine_data: {
+            atlas: '图集',
+            atlas_warn: '设置图集失败，需要后缀为 .atlas 的文本文件',
+        },
     },
 
     menu: {
         node: '节点菜单',
         component: '组件菜单',
+
+        copy_property_path: '复制属性路径',
+        copy_property_value: '复制值',
+        paste_property_value: '粘贴值',
 
         remove_component: '删除组件',
         reset_component: '重置组件',

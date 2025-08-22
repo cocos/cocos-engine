@@ -44,6 +44,7 @@ const BUILD_CONFIG = {
             'tiled-map', 'tween',
             'ui', 'video',
             'websocket', 'webview',
+            'legacy-pipeline',
         ],
         loose: true,
         mode: 'BUILD',

@@ -27,6 +27,7 @@
 #include "LayoutGraphTypes.h"
 #include "NativePipelineTypes.h"
 #include "RenderGraphTypes.h"
+#include <boost/container/static_vector.hpp>
 
 namespace cc {
 
@@ -57,23 +58,14 @@ struct RenderGraphVisitorContext {
     gfx::Device* device = nullptr;
     gfx::CommandBuffer* cmdBuff = nullptr;
     NativePipeline* ppl = nullptr;
-    ccstd::pmr::unordered_map<
-        RenderGraph::vertex_descriptor,
-        gfx::DescriptorSet*>& renderGraphDescriptorSet;
-    ccstd::pmr::unordered_map<
-        RenderGraph::vertex_descriptor,
-        gfx::DescriptorSet*>& profilerPerPassDescriptorSets;
-    ccstd::pmr::unordered_map<
-        RenderGraph::vertex_descriptor,
-        gfx::DescriptorSet*>& perInstanceDescriptorSets;
     ProgramLibrary* programLib = nullptr;
+    ccstd::pmr::vector<ccstd::optional<gfx::Viewport>>& viewportStack;
     CustomRenderGraphContext customContext;
     boost::container::pmr::memory_resource* scratch = nullptr;
     gfx::RenderPass* currentPass = nullptr;
     uint32_t subpassIndex = 0;
-    LayoutGraphData::vertex_descriptor currentPassLayoutID = LayoutGraphData::null_vertex();
     RenderGraph::vertex_descriptor currentInFlightPassID = RenderGraph::null_vertex();
-    Mat4 currentProjMatrix;
+    boost::container::static_vector<bool, 2> passShowStatistics;
 };
 
 } // namespace render

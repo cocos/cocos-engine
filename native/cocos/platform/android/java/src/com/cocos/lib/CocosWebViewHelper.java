@@ -56,6 +56,15 @@ public class CocosWebViewHelper {
         CocosWebViewHelper.webViews = new SparseArray<CocosWebView>();
     }
 
+    public static void resetStaticVariables() {
+        sLayout = null;
+        if (sHandler != null) {
+            sHandler.removeCallbacksAndMessages(null);
+            sHandler = null;
+        }
+        webViews = null;
+    }
+
     private static native boolean shouldStartLoading(int index, String message);
     private static native void didFinishLoading(int index, String message);
     private static native void didFailLoading(int index, String message);
@@ -71,7 +80,7 @@ public class CocosWebViewHelper {
         GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CocosWebView webView = new CocosWebView(GlobalObject.getContext(), index);
+                CocosWebView webView = new CocosWebView(GlobalObject.getActivity(), index);
                 FrameLayout.LayoutParams lParams = new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.WRAP_CONTENT,
                         FrameLayout.LayoutParams.WRAP_CONTENT);

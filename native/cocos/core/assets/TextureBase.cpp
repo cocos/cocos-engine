@@ -182,6 +182,10 @@ bool TextureBase::isCompressed() const {
     return (_format >= PixelFormat::RGB_ETC1 && _format <= PixelFormat::RGBA_ASTC_12X12) || (_format >= PixelFormat::RGB_A_PVRTC_2BPPV1 && _format <= PixelFormat::RGBA_ETC1);
 }
 
+bool TextureBase::isAlphaAtlas() const {
+    return (_format == PixelFormat::RGBA_ETC1 || _format == PixelFormat::RGB_A_PVRTC_4BPPV1 || _format == PixelFormat::RGB_A_PVRTC_2BPPV1);
+}
+
 void TextureBase::notifySamplerUpdated() {
     // emit(EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED, _gfxSampler);
     emit<SamplerUpdated>(_gfxSampler);

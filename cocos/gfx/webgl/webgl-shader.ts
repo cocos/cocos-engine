@@ -28,6 +28,7 @@ import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-com
 import { WebGLDeviceManager } from './webgl-define';
 import { IWebGLGPUShader, IWebGLGPUShaderStage } from './webgl-gpu-objects';
 
+/** @mangle */
 export class WebGLShader extends Shader {
     get gpuShader (): IWebGLGPUShader {
         if (this._gpuShader!.glProgram === null) {
@@ -37,6 +38,10 @@ export class WebGLShader extends Shader {
     }
 
     private _gpuShader: IWebGLGPUShader | null = null;
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: Readonly<ShaderInfo>): void {
         this._name = info.name;

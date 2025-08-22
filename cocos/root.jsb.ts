@@ -22,11 +22,10 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from './core/global-exports';
+import { cclegacy } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
 import { settings, Settings, warnID, Pool, macro, log } from './core';
-import { ForwardPipeline } from './rendering';
 import { PipelineEventProcessor } from './rendering/pipeline-event';
 import type { Root as JsbRoot } from './root';
 
@@ -56,8 +55,8 @@ export interface IRootInfo {
 const rootProto: any = Root.prototype;
 
 rootProto._createBatcher2D = function () {
-    if (!this._batcher && legacyCC.internal.Batcher2D) {
-        this._batcher = new legacyCC.internal.Batcher2D(this);
+    if (!this._batcher && cclegacy.internal.Batcher2D) {
+        this._batcher = new cclegacy.internal.Batcher2D(this);
         if (!this._batcher!.initialize()) {
             this._batcher = null;
             this.destroy();
@@ -93,7 +92,7 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
 
 rootProto._ctor = function (device: Device) {
     this._device = device;
-    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
+    this._dataPoolMgr = cclegacy.internal.DataPoolManager && new cclegacy.internal.DataPoolManager(device) as DataPoolManager;
     this._modelPools = new Map();
     this._lightPools = new Map();
     this._batcher = null;
@@ -118,6 +117,11 @@ rootProto.createModel = function (ModelCtor) {
     model.initialize();
     return model;
 };
+
+jsb.buildRenderPipeline = function () {
+    const director = cclegacy.director;
+    director.buildRenderPipeline();
+}
 
 rootProto.destroyModel = function (m) {
     const p = this._modelPools.get(m.constructor);
@@ -197,19 +201,19 @@ rootProto.recycleLight = function (l) {
 };
 
 rootProto._onDirectorBeforeCommit = function () {
-    legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
+    cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_COMMIT);
 };
 
 rootProto._onDirectorBeforeRender = function () {
-    legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_RENDER);
+    cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_RENDER);
 };
 
 rootProto._onDirectorAfterRender = function () {
-    legacyCC.director.emit(legacyCC.Director.EVENT_AFTER_RENDER);
+    cclegacy.director.emit(cclegacy.Director.EVENT_AFTER_RENDER);
 };
 
 rootProto._onDirectorPipelineChanged = function () {
-    const scene = legacyCC.director.getScene();
+    const scene = cclegacy.director.getScene();
     if (scene) {
         scene._activate();
     }
@@ -218,34 +222,36 @@ rootProto._onDirectorPipelineChanged = function () {
 const oldOnGlobalPipelineStateChanged = rootProto.onGlobalPipelineStateChanged;
 rootProto.onGlobalPipelineStateChanged = function() {
     oldOnGlobalPipelineStateChanged.call(this);
-    const builder = legacyCC.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+    const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
     if (builder) {
         if (typeof builder.onGlobalPipelineStateChanged === 'function') {
             builder.onGlobalPipelineStateChanged();
         }
-        legacyCC.rendering.forceResizeAllWindows();
+        cclegacy.rendering.forceResizeAllWindows();
     }
 }
 
 const oldFrameMove = rootProto.frameMove;
 rootProto.frameMove = function (deltaTime: number) {
-    oldFrameMove.call(this, deltaTime, legacyCC.director.getTotalFrames());
+    oldFrameMove.call(this, deltaTime, cclegacy.director.getTotalFrames());
 };
 
 const oldSetPipeline = rootProto.setRenderPipeline;
-rootProto.setRenderPipeline = function (pipeline) {
+rootProto.setRenderPipeline = function (customPipeline: boolean) {
     let ppl;
-    if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this.usesCustomPipeline) {
-        legacyCC.rendering.createCustomPipeline();
+    if (customPipeline) {
+        cclegacy.rendering.createCustomPipeline();
         ppl = oldSetPipeline.call(this, null);
         log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
     } else {
-        if (!pipeline) {
-            // pipeline should not be created in C++, ._ctor need to be triggered
-            pipeline = new ForwardPipeline();
+        // pipeline should not be created in C++, ._ctor need to be triggered
+        if (cclegacy.legacy_rendering) {
+            const pipeline = cclegacy.legacy_rendering.createDefaultPipeline();
             pipeline.init();
+            ppl = oldSetPipeline.call(this, pipeline);
+        } else {
+            log(`No render pipeline: legacy-pipeline is not available`);
         }
-        ppl = oldSetPipeline.call(this, pipeline);
     }
     this._createBatcher2D();
     return ppl;

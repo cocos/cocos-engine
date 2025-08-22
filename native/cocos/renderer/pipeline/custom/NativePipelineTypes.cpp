@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -28,6 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
+// NOLINTBEGIN(misc-include-cleaner, bugprone-easily-swappable-parameters)
 #include "NativePipelineTypes.h"
 
 namespace cc {
@@ -74,23 +75,14 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc) {}
 
-NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept
-: opaqueQueue(alloc),
-  transparentQueue(alloc),
-  probeQueue(alloc),
-  opaqueInstancingQueue(alloc),
-  transparentInstancingQueue(alloc),
-  sceneFlags(sceneFlagsIn),
-  subpassOrPassLayoutID(subpassOrPassLayoutIDIn) {}
-
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : opaqueQueue(std::move(rhs.opaqueQueue), alloc),
   transparentQueue(std::move(rhs.transparentQueue), alloc),
   probeQueue(std::move(rhs.probeQueue), alloc),
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
+  camera(rhs.camera),
   sceneFlags(rhs.sceneFlags),
-  subpassOrPassLayoutID(rhs.subpassOrPassLayoutID),
   lightByteOffset(rhs.lightByteOffset) {}
 
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
@@ -162,16 +154,6 @@ LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, 
   descriptorSetPool(std::move(rhs.descriptorSetPool), alloc),
   programResources(std::move(rhs.programResources), alloc) {}
 
-SceneResource::SceneResource(const allocator_type& alloc) noexcept
-: resourceIndex(alloc),
-  storageBuffers(alloc),
-  storageImages(alloc) {}
-
-SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
-: resourceIndex(std::move(rhs.resourceIndex), alloc),
-  storageBuffers(std::move(rhs.storageBuffers), alloc),
-  storageImages(std::move(rhs.storageImages), alloc) {}
-
 FrustumCulling::FrustumCulling(const allocator_type& alloc) noexcept
 : resultIndex(alloc) {}
 
@@ -195,16 +177,18 @@ SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
   frustumCullingResults(alloc),
   lightBoundsCullings(alloc),
   lightBoundsCullingResults(alloc),
+  renderQueueIndex(alloc),
   renderQueues(alloc),
-  renderQueueIndex(alloc) {}
+  renderQueueQueryIndex(alloc) {}
 
 SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
 : frustumCullings(std::move(rhs.frustumCullings), alloc),
   frustumCullingResults(std::move(rhs.frustumCullingResults), alloc),
   lightBoundsCullings(std::move(rhs.lightBoundsCullings), alloc),
   lightBoundsCullingResults(std::move(rhs.lightBoundsCullingResults), alloc),
-  renderQueues(std::move(rhs.renderQueues), alloc),
   renderQueueIndex(std::move(rhs.renderQueueIndex), alloc),
+  renderQueues(std::move(rhs.renderQueues), alloc),
+  renderQueueQueryIndex(std::move(rhs.renderQueueQueryIndex), alloc),
   numFrustumCulling(rhs.numFrustumCulling),
   numLightBoundsCulling(rhs.numLightBoundsCulling),
   numRenderQueues(rhs.numRenderQueues),
@@ -216,13 +200,27 @@ LightResource::LightResource(const allocator_type& alloc) noexcept
   lights(alloc),
   lightIndex(alloc) {}
 
+DeviceRenderData::DeviceRenderData(const allocator_type& alloc) noexcept
+: buffers(alloc),
+  textures(alloc),
+  samplers(alloc) {}
+
+DeviceRenderData::DeviceRenderData(DeviceRenderData&& rhs, const allocator_type& alloc)
+: hasConstants(rhs.hasConstants),
+  required(rhs.required),
+  buffers(std::move(rhs.buffers), alloc),
+  textures(std::move(rhs.textures), alloc),
+  samplers(std::move(rhs.samplers), alloc) {}
+
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
-  renderSceneResources(alloc),
   sceneCulling(alloc),
-  lightResources(alloc) {}
+  lightResources(alloc),
+  resourceGraphIndex(alloc),
+  graphNodeRenderData(alloc),
+  graphNodeDescriptorSets(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),
@@ -262,4 +260,5 @@ PipelineCustomization::PipelineCustomization(PipelineCustomization const& rhs, c
 
 } // namespace cc
 
+// NOLINTEND(misc-include-cleaner, bugprone-easily-swappable-parameters)
 // clang-format on

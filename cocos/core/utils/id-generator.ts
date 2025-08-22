@@ -49,14 +49,14 @@ export class IDGenerator {
      * `getNewId()` to get a unique id.
      * @zh 记录当前 id 值。调用 `getNewId()` 时，它可能被加1。应该使用 `getNewId()` 获取唯一的 id。
      */
-    public id: number;
+    public declare id: number;
 
     /**
      * @en A string value indicates the category this IDGenerator belongs to. It will be an empty
      * string if not be assigned by passed parameter in constructor.
      * @zh 用于标识该 IDGenerator 所属的类别。如果构造函数没有传参数对它赋值的话，它将是一个空字符串。
      */
-    public prefix: string;
+    public declare prefix: string;
 
     /**
      * @en Construct a new id generator.

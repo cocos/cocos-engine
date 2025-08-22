@@ -28,7 +28,7 @@ import { ECollider2DType } from '../../physics-types';
 import { IPolygonShape } from '../../../spec/i-physics-shape';
 import { displayOrder, help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu } = _decorator;
 
 @ccclass('cc.PolygonCollider2D')
 @help('i18n:cc.PolygonCollider2D')

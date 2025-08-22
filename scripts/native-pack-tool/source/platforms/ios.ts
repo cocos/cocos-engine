@@ -30,10 +30,10 @@ export class IOSPackTool extends MacOSPackTool {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
-        await this.excuteCocosTemplateTask();
+        await this.executeCocosTemplateTask();
 
         await this.setOrientation();
-        await this.encrypteScripts();
+        await this.encryptScripts();
         return true;
     }
 
@@ -169,7 +169,7 @@ export class IOSPackTool extends MacOSPackTool {
                 .filter(
                     (x) => x.startsWith('iPhone') && x.indexOf('Simulator') >= 0);
         const exact = (l: string) => {
-            const p = l.split('(')[0].substr(6);
+            const p = l.split('(')[0].substring(6);
             const m = l.match(/\((\d+\.\d+)\)/);
             if (m) {
                 return parseInt(m[1]) + m.index!;
@@ -225,7 +225,7 @@ export class IOSPackTool extends MacOSPackTool {
     }
 
     readBundleId(): string | null {
-        const prjName = this.getExcutableNameOrDefault();
+        const prjName = this.getExecutableNameOrDefault();
         const cmakeTmpDir =
             fs.readdirSync(ps.join(this.paths.nativePrjDir, 'CMakeFiles'))
                 .filter((x) => x.startsWith(prjName))[0];

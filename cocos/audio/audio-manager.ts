@@ -26,14 +26,19 @@ import { AudioPlayer, OneShotAudio } from 'pal/audio';
 import { js } from '../core';
 
 type ManagedAudio = AudioPlayer | OneShotAudio;
+
+/** @mangle */
 interface AudioInfo<T> {
     audio: T;
     playTime: number;
 }
 
+/** @mangle */
 export class AudioManager {
     private _oneShotAudioInfoList: AudioInfo<OneShotAudio>[] = [];
     private _audioPlayerInfoList: AudioInfo<AudioPlayer>[] = [];
+
+    constructor () {}
 
     private _findIndex (audioInfoList: AudioInfo<ManagedAudio>[], audio: ManagedAudio): number {
         return audioInfoList.findIndex((item) => item.audio === audio);
@@ -46,10 +51,13 @@ export class AudioManager {
             audioInfoList[idx].playTime = performance.now();
             return false;
         }
-        audioInfoList.push({
+
+        const audioInfo: AudioInfo<ManagedAudio> = {
             audio,
             playTime: performance.now(),
-        });
+        };
+
+        audioInfoList.push(audioInfo);
         return true;
     }
     public addPlaying (audio: ManagedAudio): void {

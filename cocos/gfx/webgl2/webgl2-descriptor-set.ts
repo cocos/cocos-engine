@@ -30,7 +30,12 @@ import { WebGL2Texture } from './webgl2-texture';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 import { DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from '../base/define';
 
+/** @mangle */
 export class WebGL2DescriptorSet extends DescriptorSet {
+    constructor () {
+        super();
+    }
+
     get gpuDescriptorSet (): IWebGL2GPUDescriptorSet {
         return this._gpuDescriptorSet as IWebGL2GPUDescriptorSet;
     }
@@ -39,7 +44,7 @@ export class WebGL2DescriptorSet extends DescriptorSet {
 
     public initialize (info: Readonly<DescriptorSetInfo>): void {
         this._layout = info.layout;
-        const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGL2DescriptorSetLayout).gpuDescriptorSetLayout;
+        const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGL2DescriptorSetLayout).getGpuDescriptorSetLayout();
 
         this._buffers = Array(descriptorCount).fill(null);
         this._textures = Array(descriptorCount).fill(null);
@@ -51,12 +56,13 @@ export class WebGL2DescriptorSet extends DescriptorSet {
         for (let i = 0; i < bindings.length; ++i) {
             const binding = bindings[i];
             for (let j = 0; j < binding.count; j++) {
-                gpuDescriptors.push({
+                const gpuDescriptor: IWebGL2GPUDescriptor = {
                     type: binding.descriptorType,
                     gpuBuffer: null,
                     gpuTextureView: null,
                     gpuSampler: null,
-                });
+                };
+                gpuDescriptors.push(gpuDescriptor);
             }
         }
     }
@@ -72,7 +78,7 @@ export class WebGL2DescriptorSet extends DescriptorSet {
             for (let i = 0; i < descriptors.length; ++i) {
                 if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
                     if (this._buffers[i]) {
-                        descriptors[i].gpuBuffer = (this._buffers[i] as WebGL2Buffer).gpuBuffer;
+                        descriptors[i].gpuBuffer = (this._buffers[i] as WebGL2Buffer).getGpuBuffer();
                     }
                 } else if (descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                     if (this._textures[i]) {

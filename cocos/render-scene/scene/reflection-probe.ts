@@ -22,16 +22,16 @@
  THE SOFTWARE.
 */
 import { EDITOR } from 'internal:constants';
-import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
+import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SkyBoxFlagValue, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4, Size } from '../../core';
+import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4, Size, v3, quat } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
 
 export enum ProbeClearFlag {
-    SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
+    SKYBOX = SkyBoxFlagValue.VALUE | ClearFlagBit.DEPTH_STENCIL,
     SOLID_COLOR = ClearFlagBit.ALL,
 }
 
@@ -41,15 +41,17 @@ export enum ProbeType {
 }
 // right left up down front back
 const cameraDir: Vec3[] = [
-    new Vec3(0, -90, 0),
-    new Vec3(0, 90, 0),
+    v3(0, -90, 0),
+    v3(0, 90, 0),
 
-    new Vec3(90, 0, 0),
-    new Vec3(-90, 0, 0),
+    v3(90, 0, 0),
+    v3(-90, 0, 0),
 
-    new Vec3(0, 0, 0),
-    new Vec3(0, 180, 0),
+    v3(0, 0, 0),
+    v3(0, 180, 0),
 ];
+
+const tempVec3 = v3();
 
 export class ReflectionProbe {
     public bakedCubeTextures: RenderTexture[] = [];
@@ -62,7 +64,7 @@ export class ReflectionProbe {
     protected _visibility = CAMERA_DEFAULT_MASK;
     protected _probeType = ProbeType.CUBE;
     protected _cubemap: TextureCube | null = null;
-    protected readonly _size = new Vec3(1, 1, 1);
+    protected readonly _size = v3(1, 1, 1);
 
     /**
      * @en Render cubemap's camera
@@ -94,24 +96,24 @@ export class ReflectionProbe {
      * @en The position of the camera in world space.
      * @zh 世界空间相机的位置
      */
-    private _cameraWorldPos = new Vec3();
+    private _cameraWorldPos = v3();
 
     /**
      * @en The rotation of the camera in world space.
      * @zh 世界空间相机的旋转
      */
-    private _cameraWorldRotation = new Quat();
+    private _cameraWorldRotation = quat();
 
     /**
      * @en The forward direction vertor of the camera in world space.
      * @zh 世界空间相机朝前的方向向量
      */
-    private _forward = new Vec3();
+    private _forward = v3();
     /**
      * @en The up direction vertor of the camera in world space.
      * @zh 世界空间相机朝上的方向向量
      */
-    private _up = new Vec3();
+    private _up = v3();
 
     /**
      * @en Reflection probe cube pattern preview sphere
@@ -191,8 +193,8 @@ export class ReflectionProbe {
     set size (value) {
         this._size.set(value);
 
-        const pos = this.node.getWorldPosition();
-        geometry.AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
+        this.node.getWorldPosition(tempVec3);
+        geometry.AABB.set(this._boundingBox!, tempVec3.x, tempVec3.y, tempVec3.z, value.x, value.y, value.z);
     }
     get size (): Vec3 {
         return this._size;
@@ -280,8 +282,9 @@ export class ReflectionProbe {
     public initialize (node: Node, cameraNode: Node): void {
         this._node = node;
         this._cameraNode = cameraNode;
-        const pos = this.node.getWorldPosition();
-        this._boundingBox = geometry.AABB.create(pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
+        this.node.getWorldPosition(tempVec3);
+        const size = this._size;
+        this._boundingBox = geometry.AABB.create(tempVec3.x, tempVec3.y, tempVec3.z, size.x, size.y, size.z);
         this._createCamera(cameraNode);
     }
 
@@ -378,8 +381,9 @@ export class ReflectionProbe {
 
     public updateBoundingBox (): void {
         if (this.node) {
-            const pos = this.node.getWorldPosition();
-            geometry.AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
+            this.node.getWorldPosition(tempVec3);
+            const size = this._size;
+            geometry.AABB.set(this._boundingBox!, tempVec3.x, tempVec3.y, tempVec3.z, size.x, size.y, size.z);
         }
     }
 

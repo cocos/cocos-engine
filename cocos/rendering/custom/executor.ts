@@ -29,7 +29,7 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, PipelineStateManager } from '..';
-import { assert, cclegacy, RecyclePool } from '../../core';
+import { cclegacy, RecyclePool } from '../../core';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
 import {
@@ -62,10 +62,13 @@ import {
     Rect,
     RenderPass,
     RenderPassInfo,
+    SamplerInfo,
     StoreOp,
     SurfaceTransform,
     Swapchain,
     Texture,
+    TextureBlit,
+    Filter,
     TextureInfo,
     TextureType,
     TextureUsageBit,
@@ -77,14 +80,14 @@ import { Vec4 } from '../../core/math/vec4';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
-import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
+import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal, UBOLocalEnum } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { PipelineInputAssemblerData } from '../render-pipeline';
-import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
+import { PipelineInputAssemblerData } from '../render-types';
+import { DescriptorSetData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
-import { SceneVisitor } from './scene';
 import {
     Blit,
+    BlitType,
     ClearView,
     ComputePass,
     ComputeSubpass,
@@ -100,10 +103,10 @@ import {
     PersistentTexture,
     RasterPass,
     RasterSubpass,
-    RasterView,
     RaytracePass,
     RenderData,
     RenderGraph,
+    RenderGraphValue,
     RenderGraphVisitor,
     RenderQueue,
     RenderSwapchain,
@@ -114,33 +117,33 @@ import {
     ResourceTraits,
     SceneData,
     SubresourceView,
+    Subpass,
+    SubpassGraph,
 } from './render-graph';
 import {
     AccessType,
     AttachmentType,
     QueueHint,
+    ResolvePair,
     ResourceDimension,
     ResourceFlags,
     ResourceResidency,
     SceneFlags,
     UpdateFrequency,
 } from './types';
-import { PipelineUBO } from '../pipeline-ubo';
-import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import {
     bool,
     getDescriptorSetDataFromLayout,
-    getDescriptorSetDataFromLayoutId,
     getRenderArea,
-    mergeSrcToDstDesc,
     updateGlobalDescBinding,
 } from './define';
-import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { LightResource, SceneCulling } from './scene-culling';
 import { Pass, RenderScene } from '../../render-scene';
 import { WebProgramLibrary } from './web-program-library';
+import { recordCommand, RenderQueue as RenderExeQueue } from './web-pipeline-types';
+import { SpotLight, SphereLight } from '../../render-scene/scene';
 
 class ResourceVisitor implements ResourceGraphVisitor {
     name: string;
@@ -155,26 +158,22 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.name = value;
     }
     checkTexture (name: string): boolean {
-        const dTex = context.deviceTextures.get(name)!;
-        const resID = context.resourceGraph.vertex(this.name);
-        const desc = context.resourceGraph.getDesc(resID);
-        let res = false;
-        if (dTex.texture) {
-            res = dTex.texture.width === desc.width && dTex.texture.height === desc.height;
-        } else if (dTex.swapchain) {
-            res = dTex.swapchain.width === desc.width && dTex.swapchain.height === desc.height;
-        }
-        return res;
+        const dTex = context.deviceTextures.get(name);
+        if (!dTex) return false;
+        const { width: descWidth, height: descHeight } = context.resourceGraph.getDesc(context.resourceGraph.vertex(name));
+        const checkDimensions = (actualWidth: number, actualHeight: number): boolean => actualWidth === descWidth && actualHeight === descHeight;
+        return (dTex.texture ? checkDimensions(dTex.texture.width, dTex.texture.height)
+            : dTex.swapchain ? checkDimensions(dTex.swapchain.width, dTex.swapchain.height)
+                : false);
     }
     createDeviceTex (value: PersistentTexture | Framebuffer | ManagedResource | RenderSwapchain): void {
-        if (!context.deviceTextures.get(this.name)) {
-            const deviceTex = new DeviceTexture(this.name, value);
-            context.deviceTextures.set(this.name, deviceTex);
-        } else if (!this.checkTexture(this.name)) {
-            const dTex = context.deviceTextures.get(this.name)!;
-            dTex.texture?.destroy();
-            const deviceTex = new DeviceTexture(this.name, value);
-            context.deviceTextures.set(this.name, deviceTex);
+        let dTex = context.deviceTextures.get(this.name);
+        if (!dTex || !this.checkTexture(this.name)) {
+            if (dTex?.texture) {
+                dTex.texture.destroy();
+            }
+            dTex = new DeviceTexture(this.name, value);
+            context.deviceTextures.set(this.name, dTex);
         }
     }
     checkBuffer (name: string): boolean {
@@ -184,15 +183,13 @@ class ResourceVisitor implements ResourceGraphVisitor {
         return dBuf.buffer!.size >= desc.width;
     }
     createDeviceBuf (value: ManagedBuffer | PersistentBuffer): void {
-        const mount: boolean = !!context.deviceBuffers.get(this.name);
-        if (!mount) {
-            const deviceBuf = new DeviceBuffer(this.name, value);
-            context.deviceBuffers.set(this.name, deviceBuf);
-        } else if (!this.checkBuffer(this.name)) {
-            const dBuf = context.deviceBuffers.get(this.name)!;
-            dBuf.buffer?.destroy();
-            const deviceBuf = new DeviceBuffer(this.name, value);
-            context.deviceBuffers.set(this.name, deviceBuf);
+        let dBuf = context.deviceBuffers.get(this.name);
+        if (!dBuf || !this.checkBuffer(this.name)) {
+            if (dBuf?.buffer) {
+                dBuf.buffer.destroy();
+            }
+            dBuf = new DeviceBuffer(this.name, value);
+            context.deviceBuffers.set(this.name, dBuf);
         }
     }
     managed (value: ManagedResource): void {
@@ -245,86 +242,92 @@ class DeviceTexture extends DeviceResource {
     protected _framebuffer: Framebuffer | null = null;
     protected _desc: ResourceDesc | null = null;
     protected _trait: ResourceTraits | null = null;
+
     get texture (): Texture | null { return this._texture; }
     set framebuffer (val: Framebuffer | null) { this._framebuffer = val; }
     get framebuffer (): Framebuffer | null { return this._framebuffer; }
     get description (): ResourceDesc | null { return this._desc; }
     get trait (): ResourceTraits | null { return this._trait; }
     get swapchain (): Swapchain | null { return this._swapchain; }
+
     constructor (name: string, tex: PersistentTexture | Framebuffer | RenderSwapchain | ManagedResource) {
         super(name);
         const resGraph = context.resourceGraph;
         const verID = resGraph.vertex(name);
         this._desc = resGraph.getDesc(verID);
         this._trait = resGraph.getTraits(verID);
+
         if (tex instanceof Texture) {
             this._texture = tex;
-            return;
-        }
-        if (tex instanceof Framebuffer) {
+        } else if (tex instanceof Framebuffer) {
             this._framebuffer = tex;
-            return;
-        }
-        if (tex instanceof RenderSwapchain) {
+        } else if (tex instanceof RenderSwapchain) {
             this._swapchain = tex.swapchain;
-            return;
+        } else {
+            this.createTextureFromDesc(this._desc);
         }
+    }
 
-        const info = this._desc;
+    private createTextureFromDesc (desc: ResourceDesc): void {
         let type = TextureType.TEX2D;
-
-        switch (info.dimension) {
+        switch (desc.dimension) {
         case ResourceDimension.TEXTURE1D:
             type = TextureType.TEX1D;
-            break;
-        case ResourceDimension.TEXTURE2D:
-            type = TextureType.TEX2D;
             break;
         case ResourceDimension.TEXTURE3D:
             type = TextureType.TEX3D;
             break;
         default:
         }
-        let usageFlags = TextureUsageBit.NONE;
-        if (info.flags & ResourceFlags.COLOR_ATTACHMENT) usageFlags |= TextureUsageBit.COLOR_ATTACHMENT;
-        if (info.flags & ResourceFlags.DEPTH_STENCIL_ATTACHMENT) usageFlags |= TextureUsageBit.DEPTH_STENCIL_ATTACHMENT;
-        if (info.flags & ResourceFlags.INPUT_ATTACHMENT) usageFlags |= TextureUsageBit.INPUT_ATTACHMENT;
-        if (info.flags & ResourceFlags.SAMPLED) usageFlags |= TextureUsageBit.SAMPLED;
-        if (info.flags & ResourceFlags.STORAGE) usageFlags |= TextureUsageBit.STORAGE;
-        if (info.flags & ResourceFlags.TRANSFER_SRC) usageFlags |= TextureUsageBit.TRANSFER_SRC;
-        if (info.flags & ResourceFlags.TRANSFER_DST) usageFlags |= TextureUsageBit.TRANSFER_DST;
 
-        this._texture = context.device.createTexture(new TextureInfo(
+        const usageFlags = [
+            [ResourceFlags.COLOR_ATTACHMENT, TextureUsageBit.COLOR_ATTACHMENT],
+            [ResourceFlags.DEPTH_STENCIL_ATTACHMENT, TextureUsageBit.DEPTH_STENCIL_ATTACHMENT],
+            [ResourceFlags.INPUT_ATTACHMENT, TextureUsageBit.INPUT_ATTACHMENT],
+            [ResourceFlags.SAMPLED, TextureUsageBit.SAMPLED],
+            [ResourceFlags.STORAGE, TextureUsageBit.STORAGE],
+            [ResourceFlags.TRANSFER_SRC, TextureUsageBit.TRANSFER_SRC],
+            [ResourceFlags.TRANSFER_DST, TextureUsageBit.TRANSFER_DST],
+        ].reduce((acc, [flag, bit]) => (desc.flags & flag ? acc | bit : acc), TextureUsageBit.NONE);
+        const texInfo = new TextureInfo(
             type,
             usageFlags,
-            info.format,
-            info.width,
-            info.height,
-        ));
+            desc.format,
+            desc.width,
+            desc.height,
+        );
+        texInfo.samples = desc.sampleCount;
+        this._texture = context.device.createTexture(texInfo);
+    }
+
+    public getGPUTexture (): Texture {
+        let gpuTex: Texture = this._texture!;
+        if (this.framebuffer) {
+            gpuTex = this.framebuffer.colorTextures[0]!;
+        } else if (this.swapchain) {
+            gpuTex = this.swapchain.colorTexture;
+        }
+        return gpuTex;
     }
 
     release (): void {
-        if (this.framebuffer) {
-            this.framebuffer.destroy();
-            this._framebuffer = null;
-        }
-        if (this.texture) {
-            this.texture.destroy();
-            this._texture = null;
-        }
+        this.framebuffer?.destroy();
+        this._framebuffer = null;
+        this.texture?.destroy();
+        this._texture = null;
     }
 }
 
-function isShadowMap (graphScene: GraphScene): boolean | null {
+function isShadowMap (scene?: SceneData): boolean {
     const pSceneData: PipelineSceneData = cclegacy.director.root.pipeline.pipelineSceneData;
-    return pSceneData.shadows.enabled
+    return !!(pSceneData.shadows.enabled
         && pSceneData.shadows.type === ShadowType.ShadowMap
-        && graphScene.scene
-        && (graphScene.scene.flags & SceneFlags.SHADOW_CASTER) !== 0;
+        && scene
+        && (scene.flags & SceneFlags.SHADOW_CASTER) !== 0);
 }
 
 class DeviceBuffer extends DeviceResource {
-    private _buffer: Buffer | null;
+    private _buffer: Buffer | null = null;
 
     get buffer (): Buffer | null {
         return this._buffer;
@@ -335,46 +338,52 @@ class DeviceBuffer extends DeviceResource {
         const resGraph = context.resourceGraph;
         const verID = resGraph.vertex(name);
         const desc = resGraph.getDesc(verID);
-        const bufferInfo = new BufferInfo();
-        bufferInfo.size = desc.width;
-        bufferInfo.memUsage = MemoryUsageBit.DEVICE;
-
-        if (desc.flags & ResourceFlags.INDIRECT) bufferInfo.usage |= BufferUsageBit.INDIRECT;
-        if (desc.flags & ResourceFlags.UNIFORM) bufferInfo.usage |= BufferUsageBit.UNIFORM;
-        if (desc.flags & ResourceFlags.STORAGE) bufferInfo.usage |= BufferUsageBit.STORAGE;
-        if (desc.flags & ResourceFlags.TRANSFER_SRC) bufferInfo.usage |= BufferUsageBit.TRANSFER_SRC;
-        if (desc.flags & ResourceFlags.TRANSFER_DST) bufferInfo.usage |= BufferUsageBit.TRANSFER_DST;
-
+        const bufferInfo = new BufferInfo(
+            this.calculateBufferUsage(desc.flags),
+            MemoryUsageBit.DEVICE,
+            desc.width,
+        );
         this._buffer = context.device.createBuffer(bufferInfo);
     }
 
+    private calculateBufferUsage (flags: ResourceFlags): BufferUsageBit {
+        const flagToUsageMap: [ResourceFlags, BufferUsageBit][] = [
+            [ResourceFlags.INDIRECT, BufferUsageBit.INDIRECT],
+            [ResourceFlags.UNIFORM, BufferUsageBit.UNIFORM],
+            [ResourceFlags.STORAGE, BufferUsageBit.STORAGE],
+            [ResourceFlags.TRANSFER_SRC, BufferUsageBit.TRANSFER_SRC],
+            [ResourceFlags.TRANSFER_DST, BufferUsageBit.TRANSFER_DST],
+        ];
+
+        return flagToUsageMap.reduce((acc, [flag, usage]) => ((flags & flag) ? acc | usage : acc), BufferUsageBit.NONE);
+    }
+
     release (): void {
-        if (this._buffer) {
-            this._buffer.destroy();
-            this._buffer = null;
-        }
+        this._buffer?.destroy();
+        this._buffer = null;
     }
 }
 
 const _vec4Array = new Float32Array(4);
+
 class BlitDesc {
     private _isUpdate = false;
     private _isGatherLight = false;
     private _blit: Blit;
     private _screenQuad: PipelineInputAssemblerData | null = null;
-    private _queue: DeviceRenderQueue | null = null;
     private _stageDesc: DescriptorSet | undefined;
     // If VOLUMETRIC_LIGHTING is turned on, it needs to be assigned
     private _lightVolumeBuffer: Buffer | null = null;
     private _lightMeterScale = 10000.0;
     private _lightBufferData!: Float32Array;
+
     get screenQuad (): PipelineInputAssemblerData | null { return this._screenQuad; }
     get blit (): Blit { return this._blit; }
     set blit (blit: Blit) { this._blit = blit; }
     get stageDesc (): DescriptorSet | undefined { return this._stageDesc; }
-    constructor (blit: Blit, queue: DeviceRenderQueue) {
+
+    constructor (blit: Blit) {
         this._blit = blit;
-        this._queue = queue;
     }
     /**
      * @zh
@@ -383,67 +392,34 @@ class BlitDesc {
     protected _createQuadInputAssembler (): PipelineInputAssemblerData {
         return context.blit.pipelineIAData;
     }
+
     createScreenQuad (): void {
         if (!this._screenQuad) {
             this._screenQuad = this._createQuadInputAssembler();
         }
     }
+
     private _gatherVolumeLights (camera: Camera): void {
-        if (!camera.scene) { return; }
+        if (!camera.scene) return;
+
         const pipeline = context.pipeline;
         const cmdBuff = context.commandBuffer;
-
         const sphereLights = camera.scene.sphereLights;
         const spotLights = camera.scene.spotLights;
-        const _sphere = Sphere.create(0, 0, 0, 1);
         const exposure = camera.exposure;
-
-        let idx = 0;
         const maxLights = UBODeferredLight.LIGHTS_PER_PASS;
         const elementLen = Vec4.length; // sizeof(vec4) / sizeof(float32)
         const fieldLen = elementLen * maxLights;
+        const _sphere = Sphere.create(0, 0, 0, 1);
+        let idx = 0;
 
-        for (let i = 0; i < sphereLights.length && idx < maxLights; i++, ++idx) {
-            const light = sphereLights[i];
+        const processLight = (light: SphereLight | SpotLight, isSpot: boolean): void => {
+            if (idx >= maxLights) return;
             Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);
-                _vec4Array[3] = 0;
-                this._lightBufferData.set(_vec4Array, idx * elementLen);
-
-                // cc_lightColor
-                Vec3.toArray(_vec4Array, light.color);
-                if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
-                }
-
-                if (pipeline.pipelineSceneData.isHDR) {
-                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
-                } else {
-                    _vec4Array[3] = light.luminance;
-                }
-
-                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
-
-                // cc_lightSizeRangeAngle
-                _vec4Array[0] = light.size;
-                _vec4Array[1] = light.range;
-                _vec4Array[2] = 0.0;
-                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
-            }
-        }
-
-        for (let i = 0; i < spotLights.length && idx < maxLights; i++, ++idx) {
-            const light = spotLights[i];
-            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
-                // cc_lightPos
-                Vec3.toArray(_vec4Array, light.position);
-                _vec4Array[3] = 1;
+                _vec4Array[3] = isSpot ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 0);
 
                 // cc_lightColor
@@ -454,34 +430,42 @@ class BlitDesc {
                     _vec4Array[1] *= tempRGB.y;
                     _vec4Array[2] *= tempRGB.z;
                 }
-                if (pipeline.pipelineSceneData.isHDR) {
-                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
-                } else {
-                    _vec4Array[3] = light.luminance;
-                }
+                _vec4Array[3] = pipeline.pipelineSceneData.isHDR
+                    ? light.luminance * exposure * this._lightMeterScale
+                    : light.luminance;
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
 
                 // cc_lightSizeRangeAngle
                 _vec4Array[0] = light.size;
                 _vec4Array[1] = light.range;
-                _vec4Array[2] = light.spotAngle;
+                _vec4Array[2] = isSpot ? (light as SpotLight).spotAngle : 0.0;
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
 
+                if (isSpot) {
                 // cc_lightDir
-                Vec3.toArray(_vec4Array, light.direction);
-                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
+                    Vec3.toArray(_vec4Array, (light as SpotLight).direction);
+                    this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
+                }
+                idx++;
             }
+        };
+
+        for (const light of sphereLights) {
+            processLight(light, false);
         }
 
-        // the count of lights is set to cc_lightDir[0].w
+        for (const light of spotLights) {
+            processLight(light, true);
+        }
+
+        // Set the count of lights in cc_lightDir[0].w
         const offset = fieldLen * 3 + 3;
         this._lightBufferData.set([idx], offset);
-
         cmdBuff.updateBuffer(this._lightVolumeBuffer!, this._lightBufferData);
     }
+
     update (): void {
-        if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING
-            && this.blit.camera && !this._isGatherLight) {
+        if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING && this.blit.camera && !this._isGatherLight) {
             this._gatherVolumeLights(this.blit.camera);
             this._isGatherLight = true;
             this._isUpdate = false;
@@ -501,11 +485,8 @@ class BlitDesc {
         const blit = this.blit;
         const pass = blit.material!.passes[blit.passID];
         const device = context.device;
-        this._stageDesc = context.blit.stageDescs.get(pass);
-        if (!this._stageDesc) {
-            this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
-            context.blit.stageDescs.set(pass, this._stageDesc);
-        }
+        this._stageDesc = context.blit.stageDescs.get(pass) || device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
+        context.blit.stageDescs.set(pass, this._stageDesc);
         if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING) {
             this._lightVolumeBuffer = context.blit.lightVolumeBuffer;
             const deferredLitsBufView = context.blit.deferredLitsBufView;
@@ -513,6 +494,7 @@ class BlitDesc {
             this._lightBufferData.fill(0);
             this._stageDesc.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
         }
+
         this._stageDesc.bindBuffer(UBOLocal.BINDING, context.blit.emptyLocalUBO);
     }
 }
@@ -545,9 +527,11 @@ class DeviceComputeQueue implements RecordingInterface {
     set layoutID (value: number) {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
-        this._renderPhase = layoutGraph.tryGetRenderPhase(value);
+        this._renderPhase = layoutGraph.h(LayoutGraphDataValue.RenderPhase, value)
+            ? layoutGraph.j<RenderPhaseData>(value)
+            : null;
         const layout = layoutGraph.getLayout(value);
-        this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
+        this._descSetData = layout.getSet(UpdateFrequency.PER_PHASE)!;
     }
     get layoutID (): number { return this._layoutID; }
     get descSetData (): DescriptorSetData | null { return this._descSetData; }
@@ -580,7 +564,7 @@ class DeviceComputeQueue implements RecordingInterface {
 
 class DeviceRenderQueue implements RecordingInterface {
     private _renderScenes: DeviceRenderScene[] = [];
-    private _devicePass: DeviceRenderPass | undefined;
+    private _devicePass?: DeviceRenderPass;
     private _hint: QueueHint = QueueHint.NONE;
     private _graphQueue!: RenderQueue;
     private _phaseID: number = getPhaseID('default');
@@ -596,9 +580,11 @@ class DeviceRenderQueue implements RecordingInterface {
     set layoutID (value: number) {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
-        this._renderPhase = layoutGraph.tryGetRenderPhase(value);
+        this._renderPhase = layoutGraph.h(LayoutGraphDataValue.RenderPhase, value)
+            ? layoutGraph.j<RenderPhaseData>(value)
+            : null;
         const layout = layoutGraph.getLayout(value);
-        this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
+        this._descSetData = layout.getSet(UpdateFrequency.PER_PHASE)!;
     }
     get layoutID (): number { return this._layoutID; }
     get descSetData (): DescriptorSetData | null { return this._descSetData; }
@@ -615,7 +601,7 @@ class DeviceRenderQueue implements RecordingInterface {
     get isUploadInstance (): boolean { return this._isUploadInstance; }
     set isUploadBatched (value: boolean) { this._isUploadBatched = value; }
     get isUploadBatched (): boolean { return this._isUploadBatched; }
-    init (devicePass: DeviceRenderPass, renderQueue: RenderQueue, id: number): void {
+    init (devicePass, renderQueue: RenderQueue, id: number): void {
         this.reset();
         this._graphQueue = renderQueue;
         this.queueHint = renderQueue.hint;
@@ -629,14 +615,15 @@ class DeviceRenderQueue implements RecordingInterface {
     }
     createBlitDesc (blit: Blit): void {
         if (!this._blitDesc) {
-            this._blitDesc = new BlitDesc(blit, this);
+            this._blitDesc = new BlitDesc(blit);
         }
         this._blitDesc.createScreenQuad();
         this._blitDesc.createStageDescriptor();
     }
-    addScene (scene: GraphScene): DeviceRenderScene {
+
+    setScene (sceneID: number, scene?: SceneData, blit?: Blit): DeviceRenderScene {
         const deviceScene = context.pools.addDeviceScene();
-        deviceScene.init(this, scene);
+        deviceScene.init(this, sceneID, scene, blit);
         this._renderScenes.push(deviceScene);
         return deviceScene;
     }
@@ -672,20 +659,10 @@ class DeviceRenderQueue implements RecordingInterface {
     }
 }
 
-class SubmitInfo {
-    // <scene id, shadow queue>
-    public additiveLight: RenderAdditiveLightQueue | null = null;
-    public reflectionProbe: RenderReflectionProbeQueue | null = null;
-
-    reset (): void {
-        this.additiveLight = null;
-        this.reflectionProbe = null;
-    }
-}
-
 class RenderPassLayoutInfo {
     protected _layoutID = 0;
     protected _vertID = -1;
+    private _resID = -1;
     protected _stage: RenderStageData | null = null;
     protected _layout: PipelineLayoutData;
     protected _inputName: string;
@@ -694,54 +671,75 @@ class RenderPassLayoutInfo {
         this._inputName = input[0];
         this._layoutID = layoutId;
         this._vertID = vertId;
+
         const lg = context.layoutGraph;
-        this._stage = lg.getRenderStage(layoutId);
+        this._stage = lg.j<RenderStageData>(layoutId);
         this._layout = lg.getLayout(layoutId);
-        const layoutData = this._layout.descriptorSets.get(UpdateFrequency.PER_PASS);
+
+        const layoutData = this._layout.getSet(UpdateFrequency.PER_PASS);
         if (!layoutData) {
             return;
         }
+
         const layoutDesc = layoutData.descriptorSet!;
-        // find resource
         const deviceTex = context.deviceTextures.get(this._inputName);
         const gfxTex = deviceTex?.texture;
 
         const deviceBuf = context.deviceBuffers.get(this._inputName);
         const gfxBuf = deviceBuf?.buffer;
+
         if (!gfxTex && !gfxBuf) {
             throw Error(`Could not find texture with resource name ${this._inputName}`);
         }
-        const resId = context.resourceGraph.vertex(this._inputName);
-        const samplerInfo = context.resourceGraph.getSampler(resId);
+
+        this._resID = context.resourceGraph.vertex(this._inputName);
+        const samplerInfo = context.resourceGraph.getSampler(this._resID);
+
         // bind descriptors
         for (const descriptor of input[1]) {
             const descriptorName = descriptor.name;
             const descriptorID = lg.attributeIndex.get(descriptorName);
-            // find descriptor binding
-            for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
-                for (let i = 0; i !== block.descriptors.length; ++i) {
-                    if (descriptorID === block.descriptors[i].descriptorID) {
-                        if (gfxTex) {
-                            layoutDesc.bindTexture(block.offset + i, gfxTex);
-                            const renderData = context.renderGraph.getData(this._vertID);
-                            layoutDesc.bindSampler(block.offset + i, renderData.samplers.get(descriptorID) || context.device.getSampler(samplerInfo));
-                        } else {
-                            const desc = context.resourceGraph.getDesc(resId);
-                            if (desc.flags & ResourceFlags.STORAGE) {
-                                const access = input[1][0].accessType !== AccessType.READ ? AccessFlagBit.COMPUTE_SHADER_WRITE
-                                    : AccessFlagBit.COMPUTE_SHADER_READ_OTHER;
-                                (layoutDesc as any).bindBuffer(block.offset + i, gfxBuf!, 0, access);
-                            } else {
-                                layoutDesc.bindBuffer(block.offset + i, gfxBuf!);
-                            }
-                        }
-                        if (!this._descriptorSet) this._descriptorSet = layoutDesc;
-                        continue;
+            if (descriptorID === undefined) {
+                continue;
+            }
+            this.bindDescriptor(layoutDesc, descriptorID, gfxTex!, gfxBuf!, samplerInfo, input[1][0].accessType);
+        }
+    }
+
+    private bindDescriptor (
+        layoutDesc: DescriptorSet,
+        descriptorID: number,
+        gfxTex: Texture,
+        gfxBuf: Buffer,
+        samplerInfo: SamplerInfo,
+        accessType: AccessType,
+    ): void {
+        const layoutData = this._layout.getSet(UpdateFrequency.PER_PASS)!;
+        const desc = context.resourceGraph.getDesc(this._resID);
+        for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
+            for (let i = 0; i < block.descriptors.length; ++i) {
+                if (descriptorID === block.descriptors[i].descriptorID) {
+                    const offset = block.offset;
+                    if (gfxTex) {
+                        layoutDesc.bindTexture(offset + i, gfxTex);
+                        const renderData = context.renderGraph.getData(this._vertID);
+                        const sampler = renderData.samplers.get(descriptorID) || context.device.getSampler(samplerInfo);
+                        layoutDesc.bindSampler(offset + i, sampler);
+                    } else if (desc.flags & ResourceFlags.STORAGE) {
+                        const access = accessType !== AccessType.READ ? AccessFlagBit.COMPUTE_SHADER_WRITE : AccessFlagBit.COMPUTE_SHADER_READ_OTHER;
+                        (layoutDesc as any).bindBuffer(block.offset + i, gfxBuf, 0, access);
+                    } else {
+                        layoutDesc.bindBuffer(offset + i, gfxBuf);
                     }
+                    if (!this._descriptorSet) {
+                        this._descriptorSet = layoutDesc;
+                    }
+                    break;
                 }
             }
         }
     }
+
     get descriptorSet (): DescriptorSet | null { return this._descriptorSet; }
     get layoutID (): number { return this._layoutID; }
     get vertID (): number { return this._vertID; }
@@ -749,156 +747,109 @@ class RenderPassLayoutInfo {
     get layout (): PipelineLayoutData { return this._layout; }
 }
 
-class RasterPassInfo {
-    protected _id!: number;
-    protected _pass!: RasterPass;
-    get id (): number { return this._id; }
-    get pass (): RasterPass { return this._pass; }
-    private _copyPass (pass: RasterPass): void {
-        const rasterPass = this._pass || new RasterPass();
-        rasterPass.width = pass.width;
-        rasterPass.height = pass.height;
-        rasterPass.versionName = pass.versionName;
-        rasterPass.version = pass.version;
-        rasterPass.showStatistics = pass.showStatistics;
-        rasterPass.viewport.copy(pass.viewport);
-        for (const val of pass.rasterViews) {
-            const currRasterKey = val[0];
-            const currRasterView = val[1];
-            const rasterView = rasterPass.rasterViews.get(currRasterKey) || new RasterView();
-            rasterView.slotName = currRasterView.slotName;
-            rasterView.accessType = currRasterView.accessType;
-            rasterView.attachmentType = currRasterView.attachmentType;
-            rasterView.loadOp = currRasterView.loadOp ? LoadOp.CLEAR : LoadOp.LOAD;
-            rasterView.storeOp = currRasterView.storeOp;
-            rasterView.clearFlags = currRasterView.clearFlags;
-            rasterView.slotID = currRasterView.slotID;
-            rasterView.clearColor.copy(currRasterView.clearColor);
-            rasterPass.rasterViews.set(currRasterKey, rasterView);
-        }
-        for (const val of pass.computeViews) {
-            const currComputeViews = val[1];
-            const currComputeKey = val[0];
-            const computeViews: ComputeView[] = rasterPass.computeViews.get(currComputeKey) || [];
-            if (computeViews.length) computeViews.length = currComputeViews.length;
-            let idx = 0;
-            for (const currComputeView of currComputeViews) {
-                const computeView = computeViews[idx] || new ComputeView();
-                computeView.name = currComputeView.name;
-                computeView.accessType = currComputeView.accessType;
-                computeView.clearFlags = currComputeView.clearFlags;
-                computeView.clearValue.x = currComputeView.clearValue.x;
-                computeView.clearValue.y = currComputeView.clearValue.y;
-                computeView.clearValue.z = currComputeView.clearValue.z;
-                computeView.clearValue.w = currComputeView.clearValue.w;
-                computeView.clearValueType = currComputeView.clearValueType;
-                computeViews[idx] = computeView;
-                idx++;
-            }
-            rasterPass.computeViews.set(currComputeKey, computeViews);
-        }
-        this._pass = rasterPass;
-    }
-    applyInfo (id: number, pass: RasterPass): void {
-        this._id = id;
-        this._copyPass(pass);
-    }
-}
-
 const profilerViewport = new Viewport();
 const renderPassArea = new Rect();
 const resourceVisitor = new ResourceVisitor();
+const textureBlit = new TextureBlit();
 class DeviceRenderPass implements RecordingInterface {
     protected _renderPass: RenderPass;
-    protected _framebuffer: Framebuffer;
+    protected _framebuffer!: Framebuffer;
     protected _clearColor: Color[] = [];
     protected _deviceQueues: Map<number, DeviceRenderQueue> = new Map();
     protected _clearDepth = 1;
     protected _clearStencil = 0;
     protected _passID: number;
+    protected _rasterID: number;
+    protected _rasterPass: RasterPass;
     protected _layoutName: string;
     protected _viewport: Viewport | null = null;
-    private _rasterInfo: RasterPassInfo;
     private _layout: RenderPassLayoutInfo | null = null;
-    constructor (passInfo: RasterPassInfo) {
-        this._rasterInfo = passInfo;
-        const device = context.device;
-        this._layoutName = context.renderGraph.getLayout(passInfo.id);
-        this._passID = cclegacy.rendering.getPassID(this._layoutName);
-        const depthStencilAttachment = new DepthStencilAttachment();
-        depthStencilAttachment.format = Format.DEPTH_STENCIL;
-        depthStencilAttachment.depthLoadOp = LoadOp.DISCARD;
-        depthStencilAttachment.stencilLoadOp = LoadOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+    private _idxOfRenderData: number = 0;
 
+    private _traversalResolves (callback: (resolvePair: ResolvePair) => void): void {
+        const subpassGraph = this._rasterPass.subpassGraph;
+        const subpasses = subpassGraph._subpasses;
+        for (const subpass of subpasses) {
+            const resolvePairs = subpass.resolvePairs;
+            for (const resolve of resolvePairs) {
+                callback(resolve);
+            }
+        }
+    }
+
+    private _getOrCreateDeviceTex (resName: string): DeviceTexture {
+        let resTex = context.deviceTextures.get(resName);
+        if (!resTex) {
+            this.visitResource(resName);
+            resTex = context.deviceTextures.get(resName)!;
+        } else {
+            const resGraph = context.resourceGraph;
+            const resId = resGraph.vertex(resName);
+            const resFbo = resGraph.object(resId);
+            if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
+                resTex.framebuffer = resFbo;
+            } else if (resTex.texture) {
+                const desc = resGraph.getDesc(resId);
+                if (resTex.texture.width !== desc.width || resTex.texture.height !== desc.height) {
+                    resTex.texture.resize(desc.width, desc.height);
+                }
+            }
+        }
+        return resTex;
+    }
+
+    constructor (rasterID: number, rasterPass: RasterPass) {
+        this._rasterID = rasterID;
+        this._rasterPass = rasterPass;
+        const device = context.device;
+        this._layoutName = context.renderGraph.getLayout(rasterID);
+        this._passID = cclegacy.rendering.getPassID(this._layoutName);
+        // resolve msaa
+        this._traversalResolves((resolvePair: ResolvePair) => {
+            this._getOrCreateDeviceTex(resolvePair.target);
+        });
+        const depAtt = new DepthStencilAttachment();
+        depAtt.format = Format.DEPTH_STENCIL;
         const colors: ColorAttachment[] = [];
         const colorTexs: Texture[] = [];
         let depthTex: Texture | null = null;
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
-        for (const cv of passInfo.pass.computeViews) {
-            this._applyRenderLayout(cv);
-        }
-        // update the layout descriptorSet
-        if (this.renderLayout && this.renderLayout.descriptorSet) {
-            this.renderLayout.descriptorSet.update();
-        }
-        for (const [resName, rasterV] of passInfo.pass.rasterViews) {
-            let resTex = context.deviceTextures.get(resName);
-            if (!resTex) {
-                this.visitResource(resName);
-                resTex = context.deviceTextures.get(resName)!;
-            } else {
-                const resGraph = context.resourceGraph;
-                const resId = resGraph.vertex(resName);
-                const resFbo = resGraph._vertices[resId]._object;
-                if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
-                    resTex.framebuffer = resFbo;
-                } else if (resTex.texture) {
-                    const desc = resGraph.getDesc(resId);
-                    if (resTex.texture.width !== desc.width || resTex.texture.height !== desc.height) {
-                        resTex.texture.resize(desc.width, desc.height);
-                    }
-                }
-            }
+        for (const [resName, rasterV] of rasterPass.rasterViews) {
+            const resTex = this._getOrCreateDeviceTex(resName);
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
-            const clearFlag = rasterV.clearFlags & 0xffffffff;
-            switch (rasterV.attachmentType) {
-            case AttachmentType.RENDER_TARGET:
-                {
-                    if (!resTex.swapchain && !resTex.framebuffer) colorTexs.push(resTex.texture!);
-                    const colorAttachment = new ColorAttachment();
-                    colorAttachment.format = resTex.description!.format;
-                    colorAttachment.sampleCount = resTex.description!.sampleCount;
-                    colorAttachment.loadOp = rasterV.loadOp;
-                    colorAttachment.storeOp = rasterV.storeOp;
-                    colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
-                        rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
-                        rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
-                    ));
-                    this._clearColor.push(rasterV.clearColor);
-                    colors.push(colorAttachment);
-                }
-                break;
-            case AttachmentType.DEPTH_STENCIL:
-                depthStencilAttachment.depthStoreOp = rasterV.storeOp;
-                depthStencilAttachment.stencilStoreOp = rasterV.storeOp;
-                depthStencilAttachment.depthLoadOp = rasterV.loadOp;
-                depthStencilAttachment.stencilLoadOp = rasterV.loadOp;
-                depthStencilAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+            if (rasterV.attachmentType === AttachmentType.RENDER_TARGET) {
+                if (!resTex.swapchain && !resTex.framebuffer) colorTexs.push(resTex.texture!);
+                const colAtt = new ColorAttachment();
+                colAtt.format = resTex.description!.format;
+                colAtt.sampleCount = resTex.description!.sampleCount;
+                colAtt.loadOp = rasterV.loadOp;
+                colAtt.storeOp = rasterV.storeOp;
+                colAtt.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                    rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                    rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                ));
+                const currCol = new Color();
+                currCol.copy(rasterV.clearColor);
+                this._clearColor.push(currCol);
+                colors.push(colAtt);
+            } else if (rasterV.attachmentType === AttachmentType.DEPTH_STENCIL) {
+                depAtt.depthStoreOp = rasterV.storeOp;
+                depAtt.stencilStoreOp = rasterV.storeOp;
+                depAtt.depthLoadOp = rasterV.loadOp;
+                depAtt.stencilLoadOp = rasterV.loadOp;
+                depAtt.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
                     rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                     rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                 ));
-                if (!resTex.swapchain && !resTex.framebuffer) depthTex = resTex.texture!;
+                if (!resTex.swapchain && !resTex.framebuffer) {
+                    depthTex = resTex.texture!;
+                } else if (resTex.swapchain) {
+                    depthTex = resTex.swapchain.depthStencilTexture;
+                }
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
-                break;
-            case AttachmentType.SHADING_RATE:
-                // noop
-                break;
-            default:
             }
         }
         if (colors.length === 0) {
@@ -909,17 +860,21 @@ class DeviceRenderPass implements RecordingInterface {
             const currTex = device.createTexture(new TextureInfo());
             colorTexs.push(currTex);
         }
+        const renderPassInfo = new RenderPassInfo();
+        renderPassInfo.colorAttachments = colors;
         const depth = swapchain ? swapchain.depthStencilTexture : depthTex;
-        if (!depth) {
-            depthStencilAttachment.format = Format.DEPTH_STENCIL;
+        if (depth) {
+            renderPassInfo.depthStencilAttachment = depAtt;
         }
-        this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
-        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(
-            this._renderPass,
+        this._renderPass = device.createRenderPass(renderPassInfo);
+        this._createFramebuffer(
+            framebuffer,
             swapchain ? [swapchain.colorTexture] : colorTexs,
             swapchain ? swapchain.depthStencilTexture : depthTex,
-        ));
+        );
     }
+    get indexOfRD (): number { return this._idxOfRenderData; }
+    get rasterID (): number { return this._rasterID; }
     get layoutName (): string { return this._layoutName; }
     get passID (): number { return this._passID; }
     get renderLayout (): RenderPassLayoutInfo | null { return this._layout; }
@@ -929,8 +884,10 @@ class DeviceRenderPass implements RecordingInterface {
     get clearDepth (): number { return this._clearDepth; }
     get clearStencil (): number { return this._clearStencil; }
     get deviceQueues (): Map<number, DeviceRenderQueue> { return this._deviceQueues; }
-    get rasterPassInfo (): RasterPassInfo { return this._rasterInfo; }
     get viewport (): Viewport | null { return this._viewport; }
+    addIdxOfRD (): void {
+        this._idxOfRenderData++;
+    }
     visitResource (resName: string): void {
         const resourceGraph = context.resourceGraph;
         const vertId = resourceGraph.vertex(resName);
@@ -941,29 +898,28 @@ class DeviceRenderPass implements RecordingInterface {
         this._deviceQueues.set(queue.queueId, queue);
     }
     preRecord (): void {
-        context.descriptorSet = getDescriptorSetDataFromLayout(this.layoutName)!.descriptorSet;
+        context.passDescriptorSet = getDescriptorSetDataFromLayout(this.layoutName)!.descriptorSet;
     }
     protected _applyRenderLayout (input: [string, ComputeView[]]): void {
-        const stageName = context.renderGraph.getLayout(this.rasterPassInfo.id);
+        const stageName = context.renderGraph.getLayout(this._rasterID);
         if (stageName) {
             const layoutGraph = context.layoutGraph;
-            const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
+            const stageId = layoutGraph.locateChild(layoutGraph.N, stageName);
             if (stageId !== 0xFFFFFFFF) {
-                this._layout = new RenderPassLayoutInfo(stageId, this.rasterPassInfo.id, input);
+                this._layout = new RenderPassLayoutInfo(stageId, this._rasterID, input);
             }
         }
     }
     getGlobalDescData (): DescriptorSetData {
-        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
-        assert(stageId !== 0xFFFFFFFF);
+        const stageId = context.layoutGraph.locateChild(context.layoutGraph.N, 'default');
         const layout = context.layoutGraph.getLayout(stageId);
-        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
+        const layoutData = layout.getSet(UpdateFrequency.PER_PASS)!;
         return layoutData;
     }
 
     protected _applyViewport (frameTex: Texture): void {
         this._viewport = null;
-        const viewport = this._rasterInfo.pass.viewport;
+        const viewport = this._rasterPass.viewport;
         if (viewport.left !== 0
             || viewport.top !== 0
             || viewport.width !== 0
@@ -972,41 +928,11 @@ class DeviceRenderPass implements RecordingInterface {
         }
     }
 
-    protected _showProfiler (rect: Rect): void {
-        const profiler = context.pipeline.profiler!;
-        if (!profiler || !profiler.enabled) {
-            return;
-        }
-        const renderPass = this._renderPass;
-        const cmdBuff = context.commandBuffer;
-        const submodel = profiler.subModels[0];
-        const pass = submodel.passes[0];
-        const ia = submodel.inputAssembler;
-        const device = context.device;
-        const pso = PipelineStateManager.getOrCreatePipelineState(
-            device,
-            pass,
-            submodel.shaders[0],
-            renderPass,
-            ia,
-        );
-
-        profilerViewport.width = rect.width;
-        profilerViewport.height = rect.height;
-        cmdBuff.setViewport(profilerViewport);
-        cmdBuff.setScissor(rect);
-        cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, submodel.descriptorSet);
-        cmdBuff.bindInputAssembler(ia);
-        cmdBuff.draw(ia);
-    }
-
-    // record common buffer
-    record (): void {
+    beginPass (): void {
         const tex = this.framebuffer.colorTextures[0]!;
         this._applyViewport(tex);
         const cmdBuff = context.commandBuffer;
+
         if (this._viewport) {
             renderPassArea.x = this._viewport.left;
             renderPassArea.y = this._viewport.top;
@@ -1025,97 +951,115 @@ class DeviceRenderPass implements RecordingInterface {
             this.clearDepth,
             this.clearStencil,
         );
-        if (context.descriptorSet) {
+        if (context.passDescriptorSet) {
             cmdBuff.bindDescriptorSet(
                 SetIndex.GLOBAL,
-                context.descriptorSet,
+                context.passDescriptorSet,
             );
         }
+    }
 
+    endPass (): void {
+        const cmdBuff = context.commandBuffer;
+        cmdBuff.endRenderPass();
+    }
+    // record common buffer
+    record (): void {
+        this.beginPass();
         for (const queue of this._deviceQueues.values()) {
             queue.record();
         }
-        if (this._rasterInfo.pass.showStatistics) {
-            this._showProfiler(renderPassArea);
-        }
-        cmdBuff.endRenderPass();
+        this.endPass();
     }
 
     postRecord (): void {
-        // nothing to do
+        this._traversalResolves((resolve) => {
+            const cmdBuff = context.commandBuffer;
+            const sourceTex = this._getOrCreateDeviceTex(resolve.source).getGPUTexture();
+            const targetTex = this._getOrCreateDeviceTex(resolve.target).getGPUTexture();
+            textureBlit.srcExtent.width = sourceTex.width;
+            textureBlit.srcExtent.height = sourceTex.height;
+            textureBlit.dstExtent.width = targetTex.width;
+            textureBlit.dstExtent.height = targetTex.height;
+            cmdBuff.blitTexture(sourceTex, targetTex, [textureBlit], Filter.LINEAR);
+        });
     }
-    resetResource (id: number, pass: RasterPass): void {
-        this._rasterInfo.applyInfo(id, pass);
-        this._layoutName = context.renderGraph.getLayout(id);
-        this._passID = cclegacy.rendering.getPassID(this._layoutName);
-        this._deviceQueues.clear();
-        let framebuffer: Framebuffer | null = null;
-        const colTextures: Texture[] = [];
-        let depTexture = this._framebuffer ? this._framebuffer.depthStencilTexture : null;
-        for (const cv of this._rasterInfo.pass.computeViews) {
+
+    private _processRenderLayout (pass: RasterPass): void {
+        for (const cv of pass.computeViews) {
             this._applyRenderLayout(cv);
         }
         // update the layout descriptorSet
         if (this.renderLayout && this.renderLayout.descriptorSet) {
             this.renderLayout.descriptorSet.update();
         }
+    }
 
-        const resGraph = context.resourceGraph;
-        const currentWidth = this._framebuffer ? this._framebuffer.width : 0;
-        const currentHeight = this._framebuffer ? this._framebuffer.height : 0;
+    public processRenderLayout (): void {
+        this._processRenderLayout(this._rasterPass);
+    }
 
-        let width = 0;
-        let height = 0;
-        for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
-            if (rasterV.attachmentType === AttachmentType.SHADING_RATE) {
-                continue;
+    private _createFramebuffer (fbo: Framebuffer | null, cols: Texture[], depthTex: Texture | null): void {
+        if (!fbo && !cols.length) return;
+        if (this._framebuffer && fbo !== this._framebuffer) this._framebuffer.destroy();
+        this._framebuffer = fbo || context.device.createFramebuffer(new FramebufferInfo(
+            this._renderPass,
+            cols,
+            depthTex,
+        ));
+    }
+
+    resetResource (id: number, pass: RasterPass): void {
+        this._rasterID = id;
+        this._rasterPass = pass;
+        this._layoutName = context.renderGraph.getLayout(id);
+        this._passID = cclegacy.rendering.getPassID(this._layoutName);
+        this._deviceQueues.clear();
+        this._idxOfRenderData = 0;
+        let framebuffer: Framebuffer | null = null;
+        const colTextures: Texture[] = [];
+        const currFramebuffer = this._framebuffer;
+        const currFBDepthTex = currFramebuffer?.depthStencilTexture ?? null;
+        let depTexture = currFramebuffer ? currFBDepthTex : null;
+        const currentWidth = currFramebuffer?.width ?? 0;
+        const currentHeight = currFramebuffer?.height ?? 0;
+
+        let [width, height] = [0, 0];
+        for (const [resName, rasterV] of pass.rasterViews) {
+            if (rasterV.attachmentType !== AttachmentType.SHADING_RATE) {
+                const resDesc = context.resourceGraph.getDesc(context.resourceGraph.vertex(resName));
+                width = resDesc.width;
+                height = resDesc.height;
+                break;
             }
-            const resId = resGraph.vertex(resName);
-            const resDesc = resGraph.getDesc(resId);
-            width = resDesc.width;
-            height = resDesc.height;
-            break;
         }
-        const needRebuild = (width !== currentWidth) || (height !== currentHeight) || this.framebuffer.needRebuild;
-
-        for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
+        // The texture inside the fbo was destroyed？
+        const isInsideTexDestroy = currFramebuffer?.colorTextures.some((colTex) => !colTex || colTex.getTextureHandle() === 0)
+                               || (currFBDepthTex && currFBDepthTex.getTextureHandle() === 0);
+        const needRebuild = width !== currentWidth || height !== currentHeight || (currFramebuffer?.needRebuild ?? false) || isInsideTexDestroy;
+        for (const [resName, rasterV] of pass.rasterViews) {
             let deviceTex = context.deviceTextures.get(resName)!;
-            const currTex = deviceTex;
             if (!deviceTex) {
                 this.visitResource(resName);
                 deviceTex = context.deviceTextures.get(resName)!;
             }
             const resGraph = context.resourceGraph;
             const resId = resGraph.vertex(resName);
-            const resFbo = resGraph._vertices[resId]._object;
+            const resFbo = resGraph.object(resId);
             const resDesc = resGraph.getDesc(resId);
             if (deviceTex.framebuffer && resFbo instanceof Framebuffer && (deviceTex.framebuffer !== resFbo || resFbo !== this._framebuffer)) {
                 framebuffer = this._framebuffer = deviceTex.framebuffer = resFbo;
-            } else if (!currTex || (deviceTex.texture && needRebuild)) {
-                const gfxTex = deviceTex.texture!;
-                if (currTex) gfxTex.resize(resDesc.width, resDesc.height);
-                switch (rasterV.attachmentType) {
-                case AttachmentType.RENDER_TARGET:
+            } else if (deviceTex.texture && needRebuild) {
+                const gfxTex = deviceTex.texture;
+                gfxTex.resize(resDesc.width, resDesc.height);
+                if (rasterV.attachmentType === AttachmentType.RENDER_TARGET) {
                     colTextures.push(gfxTex);
-                    break;
-                case AttachmentType.DEPTH_STENCIL:
+                } else if (rasterV.attachmentType === AttachmentType.DEPTH_STENCIL) {
                     depTexture = gfxTex;
-                    break;
-                case AttachmentType.SHADING_RATE:
-                    // noop
-                    break;
-                default:
                 }
             }
         }
-        if (!framebuffer && colTextures.length) {
-            this._framebuffer.destroy();
-            this._framebuffer = context.device.createFramebuffer(new FramebufferInfo(
-                this._renderPass,
-                colTextures,
-                depTexture,
-            ));
-        }
+        this._createFramebuffer(framebuffer, colTextures, depTexture);
     }
 }
 
@@ -1124,34 +1068,9 @@ class ComputePassInfo {
     protected _pass!: ComputePass;
     get id (): number { return this._id; }
     get pass (): ComputePass { return this._pass; }
-    private _copyPass (pass: ComputePass): void {
-        const computePass = this._pass || new ComputePass();
-        for (const val of pass.computeViews) {
-            const currComputeViews = val[1];
-            const currComputeKey = val[0];
-            const computeViews: ComputeView[] = computePass.computeViews.get(currComputeKey) || [];
-            if (computeViews.length) computeViews.length = currComputeViews.length;
-            let idx = 0;
-            for (const currComputeView of currComputeViews) {
-                const computeView = computeViews[idx] || new ComputeView();
-                computeView.name = currComputeView.name;
-                computeView.accessType = currComputeView.accessType;
-                computeView.clearFlags = currComputeView.clearFlags;
-                computeView.clearValue.x = currComputeView.clearValue.x;
-                computeView.clearValue.y = currComputeView.clearValue.y;
-                computeView.clearValue.z = currComputeView.clearValue.z;
-                computeView.clearValue.w = currComputeView.clearValue.w;
-                computeView.clearValueType = currComputeView.clearValueType;
-                computeViews[idx] = computeView;
-                idx++;
-            }
-            computePass.computeViews.set(currComputeKey, computeViews);
-        }
-        this._pass = computePass;
-    }
     applyInfo (id: number, pass: ComputePass): void {
         this._id = id;
-        this._copyPass(pass);
+        this._pass = pass;
     }
 }
 
@@ -1181,7 +1100,7 @@ class DeviceComputePass implements RecordingInterface {
         }
     }
     preRecord (): void {
-        // nothing to do
+        context.passDescriptorSet = getDescriptorSetDataFromLayout(this.layoutName)!.descriptorSet;
     }
     postRecord (): void {
         // nothing to do
@@ -1203,28 +1122,26 @@ class DeviceComputePass implements RecordingInterface {
         const stageName = context.renderGraph.getLayout(this._computeInfo.id);
         if (stageName) {
             const layoutGraph = context.layoutGraph;
-            const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
+            const stageId = layoutGraph.locateChild(layoutGraph.N, stageName);
             if (stageId !== 0xFFFFFFFF) {
                 this._layout = new RenderPassLayoutInfo(stageId, this._computeInfo.id, input);
             }
         }
     }
     getGlobalDescData (): DescriptorSetData {
-        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
-        assert(stageId !== 0xFFFFFFFF);
+        const stageId = context.layoutGraph.locateChild(context.layoutGraph.N, 'default');
         const layout = context.layoutGraph.getLayout(stageId);
-        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
+        const layoutData = layout.getSet(UpdateFrequency.PER_PASS)!;
         return layoutData;
     }
 
     // record common buffer
     record (): void {
         const cmdBuff = context.commandBuffer;
-
-        if (context.descriptorSet) {
+        if (context.passDescriptorSet) {
             cmdBuff.bindDescriptorSet(
                 SetIndex.GLOBAL,
-                context.descriptorSet,
+                context.passDescriptorSet,
             );
         }
 
@@ -1232,7 +1149,7 @@ class DeviceComputePass implements RecordingInterface {
             queue.record();
         }
         const renderData = context.renderGraph.getData(this._computeInfo.id);
-        updateGlobalDescBinding(renderData, context.renderGraph.getLayout(this._computeInfo.id));
+        updateGlobalDescBinding(renderData, -1, 0, context.renderGraph.getLayout(this._computeInfo.id));
     }
 
     resetResource (id: number, pass: ComputePass): void {
@@ -1249,56 +1166,23 @@ class DeviceComputePass implements RecordingInterface {
         }
     }
 }
-class GraphScene {
-    scene: SceneData | null = null;
-    blit: Blit | null = null;
-    dispatch: Dispatch | null = null;
-    sceneID = -1;
-    private _copyScene (scene: SceneData | null): void {
-        if (scene) {
-            if (!this.scene) {
-                this.scene = new SceneData();
-            }
-            this.scene.scene = scene.scene;
-            this.scene.light.level = scene.light.level;
-            this.scene.light.light = scene.light.light;
-            this.scene.flags = scene.flags;
-            this.scene.camera = scene.camera;
-            this.scene.shadingLight = scene.shadingLight;
-            return;
-        }
-        this.scene = null;
-    }
-    private _copyBlit (blit: Blit | null): void {
-        if (blit) {
-            if (!this.blit) {
-                this.blit = new Blit(blit.material, blit.passID, blit.sceneFlags, blit.camera);
-            }
-            this.blit.material = blit.material;
-            this.blit.passID = blit.passID;
-            this.blit.sceneFlags = blit.sceneFlags;
-            this.blit.camera = blit.camera;
-            return;
-        }
-        this.blit = null;
-    }
-    init (scene: SceneData | null, blit: Blit | null, sceneID): void {
-        this._copyScene(scene);
-        this._copyBlit(blit);
-        this.sceneID = sceneID;
-    }
-}
+
 const sceneViewport = new Viewport();
 class DeviceRenderScene implements RecordingInterface {
     protected _currentQueue!: DeviceRenderQueue;
     protected _renderPass!: RenderPass;
-    protected _graphScene!: GraphScene;
     protected _scene: RenderScene | null = null;
     protected _camera: Camera | null = null;
+    protected _sceneData?: SceneData;
+    protected _blit?: Blit;
+    protected _sceneID: number = -1;
+    get blit (): Blit | undefined { return this._blit; }
+    get sceneData (): SceneData | undefined { return this._sceneData; }
+    get sceneID (): number { return this._sceneID; }
     get camera (): Camera | null { return this._camera; }
     preRecord (): void {
-        if (this.graphScene.blit) {
-            this._currentQueue.createBlitDesc(this.graphScene.blit);
+        if (this._blit && this._blit.blitType === BlitType.FULLSCREEN_QUAD) {
+            this._currentQueue.createBlitDesc(this._blit);
             this._currentQueue.blitDesc!.update();
         }
         context.lightResource.buildLightBuffer(context.commandBuffer);
@@ -1307,36 +1191,48 @@ class DeviceRenderScene implements RecordingInterface {
     postRecord (): void {
         // nothing to do
     }
-    init (queue: DeviceRenderQueue, graphScene: GraphScene): void {
+    init (queue: DeviceRenderQueue, sceneID: number, scene?: SceneData, blit?: Blit): void {
         this._currentQueue = queue;
-        this._graphScene = graphScene;
+        this._sceneData = scene;
+        this._blit = blit;
+        this._sceneID = sceneID;
         this._renderPass = queue.devicePass.renderPass;
-        const camera = graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null;
+        const camera = scene && scene.camera ? scene.camera : blit && blit.camera ? blit.camera : null;
         if (camera) {
             this._scene = camera.scene;
             this._camera = camera;
         }
     }
-    get graphScene (): GraphScene { return this._graphScene; }
+
+    protected _record3D (): void {
+        const blit = this._blit!;
+        const device = context.device;
+        const cmdBuff = context.commandBuffer;
+        for (const model of blit.models) {
+            for (const subModel of model.subModels) {
+                const inputAssembler = subModel.inputAssembler;
+                const passCount = subModel.passes.length;
+                for (let passId = 0; passId < passCount; ++passId) {
+                    const pass = subModel.passes[passId];
+                    const shader = subModel.shaders[passId];
+                    const pso = PipelineStateManager.getOrCreatePipelineState(
+                        device,
+                        pass,
+                        shader,
+                        this._renderPass,
+                        inputAssembler,
+                    );
+                    cmdBuff.bindPipelineState(pso);
+                    cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
+                    cmdBuff.bindInputAssembler(inputAssembler);
+                    cmdBuff.draw(inputAssembler);
+                }
+            }
+        }
+    }
 
     protected _recordUI (): void {
-        const devicePass = this._currentQueue.devicePass;
-        const rasterId = devicePass.rasterPassInfo.id;
-        const passRenderData = context.renderGraph.getData(rasterId);
-        // RasterPass first
-        this._updateGlobal(passRenderData);
-        // then Queue
-        const queueId = this._currentQueue.queueId;
-        const queueRenderData = context.renderGraph.getData(queueId)!;
-        this._updateGlobal(queueRenderData);
-
-        const layoutName = context.renderGraph.getLayout(rasterId);
-        const descSetData = getDescriptorSetDataFromLayout(layoutName);
-        if (context.descriptorSet) {
-            mergeSrcToDstDesc(descSetData!.descriptorSet, context.descriptorSet, true);
-        }
-        this._currentQueue.isUpdateUBO = true;
-
         const batches = this.camera!.scene!.batches;
         for (let i = 0; i < batches.length; i++) {
             const batch = batches[i];
@@ -1352,70 +1248,70 @@ class DeviceRenderScene implements RecordingInterface {
                 const pass = batch.passes[j];
                 if (pass.phaseID !== this._currentQueue.phaseID) continue;
                 const shader = batch.shaders[j];
-                const inputAssembler: InputAssembler = batch.inputAssembler!;
-                const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass, shader, this._renderPass, inputAssembler);
-                context.commandBuffer.bindPipelineState(pso);
-                context.commandBuffer.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                const ia: InputAssembler = batch.inputAssembler!;
                 const ds = batch.descriptorSet!;
-                context.commandBuffer.bindDescriptorSet(SetIndex.LOCAL, ds);
-                context.commandBuffer.bindInputAssembler(inputAssembler);
-                context.commandBuffer.draw(inputAssembler);
+                recordCommand(context.commandBuffer, this._renderPass, pass, ds, shader, ia);
             }
         }
     }
 
+    protected _showProfiler (): void {
+        const rect = renderPassArea;
+        const profiler = context.pipeline.profiler!;
+        if (!profiler || !profiler.enabled || !context.passShowStatistics) {
+            return;
+        }
+        const profilerDesc = context.profilerDescriptorSet;
+        const renderPass = this._renderPass;
+        const cmdBuff = context.commandBuffer;
+        const submodel = profiler.subModels[0];
+        const pass = submodel.passes[0];
+        const ia = submodel.inputAssembler;
+        profilerViewport.width = rect.width;
+        profilerViewport.height = rect.height;
+        cmdBuff.setViewport(profilerViewport);
+        cmdBuff.setScissor(rect);
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, profilerDesc);
+        recordCommand(cmdBuff, renderPass, pass, submodel.descriptorSet, submodel.shaders[0], ia);
+    }
     private _recordBlit (): void {
-        if (!this.graphScene.blit) { return; }
+        if (!this.blit) { return; }
 
-        const blit = this.graphScene.blit;
-        const currMat = blit.material;
-        const pass = currMat!.passes[blit.passID];
+        const blit = this.blit;
+        const currMat = blit.material!;
+        const pass = currMat.passes[blit.passID];
         pass.update();
         const shader = pass.getShaderVariant();
-        const devicePass = this._currentQueue.devicePass;
-        const screenIa: InputAssembler = this._currentQueue.blitDesc!.screenQuad!.quadIA!;
-        const globalDesc = context.descriptorSet;
-        let pso: PipelineState | null = null;
-        if (pass !== null && shader !== null && screenIa !== null) {
-            pso = PipelineStateManager.getOrCreatePipelineState(
-                context.device,
-                pass,
-                shader,
-                devicePass.renderPass,
-                screenIa,
-            );
-        }
-        if (pso) {
-            context.commandBuffer.bindPipelineState(pso);
-            context.commandBuffer.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-            context.commandBuffer.bindDescriptorSet(SetIndex.LOCAL, this._currentQueue.blitDesc!.stageDesc!);
-            context.commandBuffer.bindInputAssembler(screenIa);
-            context.commandBuffer.draw(screenIa);
-        }
+        const blitDesc = this._currentQueue.blitDesc!;
+        const screenIa = blitDesc.screenQuad!.quadIA;
+        recordCommand(context.commandBuffer, this._renderPass, pass, blitDesc.stageDesc!, shader, screenIa);
     }
 
-    protected _updateGlobal (data: RenderData): void {
+    protected _updateGlobal (data: RenderData, sceneId: number): void {
         const devicePass = this._currentQueue.devicePass;
-        updateGlobalDescBinding(data, context.renderGraph.getLayout(devicePass.rasterPassInfo.id));
+        devicePass.addIdxOfRD();
+        updateGlobalDescBinding(data, sceneId, devicePass.indexOfRD, context.renderGraph.getLayout(devicePass.rasterID));
     }
 
     protected _updateRenderData (): void {
         if (this._currentQueue.isUpdateUBO) return;
         const devicePass = this._currentQueue.devicePass;
-        const rasterId = devicePass.rasterPassInfo.id;
+        const rasterId = devicePass.rasterID;
         const passRenderData = context.renderGraph.getData(rasterId);
-        // CCGlobal
-        this._updateGlobal(passRenderData);
-        // CCCamera, CCShadow, CCCSM
+        const sceneId = this.sceneID;
+        // global
+        this._updateGlobal(context.renderGraph.globalRenderData, sceneId);
+        // pass
+        this._updateGlobal(passRenderData, sceneId);
+        // queue
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
-        this._updateGlobal(queueRenderData);
-        const sceneId = this.graphScene.sceneID;
+        this._updateGlobal(queueRenderData, sceneId);
+        // scene
         const sceneRenderData = context.renderGraph.getData(sceneId)!;
-        if (sceneRenderData) this._updateGlobal(sceneRenderData);
-        const layoutName = context.renderGraph.getLayout(rasterId);
-        const descSetData = getDescriptorSetDataFromLayout(layoutName);
-        mergeSrcToDstDesc(descSetData!.descriptorSet, context.descriptorSet, true);
+        if (sceneRenderData) this._updateGlobal(sceneRenderData, sceneId);
+        devicePass.processRenderLayout();
+        context.passDescriptorSet?.update();
         this._currentQueue.isUpdateUBO = true;
     }
 
@@ -1426,9 +1322,8 @@ class DeviceRenderScene implements RecordingInterface {
             context.commandBuffer.setScissor(this._currentQueue.scissor!);
         } else if (!this._currentQueue.devicePass.viewport) {
             const texture = this._currentQueue.devicePass.framebuffer.colorTextures[0]!;
-            const graphScene = this.graphScene;
-            const lightInfo = graphScene.scene ? graphScene.scene.light : null;
-            const area = isShadowMap(this.graphScene) && graphScene.scene && lightInfo!.light
+            const lightInfo = this.sceneData ? this.sceneData.light : null;
+            const area = isShadowMap(this.sceneData) && this.sceneData && lightInfo!.light
                 ? getRenderArea(this.camera!, texture.width, texture.height, lightInfo!.light, lightInfo!.level)
                 : getRenderArea(this.camera!, texture.width, texture.height);
             sceneViewport.left = area.x;
@@ -1445,16 +1340,34 @@ class DeviceRenderScene implements RecordingInterface {
         const sceneCulling = context.culling;
         this._updateRenderData();
         this._applyViewport();
+
         // Currently processing blit and camera first
-        if (this.graphScene.blit) {
-            this._recordBlit();
+        if (this.blit) {
+            switch (this.blit.blitType) {
+            case BlitType.FULLSCREEN_QUAD:
+                this._recordBlit();
+                break;
+            case BlitType.DRAW_2D:
+                this._recordUI();
+                break;
+            case BlitType.DRAW_PROFILE:
+                this._showProfiler();
+                break;
+            case BlitType.DRAW_3D:
+                this._record3D();
+                break;
+            default:
+                break;
+            }
             return;
         }
-        const renderQueueDesc = sceneCulling.renderQueueIndex.get(this.graphScene.sceneID)!;
-        const renderQueue = sceneCulling.renderQueues[renderQueueDesc.renderQueueTarget];
-        const graphSceneData = this.graphScene.scene!;
-        renderQueue.recordCommands(context.commandBuffer, this._renderPass);
-        if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.removeMacro();
+        const rqQuery = sceneCulling.renderQueueQueryIndex.get(this.sceneID)!;
+        const rq = sceneCulling.renderQueues[rqQuery.renderQueueTarget];
+        const graphSceneData = this.sceneData!;
+        const isProbe = bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE);
+        if (isProbe) rq.probeQueue.applyMacro();
+        rq.recordCommands(context.commandBuffer, this._renderPass, graphSceneData.flags);
+        if (isProbe) rq.probeQueue.removeMacro();
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
             this.camera!.geometryRenderer?.render(
                 devicePass.renderPass,
@@ -1462,21 +1375,14 @@ class DeviceRenderScene implements RecordingInterface {
                 context.pipeline.pipelineSceneData,
             );
         }
-        if (graphSceneData.flags & SceneFlags.UI) {
-            this._recordUI();
-        }
     }
 }
 
 class ExecutorPools {
-    constructor (context: ExecutorContext) {
+    constructor () {
         this.deviceQueuePool = new RecyclePool<DeviceRenderQueue>((): DeviceRenderQueue => new DeviceRenderQueue(), 16);
         this.deviceScenePool = new RecyclePool<DeviceRenderScene>((): DeviceRenderScene => new DeviceRenderScene(), 16);
         this.computeQueuePool = new RecyclePool<DeviceComputeQueue>((): DeviceComputeQueue => new DeviceComputeQueue(), 16);
-        this.graphScenePool = new RecyclePool<GraphScene>((): GraphScene => new GraphScene(), 16);
-        this.rasterPassInfoPool = new RecyclePool<RasterPassInfo>((): RasterPassInfo => new RasterPassInfo(), 16);
-        this.computePassInfoPool = new RecyclePool<ComputePassInfo>((): ComputePassInfo => new ComputePassInfo(), 16);
-        this.reflectionProbe = new RecyclePool<RenderReflectionProbeQueue>((): RenderReflectionProbeQueue => new RenderReflectionProbeQueue(context.pipeline), 8);
         this.passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
             priority: 0,
             hash: 0,
@@ -1492,36 +1398,17 @@ class ExecutorPools {
     addComputeQueue (): DeviceComputeQueue {
         return this.computeQueuePool.add();
     }
-    addGraphScene (): GraphScene {
-        return this.graphScenePool.add();
-    }
     addDeviceScene (): DeviceRenderScene {
         return this.deviceScenePool.add();
-    }
-    addReflectionProbe (): RenderReflectionProbeQueue {
-        return this.reflectionProbe.add();
-    }
-    addRasterPassInfo (): RasterPassInfo {
-        return this.rasterPassInfoPool.add();
-    }
-    addComputePassInfo (): ComputePassInfo {
-        return this.computePassInfoPool.add();
     }
     reset (): void {
         this.deviceQueuePool.reset();
         this.computeQueuePool.reset();
-        this.graphScenePool.reset();
-        this.reflectionProbe.reset();
-        this.computePassInfoPool.reset();
         this.deviceScenePool.reset();
     }
     readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
     readonly computeQueuePool: RecyclePool<DeviceComputeQueue>;
-    readonly graphScenePool: RecyclePool<GraphScene>;
-    readonly reflectionProbe: RecyclePool<RenderReflectionProbeQueue>;
     readonly passPool: RecyclePool<IRenderPass>;
-    readonly rasterPassInfoPool: RecyclePool<RasterPassInfo>;
-    readonly computePassInfoPool: RecyclePool<ComputePassInfo>;
     readonly deviceScenePool: RecyclePool<DeviceRenderScene>;
 }
 
@@ -1566,11 +1453,12 @@ class BlitInfo {
         const vb = this._genQuadVertexData(SurfaceTransform.IDENTITY, new Rect(0, 0, context.width, context.height));
         this._pipelineIAData.quadVB!.update(vb);
         this._createLightVolumes();
+        const size: number = UBOLocalEnum.SIZE;
         this._localUBO = context.device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-            UBOLocal.SIZE,
-            UBOLocal.SIZE,
+            size,
+            size,
         ));
     }
 
@@ -1605,47 +1493,33 @@ class BlitInfo {
         const maxX = (renderArea.x + renderArea.width) / this._context.width;
         let minY = renderArea.y / this._context.height;
         let maxY = (renderArea.y + renderArea.height) / this._context.height;
+
+        // Flip the minimum maximum Y value according to the sign of the Y-axis of the screen space
         if (this._context.root.device.capabilities.screenSpaceSignY > 0) {
-            const temp = maxY;
-            maxY = minY;
-            minY = temp;
+            [minY, maxY] = [maxY, minY];
         }
-        let n = 0;
+        const vbData = new Float32Array(16);
+        const fillVertices = (x1, y1, u1, v1, x2, y2, u2, v2, x3, y3, u3, v3, x4, y4, u4, v4): void => {
+            vbData.set([x1, y1, u1, v1, x2, y2, u2, v2, x3, y3, u3, v3, x4, y4, u4, v4]);
+        };
         switch (surfaceTransform) {
-        case (SurfaceTransform.IDENTITY):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+        case SurfaceTransform.IDENTITY:
+            fillVertices(-1, -1, minX, maxY, 1, -1, maxX, maxY, -1, 1, minX, minY, 1, 1, maxX, minY);
             break;
-        case (SurfaceTransform.ROTATE_90):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+        case SurfaceTransform.ROTATE_90:
+            fillVertices(-1, -1, maxX, maxY, 1, -1, maxX, minY, -1, 1, minX, maxY, 1, 1, minX, minY);
             break;
-        case (SurfaceTransform.ROTATE_180):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+        case SurfaceTransform.ROTATE_180:
+            fillVertices(-1, -1, minX, minY, 1, -1, maxX, minY, -1, 1, minX, maxY, 1, 1, maxX, maxY);
             break;
-        case (SurfaceTransform.ROTATE_270):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+        case SurfaceTransform.ROTATE_270:
+            fillVertices(-1, -1, minX, minY, 1, -1, minX, maxY, -1, 1, maxX, minY, 1, 1, maxX, maxY);
             break;
         default:
-            break;
         }
-
         return vbData;
     }
+
     private _createQuadInputAssembler (): PipelineInputAssemblerData {
         // create vertex buffer
         const inputAssemblerData = new PipelineInputAssemblerData();
@@ -1707,7 +1581,6 @@ class BlitInfo {
 class ExecutorContext {
     constructor (
         pipeline: BasicPipeline,
-        ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         renderGraph: RenderGraph,
@@ -1723,24 +1596,21 @@ class ExecutorContext {
         this.resourceGraph = resourceGraph;
         this.renderGraph = renderGraph;
         this.root = legacyCC.director.root;
-        this.ubo = ubo;
         this.layoutGraph = layoutGraph;
         this.width = width;
         this.height = height;
-        this.additiveLight = new RenderAdditiveLightQueue(pipeline);
-        this.pools = new ExecutorPools(this);
+        this.pools = new ExecutorPools();
         this.blit = new BlitInfo(this);
         this.culling = new SceneCulling();
-        this.descriptorSet = descriptorSet;
+        this.passDescriptorSet = descriptorSet;
+        this.profilerDescriptorSet = getDescriptorSetDataFromLayout('default')!.descriptorSet!;
     }
     reset (): void {
         this.culling.clear();
         this.pools.reset();
         this.cullCamera = null;
-        for (const infoMap of this.submitMap) {
-            for (const info of infoMap[1]) info[1].reset();
-        }
         this.lightResource.clear();
+        this.passShowStatistics = false;
     }
     resize (width: number, height: number): void {
         this.width = width;
@@ -1757,9 +1627,6 @@ class ExecutorContext {
     readonly deviceBuffers: Map<string, DeviceBuffer> = new Map<string, DeviceBuffer>();
     readonly layoutGraph: LayoutGraphData;
     readonly root: Root;
-    readonly ubo: PipelineUBO;
-    readonly additiveLight: RenderAdditiveLightQueue;
-    readonly submitMap: Map<Camera, Map<number, SubmitInfo>> = new Map<Camera, Map<number, SubmitInfo>>();
     readonly pools: ExecutorPools;
     readonly blit: BlitInfo;
     readonly culling: SceneCulling;
@@ -1768,13 +1635,14 @@ class ExecutorContext {
     width: number;
     height: number;
     cullCamera;
-    descriptorSet: DescriptorSet | null;
+    passDescriptorSet: DescriptorSet | null;
+    profilerDescriptorSet: DescriptorSet;
+    passShowStatistics: boolean = false;
 }
 
 export class Executor {
     constructor (
         pipeline: BasicPipeline,
-        ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         layoutGraph: LayoutGraphData,
@@ -1783,7 +1651,6 @@ export class Executor {
     ) {
         context = this._context = new ExecutorContext(
             pipeline,
-            ubo,
             device,
             resourceGraph,
             new RenderGraph(),
@@ -1849,9 +1716,9 @@ export class Executor {
         const culling = context.culling;
         culling.buildRenderQueues(rg, context.layoutGraph, context.pipelineSceneData);
         context.lightResource.buildLights(culling, context.pipelineSceneData.isHDR, context.pipelineSceneData.shadows);
-        culling.uploadInstancing(cmdBuff);
         this._removeDeviceResource();
         cmdBuff.begin();
+        culling.uploadInstancing(cmdBuff);
         if (!this._visitor) this._visitor = new RenderVisitor();
         depthFirstSearch(this._visitor.graphView, this._visitor, this._visitor.colorMap);
         cmdBuff.end();
@@ -1886,22 +1753,22 @@ class BaseRenderVisitor {
         this.rg = context.renderGraph;
     }
     protected _isRasterPass (u: number): boolean {
-        return !!context.renderGraph.tryGetRasterPass(u);
+        return context.renderGraph.h(RenderGraphValue.RasterPass, u);
     }
     protected isComputePass (u: number): boolean {
-        return !!context.renderGraph.tryGetCompute(u);
+        return context.renderGraph.h(RenderGraphValue.Compute, u);
     }
     protected isDispatch (u: number): boolean {
-        return !!context.renderGraph.tryGetDispatch(u);
+        return context.renderGraph.h(RenderGraphValue.Dispatch, u);
     }
     protected _isQueue (u: number): boolean {
-        return !!context.renderGraph.tryGetQueue(u);
+        return context.renderGraph.h(RenderGraphValue.Queue, u);
     }
     protected _isScene (u: number): boolean {
-        return !!context.renderGraph.tryGetScene(u);
+        return context.renderGraph.h(RenderGraphValue.Scene, u);
     }
     protected _isBlit (u: number): boolean {
-        return !!context.renderGraph.tryGetBlit(u);
+        return context.renderGraph.h(RenderGraphValue.Blit, u);
     }
     applyID (id: number): void {
         if (this._isRasterPass(id)) {
@@ -1934,9 +1801,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         const passHash = pass.hashValue;
         this.currPass = devicePasses.get(passHash);
         if (!this.currPass) {
-            const rasterInfo = context.pools.addRasterPassInfo();
-            rasterInfo.applyInfo(this.passID, pass);
-            this.currPass = new DeviceRenderPass(rasterInfo);
+            this.currPass = new DeviceRenderPass(this.passID, pass);
             devicePasses.set(passHash, this.currPass);
         } else {
             this.currPass.resetResource(this.passID, pass);
@@ -1966,6 +1831,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         this.currPass = new DeviceComputePass(computeInfo);
         this.currPass.preRecord();
         this.currPass.record();
+        this.currPass.postRecord();
     }
     copy (value: CopyPass): void {
         if (value.uploadPairs.length) {
@@ -1984,7 +1850,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     queue (value: RenderQueue): void {
         if (!this.rg.getValid(this.queueID)) return;
         let deviceQueue: DeviceComputeQueue | DeviceRenderQueue;
-        if ('rasterPassInfo' in this.currPass!) {
+        if (this.currPass instanceof DeviceRenderPass) {
             deviceQueue = context.pools.addDeviceQueue();
             deviceQueue.init(this.currPass, value, this.queueID);
             this.currQueue = deviceQueue;
@@ -2008,17 +1874,13 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     scene (value: SceneData): void {
         if (!this.rg.getValid(this.sceneID)) return;
         const renderQueue = this.currQueue as DeviceRenderQueue;
-        const graphScene = context.pools.addGraphScene();
-        graphScene.init(value, null, this.sceneID);
-        const renderScene = renderQueue.addScene(graphScene);
+        const renderScene = renderQueue.setScene(this.sceneID, value);
         renderScene.preRecord();
     }
     blit (value: Blit): void {
         if (!this.rg.getValid(this.sceneID)) return;
         const renderQueue = this.currQueue as DeviceRenderQueue;
-        const graphScene = context.pools.addGraphScene();
-        graphScene.init(null, value, -1);
-        const renderScene = renderQueue.addScene(graphScene);
+        const renderScene = renderQueue.setScene(this.sceneID, undefined, value);
         renderScene.preRecord();
     }
     dispatch (value: Dispatch): void {
@@ -2067,7 +1929,9 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
         const currPass = devicePasses.get(passHash);
         if (!currPass) return;
         this.currPass = currPass;
+        context.passShowStatistics = pass.showStatistics;
         this.currPass.record();
+        this.currPass.postRecord();
     }
     rasterSubpass (value: RasterSubpass): void {
         // do nothing
@@ -2114,7 +1978,7 @@ export class RenderVisitor extends DefaultVisitor {
         this._preVisitor = new PreRenderVisitor();
         this._postVisitor = new PostRenderVisitor();
         this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
-        this._colorMap = new VectorGraphColorMap(context.renderGraph.numVertices());
+        this._colorMap = new VectorGraphColorMap(context.renderGraph.nv());
     }
 
     get graphView (): ReferenceGraphView<RenderGraph> { return this._graphView; }

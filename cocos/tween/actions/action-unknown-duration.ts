@@ -28,8 +28,8 @@ import { cclegacy } from '../../core';
 
 export class ActionUnknownDuration<T extends object, Args extends any[]> extends FiniteTimeAction {
     private _finished = false;
-    private _cb: TweenUpdateUntilCallback<T, Args>;
-    private _args: Args;
+    private declare _cb: TweenUpdateUntilCallback<T, Args>;
+    private declare _args: Args;
 
     constructor (cb: TweenUpdateUntilCallback<T, Args>, args: Args) {
         super();
@@ -37,28 +37,32 @@ export class ActionUnknownDuration<T extends object, Args extends any[]> extends
         this._args = args;
     }
 
-    clone (): ActionUnknownDuration<T, Args> {
+    override clone (): ActionUnknownDuration<T, Args> {
         return new ActionUnknownDuration(this._cb, this._args);
     }
 
-    reverse (): ActionUnknownDuration<T, Args> {
+    override reverse (): ActionUnknownDuration<T, Args> {
         return this.clone();
     }
 
-    step (dt: number): void {
+    override step (dt: number): void {
         throw new Error('should never go here');
     }
 
-    update (t: number): void {
+    override update (t: number): void {
         const dt: number = cclegacy.game.deltaTime;
         this._finished = this._cb(this.target as T, dt, ...this._args);
     }
 
-    isDone (): boolean {
+    override isDone (): boolean {
         return this._finished;
     }
 
-    isUnknownDuration (): boolean {
+    override isUnknownDuration (): boolean {
         return !this.isDone();
+    }
+
+    override toString (): string {
+        return `<ActionUnknownDuration>`;
     }
 }

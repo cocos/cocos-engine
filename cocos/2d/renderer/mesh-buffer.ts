@@ -230,9 +230,9 @@ export class MeshBuffer {
     constructor () {
         if (JSB) {
             this._nativeObj = new NativeUIMeshBuffer();
+            this.initSharedBuffer();
+            this.syncSharedBufferToNative();
         }
-        this.initSharedBuffer();
-        this.syncSharedBufferToNative();
     }
 
     /**
@@ -284,11 +284,13 @@ export class MeshBuffer {
         // Destroy InputAssemblers
         for (let i = 0; i < this._iaPool.length; ++i) {
             const iaRef = this._iaPool[i];
-            if (iaRef.vertexBuffers[0]) {
-                iaRef.vertexBuffers[0].destroy();
+            const vertexBuffer0 = iaRef.vertexBuffers[0];
+            if (vertexBuffer0) {
+                vertexBuffer0.destroy();
             }
-            if (iaRef.indexBuffer) {
-                iaRef.indexBuffer.destroy();
+            const indexBuffer = iaRef.indexBuffer;
+            if (indexBuffer) {
+                indexBuffer.destroy();
             }
             iaRef.ia.destroy();
         }
@@ -410,9 +412,9 @@ export class MeshBuffer {
     }
 
     private createNewIA (device: Device): IIARef {
-        let ia;
-        let vertexBuffers;
-        let indexBuffer;
+        let ia: InputAssembler;
+        let vertexBuffers: Buffer[];
+        let indexBuffer: Buffer;
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
         if (sys.__isWebIOS14OrIPadOS14Env || !this._iaPool[0]) {
@@ -438,7 +440,7 @@ export class MeshBuffer {
         } else {
             ia = device.createInputAssembler(this._iaInfo);
             vertexBuffers = this._iaInfo.vertexBuffers;
-            indexBuffer = this._iaInfo.indexBuffer;
+            indexBuffer = this._iaInfo.indexBuffer!;
         }
         return {
             ia,

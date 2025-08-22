@@ -29,11 +29,13 @@ import '../core/data/class';
 import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Eventify } from '../core/event';
-import { Rect, Size, Vec2 } from '../core/math';
+import { rect, Rect, size, Size, Vec2 } from '../core/math';
 import { visibleRect, cclegacy, errorID, screen, macro, System, assert } from '../core';
 import { Orientation } from '../../pal/screen-adapter/enum-type';
 import { director } from '../game/director';
-import { Settings, settings } from '../core/settings';
+import { settings, SettingsCategory } from '../core/settings';
+import type { Root } from '../root';
+import type { Game } from '../game';
 
 /**
  * @en View represents the game window.<br/>
@@ -52,7 +54,7 @@ import { Settings, settings } from '../core/settings';
  * 引擎会自动初始化它的单例对象 [[view]]，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
  */
 
-const localWinSize = new Size();
+const localWinSize = size();
 
 const orientationMap = {
     [macro.ORIENTATION_AUTO]: Orientation.AUTO,
@@ -65,42 +67,28 @@ export class View extends Eventify(System) {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _designResolutionSize: Size;
+    public _designResolutionSize: Size = size(0, 0); // resolution size, it is the size appropriate for the app resources.
 
-    private _scaleX: number;
-    private _scaleY: number;
-    private _viewportRect: Rect;
-    private _visibleRect: Rect;
-    private _autoFullScreen: boolean;
-    private _retinaEnabled: boolean;
-    private _resizeCallback: (() => void) | null;
-    private _resolutionPolicy: ResolutionPolicy;
-    private _rpExactFit: ResolutionPolicy;
-    private _rpShowAll: ResolutionPolicy;
-    private _rpNoBorder: ResolutionPolicy;
-    private _rpFixedHeight: ResolutionPolicy;
-    private _rpFixedWidth: ResolutionPolicy;
+    private _scaleX: number = 1;
+    private _scaleY: number = 1;
+    private _viewportRect: Rect = rect(); // Viewport is the container's rect related to content's coordinates in pixel
+    private _visibleRect: Rect = rect(); // The visible rect in content's coordinate in point
+    private _autoFullScreen: boolean = false; // Auto full screen disabled by default
+    private _retinaEnabled: boolean = false; // Retina disabled by default
+    private _resizeCallback: (() => void) | null = null; // Custom callback for resize event
+    private declare _resolutionPolicy: ResolutionPolicy;
+
+    private declare _rpExactFit: ResolutionPolicy;
+    private declare _rpShowAll: ResolutionPolicy;
+    private declare _rpNoBorder: ResolutionPolicy;
+    private declare _rpFixedHeight: ResolutionPolicy;
+    private declare _rpFixedWidth: ResolutionPolicy;
 
     constructor () {
         super();
 
         const _strategyer = ContainerStrategy;
         const _strategy = ContentStrategy;
-
-        // resolution size, it is the size appropriate for the app resources.
-        this._designResolutionSize = new Size(0, 0);
-        this._scaleX = 1;
-        this._scaleY = 1;
-        // Viewport is the container's rect related to content's coordinates in pixel
-        this._viewportRect = new Rect(0, 0, 0, 0);
-        // The visible rect in content's coordinate in point
-        this._visibleRect = new Rect(0, 0, 0, 0);
-        // Auto full screen disabled by default
-        this._autoFullScreen = false;
-        // Retina disabled by default
-        this._retinaEnabled = false;
-        // Custom callback for resize event
-        this._resizeCallback = null;
 
         // Setup system default resolution policies
         this._rpExactFit = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
@@ -131,7 +119,7 @@ export class View extends Eventify(System) {
 
         if (!EDITOR) {
             this.resizeWithBrowserSize(true);
-            const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
+            const designResolution = settings.querySettings(SettingsCategory.SCREEN, 'designResolution');
             if (designResolution) {
                 this.setDesignResolutionSize(
                     Number(designResolution.width),
@@ -590,8 +578,12 @@ export class View extends Eventify(System) {
         return out;
     }
 
-    // Convert location in Cocos screen coordinate to location in UI space
-    private _convertToUISpace (point): void {
+    /**
+     * Convert location in Cocos screen coordinate to location in UI space
+     * @engineInternal
+     * @mangle
+     */
+    public _convertToUISpace (point: Vec2): void {
         const viewport = this._viewportRect;
         point.x = (point.x - viewport.x) / this._scaleX;
         point.y = (point.y - viewport.y) / this._scaleY;
@@ -599,10 +591,11 @@ export class View extends Eventify(System) {
 
     private _updateAdaptResult (width: number, height: number, windowId?: number): void {
         // The default invalid windowId is 0
-        cclegacy.director.root.resize(width, height, (windowId === undefined || windowId === 0) ? 1 : windowId);
+        (cclegacy.director.root as Root).resize(width, height, (windowId === undefined || windowId === 0) ? 1 : windowId);
+        const designResolutionSize = this._designResolutionSize;
         // Frame size changed, do resize works
-        const w = this._designResolutionSize.width;
-        const h = this._designResolutionSize.height;
+        const w = designResolutionSize.width;
+        const h = designResolutionSize.height;
 
         if (width > 0 && height > 0) {
             this.setDesignResolutionSize(w, h, this._resolutionPolicy);
@@ -611,7 +604,7 @@ export class View extends Eventify(System) {
         }
 
         this.emit('canvas-resize');
-        this._resizeCallback?.();
+        if (this._resizeCallback) this._resizeCallback();
     }
 }
 
@@ -669,7 +662,7 @@ class ContainerStrategy {
 
     protected _setupCanvas (): void {
         // TODO: need to figure out why set width and height of canvas
-        const locCanvas = cclegacy.game.canvas;
+        const locCanvas = (cclegacy.game as Game).canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
             if (locCanvas.width !== windowSize.width) {
@@ -697,15 +690,18 @@ class ContainerStrategy {
  * @class ContentStrategy
  */
 class ContentStrategy {
-    public static EXACT_FIT: ExactFit;
-    public static SHOW_ALL: ShowAll;
-    public static NO_BORDER: NoBorder;
-    public static FIXED_HEIGHT: FixedHeight;
-    public static FIXED_WIDTH: FixedWidth;
+    public declare static EXACT_FIT: ExactFit;
+    public declare static SHOW_ALL: ShowAll;
+    public declare static NO_BORDER: NoBorder;
+    public declare static FIXED_HEIGHT: FixedHeight;
+    public declare static FIXED_WIDTH: FixedWidth;
 
     public name = 'ContentStrategy';
 
-    private _result: AdaptResult;
+    private _result: AdaptResult = {
+        scale: [1, 1],
+        viewport: null,
+    };
     protected _strategy = ResolutionPolicy.UNKNOWN;
 
     get strategy (): number {
@@ -713,10 +709,6 @@ class ContentStrategy {
     }
 
     constructor () {
-        this._result = {
-            scale: [1, 1],
-            viewport: null,
-        };
     }
 
     /**
@@ -767,9 +759,10 @@ class ContentStrategy {
             contentH,
         );
 
-        this._result.scale = [scaleX, scaleY];
-        this._result.viewport = viewport;
-        return this._result;
+        const result = this._result;
+        result.scale = [scaleX, scaleY];
+        result.viewport = viewport;
+        return result;
     }
 }
 
@@ -781,6 +774,11 @@ class ContentStrategy {
  */
 class EqualToFrame extends ContainerStrategy {
     public name = 'EqualToFrame';
+
+    constructor () {
+        super();
+    }
+
     public apply (_view, designedResolution): void {
         screenAdapter.isProportionalToFrame = false;
         this._setupCanvas();
@@ -793,7 +791,11 @@ class EqualToFrame extends ContainerStrategy {
      */
 class ProportionalToFrame extends ContainerStrategy {
     public name = 'ProportionalToFrame';
-    public apply (_view, designedResolution): void {
+    constructor () {
+        super();
+    }
+
+    public apply (_view: View, designedResolution: Size): void {
         screenAdapter.isProportionalToFrame = true;
         this._setupCanvas();
     }
@@ -832,7 +834,7 @@ class ShowAll extends ContentStrategy {
         this._strategy = ResolutionPolicy.SHOW_ALL;
     }
 
-    public apply (_view, designedResolution): AdaptResult {
+    public apply (_view: View, designedResolution: Size): AdaptResult {
         const windowSize = screen.windowSize;
         const containerW = windowSize.width;
         const containerH = windowSize.height;
@@ -900,7 +902,7 @@ class FixedHeight extends ContentStrategy {
         this._strategy = ResolutionPolicy.FIXED_HEIGHT;
     }
 
-    public apply (_view, designedResolution): AdaptResult {
+    public apply (_view: View, designedResolution: Size): AdaptResult {
         const windowSize = screen.windowSize;
         const containerW = windowSize.width;
         const containerH = windowSize.height;
@@ -921,7 +923,7 @@ class FixedWidth extends ContentStrategy {
         this._strategy = ResolutionPolicy.FIXED_WIDTH;
     }
 
-    public apply (_view, designedResolution): AdaptResult {
+    public apply (_view: View, designedResolution: Size): AdaptResult {
         const windowSize = screen.windowSize;
         const containerW = windowSize.width;
         const containerH = windowSize.height;
@@ -996,8 +998,8 @@ export class ResolutionPolicy {
 
     public name = 'ResolutionPolicy';
 
-    private _containerStrategy: ContainerStrategy;
-    private _contentStrategy: ContentStrategy;
+    private declare _containerStrategy: ContainerStrategy;
+    private declare _contentStrategy: ContentStrategy;
 
     /**
      * Constructor of ResolutionPolicy

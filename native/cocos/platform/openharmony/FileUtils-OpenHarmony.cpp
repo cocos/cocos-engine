@@ -29,20 +29,22 @@
 #include <cstdio>
 #include <regex>
 
-#include <string>
-#include <sys/syscall.h>
-#include <sys/types.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <dirent.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <string>
 
-#include "base/memory/Memory.h"
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 
-NativeResourceManager* FileUtilsOpenHarmony::_nativeResourceManager = nullptr;
+#define ASSETS_FOLDER_NAME "@assets/"
+
+NativeResourceManager *FileUtilsOpenHarmony::_nativeResourceManager = nullptr;
 
 FileUtils *createFileUtils() {
     return ccnew FileUtilsOpenHarmony();
@@ -59,7 +61,7 @@ bool FileUtilsOpenHarmony::initResourceManager(napi_env env, napi_value param) {
     return true;
 }
 
-FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &filename,RawFileDescriptor& descriptor) {
+FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &filename, RawFileDescriptor64 &descriptor) {
     if (filename.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
@@ -68,25 +70,32 @@ FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &
     if (fullPath.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
-
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
+    std::string relativePath;
+    if (0 == position) {
+        // "@assets/" is at the beginning of the path and we don't want it
+        relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));
+    } else {
+        relativePath = fullPath;
+    }
     if (nullptr == _nativeResourceManager) {
         CC_LOG_ERROR("nativeResourceManager is nullptr");
         return FileUtils::Status::NOT_INITIALIZED;
     }
 
-    RawFile *rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, fullPath.c_str());
+    RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, relativePath.c_str());
     if (nullptr == rawFile) {
         return FileUtils::Status::OPEN_FAILED;
     }
 
-    bool result = OH_ResourceManager_GetRawFileDescriptor(rawFile, descriptor);
+    bool result = OH_ResourceManager_GetRawFileDescriptor64(rawFile, &descriptor);
     if (!result) {
-         OH_ResourceManager_CloseRawFile(rawFile);
+        OH_ResourceManager_CloseRawFile64(rawFile);
         return FileUtils::Status::OPEN_FAILED;
     }
 
-    OH_ResourceManager_CloseRawFile(rawFile);
-    return FileUtils::Status::OK;  
+    OH_ResourceManager_CloseRawFile64(rawFile);
+    return FileUtils::Status::OK;
 }
 
 FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename, ResizableBuffer *buffer) {
@@ -107,42 +116,51 @@ FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename,
         CC_LOG_ERROR("nativeResourceManager is nullptr");
         return FileUtils::Status::NOT_INITIALIZED;
     }
+    ccstd::string relativePath;
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
+    if (0 == position) {
+        // "@assets/" is at the beginning of the path and we don't want it
+        relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));
+    } else {
+        relativePath = fullPath;
+    }
 
-    RawFile *rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, fullPath.c_str());
+    RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, relativePath.data());
     if (nullptr == rawFile) {
+        CC_LOG_WARNING("asset (%s) is nullptr", filename.c_str());
         return FileUtils::Status::OPEN_FAILED;
     }
 
-    auto size = OH_ResourceManager_GetRawFileSize(rawFile);
+    int64_t size = OH_ResourceManager_GetRawFileSize64(rawFile);
     buffer->resize(size);
 
     assert(buffer->buffer());
 
-    int readsize = OH_ResourceManager_ReadRawFile(rawFile, buffer->buffer(), size);
+    int64_t readsize = OH_ResourceManager_ReadRawFile64(rawFile, buffer->buffer(), size);
     // TODO(unknown): read error
     if (readsize < size) {
         if (readsize >= 0) {
             buffer->resize(readsize);
         }
-        OH_ResourceManager_CloseRawFile(rawFile);
+        OH_ResourceManager_CloseRawFile64(rawFile);
         return FileUtils::Status::READ_FAILED;
     }
-    OH_ResourceManager_CloseRawFile(rawFile);
+    OH_ResourceManager_CloseRawFile64(rawFile);
     return FileUtils::Status::OK;
 }
 
 FileUtilsOpenHarmony::~FileUtilsOpenHarmony() {
-    if(_nativeResourceManager)
-        OH_ResourceManager_ReleaseNativeResourceManager(_nativeResourceManager);
+    // if (_nativeResourceManager)
+    //     OH_ResourceManager_ReleaseNativeResourceManager(_nativeResourceManager);
 }
 
 bool FileUtilsOpenHarmony::init() {
-    _defaultResRootPath = "";
+    _defaultResRootPath = ASSETS_FOLDER_NAME;
     return FileUtils::init();
 }
 
 bool FileUtilsOpenHarmony::isAbsolutePath(const std::string &strPath) const {
-    return !strPath.empty() && (strPath[0] == '/');
+    return !strPath.empty() && ((strPath[0] == '/') || strPath.find(ASSETS_FOLDER_NAME) == 0);
 }
 
 std::string FileUtilsOpenHarmony::getSuitableFOpen(const std::string &filenameUtf8) const {
@@ -166,10 +184,10 @@ long FileUtilsOpenHarmony::getFileSize(const std::string &filepath) {
     }
 
     long filesize = 0;
-    RawFile* rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, fullPath.c_str());
-    if(rawFile) {
-        filesize = OH_ResourceManager_GetRawFileSize(rawFile);
-        OH_ResourceManager_CloseRawFile(rawFile);
+    RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, fullPath.c_str());
+    if (rawFile) {
+        filesize = OH_ResourceManager_GetRawFileSize64(rawFile);
+        OH_ResourceManager_CloseRawFile64(rawFile);
     }
     return filesize;
 }
@@ -182,19 +200,27 @@ bool FileUtilsOpenHarmony::isFileExistInternal(const std::string &strFilePath) c
     if (strFilePath.empty()) {
         return false;
     }
-    std::string strPath = strFilePath;
-    if (!isAbsolutePath(strPath)) { // Not absolute path, add the default root path at the beginning.
-        strPath.insert(0, _defaultResRootPath);
-    }
 
-    if (nullptr == _nativeResourceManager) {
-        CC_LOG_ERROR("nativeResourceManager is nullptr");
+    if (strFilePath[0] != '/') { 
+        const char *s = strFilePath.c_str();
+        // Found "@assets/" at the beginning of the path and we don't want it
+        if (strFilePath.find(ASSETS_FOLDER_NAME) == 0) s += strlen(ASSETS_FOLDER_NAME);
+        
+        if (nullptr == _nativeResourceManager) {
+            CC_LOG_ERROR("nativeResourceManager is nullptr");
+            return false;
+        }
+
+        RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, s);
+        if (rawFile) {
+            OH_ResourceManager_CloseRawFile64(rawFile);
+            return true;
+        }
         return false;
-    }
-
-    RawFile* rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, strPath.c_str());
-    if(rawFile) {
-        OH_ResourceManager_CloseRawFile(rawFile);
+    } 
+    FILE *fp = fopen(strFilePath.c_str(), "r");
+    if (fp) {
+        fclose(fp);
         return true;
     }
     return false;
@@ -212,14 +238,14 @@ bool FileUtilsOpenHarmony::isDirectoryExistInternal(const std::string &dirPath) 
     if (dirPathMf.find(_defaultResRootPath) == 0) {
         dirPathMf = dirPathMf.substr(_defaultResRootPath.length(), dirPathMf.length());
     }
-    
+
     if (nullptr == _nativeResourceManager) {
         CC_LOG_ERROR("nativeResourceManager is nullptr");
         return false;
     }
 
-    RawDir* rawDir = OH_ResourceManager_OpenRawDir(_nativeResourceManager, dirPathMf.c_str());
-    if(rawDir) {
+    RawDir *rawDir = OH_ResourceManager_OpenRawDir(_nativeResourceManager, dirPathMf.c_str());
+    if (rawDir) {
         OH_ResourceManager_CloseRawDir(rawDir);
         return true;
     }
@@ -249,7 +275,7 @@ bool FileUtilsOpenHarmony::removeDirectory(const std::string &dirPath) {
         return false;
     }
     struct dirent *dir{nullptr};
-    struct stat    st;
+    struct stat st;
     while ((dir = readdir(directory)) != NULL) {
         if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
             continue;

@@ -44,6 +44,7 @@ public:
     };
 
     BaseGame() = default;
+    ~BaseGame() override;
     int init() override;
 
 protected:

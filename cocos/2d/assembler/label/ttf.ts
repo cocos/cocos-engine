@@ -27,12 +27,12 @@
  * @module ui-assembler
  */
 
-import { Color, js } from '../../../core';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Label } from '../../components/label';
-import { IAssembler } from '../../renderer/base';
-import { ttfUtils } from './ttfUtils';
-import { IRenderData } from '../../renderer/render-data';
+import { Color } from '../../../core';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Label } from '../../components/label';
+import type { IAssembler } from '../../renderer/base';
+import { TTFUtils } from './ttfUtils';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
 
 const WHITE = Color.WHITE.clone();
 const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
@@ -41,8 +41,8 @@ const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
  * ttf 组装器
  * 可通过 `UI.ttf` 获取该组装器。
  */
-export const ttf: IAssembler = {
-    createData (comp: Label) {
+export class TTF extends TTFUtils implements IAssembler {
+    createData (comp: Label): RenderData {
         const renderData = comp.requestRenderData()!;
 
         renderData.dataLength = 4;
@@ -53,19 +53,31 @@ export const ttf: IAssembler = {
 
         const vData = renderData.chunk.vb;
 
-        vData[3] = vData[21] = vData[22] = vData[31] = 0;
-        vData[4] = vData[12] = vData[13] = vData[30] = 1;
+        const stride = renderData.floatStride;
+        const uvs = [
+            { u: 0, v: 1 },
+            { u: 1, v: 1 },
+            { u: 0, v: 0 },
+            { u: 1, v: 0 },
+        ];
+        let uvOffset = 3;
+        for (let i = 0, len = renderData.dataLength; i < len; ++i) {
+            vData[uvOffset] = uvs[i].u;
+            vData[uvOffset + 1] = uvs[i].v;
+            uvOffset += stride;
+        }
         let offset = 5;
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < renderData.dataLength; i++) {
             Color.toArray(vData, WHITE, offset);
-            offset += 9;
+            offset += stride;
         }
         renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
-    },
+    }
 
-    fillBuffers (comp: Label, renderer: IBatcher) {
-        const renderData = comp.renderData!;
+    fillBuffers (comp: Label, renderer: IBatcher): void {
+        const renderData = comp.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;
@@ -105,14 +117,14 @@ export const ttf: IAssembler = {
         // slow version
         // const chunk = renderData.chunk;
         // renderer.getBufferAccessor().appendIndices(chunk);
-    },
+    }
 
-    updateVertexData (comp: Label) {
+    updateVertexData (comp: Label): void {
         const renderData = comp.renderData;
         if (!renderData) {
             return;
         }
-        const uiTrans = comp.node._uiProps.uiTransformComp!;
+        const uiTrans = comp.node._getUITransformComp()!;
         const width = uiTrans.width;
         const height = uiTrans.height;
         const appX = uiTrans.anchorX * width;
@@ -127,28 +139,28 @@ export const ttf: IAssembler = {
         data[2].y = height - appY; // t
         data[3].x = width - appX; // r
         data[3].y = height - appY; // t
-    },
+    }
 
-    updateUVs (comp: Label) {
+    updateUVs (comp: Label): void {
         const renderData = comp.renderData;
         if (!renderData || !comp.ttfSpriteFrame) {
             return;
         }
         const vData = renderData.chunk.vb;
         const uv = comp.ttfSpriteFrame.uv;
-        vData[3] = uv[0];
-        vData[4] = uv[1];
-        vData[12] = uv[2];
-        vData[13] = uv[3];
-        vData[21] = uv[4];
-        vData[22] = uv[5];
-        vData[30] = uv[6];
-        vData[31] = uv[7];
-    },
+        const stride = renderData.floatStride;
+        let uvOffset = 3;
+        for (let i = 0; i < renderData.dataLength; ++i) {
+            const index = i * 2;
+            vData[uvOffset] = uv[index];
+            vData[uvOffset + 1] = uv[index + 1];
+            uvOffset += stride;
+        }
+    }
 
-    updateColor (comp: Label) {
+    updateColor (comp: Label): void {
         // no needs to update color
-    },
-};
+    }
+}
 
-js.addon(ttf, ttfUtils);
+export const ttf = new TTF();

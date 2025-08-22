@@ -78,6 +78,10 @@ export class ToggleContainer extends Component {
     @tooltip('i18n:toggle_group.check_events')
     public checkEvents: ComponentEventHandler[] = [];
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Read only property, return the toggle items array reference managed by ToggleContainer.

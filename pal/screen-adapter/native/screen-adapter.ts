@@ -27,6 +27,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { Orientation } from '../enum-type';
+import { warn, warnID } from '../../../cocos/core/platform/debug';
 
 export interface SafeAreaEdge {
     top: number;
@@ -79,15 +80,15 @@ class ScreenAdapter extends EventTarget {
     public get windowSize (): Size {
         const dpr = this.devicePixelRatio;
         // NOTE: fix precision issue on Metal render end.
-        const width = jsb.window.innerWidth;
-        const height = jsb.window.innerHeight;
+        const width = jsb.window.innerWidth as number;
+        const height = jsb.window.innerHeight as number;
         // NOTE: fix precision issue on Metal render end.
         const roundWidth = Math.round(width);
         const roundHeight = Math.round(height);
         return new Size(roundWidth * dpr, roundHeight * dpr);
     }
     public set windowSize (size: Size) {
-        console.warn('Setting window size is not supported yet.');
+        warn('Setting window size is not supported yet.');
     }
 
     public get resolution (): Size {
@@ -110,29 +111,16 @@ class ScreenAdapter extends EventTarget {
         return orientationMap[jsb.device.getDeviceOrientation()];
     }
     public set orientation (value: Orientation) {
-        console.warn('Setting orientation is not supported yet.');
+        warnID(1221);
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
         const nativeSafeArea = jsb.device.getSafeAreaEdge();
         const dpr = this.devicePixelRatio;
-        let topEdge = nativeSafeArea.x * dpr;
-        let bottomEdge = nativeSafeArea.z * dpr;
-        let leftEdge = nativeSafeArea.y * dpr;
-        let rightEdge = nativeSafeArea.w * dpr;
-        const orientation = this.orientation;
-        // Make it symmetrical.
-        if (orientation === Orientation.PORTRAIT) {
-            if (topEdge < bottomEdge) {
-                topEdge = bottomEdge;
-            } else {
-                bottomEdge = topEdge;
-            }
-        } else if (leftEdge < rightEdge) {
-            leftEdge = rightEdge;
-        } else {
-            rightEdge = leftEdge;
-        }
+        const topEdge = nativeSafeArea.x * dpr;
+        const bottomEdge = nativeSafeArea.z * dpr;
+        const leftEdge = nativeSafeArea.y * dpr;
+        const rightEdge = nativeSafeArea.w * dpr;
         return {
             top: topEdge,
             bottom: bottomEdge,

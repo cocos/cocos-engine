@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -739,32 +739,34 @@ tag(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
         g._vertices[u].handle);
 }
 
-inline LayoutGraph::VertexValue
-value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
+template <class... Ts>
+auto visitObject(LayoutGraph::vertex_descriptor v, const LayoutGraph&g, Ts&&... args) {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                return LayoutGraph::VertexValue{&g.stages[h.value]};
-            },
-            [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                return LayoutGraph::VertexValue{&g.phases[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    const auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.stages[ccstd::get<impl::ValueHandle<RenderStageTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.phases[ccstd::get<impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
-inline LayoutGraph::VertexConstValue
-value(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
+template <class... Ts>
+auto visitObject(LayoutGraph::vertex_descriptor v, LayoutGraph&g, Ts&&... args) {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                return LayoutGraph::VertexConstValue{&g.stages[h.value]};
-            },
-            [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                return LayoutGraph::VertexConstValue{&g.phases[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.stages[ccstd::get<impl::ValueHandle<RenderStageTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.phases[ccstd::get<impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
 template <class Tag>
@@ -1066,8 +1068,9 @@ locate(std::string_view absolute, const LayoutGraph& g) noexcept {
 
 inline LayoutGraph::vertex_descriptor
 locate(LayoutGraph::vertex_descriptor u, std::string_view relative, const LayoutGraph& g) {
-    CC_EXPECTS(!boost::algorithm::starts_with(relative, "/"));
-    CC_EXPECTS(!boost::algorithm::ends_with(relative, "/"));
+    CC_EXPECTS(!relative.empty());
+    CC_EXPECTS(relative.front() != '/');
+    CC_EXPECTS(relative.back() != '/');
     auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
@@ -1221,7 +1224,7 @@ inline void remove_vertex(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noex
     // preserve vertex' iterators
     auto& vert = g._vertices[u];
     remove_vertex_value_impl(vert.handle, g);
-    impl::removeVectorVertex(const_cast<LayoutGraph&>(g), u, LayoutGraph::directed_category{});
+    impl::removeVectorVertex(g, u, LayoutGraph::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
@@ -1439,32 +1442,34 @@ tag(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
         g._vertices[u].handle);
 }
 
-inline LayoutGraphData::VertexValue
-value(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
+template <class... Ts>
+auto visitObject(LayoutGraphData::vertex_descriptor v, const LayoutGraphData&g, Ts&&... args) {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                return LayoutGraphData::VertexValue{&g.stages[h.value]};
-            },
-            [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                return LayoutGraphData::VertexValue{&g.phases[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    const auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.stages[ccstd::get<impl::ValueHandle<RenderStageTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.phases[ccstd::get<impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
-inline LayoutGraphData::VertexConstValue
-value(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
+template <class... Ts>
+auto visitObject(LayoutGraphData::vertex_descriptor v, LayoutGraphData&g, Ts&&... args) {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                return LayoutGraphData::VertexConstValue{&g.stages[h.value]};
-            },
-            [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                return LayoutGraphData::VertexConstValue{&g.phases[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.stages[ccstd::get<impl::ValueHandle<RenderStageTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.phases[ccstd::get<impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
 template <class Tag>
@@ -1766,8 +1771,9 @@ locate(std::string_view absolute, const LayoutGraphData& g) noexcept {
 
 inline LayoutGraphData::vertex_descriptor
 locate(LayoutGraphData::vertex_descriptor u, std::string_view relative, const LayoutGraphData& g) {
-    CC_EXPECTS(!boost::algorithm::starts_with(relative, "/"));
-    CC_EXPECTS(!boost::algorithm::ends_with(relative, "/"));
+    CC_EXPECTS(!relative.empty());
+    CC_EXPECTS(relative.front() != '/');
+    CC_EXPECTS(relative.back() != '/');
     auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
@@ -1921,7 +1927,7 @@ inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData&
     // preserve vertex' iterators
     auto& vert = g._vertices[u];
     remove_vertex_value_impl(vert.handle, g);
-    impl::removeVectorVertex(const_cast<LayoutGraphData&>(g), u, LayoutGraphData::directed_category{});
+    impl::removeVectorVertex(g, u, LayoutGraphData::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));

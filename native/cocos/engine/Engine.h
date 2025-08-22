@@ -55,6 +55,8 @@ class IXRInterface;
 
 class CC_DLL Engine : public BaseEngine {
 public:
+    static bool isValid();
+
     /**
      @brief Constructor of Engine.
      */

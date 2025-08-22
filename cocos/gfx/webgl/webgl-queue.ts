@@ -26,10 +26,15 @@ import { QueueInfo } from '../base/define';
 import { CommandBuffer } from '../base/command-buffer';
 import { Queue } from '../base/queue';
 
+/** @mangle */
 export class WebGLQueue extends Queue {
     public numDrawCalls = 0;
     public numInstances = 0;
     public numTris = 0;
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: Readonly<QueueInfo>): void {
         this._type = info.type;

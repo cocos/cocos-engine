@@ -34,7 +34,7 @@ import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
-import { assert, cclegacy, warn } from '../../core';
+import { assert, cclegacy, warnID } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import type { UIRenderer } from '../framework/ui-renderer';
 
@@ -86,7 +86,7 @@ export class UIMeshRenderer extends Component {
 
     onEnable (): void {
         uiRendererManager.addRenderer(this);
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     onDisable (): void {
@@ -95,13 +95,13 @@ export class UIMeshRenderer extends Component {
     }
 
     public onLoad (): void {
-        if (!this.node._uiProps.uiTransformComp) {
+        if (!this.node._getUITransformComp()) {
             this.node.addComponent('cc.UITransform');
         }
 
         this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
-            warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
+            warnID(16378, this.node ? this.node.name : '');
             return;
         }
         if (JSB) {
@@ -212,7 +212,7 @@ export class UIMeshRenderer extends Component {
     public update (): void {
         if (JSB) {
             if (this._modelComponent) {
-                this.markForUpdateRenderData();
+                this._markForUpdateRenderData();
             }
         }
         this._fitUIRenderQueue();
@@ -246,6 +246,17 @@ export class UIMeshRenderer extends Component {
      */
     // interface
     public markForUpdateRenderData (enable = true): void {
+        this._markForUpdateRenderData(enable);
+    }
+
+    /**
+     * An internal method that marks the render data of the current component as modified so that the render data is recalculated.
+     * Adding this method is to minify the function name by `@mangle` since this method is frequently used in the engine.
+     * To keep the compatibility, the original method is still kept.
+     * @engineInternal
+     * @mangle
+     */
+    public _markForUpdateRenderData (enable = true): void {
         uiRendererManager.markDirtyRenderer(this);
     }
 

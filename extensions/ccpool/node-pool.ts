@@ -66,8 +66,8 @@ export class NodePool {
      * @en The pool handler component, it could be the class name or the constructor.
      * @zh 缓冲池处理组件，用于节点的回收和复用逻辑，这个属性可以是组件类名或组件的构造函数。
      */
-    public poolHandlerComp?: Constructor<IPoolHandlerComponent> | string;
-    private _pool: Node[];
+    public declare poolHandlerComp?: Constructor<IPoolHandlerComponent> | string;
+    private _pool: Node[] = [];
 
     /**
      * @en
@@ -89,7 +89,6 @@ export class NodePool {
      */
     constructor (poolHandlerComp?: Constructor<IPoolHandlerComponent> | string) {
         this.poolHandlerComp = poolHandlerComp;
-        this._pool = [];
     }
 
     /**

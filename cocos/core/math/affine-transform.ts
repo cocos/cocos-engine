@@ -51,9 +51,12 @@ export class AffineTransform {
      */
     public static clone (affineTransform: AffineTransform): AffineTransform {
         return new AffineTransform(
-            affineTransform.a, affineTransform.b,
-            affineTransform.c, affineTransform.d,
-            affineTransform.tx, affineTransform.ty,
+            affineTransform.a,
+            affineTransform.b,
+            affineTransform.c,
+            affineTransform.d,
+            affineTransform.tx,
+            affineTransform.ty,
         );
     }
 
@@ -118,7 +121,7 @@ export class AffineTransform {
      * @param point Vector to apply transform.
      * @param t transform matrix.
      */
-    public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform): any;
+    public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform): void;
 
     /**
      * @en Apply the `AffineTransform` on a 2D vector.
@@ -128,9 +131,9 @@ export class AffineTransform {
      * @param y y to apply transform.
      * @param t transform matrix.
      */
-    public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform): any;
+    public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform): void;
 
-    public static transformVec2 (out: Vec2, point: Vec2 | number, transOrY: AffineTransform | number, t?: AffineTransform): any {
+    public static transformVec2 (out: Vec2, point: Vec2 | number, transOrY: AffineTransform | number, t?: AffineTransform): void {
         let x: number;
         let y: number;
         if (!t) {
@@ -199,8 +202,15 @@ export class AffineTransform {
      * @param rect The rect object to apply transform.
      * @param anAffineTransform transform matrix.
      */
-    public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect,
-        anAffineTransform: AffineTransform, flipY = true): void {
+    public static transformObb (
+        out_bl: Vec2,
+        out_tl: Vec2,
+        out_tr: Vec2,
+        out_br: Vec2,
+        rect: Rect,
+        anAffineTransform: AffineTransform,
+        flipY = true,
+    ): void {
         const tx = anAffineTransform.a * rect.x + anAffineTransform.c * rect.y + anAffineTransform.tx;
         const ty = anAffineTransform.b * rect.x + anAffineTransform.d * rect.y + anAffineTransform.ty;
         const xa = anAffineTransform.a * rect.width;

@@ -15,10 +15,13 @@ void main()
   // World Space
   CCSurfacesVertexWorldTransform(In);
   In.worldPos = SurfacesVertexModifyWorldPos(In);
-
   // Clip Space
-  In.clipPos = cc_matProj * cc_matView * vec4(In.worldPos, 1.0);
-  In.clipPos = SurfacesVertexModifyClipPos(In);
+  #if CC_USE_2D
+    In.clipPos = cc_matProj * cc_matView * vec4(In.position.xyz, 1.0);
+  #else
+    In.clipPos = cc_matProj * cc_matView * vec4(In.worldPos, 1.0);
+    In.clipPos = SurfacesVertexModifyClipPos(In);
+  #endif
 
   // Other Surfaces Function
   vec3 viewDirect = normalize(cc_cameraPos.xyz - In.worldPos);

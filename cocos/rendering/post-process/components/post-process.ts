@@ -1,7 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { property, serializable } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode, help, range, slide, tooltip } from '../../../core/data/decorators';
-import { Director, director } from '../../../game';
 import { Component } from '../../../scene-graph';
 import { PostProcessSetting } from './post-process-setting';
 
@@ -19,6 +18,11 @@ export class PostProcess extends Component {
 
     @serializable
     protected _shadingScale = 1;
+
+    constructor () {
+        super();
+    }
+
     @tooltip('i18n:postprocess.shadingScale')
     @slide
     @range([0.01, 4, 0.01])

@@ -20,7 +20,7 @@
  THE SOFTWARE.
 */
 import { EDITOR } from 'internal:constants';
-import { GCObject } from './gc-object';
+import type { GCObject } from './gc-object';
 
 declare class FinalizationRegistry {
     constructor (callback: (heldObj: any) => void);
@@ -33,6 +33,8 @@ const targetSymbol = Symbol('[[target]]');
 class GarbageCollectionManager {
     private _finalizationRegistry: FinalizationRegistry | null = EDITOR && typeof FinalizationRegistry !== 'undefined' ? new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)) : null;
     private _gcObjects: WeakMap<any, GCObject> = new WeakMap();
+
+    constructor () {}
 
     public registerGCObject (gcObject: GCObject): GCObject {
         if (EDITOR && this._finalizationRegistry) {
@@ -69,6 +71,7 @@ class GarbageCollectionManager {
     }
 
     private finalizationRegistryCallback (token: any): void {
+        if (!EDITOR) return;
         const gcObject = this._gcObjects.get(token);
         if (gcObject) {
             this._gcObjects.delete(token);

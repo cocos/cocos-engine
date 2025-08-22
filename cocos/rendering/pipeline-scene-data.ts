@@ -32,11 +32,13 @@ import { Light } from '../render-scene/scene/light';
 import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core/global-exports';
 import { Skin } from '../render-scene/scene/skin';
 import { Model } from '../render-scene/scene/model';
 import { PostSettings } from '../render-scene/scene/post-settings';
-import { MeshRenderer } from '../3d/framework/mesh-renderer';
+import type { MeshRenderer } from '../3d/framework/mesh-renderer';
+import type { LightProbes } from '../gi/light-probe';
+import type { Director } from '../game/director';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -110,7 +112,7 @@ export class PipelineSceneData {
     public octree: Octree = new Octree();
     public skin: Skin = new Skin();
     public postSettings: PostSettings = new PostSettings();
-    public lightProbes = legacyCC.internal.LightProbes ? new legacyCC.internal.LightProbes() : null;
+    public lightProbes: LightProbes = cclegacy.internal.LightProbes ? new cclegacy.internal.LightProbes() : null;
 
     /**
       * @en The list for valid punctual Lights, only available after the scene culling of the current frame.
@@ -155,14 +157,16 @@ export class PipelineSceneData {
 
     public initGeometryRendererMaterials (): void {
         let offset = 0;
+        const geometryRendererMaterials = this._geometryRendererMaterials;
         for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
-            this._geometryRendererMaterials[tech] = new Material();
-            this._geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
-            this._geometryRendererMaterials[tech].initialize({ effectName: 'internal/builtin-geometry-renderer', technique: tech });
+            geometryRendererMaterials[tech] = new Material();
+            geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
+            geometryRendererMaterials[tech].initialize({ effectName: 'internal/builtin-geometry-renderer', technique: tech });
 
-            for (let pass = 0; pass < this._geometryRendererMaterials[tech].passes.length; ++pass) {
-                this._geometryRendererPasses[offset] = this._geometryRendererMaterials[tech].passes[pass];
-                this._geometryRendererShaders[offset] = this._geometryRendererMaterials[tech].passes[pass].getShaderVariant()!;
+            const passes = geometryRendererMaterials[tech].passes;
+            for (let pass = 0; pass < passes.length; ++pass) {
+                this._geometryRendererPasses[offset] = passes[pass];
+                this._geometryRendererShaders[offset] = passes[pass].getShaderVariant()!;
                 offset++;
             }
         }

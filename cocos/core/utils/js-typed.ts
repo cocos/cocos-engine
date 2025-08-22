@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
-import { warnID, error, errorID, StringSubstitution } from '../platform/debug';
+import { warnID, error, errorID, StringSubstitution, logID } from '../platform/debug';
 import { IDGenerator }  from './id-generator';
 
 const tempCIDGenerator = new IDGenerator('TmpCId.');
@@ -49,7 +49,7 @@ const classIdTag = '__cid__';
  * isNumber(obj); // returns true
  * ```
  */
-export function isNumber (object: any): boolean {
+export function isNumber (object: any): object is number {
     return typeof object === 'number' || object instanceof Number;
 }
 
@@ -70,7 +70,7 @@ export function isNumber (object: any): boolean {
  * isString(obj); // returns true
  * ```
  */
-export function isString (object: any): boolean {
+export function isString (object: any): object is string {
     return typeof object === 'string' || object instanceof String;
 }
 
@@ -136,7 +136,7 @@ export const getset = ((): (object: Record<string | number, any>, propertyName: 
     };
     return (object: Record<string | number, any>, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false): void => {
         if (typeof setter === 'boolean') {
-            console.log('Set `setter` to boolean is deprecated. Please don not use like this again.');
+            logID(1031);
             enumerable = setter;
             setter = undefined;
         }
@@ -250,8 +250,7 @@ export function getClassName (objOrCtor: any): string {
         //  for browsers which have name property in the constructor of the object, such as chrome
         if (objOrCtor.name) {
             ret = objOrCtor.name;
-        }
-        if (objOrCtor.toString) {
+        } else if (objOrCtor.toString) {
             let arr;
             const str = objOrCtor.toString();
             if (str.charAt(0) === '[') {
@@ -261,7 +260,7 @@ export function getClassName (objOrCtor: any): string {
             } else {
                 // str is function objectClass () {} for IE Firefox
                 // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-                arr = /function\s*(\w+)/.exec(str);
+                arr = /^function\s*(\w+)/.exec(str);
             }
             if (arr && arr.length === 2) {
                 ret = arr[1];
@@ -461,10 +460,11 @@ export function copyAllProperties (source: any, target: any, excepts: Array<stri
  */
 export function addon (object?: Record<string | number, any>, ...sources: any[]): Record<string | number, any> {
     object = object || {};
-    for (const source of sources) {
+    for (let i = 0; i < sources.length; ++i) {
+        const source = sources[i];
         if (source) {
             if (typeof source !== 'object') {
-                errorID(5402, source);
+                errorID(5402, source as string);
                 continue;
             }
             for (const name in source) {
@@ -487,10 +487,11 @@ export function addon (object?: Record<string | number, any>, ...sources: any[])
  */
 export function mixin (object?: Record<string | number, any>, ...sources: any[]): Record<string | number, any> {
     object = object || {};
-    for (const source of sources) {
+    for (let i = 0; i < sources.length; ++i) {
+        const source = sources[i];
         if (source) {
             if (typeof source !== 'object') {
-                errorID(5403, source);
+                errorID(5403, source as string);
                 continue;
             }
             for (const name in source) {
@@ -630,14 +631,14 @@ function setup (tag: string, table: Record<string | number, any>, allowExist: bo
         if (id) {
             const registered = table[id];
             if (!allowExist && registered && registered !== constructor) {
-                let err = `A Class already exists with the same ${tag} : "${id}".`;
+                let detail = '';
                 if (TEST) {
                     // eslint-disable-next-line no-multi-str
-                    err += ' (This may be caused by error of unit test.) \
+                    detail += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 js.unregisterClass to remove the id of unused class';
                 }
-                error(err);
+                errorID(16334, tag, id, detail);
             } else {
                 table[id] = constructor;
             }
@@ -697,11 +698,11 @@ export function setClassAlias (target: Constructor, alias: string): void {
     const idRegistry = _idToClass[alias];
     let ok = true;
     if (nameRegistry && nameRegistry !== target) {
-        error(`"${alias}" has already been set as name or alias of another class.`);
+        errorID(16335, alias);
         ok = false;
     }
     if (idRegistry && idRegistry !== target) {
-        error(`"${alias}" has already been set as id or alias of another class.`);
+        errorID(16336, alias);
         ok = false;
     }
     if (ok) {

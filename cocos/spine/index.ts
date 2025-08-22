@@ -22,9 +22,10 @@
  THE SOFTWARE.
 */
 
+import { BUILD, LOAD_SPINE_MANUALLY } from 'internal:constants';
 import { ccenum } from '../core';
 import spine from './lib/spine-core';
-import './lib/instantiated';
+import { waitForSpineWasmInstantiation } from './lib/instantiated';
 
 /**
  * @en
@@ -48,6 +49,7 @@ export * from './skeleton';
 export * from './skeleton-data';
 export * from './vertex-effect-delegate';
 export * from './assembler';
+export * from './lib/spine-version';
 
 export { spine };
 
@@ -101,16 +103,16 @@ export enum AnimationEventType {
      */
     END = 2,
     /**
-     * @en The entry will be disposed.
-     * @zh entry 将被销毁。
-     */
-    DISPOSE = 3,
-    /**
      * @en The play spine skeleton animation complete type.
      * @zh 播放骨骼动画完成。
      * @property {Number} COMPLETE
      */
-    COMPLETE = 4,
+    COMPLETE = 3,
+    /**
+     * @en The entry will be disposed.
+     * @zh entry 将被销毁。
+     */
+    DISPOSE = 4,
     /**
      * @en The spine skeleton animation event type.
      * @zh 骨骼动画事件。
@@ -119,3 +121,16 @@ export enum AnimationEventType {
     EVENT = 5
 }
 ccenum(AnimationEventType);
+
+let loadSpinePromise: Promise<void> | undefined;
+
+export function loadWasmModuleSpine (): Promise<void> {
+    if (BUILD && LOAD_SPINE_MANUALLY) {
+        if (loadSpinePromise) return loadSpinePromise;
+        loadSpinePromise = Promise.resolve()
+            .then(() => waitForSpineWasmInstantiation());
+        return loadSpinePromise;
+    } else {
+        return Promise.resolve();
+    }
+}

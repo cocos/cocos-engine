@@ -324,6 +324,7 @@ using namespace cc;
 %attribute(cc::Node, uint32_t, flagChangedVersion, getFlagChangedVersion);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
 %attribute(cc::Node, cc::MobilityMode, mobility, getMobility, setMobility);
+%attribute(cc::Node, bool, isSkipTransformUpdate, getIsSkipTransformUpdate, setIsSkipTransformUpdate);
 
 %attribute(cc::scene::Ambient, cc::Vec4&, skyColor, getSkyColor, setSkyColor);
 %attribute(cc::scene::Ambient, float, skyIllum, getSkyIllum, setSkyIllum);
@@ -452,6 +453,7 @@ using namespace cc;
 %attribute(cc::scene::Camera, cc::scene::CameraUsage, cameraUsage, getCameraUsage, setCameraUsage);
 %attribute(cc::scene::Camera, cc::scene::TrackingType, trackingType, getTrackingType, setTrackingType);
 %attribute(cc::scene::Camera, cc::scene::CameraType, cameraType, getCameraType, setCameraType);
+%attribute(cc::scene::Camera, uint32_t, cameraId, getCameraId);
 
 %attribute(cc::scene::RenderScene, ccstd::string&, name, getName);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);

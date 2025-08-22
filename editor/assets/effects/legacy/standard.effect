@@ -221,8 +221,11 @@ CCProgram standard-vs %{
     #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
-
-    gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
+    #if CC_USE_2D
+      gl_Position = cc_matProj * cc_matView * In.position;
+    #else
+      gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
+    #endif
   }
 }%
 

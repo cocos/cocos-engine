@@ -113,6 +113,7 @@ void ForwardStage::dispenseRenderObject2Queues() {
             for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
                 const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
+                if (pass->getPassID() != 0xFFFFFFFF) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                     auto *instancedBuffer = pass->getInstancedBuffer();
                     instancedBuffer->merge(subModel, passIdx);

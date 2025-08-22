@@ -8,7 +8,12 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = link(mixin({
-
+    common: {
+        'attribute': {
+            'title': '属性：',
+            'description': '描述：',
+        },
+    },
     classes: {
         'cc': {
             'animation': {
@@ -160,6 +165,7 @@ module.exports = link(mixin({
             RenderRoot2D: `${url}/${version}/manual/zh/ui-system/components/editor/renderroot2d.html`,
             ReflectionProbe: `${url}/${version}/manual/zh/concepts/scene/light/probe/reflection-art-workflow.html`,
             Sorting: `${url}/${version}/manual/zh/engine/rendering/sorting.html`,
+            Sorting2D: `${url}/${version}/manual/zh/engine/rendering/sorting-2d.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scripting/plugin-scripts.html`,
@@ -305,14 +311,6 @@ module.exports = link(mixin({
         csmTransitionRange: '级联阴影层级过渡范围(NDC空间: 取值范围为 0 ~ 1)',
     },
     sprite: {
-        gray_scale: '是否开启灰度渲染模式',
-        atlas: '图片资源所属的 Atlas 图集资源',
-        sprite_frame: '渲染 Sprite 使用的 Sprite Frame 图片资源',
-        type:
-            '渲染模式：<br> - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 <br>' +
-            '- 九宫格 Sliced 修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 <br>' +
-            '- 平铺 Tiled 修改尺寸时会不断平铺原始大小的图片 <br>' +
-            '- 填充 Filled 设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片',
         original_size: '是否使用图片资源的原始尺寸作为 Sprite 节点的 size',
         edit_button: '编辑',
         select_button: '选择',
@@ -324,9 +322,6 @@ module.exports = link(mixin({
         fill_range: '填充总量，取值范围 0 ~ 1 指定显示图像范围的百分比',
         src_blend_factor: '混合显示两张图片时，源图片的取值模式',
         dst_blend_factor: '混合显示两张图片时，目标图片的取值模式',
-        size_mode:
-            '指定 Sprite 所在节点的尺寸<br>CUSTOM 表示自定义尺寸<br>TRIMMED 表示取原始图片剪裁透明像素后的尺寸<br>RAW 表示取原始图片未剪裁的尺寸',
-        trim: '节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域',
     },
     UIOpacity: {
         opacity: '设置物体的不透明度，取值范围为 0 ~ 255',
@@ -648,20 +643,6 @@ module.exports = link(mixin({
         url: '指定一个 URL 地址，这个地址以 http 或者 https 开头，请填写一个有效的 URL 地址。',
         webviewEvents: 'Webview 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数',
     },
-    richtext: {
-        string: '富文本的内容字符串, 你可以在里面使用 BBCode 来指定特定文本的样式',
-        horizontal_align: '水平对齐方式',
-        vertical_align: '竖直对齐方式',
-        font_size: '字体大小, 单位是 point',
-        font: '富文本定制字体',
-        font_family: '富文本定制系统字体',
-        use_system_font: '是否使用系统字体',
-        cache_mode: '文本缓存模式, 该模式只支持系统字体',
-        max_width: '富文本的最大宽度, 传 0 的话意味着必须手动换行.',
-        line_height: '字体行高, 单位是 point',
-        image_atlas: '对于 img 标签里面的 src 属性名称，都需要在 image atlas 里面找到一个有效的 sprite frame，否则 img tag 会判定为无效',
-        handleTouchEvent: '选中此选项后，rich text 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点',
-    },
     UICoordinateTracker: {
         target: '目标对象',
         camera: '照射相机',
@@ -672,16 +653,6 @@ module.exports = link(mixin({
     subContextView: {
         design_size: '开放数据域的设计分辨率，禁止在运行时动态更新',
         fps: '主域更新开放数据域贴图的频率',
-    },
-    skeleton: {
-        skeleton_data: '骨骼信息数据，拖拽 Spine 导出的骨骼动画信息 json 资源到这里来开始使用',
-        default_skin: '选择默认的皮肤',
-        animation: '正在播放的动画名称',
-        loop: '是否循环播放当前动画',
-        time_scale: '当前骨骼中所有动画的时间缩放率',
-        debug_slots: '是否显示 slot 的 debug 信息',
-        debug_bones: '是否显示 bone 的 debug 信息',
-        premultipliedAlpha: '是否启用贴图预乘',
     },
     dragon_bones: {
         dragon_bones_asset: '骨骼信息数据，拖拽 Dragon Bones 导出的骨骼动画信息 json 资源到这里来开始使用',
@@ -886,6 +857,9 @@ module.exports = link(mixin({
     block_input_events: {
         brief_help: '该组件将拦截所有输入事件，防止输入穿透到屏幕下方的其它节点，一般用于屏幕上层 UI 的背景。',
     },
+    safe_area: {
+        symmetric: '是否基于屏幕对称',
+    },
     tiledtile: {
         row: '指定 Tiled Tile 的横向坐标，以地图块为单位',
         column: '指定 Tiled Tile 的纵向坐标，以地图块为单位',
@@ -980,6 +954,30 @@ module.exports = link(mixin({
             label: "基础 2D 功能",
             description: "常用于一般 2D 应用的工具与组件。",
         },
+        sorting_2d: {
+            label: "2D 渲染排序",
+            description: "根据 Sorting2D 组件中的配置对 UIRenderer 进行排序。",
+        },
+        rich_text: {
+            label: "富文本",
+            description: "富文本支持。",
+        },
+        mask: {
+            label: "遮罩",
+            description: "遮罩功能支持。",
+        },
+        graphics_2d: {
+            label: "图形绘制",
+            description: "2D 图形绘制支持。",
+        },
+        ui_skew: {
+            label: "斜切",
+            description: "斜切支持。",
+        },
+        affine_transform: {
+            label: "2D 仿射变换",
+            description: "2D 仿射变换支持。",
+        },
         physics_2d: {
             label: "2D 物理系统",
             description: "应用于 2D 的物理系统支持。",
@@ -995,6 +993,10 @@ module.exports = link(mixin({
         physics_2d_box2d_wasm: {
             label: "基于 Box2D-wasm 的 2D 物理系统",
             description: "基于 Box2D-wasm 的 2D 物理系统支持。",
+        },
+        physics_2d_box2d_jsb: {
+            label: "基于 Box2D JSB 的 2D 物理系统",
+            description: "基于 Box2D JSB 的 2D 物理系统支持。",
         },
         intersection_2d: {
             label: "2D 相交检测算法",
@@ -1048,9 +1050,21 @@ module.exports = link(mixin({
             label: "Tiled 地图",
             description: "Tiled 地图支持。",
         },
+        vendor_google: {
+            label: "Vendor Google",
+            description: "Vendor Google 支持.",
+        },
         spine: {
             label: "Spine 动画",
             description: "Spine 动画支持。",
+        },
+        spine_38: {
+            label: "Spine 3.8",
+            description: "Spine 3.8",
+        },
+        spine_42: {
+            label: "Spine 4.2",
+            description: "Spine 4.2",
         },
         dragon_bones: {
             label: "Dragon Bones",
@@ -1077,12 +1091,16 @@ module.exports = link(mixin({
             description: "启用 XR 功能系统。",
         },
         custom_pipeline: {
-            label: "自定义渲染管线 (Beta)",
-            description: "启用自定义渲染管线。",
+            label: "新渲染管线",
+            description: "面向数据的Render Graph渲染管线，可以自由构建跨平台的渲染算法，并针对目标平台优化。",
+        },
+        custom_pipeline_post_process: {
+            label: "后处理模块（已废弃）",
+            description: "此选项用于兼容旧项目(Custom管线)，新项目请使用 Builtin 自带的后处理流程。",
         },
         legacy_pipeline: {
-            label: "废弃渲染管线 (Deprecated)",
-            description: "启用废弃渲染管线。",
+            label: "原渲染管线",
+            description: "原有的渲染管线，在后续的版本中会被移除。",
         },
         websocket: {
             label: "WebSocket",
@@ -1091,6 +1109,32 @@ module.exports = link(mixin({
         websocket_server: {
             label: "WebSocket Server",
             description: "对原生启用 WebSocket Server。注意: 必须同时启用 WebSocket。",
+        },
+        flags: {
+            spine: {
+                loadManual: {
+                    label: '手动加载',
+                    description: `是否通过 'loadWasmModuleSpine' API 手动加载 Spine Wasm/AsmJS 模块 ?`,
+                },
+            },
+            box2d: {
+                loadManual: {
+                    label: '手动加载',
+                    description: `是否通过 'loadWasmModuleBox2D' API 手动加载 Box2D Wasm/AsmJS 模块 ?`,
+                },
+            },
+            bullet: {
+                loadManual: {
+                    label: '手动加载',
+                    description: `是否通过 'loadWasmModuleBullet' API 手动加载 Bullet Wasm/AsmJS 模块 ?`,
+                },
+            },
+            physx: {
+                loadManual: {
+                    label: '手动加载',
+                    description: `是否通过 'loadWasmModulePhysX' API 手动加载 PhysX Wasm/AsmJS 模块 ?`,
+                },
+            },
         },
     },
     renderable_2d: {
@@ -1295,6 +1339,7 @@ module.exports = link(mixin({
 require('./modules/physics'),
 require('./modules/rendering'),
 require('./modules/ui.js'),
+require('./modules/terrain.js'),
 require('./animation'),
 
 ));

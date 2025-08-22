@@ -25,7 +25,7 @@ jobs:
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - id: files
         continue-on-error: true
         name: compatibility-info.json need update

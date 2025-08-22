@@ -37,11 +37,11 @@ import {
     DescriptorType,
     Color, Rect, Viewport, BufferTextureCopy,
     SamplerInfo,
-    BufferInfo,
     FormatSize,
     formatAlignment,
     alignTo,
     TextureFlagBit,
+    DescriptorSetLayoutBinding,
 } from '../base/define';
 
 import { WebGPUCommandAllocator } from './webgpu-command-allocator';
@@ -65,9 +65,8 @@ import {
     IWebGPUGPURenderPass,
     IWebGPUGPUShaderStage,
 } from './webgpu-gpu-objects';
-import { copy } from '../../core/utils/array';
-import { clear } from '../../asset/asset-manager/utilities';
 import { error, log, warn } from '../../core';
+import { WebGPUDeviceManager } from './define';
 
 const WebGPUAdressMode: GPUAddressMode[] = [
     'repeat', // WRAP,
@@ -354,17 +353,11 @@ export function GFXTextureUsageToNative (usage: TextureUsageBit): GPUTextureUsag
     }
 
     if (!nativeUsage) {
-        // The default value is TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
-        // An error will be thrown saying "Destination texture needs to have CopyDst and RenderAttachment usage."
-        // if you use GPUTextureUsage.COPY_DST without GPUTextureUsage.RENDER_ATTACHMENT.
-        nativeUsage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT;
+        // The default value is TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT
+        nativeUsage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
     }
 
-    if (!(nativeUsage & GPUTextureUsage.COPY_DST)) {
-        nativeUsage |= GPUTextureUsage.COPY_DST;
-    }
-
-    if ((nativeUsage & (GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST))
+    if ((nativeUsage & GPUTextureUsage.TEXTURE_BINDING)
     && !(nativeUsage & (GPUTextureUsage.RENDER_ATTACHMENT))) {
         nativeUsage |= GPUTextureUsage.RENDER_ATTACHMENT;
     }
@@ -1371,7 +1364,127 @@ export function WebGPUCmdFuncCopyTexImagesToTexture (
     }
 }
 
+const GFXSampleTypeToGPUTextureSampleType: GPUTextureSampleType[] = [
+    'float',
+    'unfilterable-float',
+    'sint',
+    'uint',
+];
+
+const GFXViewDimensionToGPUViewDimension: GPUTextureViewDimension[] = [
+    '2d',
+    '2d',
+    '1d',
+    '1d',
+    '2d',
+    '2d-array',
+    '2d',
+    '2d-array',
+    '3d',
+    'cube',
+    'cube-array',
+    '2d',
+];
+
+const GFXMemoryAccessToGPUStorageTextureAccess: (GPUStorageTextureAccess | undefined)[] = [
+    'read-only',
+    'read-only',
+    'write-only',
+    'read-write',
+];
+
+export function createBindGroupLayoutEntry (currBind: DescriptorSetLayoutBinding): GPUBindGroupLayoutEntry[] {
+    const binding = currBind.binding;
+    // Define the mapping from ShaderStageFlagBit to GPUShaderStage
+    const gpuVisibility = GFXStageToWebGPUStage(currBind.stageFlags);
+    const entrys: GPUBindGroupLayoutEntry[] = [];
+    const entry: GPUBindGroupLayoutEntry = {
+        binding,
+        visibility: gpuVisibility,
+    };
+    entrys.push(entry);
+    const device = WebGPUDeviceManager.instance;
+    let entrySampler: GPUBindGroupLayoutEntry | null = null;
+    let samplerType = GFXSampleTypeToGPUTextureSampleType[currBind.sampleType];
+    if (samplerType === 'float' && !device.floatFilterable) { samplerType = 'unfilterable-float'; }
+    const isTexUnFilter = samplerType === 'unfilterable-float';
+    const viewDimension = GFXViewDimensionToGPUViewDimension[currBind.viewDimension];
+    const type = currBind.descriptorType;
+    const multisampled = currBind.viewDimension > 5 && currBind.viewDimension < 8;
+    switch (type) {
+    case DescriptorType.UNIFORM_BUFFER:
+    case DescriptorType.DYNAMIC_UNIFORM_BUFFER:
+        entry.buffer = {
+            type: 'uniform',
+            hasDynamicOffset: type === DescriptorType.DYNAMIC_UNIFORM_BUFFER,
+            minBindingSize: undefined,
+        };
+        break;
+
+    case DescriptorType.STORAGE_BUFFER:
+    case DescriptorType.DYNAMIC_STORAGE_BUFFER:
+        entry.buffer = {
+            type: 'storage',
+            hasDynamicOffset: type === DescriptorType.DYNAMIC_STORAGE_BUFFER,
+            minBindingSize: undefined,
+        };
+        break;
+
+    case DescriptorType.SAMPLER_TEXTURE:
+        // Assuming this is a combined image sampler
+        entry.texture = {
+            sampleType: samplerType, // or 'unfilterable-float', 'depth', 'sint', 'uint'
+            viewDimension, // 2d or 'cube', '3d', '1d'
+            multisampled,
+        };
+        entrySampler = {
+            binding: binding + SEPARATE_SAMPLER_BINDING_OFFSET,
+            visibility: gpuVisibility,
+        };
+        entrySampler.sampler = {
+            type: isTexUnFilter ? 'non-filtering' : 'filtering', // or 'non-filtering', 'comparison'
+        };
+        entrys.push(entrySampler);
+        break;
+
+    case DescriptorType.SAMPLER:
+        entry.sampler = {
+            type: isTexUnFilter ? 'non-filtering' : 'filtering', // or 'non-filtering', 'comparison'
+        };
+        break;
+
+    case DescriptorType.TEXTURE:
+        entry.texture = {
+            sampleType: samplerType, // or 'unfilterable-float', 'depth', 'sint', 'uint'
+            viewDimension, // or 'cube', '3d', '1d'
+            multisampled,
+        };
+        break;
+
+    case DescriptorType.STORAGE_IMAGE:
+        entry.storageTexture = {
+            access: GFXMemoryAccessToGPUStorageTextureAccess[currBind.access], // or 'read-only', 'read-write'
+            format: GFXFormatToWGPUFormat(currBind.format), // Choose the appropriate texture format
+            viewDimension, // or 'cube', '3d', '1d'
+        };
+        break;
+
+    case DescriptorType.INPUT_ATTACHMENT:
+        entry.texture = {
+            sampleType: samplerType, // or 'unfilterable-float', 'depth', 'sint', 'uint'
+            viewDimension, // or 'cube', '3d', '1d'
+            multisampled,
+        };
+        break;
+
+    default:
+        throw new Error(`Unsupported descriptor type: ${type}`);
+    }
+    return entrys;
+}
+
 export function TextureSampleTypeTrait (format: Format): GPUTextureSampleType {
+    // See https://gpuweb.github.io/gpuweb/#texture-format-caps
     switch (format) {
     case Format.R8:
     case Format.R8SN:
@@ -1417,6 +1530,13 @@ export function TextureSampleTypeTrait (format: Format): GPUTextureSampleType {
         warn('Unsupported texture sample type yet. Please refer to the documentation for supported formats.');
         return 'float';
     }
+}
+
+export function FormatToWGPUFormatType (format: Format): GPUTextureSampleType {
+    if (format === Format.DEPTH_STENCIL) {
+        return 'unfilterable-float';
+    }
+    return TextureSampleTypeTrait(format);
 }
 
 interface MipmapPassData {

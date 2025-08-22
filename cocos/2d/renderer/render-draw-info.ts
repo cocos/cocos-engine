@@ -30,10 +30,13 @@ import { Sampler, Texture } from '../../gfx';
 import { Model } from '../../render-scene/scene';
 import { Material } from '../../asset/assets';
 
+const bitIndexForIsMeshBuffer = 0;
+const bitIndexForIsVertexPositionInWorld = 1;
+
 export enum AttrUInt8ArrayView {
     DrawInfoType,
     VertDirty,
-    IsMeshBuffer,
+    BooleanValues, // 0 index bit: for IsMeshBuffer, 1 index bit: for isVertexPositionInWorld, remain 6 bits are reserved.
     Stride,
     Count
 }
@@ -60,6 +63,15 @@ export enum RenderDrawInfoType {
     SUB_NODE,
 }
 
+function setBitInTypedArray (arr: TypedArray, index: number, bitPosition: number): void {
+    arr[index] |= (1 << bitPosition);
+}
+
+function clearBitInTypedArray (arr: TypedArray, index: number, bitPosition: number): void {
+    arr[index] &= ~(1 << bitPosition);
+}
+
+/** @mangle */
 export class RenderDrawInfo {
     protected _accId = -1;
     protected _bufferId = -1;
@@ -81,33 +93,35 @@ export class RenderDrawInfo {
     protected _useLocal = false;
 
     protected _model: Model | null = null;
-    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
+    protected _drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP;
     protected _subNode: Node | null = null;
 
     protected declare _nativeObj: NativeRenderDrawInfo;
-    protected _uint8SharedBuffer: Uint8Array;
-    protected _uint16SharedBuffer: Uint16Array;
-    protected _uint32SharedBuffer: Uint32Array;
+    protected declare _uint8SharedBuffer: Uint8Array;
+    protected declare _uint16SharedBuffer: Uint16Array;
+    protected declare _uint32SharedBuffer: Uint32Array;
 
     // SharedBuffer of pos/uv/color
-    protected declare _render2dBuffer: Float32Array;
+    protected _render2dBuffer: Float32Array | null = null;
 
     constructor (nativeDrawInfo?: NativeRenderDrawInfo) {
-        this.init(nativeDrawInfo);
-        const attrSharedBuffer = this._nativeObj.getAttrSharedBufferForJS();
-        let offset = 0;
-        this._uint8SharedBuffer = new Uint8Array(attrSharedBuffer, offset, AttrUInt8ArrayView.Count);
-        offset += AttrUInt8ArrayView.Count * Uint8Array.BYTES_PER_ELEMENT;
-        this._uint16SharedBuffer = new Uint16Array(attrSharedBuffer, offset, AttrUInt16ArrayView.Count);
-        offset += AttrUInt16ArrayView.Count * Uint16Array.BYTES_PER_ELEMENT;
-        this._uint32SharedBuffer = new Uint32Array(attrSharedBuffer, offset, AttrUInt32ArrayView.Count);
+        if (JSB) {
+            this.init(nativeDrawInfo);
+            const attrSharedBuffer = this._nativeObj.getAttrSharedBufferForJS();
+            let offset = 0;
+            this._uint8SharedBuffer = new Uint8Array(attrSharedBuffer, offset, AttrUInt8ArrayView.Count);
+            offset += AttrUInt8ArrayView.Count * Uint8Array.BYTES_PER_ELEMENT;
+            this._uint16SharedBuffer = new Uint16Array(attrSharedBuffer, offset, AttrUInt16ArrayView.Count);
+            offset += AttrUInt16ArrayView.Count * Uint16Array.BYTES_PER_ELEMENT;
+            this._uint32SharedBuffer = new Uint32Array(attrSharedBuffer, offset, AttrUInt32ArrayView.Count);
+        }
     }
 
     get nativeObj (): NativeRenderDrawInfo {
         return this._nativeObj;
     }
 
-    get render2dBuffer (): Float32Array {
+    get render2dBuffer (): Float32Array | null {
         return this._render2dBuffer;
     }
 
@@ -123,13 +137,14 @@ export class RenderDrawInfo {
     }
 
     public clear (): void {
+        if (!JSB) return;
         this._bufferId = 0;
         this._vertexOffset = 0;
         this._indexOffset = 0;
         this._vertDirty = false;
     }
 
-    public setAccId (accId): void {
+    public setAccId (accId: number): void {
         if (JSB) {
             if (this._accId !== accId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
@@ -138,7 +153,7 @@ export class RenderDrawInfo {
         this._accId = accId;
     }
 
-    public setBufferId (bufferId): void {
+    public setBufferId (bufferId: number): void {
         if (JSB) {
             if (this._bufferId !== bufferId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.BufferID] = bufferId;
@@ -148,7 +163,7 @@ export class RenderDrawInfo {
         this._bufferId = bufferId;
     }
 
-    public setAccAndBuffer (accId, bufferId): void {
+    public setAccAndBuffer (accId: number, bufferId: number): void {
         if (JSB) {
             if (this._accId !== accId || this._bufferId !== bufferId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
@@ -160,14 +175,14 @@ export class RenderDrawInfo {
         this._accId = accId;
     }
 
-    public setVertexOffset (vertexOffset): void {
+    public setVertexOffset (vertexOffset: number): void {
         this._vertexOffset = vertexOffset;
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.VertexOffset] = vertexOffset;
         }
     }
 
-    public setIndexOffset (indexOffset): void {
+    public setIndexOffset (indexOffset: number): void {
         this._indexOffset = indexOffset;
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.IndexOffset] = indexOffset;
@@ -198,14 +213,14 @@ export class RenderDrawInfo {
         }
     }
 
-    public setVBCount (vbCount): void {
+    public setVBCount (vbCount: number): void {
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.VBCount] = vbCount;
         }
         this._vbCount = vbCount;
     }
 
-    public setIBCount (ibCount): void {
+    public setIBCount (ibCount: number): void {
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.IBCount] = ibCount;
         }
@@ -227,9 +242,23 @@ export class RenderDrawInfo {
 
     public setIsMeshBuffer (isMeshBuffer: boolean): void {
         if (JSB) {
-            this._uint8SharedBuffer[AttrUInt8ArrayView.IsMeshBuffer] = isMeshBuffer ? 1 : 0;
+            if (isMeshBuffer) {
+                setBitInTypedArray(this._uint8SharedBuffer, AttrUInt8ArrayView.BooleanValues, bitIndexForIsMeshBuffer);
+            } else {
+                clearBitInTypedArray(this._uint8SharedBuffer, AttrUInt8ArrayView.BooleanValues, bitIndexForIsMeshBuffer);
+            }
         }
         this._isMeshBuffer = isMeshBuffer;
+    }
+
+    public setVertexPositionInWorld (isVertexPositionInWorld: boolean): void {
+        if (JSB) {
+            if (isVertexPositionInWorld) {
+                setBitInTypedArray(this._uint8SharedBuffer, AttrUInt8ArrayView.BooleanValues, bitIndexForIsVertexPositionInWorld);
+            } else {
+                clearBitInTypedArray(this._uint8SharedBuffer, AttrUInt8ArrayView.BooleanValues, bitIndexForIsVertexPositionInWorld);
+            }
+        }
     }
 
     public setMaterial (material: Material): void {
@@ -276,7 +305,7 @@ export class RenderDrawInfo {
         this._drawInfoType = drawInfoType;
     }
 
-    public setSubNode (node : Node): void {
+    public setSubNode (node: Node): void {
         if (JSB) {
             if (this._subNode !== node) {
                 this._nativeObj.subNode = node;
@@ -301,6 +330,9 @@ export class RenderDrawInfo {
 
     public fillRender2dBuffer (vertexDataArr: IRenderData[]): void {
         if (JSB) {
+            if (!this._render2dBuffer) {
+                return;
+            }
             const fillLength = Math.min(this._vbCount, vertexDataArr.length);
             let bufferOffset = 0;
             for (let i = 0; i < fillLength; i++) {

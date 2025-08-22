@@ -22,34 +22,41 @@
  THE SOFTWARE.
 */
 
-import { Color, Mat4, clamp } from '../../core';
+import { Color, Vec4, clamp } from '../../core';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../scene-graph/node';
-import { FormatInfos } from '../../gfx';
+import { FormatInfos, Attribute, FormatInfo } from '../../gfx';
 
-const m = new Mat4();
+const _col = new Vec4();
 
-export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color): void {
+export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData | null, color: Color): void {
+    if (!renderData) return;
     const chunk = renderData.chunk;
     const dataList = renderData.data;
     const vData = chunk.vb;
     const vertexCount = renderData.vertexCount;
+    const m = node.worldMatrix;
 
-    node.getWorldMatrix(m);
+    const m00 = m.m00; const m01 = m.m01; const m02 = m.m02; const m03 = m.m03;
+    const m04 = m.m04; const m05 = m.m05; const m06 = m.m06; const m07 = m.m07;
+    const m12 = m.m12; const m13 = m.m13; const m14 = m.m14; const m15 = m.m15;
+
+    // convert to 0 ~ 1
+    _col.set(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
 
     let vertexOffset = 0;
-    for (let i = 0; i < vertexCount; i++) {
+    for (let i = 0; i < vertexCount; ++i) {
         const vert = dataList[i];
         const x = vert.x;
         const y = vert.y;
-        let rhw = m.m03 * x + m.m07 * y + m.m15;
+        let rhw = m03 * x + m07 * y + m15;
         rhw = rhw ? 1 / rhw : 1;
-        vData[vertexOffset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
-        vData[vertexOffset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
-        vData[vertexOffset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
-        Color.toArray(vData, color, vertexOffset + 5);
-        vertexOffset += 9;
+        vData[vertexOffset + 0] = (m00 * x + m04 * y + m12) * rhw;
+        vData[vertexOffset + 1] = (m01 * x + m05 * y + m13) * rhw;
+        vData[vertexOffset + 2] = (m02 * x + m06 * y + m14) * rhw;
+        Vec4.toArray(vData, _col, vertexOffset + 5);
+        vertexOffset += renderData.floatStride;
     }
 
     // fill index data
@@ -72,9 +79,16 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
 }
 
 export function updateOpacity (renderData: RenderData, opacity: number): void {
+    if(!renderData.chunk) {
+        // When the allocation of chunk in StaticVBAccessor fails (when the allocated buffer is too large), chunk will be null.
+        return;
+    }
     const vfmt = renderData.vertexFormat;
     const vb = renderData.chunk.vb;
-    let attr; let format; let stride;
+    let vbUint32View: Uint32Array | undefined;
+    let attr: Attribute;
+    let format: FormatInfo;
+    let stride: number;
     // Color component offset
     let offset = 0;
     for (let i = 0; i < vfmt.length; ++i) {
@@ -83,10 +97,13 @@ export function updateOpacity (renderData: RenderData, opacity: number): void {
         if (format.hasAlpha) {
             stride = renderData.floatStride;
             if (format.size / format.count === 1) {
+                if (!vbUint32View) {
+                    vbUint32View = new Uint32Array(vb.buffer, vb.byteOffset, vb.length);
+                }
                 const alpha = ~~clamp(Math.round(opacity * 255), 0, 255);
                 // Uint color RGBA8
-                for (let color = offset; color < vb.length; color += stride) {
-                    vb[color] = ((vb[color] & 0xffffff00) | alpha) >>> 0;
+                for (let color = offset; color < vbUint32View.length; color += stride) {
+                    vbUint32View[color] = ((vbUint32View[color] & 0x00ffffff) | (alpha << 24)) >>> 0;
                 }
             } else if (format.size / format.count === 4) {
                 // RGBA32 color, alpha at position 3

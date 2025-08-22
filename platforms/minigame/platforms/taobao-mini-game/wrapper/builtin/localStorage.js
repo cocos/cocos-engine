@@ -26,7 +26,7 @@ const localStorage = {
   },
 
   removeItem(key) {
-    my.removeStorageSync(key)
+    my.removeStorageSync({ key })
   },
 
   clear() {

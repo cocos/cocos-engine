@@ -23,12 +23,12 @@
 */
 
 import {  Mat4, errorID } from '../../../core';
-import { IRenderData, RenderData } from '../../renderer/render-data';
-import { IBatcher } from '../../renderer/i-batcher';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
+import type { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
-import { IAssembler } from '../../renderer/base';
+import type { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const FillType = Sprite.FillType;
 const m = new Mat4();
@@ -38,8 +38,8 @@ const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
  * barFilled 组装器
  * 可通过 `UI.barFilled` 获取该组装器。
  */
-export const barFilled: IAssembler = {
-    updateRenderData (sprite: Sprite) {
+class BarFilled implements IAssembler {
+    updateRenderData (sprite: Sprite): void {
         const frame = sprite.spriteFrame;
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
         // TODO update material and uv
@@ -72,11 +72,12 @@ export const barFilled: IAssembler = {
             this.updateVertexData(sprite, fillStart, fillEnd);
             renderData.updateRenderData(sprite, frame);
         }
-    },
+    }
 
-    updateUVs (sprite: Sprite, fillStart: number, fillEnd: number) {
+    updateUVs (sprite: Sprite, fillStart: number, fillEnd: number): void {
         const spriteFrame = sprite.spriteFrame!;
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
 
         // build uvs
@@ -118,37 +119,46 @@ export const barFilled: IAssembler = {
             quadUV5 = quadUV7 = vt;
         }
 
+        const stride = renderData.floatStride;
+        let uvOffset = 3;
         switch (sprite.fillType) {
         case FillType.HORIZONTAL:
-            vData[3]  = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-            vData[4]  = quadUV1 + (quadUV3 - quadUV1) * fillStart;
-            vData[12] = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-            vData[13] = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
-            vData[21] = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-            vData[22] = quadUV5 + (quadUV7 - quadUV5) * fillStart;
-            vData[30] = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-            vData[31] = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
+            vData[uvOffset] = quadUV0 + (quadUV2 - quadUV0) * fillStart;
+            vData[uvOffset + 1] = quadUV1 + (quadUV3 - quadUV1) * fillStart;
+            uvOffset += stride;
+            vData[uvOffset] = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
+            vData[uvOffset + 1] = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
+            uvOffset += stride;
+            vData[uvOffset] = quadUV4 + (quadUV6 - quadUV4) * fillStart;
+            vData[uvOffset + 1] = quadUV5 + (quadUV7 - quadUV5) * fillStart;
+            uvOffset += stride;
+            vData[uvOffset] = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
+            vData[uvOffset + 1] = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
             break;
         case FillType.VERTICAL:
-            vData[3]  = quadUV0 + (quadUV4 - quadUV0) * fillStart;
-            vData[4]  = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-            vData[12] = quadUV2 + (quadUV6 - quadUV2) * fillStart;
-            vData[13] = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-            vData[21] = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
-            vData[22] = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-            vData[30] = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
-            vData[31] = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
+            vData[uvOffset] = quadUV0 + (quadUV4 - quadUV0) * fillStart;
+            vData[uvOffset + 1] = quadUV1 + (quadUV5 - quadUV1) * fillStart;
+            uvOffset += stride;
+            vData[uvOffset] = quadUV2 + (quadUV6 - quadUV2) * fillStart;
+            vData[uvOffset + 1] = quadUV3 + (quadUV7 - quadUV3) * fillStart;
+            uvOffset += stride;
+            vData[uvOffset] = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
+            vData[uvOffset + 1] = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
+            uvOffset += stride;
+            vData[uvOffset] = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
+            vData[uvOffset + 1] = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
             break;
         default:
             errorID(2626);
             break;
         }
-    },
+    }
 
-    updateVertexData (sprite: Sprite, fillStart: number, fillEnd: number) {
-        const renderData: RenderData|null = sprite.renderData;
-        const dataList: IRenderData[] = renderData!.data;
-        const uiTrans = sprite.node._uiProps.uiTransformComp!;
+    private updateVertexData (sprite: Sprite, fillStart: number, fillEnd: number): void {
+        const renderData: RenderData | null = sprite.renderData;
+        if (!renderData) return;
+        const dataList: IRenderData[] = renderData.data;
+        const uiTrans = sprite.node._getUITransformComp()!;
         const width = uiTrans.width;
         const height = uiTrans.height;
         const appX = uiTrans.anchorX * width;
@@ -189,31 +199,28 @@ export const barFilled: IAssembler = {
         dataList[2].y = t;
         dataList[3].x = r;
         dataList[3].y = t;
-    },
+    }
 
-    createData (sprite: Sprite) {
-        const renderData: RenderData|null = sprite.requestRenderData();
+    createData (sprite: Sprite): RenderData {
+        const renderData: RenderData | null = sprite.requestRenderData();
         // 0-4 for local vertex
         renderData.dataLength = 4;
         renderData.resize(4, 6);
         renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
         // not need
-        const dataList = renderData.data;
-        for (const data of dataList) {
-            data.z = 0;
-        }
-
+        renderData.data.forEach((data) => { data.z = 0; });
         return renderData;
-    },
+    }
 
-    updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {
+    private updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk): void {
         const node = sprite.node;
         node.getWorldMatrix(m);
 
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const stride = renderData.floatStride;
-        const dataList = sprite.renderData!.data;
+        const dataList = sprite.renderData.data;
         const vData = chunk.vb;
 
         let offset = 0;
@@ -229,10 +236,11 @@ export const barFilled: IAssembler = {
             vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
             vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
         }
-    },
+    }
 
-    fillBuffers (sprite: Sprite, renderer: IBatcher) {
-        const renderData: RenderData = sprite.renderData!;
+    fillBuffers (sprite: Sprite, renderer: IBatcher): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexData(sprite, chunk);
@@ -252,10 +260,11 @@ export const barFilled: IAssembler = {
         ib[indexOffset++] = vid + 1;
         ib[indexOffset++] = vid + 3;
         meshBuffer.indexOffset += 6;
-    },
+    }
 
-    updateColor (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    updateColor (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
         let colorOffset = 5;
@@ -272,5 +281,7 @@ export const barFilled: IAssembler = {
 
             colorOffset += stride;
         }
-    },
-};
+    }
+}
+
+export const barFilled = new BarFilled();

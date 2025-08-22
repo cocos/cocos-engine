@@ -21,14 +21,14 @@
 */
 
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core/global-exports';
 import { errorID, getError } from '../core/platform/debug';
 import { Component } from './component';
 import { NodeEventType } from './node-event';
-import { CCObject } from '../core/data/object';
+import { CCObjectFlags } from '../core/data/object';
 import { NodeUIProperties } from './node-ui-properties';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
-import { Mat4, Quat, Vec3 } from '../core/math';
+import { IVec2Like, Mat4, Quat, Vec3 } from '../core/math';
 import { Layers } from './layers';
 import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
@@ -38,17 +38,20 @@ import { nodePolyfill } from './node-dev';
 import * as js from '../core/utils/js';
 import { patch_cc_Node } from '../native-binding/decorators';
 import type { Node as JsbNode } from './node';
+import { DispatcherEventType, NodeEventProcessor } from './node-event-processor';
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 
 declare const jsb: any;
+declare const EditorExtends: any;
 
 export const Node: typeof JsbNode = jsb.Node;
 export type Node = JsbNode;
-legacyCC.Node = Node;
+cclegacy.Node = Node;
+
+const tempVec3 = new Vec3();
 
 const NodeCls: any = Node;
-
 
 NodeCls.reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
@@ -81,7 +84,8 @@ const TRANSFORMBIT_TRS = TransformBit.TRS;
 
 const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
-const Destroying = CCObject.Flags.Destroying;
+const ACTIVE_ON = 1 << 1;
+const Destroying = CCObjectFlags.Destroying;
 
 // TODO: `_setTempFloatArray` is only implemented on Native platforms. @dumganhar
 // issue: https://github.com/cocos/cocos-engine/issues/14644
@@ -162,7 +166,7 @@ nodeProto.addComponent = function (typeOrClassName) {
     if (typeof typeOrClassName === 'string') {
         constructor = getClassByName(typeOrClassName);
         if (!constructor) {
-            if (legacyCC._RF.peek()) {
+            if (cclegacy._RF.peek()) {
                 errorID(3808, typeOrClassName);
             }
             throw TypeError(getError(3807, typeOrClassName));
@@ -221,7 +225,7 @@ nodeProto.addComponent = function (typeOrClassName) {
     }
     this.emit(NodeEventType.COMPONENT_ADDED, component);
     if (this._activeInHierarchy) {
-        legacyCC.director._nodeActivator.activateComp(component);
+        cclegacy.director._nodeActivator.activateComp(component);
     }
     if (EDITOR_NOT_IN_PREVIEW) {
         component.resetInEditor?.();
@@ -261,6 +265,9 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
                 this._registerOnTransformChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
             }
+            break;
+        case NodeEventType.ACTIVE_CHANGED:
+            this._eventMask |= ACTIVE_ON;
             break;
         case NodeEventType.PARENT_CHANGED:
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_PARENT_CHANGED)) {
@@ -308,6 +315,9 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
             case NodeEventType.TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
                 break;
+            case NodeEventType.ACTIVE_CHANGED:
+                this._eventMask &= ~ACTIVE_ON;
+                break;
             default:
                 break;
         }
@@ -335,6 +345,10 @@ nodeProto.targetOff = function (target: string | unknown) {
     // Check for event mask reset
     if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
         this._eventMask &= ~TRANSFORM_ON;
+    }
+    
+    if ((this._eventMask & ACTIVE_ON) && !this._eventProcessor.hasEventListener(NodeEventType.ACTIVE_CHANGED)) {
+        this._eventMask &= ~ACTIVE_ON;
     }
 };
 
@@ -419,7 +433,7 @@ nodeProto._onEditorAttached = function (attached: boolean) {
 };
 
 nodeProto._onRemovePersistRootNode = function () {
-    legacyCC.game.removePersistRootNode(this);
+    cclegacy.game.removePersistRootNode(this);
 };
 
 nodeProto._onDestroyComponents = function () {
@@ -496,11 +510,21 @@ nodeProto._onSiblingOrderChanged = function () {
 };
 
 nodeProto._onActivateNode = function (shouldActiveNow) {
-    legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
+    cclegacy.director._nodeActivator.activateNode(this, shouldActiveNow);
 };
 
 nodeProto._onPostActivated = function (active: boolean) {
-    this._eventProcessor.setEnabled(active);
+    if (this._eventMask & ACTIVE_ON) {
+        this.emit(NodeEventType.ACTIVE_CHANGED, this, active);
+    }
+    
+    const eventProcessor = this._eventProcessor;
+    if (eventProcessor.isEnabled === active) {
+        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
+    }
+
+    eventProcessor.setEnabled(active);
+
     if (active) {
         // in case transform updated during deactivated period
         this.invalidateChildren(TransformBit.TRS);
@@ -508,7 +532,7 @@ nodeProto._onPostActivated = function (active: boolean) {
         if (this._uiProps && this._uiProps.uiComp) {
             this._uiProps.uiComp.setNodeDirty();
             this._uiProps.uiComp.setTextureDirty(); // for dynamic atlas
-            this._uiProps.uiComp.markForUpdateRenderData();
+            this._uiProps.uiComp._markForUpdateRenderData();
         }
     }
 };
@@ -598,7 +622,7 @@ NodeCls._findChildComponents = function (children, constructor, components) {
 // @ts-ignore
 NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
     // @ts-ignore
-    return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof legacyCC.Scene));
+    return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof cclegacy.Scene));
 };
 
 let _tempQuat = new Quat();
@@ -716,6 +740,13 @@ nodeProto.getScale = function getScale(out?: Vec3): Vec3 {
     }
     return Vec3.copy(new Vec3(), this._lscale);
 };
+
+nodeProto.set2DTransform = function set2DTransform(x: number, y: number, angle: number) {
+    _tempFloatArray[0] = x;
+    _tempFloatArray[1] = y;
+    _tempFloatArray[2] = angle;
+    this._set2DTransform();
+}
 
 nodeProto.setScale = function setScale(val: Readonly<Vec3> | number, y?: number, z?: number) {
     if (y === undefined && z === undefined) {
@@ -837,6 +868,39 @@ Object.defineProperty(nodeProto, 'position', {
     },
 });
 
+Object.defineProperty(nodeProto, 'x', {
+    configurable: true,
+    enumerable: true,
+    get(): number {
+        return this._lpos.x;
+    },
+    set(v: number) {
+        this.setPosition(v, this._lpos.y, this._lpos.z);
+    },
+});
+
+Object.defineProperty(nodeProto, 'y', {
+    configurable: true,
+    enumerable: true,
+    get(): number {
+        return this._lpos.y;
+    },
+    set(v: number) {
+        this.setPosition(this._lpos.x, v, this._lpos.z);
+    },
+});
+
+Object.defineProperty(nodeProto, 'z', {
+    configurable: true,
+    enumerable: true,
+    get(): number {
+        return this._lpos.z;
+    },
+    set(v: number) {
+        this.setPosition(this._lpos.x, this._lpos.y, v);
+    },
+});
+
 Object.defineProperty(nodeProto, 'rotation', {
     configurable: true,
     enumerable: true,
@@ -867,6 +931,48 @@ Object.defineProperty(nodeProto, 'worldPosition', {
     },
     set(v: Readonly<Vec3>) {
         this.setWorldPosition(v as Vec3);
+    },
+});
+
+Object.defineProperty(nodeProto, 'worldPositionX', {
+    configurable: true,
+    enumerable: true,
+    get(): number {
+        this.getWorldPosition(tempVec3);
+        return tempVec3.x;
+    },
+    set(v: number) {
+        this.getWorldPosition(tempVec3);
+        tempVec3.x = v;
+        this.setWorldPosition(tempVec3);
+    },
+});
+
+Object.defineProperty(nodeProto, 'worldPositionY', {
+    configurable: true,
+    enumerable: true,
+    get(): number {
+        this.getWorldPosition(tempVec3);
+        return tempVec3.y;
+    },
+    set(v: number) {
+        this.getWorldPosition(tempVec3);
+        tempVec3.y = v;
+        this.setWorldPosition(tempVec3);
+    },
+});
+
+Object.defineProperty(nodeProto, 'worldPositionZ', {
+    configurable: true,
+    enumerable: true,
+    get(): number {
+        this.getWorldPosition(tempVec3);
+        return tempVec3.z;
+    },
+    set(v: number) {
+        this.getWorldPosition(tempVec3);
+        tempVec3.z = v;
+        this.setWorldPosition(tempVec3);
     },
 });
 
@@ -947,10 +1053,10 @@ Object.defineProperty(nodeProto, 'activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
+        return (this._sharedUint8Arr[0] & 0x01) !== 0; // Uint8, 0:0, activeInHierarchy
     },
     set(v) {
-        this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
+        v ? this._sharedUint8Arr[0] |= 0x01 : this._sharedUint8Arr[0] &= ~0x01; // Uint8, 0:0, activeInHierarchy
     },
 });
 
@@ -958,10 +1064,10 @@ Object.defineProperty(nodeProto, '_activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
+        return (this._sharedUint8Arr[0] & 0x01) !== 0; // Uint8, 0:0, activeInHierarchy
     },
     set(v) {
-        this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
+        v ? this._sharedUint8Arr[0] |= 0x01 : this._sharedUint8Arr[0] &= ~0x01; // Uint8, 0:0, activeInHierarchy
     },
 });
 
@@ -975,7 +1081,7 @@ Object.defineProperty(nodeProto, 'layer', {
         this._sharedUint32Arr[1] = v; // Uint32, 1: layer
         if (this._uiProps && this._uiProps.uiComp) {
             this._uiProps.uiComp.setNodeDirty();
-            this._uiProps.uiComp.markForUpdateRenderData();
+            this._uiProps.uiComp._markForUpdateRenderData();
         }
         this.emit(NodeEventType.LAYER_CHANGED, v);
     },
@@ -1055,10 +1161,10 @@ Object.defineProperty(nodeProto, '_active', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
+        return (this._sharedUint8Arr[0] & 0x02) !== 0; // Uint8, 0:1, active
     },
     set(v) {
-        this._sharedUint8Arr[1] = (v ? 1 : 0); // Uint8, 1: active
+        v ? this._sharedUint8Arr[0] |= 0x02 : this._sharedUint8Arr[0] &= ~0x02; // Uint8, 0:1, active
     },
 });
 
@@ -1066,7 +1172,7 @@ Object.defineProperty(nodeProto, 'active', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
+        return (this._sharedUint8Arr[0] & 0x02) !== 0; // Uint8, 0:1, active
     },
     set(v) {
         this.setActive(!!v);
@@ -1077,10 +1183,32 @@ Object.defineProperty(nodeProto, '_static', {
     configurable: true,
     enumerable: true,
     get(): Readonly<Boolean> {
-        return this._sharedUint8Arr[2] != 0;
+        return (this._sharedUint8Arr[0] & 0x04) !== 0; // Uint8, 0:2, static
     },
     set(v) {
-        this._sharedUint8Arr[2] = (v ? 1 : 0);
+        v ? this._sharedUint8Arr[0] |= 0x04 : this._sharedUint8Arr[0] &= ~0x04; // Uint8, 0:2, static
+    },
+});
+
+Object.defineProperty(nodeProto, '_colorDirty', {
+    configurable: true,
+    enumerable: true,
+    get(): Readonly<Boolean> {
+        return (this._sharedUint8Arr[0] & 0x08) !== 0; // Uint8, 0:3, _colorDirty
+    },
+    set(v) {
+        v ? this._sharedUint8Arr[0] |= 0x08 : this._sharedUint8Arr[0] &= ~0x08; // Uint8, 0:3, _colorDirty
+    },
+});
+
+Object.defineProperty(nodeProto, '_skewType', {
+    configurable: true,
+    enumerable: true,
+    get(): number {
+        return this._sharedUint8Arr[1];
+    },
+    set(v) {
+        this._sharedUint8Arr[1] = v;
     },
 });
 
@@ -1171,6 +1299,14 @@ Object.defineProperty(nodeProto, 'scene', {
     }
 });
 
+Object.defineProperty(nodeProto, 'id', {
+    configurable: true,
+    enumerable: true,
+    set(id) {
+        this._id = id;
+    }
+});
+
 nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
     _tempFloatArray[1] = rot.x;
     _tempFloatArray[2] = rot.y;
@@ -1251,10 +1387,16 @@ nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, co
 };
 
 nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
-    legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
+    cclegacy.director._nodeActivator.activateNode(this, shouldActiveNow);
 };
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
+    if (this._eventMask & ACTIVE_ON) {
+        if (!this._activeInHierarchy) {
+            this.emit(NodeEventType.ACTIVE_CHANGED, this, false);
+        }
+    }
+
     this.hasChangedFlags = TRANSFORMBIT_TRS;
     const children = this._children;
     const len = children.length;
@@ -1315,7 +1457,7 @@ nodeProto._onLocalPositionRotationScaleUpdated = function (px, py, pz, rx, ry, r
 
 nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     if (!cloned) {
-        cloned = legacyCC.instantiate._clone(this, this);
+        cloned = cclegacy.instantiate._clone(this, this);
     }
 
     // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
@@ -1340,6 +1482,10 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     return cloned;
 };
 
+nodeProto._getUITransformComp = function () {
+    return this._uiProps.uiTransformComp;
+};
+
 nodeProto._onSiblingIndexChanged = function (index) {
     const siblings = this._parent._children;
     index = index !== -1 ? index : siblings.length - 1;
@@ -1351,7 +1497,45 @@ nodeProto._onSiblingIndexChanged = function (index) {
         } else {
             siblings.push(this);
         }
+        this._eventProcessor.onUpdatingSiblingIndex();
     }
+};
+
+nodeProto._setSkew = function (v: IVec2Like): void {
+    this._sharedFloat32Arr[0] = v.x;
+    this._sharedFloat32Arr[1] = v.y;
+};
+
+nodeProto._getSkewX = function () {
+    return this._sharedFloat32Arr[0];
+};
+
+nodeProto._setSkewX = function (v: number) {
+    this._sharedFloat32Arr[0] = v;
+}
+
+nodeProto._getSkewY = function () {
+    return this._sharedFloat32Arr[1];
+};
+
+nodeProto._setSkewY = function (v: number) {
+    this._sharedFloat32Arr[1] = v;
+}
+
+nodeProto._getLocalOpacity = function (): number {
+    return this._sharedFloat32Arr[2];
+};
+
+nodeProto._setLocalOpacity = function (v: number): void {
+    this._sharedFloat32Arr[2] = v;
+}
+
+nodeProto._getFinalOpacity = function (): number {
+    return this._sharedFloat32Arr[3];
+};
+
+nodeProto._setFinalOpacity = function (v: number): void {
+    this._sharedFloat32Arr[3] = v;
 }
 
 //
@@ -1363,7 +1547,7 @@ nodeProto._ctor = function (name?: string) {
     this.__editorExtras__ = { editorOnly: true };
 
     this._components = [];
-    this._eventProcessor = new legacyCC.NodeEventProcessor(this);
+    this._eventProcessor = new NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
 
     const sharedArrayBuffer = this._initAndReturnSharedBuffer();
@@ -1371,9 +1555,10 @@ nodeProto._ctor = function (name?: string) {
     this._sharedUint32Arr = new Uint32Array(sharedArrayBuffer, 0, 3);
     // Int32Array with 1 element: siblingIndex
     this._sharedInt32Arr = new Int32Array(sharedArrayBuffer, 12, 1);
-    // Uint8Array with 3 elements: activeInHierarchy, active, static
-    this._sharedUint8Arr = new Uint8Array(sharedArrayBuffer, 16, 3);
-    //
+    // Uint8Array with 4 elements: (activeInHierarchy, active, static, localOpacityDirty) uses 1 bytes for booleans, skewType, 2 bytes padding
+    this._sharedUint8Arr = new Uint8Array(sharedArrayBuffer, 16, 4);
+    // Float32Array with 4 elements: skewX, skewY, localOpacity, finalOpacity
+    this._sharedFloat32Arr = new Float32Array(sharedArrayBuffer, 20, 4);
 
     this._sharedUint32Arr[1] = Layers.Enum.DEFAULT; // this._sharedUint32Arr[1] is layer
     this._scene = null;

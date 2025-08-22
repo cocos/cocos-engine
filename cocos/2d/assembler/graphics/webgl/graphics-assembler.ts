@@ -26,7 +26,7 @@ import { Color, Vec3 } from '../../../../core';
 import { IAssembler } from '../../../renderer/base';
 import { MeshRenderData } from '../../../renderer/render-data';
 import { IBatcher } from '../../../renderer/i-batcher';
-import { Graphics } from '../../../components';
+import { Graphics } from '../../../components/graphics';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
@@ -72,25 +72,16 @@ function clamp (v: number, minNum: number, maxNum: number): number {
  * graphics 组装器
  * 可通过 `UI.graphicsAssembler` 获取该组装器。
  */
-export const graphicsAssembler: IAssembler = {
-    useModel: true,
-
-    updateRenderData (graphics: Graphics) {
+export class GraphicsAssembler implements IAssembler {
+    updateRenderData (graphics: Graphics): void {
         if (JSB) {
             if (graphics.renderData) {
                 graphics.renderData.material = graphics.getMaterialInstance(0);
             }
         }
-    },
+    }
 
-    fillBuffers (graphics: Graphics, renderer: IBatcher) {
-        // this.renderIA!(graphics, renderer);
-    },
-
-    renderIA (graphics: Graphics, renderer: IBatcher) {
-    },
-
-    getRenderData (graphics: Graphics, vertexCount: number) {
+    private getRenderData (graphics: Graphics, vertexCount: number): MeshRenderData | null {
         if (!_impl) {
             return null;
         }
@@ -122,40 +113,40 @@ export const graphicsAssembler: IAssembler = {
         }
 
         return renderData;
-    },
+    }
 
-    stroke (graphics: Graphics) {
+    stroke (graphics: Graphics): void {
         Color.copy(_curColor, graphics.strokeColor);
         // graphics.node.getWorldMatrix(_currMatrix);
         if (!graphics.impl) {
             return;
         }
 
-        this._flattenPaths!(graphics.impl);
-        this._expandStroke!(graphics);
+        this._flattenPaths(graphics.impl);
+        this._expandStroke(graphics);
 
         graphics.impl.updatePathOffset = true;
 
         this.end(graphics);
-    },
+    }
 
-    fill (graphics: Graphics) {
+    fill (graphics: Graphics): void {
         Color.copy(_curColor, graphics.fillColor);
         // graphics.node.getWorldMatrix(_currMatrix);
 
-        this._expandFill!(graphics);
+        this._expandFill(graphics);
         if (graphics.impl) {
             graphics.impl.updatePathOffset = true;
         }
 
         this.end(graphics);
-    },
+    }
 
-    end (graphics: Graphics) {
-        graphics.markForUpdateRenderData();
-    },
+    end (graphics: Graphics): void {
+        graphics._markForUpdateRenderData();
+    }
 
-    _expandStroke (graphics: Graphics) {
+    private _expandStroke (graphics: Graphics): void {
         const w = graphics.lineWidth * 0.5;
         const lineCap = graphics.lineCap;
         const lineJoin = graphics.lineJoin;
@@ -195,7 +186,7 @@ export const graphicsAssembler: IAssembler = {
             }
         }
 
-        const meshBuffer: MeshRenderData | null = _renderData = this.getRenderData!(graphics, vertexCount);
+        const meshBuffer: MeshRenderData | null = _renderData = this.getRenderData(graphics, vertexCount);
         if (!meshBuffer) {
             return;
         }
@@ -239,11 +230,11 @@ export const graphicsAssembler: IAssembler = {
                 const dy = dPos.y;
 
                 if (lineCap === LineCap.BUTT) {
-                    this._buttCapStart!(p0, dx, dy, w, 0);
+                    this._buttCapStart(p0, dx, dy, w, 0);
                 } else if (lineCap === LineCap.SQUARE) {
-                    this._buttCapStart!(p0, dx, dy, w, w);
+                    this._buttCapStart(p0, dx, dy, w, w);
                 } else if (lineCap === LineCap.ROUND) {
-                    this._roundCapStart!(p0, dx, dy, w, nCap);
+                    this._roundCapStart(p0, dx, dy, w, nCap);
                 }
             }
 
@@ -253,8 +244,8 @@ export const graphicsAssembler: IAssembler = {
                 } else if ((p1.flags & (PointFlags.PT_BEVEL | PointFlags.PT_INNERBEVEL)) !== 0) {
                     this._bevelJoin(p0, p1, w, w);
                 } else {
-                    this._vSet!(p1.x + p1.dmx * w, p1.y + p1.dmy * w, 1);
-                    this._vSet!(p1.x - p1.dmx * w, p1.y - p1.dmy * w, -1);
+                    this._vSet(p1.x + p1.dmx * w, p1.y + p1.dmy * w, 1);
+                    this._vSet(p1.x - p1.dmx * w, p1.y - p1.dmy * w, -1);
                 }
 
                 p0 = p1;
@@ -276,11 +267,11 @@ export const graphicsAssembler: IAssembler = {
                 const dy = dPos.y;
 
                 if (lineCap === LineCap.BUTT) {
-                    this._buttCapEnd!(p1, dx, dy, w, 0);
+                    this._buttCapEnd(p1, dx, dy, w, 0);
                 } else if (lineCap === LineCap.SQUARE) {
-                    this._buttCapEnd!(p1, dx, dy, w, w);
+                    this._buttCapEnd(p1, dx, dy, w, w);
                 } else if (lineCap === LineCap.ROUND) {
-                    this._roundCapEnd!(p1, dx, dy, w, nCap);
+                    this._roundCapEnd(p1, dx, dy, w, nCap);
                 }
             }
 
@@ -296,9 +287,9 @@ export const graphicsAssembler: IAssembler = {
         }
         _renderData = null;
         _impl = null;
-    },
+    }
 
-    _expandFill (graphics: Graphics) {
+    private _expandFill (graphics: Graphics): void {
         _impl = graphics.impl;
         if (!_impl) {
             return;
@@ -315,7 +306,7 @@ export const graphicsAssembler: IAssembler = {
             vertexCount += pointsLength;
         }
 
-        const renderData: MeshRenderData | null = _renderData = this.getRenderData!(graphics, vertexCount);
+        const renderData: MeshRenderData | null = _renderData = this.getRenderData(graphics, vertexCount);
         if (!renderData) {
             return;
         }
@@ -337,7 +328,7 @@ export const graphicsAssembler: IAssembler = {
             const vertexOffset = renderData.vertexStart;
 
             for (let j = 0; j < pointsLength; ++j) {
-                this._vSet!(pts[j].x, pts[j].y);
+                this._vSet(pts[j].x, pts[j].y);
             }
 
             let indicesOffset = renderData.indexStart;
@@ -374,9 +365,9 @@ export const graphicsAssembler: IAssembler = {
 
         _renderData = null;
         _impl = null;
-    },
+    }
 
-    _calculateJoins (impl: Impl, w: number, lineJoin: LineJoin, miterLimit: number) {
+    private _calculateJoins (impl: Impl, w: number, lineJoin: LineJoin, miterLimit: number): void {
         let iw = 0.0;
 
         if (w > 0.0) {
@@ -450,9 +441,9 @@ export const graphicsAssembler: IAssembler = {
                 p1 = pts[j + 1];
             }
         }
-    },
+    }
 
-    _flattenPaths (impl: Impl) {
+    private _flattenPaths (impl: Impl): void {
         const paths = impl.paths;
         for (let i = impl.pathOffset, l = impl.pathLength; i < l; i++) {
             const path = paths[i];
@@ -482,9 +473,9 @@ export const graphicsAssembler: IAssembler = {
                 p1 = pts[j + 1];
             }
         }
-    },
+    }
 
-    _chooseBevel (bevel: number, p0: Point, p1: Point, w: number) {
+    private _chooseBevel (bevel: number, p0: Point, p1: Point, w: number): [number, number, number, number] {
         const x = p1.x;
         const y = p1.y;
         let x0 = 0;
@@ -503,29 +494,29 @@ export const graphicsAssembler: IAssembler = {
         }
 
         return [x0, y0, x1, y1];
-    },
+    }
 
-    _buttCapStart (p: Point, dx: number, dy: number, w: number, d: number) {
+    private _buttCapStart (p: Point, dx: number, dy: number, w: number, d: number): void {
         const px = p.x - dx * d;
         const py = p.y - dy * d;
         const dlx = dy;
         const dly = -dx;
 
-        this._vSet!(px + dlx * w, py + dly * w, 1);
-        this._vSet!(px - dlx * w, py - dly * w, -1);
-    },
+        this._vSet(px + dlx * w, py + dly * w, 1);
+        this._vSet(px - dlx * w, py - dly * w, -1);
+    }
 
-    _buttCapEnd (p: Point, dx: number, dy: number, w: number, d: number) {
+    private _buttCapEnd (p: Point, dx: number, dy: number, w: number, d: number): void {
         const px = p.x + dx * d;
         const py = p.y + dy * d;
         const dlx = dy;
         const dly = -dx;
 
-        this._vSet!(px + dlx * w, py + dly * w, 1);
-        this._vSet!(px - dlx * w, py - dly * w, -1);
-    },
+        this._vSet(px + dlx * w, py + dly * w, 1);
+        this._vSet(px - dlx * w, py - dly * w, -1);
+    }
 
-    _roundCapStart (p: Point, dx: number, dy: number, w: number, nCap: number) {
+    private _roundCapStart (p: Point, dx: number, dy: number, w: number, nCap: number): void {
         const px = p.x;
         const py = p.y;
         const dlx = dy;
@@ -535,31 +526,31 @@ export const graphicsAssembler: IAssembler = {
             const a = i / (nCap - 1) * PI;
             const ax = cos(a) * w;
             const ay = sin(a) * w;
-            this._vSet!(px - dlx * ax - dx * ay, py - dly * ax - dy * ay, 1);
-            this._vSet!(px, py, 0);
+            this._vSet(px - dlx * ax - dx * ay, py - dly * ax - dy * ay, 1);
+            this._vSet(px, py, 0);
         }
-        this._vSet!(px + dlx * w, py + dly * w, 1);
-        this._vSet!(px - dlx * w, py - dly * w, -1);
-    },
+        this._vSet(px + dlx * w, py + dly * w, 1);
+        this._vSet(px - dlx * w, py - dly * w, -1);
+    }
 
-    _roundCapEnd (p: Point, dx: number, dy: number, w: number, nCap: number) {
+    private _roundCapEnd (p: Point, dx: number, dy: number, w: number, nCap: number): void {
         const px = p.x;
         const py = p.y;
         const dlx = dy;
         const dly = -dx;
 
-        this._vSet!(px + dlx * w, py + dly * w, 1);
-        this._vSet!(px - dlx * w, py - dly * w, -1);
+        this._vSet(px + dlx * w, py + dly * w, 1);
+        this._vSet(px - dlx * w, py - dly * w, -1);
         for (let i = 0; i < nCap; i++) {
             const a = i / (nCap - 1) * PI;
             const ax = cos(a) * w;
             const ay = sin(a) * w;
-            this._vSet!(px, py, 0);
-            this._vSet!(px - dlx * ax + dx * ay, py - dly * ax + dy * ay, 1);
+            this._vSet(px, py, 0);
+            this._vSet(px - dlx * ax + dx * ay, py - dly * ax + dy * ay, 1);
         }
-    },
+    }
 
-    _roundJoin (p0: Point, p1: Point, lw: number, rw: number, nCap: number) {
+    private _roundJoin (p0: Point, p1: Point, lw: number, rw: number, nCap: number): void {
         const dlx0 = p0.dy;
         const dly0 = -p0.dx;
         const dlx1 = p1.dy;
@@ -569,7 +560,7 @@ export const graphicsAssembler: IAssembler = {
         const p1y = p1.y;
 
         if ((p1.flags & PointFlags.PT_LEFT) !== 0) {
-            const out = this._chooseBevel!(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, lw);
+            const out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, lw);
             const lx0 = out[0];
             const ly0 = out[1];
             const lx1 = out[2];
@@ -579,8 +570,8 @@ export const graphicsAssembler: IAssembler = {
             let a1 = atan2(-dly1, -dlx1);
             if (a1 > a0) { a1 -= PI * 2; }
 
-            this._vSet!(lx0, ly0, 1);
-            this._vSet!(p1x - dlx0 * rw, p1.y - dly0 * rw, -1);
+            this._vSet(lx0, ly0, 1);
+            this._vSet(p1x - dlx0 * rw, p1.y - dly0 * rw, -1);
 
             const n = clamp(ceil((a0 - a1) / PI) * nCap, 2, nCap);
             for (let i = 0; i < n; i++) {
@@ -588,14 +579,14 @@ export const graphicsAssembler: IAssembler = {
                 const a = a0 + u * (a1 - a0);
                 const rx = p1x + cos(a) * rw;
                 const ry = p1y + sin(a) * rw;
-                this._vSet!(p1x, p1y, 0);
-                this._vSet!(rx, ry, -1);
+                this._vSet(p1x, p1y, 0);
+                this._vSet(rx, ry, -1);
             }
 
-            this._vSet!(lx1, ly1, 1);
-            this._vSet!(p1x - dlx1 * rw, p1y - dly1 * rw, -1);
+            this._vSet(lx1, ly1, 1);
+            this._vSet(p1x - dlx1 * rw, p1y - dly1 * rw, -1);
         } else {
-            const out = this._chooseBevel!(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
+            const out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
             const rx0 = out[0];
             const ry0 = out[1];
             const rx1 = out[2];
@@ -605,8 +596,8 @@ export const graphicsAssembler: IAssembler = {
             let a1 = atan2(dly1, dlx1);
             if (a1 < a0) { a1 += PI * 2; }
 
-            this._vSet!(p1x + dlx0 * rw, p1y + dly0 * rw, 1);
-            this._vSet!(rx0, ry0, -1);
+            this._vSet(p1x + dlx0 * rw, p1y + dly0 * rw, 1);
+            this._vSet(rx0, ry0, -1);
 
             const n = clamp(ceil((a1 - a0) / PI) * nCap, 2, nCap);
             for (let i = 0; i < n; i++) {
@@ -614,16 +605,16 @@ export const graphicsAssembler: IAssembler = {
                 const a = a0 + u * (a1 - a0);
                 const lx = p1x + cos(a) * lw;
                 const ly = p1y + sin(a) * lw;
-                this._vSet!(lx, ly, 1);
-                this._vSet!(p1x, p1y, 0);
+                this._vSet(lx, ly, 1);
+                this._vSet(p1x, p1y, 0);
             }
 
-            this._vSet!(p1x + dlx1 * rw, p1y + dly1 * rw, 1);
-            this._vSet!(rx1, ry1, -1);
+            this._vSet(p1x + dlx1 * rw, p1y + dly1 * rw, 1);
+            this._vSet(rx1, ry1, -1);
         }
-    },
+    }
 
-    _bevelJoin (p0: Point, p1: Point, lw: number, rw: number) {
+    private _bevelJoin (p0: Point, p1: Point, lw: number, rw: number): void {
         let rx0 = 0;
         let ry0 = 0;
         let rx1 = 0;
@@ -638,33 +629,33 @@ export const graphicsAssembler: IAssembler = {
         const dly1 = -p1.dx;
 
         if (p1.flags & PointFlags.PT_LEFT) {
-            const out = this._chooseBevel!(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, lw);
+            const out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, lw);
             lx0 = out[0];
             ly0 = out[1];
             lx1 = out[2];
             ly1 = out[3];
 
-            this._vSet!(lx0, ly0, 1);
-            this._vSet!(p1.x - dlx0 * rw, p1.y - dly0 * rw, -1);
+            this._vSet(lx0, ly0, 1);
+            this._vSet(p1.x - dlx0 * rw, p1.y - dly0 * rw, -1);
 
-            this._vSet!(lx1, ly1, 1);
-            this._vSet!(p1.x - dlx1 * rw, p1.y - dly1 * rw, -1);
+            this._vSet(lx1, ly1, 1);
+            this._vSet(p1.x - dlx1 * rw, p1.y - dly1 * rw, -1);
         } else {
-            const out = this._chooseBevel!(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
+            const out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
             rx0 = out[0];
             ry0 = out[1];
             rx1 = out[2];
             ry1 = out[3];
 
-            this._vSet!(p1.x + dlx0 * lw, p1.y + dly0 * lw, 1);
-            this._vSet!(rx0, ry0, -1);
+            this._vSet(p1.x + dlx0 * lw, p1.y + dly0 * lw, 1);
+            this._vSet(rx0, ry0, -1);
 
-            this._vSet!(p1.x + dlx1 * lw, p1.y + dly1 * lw, 1);
-            this._vSet!(rx1, ry1, -1);
+            this._vSet(p1.x + dlx1 * lw, p1.y + dly1 * lw, 1);
+            this._vSet(rx1, ry1, -1);
         }
-    },
+    }
 
-    _vSet (x: number, y: number, distance = 0) {
+    private _vSet (x: number, y: number, distance = 0): void {
         if (!_renderData) {
             return;
         }
@@ -682,5 +673,7 @@ export const graphicsAssembler: IAssembler = {
         dataOffset += 4;
         vData[dataOffset++] = distance;
         meshBuffer.vertexStart++;
-    },
-};
+    }
+}
+
+export const graphicsAssembler = new GraphicsAssembler();

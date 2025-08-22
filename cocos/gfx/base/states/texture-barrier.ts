@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { murmurhash2_32_gc } from '../../../core';
+import { murmurhash2_32_gc } from '../../../core/algorithm/murmurhash2_gc';
 import { GFXObject, ObjectType, TextureBarrierInfo } from '../define';
 
 /**
@@ -33,7 +33,9 @@ export class TextureBarrier extends GFXObject {
     get info (): Readonly<TextureBarrierInfo> { return this._info; }
     get hash (): number { return this._hash; }
 
+    /** @mangle */
     protected _info: TextureBarrierInfo = new TextureBarrierInfo();
+    /** @mangle */
     protected _hash = 0;
 
     constructor (info: Readonly<TextureBarrierInfo>, hash: number) {
@@ -45,10 +47,12 @@ export class TextureBarrier extends GFXObject {
     static computeHash (info: Readonly<TextureBarrierInfo>): number {
         let res = `${info.prevAccesses} ${info.nextAccesses}`;
         res += info.type;
-        res += info.baseMipLevel;
-        res += info.levelCount;
-        res += info.baseSlice;
-        res += info.sliceCount;
+        res += info.range.mipLevel;
+        res += info.range.levelCount;
+        res += info.range.firstSlice;
+        res += info.range.numSlices;
+        res += info.range.basePlane;
+        res += info.range.planeCount;
         res += info.discardContents;
         res += info.srcQueue ? info.srcQueue.type : 0;
         res += info.dstQueue ? info.dstQueue.type : 0;

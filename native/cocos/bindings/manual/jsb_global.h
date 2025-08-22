@@ -27,6 +27,11 @@
 #include "bindings/jswrapper/PrivateObject.h"
 #include "jsb_global_init.h"
 
+namespace cc {
+    class LegacyThreadPool;
+}
+extern cc::LegacyThreadPool *gIOThreadPool;
+
 template <typename T, class... Args>
 T *jsb_override_new(Args &&...args) { // NOLINT(readability-identifier-naming)
     // create object in the default way

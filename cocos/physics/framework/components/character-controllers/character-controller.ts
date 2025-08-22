@@ -30,12 +30,9 @@ import { Vec3, warn, CCFloat, Eventify } from '../../../../core';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';
-import { CharacterCollisionEventType, CharacterTriggerEventType, TriggerEventType } from '../../physics-interface';
+import { CharacterCollisionEventType, CharacterTriggerEventType } from '../../physics-interface';
 import { selector, createCharacterController } from '../../physics-selector';
 import { PhysicsSystem } from '../../physics-system';
-
-const v3_0 = new Vec3(0, 0, 0);
-const scaledCenter = new Vec3(0, 0, 0);
 
 type Callback = (...args: any[]) => any;
 

@@ -38,7 +38,7 @@ export class EventHMD extends Event {
      * @en The hmd device which trigger the current hmd event
      * @zh 触发当前头戴显示器事件的头戴显示器设备
      */
-     public hmdInputDevice: HMDInputDevice;
+    public declare hmdInputDevice: HMDInputDevice;
 
     /**
      * @param eventType - The type of the event

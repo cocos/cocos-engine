@@ -29,9 +29,9 @@ import { MeshCollider, PhysicsMaterial } from '../../framework';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { addReference, createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans, removeReference } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
-import { AttributeName } from '../../../gfx';
 import { PhysXInstance } from '../physx-instance';
 
+/** @mangle */
 export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
     geometry: any;
 

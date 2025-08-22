@@ -6,8 +6,7 @@ import { game, director } from "../../cocos/game";
 import { UITransform } from "../../cocos/2d/framework/ui-transform";
 import { Canvas } from "../../cocos/2d/framework/canvas";
 import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
-import { Label, UIOpacity } from "../../cocos/2d";
-import { Sprite } from "../../cocos/2d";
+import { UIOpacity, Sprite } from "../../cocos/2d";
 
 function isSizeEqualTo(a: Size, b: Size) {
     return approx(a.width, b.width) && approx(a.height, b.height);
@@ -16,6 +15,18 @@ function isSizeEqualTo(a: Size, b: Size) {
 function runFrames(frames: number) {
     for (let i = 0; i < frames; ++i) {
         game.step();
+    }
+}
+
+function randomTickSeconds(time: number) {
+    let totalTime = 0;
+    for (;;) {
+        const dt = 0.016 * 2 * Math.random();
+        director.tick(dt);
+        totalTime += dt;
+        if (totalTime >= time) {
+            break;
+        }
     }
 }
 
@@ -234,6 +245,136 @@ test('Test different target in sequence', function() {
     
     game.step();
     expect(isContentSizeTweenComplete).toBeTruthy();
+
+    // test end
+    director.unregisterSystem(sys);
+});
+
+test('Test different target in sequence nesting parallel', function() {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    const node = new Node('TestNode');
+    const uiOpacity = node.addComponent(UIOpacity) as UIOpacity;
+    node.parent = scene;
+
+    tween(node)
+        .sequence(
+            tween(node)
+                .to(1, {scale: v3(2, 2, 2)}),
+            tween(node)
+                .parallel(
+                    tween(uiOpacity)
+                        .to(1, { opacity: 0 }),
+                    tween(node)
+                        .to(1, { scale: v3(1, 1, 1) })
+                )
+        )
+    .start();
+
+    runFrames(1); // Kick off
+
+    runFrames(30);
+    expect(node.scale.equals(new Vec3(1.5, 1.5, 1.5))).toBeTruthy();
+    expect(uiOpacity.opacity).toBeCloseTo(255);
+    runFrames(30);
+    expect(node.scale.equals(new Vec3(2, 2, 2))).toBeTruthy();
+    runFrames(30);
+    expect(node.scale.equals(new Vec3(1.5, 1.5, 1.5))).toBeTruthy();
+    expect(uiOpacity.opacity).toBeCloseTo(255/2);
+    runFrames(30);
+    expect(node.scale.equals(new Vec3(1, 1, 1))).toBeTruthy();
+    expect(uiOpacity.opacity).toBeCloseTo(0);
+
+    // test end
+    director.unregisterSystem(sys);
+});
+
+test('Test different target in parallel nesting sequence', function() {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    const node = new Node('TestNode');
+    const uiOpacity = node.addComponent(UIOpacity) as UIOpacity;
+    node.parent = scene;
+
+    tween(node)
+        .parallel(
+            tween(node).sequence(
+                tween(node)
+                    .to(1, { scale: v3(2, 2, 2) }),
+                tween(node)
+                    .to(1, { position: v3(100, 100, 0) })
+            ),
+            tween(uiOpacity)
+                .to(2, { opacity: 0 }),
+        )
+        .start();
+
+    runFrames(1); // Kick off
+
+    runFrames(30);
+    expect(node.scale.equals(new Vec3(1.5, 1.5, 1.5))).toBeTruthy();
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    runFrames(30);
+    expect(node.scale.equals(new Vec3(2, 2, 2))).toBeTruthy();
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    expect(uiOpacity.opacity).toBeCloseTo(255/2);
+
+    runFrames(60);
+    expect(node.scale.equals(new Vec3(2, 2, 2))).toBeTruthy();
+    expect(node.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
+    expect(uiOpacity.opacity).toBeCloseTo(0);
+
+    // test end
+    director.unregisterSystem(sys);
+});
+
+test('Test different target in sequence nesting parallel and re-target', function() {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    const node1 = new Node('TestNode1');
+    node1.parent = scene;
+
+    const node2 = new Node('TestNode2');
+    node2.parent = scene;
+
+    const node3 = new Node('TestNode3');
+    node3.parent = scene;
+
+    tween(node1)
+        .sequence(
+            tween(node1)
+                .to(1, { position: v3(100, 100, 0) }).target(node3),
+        )
+        .target(node2)
+        .to(1, { position: v3(200, 200, 200) })
+        .start();
+
+    runFrames(1); // Kick off
+    runFrames(60);
+    expect(node1.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    expect(node3.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
+
+    runFrames(60);
+    expect(node1.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(new Vec3(200, 200, 200))).toBeTruthy();
+    expect(node3.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
 
     // test end
     director.unregisterSystem(sys);
@@ -4721,7 +4862,7 @@ test('updateUntil 2', function () {
     const target2 = { x: 0 };
 
     tween(node)
-        .delay(1)
+        .delay(1)  // 1s 
         .sequence(
             tween(node).parallel(
                 tween(node).by(1, { position: v3(90, 90, 90) }).call(cb),
@@ -4734,10 +4875,10 @@ test('updateUntil 2', function () {
                     }
                     return false;
                 }, 1, false, 'hello'),
-                tween(node).by(3, { scale: v3(30, 30, 30) })
+                tween(node).by(3, { scale: v3(30, 30, 30) }) // 3s
             ),
             tween(node).call(cb2),
-            tween(target2).by(1, { x: 100 }),
+            tween(target2).by(1, { x: 100 }), // 1s
         )
         .updateUntil((target: Node, dt: number, arg0: number, arg1: boolean, arg2: string): boolean => {
             elapsed += dt;
@@ -4747,7 +4888,7 @@ test('updateUntil 2', function () {
                 return true;
             }
             return false;
-        }, 2, true, 'world')
+        }, 2, true, 'world') // 2s
         .start();
 
     runFrames(1); // Start
@@ -4778,6 +4919,182 @@ test('updateUntil 2', function () {
 
     runFrames(120) // updateUnitl 2
     expect(updateUntilSuccessTimes).toBe(2);
+
+    director.unregisterSystem(sys);
+});
+
+test('updateUntil 3', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    let testNumber = 0;
+    tween(node)
+        .delay(1)
+        .call(() => {
+            testNumber++;
+        })
+        .updateUntil(() => {
+            return false;
+        })
+        .start();
+
+    runFrames(1); // Start
+    randomTickSeconds(1);
+    expect(testNumber).toBe(1);
+
+    randomTickSeconds(1);
+    expect(testNumber).toBe(1);
+
+    director.unregisterSystem(sys);
+});
+
+test('parallel with two call tween', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    const cb1 = jest.fn(()=>{});
+    const cb2 = jest.fn(()=>{});
+    
+    const a = tween(node).call(cb1);
+    const b = tween(node).call(cb2);
+
+    tween(node).parallel(a, b).start();
+
+    expect(cb1).toBeCalledTimes(0);
+    expect(cb2).toBeCalledTimes(0);
+
+    runFrames(1);
+
+    expect(cb1).toBeCalledTimes(1);
+    expect(cb2).toBeCalledTimes(1);
+
+    runFrames(60);
+
+    expect(cb1).toBeCalledTimes(1);
+    expect(cb2).toBeCalledTimes(1);
+
+    director.unregisterSystem(sys);
+});
+
+test('parallel with set action', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    const node2 = new Node();
+
+    tween(node)
+        .parallel(
+            tween(node).by(1, { position: v3(1, 1, 1) }),
+            tween(node2).set({ position: v3(2, 2, 2) })
+        )
+        .start();
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node2.position.equals(v3(2, 2, 2))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('bindNodeState(true) default test', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    const node = new Node();
+    scene.addChild(node);
+    node.active = false;
+
+    tween(node)
+        .by(1, { position: v3(1, 1, 1) })
+        .start();
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    node.active = true;
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(1, 1, 1))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('bindNodeState(true) test', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    const node = new Node();
+    scene.addChild(node);
+    node.active = false;
+
+    tween(node)
+        .bindNodeState(true)
+        .by(1, { position: v3(1, 1, 1) })
+        .start();
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    node.active = true;
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(1, 1, 1))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('bindNodeState(false) test', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    const node = new Node();
+    scene.addChild(node);
+    node.active = false;
+
+    tween(node)
+        .bindNodeState(false)
+        .by(2, { position: v3(2, 2, 2) })
+        .start();
+
+    runFrames(1); // start
+    runFrames(60);
+
+    expect(node.position.equals(v3(1, 1, 1))).toBeTruthy();
+
+    node.active = true;
+
+    runFrames(60);
+
+    expect(node.position.equals(v3(2, 2, 2))).toBeTruthy();
 
     director.unregisterSystem(sys);
 });

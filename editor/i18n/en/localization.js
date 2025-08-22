@@ -8,7 +8,12 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = link(mixin({
-
+    common: {
+        'attribute': {
+            'title': 'Attribute:&nbsp;',
+            'description': 'Description:&nbsp;',
+        },
+    },
     classes: {
         'cc': {
             'animation': {
@@ -160,6 +165,7 @@ module.exports = link(mixin({
             RenderRoot2D: `${url}/${version}/manual/en/ui-system/components/editor/renderroot2d.html`,
             ReflectionProbe: `${url}/${version}/manual/en/concepts/scene/light/probe/reflection-art-workflow.html`,
             Sorting: `${url}/${version}/manual/en/engine/rendering/sorting.html`,
+            Sorting2D: `${url}/${version}/manual/en/engine/rendering/sorting-2d.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scripting/plugin-scripts.html`,
@@ -315,14 +321,6 @@ module.exports = link(mixin({
         csmTransitionRange: 'CSM layers transition range(in NDC space: value range is 0 to 1)',
     },
     sprite: {
-        gray_scale: 'Whether turn on grayscale rendering mode',
-        sprite_frame: 'Sprite Frame image to use',
-        atlas: 'Atlas that the image belongs to',
-        type:
-            'Rendering mode:<br> - Simple: Modifying the size will stretch the image as a whole, which is suitable for sequence frame animation and normal images. <br>' +
-            '- Sliced: When changing the size, the four corners will not stretch, which is suitable for UI buttons and panel backgrounds. <br>' +
-            '- Tiled : When changing the size, the original size image will continue to be tiled. <br>' +
-            '- Filled : set a certain starting position and direction of filling, and the picture can be cropped and displayed at a certain ratio.',
         original_size: "Use the Image's original size as the Node size?",
         edit_button: 'Edit',
         select_button: 'Select In Atlas',
@@ -334,10 +332,6 @@ module.exports = link(mixin({
         fill_range: 'The normalizad value indicates how much of the sprite we want to show',
         src_blend_factor: 'The source image blend mode',
         dst_blend_factor: 'The destination image blend mode',
-        size_mode:
-            'Set the size of the node on which the Sprite component is on. <br>CUSTOM for setting width and height manually;<br>TRIMMED to use image size with transparent pixels trimmed; <br>RAW to use image size without trimming.',
-        trim:
-            "Whether to render transparent pixels around image in node's bounding box. <br>If you check this option the bounding box will not include transparent pixels around the image.",
     },
     UIOpacity: {
         opacity: 'The value between 0 to 255 showing the transparency of the object',
@@ -664,22 +658,6 @@ module.exports = link(mixin({
         url: 'A given URL to be loaded by the Webview, <br>it should have a http or https prefix.',
         webviewEvents: "The Webview's event callback , <br>it will be triggered when certain Webview event occurs.",
     },
-    richtext: {
-        string: 'Text of the RichText, you could use BBcode in the string',
-        horizontal_align: 'Horizontal alignment',
-        vertical_align: 'Vertical alignment',
-        font_size: 'Font size, in points',
-        font: 'Custom TTF font of Rich Text',
-        font_family: 'Custom System font of Rich Text',
-        use_system_font: 'Using system font',
-        cache_mode: 'The cache mode of label. This mode only supports system fonts.',
-        max_width: 'The maximize width of RichText, pass 0 means not limit the maximize width.',
-        line_height: 'Line height, in points',
-        image_atlas:
-            'The image atlas for the img tag. For each src value in the img tag, <br>there should be a valid sprite frame in the image atlas.',
-        handleTouchEvent:
-            'Once checked, the Rich Text will block all input events (mouse and touch) within the bounding box of the node, <br>preventing the input from penetrating into the underlying node.',
-    },
     UICoordinateTracker: {
         target: 'Target node',
         camera: 'The 3D camera representing the original coordinate system.',
@@ -690,16 +668,6 @@ module.exports = link(mixin({
     subContextView: {
         design_size: 'Design resolution of the SubContextView, dynamic updates at runtime is not possible',
         fps: 'Update frame rate for the SubContextView',
-    },
-    skeleton: {
-        skeleton_data: 'The skeleton data contains the skeleton information, <br>drag the json file exported from Spine to get started.',
-        default_skin: 'Choose the default skin.',
-        animation: 'The name of current playing animation.',
-        loop: 'Whether loop current animation',
-        time_scale: 'The time scale of animations of this skeleton',
-        debug_slots: 'Indicates whether show debug slots.',
-        debug_bones: 'Indicates whether show debug bones.',
-        premultipliedAlpha: 'Indicates whether to enable premultiplied alpha.',
     },
     dragon_bones: {
         dragon_bones_asset:
@@ -911,6 +879,9 @@ module.exports = link(mixin({
         brief_help:
             'This component will block all input events, <br>preventing the input from penetrating to other nodes below the screen, <br>typically for the background of the top-level UI of the screen.',
     },
+    safe_area: {
+        symmetric: 'Whether it is symmetric based on the screen',
+    },
     tiledtile: {
         row: 'Specify the TiledTile horizontal coordinate, <br>use map tile as the unit.',
         column: 'Specify the TiledTile vertical coordinate, <br>use map tile as the unit.',
@@ -1005,6 +976,30 @@ module.exports = link(mixin({
             label: "Basic 2D Features",
             description: "Components and tools that are widely used in general 2D applications.",
         },
+        sorting_2d: {
+            label: "2D Rendering Sorting",
+            description: "Sorting UIRenderers by the configuration in Sorting2D component.",
+        },
+        rich_text: {
+            label: "Rich Text",
+            description: "Rich text support.",
+        },
+        mask: {
+            label: "Mask",
+            description: "Mask support.",
+        },
+        graphics_2d: {
+            label: "Graphic Drawing",
+            description: "2D Graphic Drawing support.",
+        },
+        ui_skew: {
+            label: "Skew",
+            description: "Skew support.",
+        },
+        affine_transform: {
+            label: "2D Affine Transform",
+            description: "2D Affine Transform support.",
+        },
         physics_2d: {
             label: "2D Physics System",
             description: "Physics system that applied to 2D application.",
@@ -1020,6 +1015,10 @@ module.exports = link(mixin({
         physics_2d_box2d_wasm: {
             label: "Box2D-wasm Based 2D Physics System",
             description: "2D Physics system that based on Box2D-wasm.",
+        },
+        physics_2d_box2d_jsb: {
+            label: "Box2D-JSB Based 2D Physics System",
+            description: "2D Physics system that based on Box2D-JSB.",
         },
         intersection_2d: {
             label: "2D Intersection Algorithms",
@@ -1073,9 +1072,21 @@ module.exports = link(mixin({
             label: "Tiled Map",
             description: "Tiled map support.",
         },
+        vendor_google: {
+            label: "Vendor Google",
+            description: "Vendor support.",
+        },
         spine: {
             label: "Spine Animation",
             description: "Spine Animation support.",
+        },
+        spine_38: {
+            label: "Spine 3.8",
+            description: "Spine 3.8",
+        },
+        spine_42: {
+            label: "Spine 4.2",
+            description: "Spine 4.2",
         },
         dragon_bones: {
             label: "Dragon Bones",
@@ -1102,12 +1113,16 @@ module.exports = link(mixin({
             description: "Enable the XR function system",
         },
         custom_pipeline: {
-            label: "Custom Render Pipeline (Beta)",
-            description: "Enable custom render pipeline",
+            label: "Render Pipeline (New)",
+            description: "The new render pipeline is based on data-oriented render graph. Users can write cross platform render pipelines and optimize for the specific platform.",
+        },
+        custom_pipeline_post_process: {
+            label: "Post Process Module (Deprecated)",
+            description: "The render pipeline used in previous versions. This pipeline will be deprecated in future versions.",
         },
         legacy_pipeline: {
-            label: "Legacy Render Pipeline (Deprecated)",
-            description: "Enable legacy render pipeline",
+            label: "Render Pipeline (Legacy)",
+            description: "The render pipeline used in previous versions. This pipeline will be deprecated in future versions.",
         },
         websocket: {
             label: "WebSocket",
@@ -1116,6 +1131,32 @@ module.exports = link(mixin({
         websocket_server: {
             label: "WebSocket Server",
             description: "Enable WebSocket Server for native. Note: WebSocket must also be enabled.",
+        },
+        flags: {
+            spine: {
+                loadManual: {
+                    label: 'Load Manually',
+                    description: `Whether to load Spine Wasm/AsmJS moudle manually by 'loadWasmModuleSpine' API ?`,
+                },
+            },
+            box2d: {
+                loadManual: {
+                    label: 'Load Manually',
+                    description: `Whether to load Box2D Wasm/AsmJS moudle manually by 'loadWasmModuleBox2D' API ?`,
+                },
+            },
+            bullet: {
+                loadManual: {
+                    label: 'Load Manually',
+                    description: `Whether to load Bullet Wasm/AsmJS moudle manually by 'loadWasmModuleBullet' API ?`,
+                },
+            },
+            physx: {
+                loadManual: {
+                    label: 'Load Manually',
+                    description: `Whether to load PhysX Wasm/AsmJS moudle manually by 'loadWasmModulePhysX' API ?`,
+                },
+            },
         },
     },
     renderable_2d: {
@@ -1320,6 +1361,7 @@ module.exports = link(mixin({
 require('./modules/physics'),
 require('./modules/rendering'),
 require('./modules/ui.js'),
+require('./modules/terrain.js'),
 require('./animation'),
 
 ));

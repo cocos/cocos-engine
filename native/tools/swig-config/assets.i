@@ -67,6 +67,8 @@
 %ignore cc::EffectAsset::_combinations;
 %ignore cc::IPassInfoFull::passID;
 %ignore cc::IPassInfoFull::phaseID;
+%ignore cc::MeshUtils::createMeshInfo;
+%ignore cc::MeshUtils::createDynamicMeshInfo;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -137,6 +139,7 @@
 %attribute(cc::BufferAsset, cc::ArrayBuffer*, _nativeAsset, getNativeAssetForJS, setNativeAssetForJS);
 
 %attribute(cc::TextureBase, bool, isCompressed, isCompressed);
+%attribute(cc::TextureBase, bool, isAlphaAtlas, isAlphaAtlas);
 %attribute(cc::TextureBase, uint32_t, _width, getWidth, setWidth);
 %attribute(cc::TextureBase, uint32_t, width, getWidth, setWidth);
 %attribute(cc::TextureBase, uint32_t, _height, getHeight, setHeight);

@@ -30,7 +30,7 @@ import { UITransform } from '../2d/framework';
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
 import { VideoPlayerImplManager } from './video-player-impl-manager';
-import { EventType, ResourceType } from './video-player-enums';
+import { VideoPlayerEventType, ResourceType } from './video-player-enums';
 import { legacyCC } from '../core/global-exports';
 import { VideoPlayerImplWeb } from './video-player-impl-web';
 
@@ -75,6 +75,10 @@ export class VideoPlayer extends Component {
 
     protected _impl: VideoPlayerImplWeb | null = null;
     protected _cachedCurrentTime = 0;
+
+    constructor () {
+        super();
+    }
 
     /**
      * @en
@@ -283,7 +287,7 @@ export class VideoPlayer extends Component {
         }
     }
 
-    public static EventType = EventType;
+    public static EventType = VideoPlayerEventType;
     public static ResourceType = ResourceType;
 
     /**
@@ -351,8 +355,8 @@ export class VideoPlayer extends Component {
      * @zh
      * 获取当前视频状态。
      */
-    get state (): EventType {
-        if (!this._impl) { return EventType.NONE; }
+    get state (): VideoPlayerEventType {
+        if (!this._impl) { return VideoPlayerEventType.NONE; }
         return this._impl.state;
     }
 
@@ -368,22 +372,24 @@ export class VideoPlayer extends Component {
     }
 
     protected syncSource (): void {
-        if (!this._impl) { return; }
+        const impl = this._impl;
+        if (!impl) { return; }
+
         if (this._resourceType === ResourceType.REMOTE) {
-            this._impl.syncURL(this._remoteURL);
+            impl.syncURL(this._remoteURL);
         } else {
-            this._impl.syncClip(this._clip);
+            impl.syncClip(this._clip);
         }
         this._cachedCurrentTime = 0;
 
-        this._impl.syncLoop(this._loop);
-        this._impl.syncVolume(this._volume);
-        this._impl.syncMute(this._mute);
-        this._impl.seekTo(this._cachedCurrentTime);
-        this._impl.syncPlaybackRate(this._playbackRate);
-        this._impl.syncStayOnBottom(this._stayOnBottom);
-        this._impl.syncKeepAspectRatio(this._keepAspectRatio);
-        this._impl.syncFullScreenOnAwake(this._fullScreenOnAwake);
+        impl.syncLoop(this._loop);
+        impl.syncVolume(this._volume);
+        impl.syncMute(this._mute);
+        impl.seekTo(this._cachedCurrentTime);
+        impl.syncPlaybackRate(this._playbackRate);
+        impl.syncStayOnBottom(this._stayOnBottom);
+        impl.syncKeepAspectRatio(this._keepAspectRatio);
+        impl.syncFullScreenOnAwake(this._fullScreenOnAwake);
     }
 
     public __preload (): void {
@@ -393,14 +399,15 @@ export class VideoPlayer extends Component {
         this._impl = VideoPlayerImplManager.getImpl(this);
         this.syncSource();
 
-        this._impl.componentEventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
-        this._impl.componentEventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
-        this._impl.componentEventList.set(EventType.PLAYING, this.onPlaying.bind(this));
-        this._impl.componentEventList.set(EventType.PAUSED, this.onPaused.bind(this));
-        this._impl.componentEventList.set(EventType.STOPPED, this.onStopped.bind(this));
-        this._impl.componentEventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
-        this._impl.componentEventList.set(EventType.ERROR, this.onError.bind(this));
-        this._impl.componentEventList.set(EventType.CLICKED, this.onClicked.bind(this));
+        const { componentEventList } = this._impl;
+        componentEventList.set(VideoPlayerEventType.META_LOADED, this.onMetaLoaded.bind(this));
+        componentEventList.set(VideoPlayerEventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+        componentEventList.set(VideoPlayerEventType.PLAYING, this.onPlaying.bind(this));
+        componentEventList.set(VideoPlayerEventType.PAUSED, this.onPaused.bind(this));
+        componentEventList.set(VideoPlayerEventType.STOPPED, this.onStopped.bind(this));
+        componentEventList.set(VideoPlayerEventType.COMPLETED, this.onCompleted.bind(this));
+        componentEventList.set(VideoPlayerEventType.ERROR, this.onError.bind(this));
+        componentEventList.set(VideoPlayerEventType.CLICKED, this.onClicked.bind(this));
         if (this._playOnAwake && this._impl.loaded) {
             this.play();
         }
@@ -431,45 +438,45 @@ export class VideoPlayer extends Component {
         }
     }
 
-    public onMetaLoaded (): void {
-        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.META_LOADED);
+    private onMetaLoaded (): void {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, VideoPlayerEventType.META_LOADED);
         this.node.emit('meta-loaded', this);
     }
 
-    public onReadyToPlay (): void {
+    private onReadyToPlay (): void {
         if (this._playOnAwake && !this.isPlaying) { this.play(); }
-        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.READY_TO_PLAY);
-        this.node.emit(EventType.READY_TO_PLAY, this);
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, VideoPlayerEventType.READY_TO_PLAY);
+        this.node.emit(VideoPlayerEventType.READY_TO_PLAY, this);
     }
 
-    public onPlaying (): void {
-        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
-        this.node.emit(EventType.PLAYING, this);
+    private onPlaying (): void {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, VideoPlayerEventType.PLAYING);
+        this.node.emit(VideoPlayerEventType.PLAYING, this);
     }
 
-    public onPaused (): void {
-        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
-        this.node.emit(EventType.PAUSED, this);
+    private onPaused (): void {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, VideoPlayerEventType.PAUSED);
+        this.node.emit(VideoPlayerEventType.PAUSED, this);
     }
 
-    public onStopped (): void {
-        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
-        this.node.emit(EventType.STOPPED, this);
+    private onStopped (): void {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, VideoPlayerEventType.STOPPED);
+        this.node.emit(VideoPlayerEventType.STOPPED, this);
     }
 
-    public onCompleted (): void {
-        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
-        this.node.emit(EventType.COMPLETED, this);
+    private onCompleted (): void {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, VideoPlayerEventType.COMPLETED);
+        this.node.emit(VideoPlayerEventType.COMPLETED, this);
     }
 
-    public onError (): void {
-        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.ERROR);
-        this.node.emit(EventType.ERROR, this);
+    private onError (): void {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, VideoPlayerEventType.ERROR);
+        this.node.emit(VideoPlayerEventType.ERROR, this);
     }
 
-    public onClicked (): void {
-        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.CLICKED);
-        this.node.emit(EventType.CLICKED, this);
+    private onClicked (): void {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, VideoPlayerEventType.CLICKED);
+        this.node.emit(VideoPlayerEventType.CLICKED, this);
     }
 
     /**

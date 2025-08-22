@@ -22,17 +22,18 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Color, js, misc, random, IColorLike } from '../core';
+import { Vec2, Color, js, random, IColorLike, Vec4, clamp, toRadian, toDegree } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
-import { ParticleSystem2D } from './particle-system-2d';
-import { MeshRenderData } from '../2d/renderer/render-data';
+import type { ParticleSystem2D } from './particle-system-2d';
+import type { MeshRenderData } from '../2d/renderer/render-data';
+import type { Particle2DAssembler } from './particle-system-2d-assembler';
 
-const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
 const _tpa = new Vec2();
 const _tpb = new Vec2();
 const _tpc = new Vec2();
+const _col = new Vec4();
 
 const formatBytes = getComponentPerVertex(vfmtPosUvColor);
 
@@ -77,8 +78,8 @@ class ParticlePool extends js.Pool<Particle> {
 }
 
 const pool = new ParticlePool((par: Particle): void => {
-    par.pos.set(ZERO_VEC2);
-    par.startPos.set(ZERO_VEC2);
+    par.pos.set(Vec2.ZERO);
+    par.startPos.set(Vec2.ZERO);
     par.color.set(0, 0, 0, 255);
     par.deltaColor.r = par.deltaColor.g = par.deltaColor.b = 0;
     par.deltaColor.a = 255;
@@ -87,10 +88,10 @@ const pool = new ParticlePool((par: Particle): void => {
     par.rotation = 0;
     par.deltaRotation = 0;
     par.timeToLive = 0;
-    par.drawPos.set(ZERO_VEC2);
+    par.drawPos.set(Vec2.ZERO);
     par.aspectRatio = 1;
     // Mode A
-    par.dir.set(ZERO_VEC2);
+    par.dir.set(Vec2.ZERO);
     par.radialAccel = 0;
     par.tangentialAccel = 0;
     // Mode B
@@ -105,7 +106,7 @@ export class Simulator {
     public active = false;
     public uvFilled = 0;
     public finished = false;
-    public declare renderData: MeshRenderData;
+    public renderData: MeshRenderData | null = null;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
@@ -140,7 +141,7 @@ export class Simulator {
         const particles = this.particles;
         for (let id = 0; id < particles.length; ++id) pool.put(particles[id]);
         particles.length = 0;
-        this.renderData.resize(0, 0);
+        if (this.renderData) this.renderData.resize(0, 0);
     }
 
     public emitParticle (pos): void {
@@ -168,14 +169,14 @@ export class Simulator {
         const endColor = psys.endColor;
         const endColorVar = psys.endColorVar;
 
-        particle.color.r = sr = misc.clampf(startColor.r + startColorVar.r * (random() - 0.5) * 2, 0, 255);
-        particle.color.g = sg = misc.clampf(startColor.g + startColorVar.g * (random() - 0.5) * 2, 0, 255);
-        particle.color.b = sb = misc.clampf(startColor.b + startColorVar.b * (random() - 0.5) * 2, 0, 255);
-        particle.color.a = sa = misc.clampf(startColor.a + startColorVar.a * (random() - 0.5) * 2, 0, 255);
-        particle.deltaColor.r = (misc.clampf(endColor.r + endColorVar.r * (random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
-        particle.deltaColor.g = (misc.clampf(endColor.g + endColorVar.g * (random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
-        particle.deltaColor.b = (misc.clampf(endColor.b + endColorVar.b * (random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
-        particle.deltaColor.a = (misc.clampf(endColor.a + endColorVar.a * (random() - 0.5) * 2, 0, 255) - sa) / timeToLive;
+        particle.color.r = sr = clamp(startColor.r + startColorVar.r * (random() - 0.5) * 2, 0, 255);
+        particle.color.g = sg = clamp(startColor.g + startColorVar.g * (random() - 0.5) * 2, 0, 255);
+        particle.color.b = sb = clamp(startColor.b + startColorVar.b * (random() - 0.5) * 2, 0, 255);
+        particle.color.a = sa = clamp(startColor.a + startColorVar.a * (random() - 0.5) * 2, 0, 255);
+        particle.deltaColor.r = (clamp(endColor.r + endColorVar.r * (random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
+        particle.deltaColor.g = (clamp(endColor.g + endColorVar.g * (random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
+        particle.deltaColor.b = (clamp(endColor.b + endColorVar.b * (random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
+        particle.deltaColor.a = (clamp(endColor.a + endColorVar.a * (random() - 0.5) * 2, 0, 255) - sa) / timeToLive;
 
         // size
         let startS = psys.startSize + psys.startSizeVar * (random() - 0.5) * 2;
@@ -203,7 +204,7 @@ export class Simulator {
         particle.aspectRatio = psys.aspectRatio || 1;
 
         // direction
-        const a = misc.degreesToRadians(psys.angle + this._worldRotation + psys.angleVar * (random() - 0.5) * 2);
+        const a = toRadian(psys.angle + this._worldRotation + psys.angleVar * (random() - 0.5) * 2);
         // Mode Gravity: A
         if (psys.emitterMode === EmitterMode.GRAVITY) {
             const s = psys.speed + psys.speedVar * (random() - 0.5) * 2;
@@ -217,7 +218,7 @@ export class Simulator {
             particle.tangentialAccel = psys.tangentialAccel + psys.tangentialAccelVar * (random() - 0.5) * 2;
             // rotation is dir
             if (psys.rotationIsDir) {
-                particle.rotation = -misc.radiansToDegrees(Math.atan2(particle.dir.y, particle.dir.x));
+                particle.rotation = -toDegree(Math.atan2(particle.dir.y, particle.dir.x));
             }
         } else {
             // Mode Radius: B
@@ -227,7 +228,7 @@ export class Simulator {
             particle.radius = startRadius;
             particle.deltaRadius = (psys.endRadius === START_RADIUS_EQUAL_TO_END_RADIUS) ? 0 : (endRadius - startRadius) / timeToLive;
             particle.angle = a;
-            particle.degreesPerSecond = misc.degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (random() - 0.5) * 2);
+            particle.degreesPerSecond = toRadian(psys.rotatePerS + psys.rotatePerSVar * (random() - 0.5) * 2);
         }
     }
 
@@ -276,7 +277,7 @@ export class Simulator {
             const y1 = -halfHeight;
             const x2 = halfWidth;
             const y2 = halfHeight;
-            const rad = -misc.degreesToRadians(particle.rotation as number);
+            const rad = -toRadian(particle.rotation as number);
             const cr = Math.cos(rad);
             const sr = Math.sin(rad);
             // bl
@@ -313,15 +314,23 @@ export class Simulator {
             vbuf[offset + 28] = y + halfHeight;
             vbuf[offset + 29] = 0;
         }
+
+        // normalize
+        const pcol = particle.color as IColorLike;
+        _col.x = pcol.r / 255;
+        _col.y = pcol.g / 255;
+        _col.z = pcol.b / 255;
+        _col.w = pcol.a / 255;
+
         // color
-        Color.toArray(vbuf, particle.color as IColorLike, offset + 5);
-        Color.toArray(vbuf, particle.color as IColorLike, offset + 14);
-        Color.toArray(vbuf, particle.color as IColorLike, offset + 23);
-        Color.toArray(vbuf, particle.color as IColorLike, offset + 32);
+        Vec4.toArray(vbuf, _col, offset + 5);
+        Vec4.toArray(vbuf, _col, offset + 14);
+        Vec4.toArray(vbuf, _col, offset + 23);
+        Vec4.toArray(vbuf, _col, offset + 32);
     }
 
     public step (dt: number): void {
-        const assembler = this.sys.assembler!;
+        const assembler = this.sys.assembler as Particle2DAssembler;
         const psys = this.sys;
         const node = psys.node;
         const particles = this.particles;
@@ -360,6 +369,7 @@ export class Simulator {
 
         // Request buffer for particles
         const renderData = this.renderData;
+        if (!renderData) return;
         const particleCount = particles.length;
         renderData.reset();
         this.requestData(particleCount * 4, particleCount * 6);
@@ -459,8 +469,8 @@ export class Simulator {
             }
         }
 
-        this.renderData.material = this.sys.getRenderMaterial(0); // hack
-        this.renderData.frame = this.sys._renderSpriteFrame; // hack
+        renderData.material = this.sys.getRenderMaterial(0); // hack
+        renderData.frame = this.sys._renderSpriteFrame; // hack
         renderData.setRenderDrawInfoAttributes();
 
         if (particles.length === 0 && !this.active && !this.readyToPlay) {
@@ -470,6 +480,7 @@ export class Simulator {
     }
 
     requestData (vertexCount: number, indexCount: number): void {
+        if (!this.renderData) return;
         let offset = this.renderData.indexCount;
         this.renderData.request(vertexCount, indexCount);
         const count = this.renderData.indexCount / 6;
@@ -486,7 +497,6 @@ export class Simulator {
     }
 
     public initDrawInfo (): void {
-        const renderData = this.renderData;
-        renderData.setRenderDrawInfoAttributes();
+        this.renderData?.setRenderDrawInfoAttributes();
     }
 }

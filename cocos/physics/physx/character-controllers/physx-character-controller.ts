@@ -26,8 +26,7 @@ import { error, IVec3Like, Vec3 } from '../../../core';
 import { PhysicsSystem  } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
-import { getWrapShape, PX, _trans, getJsTransform } from '../physx-adapter';
-import { EFilterDataWord3 } from '../physx-enum';
+import { getWrapShape, PX, _trans } from '../physx-adapter';
 import { PhysXWorld } from '../physx-world';
 import { PhysXShape } from '../shapes/physx-shape';
 import { degreesToRadians } from '../../../core/utils/misc';
@@ -35,6 +34,8 @@ import { TransformBit } from '../../../scene-graph';
 
 const v3_0 = new Vec3(0, 0, 0);
 const v3_1 = new Vec3(0, 0, 0);
+
+/** @mangle */
 export class PhysXCharacterController implements IBaseCharacterController {
     private _isEnabled = false;
     protected _impl: any = null;

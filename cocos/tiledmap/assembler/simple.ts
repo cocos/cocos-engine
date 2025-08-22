@@ -24,17 +24,17 @@
 
 import { JSB } from 'internal:constants';
 import { Mat4, Size, Vec3 } from '../../core/math';
-import { IAssembler } from '../../2d/renderer/base';
-import { IBatcher } from '../../2d/renderer/i-batcher';
+import type { IAssembler } from '../../2d/renderer/base';
+import type { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledRenderData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
-import { director, Director } from '../../game';
+import { director, DirectorEvent } from '../../game';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
-import { RenderData } from '../../2d/renderer/render-data';
+import { BaseRenderData, RenderData } from '../../2d/renderer/render-data';
 import { RenderDrawInfoType } from '../../2d/renderer/render-draw-info';
-import { Texture2D } from '../../asset/assets';
-import { Node } from '../../scene-graph';
+import type { Texture2D } from '../../asset/assets';
+import type { Node } from '../../scene-graph';
 
 const MaxGridsLimit = Math.ceil(65535 / 6);
 
@@ -56,8 +56,8 @@ let _moveX = 0;
 let _moveY = 0;
 
 let _fillCount = 0;
-let _curTexture : Texture2D | null = null;
-let _tempBuffers : Float32Array;
+let _curTexture: Texture2D | null = null;
+let _tempBuffers: Float32Array;
 let _curLayer: TiledLayer;
 
 let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
@@ -67,33 +67,33 @@ let _accessor: StaticVBAccessor = null!;
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
-export const simple: IAssembler = {
-    ensureAccessor () {
+class Simple implements IAssembler {
+    private ensureAccessor (): void {
         if (!_accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
-            _accessor = new StaticVBAccessor(device, vfmtPosUvColor, this.vCount);
+            _accessor = new StaticVBAccessor(device, vfmtPosUvColor);
             //batcher.registerBufferAccessor(Number.parseInt('TILED-MAP', 36), _accessor);
-            director.on(Director.EVENT_BEFORE_DRAW, () => {
-                _accessor.reset();
-            });
         }
-    },
+    }
 
-    createData (layer: TiledLayer) {
+    createData (layer: TiledLayer): BaseRenderData {
         if (JSB) {
             this.ensureAccessor();
         }
-    },
 
-    fillBuffers (layer: TiledLayer, renderer: IBatcher) {
+        return null as unknown as BaseRenderData;
+    }
+
+    fillBuffers (layer: TiledLayer, renderer: IBatcher): void {
         if (!layer || layer.tiledDataArray.length === 0) return;
 
         const dataArray = layer.tiledDataArray;
 
         // 当前渲染的数据
         const data = dataArray[layer._tiledDataArrayIdx] as TiledRenderData;
-        const renderData = data.renderData!;
+        const renderData = data.renderData;
+        if (!renderData) return;
         const iBuf = renderData.chunk.meshBuffer.iData;
 
         let indexOffset = renderData.chunk.meshBuffer.indexOffset;
@@ -110,9 +110,9 @@ export const simple: IAssembler = {
             vertexId += 4;
         }
         renderData.chunk.meshBuffer.indexOffset = indexOffset;
-    },
+    }
 
-    updateRenderData (comp: TiledLayer) {
+    updateRenderData (comp: TiledLayer): void {
         comp.updateCulling();
         _moveX = comp.leftDownToCenterX;
         _moveY = comp.leftDownToCenterY;
@@ -157,9 +157,9 @@ export const simple: IAssembler = {
         if (JSB) {
             comp.prepareDrawData();
         }
-    },
+    }
 
-    updateColor (tiled: TiledLayer) {
+    updateColor (tiled: TiledLayer): void {
         const color = tiled.color;
         const colorV = new Float32Array(4);
         colorV[0] = color.r / 255;
@@ -167,7 +167,8 @@ export const simple: IAssembler = {
         colorV[2] = color.b / 255;
         colorV[3] = color.a / 255;
         const rs = tiled.tiledDataArray;
-        for (const r of rs) {
+        for (let index = 0; index < rs.length; index++) {
+            const r = rs[index];
             if (!(r as any).renderData) continue;
             const renderData = (r as any).renderData;
             const vs = renderData.vData;
@@ -175,8 +176,10 @@ export const simple: IAssembler = {
                 vs.set(colorV, i * 9 + 5);
             }
         }
-    },
-};
+    }
+}
+
+export const simple = new Simple();
 
 /*
 texture coordinate
@@ -276,7 +279,7 @@ function _flipDiamondTileTexture (inGrid: TiledGrid, gid: MixedGID): void {
     let tempVal;
 
     // vice
-    if (((gid as unknown as number) & TileFlag.DIAGONAL) >>> 0) {
+    if ((gid & TileFlag.DIAGONAL) >>> 0) {
         tempVal = _uva;
         _uva = _uvb;
         _uvb = tempVal;
@@ -287,14 +290,14 @@ function _flipDiamondTileTexture (inGrid: TiledGrid, gid: MixedGID): void {
     }
 
     // flip x
-    if (((gid as unknown as number) & TileFlag.HORIZONTAL) >>> 0) {
+    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
         tempVal = _uvb;
         _uvb = _uvc;
         _uvc = tempVal;
     }
 
     // flip y
-    if (((gid as unknown as number) & TileFlag.VERTICAL) >>> 0) {
+    if ((gid & TileFlag.VERTICAL) >>> 0) {
         tempVal = _uva;
         _uva = _uvd;
         _uvd = tempVal;
@@ -325,8 +328,13 @@ function packRenderData (): void {
 
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
 // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
-function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
-    rowMoveDir: number, colMoveDir: number, comp: TiledLayer): void {
+function traverseGrids (
+    leftDown: { col: number, row: number },
+    rightTop: { col: number, row: number },
+    rowMoveDir: number,
+    colMoveDir: number,
+    comp: TiledLayer,
+): void {
     // show nothing
     if (rightTop.row < 0 || rightTop.col < 0) return;
 
@@ -409,7 +417,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                 const nodes = comp.requestSubNodesData();
                 const celData = comp.getNodesByRowCol(row, col);
                 if (celData && celData.count > 0) {
-                    (nodes as any).subNodes = celData.list as any;
+                    nodes.subNodes = celData.list;
                 }
             }
 
@@ -535,8 +543,16 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     packRenderData();
 }
 
-function fillByTiledNode (tiledNode: Node, color: Float32Array, vbuf: Float32Array,
-    left: number, right: number, top: number, bottom: number, diamondTile: boolean): void {
+function fillByTiledNode (
+    tiledNode: Node,
+    color: Float32Array,
+    vbuf: Float32Array,
+    left: number,
+    right: number,
+    top: number,
+    bottom: number,
+    diamondTile: boolean,
+): void {
     const vertStep = 9;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;

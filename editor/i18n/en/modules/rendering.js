@@ -7,38 +7,50 @@ module.exports = {
                 groups: {
                     LightMap: {
                         displayName: 'Light Map Settings',
+                        tooltip: '',
                     },
                     LightProbe: {
                         displayName: 'Light Probe Settings',
+                        tooltip: '',
                     },
                     ReflectionProbe: {
                         displayName: 'Reflection Probe Settings',
+                        tooltip: '',
                     },
                 },
                 properties: {
                     'bakeable': {
                         displayName: 'Bakeable',
+                        tooltip: 'Whether the model is static and bake-able with light map. <br>' +
+                            'Notice: the model\'s vertex data must have the second UV attribute to enable light map baking.',
                     },
                     'castShadow': {
                         displayName: 'Cast Shadows',
+                        tooltip: 'Whether to cast shadow in light map baking.',
                     },
                     'receiveShadow': {
                         displayName: 'Receive Shadows',
+                        tooltip: 'Whether to receive shadow in light map baking.',
                     },
                     'lightmapSize': {
                         displayName: 'Light Map Size',
+                        tooltip: 'The lightmap size.',
                     },
                     'useLightProbe': {
                         displayName: 'Use Light Probe',
+                        tooltip: 'Whether to use light probe which provides indirect light to dynamic objects.',
                     },
                     'bakeToLightProbe': {
                         displayName: 'Bake To Light Probe',
+                        tooltip: 'Whether the model is used to calculate light probe.',
                     },
                     'reflectionProbe': {
                         displayName: 'Reflection Probe',
+                        tooltip: 'Used to set whether to use the reflection probe or set probe\'s type.',
                     },
                     'bakeToReflectionProbe': {
                         displayName: 'Bake To Reflection Probe',
+                        tooltip: 'Whether the model can be render by the reflection probe.',
                     },
                 },
             },
@@ -46,6 +58,7 @@ module.exports = {
                 groups: {
                     DynamicShadow: {
                         displayName: 'Dynamic Shadow Settings',
+                        tooltip: '',
                     },
                 },
                 properties: {

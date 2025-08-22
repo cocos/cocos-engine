@@ -25,13 +25,14 @@
 /* eslint-disable new-cap */
 import { BulletConstraint } from './bullet-constraint';
 import { IFixedConstraint } from '../../spec/i-physics-constraint';
-import { Quat, Vec3, Mat4 } from '../../../core';
-import { FixedConstraint, PhysicsSystem } from '../../framework';
+import { Mat4 } from '../../../core';
+import { FixedConstraint } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_MAT4_0, CC_QUAT_0, CC_V3_0 } from '../bullet-cache';
-import { bt } from '../instantiated';
+import { bt, EBulletType } from '../instantiated';
 import { cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
 
+/** @mangle */
 export class BulletFixedConstraint extends BulletConstraint implements IFixedConstraint {
     setBreakForce (v: number): void {
         bt.TypedConstraint_setMaxImpulseThreshold(this._impl, v);
@@ -64,9 +65,9 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
 
         const pos = CC_V3_0;
         const rot = CC_QUAT_0;
-        const trans0 = BulletCache.instance.BT_TRANSFORM_0;
-        const trans1 = BulletCache.instance.BT_TRANSFORM_1;
-        const quat = BulletCache.instance.BT_QUAT_0;
+        const trans0 = bt.Transform_new();
+        const trans1 = bt.Transform_new();
+        const quat = bt.Quat_new(0, 0, 0, 1);
 
         const trans = CC_MAT4_0;
         // the local frame transform respect to bodyA
@@ -93,6 +94,9 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
         }
 
         bt.FixedConstraint_setFrames(this._impl, trans0, trans1);
+        bt._safe_delete(trans0, EBulletType.EBulletTypeTransform);
+        bt._safe_delete(trans1, EBulletType.EBulletTypeTransform);
+        bt._safe_delete(quat, EBulletType.EBulletTypeQuat);
     }
 
     updateScale0 (): void {

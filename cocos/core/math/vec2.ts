@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
@@ -31,17 +32,35 @@ import { clamp, EPSILON, random } from './utils';
 
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
+
+const abs = Math.abs;
+const max = Math.max;
+const min = Math.min;
+const PI = Math.PI;
+const acos = Math.acos;
+const sin = Math.sin;
+const cos = Math.cos;
+const sqrt = Math.sqrt;
+const atan2 = Math.atan2;
+const ceil = Math.ceil;
+const floor = Math.floor;
+const round = Math.round;
+
+function freezeVec2 (x: number, y: number): Readonly<Vec2> {
+    return Object.freeze(new Vec2(x, y));
+}
 
 /**
  * @en Representation of 2D vectors and points.
  * @zh 二维向量。
  */
 export class Vec2 extends ValueType {
-    public static ZERO = Object.freeze(new Vec2(0, 0));
-    public static ONE = Object.freeze(new Vec2(1, 1));
-    public static NEG_ONE = Object.freeze(new Vec2(-1, -1));
-    public static UNIT_X = Object.freeze(new Vec2(1, 0));
-    public static UNIT_Y = Object.freeze(new Vec2(0, 1));
+    public static ZERO = freezeVec2(0, 0);
+    public static ONE = freezeVec2(1, 1);
+    public static NEG_ONE = freezeVec2(-1, -1);
+    public static UNIT_X = freezeVec2(1, 0);
+    public static UNIT_Y = freezeVec2(0, 1);
 
     /**
      * @en Obtains a clone of the given vector object
@@ -116,8 +135,8 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量向上取整
      */
     public static ceil <Out extends IVec2Like> (out: Out, a: Out): Out {
-        out.x = Math.ceil(a.x);
-        out.y = Math.ceil(a.y);
+        out.x = ceil(a.x);
+        out.y = ceil(a.y);
         return out;
     }
 
@@ -126,8 +145,8 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量向下取整
      */
     public static floor <Out extends IVec2Like> (out: Out, a: Out): Out {
-        out.x = Math.floor(a.x);
-        out.y = Math.floor(a.y);
+        out.x = floor(a.x);
+        out.y = floor(a.y);
         return out;
     }
 
@@ -136,8 +155,8 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量最小值
      */
     public static min <Out extends IVec2Like> (out: Out, a: Out, b: Out): Out {
-        out.x = Math.min(a.x, b.x);
-        out.y = Math.min(a.y, b.y);
+        out.x = min(a.x, b.x);
+        out.y = min(a.y, b.y);
         return out;
     }
 
@@ -146,8 +165,8 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量最大值
      */
     public static max <Out extends IVec2Like> (out: Out, a: Out, b: Out): Out {
-        out.x = Math.max(a.x, b.x);
-        out.y = Math.max(a.y, b.y);
+        out.x = max(a.x, b.x);
+        out.y = max(a.y, b.y);
         return out;
     }
 
@@ -156,8 +175,8 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量四舍五入取整
      */
     public static round <Out extends IVec2Like> (out: Out, a: Out): Out {
-        out.x = Math.round(a.x);
-        out.y = Math.round(a.y);
+        out.x = round(a.x);
+        out.y = round(a.y);
         return out;
     }
 
@@ -188,7 +207,7 @@ export class Vec2 extends ValueType {
     public static distance <Out extends IVec2Like> (a: Out, b: Out): number {
         const x = b.x - a.x;
         const y = b.y - a.y;
-        return Math.sqrt(x * x + y * y);
+        return sqrt(x * x + y * y);
     }
 
     /**
@@ -208,7 +227,7 @@ export class Vec2 extends ValueType {
     public static len <Out extends IVec2Like> (a: Out): number {
         const x = a.x;
         const y = a.y;
-        return Math.sqrt(x * x + y * y);
+        return sqrt(x * x + y * y);
     }
 
     /**
@@ -249,13 +268,13 @@ export class Vec2 extends ValueType {
         const x = a.x;
         const y = a.y;
 
-        if (Math.abs(x) < EPSILON) {
+        if (abs(x) < EPSILON) {
             out.x = 0;
         } else {
             out.x = 1.0 / x;
         }
 
-        if (Math.abs(y) < EPSILON) {
+        if (abs(y) < EPSILON) {
             out.y = 0;
         } else {
             out.y = 1.0 / y;
@@ -273,7 +292,7 @@ export class Vec2 extends ValueType {
         const y = a.y;
         let len = x * x + y * y;
         if (len > 0) {
-            len = 1 / Math.sqrt(len);
+            len = 1 / sqrt(len);
             out.x = x * len;
             out.y = y * len;
         } else {
@@ -333,9 +352,9 @@ export class Vec2 extends ValueType {
      */
     public static random <Out extends IVec2Like> (out: Out, scale?: number): Out {
         scale = scale || 1.0;
-        const r = random() * 2.0 * Math.PI;
-        out.x = Math.cos(r) * scale;
-        out.y = Math.sin(r) * scale;
+        const r = random() * 2.0 * PI;
+        out.x = cos(r) * scale;
+        out.y = sin(r) * scale;
         return out;
     }
 
@@ -407,10 +426,8 @@ export class Vec2 extends ValueType {
      */
     public static equals <Out extends IVec2Like> (a: Out, b: Out,  epsilon = EPSILON): boolean {
         return (
-            Math.abs(a.x - b.x)
-            <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x))
-            && Math.abs(a.y - b.y)
-            <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
+            abs(a.x - b.x) <= epsilon * max(1.0, abs(a.x), abs(b.x))
+            && abs(a.y - b.y) <= epsilon * max(1.0, abs(a.y), abs(b.y))
         );
     }
 
@@ -427,9 +444,9 @@ export class Vec2 extends ValueType {
         }
 
         const dot = a.x * b.x + a.y * b.y;
-        let cosine = dot / (Math.sqrt(magSqr1 * magSqr2));
+        let cosine = dot / (sqrt(magSqr1 * magSqr2));
         cosine = clamp(cosine, -1.0, 1.0);
-        return Math.acos(cosine);
+        return acos(cosine);
     }
 
     /**
@@ -503,12 +520,7 @@ export class Vec2 extends ValueType {
      * @return Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public equals (other: Vec2, epsilon = EPSILON): boolean {
-        return (
-            Math.abs(this.x - other.x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
-            && Math.abs(this.y - other.y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
-        );
+        return Vec2.equals(this, other, epsilon);
     }
 
     /**
@@ -521,10 +533,8 @@ export class Vec2 extends ValueType {
      */
     public equals2f (x: number, y: number, epsilon = EPSILON): boolean {
         return (
-            Math.abs(this.x - x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
-            && Math.abs(this.y - y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
+            abs(this.x - x) <= epsilon * max(1.0, abs(this.x), abs(x))
+                && abs(this.y - y) <= epsilon * max(1.0, abs(this.y), abs(y))
         );
     }
 
@@ -555,7 +565,7 @@ export class Vec2 extends ValueType {
      * @returns The string with vector information
      */
     public toString (): string {
-        return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)})`;
+        return `(${this.x}, ${this.y})`;
     }
 
     /**
@@ -637,7 +647,9 @@ export class Vec2 extends ValueType {
      * @param scalar scalar number
      */
     public multiplyScalar (scalar: number): Vec2 {
-        if (typeof scalar === 'object') { console.warn('should use Vec2.multiply for vector * vector operation'); }
+        if (typeof scalar === 'object') {
+            warnID(16359);
+        }
         this.x *= scalar;
         this.y *= scalar;
         return this;
@@ -649,7 +661,9 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public multiply (other: Vec2): Vec2 {
-        if (typeof other !== 'object') { console.warn('should use Vec2.scale for vector * scalar operation'); }
+        if (typeof other !== 'object') {
+            warnID(16360);
+        }
         this.x *= other.x;
         this.y *= other.y;
         return this;
@@ -726,7 +740,7 @@ export class Vec2 extends ValueType {
      * @return Length of vector
      */
     public length (): number {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
+        return sqrt(this.x * this.x + this.y * this.y);
     }
 
     /**
@@ -743,15 +757,16 @@ export class Vec2 extends ValueType {
      * @zh 将当前向量归一化。
      */
     public normalize (): Vec2 {
-        const x = this.x;
-        const y = this.y;
+        const self = this;
+        const x = self.x;
+        const y = self.y;
         let len = x * x + y * y;
         if (len > 0) {
-            len = 1 / Math.sqrt(len);
-            this.x *= len;
-            this.y *= len;
+            len = 1 / sqrt(len);
+            self.x *= len;
+            self.y *= len;
         }
-        return this;
+        return self;
     }
 
     /**
@@ -769,9 +784,9 @@ export class Vec2 extends ValueType {
         }
 
         const dot = this.dot(other);
-        let cosine = dot / (Math.sqrt(magSqr1 * magSqr2));
+        let cosine = dot / (sqrt(magSqr1 * magSqr2));
         cosine = clamp(cosine, -1.0, 1.0);
-        return Math.acos(cosine);
+        return acos(cosine);
     }
 
     /**
@@ -790,7 +805,7 @@ export class Vec2 extends ValueType {
         //   = atan2(cross(a, b), dot(a, b))
         const cross = this.cross(other);
         const dot = this.dot(other);
-        return Math.atan2(cross, dot);
+        return atan2(cross, dot);
     }
 
     /**
@@ -802,10 +817,10 @@ export class Vec2 extends ValueType {
         const x = this.x;
         const y = this.y;
 
-        const sin = Math.sin(radians);
-        const cos = Math.cos(radians);
-        this.x = cos * x - sin * y;
-        this.y = sin * x + cos * y;
+        const s = sin(radians);
+        const c = cos(radians);
+        this.x = c * x - s * y;
+        this.y = s * x + c * y;
         return this;
     }
 
@@ -853,7 +868,7 @@ export function v2 (other: Vec2): Vec2;
 export function v2 (x?: number, y?: number): Vec2;
 
 export function v2 (x?: number | Vec2, y?: number): Vec2 {
-    return new Vec2(x as any, y);
+    return new Vec2(x as number, y);
 }
 
 legacyCC.v2 = v2;

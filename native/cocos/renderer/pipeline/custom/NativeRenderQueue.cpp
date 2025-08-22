@@ -23,7 +23,6 @@
 ****************************************************************************/
 
 #include <algorithm>
-#include <iterator>
 #include "NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
@@ -60,7 +59,7 @@ void ProbeHelperQueue::removeMacro() const {
     }
 }
 
-uint32_t ProbeHelperQueue::getPassIndexFromLayout(
+int32_t ProbeHelperQueue::getPassIndexFromLayout(
     const cc::IntrusivePtr<cc::scene::SubModel> &subModel,
     LayoutGraphData::vertex_descriptor phaseLayoutId) {
     const auto &passes = subModel->getPasses();
@@ -69,7 +68,7 @@ uint32_t ProbeHelperQueue::getPassIndexFromLayout(
             return static_cast<int>(k);
         }
     }
-    return 0xFFFFFFFF;
+    return -1;
 }
 
 void ProbeHelperQueue::applyMacro(
@@ -142,7 +141,8 @@ void RenderDrawQueue::recordCommandBuffer(
         auto *inputAssembler = subModel->getInputAssembler();
         const auto *pass = subModel->getPass(passIdx);
         auto *shader = subModel->getShader(passIdx);
-        auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
+        auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+            pass, shader, inputAssembler, renderPass, subpassIndex);
 
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindDescriptorSet(pipeline::materialSet, pass->getDescriptorSet());
@@ -196,10 +196,21 @@ void RenderInstancingQueue::add(
 }
 
 void RenderInstancingQueue::sort() {
-    sortedBatches.reserve(passInstances.size());
-    for (const auto &[pass, bufferID] : passInstances) {
-        sortedBatches.emplace_back(instanceBuffers[bufferID]);
+    const auto instancingCompare = [](const pipeline::InstancedBuffer* a, 
+                                      const pipeline::InstancedBuffer* b) {
+        const auto& aSort = a->getSortRender();
+        const auto& bSort = b->getSortRender();
+        if (aSort.hash != bSort.hash) {
+            return aSort.hash < bSort.hash;
+        }
+        return aSort.shaderID < bSort.shaderID;
+    };
+    
+    sortedBatches.reserve(instanceBuffers.size());
+    for (const auto& buffer : instanceBuffers) {
+        sortedBatches.emplace_back(buffer.get());
     }
+    std::sort(sortedBatches.begin(), sortedBatches.end(), instancingCompare);
 }
 
 void RenderInstancingQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) const {
@@ -255,15 +266,20 @@ void NativeRenderQueue::sort() {
 void NativeRenderQueue::recordCommands(
     gfx::CommandBuffer *cmdBuffer,
     gfx::RenderPass *renderPass,
-    uint32_t subpassIndex) const {
-    opaqueQueue.recordCommandBuffer(
-        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
-    opaqueInstancingQueue.recordCommandBuffer(
-        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
-    transparentQueue.recordCommandBuffer(
-        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
-    transparentInstancingQueue.recordCommandBuffer(
-        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    uint32_t subpassIndex,
+    SceneFlags sceneFlags) const {
+    if (any(sceneFlags & (SceneFlags::OPAQUE | SceneFlags::MASK))) {
+        opaqueQueue.recordCommandBuffer(
+            renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+        opaqueInstancingQueue.recordCommandBuffer(
+            renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    }
+    if (any(sceneFlags & SceneFlags::BLEND)) {
+        transparentQueue.recordCommandBuffer(
+            renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+        transparentInstancingQueue.recordCommandBuffer(
+            renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    }
 }
 
 } // namespace render

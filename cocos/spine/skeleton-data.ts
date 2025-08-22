@@ -23,10 +23,10 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCString, Enum, error } from '../core';
+import { CCString, Enum, error, murmurhash2_32_gc } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { legacyCC } from '../core/global-exports';
 import { Texture2D, Asset } from '../asset/assets';
@@ -207,22 +207,32 @@ export class SkeletonData extends Asset {
             }
             return null;
         }
-        const spData = spine.wasmUtil.querySpineSkeletonDataByUUID(this._uuid);
+
+        const uuid = this.mergedUUID();
+        const spData = spine.wasmUtil.querySpineSkeletonDataByUUID(uuid);
         if (spData) {
             this._skeletonCache = spData;
-        } else if (this.skeletonJsonStr) {
-            this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(this.skeletonJsonStr, this._atlasText);
-            spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
         } else {
-            const rawData = new Uint8Array(this._nativeAsset);
-            const byteSize = rawData.length;
-            const ptr = spine.wasmUtil.queryStoreMemory(byteSize);
-            const wasmMem = spine.wasmUtil.wasm.HEAPU8.subarray(ptr, ptr + byteSize);
-            wasmMem.set(rawData);
-            this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithBinary(byteSize, this._atlasText);
-            spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
+            const size = this.textures.length;
+            const textureUUIDs: string[] = [];
+            for (let i = 0; i < size; ++i) {
+                const tex = this.textures[i];
+                textureUUIDs.push(tex.uuid || tex.getId());
+            }
+            if (this._skeletonJson) {
+                this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(this.skeletonJsonStr, this._atlasText, this.textureNames, textureUUIDs);
+                spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, uuid);
+            } else {
+                const rawData = new Uint8Array(this._nativeAsset);
+                const byteSize = rawData.length;
+                const ptr = spine.wasmUtil.createStoreMemory(byteSize);
+                const wasmMem = spine.wasmUtil.wasm.HEAPU8.subarray(ptr, ptr + byteSize);
+                wasmMem.set(rawData);
+                this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithBinary(byteSize, this._atlasText, this.textureNames, textureUUIDs);
+                spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, uuid);
+                spine.wasmUtil.freeStoreMemory();
+            }
         }
-
         return this._skeletonCache;
     }
 
@@ -268,16 +278,34 @@ export class SkeletonData extends Asset {
         }
         return null;
     }
+
+    private mergedUUID (): string {
+        // merge texture's id and atlas content
+        const hashContent = [
+            this._atlasText,
+            ...this.textures.map((texture) => texture.getId()),
+        ].join('');
+
+        // merge asset's uuid & hashContent
+        return `${this._uuid}${murmurhash2_32_gc(hashContent, 668)}`;
+    }
+
     /**
      * @en Destroy skeleton data.
      * @zh 销毁 skeleton data。
      */
     public destroy (): boolean {
         SkeletonCache.sharedCache.destroyCachedAnimations(this._uuid);
-        if (this._skeletonCache) {
-            spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
-        }
+        spine.wasmUtil.destroySpineSkeletonDataWithUUID(this.mergedUUID());
         return super.destroy();
+    }
+
+    /**
+     * @engineInternal
+     * @mangle
+     */
+    public isEmpty (): boolean {
+        return this._atlasText.length === 0 && !this._skeletonJson && !this._nativeAsset;
     }
 }
 

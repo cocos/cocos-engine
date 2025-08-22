@@ -23,18 +23,18 @@
 */
 
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
-import { CCObject } from '../core/data/object';
+import { CCObjectFlags } from '../core/data/object';
 import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { legacyCC } from '../core/global-exports';
-import { error, assert } from '../core/platform/debug';
+import { warn, assert } from '../core/platform/debug';
 import type { Component } from './component';
 
 const fastRemoveAt = js.array.fastRemoveAt;
 
-const IsStartCalled = CCObject.Flags.IsStartCalled;
-const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
-const IsEditorOnEnableCalled = CCObject.Flags.IsEditorOnEnableCalled;
+const IsStartCalled = CCObjectFlags.IsStartCalled;
+const IsOnEnableCalled = CCObjectFlags.IsOnEnableCalled;
+const IsEditorOnEnableCalled = CCObjectFlags.IsEditorOnEnableCalled;
 
 const callerFunctor: any = EDITOR && tryCatchFunctor_EDITOR;
 const callOnEnableInTryCatch: any = EDITOR && callerFunctor('onEnable');
@@ -85,7 +85,7 @@ function stableRemoveInactive (iterator, flagToClear): void {
     }
 }
 
-type InvokeFunc = (...args: unknown[]) => void;
+export type InvokeFunc = (...args: unknown[]) => void;
 
 // This class contains some queues used to invoke life-cycle methods by script execution order
 export class LifeCycleInvoker {
@@ -110,12 +110,12 @@ export class LifeCycleInvoker {
         return this._pos;
     }
     // components which priority === 0 (default)
-    protected _zero: js.array.MutableForwardIterator<any>;
+    protected declare _zero: js.array.MutableForwardIterator<any>;
     // components which priority < 0
-    protected _neg: js.array.MutableForwardIterator<any>;
+    protected declare _neg: js.array.MutableForwardIterator<any>;
     // components which priority > 0
-    protected _pos: js.array.MutableForwardIterator<any>;
-    protected _invoke: InvokeFunc;
+    protected declare _pos: js.array.MutableForwardIterator<any>;
+    protected declare _invoke: InvokeFunc;
     constructor (invokeFunc: InvokeFunc) {
         const Iterator = js.array.MutableForwardIterator;
         this._zero = new Iterator([]);
@@ -173,6 +173,10 @@ export class OneOffInvoker extends LifeCycleInvoker {
 
 // for update: sort every time new component registered, invoke many times
 class ReusableInvoker extends LifeCycleInvoker {
+    constructor (invokeFunc: InvokeFunc) {
+        super(invokeFunc);
+    }
+
     public add (comp: Component): void {
         const order = (comp.constructor as typeof Component)._executionOrder;
         if (order === 0) {
@@ -183,7 +187,7 @@ class ReusableInvoker extends LifeCycleInvoker {
             if (i < 0) {
                 array.splice(~i, 0, comp);
             } else if (DEV) {
-                error('component already added');
+                warn('component already added:', comp.name);
             }
         }
     }
@@ -349,20 +353,20 @@ export class ComponentScheduler {
      * @en The invoker of `start` callback
      * @zh `start` 回调的调度器
      */
-    public startInvoker!: OneOffInvoker;
+    public declare startInvoker: OneOffInvoker;
     /**
      * @en The invoker of `update` callback
      * @zh `update` 回调的调度器
      */
-    public updateInvoker!: ReusableInvoker;
+    public declare updateInvoker: ReusableInvoker;
     /**
      * @en The invoker of `lateUpdate` callback
      * @zh `lateUpdate` 回调的调度器
      */
-    public lateUpdateInvoker!: ReusableInvoker;
+    public declare lateUpdateInvoker: ReusableInvoker;
     // components deferred to schedule
     private _deferredComps: any[] = [];
-    private _updating!: boolean;
+    private declare _updating: boolean;
 
     constructor () {
         this.unscheduleAll();

@@ -1,0 +1,309 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+// Based on Mipmap Filter Blur
+// https://github.com/gamemcu/interstellar-next
+
+
+CCEffect %{
+techniques:
+    - passes:
+          - vert: base-vs:vert
+            frag: prefilter-fs:frag
+            pass: cc-bloom-mipmap-prefilter
+            depthStencilState:
+                depthTest: false
+                depthWrite: false
+          - vert: downsample-vs:vert
+            frag: downsample-fs:frag
+            pass: cc-bloom-mipmap-downsample
+            depthStencilState:
+                depthTest: false
+                depthWrite: false
+          - vert: upsample-vs:vert
+            frag: upsample-fs:frag
+            pass: cc-bloom-mipmap-upsample
+            depthStencilState:
+                depthTest: false
+                depthWrite: false
+          - vert: base-vs:vert
+            frag: combine-fs:frag
+            pass: cc-bloom-mipmap-combine
+            depthStencilState:
+                depthTest: false
+                depthWrite: false
+            blendState:
+                targets:
+                    - blend: true
+                      blendSrc: one
+                      blendDst: one
+                      blendSrcAlpha: zero
+                      blendDstAlpha: one
+
+}%
+
+CCProgram base-vs %{
+precision mediump float;
+#include <legacy/decode-standard>
+#include <post-process/pipeline>
+
+out vec2 vUv;
+out vec2 vUv00;
+out vec2 vUv01;
+out vec2 vUv02;
+out vec2 vUv03;
+out vec2 vUv04;
+
+vec4 vert() {
+    vUv = a_texCoord;
+    
+    StandardVertInput In;
+    CCDecode(In);
+    FLIP_VULKAN_NDC(In.position);
+    return In.position;
+}
+}%
+
+
+CCProgram prefilter-fs %{
+precision mediump float;
+
+#pragma rate BloomUBO pass
+uniform BloomUBO {
+  mediump vec4 bloomParams; // x: useHDRIlluminance z: threshold, w: enableAlphaMask
+};
+
+in vec2 vUv;
+#pragma rate mainTexture pass
+uniform sampler2D mainTexture;
+
+float luminance(vec3 color) {
+    return dot(color, vec3(0.2126729, 0.7151522, 0.0721750));
+}
+
+vec4 frag() {
+    vec4 pixel = texture(mainTexture, vUv);
+    float l = smoothstep(bloomParams.z, bloomParams.z + 0.025, luminance(pixel.rgb));
+    return vec4(pixel.rgb * l, l);
+}
+}%
+
+
+CCProgram downsample-vs %{
+precision mediump float;
+#include <legacy/decode-standard>
+#include <post-process/pipeline>
+
+#pragma rate BloomUBO pass
+uniform BloomUBO {
+  mediump vec4 bloomParams; // x: useHDRIlluminance z: threshold, w: enableAlphaMask
+};
+
+out vec2 vUv;
+out vec2 vUv00;
+out vec2 vUv01;
+out vec2 vUv02;
+out vec2 vUv03;
+out vec2 vUv04;
+out vec2 vUv05;
+out vec2 vUv06;
+out vec2 vUv07;
+out vec2 vUv08;
+out vec2 vUv09;
+out vec2 vUv10;
+out vec2 vUv11;
+
+vec4 vert() {
+    vUv = a_texCoord;
+    // CC_HANDLE_RT_SAMPLE_FLIP(vUv);                                  
+    
+    vUv00 = vUv + bloomParams.xy * vec2(-1.0, 1.0);
+    vUv01 = vUv + bloomParams.xy * vec2(1.0, 1.0);
+    vUv02 = vUv + bloomParams.xy * vec2(-1.0, - 1.0);
+    vUv03 = vUv + bloomParams.xy * vec2(1.0, - 1.0);
+    
+    vUv04 = vUv + bloomParams.xy * vec2(-2.0, 2.0);
+    vUv05 = vUv + bloomParams.xy * vec2(0.0, 2.0);
+    vUv06 = vUv + bloomParams.xy * vec2(2.0, 2.0);
+    vUv07 = vUv + bloomParams.xy * vec2(-2.0, 0.0);
+    vUv08 = vUv + bloomParams.xy * vec2(2.0, 0.0);
+    vUv09 = vUv + bloomParams.xy * vec2(-2.0, - 2.0);
+    vUv10 = vUv + bloomParams.xy * vec2(0.0, - 2.0);
+    vUv11 = vUv + bloomParams.xy * vec2(2.0, - 2.0);
+    
+    StandardVertInput In;
+    CCDecode(In);
+    FLIP_VULKAN_NDC(In.position);
+    return In.position;
+}
+}%
+
+CCProgram downsample-fs %{
+precision mediump float;
+
+// (1 / 4) * 0.5 = 0.125
+#define WEIGHT_INNER 0.125
+// (1 / 9) * 0.5 = 0.0555555
+#define WEIGHT_OUTER 0.0555555
+
+in vec2 vUv;
+in vec2 vUv00;
+in vec2 vUv01;
+in vec2 vUv02;
+in vec2 vUv03;
+in vec2 vUv04;
+in vec2 vUv05;
+in vec2 vUv06;
+in vec2 vUv07;
+in vec2 vUv08;
+in vec2 vUv09;
+in vec2 vUv10;
+in vec2 vUv11;
+
+#pragma rate mainTexture pass
+uniform sampler2D mainTexture;
+
+float clampToBorder(const in vec2 uv) {
+    return float(uv.s >= 0.0 && uv.s <= 1.0 && uv.t >= 0.0 && uv.t <= 1.0);
+}
+
+vec4 frag() {
+    vec4 c = vec4(0.0);
+    
+    vec4 w = WEIGHT_INNER * vec4(
+        clampToBorder(vUv00),
+        clampToBorder(vUv01),
+        clampToBorder(vUv02),
+        clampToBorder(vUv03)
+    );
+    
+    c += w.x * texture(mainTexture, vUv00);
+    c += w.y * texture(mainTexture, vUv01);
+    c += w.z * texture(mainTexture, vUv02);
+    c += w.w * texture(mainTexture, vUv03);
+    
+    w = WEIGHT_OUTER * vec4(
+        clampToBorder(vUv04),
+        clampToBorder(vUv05),
+        clampToBorder(vUv06),
+        clampToBorder(vUv07)
+    );
+    
+    c += w.x * texture(mainTexture, vUv04);
+    c += w.y * texture(mainTexture, vUv05);
+    c += w.z * texture(mainTexture, vUv06);
+    c += w.w * texture(mainTexture, vUv07);
+    
+    w = WEIGHT_OUTER * vec4(
+        clampToBorder(vUv08),
+        clampToBorder(vUv09),
+        clampToBorder(vUv10),
+        clampToBorder(vUv11)
+    );
+    
+    c += w.x * texture(mainTexture, vUv08);
+    c += w.y * texture(mainTexture, vUv09);
+    c += w.z * texture(mainTexture, vUv10);
+    c += w.w * texture(mainTexture, vUv11);
+    
+    c += WEIGHT_OUTER * texture(mainTexture, vUv);
+    
+    return c;
+}
+}%
+
+CCProgram upsample-vs %{
+precision mediump float;
+#include <legacy/decode-standard>
+#include <post-process/pipeline>
+
+#pragma rate BloomUBO pass
+uniform BloomUBO {
+  mediump vec4 bloomParams; // x: useHDRIlluminance z: threshold, w: enableAlphaMask
+};
+
+out vec2 vUv;
+out vec2 vUv0;
+out vec2 vUv1;
+out vec2 vUv2;
+out vec2 vUv3;
+out vec2 vUv4;
+out vec2 vUv5;
+out vec2 vUv6;
+out vec2 vUv7;
+
+vec4 vert() {
+    vUv = a_texCoord;
+    // CC_HANDLE_RT_SAMPLE_FLIP(vUv);                                  
+    
+    vUv0 = vUv + bloomParams.xy * vec2(-1.0, 1.0);
+    vUv1 = vUv + bloomParams.xy * vec2(0.0, 1.0);
+    vUv2 = vUv + bloomParams.xy * vec2(1.0, 1.0);
+    vUv3 = vUv + bloomParams.xy * vec2(-1.0, 0.0);
+    
+    vUv4 = vUv + bloomParams.xy * vec2(1.0, 0.0);
+    vUv5 = vUv + bloomParams.xy * vec2(-1.0, - 1.0);
+    vUv6 = vUv + bloomParams.xy * vec2(0.0, - 1.0);
+    vUv7 = vUv + bloomParams.xy * vec2(1.0, - 1.0);
+    
+    StandardVertInput In;
+    CCDecode(In);
+    FLIP_VULKAN_NDC(In.position);
+    return In.position;
+}
+}%
+
+CCProgram upsample-fs %{
+precision mediump float;
+
+in vec2 vUv;
+in vec2 vUv0;
+in vec2 vUv1;
+in vec2 vUv2;
+in vec2 vUv3;
+in vec2 vUv4;
+in vec2 vUv5;
+in vec2 vUv6;
+in vec2 vUv7;
+
+#pragma rate mainTexture pass
+uniform lowp sampler2D mainTexture;
+#pragma rate downsampleTexture pass
+uniform lowp sampler2D downsampleTexture;
+
+vec4 frag() {
+    vec4 c = vec4(0.0);
+    
+    c += texture(mainTexture, vUv0) * 0.0625;
+    c += texture(mainTexture, vUv1) * 0.125;
+    c += texture(mainTexture, vUv2) * 0.0625;
+    c += texture(mainTexture, vUv3) * 0.125;
+    c += texture(mainTexture, vUv) * 0.25;
+    c += texture(mainTexture, vUv4) * 0.125;
+    c += texture(mainTexture, vUv5) * 0.0625;
+    c += texture(mainTexture, vUv6) * 0.125;
+    c += texture(mainTexture, vUv7) * 0.0625;
+    
+    vec4 baseColor = texture(downsampleTexture, vUv);
+    return mix(baseColor, c, 0.85);
+}
+}%
+
+CCProgram combine-fs %{
+precision mediump float;
+
+#pragma rate BloomUBO pass
+uniform BloomUBO {
+  mediump vec4 bloomParams; // x: useHDRIlluminance z: threshold, w: enableAlphaMask
+};
+
+in vec2 vUv;
+
+#pragma rate bloomTexture pass
+uniform sampler2D bloomTexture;
+
+vec4 frag() {
+    vec4 bloomColor = texture(bloomTexture, vUv);
+    vec3 color = bloomColor.rgb * bloomParams.w;
+    return vec4(color, 1);
+}
+}%

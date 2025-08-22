@@ -25,7 +25,7 @@
 import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../scene-graph/node';
 import { TransformBit } from '../scene-graph/node-enum';
-import { RenderMode, Space } from './enum';
+import { ParticleRenderMode, ParticleSpace } from './enum';
 import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4, geometry, bits } from '../core';
 import { isCurveTwoValues, particleEmitZAxis } from './particle-general-function';
 import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
@@ -33,12 +33,12 @@ import { Mesh } from '../3d';
 import type { ParticleSystem } from './particle-system';
 import { Mode } from './animator/curve-range';
 
-const _node_mat = new Mat4();
-const _node_parent_inv = new Mat4();
-const _node_rol = new Quat();
-const _node_scale = new Vec3();
+const _nodeMat = new Mat4();
+const _nodeParentInv = new Mat4();
+const _nodeRol = new Quat();
+const _nodeScale = new Vec3();
 
-const _anim_module = [
+const _animModule = [
     '_colorOverLifetimeModule',
     '_sizeOvertimeModule',
     '_velocityOvertimeModule',
@@ -55,7 +55,7 @@ export class ParticleCuller {
     private _particlesAll: Particle[];
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
-    private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
+    private _runAnimateList: IParticleModule[] = [];
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
 
@@ -65,7 +65,7 @@ export class ParticleCuller {
     private _nodePos: Vec3 = new Vec3();
     private _nodeSize: Vec3 = new Vec3();
 
-    constructor (ps) {
+    constructor (ps: ParticleSystem) {
         this._particleSystem = ps;
         this._processor = this._particleSystem.processor;
         this._node = ps.node;
@@ -99,15 +99,15 @@ export class ParticleCuller {
     }
 
     private _initModuleList (): void {
-        _anim_module.forEach((val): void => {
-            const pm = this._particleSystem[val];
+        _animModule.forEach((val: string): void => {
+            const pm = this._particleSystem[val] as IParticleModule;
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
-                    this._updateList[pm.name] = pm;
+                    this._updateList.set(pm.name, pm);
                 }
 
                 if (pm.needAnimate) {
-                    this._animateList[pm.name] = pm;
+                    this._animateList.set(pm.name, pm);
                 }
             }
         });
@@ -115,7 +115,7 @@ export class ParticleCuller {
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            const p = this._animateList.get(PARTICLE_MODULE_ORDER[i]);
             if (p) {
                 this._runAnimateList.push(p);
             }
@@ -128,9 +128,9 @@ export class ParticleCuller {
         const loopDelta = (ps.time % ps.duration) / ps.duration; // loop delta value
 
         node.invalidateChildren(TransformBit.POSITION);
-        if (ps.simulationSpace === Space.World) {
-            node.getWorldMatrix(_node_mat);
-            node.getWorldRotation(_node_rol);
+        if (ps.simulationSpace === ParticleSpace.World) {
+            node.getWorldMatrix(_nodeMat);
+            node.getWorldRotation(_nodeRol);
         }
 
         for (let i = 0; i < count; ++i) {
@@ -154,9 +154,9 @@ export class ParticleCuller {
             const curveStartSpeed = ps.startSpeed.evaluate(loopDelta, rand)!;
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
-            if (ps.simulationSpace === Space.World) {
-                Vec3.transformMat4(particle.position, particle.position, _node_mat);
-                Vec3.transformQuat(particle.velocity, particle.velocity, _node_rol);
+            if (ps.simulationSpace === ParticleSpace.World) {
+                Vec3.transformMat4(particle.position, particle.position, _nodeMat);
+                Vec3.transformQuat(particle.velocity, particle.velocity, _nodeRol);
             }
 
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
@@ -166,9 +166,12 @@ export class ParticleCuller {
 
             // apply startSize.
             if (ps.startSize3D) {
-                Vec3.set(particle.startSize, ps.startSizeX.evaluate(loopDelta, rand)!,
+                Vec3.set(
+                    particle.startSize,
+                    ps.startSizeX.evaluate(loopDelta, rand)!,
                     ps.startSizeY.evaluate(loopDelta, rand)!,
-                    ps.startSizeZ.evaluate(loopDelta, rand)!);
+                    ps.startSizeZ.evaluate(loopDelta, rand)!,
+                );
             } else {
                 Vec3.set(particle.startSize, ps.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;
@@ -185,32 +188,36 @@ export class ParticleCuller {
 
     private _updateParticles (dt: number, particleLst: Particle[]): void {
         const ps = this._particleSystem;
-        ps.node.getWorldMatrix(_node_mat);
+        ps.node.getWorldMatrix(_nodeMat);
 
         switch (ps.scaleSpace) {
-        case Space.Local:
-            ps.node.getScale(_node_scale);
+        case ParticleSpace.Local:
+            ps.node.getScale(_nodeScale);
             break;
-        case Space.World:
-            ps.node.getWorldScale(_node_scale);
+        case ParticleSpace.World:
+            ps.node.getWorldScale(_nodeScale);
             break;
         default:
             break;
         }
 
         this._updateList.forEach((value: IParticleModule, key: string): void => {
-            value.update(ps.simulationSpace, _node_mat);
+            // TODO(cjh): Bug here? _updateList is a Map, the old code uses `this._updateList['some_key'] = some_value;`
+            // to do the assignment which forEach will not take care of it.
+            // In order not to change the behavior in this PR ( https://github.com/cocos/cocos-engine/pull/17289 )
+            // We commented the update the particle module temporarily.
+            // value.update(ps.simulationSpace, _node_mat);
         });
 
-        if (ps.simulationSpace === Space.Local) {
+        if (ps.simulationSpace === ParticleSpace.Local) {
             const r: Quat = ps.node.getRotation();
             Mat4.fromQuat(this._localMat, r);
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
 
         if (ps.node.parent) {
-            ps.node.parent.getWorldMatrix(_node_parent_inv);
-            _node_parent_inv.invert();
+            ps.node.parent.getWorldMatrix(_nodeParentInv);
+            _nodeParentInv.invert();
         }
 
         for (let i = 0; i < particleLst.length; ++i) {
@@ -222,7 +229,7 @@ export class ParticleCuller {
             const useGravity = (ps.gravityModifier.mode !== Mode.Constant || ps.gravityModifier.constant !== 0);
             if (useGravity) {
                 const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
-                if (ps.simulationSpace === Space.Local) {
+                if (ps.simulationSpace === ParticleSpace.Local) {
                     const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
                     this._gravity.x = 0.0;
                     this._gravity.y = gravityFactor;
@@ -230,7 +237,7 @@ export class ParticleCuller {
                     this._gravity.w = 1.0;
                     if (!approx(gravityFactor, 0.0, EPSILON)) {
                         if (ps.node.parent) {
-                            this._gravity = this._gravity.transformMat4(_node_parent_inv);
+                            this._gravity = this._gravity.transformMat4(_nodeParentInv);
                         }
                         this._gravity = this._gravity.transformMat4(this._localMat);
 
@@ -246,7 +253,7 @@ export class ParticleCuller {
 
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
-            this._runAnimateList.forEach((value): void => {
+            this._runAnimateList.forEach((value: IParticleModule): void => {
                 value.animate(p, dt);
             });
 
@@ -261,7 +268,7 @@ export class ParticleCuller {
         const addPos: Vec3 = new Vec3();
 
         const meshSize: Vec3 = new Vec3(1.0, 1.0, 1.0);
-        if (this._processor.getInfo()!.renderMode === RenderMode.Mesh) {
+        if (this._processor.getInfo()!.renderMode === ParticleRenderMode.Mesh) {
             const mesh: Mesh | null = this._processor.getInfo().mesh;
             if (mesh && mesh.struct.minPosition && mesh.struct.maxPosition) {
                 const meshAABB: geometry.AABB = new geometry.AABB();
@@ -274,10 +281,10 @@ export class ParticleCuller {
         const worldMat = this._particleSystem.node.worldMatrix;
         for (let i = 0; i < this._particlesAll.length; ++i) {
             const p: Particle = this._particlesAll[i];
-            Vec3.multiply(size, _node_scale, p.size);
+            Vec3.multiply(size, _nodeScale, p.size);
             Vec3.multiply(size, size, meshSize);
             position.set(p.position);
-            if (this._particleSystem.simulationSpace !== Space.World) {
+            if (this._particleSystem.simulationSpace !== ParticleSpace.World) {
                 Vec3.transformMat4(position, position, worldMat);
             }
             if (isInit && i === 0) {

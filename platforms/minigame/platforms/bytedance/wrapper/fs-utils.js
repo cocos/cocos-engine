@@ -22,6 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+/* eslint-disable no-undef */
+
 const fs = tt.getFileSystemManager ? tt.getFileSystemManager() : null;
 const outOfStorageRegExp = /size.*limit.*exceeded/;
 
@@ -87,7 +89,7 @@ const fsUtils = {
         tt.saveFile({
             tempFilePath: srcPath,
             filePath: destPath,
-            success (res) {
+            success () {
                 onComplete && onComplete(null);
             },
             fail (res) {
@@ -209,6 +211,7 @@ const fsUtils = {
     rmdirSync (dirPath, recursive) {
         try {
             fs.rmdirSync(dirPath, recursive);
+            return null;
         } catch (e) {
             console.warn(`rm directory failed: path: ${dirPath} message: ${e.message}`);
             return new Error(e.message);
@@ -230,9 +233,10 @@ const fsUtils = {
     loadSubpackage (name, onProgress, onComplete) {
         if (!tt.loadSubpackage) {
             console.warn('tt.loadSubpackage not supported, fallback to loading bundle');
+            // eslint-disable-next-line import/no-dynamic-require
             require(`subpackages/${name}/game.js`);
             onComplete && onComplete();
-            return;
+            return null;
         }
         const task = tt.loadSubpackage({
             name,

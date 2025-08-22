@@ -23,8 +23,9 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
+import { errorID, warnID } from '../../core/platform/debug';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
-import { UBOForwardLight, UBOSkinning } from '../../rendering/define';
+import { UBOForwardLight, UBOForwardLightEnum, UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
@@ -40,7 +41,7 @@ function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolea
     case 'string': return def !== undefined ? def as string : info.options![0];
     case 'number': return def !== undefined ? def.toString() : info.range![0].toString();
     default:
-        console.warn(`unknown define type '${info.type}'`);
+        warnID(16369);
         return '-1'; // should neven happen
     }
 }
@@ -116,11 +117,11 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord):
 
 const defaultUniformCounts = new Map<string, number>();
 defaultUniformCounts.set('cc_joints', UBOSkinning.LAYOUT.members[0].count);
-defaultUniformCounts.set('cc_lightPos', UBOForwardLight.LIGHTS_PER_PASS);
-defaultUniformCounts.set('cc_lightColor', UBOForwardLight.LIGHTS_PER_PASS);
-defaultUniformCounts.set('cc_lightSizeRangeAngle', UBOForwardLight.LIGHTS_PER_PASS);
-defaultUniformCounts.set('cc_lightDir', UBOForwardLight.LIGHTS_PER_PASS);
-defaultUniformCounts.set('cc_lightBoundingSizeVS', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightPos', UBOForwardLightEnum.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightColor', UBOForwardLightEnum.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightSizeRangeAngle', UBOForwardLightEnum.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightDir', UBOForwardLightEnum.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightBoundingSizeVS', UBOForwardLightEnum.LIGHTS_PER_PASS);
 
 function getUniformSize (prevSize: number, m: Uniform): number {
     if (m.count) {
@@ -130,7 +131,7 @@ function getUniformSize (prevSize: number, m: Uniform): number {
         if (count !== undefined) {
             return prevSize + GetTypeSize(m.type) * count;
         }
-        console.error(`uniform '${m.name}' must have a count`);
+        errorID(16345, m.name);
     }
     return prevSize;
 }

@@ -77,7 +77,7 @@ export class Scene extends Node {
 
     protected _renderScene: RenderScene | null = null;
 
-    protected _inited: boolean;
+    protected declare _inited: boolean;
 
     protected _prefabSyncedInLiveReload = false;
 
@@ -170,6 +170,7 @@ export class Scene extends Node {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _load (): void {
         if (!this._inited) {
@@ -188,6 +189,7 @@ export class Scene extends Node {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _activate (active = true): void {
         if (EDITOR) {

@@ -33,19 +33,24 @@ import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
 import { IMacroPatch } from '../core/pass';
-import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
+import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON, v3, v4 } from '../../core';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
 import {
-    UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
+    UBOLocal,
+    UBOLocalEnum, UBOSH, UBOSHEnum, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
     UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING,
     UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING,
+    ENABLE_PROBE_BLEND,
 } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';
 import { ProbeType, ReflectionProbe } from './reflection-probe';
 import { ReflectionProbeType } from '../../3d/reflection-probe/reflection-probe-enum';
+import type { SH } from '../../gi/light-probe/sh';
+import type { PipelineSceneData } from '../../rendering';
+import { getPipelineSceneData } from '../../rendering/pipeline-scene-data-utils';
 
 const m4_1 = new Mat4();
 
@@ -440,7 +445,7 @@ export class Model {
      * @en Current gfx device
      * @zh 当前 GFX 设备
      */
-    protected _device: Device;
+    protected declare _device: Device;
 
     /**
      * @en Whether the model is initialized
@@ -470,7 +475,7 @@ export class Model {
      * @en Local ubo data
      * @zh 本地 ubo 数据
      */
-    protected _localData = new Float32Array(UBOLocal.COUNT);
+    protected _localData = new Float32Array(UBOLocalEnum.COUNT);
 
     /**
      * @en Local ubo buffer
@@ -491,14 +496,14 @@ export class Model {
     protected _localSHBuffer: Buffer | null = null;
 
     private _lightmap: Texture2D | null = null;
-    private _lightmapUVParam: Vec4 = new Vec4();
+    private _lightmapUVParam: Vec4 = v4();
 
     /**
      * @en located tetrahedron index
      * @zh 所处的四面体索引
      */
     private _tetrahedronIndex = -1;
-    private _lastWorldBoundCenter = new Vec3(Infinity, Infinity, Infinity);
+    private _lastWorldBoundCenter = v3(Infinity, Infinity, Infinity);
     private _useLightProbe = false;
 
     /**
@@ -712,7 +717,8 @@ export class Model {
         this._updateStamp = stamp;
 
         this.updateSHUBOs();
-        const forceUpdateUBO = this.node.scene.globals.shadows.enabled && this.node.scene.globals.shadows.type === ShadowType.Planar;
+        const shadows = this.node.scene.globals.shadows;
+        const forceUpdateUBO = shadows.enabled && shadows.type === ShadowType.Planar;
 
         if (!this._localDataUpdated) { return; }
         this._localDataUpdated = false;
@@ -729,18 +735,19 @@ export class Model {
             }
         }
         if ((hasNonInstancingPass || forceUpdateUBO) && this._localBuffer) {
-            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.toArray(this._localData, worldMatrix, UBOLocalEnum.MAT_WORLD_OFFSET);
 
             Mat4.invert(m4_1, worldMatrix);
             Mat4.transpose(m4_1, m4_1);
 
-            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            Mat4.toArray(this._localData, m4_1, UBOLocalEnum.MAT_WORLD_IT_OFFSET);
             this._localBuffer.update(this._localData);
         }
     }
 
     /**
      * @engineInternal
+     * @mangle
      * @en Invalidate local data
      * @zh 使本地数据失效
      */
@@ -757,7 +764,7 @@ export class Model {
             return false;
         }
 
-        const lightProbes = (cclegacy.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        const lightProbes = getPipelineSceneData().lightProbes;
         if (!lightProbes || lightProbes.empty()) {
             return false;
         }
@@ -800,7 +807,7 @@ export class Model {
             return;
         }
 
-        for (let i = 0; i < UBOSH.COUNT; i++) {
+        for (let i = 0; i < UBOSHEnum.COUNT; i++) {
             this._localSHData[i] = 0.0;
         }
 
@@ -822,8 +829,8 @@ export class Model {
         }
 
         const coefficients: Vec3[] = [];
-        const weights = new Vec4(0.0, 0.0, 0.0, 0.0);
-        const lightProbes = (cclegacy.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        const weights = new Vec4();
+        const lightProbes = (cclegacy.director.root.pipeline.pipelineSceneData as PipelineSceneData).lightProbes;
 
         this._lastWorldBoundCenter.set(center);
         this._tetrahedronIndex = lightProbes.data!.getInterpolationWeights(center, this._tetrahedronIndex, weights);
@@ -836,8 +843,9 @@ export class Model {
             return;
         }
 
-        cclegacy.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
-        cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
+        const SHCls: typeof SH = cclegacy.internal.SH;
+        SHCls.reduceRinging(coefficients, lightProbes.reduceRinging);
+        SHCls.updateUBOData(this._localSHData, UBOSHEnum.SH_LINEAR_CONST_R_OFFSET, coefficients);
         this.updateSHBuffer();
     }
 
@@ -949,7 +957,7 @@ export class Model {
      * @param uvParam uv coordinate
      */
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4): void {
-        Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
+        Vec4.toArray(this._localData, uvParam, UBOLocalEnum.LIGHTINGMAP_UVPARAM);
         this._localDataUpdated = true;
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
@@ -1007,6 +1015,9 @@ export class Model {
      * @param texture probe cubemap
      */
     public updateReflectionProbeBlendCubemap (texture: TextureCube | null): void {
+        if (!ENABLE_PROBE_BLEND) { // Disable probe blend for WebGPU
+            return;
+        }
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -1094,8 +1105,8 @@ export class Model {
      */
     public updateLocalShadowBias (): void {
         const sv = this._localData;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
+        sv[UBOLocalEnum.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
+        sv[UBOLocalEnum.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
         this._localDataUpdated = true;
     }
 
@@ -1105,8 +1116,8 @@ export class Model {
      */
     public updateReflectionProbeId  (): void {
         const sv = this._localData;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = this._reflectionProbeBlendId;
+        sv[UBOLocalEnum.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
+        sv[UBOLocalEnum.LOCAL_SHADOW_BIAS + 3] = this._reflectionProbeBlendId;
         let probe: ReflectionProbe | null = null;
         let blendProbe: ReflectionProbe | null = null;
         if (cclegacy.internal.reflectionProbeManager) {
@@ -1115,45 +1126,45 @@ export class Model {
         }
         if (probe) {
             if (probe.probeType === ProbeType.PLANAR) {
-                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.up.x;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.up.y;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.up.z;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 1.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1] = probe.node.up.x;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 1] = probe.node.up.y;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 2] = probe.node.up.z;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 3] = 1.0;
 
-                sv[UBOLocal.REFLECTION_PROBE_DATA2] = 1.0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = 0.0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = 0.0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = 1.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2] = 1.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 1] = 0.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 2] = 0.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 3] = 1.0;
             } else {
-                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 0.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 3] = 0.0;
 
-                sv[UBOLocal.REFLECTION_PROBE_DATA2] = probe.size.x;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2] = probe.size.x;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
                 const mipAndUseRGBE = probe.isRGBE() ? 1000 : 0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
             }
             // eslint-disable-next-line max-len
             if (this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES
                 || this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
                 if (blendProbe) {
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1] = blendProbe.node.worldPosition.x;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 1] = blendProbe.node.worldPosition.y;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 2] = blendProbe.node.worldPosition.z;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1] = blendProbe.node.worldPosition.x;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1 + 1] = blendProbe.node.worldPosition.y;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1 + 2] = blendProbe.node.worldPosition.z;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
 
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2] = blendProbe.size.x;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 1] = blendProbe.size.y;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 2] = blendProbe.size.z;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2] = blendProbe.size.x;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2 + 1] = blendProbe.size.y;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2 + 2] = blendProbe.size.z;
                     const mipAndUseRGBE = blendProbe.isRGBE() ? 1000 : 0;
                     // eslint-disable-next-line max-len
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 3] = blendProbe.cubemap ? blendProbe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2 + 3] = blendProbe.cubemap ? blendProbe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
                 } else if (this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
                     //blend with skybox
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
                 }
             }
         }
@@ -1167,14 +1178,15 @@ export class Model {
      */
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         let patches = this.receiveShadow ? shadowMapPatches : null;
-        if (this._lightmap != null) {
-            if (this.node && this.node.scene && !this.node.scene.globals.disableLightmap) {
-                const mainLightIsStationary = this.node.scene.globals.bakedWithStationaryMainLight;
+        if (this._lightmap != null && this.node && this.node.scene) {
+            const sceneGlobals = this.node.scene.globals;
+            if (!sceneGlobals.disableLightmap) {
+                const mainLightIsStationary = sceneGlobals.bakedWithStationaryMainLight;
                 const lightmapPathes = mainLightIsStationary ? stationaryLightMapPatches : staticLightMapPatches;
 
                 patches = patches ? patches.concat(lightmapPathes) : lightmapPathes;
                 // use highp lightmap
-                if (this.node.scene.globals.bakedWithHighpLightmap) {
+                if (sceneGlobals.bakedWithHighpLightmap) {
                     patches = patches.concat(highpLightMapPatches);
                 }
             }
@@ -1212,15 +1224,15 @@ export class Model {
 
         const attributes: Attribute[] = [];
         const attributeSet = new Set<string>();
-        for (const pass of subModel.passes) {
+        subModel.passes.forEach((pass) => {
             const shader = pass.getShaderVariant(subModel.patches)!;
-            for (const attr of shader.attributes) {
+            shader.attributes.forEach((attr) => {
                 if (!attributeSet.has(attr.name)) {
                     attributes.push(attr);
                     attributeSet.add(attr.name);
                 }
-            }
-        }
+            });
+        });
         this._updateInstancedAttributes(attributes, subModel);
     }
 
@@ -1237,8 +1249,8 @@ export class Model {
             this._localBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
-                UBOLocal.SIZE,
-                UBOLocal.SIZE,
+                UBOLocalEnum.SIZE,
+                UBOLocalEnum.SIZE,
             ));
         }
     }
@@ -1249,15 +1261,15 @@ export class Model {
         }
 
         if (!this._localSHData) {
-            this._localSHData = new Float32Array(UBOSH.COUNT);
+            this._localSHData = new Float32Array(UBOSHEnum.COUNT);
         }
 
         if (!this._localSHBuffer) {
             this._localSHBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
-                UBOSH.SIZE,
-                UBOSH.SIZE,
+                UBOSHEnum.SIZE,
+                UBOSHEnum.SIZE,
             ));
         }
     }
@@ -1274,11 +1286,11 @@ export class Model {
     }
 
     protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: DescriptorSet): void {
-        if (this._localBuffer) descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
+        if (this._localBuffer) descriptorSet.bindBuffer(UBOLocalEnum.BINDING, this._localBuffer);
     }
 
     protected _updateLocalSHDescriptors (subModelIndex: number, descriptorSet: DescriptorSet): void {
-        if (this._localSHBuffer) descriptorSet.bindBuffer(UBOSH.BINDING, this._localSHBuffer);
+        if (this._localSHBuffer) descriptorSet.bindBuffer(UBOSHEnum.BINDING, this._localSHBuffer);
     }
 
     protected _updateWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet): void {

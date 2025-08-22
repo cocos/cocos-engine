@@ -25,7 +25,7 @@
 import { TrackEntryListeners } from './track-entry-listeners';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d/renderer/vertex-format';
 
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 import { SkeletonData } from './skeleton-data';
 import { warn } from '../core/platform/debug';
 
@@ -170,7 +170,7 @@ export class AnimationCache {
         const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * floatStride * vc);
         const iUint16Buf = new Uint16Array(ic);
 
-        const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
+        const HEAPU8: Uint8Array = spine.wasmUtil.wasm.HEAPU8;
         const vPtr = model.vPtr;
         const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
@@ -189,12 +189,13 @@ export class AnimationCache {
         modelData.iData = iUint16Buf;
 
         const data = model.getData();
+        const textures = model.getTextures();
         const count = data.size();
-        for (let i = 0; i < count; i += 6) {
+        for (let i = 0; i < count; i += 5) {
             const meshData = new SpineDrawItem();
             meshData.iCount = data.get(i + 3);
             meshData.blendMode = data.get(i + 4);
-            meshData.textureID = data.get(i + 5);
+            meshData.textureID = textures.get(i / 5);
             modelData.meshes.push(meshData);
         }
 
@@ -358,6 +359,9 @@ class SkeletonCache {
             }
         }
 
+        const skeletonInfo = this._skeletonCache[assetUuid];
+        if (!skeletonInfo) return;
+
         const sharedOperate = (aniKey: string, animationCache: AnimationCache): void => {
             this._animationPool[`${assetUuid}#${aniKey}`] = animationCache;
             animationCache.clear();
@@ -366,9 +370,6 @@ class SkeletonCache {
             animationCache.destroy();
         };
         const operate = this._privateMode ? privateOperate : sharedOperate;
-
-        const skeletonInfo = this._skeletonCache[assetUuid];
-        if (!skeletonInfo) return;
         const animationsCache = skeletonInfo.animationsCache;
         for (const aniKey in animationsCache) {
             // Clear cache texture, and put cache into pool.
@@ -465,6 +466,14 @@ class SkeletonCache {
                     animationPool[key].destroy();
                     delete animationPool[key];
                 }
+            }
+            const skeletonInfo = this._skeletonCache[uuid];
+            const skeleton = skeletonInfo && skeletonInfo.skeleton;
+            if (skeleton) {
+                spine.wasmUtil.destroySpineSkeleton(skeleton);
+            }
+            if (skeletonInfo) {
+                delete this._skeletonCache[uuid];
             }
         } else {
             const animationPool = this._animationPool;

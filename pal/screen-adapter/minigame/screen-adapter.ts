@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
-import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
+import { IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
-import { warnID } from '../../../cocos/core/platform/debug';
+import { getError, warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
@@ -44,6 +44,7 @@ try {
             // TODO: use pal/fs
             // issue: https://github.com/cocos/cocos-engine/issues/14647
             const fs = my.getFileSystemManager();
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const screenOrientation = JSON.parse(fs.readFileSync({
                 filePath: 'game.json',
                 encoding: 'utf8',
@@ -52,6 +53,7 @@ try {
         }
     }
 } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
 }
 
@@ -67,12 +69,22 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get devicePixelRatio (): number {
+        if (WECHAT) {
+            const sysInfo = minigame.getWindowInfo();
+            return sysInfo.pixelRatio;
+        }
         const sysInfo = minigame.getSystemInfoSync();
         return sysInfo.pixelRatio;
     }
 
     public get windowSize (): Size {
-        const sysInfo = minigame.getSystemInfoSync();
+        let sysInfo;
+        if (WECHAT) {
+            sysInfo = minigame.getWindowInfo();
+        } else {
+            sysInfo = minigame.getSystemInfoSync();
+        }
+
         const dpr = this.devicePixelRatio;
         let screenWidth = sysInfo.windowWidth;
         let screenHeight = sysInfo.windowHeight;
@@ -116,7 +128,7 @@ class ScreenAdapter extends EventTarget {
         return minigame.orientation;
     }
     public set orientation (value: Orientation) {
-        console.warn('Setting orientation is not supported yet.');
+        warnID(1221);
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
@@ -125,23 +137,10 @@ class ScreenAdapter extends EventTarget {
         // NOTE: safe area info on vivo platform is in physical pixel.
         // No need to multiply with DPR.
         const dpr = VIVO ? 1 : this.devicePixelRatio;
-        let topEdge = minigameSafeArea.top * dpr;
-        let bottomEdge = windowSize.height - minigameSafeArea.bottom * dpr;
-        let leftEdge = minigameSafeArea.left * dpr;
-        let rightEdge = windowSize.width - minigameSafeArea.right * dpr;
-        const orientation = this.orientation;
-        // Make it symmetrical.
-        if (orientation === Orientation.PORTRAIT) {
-            if (topEdge < bottomEdge) {
-                topEdge = bottomEdge;
-            } else {
-                bottomEdge = topEdge;
-            }
-        } else if (leftEdge < rightEdge) {
-            leftEdge = rightEdge;
-        } else {
-            rightEdge = leftEdge;
-        }
+        const topEdge = minigameSafeArea.top * dpr;
+        const bottomEdge = windowSize.height - minigameSafeArea.bottom * dpr;
+        const leftEdge = minigameSafeArea.left * dpr;
+        const rightEdge = windowSize.width - minigameSafeArea.right * dpr;
         return {
             top: topEdge,
             bottom: bottomEdge,
@@ -172,10 +171,10 @@ class ScreenAdapter extends EventTarget {
     }
 
     public requestFullScreen (): Promise<void> {
-        return Promise.reject(new Error('request fullscreen is not supported on this platform.'));
+        return Promise.reject(new Error(getError(9008)));
     }
     public exitFullScreen (): Promise<void> {
-        return Promise.reject(new Error('exit fullscreen is not supported on this platform.'));
+        return Promise.reject(new Error(getError(9009)));
     }
 }
 

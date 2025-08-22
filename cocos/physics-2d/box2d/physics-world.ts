@@ -26,11 +26,8 @@ import b2 from '@cocos/box2d';
 import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
+import { IVec2Like, Vec3, Quat, Vec2, toDegree, Rect, CCObjectFlags, js, errorID } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
-// import { Canvas } from '../../2d/framework';
-// import { Graphics } from '../../2d/components';
-
 import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
 import { PhysicsAABBQueryCallback } from './platform/physics-aabb-query-callback';
@@ -41,6 +38,7 @@ import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
 import { Node, find, Layers } from '../../scene-graph';
 import { director } from '../../game';
+import type { Graphics } from '../../2d/components/graphics';
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();
@@ -51,6 +49,7 @@ const tempB2AABB = new b2.AABB();
 
 const testResults: Collider2D[] = [];
 
+/** @mangle */
 export class b2PhysicsWorld implements IPhysicsWorld {
     protected _world: b2.World;
     protected _bodies: b2RigidBody2D[] = [];
@@ -88,7 +87,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._raycastQueryCallback = new PhysicsRayCastCallback();
     }
 
-    _debugGraphics: any = null;
+    _debugGraphics: Graphics | null = null;
     _b2DebugDrawer: b2.Draw | null = null;
 
     _debugDrawFlags = 0;
@@ -122,24 +121,32 @@ export class b2PhysicsWorld implements IPhysicsWorld {
                 canvas.parent = scene;
             }
 
-            const node = new Node('PHYSICS_2D_DEBUG_DRAW');
+            let node: Node | null = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
-            node.hideFlags |= CCObject.Flags.DontSave;
+            node.hideFlags |= CCObjectFlags.DontSave;
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
             node.layer = Layers.Enum.UI_2D;
 
-            this._debugGraphics = node.addComponent('cc.Graphics');
-            this._debugGraphics.lineWidth = 3;
+            try {
+                this._debugGraphics = node.addComponent('cc.Graphics') as Graphics;
+                this._debugGraphics.lineWidth = 3;
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
-            this._b2DebugDrawer = debugDraw;
-            this._world.SetDebugDraw(debugDraw);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
+                this._b2DebugDrawer = debugDraw;
+                this._world.SetDebugDraw(debugDraw);
+            } catch (e: any) {
+                errorID(4501, e.message as string);
+                node.destroy();
+                node = null;
+            }
         }
 
-        const parent = this._debugGraphics.node.parent!;
-        this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
+        if (this._debugGraphics) {
+            const parent = this._debugGraphics.node.parent!;
+            this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
+        }
 
         if (this._b2DebugDrawer) {
             this._b2DebugDrawer.SetFlags(this.debugDrawFlags);
@@ -326,6 +333,19 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         const comp = body.rigidBody;
         if (comp.type === ERigidBody2DType.Animated) {
             js.array.remove(this._animatedBodies, body);
+        }
+    }
+
+    public _updateBodyType (body: b2RigidBody2D): void {
+        const animatedBodies = this._animatedBodies;
+        const comp = body.rigidBody;
+        if (comp.type !== ERigidBody2DType.Animated) {
+            js.array.remove(animatedBodies, body);
+        } else {
+            if (animatedBodies.includes(body)) {
+                return;
+            }
+            animatedBodies.push(body);
         }
     }
 

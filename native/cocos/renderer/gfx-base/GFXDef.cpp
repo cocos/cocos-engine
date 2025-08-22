@@ -28,6 +28,7 @@
 
 #include "GFXDef.h"
 #include "GFXRenderPass.h"
+#include "GFXSamplerUtils.h"
 #include "GFXTexture.h"
 
 namespace cc {
@@ -203,18 +204,7 @@ bool operator==(const BufferInfo &lhs, const BufferInfo &rhs) {
 
 template <>
 ccstd::hash_t Hasher<SamplerInfo>::operator()(const SamplerInfo &info) const {
-    // return quickHashTrivialStruct(&info);
-
-    // the hash may be used to reconstruct the original struct
-    auto hash = static_cast<uint32_t>(info.minFilter);
-    hash |= static_cast<uint32_t>(info.magFilter) << 2;
-    hash |= static_cast<uint32_t>(info.mipFilter) << 4;
-    hash |= static_cast<uint32_t>(info.addressU) << 6;
-    hash |= static_cast<uint32_t>(info.addressV) << 8;
-    hash |= static_cast<uint32_t>(info.addressW) << 10;
-    hash |= static_cast<uint32_t>(info.maxAnisotropy) << 12;
-    hash |= static_cast<uint32_t>(info.cmpFunc) << 16;
-    return static_cast<ccstd::hash_t>(hash);
+    return static_cast<ccstd::hash_t>(packSamplerInfo(info));
 }
 
 bool operator==(const SamplerInfo &lhs, const SamplerInfo &rhs) {
@@ -246,6 +236,16 @@ ccstd::hash_t Hasher<BufferBarrierInfo>::operator()(const BufferBarrierInfo &inf
 
 bool operator==(const BufferBarrierInfo &lhs, const BufferBarrierInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(BufferBarrierInfo));
+}
+
+template <>
+ccstd::hash_t Hasher<Color>::operator()(const Color &info) const {
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, info.x);
+    ccstd::hash_combine(seed, info.y);
+    ccstd::hash_combine(seed, info.z);
+    ccstd::hash_combine(seed, info.w);
+    return seed;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

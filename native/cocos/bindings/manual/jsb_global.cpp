@@ -29,6 +29,7 @@
 #include "base/DeferredReleasePool.h"
 #include "base/Scheduler.h"
 #include "base/ThreadPool.h"
+#include "base/UTF8.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
 #include "bindings/auto/jsb_cocos_auto.h"
@@ -41,7 +42,6 @@
 #include "platform/interfaces/modules/ISystem.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "ui/edit-box/EditBox.h"
-#include "v8/Object.h"
 #include "xxtea/xxtea.h"
 
 #include <chrono>
@@ -52,15 +52,16 @@
     #include "platform/java/jni/JniImp.h"
 #endif
 
-#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     #include "platform/openharmony/napi/NapiHelper.h"
+    #include "platform/openharmony/napi/NapiPromiseBridge.h"
 #endif
 
 extern void jsb_register_ADPF(se::Object *); // NOLINT
 
 using namespace cc; // NOLINT
 
-static LegacyThreadPool *gThreadPool = nullptr;
+LegacyThreadPool *gIOThreadPool = nullptr;
 
 static std::shared_ptr<cc::network::Downloader> gLocalDownloader = nullptr;
 static ccstd::unordered_map<ccstd::string, std::function<void(const ccstd::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
@@ -590,7 +591,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
     auto initImageFunc = [path, callbackPtr](const ccstd::string &fullPath, unsigned char *imageData, int imageBytes) {
         auto *img = ccnew Image();
 
-        gThreadPool->pushTask([=](int /*tid*/) {
+        gIOThreadPool->pushTask([=](int /*tid*/) {
             // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
             // Image::initWithImageFile will call fullPathForFilename internally which may
             // cause thread race issues. Therefore, we get the full path of file before
@@ -725,7 +726,7 @@ static bool js_saveImageData(se::State &s) { // NOLINT
             callbackObj->incRef();
         }
 
-        gThreadPool->pushTask([=](int /*tid*/) {
+        gIOThreadPool->pushTask([=](int /*tid*/) {
             // isToRGB = false, to keep alpha channel
             auto *img = ccnew Image();
             // A conversion from size_t to uint32_t might lose integer precision
@@ -979,7 +980,7 @@ static bool jsb_createExternalArrayBuffer(se::State &s) { // NOLINT
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         if (byteLength > 0) {
 // NOTE: Currently V8 use shared_ptr which has different abi on win64-debug and win64-release
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS && SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS && SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) || (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSVM)
             se::HandleObject arrayBuffer{se::Object::createArrayBufferObject(nullptr, byteLength)};
 #else
             void *buffer = malloc(byteLength);
@@ -1288,14 +1289,8 @@ SE_BIND_FINALIZE_FUNC(js_TextEncoder_finalize)
 
 static bool js_TextEncoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    const auto &args = s.args();
-    size_t argc = args.size();
-    if (argc > 0) {
-        if (args[0].isString() && args[0].toString() != "utf-8") {
-            CC_LOG_WARNING("TextEncoder only supports utf-8");
-        }
-    }
-    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    // https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/TextEncoder
+    // Since TextEncoder doesn't associate with a c++ object, set the private object to nullptr.
     s.thisObject()->setPrivateObject(nullptr);
     return true;
 }
@@ -1303,6 +1298,7 @@ SE_BIND_CTOR(js_TextEncoder_constructor, __jsb_TextEncoder_class, js_TextEncoder
 
 static bool js_TextEncoder_encode(se::State &s) // NOLINT(readability-identifier-naming)
 {
+    // https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/encode
     const auto &args = s.args();
     size_t argc = args.size();
 
@@ -1335,15 +1331,32 @@ static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-ident
 {
     const auto &args = s.args();
     size_t argc = args.size();
+    ccstd::string encoding = "utf-8";
     if (argc > 0) {
-        if (args[0].isString() && args[0].toString() != "utf-8") {
-            CC_LOG_WARNING("TextDecoder only supports utf-8");
+        if (args[0].isString()) {
+            // https://developer.mozilla.org/en-US/docs/Web/API/Encoding_API/Encodings
+            // NOTE: We only support utf-8 and utf-16 encoding now.
+            auto label = args[0].toString();
+
+            // Convert to lowercase to support 'UTF-8', 'UTF-16'
+            std::transform(label.begin(), label.end(), label.begin(), [](char c) {
+                return ::tolower(c);
+            });
+
+            if (label == "unicode-1-1-utf-8" || label == "utf-8" || label == "utf8") {
+                encoding = "utf-8";
+            } else if (label == "utf-16" || label == "utf-16le") {
+                encoding = "utf-16le";
+            } else {
+                CC_LOG_WARNING("TextDecoder only supports utf-8 and utf-16, but got: %s", label.c_str());
+            }
         }
     }
-    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    s.thisObject()->setProperty("encoding", se::Value{encoding});
     s.thisObject()->setProperty("fatal", se::Value{false});
     s.thisObject()->setProperty("ignoreBOM", se::Value{false});
-    s.thisObject()->setPrivateObject(nullptr); // FIXME: Don't need this line if https://github.com/cocos/3d-tasks/issues/11365 is done.
+    // Since TextDecoder doesn't associate with a c++ object, set the private object to nullptr.
+    s.thisObject()->setPrivateObject(nullptr);
     return true;
 }
 SE_BIND_CTOR(js_TextDecoder_constructor, __jsb_TextDecoder_class, js_TextDecoder_finalize)
@@ -1362,8 +1375,25 @@ static bool js_TextDecoder_decode(se::State &s) // NOLINT(readability-identifier
         bool ok = uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
         SE_PRECONDITION2(ok, false, "js_TextDecoder_decode, get typedarray data failed!");
 
-        ccstd::string str{reinterpret_cast<const char *>(uint8ArrayData), length};
-        s.rval().setString(str);
+        se::Value encodingVal;
+        s.thisObject()->getProperty("encoding", &encodingVal);
+        if (encodingVal.isString()) {
+            const auto &encoding = encodingVal.toString();
+            if (encoding == "utf-8") {
+                ccstd::string str{reinterpret_cast<const char *>(uint8ArrayData), length};
+                s.rval().setString(str);
+            } else if (encoding == "utf-16le") {
+                std::u16string u16Str{reinterpret_cast<const char16_t *>(uint8ArrayData), length / 2};
+                ccstd::string u8Str;
+                cc::StringUtils::UTF16ToUTF8(u16Str, u8Str);
+                s.rval().setString(u8Str);
+            } else {
+                SE_REPORT_ERROR("Wrong encoding: %s, only utf-8 & utf-16 are supported", encoding.c_str());
+            }
+        } else {
+            SE_REPORT_ERROR("TextDecoder.encoding is not a string");
+        }
+
         return true;
     }
 
@@ -1404,7 +1434,7 @@ static bool JSB_process_get_argv(se::State &s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_GET(JSB_process_get_argv)
 
-#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
 
 static bool sevalue_to_napivalue(const se::Value &seVal, Napi::Value *napiVal, Napi::Env env);
 
@@ -1508,14 +1538,8 @@ static bool JSB_openharmony_postSyncMessage(se::State &s) { // NOLINT(readabilit
             SE_REPORT_ERROR("postMessage, Unsupported type");
             return false;
         }
-
         Napi::Value napiPromise = NapiHelper::postSyncMessageToUIThread(msgType.c_str(), napiArg1);
-
-        // TODO(cjh): Implement Promise for se
-        se::HandleObject retObj(se::Object::createPlainObject());
-        retObj->defineFunction("then", _SE(JSB_empty_promise_then));
-        s.rval().setObject(retObj);
-        //
+        s.rval().setObject(NapiPromiseBridge::createPromise(napiPromise));
         return true;
     }
 
@@ -1526,7 +1550,7 @@ SE_BIND_FUNC(JSB_openharmony_postSyncMessage)
 #endif
 
 bool jsb_register_global_variables(se::Object *global) { // NOLINT
-    gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
+    gIOThreadPool = LegacyThreadPool::newFixedThreadPool(5);
 
 #if CC_EDITOR
     global->defineFunction("__require", _SE(require));
@@ -1546,6 +1570,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("destroyImage", _SE(js_destroyImage));
+
 #if CC_USE_EDITBOX
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
@@ -1589,24 +1614,24 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->setProperty("performance", se::Value(performanceObj));
 
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
     se::HandleObject ohObj(se::Object::createPlainObject());
     global->setProperty("oh", se::Value(ohObj));
     ohObj->defineFunction("postMessage", _SE(JSB_openharmony_postMessage));
     ohObj->defineFunction("postSyncMessage", _SE(JSB_openharmony_postSyncMessage));
-    #endif
 #endif
 
     jsb_register_TextEncoder(global);
     jsb_register_TextDecoder(global);
 
+#if CC_USE_ADPF
     jsb_register_ADPF(__jsbObj);
+#endif
 
     se::ScriptEngine::getInstance()->clearException();
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-        delete gThreadPool;
-        gThreadPool = nullptr;
+        delete gIOThreadPool;
+        gIOThreadPool = nullptr;
 
         DeferredReleasePool::clear();
     });

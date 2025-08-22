@@ -31,25 +31,29 @@ import { TextureCube } from '../assets/texture-cube';
 import assetManager from './asset-manager';
 import { BuiltinBundleName } from './shared';
 import Bundle from './bundle';
-import { Settings, settings, cclegacy } from '../../core';
+import { settings, cclegacy, SettingsCategory } from '../../core';
 import { releaseManager } from './release-manager';
 import { Material } from '../assets';
+import { TextureFilter, PixelFormat } from '../assets/asset-enum';
 
 export class BuiltinResMgr {
     protected _resources: Record<string, Asset> = {};
     protected _materialsToBeCompiled: Material[] = [];
+
+    constructor () {}
 
     // this should be called after renderer initialized
     public init (): void {
         const resources = this._resources;
         const len = 2;
         const numChannels = 4;
+        const byteLength = len * len * numChannels;
 
-        const blackValueView   = new Uint8Array(len * len * numChannels);
-        const emptyValueView   = new Uint8Array(len * len * numChannels);
-        const greyValueView    = new Uint8Array(len * len * numChannels);
-        const whiteValueView   = new Uint8Array(len * len * numChannels);
-        const normalValueView  = new Uint8Array(len * len * numChannels);
+        const blackValueView   = new Uint8Array(byteLength);
+        const emptyValueView   = new Uint8Array(byteLength);
+        const greyValueView    = new Uint8Array(byteLength);
+        const whiteValueView   = new Uint8Array(byteLength);
+        const normalValueView  = new Uint8Array(byteLength);
 
         let offset = 0;
         for (let i = 0; i < len * len; i++) {
@@ -124,7 +128,7 @@ export class BuiltinResMgr {
             height: len,
             _data: blackValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA8888,
+            format: PixelFormat.RGBA8888,
         };
 
         const emptyMemImageSource: ImageSource = {
@@ -132,7 +136,7 @@ export class BuiltinResMgr {
             height: len,
             _data: emptyValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA8888,
+            format: PixelFormat.RGBA8888,
         };
 
         const greyMemImageSource: ImageSource = {
@@ -140,7 +144,7 @@ export class BuiltinResMgr {
             height: len,
             _data: greyValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA8888,
+            format: PixelFormat.RGBA8888,
         };
 
         const whiteMemImageSource: ImageSource = {
@@ -148,7 +152,7 @@ export class BuiltinResMgr {
             height: len,
             _data: whiteValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA8888,
+            format: PixelFormat.RGBA8888,
         };
 
         const normalMemImageSource: ImageSource = {
@@ -156,7 +160,7 @@ export class BuiltinResMgr {
             height: len,
             _data: normalValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA8888,
+            format: PixelFormat.RGBA8888,
         };
 
         const defaultMemImageSource: ImageSource = {
@@ -164,7 +168,7 @@ export class BuiltinResMgr {
             height: defaultSize,
             _data: defaultValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA8888,
+            format: PixelFormat.RGBA8888,
         };
 
         // ============================
@@ -189,7 +193,7 @@ export class BuiltinResMgr {
         // black cube texture
         const blackCubeTexture = new TextureCube();
         blackCubeTexture._uuid = 'black-cube-texture';
-        blackCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        blackCubeTexture.setMipFilter(TextureFilter.NEAREST);
         blackCubeTexture.image = {
             front: new ImageAsset(blackMemImageSource),
             back: new ImageAsset(blackMemImageSource),
@@ -210,7 +214,7 @@ export class BuiltinResMgr {
         // grey cube texture
         const greyCubeTexture = new TextureCube();
         greyCubeTexture._uuid = 'grey-cube-texture';
-        greyCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        greyCubeTexture.setMipFilter(TextureFilter.NEAREST);
         greyCubeTexture.image = {
             front: new ImageAsset(greyMemImageSource),
             back: new ImageAsset(greyMemImageSource),
@@ -231,7 +235,7 @@ export class BuiltinResMgr {
         // white cube texture
         const whiteCubeTexture = new TextureCube();
         whiteCubeTexture._uuid = 'white-cube-texture';
-        whiteCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        whiteCubeTexture.setMipFilter(TextureFilter.NEAREST);
         whiteCubeTexture.image = {
             front: new ImageAsset(whiteMemImageSource),
             back: new ImageAsset(whiteMemImageSource),
@@ -258,7 +262,7 @@ export class BuiltinResMgr {
 
         // default cube texture
         const defaultCubeTexture = new TextureCube();
-        defaultCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        defaultCubeTexture.setMipFilter(TextureFilter.NEAREST);
         defaultCubeTexture._uuid = 'default-cube-texture';
         defaultCubeTexture.image = {
             front: new ImageAsset(defaultMemImageSource),
@@ -281,7 +285,7 @@ export class BuiltinResMgr {
         }
 
         if (EDITOR) {
-            const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+            const builtinAssets = settings.querySettings<string[]>(SettingsCategory.ENGINE, 'builtinAssets');
             const builtinBundle = new Bundle();
             builtinBundle.init({
                 name: BuiltinBundleName.INTERNAL,
@@ -314,7 +318,7 @@ export class BuiltinResMgr {
      * @internal
      */
     public loadBuiltinAssets (): Promise<void> {
-        const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+        const builtinAssets = settings.querySettings<string[]>(SettingsCategory.ENGINE, 'builtinAssets');
         if (TEST || !builtinAssets) return Promise.resolve();
         const resources = this._resources;
         return new Promise<void>((resolve, reject): void => {

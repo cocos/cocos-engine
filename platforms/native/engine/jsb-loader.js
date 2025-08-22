@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+ /* eslint-disable no-undef */
+
 const jsbWindow = require('../jsbWindow');
 const cacheManager = require('./jsb-cache-manager');
 const { downloadFile, readText, readArrayBuffer, readJson, getUserDataPath, initJsbDownloader } = require('./jsb-fs-utils');
@@ -52,7 +54,10 @@ function downloadScript (url, options, onComplete) {
         options = null;
     }
 
-    if (loadedScripts[url]) return onComplete && onComplete();
+    if (loadedScripts[url]) {
+         onComplete && onComplete();
+         return;
+    }
 
     download(url, (src, options, onComplete) => {
         if (window.oh && window.scriptEngineType === 'napi') {
@@ -200,7 +205,8 @@ function downloadBundle (nameOrUrl, options, onComplete) {
     options.__cacheBundleRoot__ = bundleName;
     downloadJson(config, options, (err, response) => {
         if (err) {
-            return onComplete(err, null);
+            onComplete(err, null);
+            return;
         }
         const out = response;
         out && (out.base = `${url}/`);
@@ -209,7 +215,8 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             const js = `${url}/index.${version ? `${version}.` : ''}${out.encrypted ? 'jsc' : `js`}`;
             downloadScript(js, options, (err) => {
                 if (err) {
-                    return onComplete(err, null);
+                    onComplete(err, null);
+                    return;
                 }
                 onComplete(null, out);
             });
@@ -241,7 +248,10 @@ function loadFont (url, options, onComplete) {
 const originParsePlist = parser.parsePlist;
 const parsePlist = function (url, options, onComplete) {
     readText(url, (err, file) => {
-        if (err) return onComplete(err);
+        if (err) {
+            onComplete(err);
+            return;
+        }
         originParsePlist(file, options, onComplete);
     });
 };

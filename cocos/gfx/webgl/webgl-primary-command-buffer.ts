@@ -32,15 +32,18 @@ import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandBuffer } from './webgl-command-buffer';
 import {
     WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncBlitTexture, WebGLCmdFuncCopyBuffersToTexture,
-    WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
+    WebGLCmdFuncDraw, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { WebGLDeviceManager } from './webgl-define';
+import { error, errorID } from '../../core/platform/debug';
+import { WebGLConstants } from '../gl-constants';
 
+/** @mangle */
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
-    public beginRenderPass (
+    public override beginRenderPass (
         renderPass: RenderPass,
         framebuffer: Framebuffer,
         renderArea: Readonly<Rect>,
@@ -51,13 +54,16 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         WebGLCmdFuncBeginRenderPass(
             WebGLDeviceManager.instance,
             (renderPass as WebGLRenderPass).gpuRenderPass,
-            (framebuffer as WebGLFramebuffer).gpuFramebuffer,
-            renderArea, clearColors, clearDepth, clearStencil,
+            (framebuffer as WebGLFramebuffer).getGpuFramebuffer(),
+            renderArea,
+            clearColors,
+            clearDepth,
+            clearStencil,
         );
         this._isInRenderPass = true;
     }
 
-    public draw (infoOrAssembler: DrawInfo | InputAssembler): void {
+    public override draw (infoOrAssembler: DrawInfo | InputAssembler): void {
         if (this._isInRenderPass) {
             if (this._isStateInvalied) {
                 this.bindStates();
@@ -73,12 +79,12 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
-                case 0x0004: { // WebGLRenderingContext.TRIANGLES
+                case WebGLConstants.TRIANGLES: {
                     this._numTris += indexCount / 3 * Math.max(info.instanceCount, 1);
                     break;
                 }
-                case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
-                case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
+                case WebGLConstants.TRIANGLE_STRIP:
+                case WebGLConstants.TRIANGLE_FAN: {
                     this._numTris += (indexCount - 2) * Math.max(info.instanceCount, 1);
                     break;
                 }
@@ -86,11 +92,11 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 }
             }
         } else {
-            console.error('Command \'draw\' must be recorded inside a render pass.');
+            errorID(16328);
         }
     }
 
-    public setViewport (viewport: Readonly<Viewport>): void {
+    public override setViewport (viewport: Readonly<Viewport>): void {
         const { stateCache: cache, gl } = WebGLDeviceManager.instance;
 
         if (cache.viewport.left !== viewport.left
@@ -106,7 +112,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public setScissor (scissor: Readonly<Rect>): void {
+    public override setScissor (scissor: Readonly<Rect>): void {
         const { stateCache: cache, gl } = WebGLDeviceManager.instance;
 
         if (cache.scissorRect.x !== scissor.x
@@ -122,7 +128,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
+    public override updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
         if (!this._isInRenderPass) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
@@ -138,39 +144,38 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 WebGLCmdFuncUpdateBuffer(WebGLDeviceManager.instance, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
-            console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            errorID(16329);
         }
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
+    public override copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
         if (!this._isInRenderPass) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {
                 WebGLCmdFuncCopyBuffersToTexture(WebGLDeviceManager.instance, buffers, gpuTexture, regions);
             }
         } else {
-            console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            errorID(16330);
         }
     }
 
-    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
-        for (let i = 0; i < count; ++i) {
-            // actually they are secondary buffers, the cast here is only for type checking
-            const webGLCmdBuff = cmdBuffs[i] as WebGLPrimaryCommandBuffer;
-            WebGLCmdFuncExecuteCmds(WebGLDeviceManager.instance, webGLCmdBuff.cmdPackage);
-            this._numDrawCalls += webGLCmdBuff._numDrawCalls;
-            this._numInstances += webGLCmdBuff._numInstances;
-            this._numTris += webGLCmdBuff._numTris;
-        }
+    public override execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
+        errorID(16402);
     }
 
-    protected bindStates (): void {
-        WebGLCmdFuncBindStates(WebGLDeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
-            this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
+    protected override bindStates (): void {
+        WebGLCmdFuncBindStates(
+            WebGLDeviceManager.instance,
+            this._curGPUPipelineState,
+            this._curGPUInputAssembler,
+            this._curGPUDescriptorSets,
+            this._curDynamicOffsets,
+            this._curDynamicStates,
+        );
         this._isStateInvalied = false;
     }
 
-    public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
+    public override blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
         const gpuTextureSrc = (srcTexture as WebGLTexture).gpuTexture;
         const gpuTextureDst = (dstTexture as WebGLTexture).gpuTexture;
         WebGLCmdFuncBlitTexture(WebGLDeviceManager.instance, gpuTextureSrc, gpuTextureDst, regions, filter);

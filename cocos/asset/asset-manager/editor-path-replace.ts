@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
-import { assert, Settings, settings } from '../../core';
+import { assert, settings, SettingsCategory } from '../../core';
 import { fetchPipeline, pipeline } from './shared';
 import Task from './task';
 
@@ -80,14 +80,15 @@ if ((EDITOR || PREVIEW) && !TEST) {
         try {
             let text = '';
             if (EDITOR) {
-                const info = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
-                if (info && info.library['.cconb']) {
+                const info: {library: {['.bin']: any}} = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
+                // Current rule: If an asset has only one .bin file, then it is in CCON format.
+                if (info && info.library['.bin'] && Object.keys(info.library).length === 1) {
                     text = '.cconb';
                 }
             } else {
                 let previewServer = '';
                 if (NATIVE) {
-                    previewServer = settings.querySettings<string>(Settings.Category.PATH, 'previewServer') || '';
+                    previewServer = settings.querySettings<string>(SettingsCategory.PATH, 'previewServer') || '';
                     assert(Boolean(previewServer));
                 }
                 text = await fetchText(`${previewServer}/query-extname/${uuid}`) as string;

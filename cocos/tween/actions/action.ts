@@ -25,12 +25,9 @@
  THE SOFTWARE.
 */
 
-/**
- * @en Base classAction for action classes.
- * @zh Action 类是所有动作类型的基类。
- * @class Action
- */
-export abstract class Action {
+import type { Tween } from '../tween';
+
+export enum ActionEnum {
     /**
      * @en Default Action tag.
      * @zh 默认动作标签。
@@ -38,8 +35,15 @@ export abstract class Action {
      * @static
      * @default -1
      */
-    static TAG_INVALID = -1;
+    TAG_INVALID = -1,
+}
 
+/**
+ * @en Base classAction for action classes.
+ * @zh Action 类是所有动作类型的基类。
+ * @class Action
+ */
+export abstract class Action {
     /**
      * The `originalTarget` and `target` are both assigned in `startWithTarget` method,
      * and they get the same value normally. The difference between `originalTarget` and
@@ -52,46 +56,13 @@ export abstract class Action {
     protected target: unknown = null;
 
     /**
-     * The `workerTarget` was added from Cocos Creator 3.8.5 and it's used for nest `Tween` functionality.
-     * It stores the target of sub-tween and its value may be different from `target`.
-     *
-     * Example 1:
-     * ```ts
-     *   tween(node).to(1, { scale: new Vec3(2, 2, 2) }).start();
-     *   // target and original target are both `node`, workerTarget is `null`.
-     * ```
-     *
-     * Example 2:
-     * ```ts
-     *   tween(node).parallel(                                        // ----- Root tween
-     *       tween(node).to(1, { scale: new Vec3(2, 2, 2) }),         // ----- Sub tween 1
-     *       tween(node).to(1, { position: new Vec3(10, 10, 10) })    // ----- Sub Tween 2
-     *   ).start();
-     *   // Note that only root tween is started here. We call tweens in `parallel`/`sequence` sub tweens.
-     *   // The `target` and `originalTarget` of all internal actions are `node`.
-     *   // Actions in root tween: workerTarget = null
-     *   // Actions in sub tween 1: workerTarget = node
-     *   // Actions in sub tween 2: workerTarget = node
-     * ```
-     *
-     * Example 3:
-     * ```ts
-     *   tween(node).parallel(                                        // ----- Root tween
-     *       tween(node).to(1, { scale: new Vec3(2, 2, 2) }),         // ----- Sub tween 1
-     *       tween(node.getComponent(UITransform)).to(1, {            // ----- Sub Tween 2
-     *           contentSize: new Size(10, 10)
-     *       })
-     *   ).start();
-     *   // Note that only root tween is started here. We call tweens in `parallel`/`sequence` sub tweens.
-     *   // The `target` and `originalTarget` of all internal actions are `node`.
-     *   // Actions in root tween: workerTarget = null
-     *   // Actions in sub tween 1: workerTarget = node
-     *   // Actions in sub tween 2: workerTarget = node's UITransform component
-     * ```
+     * The tween who owns this action.
+     * @engineInternal
+     * @mangle
      */
-    public workerTarget: unknown = null;
+    public _owner: Tween | null = null;
 
-    protected tag = Action.TAG_INVALID;
+    protected tag = ActionEnum.TAG_INVALID;
 
     /**
      * @en The identifier that to mark an internal action.
@@ -176,6 +147,50 @@ export abstract class Action {
     }
 
     /**
+     * Return the worker target of the current action applys on.
+     * @engineInternal
+     * @mangle
+     *
+     * Example 1:
+     * ```ts
+     *   tween(node).to(1, { scale: new Vec3(2, 2, 2) }).start();
+     *   // target and original target are both `node`, _getWorkerTarget returns `null`.
+     * ```
+     *
+     * Example 2:
+     * ```ts
+     *   tween(node).parallel(                                        // ----- Root tween
+     *       tween(node).to(1, { scale: new Vec3(2, 2, 2) }),         // ----- Sub tween 1
+     *       tween(node).to(1, { position: new Vec3(10, 10, 10) })    // ----- Sub Tween 2
+     *   ).start();
+     *   // Note that only root tween is started here. We call tweens in `parallel`/`sequence` sub tweens.
+     *   // The `target` and `originalTarget` of all internal actions are `node`.
+     *   // Actions in root tween: _getWorkerTarget returns `node`,
+     *   // Actions in sub tween 1: _getWorkerTarget returns `node`,
+     *   // Actions in sub tween 2: _getWorkerTarget returns `node`.
+     * ```
+     *
+     * Example 3:
+     * ```ts
+     *   tween(node).parallel(                                        // ----- Root tween
+     *       tween(node).to(1, { scale: new Vec3(2, 2, 2) }),         // ----- Sub tween 1
+     *       tween(node.getComponent(UITransform)).to(1, {            // ----- Sub Tween 2
+     *           contentSize: new Size(10, 10)
+     *       })
+     *   ).start();
+     *   // Note that only root tween is started here. We call tweens in `parallel`/`sequence` sub tweens.
+     *   // The `target` and `originalTarget` of all internal actions are `node`.
+     *   // Actions in root tween: workerTarget = `node`,
+     *   // Actions in sub tween 1: workerTarget = `node`,
+     *   // Actions in sub tween 2: workerTarget = `node`'s UITransform component.
+     * ```
+     */
+    protected _getWorkerTarget<T> (): T | null {
+        const workerTarget: T | null = this._owner?.getTarget();
+        return (workerTarget ?? this.target) as T;
+    }
+
+    /**
      * @en get tag number.
      * @zh 获取用于识别动作的标签。
      * @method getTag
@@ -243,6 +258,10 @@ export abstract class Action {
  */
 export abstract class FiniteTimeAction extends Action {
     protected _duration = 0;
+
+    constructor () {
+        super();
+    }
 
     getDurationScaled (): number {
         return this._duration;

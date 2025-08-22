@@ -34,8 +34,8 @@ export class HandheldInputDevice {
 
     private _eventTarget: EventTarget = new EventTarget();
 
-    private _handheldPosition!: InputSourcePosition;
-    private _handheldOrientation!: InputSourceOrientation;
+    private declare _handheldPosition: InputSourcePosition;
+    private declare _handheldOrientation: InputSourceOrientation;
 
     constructor () {
         this._initInputSource();

@@ -26,6 +26,7 @@ module.exports = {
                 'When the new Prefab system is complete, it will be automatically migrated to the new Prefab system.',
         },
         label: {
+            font_style: 'Font Style',
             font_style_tooltip: "The style of the text, corresponding to the engine's Bold, Italic, Underline",
         },
         layer: {

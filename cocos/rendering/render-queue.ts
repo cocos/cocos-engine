@@ -23,7 +23,7 @@
 */
 
 import { RecyclePool, CachedArray } from '../core';
-import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
+import { getPassPool, IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
 import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
@@ -54,10 +54,10 @@ export class RenderQueue {
      * @en A cached array of render passes
      * @zh 基于缓存数组的渲染过程队列。
      */
-    public queue: CachedArray<IRenderPass>;
+    public declare queue: CachedArray<IRenderPass>;
 
-    private _passDesc: IRenderQueueDesc;
-    private _passPool: RecyclePool<IRenderPass>;
+    private declare _passDesc: IRenderQueueDesc;
+    private declare _passPool: RecyclePool<IRenderPass>;
 
     /**
      * @en Construct a RenderQueue with render queue descriptor
@@ -66,14 +66,7 @@ export class RenderQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
-        this._passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
-            priority: 0,
-            hash: 0,
-            depth: 0,
-            shaderId: 0,
-            subModel: null!,
-            passIdx: 0,
-        }), 64);
+        this._passPool = getPassPool();
         this.queue = new CachedArray(64, this._passDesc.sortFunc);
     }
 
@@ -102,7 +95,7 @@ export class RenderQueue {
         if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
         }
-        const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
+        const hash = (0 << 30) | (pass.priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
         const rp = this._passPool.add();
         rp.priority = renderObj.model.priority;
         rp.hash = hash;

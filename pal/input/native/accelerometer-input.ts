@@ -34,10 +34,10 @@ export type AccelerometerCallback = (res: EventAcceleration) => void;
 
 export class AccelerometerInputSource {
     private _intervalInSeconds = 0.2;
-    private _intervalId? :number;
+    private _intervalId?: number;
     private _isEnabled = false;
     private _eventTarget: EventTarget = new  EventTarget();
-    private _didAccelerateFunc: () => void;
+    private declare _didAccelerateFunc: () => void;
 
     constructor () {
         this._didAccelerateFunc = this._didAccelerate.bind(this);

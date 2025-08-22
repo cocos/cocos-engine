@@ -134,7 +134,7 @@ export class Event {
      * @zh
      * 事件类型。
      */
-    public type: SystemEventTypeUnion;
+    public declare type: SystemEventTypeUnion;
 
     /**
      * @en
@@ -143,7 +143,7 @@ export class Event {
      * @zh
      * 表示该事件是否进行冒泡。
      */
-    public bubbles: boolean;
+    public declare bubbles: boolean;
 
     /**
      * @en

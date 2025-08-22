@@ -58,6 +58,10 @@ export class ReflectionProbeStage extends RenderStage {
     private _probeRenderQueue!: RenderReflectionProbeQueue;
     private _rgbeColor = new Vec3();
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en Sets the probe info
      * @zh 设置probe信息

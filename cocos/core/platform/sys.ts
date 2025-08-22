@@ -23,15 +23,18 @@
  THE SOFTWARE.
 */
 
+import { BYTEDANCE, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
+
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
-import { BYTEDANCE, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { Vec2 } from '../math/vec2';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
+import { macro } from './macro';
+import type { View } from '../../ui/view';
 
 // TODO: the type Storage conflicts with the one on OH platform.
 type Storage = any;
@@ -264,6 +267,7 @@ export const sys = {
 
     /**
      * @engineInternal
+     * @mangle
      */
     __isWebIOS14OrIPadOS14Env: false,
 
@@ -312,7 +316,7 @@ export const sys = {
                     localStorage.removeItem('storage');
                     localStorage = null;
                 } catch (e) {
-                    const warn = function (...args: any): any {
+                    const warn = function warn (...args: any): any {
                         warnID(5200);
                     };
                     this.localStorage = {
@@ -361,11 +365,25 @@ export const sys = {
      * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。
      * 目前支持安卓、iOS 原生平台和微信、字节小游戏平台。
      * @method getSafeAreaRect
+     * @param [symmetric=true] @zh 基于屏幕对称的 Rect。 @en Rect that is symmetric based on the screen.
      * @return {Rect}
      */
-    getSafeAreaRect (): Rect {
-        const locView = legacyCC.view;
+    getSafeAreaRect (symmetric: boolean = true): Rect {
+        const locView: View = legacyCC.view;
         const edge = screenAdapter.safeAreaEdge;
+        if (symmetric) {
+            if (screenAdapter.orientation === macro.ORIENTATION_PORTRAIT) {
+                if (edge.top < edge.bottom) {
+                    edge.top = edge.bottom;
+                } else {
+                    edge.bottom = edge.top;
+                }
+            } else if (edge.left < edge.right) {
+                edge.left = edge.right;
+            } else {
+                edge.right = edge.left;
+            }
+        }
         const windowSize = screenAdapter.windowSize;
 
         // Get leftBottom and rightTop point in screen coordinates system.

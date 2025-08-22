@@ -26,9 +26,10 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from './asset';
-import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import { TextureFilter, PixelFormat, WrapMode } from './asset-enum';
 import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter, deviceManager } from '../../gfx';
 import { errorID, murmurhash2_32_gc, ccenum, cclegacy, js } from '../../core';
+import type { Batcher2D } from '../../2d/renderer/batcher-2d';
 
 ccenum(Format);
 
@@ -46,6 +47,14 @@ export class TextureBase extends Asset {
     public get isCompressed (): boolean {
         return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12)
         || (this._format >= PixelFormat.RGB_A_PVRTC_2BPPV1 && this._format <= PixelFormat.RGBA_ETC1);
+    }
+
+    /**
+     * @en Whether it is a compressed alpha channel texture
+     * @zh 是否为压缩的透明通道贴图
+     */
+    public get isAlphaAtlas (): boolean {
+        return (this._format === PixelFormat.RGBA_ETC1 || this._format === PixelFormat.RGB_A_PVRTC_4BPPV1 || this._format === PixelFormat.RGB_A_PVRTC_2BPPV1);
     }
 
     /**
@@ -80,7 +89,7 @@ export class TextureBase extends Asset {
      * @en The texture filter mode enum.
      * @zh 纹理过滤模式枚举类型。
      */
-    public static Filter = Filter;
+    public static Filter = TextureFilter;
 
     /**
      * @engineInternal
@@ -92,19 +101,19 @@ export class TextureBase extends Asset {
      * @engineInternal
      */
     @serializable
-    protected _minFilter = Filter.LINEAR;
+    protected _minFilter = TextureFilter.LINEAR;
 
     /**
      * @engineInternal
      */
     @serializable
-    protected _magFilter = Filter.LINEAR;
+    protected _magFilter = TextureFilter.LINEAR;
 
     /**
      * @engineInternal
      */
     @serializable
-    protected _mipFilter = Filter.NONE;
+    protected _mipFilter = TextureFilter.NONE;
 
     /**
      * @engineInternal
@@ -132,22 +141,24 @@ export class TextureBase extends Asset {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _width = 1;
     /**
      * @engineInternal
+     * @mangle
      */
     protected _height = 1;
 
-    private _id: string;
+    private declare _id: string;
     private _samplerInfo = new SamplerInfo();
     private _gfxSampler: Sampler | null = null;
     private _gfxDevice: Device | null = null;
 
     private _textureHash = 0;
 
-    constructor () {
-        super();
+    constructor (name?: string) {
+        super(name);
 
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
@@ -212,7 +223,7 @@ export class TextureBase extends Asset {
      * @param minFilter @en Filter mode for scale down. @zh 贴图缩小时使用的过滤模式。
      * @param magFilter @en Filter mode for scale up. @zh 贴图放大时使用的过滤模式。
      */
-    public setFilters (minFilter: Filter, magFilter: Filter): void {
+    public setFilters (minFilter: TextureFilter, magFilter: TextureFilter): void {
         this._minFilter = minFilter;
         this._samplerInfo.minFilter = minFilter as unknown as GFXFilter;
         this._magFilter = magFilter;
@@ -228,7 +239,7 @@ export class TextureBase extends Asset {
      * @zh 设置此贴图的多层 mip 过滤算法。
      * @param mipFilter @en Filter mode for multiple mip level. @zh 多层 mip 过滤模式。
      */
-    public setMipFilter (mipFilter: Filter): void {
+    public setMipFilter (mipFilter: TextureFilter): void {
         this._mipFilter = mipFilter;
         this._samplerInfo.mipFilter = mipFilter as unknown as GFXFilter;
 
@@ -240,9 +251,10 @@ export class TextureBase extends Asset {
     /**
      * @en Sets the texture's anisotropy.
      * @zh 设置此贴图的各向异性。
-     * @param anisotropy @en The anisotropy to be set. @zh 待设置的各向异性数值。
+     * @param anisotropy @en The anisotropy to be set. Max value is 16. @zh 待设置的各向异性数值。最大值为16
      */
     public setAnisotropy (anisotropy: number): void {
+        anisotropy = Math.min(anisotropy, 16);
         this._anisotropy = anisotropy;
         this._samplerInfo.maxAnisotropy = anisotropy;
 
@@ -258,7 +270,7 @@ export class TextureBase extends Asset {
     public destroy (): boolean {
         const destroyed = super.destroy();
         if (destroyed && cclegacy.director.root?.batcher2D) {
-            cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
+            (cclegacy.director.root.batcher2D as Batcher2D)._releaseDescriptorSetCache(this._textureHash);
         }
         return destroyed;
     }

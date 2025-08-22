@@ -23,21 +23,16 @@
 */
 
 import {
-    _decorator,
-    Camera,
-    CCBoolean,
-    CCFloat,
-    CCInteger,
-    Component,
-    fillRequiredPipelineSettings,
-    makePipelineSettings,
-    Material,
-    PipelineSettings,
-    rendering,
-    Texture2D,
+    _decorator, Camera, CCBoolean, CCFloat, CCInteger, Component,
+    Material, rendering, Texture2D,
 } from 'cc';
 
 import { EDITOR } from 'cc/env';
+
+import {
+    BloomType,
+    fillRequiredPipelineSettings, makePipelineSettings, PipelineSettings,
+} from './builtin-pipeline-types';
 
 const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireComponent, type } = _decorator;
 
@@ -49,6 +44,10 @@ const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireCom
 export class BuiltinPipelineSettings extends Component {
     @property
     private readonly _settings: PipelineSettings = makePipelineSettings();
+
+    getPipelineSettings(): PipelineSettings {
+        return this._settings;
+    }
 
     // Enable/Disable
     onEnable(): void {
@@ -64,8 +63,9 @@ export class BuiltinPipelineSettings extends Component {
     onDisable(): void {
         const cameraComponent = this.getComponent(Camera)!;
         const camera = cameraComponent.camera;
-        camera.pipelineSettings = null;
-
+        if (camera) {
+            camera.pipelineSettings = null;
+        }
         if (EDITOR) {
             this._disableEditorPreview();
         }
@@ -75,7 +75,10 @@ export class BuiltinPipelineSettings extends Component {
     @property(CCBoolean)
     protected _editorPreview = false;
 
-    @property(CCBoolean)
+    @property({
+        displayName: 'Editor Preview (Experimental)',
+        type: CCBoolean,
+    })
     get editorPreview(): boolean {
         return this._editorPreview;
     }
@@ -85,7 +88,7 @@ export class BuiltinPipelineSettings extends Component {
             this._tryEnableEditorPreview();
         }
     }
-    private _tryEnableEditorPreview(): void {
+    public _tryEnableEditorPreview(): void {
         if (rendering === undefined) {
             return;
         }
@@ -95,11 +98,11 @@ export class BuiltinPipelineSettings extends Component {
             this._disableEditorPreview();
         }
     }
-    private _disableEditorPreview(): void {
+    public _disableEditorPreview(): void {
         if (rendering === undefined) {
             return;
         }
-        const current = rendering.getEditorPipelineSettings();
+        const current = rendering.getEditorPipelineSettings() as PipelineSettings | null;
         if (current === this._settings) {
             rendering.setEditorPipelineSettings(null);
         }
@@ -169,70 +172,6 @@ export class BuiltinPipelineSettings extends Component {
         return this._settings.shadingScale;
     }
 
-    // DepthOfField
-    @property({
-        group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
-        type: CCBoolean,
-    })
-    set dofEnable(value: boolean) {
-        this._settings.depthOfField.enabled = value;
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
-    }
-    get dofEnable(): boolean {
-        return this._settings.depthOfField.enabled;
-    }
-
-    @property({
-        group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
-        type: Material,
-    })
-    set dofMaterial(value: Material) {
-        this._settings.depthOfField.material = value;
-    }
-    get dofMaterial(): Material {
-        return this._settings.depthOfField.material!;
-    }
-
-    @property({
-        group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
-        type: CCFloat,
-        min: 0,
-    })
-    set dofFocusDistance(value: number) {
-        this._settings.depthOfField.focusDistance = value;
-    }
-    get dofFocusDistance(): number {
-        return this._settings.depthOfField.focusDistance;
-    }
-
-    @property({
-        group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
-        type: CCFloat,
-        min: 0,
-    })
-    set dofFocusRange(value: number) {
-        this._settings.depthOfField.focusRange = value;
-    }
-    get dofFocusRange(): number {
-        return this._settings.depthOfField.focusRange;
-    }
-
-    @type(CCFloat)
-    @property({
-        group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
-        type: CCFloat,
-        range: [1, 10, 0.01],
-        slide: true,
-    })
-    set dofBokehRadius(value: number) {
-        this._settings.depthOfField.bokehRadius = value;
-    }
-    get dofBokehRadius(): number {
-        return this._settings.depthOfField.bokehRadius;
-    }
-
     // Bloom
     @property({
         group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
@@ -248,15 +187,53 @@ export class BuiltinPipelineSettings extends Component {
         return this._settings.bloom.enabled;
     }
 
+    @type(BloomType)
+    @property({
+        group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
+    })
+    set bloomType(value: BloomType) {
+        this._settings.bloom.type = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+
+    get bloomType(): BloomType {
+        return this._settings.bloom.type;
+    }
+
     @property({
         group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
         type: Material,
     })
-    set bloomMaterial(value: Material) {
-        this._settings.bloom.material = value;
+    set kawaseBloomMaterial(value: Material) {
+        if (this._settings.bloom.kawaseFilterMaterial === value) {
+            return;
+        }
+        this._settings.bloom.kawaseFilterMaterial = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
-    get bloomMaterial(): Material {
-        return this._settings.bloom.material!;
+    get kawaseBloomMaterial(): Material {
+        return this._settings.bloom.kawaseFilterMaterial!;
+    }
+
+    @property({
+        group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
+        type: Material,
+    })
+    set mipmapBloomMaterial(value: Material) {
+        if (this._settings.bloom.mipmapFilterMaterial === value) {
+            return;
+        }
+        this._settings.bloom.mipmapFilterMaterial = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get mipmapBloomMaterial(): Material {
+        return this._settings.bloom.mipmapFilterMaterial!;
     }
 
     @property({
@@ -304,14 +281,15 @@ export class BuiltinPipelineSettings extends Component {
         return this._settings.bloom.threshold;
     }
 
+    @type(CCFloat)
     @property({
-        tooltip: 'i18n:bloom.intensity',
         group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
-        type: CCFloat,
-        min: 0,
     })
     set bloomIntensity(value: number) {
         this._settings.bloom.intensity = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get bloomIntensity(): number {
         return this._settings.bloom.intensity;
@@ -337,7 +315,13 @@ export class BuiltinPipelineSettings extends Component {
         type: Material,
     })
     set colorGradingMaterial(value: Material) {
+        if (this._settings.colorGrading.material === value) {
+            return;
+        }
         this._settings.colorGrading.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingMaterial(): Material {
         return this._settings.colorGrading.material!;
@@ -364,6 +348,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set colorGradingMap(val: Texture2D) {
         this._settings.colorGrading.colorGradingMap = val;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingMap(): Texture2D {
         return this._settings.colorGrading.colorGradingMap!;
@@ -389,7 +376,13 @@ export class BuiltinPipelineSettings extends Component {
         type: Material,
     })
     set fxaaMaterial(value: Material) {
+        if (this._settings.fxaa.material === value) {
+            return;
+        }
         this._settings.fxaa.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fxaaMaterial(): Material {
         return this._settings.fxaa.material!;
@@ -415,7 +408,13 @@ export class BuiltinPipelineSettings extends Component {
         type: Material,
     })
     set fsrMaterial(value: Material) {
+        if (this._settings.fsr.material === value) {
+            return;
+        }
         this._settings.fsr.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fsrMaterial(): Material {
         return this._settings.fsr.material!;
@@ -435,13 +434,19 @@ export class BuiltinPipelineSettings extends Component {
     }
 
     @property({
-        group: { id: 'Copy', name: 'Copy and ToneMapping', style: 'section' },
+        group: { id: 'ToneMapping', name: 'ToneMapping', style: 'section' },
         type: Material,
     })
-    set copyMaterial(value: Material) {
-        this._settings.copyMaterial = value;
+    set toneMappingMaterial(value: Material) {
+        if (this._settings.toneMapping.material === value) {
+            return;
+        }
+        this._settings.toneMapping.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
-    get copyMaterial(): Material {
-        return this._settings.copyMaterial!;
+    get toneMappingMaterial(): Material {
+        return this._settings.toneMapping.material!;
     }
 }

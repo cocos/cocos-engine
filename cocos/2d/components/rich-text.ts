@@ -23,15 +23,14 @@
  THE SOFTWARE.
 */
 
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
+import { ccclass, requireComponent, executeInEditMode, executionOrder, help, menu, multiline, type, displayOrder, serializable, editable } from 'cc.decorator';
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { assert, warnID, Color, Vec2, CCObject, cclegacy, js, Size } from '../../core';
+import { assert, warnID, Color, Vec2, CCObjectFlags, cclegacy, js, Size } from '../../core';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
-import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
 import { UITransform } from '../framework';
 import { Component } from '../../scene-graph/component';
@@ -63,9 +62,9 @@ const labelPool = new js.Pool((seg: ISegment) => {
     if (!cclegacy.isValid(seg.node)) {
         return false;
     } else {
-        const outline = seg.node.getComponent(LabelOutline);
-        if (outline) {
-            outline.width = 0;
+        const label = seg.node.getComponent(Label);
+        if (label) {
+            label.outlineWidth = 0;
         }
     }
     return true;
@@ -104,7 +103,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame): ISegmen
     if (!node) {
         node = new Node(type);
     }
-    node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+    node.hideFlags |= CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
     node.active = true; // Reset node state when use node
     if (type === RichTextChildImageName) {
         seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
@@ -119,7 +118,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame): ISegmen
         seg.comp.underlineHeight = 2;
     }
     node.setPosition(0, 0, 0);
-    const trans = node._uiProps.uiTransformComp!;
+    const trans = node._getUITransformComp()!;
     trans.setAnchorPoint(0.5, 0.5);
 
     seg.node = node;
@@ -150,6 +149,7 @@ interface ISegment {
  * 富文本组件。
  */
 @ccclass('cc.RichText')
+@requireComponent(UITransform)
 @help('i18n:cc.RichText')
 @executionOrder(110)
 @menu('2D/RichText')
@@ -163,7 +163,6 @@ export class RichText extends Component {
      * 富文本显示的文本内容。
      */
     @multiline
-    @tooltip('i18n:richtext.string')
     get string (): string {
         return this._string;
     }
@@ -184,7 +183,6 @@ export class RichText extends Component {
      * 文本内容的水平对齐方式。
      */
     @type(HorizontalTextAlignment)
-    @tooltip('i18n:richtext.horizontal_align')
     get horizontalAlign (): HorizontalTextAlignment {
         return this._horizontalAlign;
     }
@@ -207,7 +205,6 @@ export class RichText extends Component {
      * 文本内容的竖直对齐方式。
      */
     @type(VerticalTextAlignment)
-    @tooltip('i18n:richtext.vertical_align')
     get verticalAlign (): VerticalTextAlignment {
         return this._verticalAlign;
     }
@@ -229,7 +226,7 @@ export class RichText extends Component {
      * @zh
      * 富文本字体大小。
      */
-    @tooltip('i18n:richtext.font_size')
+    @editable
     get fontSize (): number {
         return this._fontSize;
     }
@@ -271,7 +268,7 @@ export class RichText extends Component {
      * @zh
      * 富文本定制系统字体。
      */
-    @tooltip('i18n:richtext.font_family')
+    @editable
     get fontFamily (): string {
         return this._fontFamily;
     }
@@ -290,7 +287,6 @@ export class RichText extends Component {
      * 富文本定制字体。
      */
     @type(Font)
-    @tooltip('i18n:richtext.font')
     get font (): TTFFont | null {
         return this._font;
     }
@@ -314,12 +310,11 @@ export class RichText extends Component {
 
     /**
      * @en
-     * Whether use system font name or not.
+     * Whether to use system font name or not.
      *
      * @zh
      * 是否使用系统字体。
      */
-    @tooltip('i18n:richtext.use_system_font')
     @displayOrder(12)
     get useSystemFont (): boolean {
         return this._isSystemFontUsed;
@@ -351,7 +346,6 @@ export class RichText extends Component {
      * 文本缓存模式, 该模式只支持系统字体。
      */
     @type(CacheMode)
-    @tooltip('i18n:richtext.cache_mode')
     get cacheMode (): CacheMode {
         return this._cacheMode;
     }
@@ -370,7 +364,7 @@ export class RichText extends Component {
      * @zh
      * 富文本的最大宽度。
      */
-    @tooltip('i18n:richtext.max_width')
+    @editable
     get maxWidth (): number {
         return this._maxWidth;
     }
@@ -392,7 +386,7 @@ export class RichText extends Component {
      * @zh
      * 富文本行高。
      */
-    @tooltip('i18n:richtext.line_height')
+    @editable
     get lineHeight (): number {
         return this._lineHeight;
     }
@@ -415,7 +409,6 @@ export class RichText extends Component {
      * 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
      */
     @type(SpriteAtlas)
-    @tooltip('i18n:richtext.image_atlas')
     get imageAtlas (): SpriteAtlas | null {
         return this._imageAtlas;
     }
@@ -438,7 +431,7 @@ export class RichText extends Component {
      * @zh
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
      */
-    @tooltip('i18n:richtext.handleTouchEvent')
+    @editable
     get handleTouchEvent (): boolean {
         return this._handleTouchEvent;
     }
@@ -509,14 +502,11 @@ export class RichText extends Component {
     protected _labelHeight = 0;
     protected _layoutDirty = true;
     protected _lineOffsetX = 0;
-    protected _updateRichTextStatus: () => void;
+    protected declare _updateRichTextStatus: () => void;
     protected _labelChildrenNum = 0; // only ISegment
 
     constructor () {
         super();
-        if (EDITOR) {
-            this._userDefinedFont = null;
-        }
         this._updateRichTextStatus = this._updateRichText;
     }
 
@@ -558,14 +548,14 @@ export class RichText extends Component {
     }
 
     public onDestroy (): void {
-        for (const seg of this._segments) {
+        this._segments.forEach((seg) => {
             seg.node.removeFromParent();
             if (seg.type === RichTextChildName) {
                 labelPool.put(seg);
             } else if (seg.type === RichTextChildImageName) {
                 imagePool.put(seg);
             }
-        }
+        });
 
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
         this.node.off(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
@@ -605,6 +595,7 @@ export class RichText extends Component {
 
     /**
     * @engineInternal
+    * @mangle
     */
     protected splitLongStringApproximatelyIn2048 (text: string, styleIndex: number): string[] {
         const approxSize = text.length * this.fontSize;
@@ -636,6 +627,7 @@ export class RichText extends Component {
 
     /**
     * @engineInternal
+    * @mangle
     */
     protected splitLongStringOver2048 (text: string, styleIndex: number): string[] {
         const partStringArr: string[] = [];
@@ -757,6 +749,7 @@ export class RichText extends Component {
 
     /**
     * @engineInternal
+    * @mangle
     */
     protected _calculateSize (out: Vec2, styleIndex: number, s: string): Vec2 {
         let label: ISegment;
@@ -769,7 +762,7 @@ export class RichText extends Component {
         }
         label.styleIndex = styleIndex;
         this._applyTextAttribute(label);
-        const size = label.node._uiProps.uiTransformComp!.contentSize;
+        const size = label.node._getUITransformComp()!.contentSize;
         Vec2.set(out, size.x, size.y);
         return out;
     }
@@ -777,7 +770,7 @@ export class RichText extends Component {
     protected _onTouchEnded (event: EventTouch): void {
         const components = this.node.getComponents(Component);
 
-        for (const seg of this._segments) {
+        this._segments.forEach((seg) => {
             const clickHandler = seg.clickHandler;
             const clickParam = seg.clickParam;
             if (clickHandler && this._containsTouchLocation(seg, event.touch!.getUILocation())) {
@@ -789,7 +782,7 @@ export class RichText extends Component {
                 });
                 event.propagationStopped = true;
             }
-        }
+        });
     }
 
     protected _containsTouchLocation (label: ISegment, point: Vec2): boolean {
@@ -866,7 +859,7 @@ export class RichText extends Component {
 
         labelSegment.styleIndex = styleIndex;
         labelSegment.lineCount = this._lineCount;
-        labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+        labelSegment.node._getUITransformComp()!.setAnchorPoint(0, 0);
         labelSegment.node.layer = this.node.layer;
         this.node.insertChild(labelSegment.node, this._labelChildrenNum++);
         this._applyTextAttribute(labelSegment);
@@ -912,7 +905,7 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
             for (let k = 0; k < fragments.length; ++k) {
                 const splitString = fragments[k];
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
-                const labelSize = labelSegment.node._uiProps.uiTransformComp!.contentSize;
+                const labelSize = labelSegment.node._getUITransformComp()!.contentSize;
                 this._lineOffsetX += labelSize.width;
                 if (fragments.length > 1 && k < fragments.length - 1) {
                     this._updateLineInfo();
@@ -992,16 +985,16 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
             warnID(4400);
         } else {
             const segment = this._createImage(spriteFrame);
-            const sprite = segment.comp;
+            const uiTransform = segment.node._getUITransformComp()!;
             switch (style.imageAlign) {
             case 'top':
-                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
+                uiTransform.setAnchorPoint(0, 1);
                 break;
             case 'center':
-                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
+                uiTransform.setAnchorPoint(0, 0.5);
                 break;
             default:
-                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+                uiTransform.setAnchorPoint(0, 0);
                 break;
             }
 
@@ -1044,7 +1037,7 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
                     this._labelWidth = this._lineOffsetX;
                 }
             }
-            segment.node._uiProps.uiTransformComp!.setContentSize(spriteWidth, spriteHeight);
+            uiTransform.setContentSize(spriteWidth, spriteHeight);
             segment.lineCount = this._lineCount;
 
             segment.clickHandler = '';
@@ -1137,7 +1130,7 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
                 } else {
                     label = this._addLabelSegment(labelString, i);
 
-                    this._lineOffsetX += label.node._uiProps.uiTransformComp!.width;
+                    this._lineOffsetX += label.node._getUITransformComp()!.width;
                     if (this._lineOffsetX > this._labelWidth) {
                         this._labelWidth = this._lineOffsetX;
                     }
@@ -1158,7 +1151,7 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
         this._labelHeight = (this._lineCount + BASELINE_RATIO) * this._lineHeight;
 
         // trigger "size-changed" event
-        this.node._uiProps.uiTransformComp!.setContentSize(this._labelWidth, this._labelHeight);
+        this.node._getUITransformComp()!.setContentSize(this._labelWidth, this._labelHeight);
 
         this._updateRichTextPosition();
         this._layoutDirty = false;
@@ -1187,7 +1180,7 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
         let nextTokenX = 0;
         let nextLineIndex = 1;
         const totalLineCount = this._lineCount;
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const anchorX = trans.anchorX;
         const anchorY = trans.anchorY;
         for (let i = 0; i < this._segments.length; ++i) {
@@ -1212,24 +1205,26 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
                 break;
             }
 
-            const pos = segment.node.position;
-            segment.node.setPosition(
+            const segmentNode = segment.node;
+
+            const pos = segmentNode.position;
+            segmentNode.setPosition(
                 nextTokenX + lineOffsetX,
                 this._lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
                 pos.z,
             );
 
             if (lineCount === nextLineIndex) {
-                nextTokenX += segment.node._uiProps.uiTransformComp!.width;
+                nextTokenX += segmentNode._getUITransformComp()!.width;
             }
 
-            const sprite = segment.node.getComponent(Sprite);
+            const sprite = segmentNode.getComponent(Sprite);
             if (sprite) {
-                const position = segment.node.position.clone();
+                const position = segmentNode.position.clone();
                 // adjust img align (from <img align=top|center|bottom>)
                 const lineHeightSet = this._lineHeight;
                 const lineHeightReal = this._lineHeight * (1 + BASELINE_RATIO); // single line node height
-                switch (segment.node._uiProps.uiTransformComp!.anchorY) {
+                switch (segmentNode._getUITransformComp()!.anchorY) {
                 case 1:
                     position.y += (lineHeightSet + ((lineHeightReal - lineHeightSet) / 2));
                     break;
@@ -1253,15 +1248,15 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
                         if (Number.isInteger(offsetY)) position.y += offsetY;
                     }
                 }
-                segment.node.position = position;
+                segmentNode.position = position;
             }
 
             // adjust y for label with outline
-            const outline = segment.node.getComponent(LabelOutline);
-            if (outline) {
-                const position = segment.node.position.clone();
-                position.y -= outline.width;
-                segment.node.position = position;
+            const label = segmentNode.getComponent(Label);
+            if (label && label.enableOutline) {
+                const position = segmentNode.position.clone();
+                position.y -= label.outlineWidth;
+                segmentNode.position = position;
             }
         }
     }
@@ -1306,13 +1301,9 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
 
             label.isUnderline = !!textStyle.underline;
             if (textStyle.outline) {
-                let labelOutline = labelSeg.node.getComponent(LabelOutline);
-                if (!labelOutline) {
-                    labelOutline = labelSeg.node.addComponent(LabelOutline);
-                }
-
-                labelOutline.color = this._convertLiteralColorValue(textStyle.outline.color);
-                labelOutline.width = textStyle.outline.width;
+                label.enableOutline = true;
+                label.outlineColor = this._convertLiteralColorValue(textStyle.outline.color);
+                label.outlineWidth = textStyle.outline.width;
             }
 
             label.fontSize = textStyle.size || this._fontSize;
@@ -1341,9 +1332,9 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
     }
 
     protected _applyLayer (): void {
-        for (const seg of this._segments) {
+        this._segments.forEach((seg) => {
             seg.node.layer = this.node.layer;
-        }
+        });
     }
 
     protected _resetLabelState (label: Label): void {

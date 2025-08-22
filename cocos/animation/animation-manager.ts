@@ -23,8 +23,8 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { System, errorID, cclegacy, js } from '../core';
-import { director, Director } from '../game/director';
+import { System, errorID, cclegacy, js, SystemPriority } from '../core';
+import { director, DirectorEvent } from '../game/director';
 import { Node } from '../scene-graph';
 import { LegacyBlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';
@@ -53,6 +53,14 @@ export class AnimationManager extends System {
     }[] = [];
     private _blendStateBuffer: LegacyBlendStateBuffer = new LegacyBlendStateBuffer();
     private _sockets: ISocketData[] = [];
+
+    /**
+     * @en Get the array of all the animation state.
+     * @zh 获取所有动画状态的数组。
+     */
+    public get animationStates (): ReadonlyArray<AnimationState> {
+        return this._anims.array;
+    }
 
     public addCrossFade (crossFade: CrossFade): void {
         const index = this._crossFades.array.indexOf(crossFade);
@@ -160,9 +168,9 @@ export class AnimationManager extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, (): void => {
+director.on(DirectorEvent.INIT, (): void => {
     const animationManager = new AnimationManager();
-    director.registerSystem(AnimationManager.ID, animationManager, System.Priority.HIGH);
+    director.registerSystem(AnimationManager.ID, animationManager, SystemPriority.HIGH);
 });
 
 cclegacy.AnimationManager = AnimationManager;

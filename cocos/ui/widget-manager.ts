@@ -25,7 +25,7 @@
 
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Director, director } from '../game/director';
+import { director, DirectorEvent } from '../game/director';
 import { Vec2, Vec3, visibleRect, js, cclegacy, approx, EPSILON } from '../core';
 import { View } from './view';
 import { Scene } from '../scene-graph';
@@ -66,11 +66,11 @@ function align (node: Node, widget: Widget): void {
 
     const isRoot = useGlobal;
     node.getPosition(_tempPos);
-    const uiTrans = node._uiProps.uiTransformComp!;
+    const uiTrans = node._getUITransformComp()!;
     let x = _tempPos.x;
     let y = _tempPos.y;
     const anchor = uiTrans.anchorPoint;
-    const scale = node.getScale();
+    const scale = node.scale;    // It is a reference of Node's scale, don't change its value in this function.
 
     if (widget.alignFlags & AlignFlags.HORIZONTAL) {
         let localLeft = 0;
@@ -288,8 +288,8 @@ export const widgetManager = cclegacy._widgetManager = {
     } : null,
 
     init (): void {
-        director.on(Director.EVENT_AFTER_SCENE_LAUNCH, refreshScene);
-        director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
+        director.on(DirectorEvent.AFTER_SCENE_LAUNCH, refreshScene);
+        director.on(DirectorEvent.AFTER_UPDATE, refreshScene);
 
         View.instance.on('design-resolution-changed', this.onResized, this);
         if (!EDITOR) {
@@ -343,14 +343,14 @@ export const widgetManager = cclegacy._widgetManager = {
                 return;
             }
 
-            const parentTrans = widgetParent._uiProps && widgetParent._uiProps.uiTransformComp;
+            const parentTrans = widgetParent._uiProps && widgetParent._getUITransformComp();
             const parentAP = parentTrans ? parentTrans.anchorPoint : _defaultAnchor;
-            const trans = widgetNode._uiProps.uiTransformComp!;
+            const trans = widgetNode._getUITransformComp()!;
             const matchSize = getReadonlyNodeSize(widgetParent);
             const myAP = trans.anchorPoint;
-            const pos = widgetNode.getPosition();
+            const pos = widgetNode.position;
             const alignFlags = AlignFlags;
-            const widgetNodeScale = widgetNode.getScale();
+            const widgetNodeScale = widgetNode.scale;
 
             let temp = 0;
 
@@ -410,6 +410,6 @@ export const widgetManager = cclegacy._widgetManager = {
     AlignFlags,
 };
 
-director.on(Director.EVENT_INIT, () => {
+director.on(DirectorEvent.INIT, () => {
     widgetManager.init();
 });

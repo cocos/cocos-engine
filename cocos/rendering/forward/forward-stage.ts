@@ -73,19 +73,17 @@ export class ForwardStage extends RenderStage {
     protected _renderQueues: RenderQueue[] = [];
 
     private _renderArea = new Rect();
-    private _instancedQueue: RenderInstancedQueue;
+    private _instancedQueue: RenderInstancedQueue = new RenderInstancedQueue();
     private _phaseID = getPhaseID('default');
     private _clearFlag = 0xffffffff;
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
-    private declare _uiPhase: UIPhase;
+    private _uiPhase: UIPhase = new UIPhase();
 
     additiveInstanceQueues: RenderInstancedQueue[] = [];
 
     constructor () {
         super();
-        this._instancedQueue = new RenderInstancedQueue();
-        this._uiPhase = new UIPhase();
     }
 
     public addRenderInstancedQueue (queue: RenderInstancedQueue): void {
@@ -143,6 +141,7 @@ export class ForwardStage extends RenderStage {
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
                     if (pass.phase !== this._phaseID) continue;
+                    if (pass.passID !== 0xFFFFFFFF) continue;
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = pass.getInstancedBuffer();

@@ -34,11 +34,12 @@ import { Root } from '../../root';
 import { GlobalDSManager } from '../../rendering/global-descriptor-set-manager';
 import { deviceManager } from '../../gfx';
 import { Enum, cclegacy } from '../../core';
+import { getPipelineSceneData } from '../../rendering/pipeline-scene-data-utils';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
 
-export const EnvironmentLightingType = Enum({
+export enum EnvironmentLightingType {
     /**
      * @zh
      * 半球漫反射
@@ -46,7 +47,7 @@ export const EnvironmentLightingType = Enum({
      * hemisphere diffuse
      * @readonly
      */
-    HEMISPHERE_DIFFUSE: 0,
+    HEMISPHERE_DIFFUSE = 0,
     /**
      * @zh
      * 半球漫反射和环境反射
@@ -54,7 +55,7 @@ export const EnvironmentLightingType = Enum({
      * hemisphere diffuse and Environment reflection
      * @readonly
      */
-    AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION: 1,
+    AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION = 1,
     /**
      * @zh
      * 漫反射卷积图和环境反射
@@ -62,8 +63,9 @@ export const EnvironmentLightingType = Enum({
      * diffuse convolution map and environment reflection
      * @readonly
      */
-    DIFFUSEMAP_WITH_REFLECTION: 2,
-});
+    DIFFUSEMAP_WITH_REFLECTION = 2,
+}
+Enum(EnvironmentLightingType);
 
 /**
  * @en The skybox configuration of the render scene,
@@ -162,7 +164,7 @@ export class Skybox {
      * @zh 使用的立方体贴图
      */
     get envmap (): TextureCube | null {
-        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             return this._envmapHDR;
         } else {
@@ -170,8 +172,7 @@ export class Skybox {
         }
     }
     set envmap (val: TextureCube | null) {
-        const root = cclegacy.director.root as Root;
-        const isHDR = root.pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             this.setEnvMaps(val, this._envmapLDR);
         } else {
@@ -184,7 +185,7 @@ export class Skybox {
      * @zh 使用的漫反射卷积图
      */
     get diffuseMap (): TextureCube | null {
-        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             return this._diffuseMapHDR;
         } else {
@@ -192,7 +193,7 @@ export class Skybox {
         }
     }
     set diffuseMap (val: TextureCube | null) {
-        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             this.setDiffuseMaps(val, this._diffuseMapLDR);
         } else {
@@ -201,7 +202,7 @@ export class Skybox {
     }
 
     get reflectionMap (): TextureCube | null {
-        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             return this._reflectionHDR;
         } else {
@@ -317,7 +318,7 @@ export class Skybox {
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
-            this._model = cclegacy.director.root.createModel(cclegacy.renderer.scene.Model) as Model;
+            this._model = (cclegacy.director.root as Root).createModel(cclegacy.renderer.scene.Model as typeof Model);
             //The skybox material has added properties of 'environmentMap' that need local ubo
             //this._model._initLocalDescriptors = () => {};
             //this._model._initWorldBoundDescriptors = () => {};
@@ -399,6 +400,10 @@ export class Skybox {
     }
 
     protected _updateGlobalBinding (): void {
+        // If it is a new pipeline, you should not set it up because it has its own configuration logic.
+        if (cclegacy.rendering) {
+            return;
+        }
         if (this._globalDSManager) {
             const device = deviceManager.gfxDevice;
             if (this.reflectionMap) {

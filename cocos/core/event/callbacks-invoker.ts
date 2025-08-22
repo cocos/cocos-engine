@@ -35,8 +35,10 @@ function empty (): void { }
 
 class CallbackInfo {
     public callback: AnyFunction = empty;
-    public target: unknown | undefined = undefined;
+    public target: unknown = undefined;
     public once = false;
+
+    constructor () {}
 
     public set (callback: AnyFunction, target?: unknown, once?: boolean): void {
         this.callback = callback || empty;
@@ -69,6 +71,8 @@ export class CallbackList {
     public callbackInfos: Array<CallbackInfo | null> = [];
     public isInvoking = false;
     public containCanceled = false;
+
+    constructor () {}
 
     /**
      * @zh 从列表中移除与指定目标相同回调函数的事件。
@@ -186,6 +190,8 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
     public _callbackTable: ICallbackTable = createMap(true);
     private _offCallback?: () => void;
 
+    constructor () {}
+
     /**
      * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
      * @en Register an event listener to a given event key with callback and target.
@@ -251,7 +257,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param keyOrTarget - The event type or target with which the listeners will be removed
      */
-    public removeAll (keyOrTarget: EventTypeClass | unknown): void {
+    public removeAll (keyOrTarget: unknown): void {
         const type = typeof keyOrTarget;
         if (type === 'string' || type === 'number') {
             // remove by key
@@ -373,6 +379,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _registerOffCallback (cb: () => void): void {
         this._offCallback = cb;

@@ -55,6 +55,10 @@ export class SpriteAtlas extends Asset {
     @editable
     public spriteFrames: ISpriteFrameList = js.createMap();
 
+    constructor (name?: string) {
+        super(name);
+    }
+
     /**
      * @en Get the [[Texture2D]] asset of the atlas.
      * @zh 获取精灵图集的贴图。
@@ -97,7 +101,7 @@ export class SpriteAtlas extends Asset {
         const frames: Array<SpriteFrame | null> = [];
         const spriteFrames = this.spriteFrames;
 
-        for (const key of Object.keys(spriteFrames)) {
+        for (const key in spriteFrames) {
             frames.push(spriteFrames[key]);
         }
 
@@ -110,11 +114,16 @@ export class SpriteAtlas extends Asset {
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const frames: string[] = [];
-            for (const key of Object.keys(this.spriteFrames)) {
+            for (const key in this.spriteFrames) {
                 const spriteFrame = this.spriteFrames[key];
                 let id = spriteFrame ? spriteFrame._uuid : '';
-                if (id && ctxForExporting && ctxForExporting._compressUuid) {
-                    id = EditorExtends.UuidUtils.compressUuid(id, true);
+                if (ctxForExporting) {
+                    if (id && ctxForExporting._compressUuid) {
+                        id = EditorExtends.UuidUtils.compressUuid(id, true);
+                    }
+                    if (id) {
+                        ctxForExporting.dependsOn('_textureSource', id);
+                    }
                 }
                 frames.push(key);
                 frames.push(id);
@@ -125,6 +134,7 @@ export class SpriteAtlas extends Asset {
                 spriteFrames: frames,
             };
         }
+        return null;
     }
 
     /**

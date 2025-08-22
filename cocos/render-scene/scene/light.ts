@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from '../../core';
+import { v3, Vec3 } from '../../core';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from '../core/render-scene';
 import { Node } from '../../scene-graph';
@@ -196,13 +196,13 @@ export class Light {
 
     protected _baked = false;
 
-    protected _color: Vec3 = new Vec3(1, 1, 1);
+    protected _color: Vec3 = v3(1, 1, 1);
 
     protected _colorTemp = 6550.0;
 
-    protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
+    protected _colorTempRGB: Vec3 = v3(1, 1, 1);
 
-    private _finalColor: Vec3 = new Vec3(1, 1, 1);
+    private _finalColor: Vec3 = v3(1, 1, 1);
 
     protected _scene: RenderScene | null = null;
 
@@ -217,7 +217,7 @@ export class Light {
     protected _visibility = CAMERA_DEFAULT_MASK;
 
     public initialize (): void {
-        this.color = new Vec3(1, 1, 1);
+        this.color = v3(1, 1, 1);
         this.colorTemperature = 6550.0;
     }
 

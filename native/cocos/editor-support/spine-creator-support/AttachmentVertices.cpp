@@ -31,7 +31,7 @@
 
 using namespace cc; // NOLINT(google-build-using-namespace)
 
-namespace spine {
+namespace cc {
 
 AttachmentVertices::AttachmentVertices(middleware::Texture2D *texture, int verticesCount, uint16_t *triangles, int trianglesCount) {
     _texture = texture;
@@ -55,4 +55,4 @@ AttachmentVertices *AttachmentVertices::copy() {
     return atv;
 }
 
-} // namespace spine
+} // namespace cc

@@ -36,7 +36,9 @@ enum class TransformBit : uint32_t {
     POSITION = (1 << 0),
     ROTATION = (1 << 1),
     SCALE = (1 << 2),
+    SKEW = (1 << 3),
     RS = ROTATION | SCALE,
+    RSS = ROTATION | SCALE | SKEW,
     TRS = POSITION | ROTATION | SCALE,
     TRS_MASK = ~TRS,
 };
@@ -46,7 +48,7 @@ CC_ENUM_BITWISE_OPERATORS(TransformBit);
  * @en Node's mobility
  * @zh 节点的移动性
  */
-enum class MobilityMode {
+enum class MobilityMode : uint8_t {
     /**
      * @en Static node
      * @zh 静态节点

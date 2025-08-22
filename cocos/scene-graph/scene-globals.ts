@@ -25,10 +25,10 @@ import {
     ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
     editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName,
 } from 'cc.decorator';
-import { BAIDU } from 'internal:constants';
+
 import { TextureCube } from '../asset/assets/texture-cube';
 import { CCFloat, CCInteger } from '../core/data/utils/attribute';
-import { Color, Quat, Vec3, Vec2, Vec4 } from '../core/math';
+import { Color, Quat, Vec3, Vec2, Vec4, v3 } from '../core/math';
 import { Ambient } from '../render-scene/scene/ambient';
 import { Shadows, ShadowType, ShadowSize } from '../render-scene/scene/shadows';
 import { Skybox, EnvironmentLightingType } from '../render-scene/scene/skybox';
@@ -41,11 +41,11 @@ import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material, MaterialPropertyFull } from '../asset/assets/material';
-import { cclegacy, macro } from '../core';
+import { cclegacy } from '../core';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';
-import { property } from '../core/data/class-decorator';
 import { PostSettings, ToneMappingType } from '../render-scene/scene/post-settings';
+import { getPipelineSceneData } from '../rendering/pipeline-scene-data-utils';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -133,7 +133,7 @@ export class AmbientInfo {
     @tooltip('i18n:ambient.skyLightingColor')
     set skyLightingColor (val: Color) {
         _v4.set(val.x, val.y, val.z, val.w);
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+        if (getPipelineSceneData().isHDR) {
             this._skyColorHDR.set(_v4);
         } else {
             this._skyColorLDR.set(_v4);
@@ -141,7 +141,7 @@ export class AmbientInfo {
         if (this._resource) { this._resource.skyColor.set(_v4); }
     }
     get skyLightingColor (): Color {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         _v4.set(isHDR ? this._skyColorHDR : this._skyColorLDR);
         normalizeHDRColor(_v4);
         return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
@@ -151,7 +151,7 @@ export class AmbientInfo {
      * @internal
      */
     set skyColor (val: Vec4) {
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+        if (getPipelineSceneData().isHDR) {
             this._skyColorHDR.set(val);
         } else {
             this._skyColorLDR.set(val);
@@ -168,7 +168,7 @@ export class AmbientInfo {
     @tooltip('i18n:ambient.skyIllum')
     @range([0, Number.POSITIVE_INFINITY, 100])
     set skyIllum (val: number) {
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+        if (getPipelineSceneData().isHDR) {
             this._skyIllumHDR = val;
         } else {
             this._skyIllumLDR = val;
@@ -177,7 +177,7 @@ export class AmbientInfo {
         if (this._resource) { this._resource.skyIllum = val; }
     }
     get skyIllum (): number {
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+        if (getPipelineSceneData().isHDR) {
             return this._skyIllumHDR;
         } else {
             return this._skyIllumLDR;
@@ -201,7 +201,7 @@ export class AmbientInfo {
     @tooltip('i18n:ambient.groundLightingColor')
     set groundLightingColor (val: Color) {
         _v4.set(val.x, val.y, val.z, val.w);
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+        if (getPipelineSceneData().isHDR) {
             this._groundAlbedoHDR.set(_v4);
         } else {
             this._groundAlbedoLDR.set(_v4);
@@ -209,7 +209,7 @@ export class AmbientInfo {
         if (this._resource) { this._resource.groundAlbedo.set(_v4); }
     }
     get groundLightingColor (): Color {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         _v4.set(isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR);
         normalizeHDRColor(_v4);
         return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
@@ -219,7 +219,7 @@ export class AmbientInfo {
      * @internal
      */
     set groundAlbedo (val: Vec4) {
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+        if (getPipelineSceneData().isHDR) {
             this._groundAlbedoHDR.set(val);
         } else {
             this._groundAlbedoLDR.set(val);
@@ -253,7 +253,7 @@ export class AmbientInfo {
      */
     public activate (resource: Ambient): void {
         this._resource = resource;
-        this._resource.initialize(this);
+        resource.initialize(this);
     }
 }
 legacyCC.AmbientInfo = AmbientInfo;
@@ -350,11 +350,12 @@ export class SkyboxInfo {
     @editable
     @tooltip('i18n:skybox.useHDR')
     set useHDR (val) {
-        (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = val;
+        getPipelineSceneData().isHDR = val;
         this._useHDR = val;
+        const resource = this._resource;
 
         // Switch UI to and from LDR/HDR textures depends on HDR state
-        if (this._resource) {
+        if (resource) {
             if (this.envLightingType === EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
                 if (this.diffuseMap === null) {
                     this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
@@ -365,13 +366,13 @@ export class SkyboxInfo {
             }
         }
 
-        if (this._resource) {
-            this._resource.useHDR = this._useHDR;
-            this._resource.updateMaterialRenderInfo();
+        if (resource) {
+            resource.useHDR = this._useHDR;
+            resource.updateMaterialRenderInfo();
         }
     }
     get useHDR (): boolean {
-        (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = this._useHDR;
+        getPipelineSceneData().isHDR = this._useHDR;
         return this._useHDR;
     }
 
@@ -383,7 +384,7 @@ export class SkyboxInfo {
     @type(TextureCube)
     @tooltip('i18n:skybox.envmap')
     set envmap (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             this._envmapHDR = val;
             this._reflectionHDR = null;
@@ -403,16 +404,17 @@ export class SkyboxInfo {
             warnID(15001);
         }
 
-        if (this._resource) {
-            this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
-            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
-            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
-            this._resource.useDiffuseMap = this.applyDiffuseMap;
-            this._resource.envmap = val;
+        const resource = this._resource;
+        if (resource) {
+            resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+            resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+            resource.useDiffuseMap = this.applyDiffuseMap;
+            resource.envmap = val;
         }
     }
     get envmap (): TextureCube | null {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             return this._envmapHDR;
         } else {
@@ -451,7 +453,7 @@ export class SkyboxInfo {
     @type(TextureCube)
     @displayOrder(100)
     set diffuseMap (val: TextureCube | null) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             this._diffuseMapHDR = val;
         } else {
@@ -463,7 +465,7 @@ export class SkyboxInfo {
         }
     }
     get diffuseMap (): TextureCube | null {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             return this._diffuseMapHDR;
         } else {
@@ -486,7 +488,7 @@ export class SkyboxInfo {
     @type(TextureCube)
     @displayOrder(100)
     set reflectionMap (val: TextureCube | null) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             this._reflectionHDR = val;
         } else {
@@ -497,7 +499,7 @@ export class SkyboxInfo {
         }
     }
     get reflectionMap (): TextureCube | null {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = getPipelineSceneData().isHDR;
         if (isHDR) {
             return this._reflectionHDR;
         } else {
@@ -563,13 +565,13 @@ export class SkyboxInfo {
     public activate (resource: Skybox): void {
         this.envLightingType = this._envLightingType;
         this._resource = resource;
-        this._resource.initialize(this);
-        this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
-        this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
-        this._resource.setSkyboxMaterial(this._editableMaterial);
-        this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
-        this._resource.setRotationAngle(this._rotationAngle);
-        this._resource.activate(); // update global DS first
+        resource.initialize(this);
+        resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+        resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+        resource.setSkyboxMaterial(this._editableMaterial);
+        resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+        resource.setRotationAngle(this._rotationAngle);
+        resource.activate(); // update global DS first
     }
 
     /**
@@ -584,12 +586,13 @@ export class SkyboxInfo {
             this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
             warnID(15001);
         }
-        if (this._resource) {
-            this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
-            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
-            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
-            this._resource.useDiffuseMap = this.applyDiffuseMap;
-            this._resource.envmap = val;
+        const resource = this._resource;
+        if (resource) {
+            resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+            resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+            resource.useDiffuseMap = this.applyDiffuseMap;
+            resource.envmap = val;
         }
     }
 
@@ -605,10 +608,12 @@ export class SkyboxInfo {
      * @zh 设置此属性的 pass 索引，如果没有指定，则会设置此属性到所有 pass 上。
      */
     public setMaterialProperty (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number): void {
-        if (!this._resource) return;
-        if (this._resource.enabled && this._resource.editableMaterial) {
-            this._resource.editableMaterial.setProperty(name, val, passIdx);
-            this._resource.editableMaterial.passes.forEach((pass) => {
+        const resource = this._resource;
+        if (!resource) return;
+        const editableMaterial = resource.editableMaterial;
+        if (resource.enabled && editableMaterial) {
+            editableMaterial.setProperty(name, val, passIdx);
+            editableMaterial.passes.forEach((pass) => {
                 pass.update();
             });
         }
@@ -634,10 +639,11 @@ export class FogInfo {
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) {
-            this._resource.enabled = val;
+        const resource = this._resource;
+        if (resource) {
+            resource.enabled = val;
             if (val) {
-                this._resource.type = this._type;
+                resource.type = this._type;
             }
         }
     }
@@ -656,10 +662,11 @@ export class FogInfo {
     set accurate (val: boolean) {
         if (this._accurate === val) return;
         this._accurate = val;
-        if (this._resource) {
-            this._resource.accurate = val;
+        const resource = this._resource;
+        if (resource) {
+            resource.accurate = val;
             if (val) {
-                this._resource.type = this._type;
+                resource.type = this._type;
             }
         }
     }
@@ -835,8 +842,8 @@ export class FogInfo {
      */
     public activate (resource: Fog): void {
         this._resource = resource;
-        this._resource.initialize(this);
-        this._resource.activate();
+        resource.initialize(this);
+        resource.activate();
     }
 }
 
@@ -855,19 +862,15 @@ export class ShadowsInfo {
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) {
-            this._resource.enabled = val;
+        const resource = this._resource;
+        if (resource) {
+            resource.enabled = val;
             if (val) {
-                this._resource.type = this._type;
+                resource.type = this._type;
             }
         }
     }
     get enabled (): boolean {
-        if (BAIDU) {
-            if (this._type !== ShadowType.Planar) {
-                this._enabled = false;
-            }
-        }
         return this._enabled;
     }
 
@@ -969,10 +972,11 @@ export class ShadowsInfo {
     @type(ShadowSize)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set shadowMapSize (value: number) {
+        const resource = this._resource;
         this._size.set(value, value);
-        if (this._resource) {
-            this._resource.size.set(value, value);
-            this._resource.shadowMapDirty = true;
+        if (resource) {
+            resource.size.set(value, value);
+            resource.shadowMapDirty = true;
         }
     }
     get shadowMapSize (): number {
@@ -1017,8 +1021,8 @@ export class ShadowsInfo {
      */
     public activate (resource: Shadows): void {
         this._resource = resource;
-        this._resource.initialize(this);
-        this._resource.activate();
+        resource.initialize(this);
+        resource.activate();
     }
 }
 legacyCC.ShadowsInfo = ShadowsInfo;
@@ -1117,7 +1121,7 @@ export class OctreeInfo {
      */
     public activate (resource: Octree): void {
         this._resource = resource;
-        this._resource.initialize(this);
+        resource.initialize(this);
     }
 }
 legacyCC.OctreeInfo = OctreeInfo;
@@ -1197,7 +1201,7 @@ export class SkinInfo {
      */
     public activate (resource: Skin): void {
         this._resource = resource;
-        this._resource.initialize(this);
+        resource.initialize(this);
     }
 }
 legacyCC.SkinInfo = SkinInfo;
@@ -1229,8 +1233,8 @@ export class PostSettingsInfo {
 
     public activate (resource: PostSettings): void {
         this._resource = resource;
-        this._resource.initialize(this);
-        this._resource.activate();
+        resource.initialize(this);
+        resource.activate();
     }
 }
 
@@ -1435,7 +1439,7 @@ export class LightProbeInfo {
     public activate (scene: Scene, resource: LightProbes): void {
         this._scene = scene;
         this._resource = resource;
-        this._resource.initialize(this);
+        resource.initialize(this);
     }
 
     public onProbeBakeFinished (): void {
@@ -1454,10 +1458,9 @@ export class LightProbeInfo {
 
         node.emit(NodeEventType.LIGHT_PROBE_BAKING_CHANGED);
 
-        for (let i = 0; i < node.children.length; i++) {
-            const child = node.children[i];
+        node.children.forEach((child) => {
             this.onProbeBakingChanged(child);
-        }
+        });
     }
 
     public clearSHCoefficients (): void {
@@ -1465,10 +1468,9 @@ export class LightProbeInfo {
             return;
         }
 
-        const probes = this._data.probes;
-        for (let i = 0; i < probes.length; i++) {
-            probes[i].coefficients.length = 0;
-        }
+        this._data.probes.forEach((probe) => {
+            probe.coefficients.length = 0;
+        });
 
         this.clearAllSHUBOs();
     }
@@ -1531,8 +1533,9 @@ export class LightProbeInfo {
 
         const points: Vec3[] = [];
         for (let i = 0; i < this._nodes.length; i++) {
-            const node = this._nodes[i].node;
-            const probes = this._nodes[i].probes;
+            const probeNode = this._nodes[i];
+            const node = probeNode.node;
+            const probes = probeNode.probes;
             const worldPosition = node.worldPosition;
 
             if (!probes) {
@@ -1540,7 +1543,7 @@ export class LightProbeInfo {
             }
 
             for (let j = 0; j < probes.length; j++) {
-                const position = new Vec3(0, 0, 0);
+                const position = v3();
                 Vec3.add(position, probes[j], worldPosition);
                 points.push(position);
             }
@@ -1572,9 +1575,9 @@ export class LightProbeInfo {
         }
 
         const models = renderScene.models;
-        for (let i = 0; i < models.length; i++) {
-            models[i].clearSHUBOs();
-        }
+        models.forEach((model) => {
+            model.clearSHUBOs();
+        });
     }
 
     private resetAllTetraIndices (): void {
@@ -1588,9 +1591,9 @@ export class LightProbeInfo {
         }
 
         const models = renderScene.models;
-        for (let i = 0; i < models.length; i++) {
-            models[i].tetrahedronIndex = -1;
-        }
+        models.forEach((model) => {
+            model.tetrahedronIndex = -1;
+        });
     }
 }
 
@@ -1709,7 +1712,7 @@ export class SceneGlobals {
         this.skin.activate(sceneData.skin);
         this.postSettings.activate(sceneData.postSettings);
         if (this.lightProbeInfo && sceneData.lightProbes) {
-            this.lightProbeInfo.activate(scene, sceneData.lightProbes as LightProbes);
+            this.lightProbeInfo.activate(scene, sceneData.lightProbes);
         }
 
         const root = legacyCC.director.root as Root;

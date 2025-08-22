@@ -26,7 +26,7 @@
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder,
     type, visible, serializable, range, slide, executeInEditMode } from 'cc.decorator';
 import { JSB } from 'internal:constants';
-import { clamp, Color, Mat4, Vec2, Vec3, warnID, cclegacy, ccenum, error } from '../../core';
+import { clamp, Color, Mat4, Vec2, Vec3, warnID, cclegacy, ccenum, errorID } from '../../core';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Stage } from '../renderer/stencil-manager';
@@ -120,6 +120,10 @@ export class Mask extends Component {
      * @zh 遮罩组件类型。
      */
     public static Type = MaskType;
+
+    constructor () {
+        super();
+    }
 
     /**
      * @en
@@ -230,7 +234,7 @@ export class Mask extends Component {
         if (this._sprite) {
             this._sprite.spriteFrame = value;
         } else {
-            error('please change type to sprite_stencil first');
+            errorID(16307);
         }
     }
 
@@ -332,7 +336,7 @@ export class Mask extends Component {
      * @param worldPt @en point in World Space. @zh 世界空间中的点击点。
      */
     public isHit (worldPt: Vec2): boolean {
-        const uiTrans = this.node._uiProps.uiTransformComp!;
+        const uiTrans = this.node._getUITransformComp()!;
         const size = uiTrans.contentSize;
         const w = size.width;
         const h = size.height;
@@ -408,7 +412,7 @@ export class Mask extends Component {
             return;
         }
 
-        const uiTrans = this.node._uiProps.uiTransformComp!;
+        const uiTrans = this.node._getUITransformComp()!;
         const graphics = this._graphics;
         // Share render data with graphics content
         graphics.clear();
@@ -508,7 +512,7 @@ export class Mask extends Component {
     public markForUpdateRenderData (enable = true): void {
         warnID(9007);
         if (this.subComp) {
-            this.subComp.markForUpdateRenderData(enable);
+            this.subComp._markForUpdateRenderData(enable);
         }
     }
     /**

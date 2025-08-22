@@ -37,7 +37,7 @@ import { getGlobalAnimationManager } from './global-animation-manager';
  * @en The event type supported by Animation
  * @zh Animation 支持的事件类型。
  */
-export enum EventType {
+export enum AnimationStateEventType {
     /**
      * @en Emit when begin playing animation
      * @zh 开始播放时触发。
@@ -71,7 +71,7 @@ export enum EventType {
      */
     FINISHED = 'finished',
 }
-ccenum(EventType);
+ccenum(AnimationStateEventType);
 
 /**
  * @en
@@ -516,7 +516,7 @@ export class AnimationState extends Playable {
         this.setTime(this._getPlaybackStart());
         this._delayTime = this._delay;
         this._onReplayOrResume();
-        this.emit(EventType.PLAY, this);
+        this.emit(AnimationStateEventType.PLAY, this);
         this._clipEmbeddedPlayerEval?.notifyHostPlay(this.current);
     }
 
@@ -524,19 +524,19 @@ export class AnimationState extends Playable {
         if (!this.isPaused) {
             this._onPauseOrStop();
         }
-        this.emit(EventType.STOP, this);
+        this.emit(AnimationStateEventType.STOP, this);
         this._clipEmbeddedPlayerEval?.notifyHostStop();
     }
 
     protected onResume (): void {
         this._onReplayOrResume();
-        this.emit(EventType.RESUME, this);
+        this.emit(AnimationStateEventType.RESUME, this);
         this._clipEmbeddedPlayerEval?.notifyHostPlay(this.current);
     }
 
     protected onPause (): void {
         this._onPauseOrStop();
-        this.emit(EventType.PAUSE, this);
+        this.emit(AnimationStateEventType.PAUSE, this);
         this._clipEmbeddedPlayerEval?.notifyHostPause(this.current);
     }
 
@@ -574,7 +574,7 @@ export class AnimationState extends Playable {
             }
 
             if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
-                this.emit(EventType.LASTFRAME, this);
+                this.emit(AnimationStateEventType.LASTFRAME, this);
             }
 
             lastInfo.set(info);
@@ -582,7 +582,7 @@ export class AnimationState extends Playable {
 
         if (info.stopped) {
             this.stop();
-            this.emit(EventType.FINISHED, this);
+            this.emit(AnimationStateEventType.FINISHED, this);
         }
     }
 
@@ -617,7 +617,7 @@ export class AnimationState extends Playable {
             }
 
             if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
-                this.emit(EventType.LASTFRAME, this);
+                this.emit(AnimationStateEventType.LASTFRAME, this);
             }
 
             this._lastIterations = ratio;

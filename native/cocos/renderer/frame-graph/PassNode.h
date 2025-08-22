@@ -40,7 +40,7 @@ class FrameGraph;
 
 class PassNode final {
 public:
-    PassNode(PassInsertPoint inserPoint, StringHandle name, const ID &id, Executable *pass);
+    PassNode(PassInsertPoint insertPoint, StringHandle name, const ID &id, Executable *pass);
     ~PassNode() = default;
     PassNode(PassNode &&) noexcept = default;
     PassNode(const PassNode &) = delete;

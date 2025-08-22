@@ -33,7 +33,7 @@
 #include "platform/FileUtils.h"
 #include "spine-creator-support/AttachmentVertices.h"
 
-namespace spine {
+namespace cc {
 static CustomTextureLoader customTextureLoader = nullptr;
 void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader) {
     customTextureLoader = texLoader;
@@ -43,40 +43,11 @@ static SpineObjectDisposeCallback spineObjectDisposeCallback = nullptr;
 void setSpineObjectDisposeCallback(SpineObjectDisposeCallback callback) {
     spineObjectDisposeCallback = callback;
 }
-} // namespace spine
+} // namespace cc
 
 USING_NS_MW;           // NOLINT(google-build-using-namespace)
 using namespace cc;    // NOLINT(google-build-using-namespace)
 using namespace spine; // NOLINT(google-build-using-namespace)
-
-static void deleteAttachmentVertices(void *vertices) {
-    delete static_cast<AttachmentVertices *>(vertices);
-}
-
-static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
-
-static void setAttachmentVertices(RegionAttachment *attachment) {
-    auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
-    auto *attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
-    V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
-    for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
-        vertices[i].texCoord.u = attachment->getUVs()[ii];
-        vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
-    }
-    attachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
-}
-
-static void setAttachmentVertices(MeshAttachment *attachment) {
-    auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
-    auto *attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->getRendererObject()),
-                                                      static_cast<int32_t>(attachment->getWorldVerticesLength() >> 1), attachment->getTriangles().buffer(), static_cast<int32_t>(attachment->getTriangles().size()));
-    V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
-    for (size_t i = 0, ii = 0, nn = attachment->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
-        vertices[i].texCoord.u = attachment->getUVs()[ii];
-        vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
-    }
-    attachment->setRendererObject(attachmentVertices, deleteAttachmentVertices);
-}
 
 Cocos2dAtlasAttachmentLoader::Cocos2dAtlasAttachmentLoader(Atlas *atlas) : AtlasAttachmentLoader(atlas) {
 }
@@ -84,11 +55,7 @@ Cocos2dAtlasAttachmentLoader::Cocos2dAtlasAttachmentLoader(Atlas *atlas) : Atlas
 Cocos2dAtlasAttachmentLoader::~Cocos2dAtlasAttachmentLoader() = default;
 
 void Cocos2dAtlasAttachmentLoader::configureAttachment(Attachment *attachment) {
-    if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
-        setAttachmentVertices(dynamic_cast<RegionAttachment *>(attachment));
-    } else if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
-        setAttachmentVertices(dynamic_cast<MeshAttachment *>(attachment));
-    }
+    //
 }
 
 uint32_t wrap(TextureWrap wrap) {
@@ -104,8 +71,8 @@ Cocos2dTextureLoader::~Cocos2dTextureLoader() = default;
 
 void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
     middleware::Texture2D *texture = nullptr;
-    if (spine::customTextureLoader) {
-        texture = spine::customTextureLoader(path.buffer());
+    if (customTextureLoader) {
+        texture = customTextureLoader(path.buffer());
     }
     CC_ASSERT_NOT_NULL(texture);
 
@@ -115,7 +82,11 @@ void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
         middleware::Texture2D::TexParams textureParams = {filter(page.minFilter), filter(page.magFilter), wrap(page.uWrap), wrap(page.vWrap)};
         texture->setTexParameters(textureParams);
 
+#if CC_USE_SPINE_3_8
         page.setRendererObject(texture);
+#else
+        page.texture = texture;
+#endif
         page.width = texture->getPixelsWide();
         page.height = texture->getPixelsHigh();
     }

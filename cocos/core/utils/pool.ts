@@ -85,7 +85,7 @@ export class Pool<T> {
      * 当前可用对象数量，一开始默认是 0，随着对象的回收会逐渐增大，最大不会超过调用构造函数时指定的 size。
      * @default 0
      */
-    public count: number;
+    public count: number = 0;
 
     /**
      * @en
@@ -98,8 +98,8 @@ export class Pool<T> {
         return this._get();
     }
 
-    private _pool: Array<T | null>;
-    private _cleanup: CleanUpFunction<T> | null;
+    private declare _pool: Array<T | null>;
+    private declare _cleanup: CleanUpFunction<T> | null;
 
     /**
      * @en Constructor. @zh 构造函数。
@@ -125,7 +125,6 @@ export class Pool<T> {
     constructor (_0: CleanUpFunction<T> | number, _1?: number) {
         const size = (_1 === undefined) ? (_0 as number) : _1;
         const cleanupFunc = (_1 === undefined) ? null : (_0 as CleanUpFunction<T>);
-        this.count = 0;
         this._pool = new Array(size);
         this._cleanup = cleanupFunc;
     }

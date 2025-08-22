@@ -23,7 +23,7 @@
 */
 
 import { error, IVec3Like, Vec3 } from '../../../core';
-import { CharacterControllerContact, PhysicsSystem  } from '../../framework';
+import { PhysicsSystem  } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { BulletCache } from '../bullet-cache';
@@ -38,6 +38,8 @@ import { TransformBit } from '../../../scene-graph';
 const v3_0 = new Vec3(0, 0, 0);
 const v3_1 = new Vec3(0, 0, 0);
 const v3_2 = new Vec3(0, 0, 0);
+
+/** @mangle */
 export abstract class BulletCharacterController implements IBaseCharacterController {
     readonly wrappedWorld: BulletWorld;
     private _isEnabled = false;

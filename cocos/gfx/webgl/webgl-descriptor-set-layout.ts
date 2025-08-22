@@ -26,10 +26,15 @@ import { DescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../base/define
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { IWebGLGPUDescriptorSetLayout } from './webgl-gpu-objects';
 
+/** @mangle */
 export class WebGLDescriptorSetLayout extends DescriptorSetLayout {
     get gpuDescriptorSetLayout (): IWebGLGPUDescriptorSetLayout { return this._gpuDescriptorSetLayout!; }
 
     private _gpuDescriptorSetLayout: IWebGLGPUDescriptorSetLayout | null = null;
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: Readonly<DescriptorSetLayoutInfo>): void {
         Array.prototype.push.apply(this._bindings, info.bindings);

@@ -28,7 +28,6 @@ import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
 import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
 import { B2Shape2D } from './shapes/shape-2d';
 import { IPhysics2DContact, IPhysics2DImpulse, IPhysics2DManifoldPoint, IPhysics2DWorldManifold } from '../spec/i-physics-contact';
-import { B2PhysicsWorld } from './physics-world';
 
 const pools: PhysicsContact[] = [];
 
@@ -61,6 +60,7 @@ const impulse: IPhysics2DImpulse = {
     tangentImpulses: [] as number[],
 };
 
+/** @mangle */
 export class PhysicsContact implements IPhysics2DContact {
     static get (b2contact: number): PhysicsContact {
         let c = pools.pop();
@@ -206,39 +206,21 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     emit (contactType: string): void {
-        let func = '';
-        switch (contactType) {
-        case Contact2DType.BEGIN_CONTACT:
-            func = 'onBeginContact';
-            break;
-        case Contact2DType.END_CONTACT:
-            func = 'onEndContact';
-            break;
-        case Contact2DType.PRE_SOLVE:
-            func = 'onPreSolve';
-            break;
-        case Contact2DType.POST_SOLVE:
-            func = 'onPostSolve';
-            break;
-        default:
-            break;
-        }
-
         const colliderA = this.colliderA;
         const colliderB = this.colliderB;
 
-        const bodyA = colliderA!.body;
-        const bodyB = colliderB!.body;
+        const hasListenerA = colliderA?.body?.enabledContactListener;
+        const hasListenerB = colliderB?.body?.enabledContactListener;
 
-        if (bodyA!.enabledContactListener) {
-            colliderA?.emit(contactType, colliderA, colliderB, this);
+        if (hasListenerA) {
+            colliderA.emit(contactType, colliderA, colliderB, this);
         }
 
-        if (bodyB!.enabledContactListener) {
-            colliderB?.emit(contactType, colliderB, colliderA, this);
+        if (hasListenerB) {
+            colliderB.emit(contactType, colliderB, colliderA, this);
         }
 
-        if (bodyA!.enabledContactListener || bodyB!.enabledContactListener) {
+        if (hasListenerA || hasListenerB) {
             PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, this);
         }
 

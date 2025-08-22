@@ -22,15 +22,14 @@
  THE SOFTWARE.
 */
 
-import { Color, Mat4 } from '../../../core';
-import { IRenderData, RenderData } from '../../renderer/render-data';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Sprite } from '../../components';
-import { IAssembler } from '../../renderer/base';
+import { Color } from '../../../core';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Sprite } from '../../components';
+import type { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
-const m = new Mat4();
 const tempRenderData: IRenderData[] = [];
 for (let i = 0; i < 4; i++) {
     tempRenderData.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
@@ -40,44 +39,46 @@ for (let i = 0; i < 4; i++) {
  * sliced 组装器
  * 可通过 `UI.sliced` 获取该组装器。
  */
-export const sliced: IAssembler = {
+class Sliced implements IAssembler {
+    private QUAD_INDICES!: Uint16Array;
 
-    createData (sprite: Sprite) {
+    createData (sprite: Sprite): RenderData {
         const renderData: RenderData | null = sprite.requestRenderData()!;
         // 0-4 for local vertex
         renderData.dataLength = 16;
         renderData.resize(16, 54);
-        this.QUAD_INDICES = new Uint16Array(54);
+        const quadIndices = this.QUAD_INDICES = new Uint16Array(54);
         this.createQuadIndices(4, 4);
-        renderData.chunk.setIndexBuffer(this.QUAD_INDICES as Uint16Array);
+        renderData.chunk.setIndexBuffer(quadIndices);
         return renderData;
-    },
+    }
 
-    createQuadIndices (vertexRow: number, vertexCol: number) {
+    private createQuadIndices (vertexRow: number, vertexCol: number): void {
         let offset = 0;
+        const quadIndices = this.QUAD_INDICES;
         for (let curRow = 0; curRow < vertexRow - 1; curRow++) {
             for (let curCol = 0; curCol < vertexCol - 1; curCol++) {
                 // vid is the index of the left bottom vertex in each rect.
                 const vid = curRow * vertexCol + curCol;
 
                 // left bottom
-                this.QUAD_INDICES[offset++] = vid;
+                quadIndices[offset++] = vid;
                 // right bottom
-                this.QUAD_INDICES[offset++] = vid + 1;
+                quadIndices[offset++] = vid + 1;
                 // left top
-                this.QUAD_INDICES[offset++] = vid + vertexCol;
+                quadIndices[offset++] = vid + vertexCol;
 
                 // right bottom
-                this.QUAD_INDICES[offset++] = vid + 1;
+                quadIndices[offset++] = vid + 1;
                 // right top
-                this.QUAD_INDICES[offset++] = vid + 1 + vertexCol;
+                quadIndices[offset++] = vid + 1 + vertexCol;
                 // left top
-                this.QUAD_INDICES[offset++] = vid + vertexCol;
+                quadIndices[offset++] = vid + vertexCol;
             }
         }
-    },
+    }
 
-    updateRenderData (sprite: Sprite) {
+    updateRenderData (sprite: Sprite): void {
         const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
@@ -103,12 +104,13 @@ export const sliced: IAssembler = {
             }
             renderData.updateRenderData(sprite, frame);
         }
-    },
+    }
 
-    updateVertexData (sprite: Sprite) {
-        const renderData: RenderData = sprite.renderData!;
+    private updateVertexData (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const dataList: IRenderData[] = renderData.data;
-        const uiTrans = sprite.node._uiProps.uiTransformComp!;
+        const uiTrans = sprite.node._getUITransformComp()!;
         const width = uiTrans.width;
         const height = uiTrans.height;
         const appX = uiTrans.anchorX * width;
@@ -149,10 +151,11 @@ export const sliced: IAssembler = {
                 }
             }
         }
-    },
+    }
 
-    fillBuffers (sprite: Sprite, renderer: IBatcher) {
-        const renderData: RenderData = sprite.renderData!;
+    fillBuffers (sprite: Sprite, renderer: IBatcher): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexData(sprite, chunk);
@@ -177,16 +180,20 @@ export const sliced: IAssembler = {
             }
         }
         meshBuffer.indexOffset = indexOffset;
-    },
+    }
 
-    updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {
-        const node = sprite.node;
-        node.getWorldMatrix(m);
-
-        const renderData = sprite.renderData!;
+    private updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = chunk.vb;
+        const node = sprite.node;
+        const m = node.worldMatrix;
+
+        const m00 = m.m00; const m01 = m.m01; const m02 = m.m02; const m03 = m.m03;
+        const m04 = m.m04; const m05 = m.m05; const m06 = m.m06; const m07 = m.m07;
+        const m12 = m.m12; const m13 = m.m13; const m14 = m.m14; const m15 = m.m15;
 
         let offset = 0;
         for (let row = 0; row < 4; ++row) {
@@ -195,20 +202,20 @@ export const sliced: IAssembler = {
                 const colD = dataList[col];
                 const x = colD.x;
                 const y = rowD.y;
-                let rhw = m.m03 * x + m.m07 * y + m.m15;
+                let rhw = m03 * x + m07 * y + m15;
                 rhw = rhw ? 1 / rhw : 1;
 
                 offset = (row * 4 + col) * stride;
-                vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
-                vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
-                vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
+                vData[offset + 0] = (m00 * x + m04 * y + m12) * rhw;
+                vData[offset + 1] = (m01 * x + m05 * y + m13) * rhw;
+                vData[offset + 2] = (m02 * x + m06 * y + m14) * rhw;
             }
         }
-    },
+    }
 
-    updateUVs (sprite: Sprite) {
-        if (!sprite.spriteFrame) return;
-        const renderData = sprite.renderData!;
+    updateUVs (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!sprite.spriteFrame || !renderData) return;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
         const uv = sprite.spriteFrame.uvSliced;
@@ -218,10 +225,11 @@ export const sliced: IAssembler = {
             vData[uvOffset + 1] = uv[i].v;
             uvOffset += stride;
         }
-    },
+    }
 
-    updateColor (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    updateColor (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
 
@@ -238,5 +246,7 @@ export const sliced: IAssembler = {
             vData[colorOffset + 3] = colorA;
             colorOffset += stride;
         }
-    },
-};
+    }
+}
+
+export const sliced = new Sliced();

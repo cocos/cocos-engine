@@ -55,6 +55,10 @@ import type { Batcher2D } from '../renderer/batcher-2d';
 @menu('2D/UIStaticBatch')
 @executionOrder(110)
 export class UIStaticBatch extends UIRenderer {
+    constructor () {
+        super();
+    }
+
     @override
     @visible(false)
     get color (): Readonly<Color> {

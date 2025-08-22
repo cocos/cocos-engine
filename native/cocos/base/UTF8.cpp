@@ -24,12 +24,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#define CC_USE_SIMD_UTF 1
+
 #include "base/UTF8.h"
 
 #include <cstdarg>
 #include <cstdlib>
 
 #include "ConvertUTF/ConvertUTF.h"
+
+#if CC_USE_SIMD_UTF
+#include "simdutf/simdutf.cpp" //NOLINT
+#include "simdutf/simdutf.h"
+#endif
+
 #include "base/Log.h"
 
 namespace cc {
@@ -211,7 +219,29 @@ CC_DLL void UTF8LooseFix(const ccstd::string &in, ccstd::string &out) { //NOLINT
 }
 
 bool UTF8ToUTF16(const ccstd::string &utf8, std::u16string &outUtf16) { //NOLINT
+#if CC_USE_SIMD_UTF
+    bool validutf8 = simdutf::validate_utf8(utf8.c_str(), utf8.length());
+    if (!validutf8) {
+        outUtf16.clear();
+        return false;
+    }
+
+    // We need a buffer of size where to write the UTF-16LE words.
+    size_t expectedUtf16words = simdutf::utf16_length_from_utf8(utf8.c_str(), utf8.length());
+    outUtf16.resize(expectedUtf16words);
+
+    // convert to UTF-16LE
+    size_t utf16words = simdutf::convert_utf8_to_utf16le(utf8.c_str(), utf8.length(), outUtf16.data());
+    bool validutf16 = simdutf::validate_utf16le(outUtf16.c_str(), utf16words);
+    if (!validutf16) {
+        outUtf16.clear();
+        return false;
+    }
+
+    return true;
+#else
     return utfConvert(utf8, outUtf16, ConvertUTF8toUTF16);
+#endif
 }
 
 bool UTF8ToUTF32(const ccstd::string &utf8, std::u32string &outUtf32) { //NOLINT
@@ -237,7 +267,7 @@ bool UTF32ToUTF16(const std::u32string &utf32, std::u16string &outUtf16) { //NOL
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 ccstd::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
     ccstd::string utf8Str;
-    auto *unicodeChar = static_cast<const uint16_t *>(env->GetStringChars(srcjStr, nullptr));
+    const auto *unicodeChar = static_cast<const uint16_t *>(env->GetStringChars(srcjStr, nullptr));
     size_t unicodeCharLength = env->GetStringLength(srcjStr);
     const std::u16string unicodeStr(reinterpret_cast<const char16_t *>(unicodeChar), unicodeCharLength);
     bool flag = UTF16ToUTF8(unicodeStr, utf8Str);
@@ -312,7 +342,7 @@ void StringUTF8::replace(const ccstd::string &newStr) {
 ccstd::string StringUTF8::getAsCharSequence() const {
     ccstd::string charSequence;
 
-    for (auto &charUtf8 : _str) {
+    for (const auto &charUtf8 : _str) {
         charSequence.append(charUtf8._char);
     }
 

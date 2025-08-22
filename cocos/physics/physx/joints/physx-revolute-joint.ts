@@ -23,7 +23,7 @@
 */
 
 import { IVec3Like, Mat4, Quat, Vec3 } from '../../../core';
-import { HingeConstraint, PhysicsSystem } from '../../framework';
+import { HingeConstraint } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
@@ -35,6 +35,7 @@ const v3_2 = new Vec3();
 const quat_0 = new Quat();
 const mat_0 = new Mat4();
 
+/** @mangle */
 export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
     private _limitPair = new PX.PxJointAngularLimitPair(0, 0);
 

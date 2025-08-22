@@ -35,9 +35,9 @@ export class AccelerometerInputSource {
     private _intervalInMileSeconds = 200;
     private _accelTimer = 0;
     private _eventTarget: EventTarget = new  EventTarget();
-    private _deviceEventName: 'devicemotion' |'deviceorientation';
-    private _globalEventClass: typeof window.DeviceMotionEvent | typeof window.DeviceOrientationEvent;
-    private _didAccelerateFunc: (event: DeviceMotionEvent | DeviceOrientationEvent) => void;
+    private declare _deviceEventName: 'devicemotion' |'deviceorientation';
+    private declare _globalEventClass: typeof window.DeviceMotionEvent | typeof window.DeviceOrientationEvent;
+    private declare _didAccelerateFunc: (event: DeviceMotionEvent | DeviceOrientationEvent) => void;
 
     constructor () {
         // init event name

@@ -45,6 +45,10 @@ const MIN_INT16 = -1 << 15;
 @disallowMultiple
 @executeInEditMode
 export class Sorting extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @zh 组件所属排序层 id，影响组件的渲染排序。
      * @en The sorting layer id of the component, which affects the rendering order of the component.

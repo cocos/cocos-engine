@@ -350,6 +350,14 @@ enum class FormatType : uint32_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(FormatType);
 
+enum class SampleType: uint32_t {
+    FLOAT,
+    UNFILTERABLE_FLOAT,
+    SINT,
+    UINT,
+};
+CC_ENUM_CONVERSION_OPERATOR(SampleType);
+
 enum class Type : uint32_t {
     UNKNOWN,
     BOOL,
@@ -456,6 +464,22 @@ enum class TextureType : uint32_t {
     TEX2D_ARRAY,
 };
 CC_ENUM_CONVERSION_OPERATOR(TextureType);
+
+enum class ViewDimension: uint32_t {
+    UNKNOWN,
+    BUFFER,
+    TEX1D,
+    TEX1D_ARRAY,
+    TEX2D,
+    TEX2D_ARRAY,
+    TEX2DMS,
+    TEX2DMS_ARRAY,
+    TEX3D,
+    TEXCUBE,
+    TEXCUBE_ARRAY,
+    RAYTRACING_ACCELERATION_STRUCTURE,
+};
+CC_ENUM_CONVERSION_OPERATOR(ViewDimension);
 
 enum class TextureUsageBit : uint32_t {
     NONE = 0,
@@ -953,6 +977,10 @@ struct Viewport {
     float maxDepth{1.F};
 
     EXPOSE_COPY_FN(Viewport)
+
+    void reset() {
+        *this = Viewport();
+    }
 };
 
 struct Color {
@@ -1335,8 +1363,8 @@ struct ALIGNAS(8) SubpassDependency {
     uint32_t dstSubpass{0};
     GeneralBarrier *generalBarrier{nullptr};
 
-    AccessFlags prevAccesses{};
-    AccessFlags nextAccesses{};
+    AccessFlags prevAccesses{AccessFlagBit::NONE};
+    AccessFlags nextAccesses{AccessFlagBit::NONE};
 
     EXPOSE_COPY_FN(SubpassDependency)
 };
@@ -1424,6 +1452,10 @@ struct DescriptorSetLayoutBinding {
     DescriptorType descriptorType{DescriptorType::UNKNOWN};
     uint32_t count{0};
     ShaderStageFlags stageFlags{ShaderStageFlagBit::NONE};
+    MemoryAccess access{MemoryAccessBit::READ_ONLY};
+    ViewDimension viewDimension{ViewDimension::UNKNOWN};
+    SampleType sampleType{SampleType::FLOAT};
+    Format format{Format::UNKNOWN};
     SamplerList immutableSamplers;
 
     EXPOSE_COPY_FN(DescriptorSetLayoutBinding)

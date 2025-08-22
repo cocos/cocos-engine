@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -28,12 +28,12 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
+// NOLINTBEGIN(misc-include-cleaner, bugprone-easily-swappable-parameters)
 #pragma once
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
-#include <variant>
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
@@ -77,7 +77,7 @@ struct ResourceAccessNode {
 
     ResourceAccessNode(ResourceAccessNode&& rhs) noexcept = default;
     ResourceAccessNode(ResourceAccessNode const& rhs) = delete;
-    ResourceAccessNode& operator=(ResourceAccessNode&& rhs) = default;
+    ResourceAccessNode& operator=(ResourceAccessNode&& rhs) noexcept = default;
     ResourceAccessNode& operator=(ResourceAccessNode const& rhs) = default;
 
     PmrFlatMap<ccstd::pmr::string, AccessStatus> resourceStatus;
@@ -100,7 +100,7 @@ struct AttachmentInfo {
 
     AttachmentInfo(AttachmentInfo&& rhs) noexcept = default;
     AttachmentInfo(AttachmentInfo const& rhs) = delete;
-    AttachmentInfo& operator=(AttachmentInfo&& rhs) = default;
+    AttachmentInfo& operator=(AttachmentInfo&& rhs) noexcept = default;
     AttachmentInfo& operator=(AttachmentInfo const& rhs) = default;
 
     ccstd::pmr::string parentName;
@@ -120,7 +120,7 @@ struct FGRenderPassInfo {
 
     FGRenderPassInfo(FGRenderPassInfo&& rhs) noexcept = default;
     FGRenderPassInfo(FGRenderPassInfo const& rhs) = delete;
-    FGRenderPassInfo& operator=(FGRenderPassInfo&& rhs) = default;
+    FGRenderPassInfo& operator=(FGRenderPassInfo&& rhs) noexcept = default;
     FGRenderPassInfo& operator=(FGRenderPassInfo const& rhs) = default;
 
     ccstd::vector<LayoutAccess> colorAccesses;
@@ -169,7 +169,7 @@ struct ResourceAccessGraph {
         return {_vertices.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -217,29 +217,29 @@ struct ResourceAccessGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -266,7 +266,7 @@ struct ResourceAccessGraph {
 
         Vertex(Vertex&& rhs) noexcept = default;
         Vertex(Vertex const& rhs) = delete;
-        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex&& rhs) noexcept = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
@@ -307,7 +307,7 @@ struct RelationGraph {
         return {_vertices.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -355,29 +355,29 @@ struct RelationGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -401,7 +401,7 @@ struct RelationGraph {
 
         Vertex(Vertex&& rhs) noexcept = default;
         Vertex(Vertex const& rhs) = delete;
-        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex&& rhs) noexcept = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
@@ -430,7 +430,7 @@ struct RenderingInfo {
 
     RenderingInfo(RenderingInfo&& rhs) noexcept = default;
     RenderingInfo(RenderingInfo const& rhs) = delete;
-    RenderingInfo& operator=(RenderingInfo&& rhs) = default;
+    RenderingInfo& operator=(RenderingInfo&& rhs) noexcept = default;
     RenderingInfo& operator=(RenderingInfo const& rhs) = default;
 
     gfx::RenderPassInfo renderpassInfo;
@@ -486,6 +486,15 @@ struct FrameGraphDispatcher {
         const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
         boost::container::pmr::memory_resource* scratch) const;
 
+    void buildDescriptorIndex(
+        const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
+        const PmrTransparentMap<ccstd::pmr::string, RasterView>& rasterViews,
+        PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& resourceIndex) const;
+
+    void buildDescriptorIndex(
+        const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
+        PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& resourceIndex) const;
+
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
     const RenderGraph& renderGraph;
@@ -503,4 +512,5 @@ struct FrameGraphDispatcher {
 
 } // namespace cc
 
+// NOLINTEND(misc-include-cleaner, bugprone-easily-swappable-parameters)
 // clang-format on

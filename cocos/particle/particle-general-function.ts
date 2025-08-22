@@ -25,13 +25,13 @@
 import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3, bits } from '../core/math';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
-import { Space } from './enum';
+import { ParticleSpace } from './enum';
 
 export const particleEmitZAxis = new Vec3(0, 0, -1);
 
 export function calculateTransform (systemSpace: number, moduleSpace: number, worldTransform: Mat4, outQuat: Quat): boolean {
     if (moduleSpace !== systemSpace) {
-        if (systemSpace === Space.World) {
+        if (systemSpace === ParticleSpace.World) {
             Mat4.getRotation(outQuat, worldTransform);
         } else {
             Mat4.invert(worldTransform, worldTransform);
@@ -93,14 +93,16 @@ export function randomPointBetweenCircleAtFixedAngle (out: Vec3, minRadius: numb
 }
 
 export function randomPointInCube (out: Vec3, extents: Vec3): void {
-    Vec3.set(out,
+    Vec3.set(
+        out,
         randomRange(-extents.x, extents.x),
         randomRange(-extents.y, extents.y),
-        randomRange(-extents.z, extents.z));
+        randomRange(-extents.z, extents.z),
+    );
 }
 
 export function randomPointBetweenCube (out: Vec3, minBox: Vec3, maxBox: Vec3): void {
-    const subscript = ['x', 'y', 'z'];
+    const subscript: ['x', 'y', 'z'] = ['x', 'y', 'z'];
     const edge = randomRangeInt(0, 3);
     for (let i = 0; i < 3; i++) {
         if (i === edge) {
@@ -117,7 +119,7 @@ export function randomPointBetweenCube (out: Vec3, minBox: Vec3, maxBox: Vec3): 
 }
 
 // Fisher–Yates shuffle
-export function randomSortArray (arr: any[]): void {
+export function randomSortArray (arr: number[]): void {
     for (let i = 0; i < arr.length; i++) {
         const transpose = i + randomRangeInt(0, arr.length - i);
         const val = arr[transpose];

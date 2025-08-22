@@ -314,12 +314,12 @@ protected:
 public:
     template <typename TgtEvent, typename Fn>
     TargetEventID<TgtEvent> once(Fn &&func, bool useCapture) {
-        return this->template addEventListener(std::forward<Fn>(func), useCapture, true);
+        return this->addEventListener(std::forward<Fn>(func), useCapture, true);
     }
 
     template <typename TgtEvent, typename Fn, typename O>
     TargetEventID<TgtEvent> once(Fn &&func, O *ctx) {
-        return this->template addEventListener(std::forward<Fn>(func), ctx, true);
+        return this->addEventListener(std::forward<Fn>(func), ctx, true);
     }
 
     template <typename TgtEvent, typename Fn>

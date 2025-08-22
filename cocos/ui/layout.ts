@@ -28,9 +28,9 @@ import { Component } from '../scene-graph/component';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { UITransform } from '../2d/framework/ui-transform';
-import { director, Director } from '../game/director';
+import { director, DirectorEvent } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';
-import { warn } from '../core';
+import { warnID } from '../core';
 import { NodeEventType } from '../scene-graph/node-event';
 import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph/node';
@@ -40,7 +40,7 @@ import { Node } from '../scene-graph/node';
  *
  * @zh 布局类型。
  */
-enum Type {
+export enum LayoutType {
     /**
      * @en No layout.
      *
@@ -68,14 +68,14 @@ enum Type {
     GRID = 3,
 }
 
-ccenum(Type);
+ccenum(LayoutType);
 
 /**
  * @en Layout Resize Mode.
  *
  * @zh 缩放模式。
  */
-enum ResizeMode {
+export enum LayoutResizeMode {
     /**
      * @en Don't scale.
      *
@@ -96,14 +96,14 @@ enum ResizeMode {
     CHILDREN = 2,
 }
 
-ccenum(ResizeMode);
+ccenum(LayoutResizeMode);
 
 /**
  * @en Grid Layout start axis direction.
  *
  * @zh 布局轴向，只用于 GRID 布局。
  */
-enum AxisDirection {
+export enum LayoutAxisDirection {
     /**
      * @en The horizontal axis.
      *
@@ -118,14 +118,14 @@ enum AxisDirection {
     VERTICAL = 1,
 }
 
-ccenum(AxisDirection);
+ccenum(LayoutAxisDirection);
 
 /**
  * @en Vertical layout direction.
  *
  * @zh 垂直方向布局方式。
  */
-enum VerticalDirection {
+export enum LayoutVerticalDirection {
     /**
      * @en Items arranged from bottom to top.
      *
@@ -139,14 +139,14 @@ enum VerticalDirection {
     TOP_TO_BOTTOM = 1,
 }
 
-ccenum(VerticalDirection);
+ccenum(LayoutVerticalDirection);
 
 /**
  * @en Horizontal layout direction.
  *
  * @zh 水平方向布局方式。
  */
-enum HorizontalDirection {
+export enum LayoutHorizontalDirection {
     /**
      * @en Items arranged from left to right.
      *
@@ -160,14 +160,14 @@ enum HorizontalDirection {
     RIGHT_TO_LEFT = 1,
 }
 
-ccenum(HorizontalDirection);
+ccenum(LayoutHorizontalDirection);
 
 /**
  * @en Layout constraint.
  *
  * @zh 布局约束。
  */
-enum Constraint {
+export enum LayoutConstraint {
     /**
      * @en Constraint free.
      *
@@ -188,7 +188,7 @@ enum Constraint {
     FIXED_COL = 2,
 }
 
-ccenum(Constraint);
+ccenum(LayoutConstraint);
 
 const _tempVec3 = new Vec3();
 
@@ -212,6 +212,10 @@ const _tempVec3 = new Vec3();
 @requireComponent(UITransform)
 @executeInEditMode
 export class Layout extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Alignment horizontal. Fixed starting position in the same direction when Type is Horizontal.
@@ -220,7 +224,7 @@ export class Layout extends Component {
      * 横向对齐。在 Type 为 Horizontal 时按同个方向固定起始位置排列。
      */
     @visible(function (this: Layout): boolean {
-        return this._layoutType === Type.HORIZONTAL;
+        return this._layoutType === LayoutType.HORIZONTAL;
     })
     @tooltip('i18n:layout.align_horizontal')
     get alignHorizontal (): boolean {
@@ -228,7 +232,7 @@ export class Layout extends Component {
     }
 
     set alignHorizontal (value) {
-        if (this._layoutType !== Type.HORIZONTAL) {
+        if (this._layoutType !== LayoutType.HORIZONTAL) {
             return;
         }
 
@@ -244,7 +248,7 @@ export class Layout extends Component {
      * 纵向对齐。在 Type 为 Horizontal 或 Vertical 时按同个方向固定起始位置排列。
      */
     @visible(function (this: Layout): boolean {
-        return this._layoutType === Type.VERTICAL;
+        return this._layoutType === LayoutType.VERTICAL;
     })
     @tooltip('i18n:layout.align_vertical')
     get alignVertical (): boolean {
@@ -252,7 +256,7 @@ export class Layout extends Component {
     }
 
     set alignVertical (value) {
-        if (this._layoutType !== Type.VERTICAL) {
+        if (this._layoutType !== LayoutType.VERTICAL) {
             return;
         }
 
@@ -267,14 +271,14 @@ export class Layout extends Component {
      * @zh
      * 布局类型。
      */
-    @type(Type)
+    @type(LayoutType)
     @displayOrder(0)
     @tooltip('i18n:layout.layout_type')
-    get type (): Type {
+    get type (): LayoutType {
         return this._layoutType;
     }
 
-    set type (value: Type) {
+    set type (value: LayoutType) {
         this._layoutType = value;
         this._doLayoutDirty();
     }
@@ -285,16 +289,16 @@ export class Layout extends Component {
      * @zh
      * 缩放模式。
      */
-    @type(ResizeMode)
+    @type(LayoutResizeMode)
     @visible(function (this: Layout): boolean {
-        return this._layoutType !== Type.NONE;
+        return this._layoutType !== LayoutType.NONE;
     })
     @tooltip('i18n:layout.resize_mode')
-    get resizeMode (): ResizeMode {
+    get resizeMode (): LayoutResizeMode {
         return this._resizeMode;
     }
     set resizeMode (value) {
-        if (this._layoutType === Type.NONE) {
+        if (this._layoutType === LayoutType.NONE) {
             return;
         }
 
@@ -310,7 +314,7 @@ export class Layout extends Component {
      * 每个格子的大小，只有布局类型为 GRID 的时候才有效。
      */
     @visible(function (this: Layout) {
-        if (this.type === Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
+        if (this.type === LayoutType.GRID && this._resizeMode === LayoutResizeMode.CHILDREN) {
             return true;
         }
 
@@ -338,9 +342,9 @@ export class Layout extends Component {
      * @zh
      * 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
      */
-    @type(AxisDirection)
+    @type(LayoutAxisDirection)
     @tooltip('i18n:layout.start_axis')
-    get startAxis (): AxisDirection {
+    get startAxis (): LayoutAxisDirection {
         return this._startAxis;
     }
 
@@ -482,13 +486,13 @@ export class Layout extends Component {
      * @zh
      * 垂直排列子节点的方向。
      */
-    @type(VerticalDirection)
+    @type(LayoutVerticalDirection)
     @tooltip('i18n:layout.vertical_direction')
-    get verticalDirection (): VerticalDirection {
+    get verticalDirection (): LayoutVerticalDirection {
         return this._verticalDirection;
     }
 
-    set verticalDirection (value: VerticalDirection) {
+    set verticalDirection (value: LayoutVerticalDirection) {
         if (this._verticalDirection === value) {
             return;
         }
@@ -505,13 +509,13 @@ export class Layout extends Component {
      * @zh
      * 水平排列子节点的方向。
      */
-    @type(HorizontalDirection)
+    @type(LayoutHorizontalDirection)
     @tooltip('i18n:layout.horizontal_direction')
-    get horizontalDirection (): HorizontalDirection {
+    get horizontalDirection (): LayoutHorizontalDirection {
         return this._horizontalDirection;
     }
 
-    set horizontalDirection (value: HorizontalDirection) {
+    set horizontalDirection (value: LayoutHorizontalDirection) {
         if (this._horizontalDirection === value) {
             return;
         }
@@ -545,17 +549,17 @@ export class Layout extends Component {
      * @zh
      * 容器内布局约束。
      */
-    @type(Constraint)
+    @type(LayoutConstraint)
     @visible(function (this: Layout): boolean {
-        return this.type === Type.GRID;
+        return this.type === LayoutType.GRID;
     })
     @tooltip('i18n:layout.constraint')
-    get constraint (): Constraint {
+    get constraint (): LayoutConstraint {
         return this._constraint;
     }
 
-    set constraint (value: Constraint) {
-        if (this._layoutType === Type.NONE || this._constraint === value) {
+    set constraint (value: LayoutConstraint) {
+        if (this._layoutType === LayoutType.NONE || this._constraint === value) {
             return;
         }
 
@@ -571,7 +575,7 @@ export class Layout extends Component {
      * 容器内布局约束使用的限定值。
      */
     @visible(function (this: Layout): boolean {
-        return this._constraint !== Constraint.NONE;
+        return this._constraint !== LayoutConstraint.NONE;
     })
     @tooltip('i18n:layout.constraint_number')
     get constraintNum (): number {
@@ -579,12 +583,12 @@ export class Layout extends Component {
     }
 
     set constraintNum (value) {
-        if (this._constraint === Constraint.NONE || this._constraintNum === value) {
+        if (this._constraint === LayoutConstraint.NONE || this._constraintNum === value) {
             return;
         }
 
         if (value <= 0) {
-            warn('Limit values to be greater than 0');
+            warnID(16400);
         }
 
         this._constraintNum = value;
@@ -612,41 +616,41 @@ export class Layout extends Component {
      * @en Layout type.
      * @zh 布局类型。
      */
-    public static Type = Type;
+    public static Type = LayoutType;
     /**
      * @en Vertical layout direction.
      * @zh 垂直方向布局方式。
      */
-    public static VerticalDirection = VerticalDirection;
+    public static VerticalDirection = LayoutVerticalDirection;
     /**
      * @en Horizontal layout direction.
      * @zh 水平方向布局方式。
      */
-    public static HorizontalDirection = HorizontalDirection;
+    public static HorizontalDirection = LayoutHorizontalDirection;
     /**
      * @en Layout Resize Mode.
      * @zh 缩放模式。
      */
-    public static ResizeMode = ResizeMode;
+    public static ResizeMode = LayoutResizeMode;
     /**
      * @en Grid Layout start axis direction.
      * @zh 布局轴向，只用于 GRID 布局。
      */
-    public static AxisDirection = AxisDirection;
+    public static AxisDirection = LayoutAxisDirection;
     /**
      * @en Layout constraint.
      * @zh 布局约束。
      */
-    public static Constraint = Constraint;
+    public static Constraint = LayoutConstraint;
 
     @serializable
-    protected _resizeMode = ResizeMode.NONE;
+    protected _resizeMode = LayoutResizeMode.NONE;
     @serializable
-    protected _layoutType = Type.NONE;
+    protected _layoutType = LayoutType.NONE;
     @serializable
     protected _cellSize = new Size(40, 40);
     @serializable
-    protected _startAxis = AxisDirection.HORIZONTAL;
+    protected _startAxis = LayoutAxisDirection.HORIZONTAL;
     @serializable
     protected _paddingLeft = 0;
     @serializable
@@ -660,11 +664,11 @@ export class Layout extends Component {
     @serializable
     protected _spacingY = 0;
     @serializable
-    protected _verticalDirection = VerticalDirection.TOP_TO_BOTTOM;
+    protected _verticalDirection = LayoutVerticalDirection.TOP_TO_BOTTOM;
     @serializable
-    protected _horizontalDirection = HorizontalDirection.LEFT_TO_RIGHT;
+    protected _horizontalDirection = LayoutHorizontalDirection.LEFT_TO_RIGHT;
     @serializable
-    protected _constraint = Constraint.NONE;
+    protected _constraint = LayoutConstraint.NONE;
     @serializable
     protected _constraintNum = 2;
     @serializable
@@ -705,7 +709,7 @@ export class Layout extends Component {
     protected onEnable (): void {
         this._addEventListeners();
 
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         if (trans.contentSize.equals(Size.ZERO)) {
             trans.setContentSize(this._layoutSize);
         }
@@ -723,7 +727,7 @@ export class Layout extends Component {
         const children = this.node.children;
         for (let i = 0; i < children.length; ++i) {
             const child = children[i];
-            const uiTrans = child._uiProps.uiTransformComp;
+            const uiTrans = child._getUITransformComp();
             if (child.activeInHierarchy && uiTrans) {
                 this._usefulLayoutObj.push(uiTrans);
             }
@@ -731,7 +735,7 @@ export class Layout extends Component {
     }
 
     protected _addEventListeners (): void {
-        director.on(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
+        director.on(DirectorEvent.AFTER_UPDATE, this.updateLayout, this);
         this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.on(NodeEventType.CHILD_ADDED, this._childAdded, this);
@@ -742,7 +746,7 @@ export class Layout extends Component {
     }
 
     protected _removeEventListeners (): void {
-        director.off(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
+        director.off(DirectorEvent.AFTER_UPDATE, this.updateLayout, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.off(NodeEventType.CHILD_ADDED, this._childAdded, this);
@@ -791,18 +795,18 @@ export class Layout extends Component {
     }
 
     protected _resized (): void {
-        this._layoutSize.set(this.node._uiProps.uiTransformComp!.contentSize);
+        this._layoutSize.set(this.node._getUITransformComp()!.contentSize);
         this._doLayoutDirty();
     }
 
     protected _doLayoutHorizontally (baseWidth: number, rowBreak: boolean, fnPositionY: (...args: any[]) => number, applyChildren: boolean): number {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const layoutAnchor = trans.anchorPoint;
         const limit = this._getFixedBreakingNum();
 
         let sign = 1;
         let paddingX = this._paddingLeft;
-        if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+        if (this._horizontalDirection === LayoutHorizontalDirection.RIGHT_TO_LEFT) {
             sign = -1;
             paddingX = this._paddingRight;
         }
@@ -817,7 +821,7 @@ export class Layout extends Component {
         const activeChildCount = this._usefulLayoutObj.length;
         let newChildWidth = this._cellSize.width;
         const paddingH = this._getPaddingH();
-        if (this._layoutType !== Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
+        if (this._layoutType !== LayoutType.GRID && this._resizeMode === LayoutResizeMode.CHILDREN) {
             newChildWidth = (baseWidth - paddingH - (activeChildCount - 1) * this._spacingX) / activeChildCount;
         }
 
@@ -829,9 +833,9 @@ export class Layout extends Component {
             const childScaleX = this._getUsedScaleValue(scale.x);
             const childScaleY = this._getUsedScaleValue(scale.y);
             // for resizing children
-            if (this._resizeMode === ResizeMode.CHILDREN) {
+            if (this._resizeMode === LayoutResizeMode.CHILDREN) {
                 childTrans.width = newChildWidth / childScaleX;
-                if (this._layoutType === Type.GRID) {
+                if (this._layoutType === LayoutType.GRID) {
                     childTrans.height = this._cellSize.height / childScaleY;
                 }
             }
@@ -890,13 +894,13 @@ export class Layout extends Component {
     }
 
     protected _doLayoutVertically (baseHeight: number, columnBreak: boolean, fnPositionX: (...args: any[]) => number, applyChildren: boolean): number {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const layoutAnchor = trans.anchorPoint;
         const limit = this._getFixedBreakingNum();
 
         let sign = 1;
         let paddingY = this._paddingBottom;
-        if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+        if (this._verticalDirection === LayoutVerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
             paddingY = this._paddingTop;
         }
@@ -911,7 +915,7 @@ export class Layout extends Component {
         const activeChildCount = this._usefulLayoutObj.length;
         let newChildHeight = this._cellSize.height;
         const paddingV = this._getPaddingV();
-        if (this._layoutType !== Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
+        if (this._layoutType !== LayoutType.GRID && this._resizeMode === LayoutResizeMode.CHILDREN) {
             newChildHeight = (baseHeight - paddingV - (activeChildCount - 1) * this._spacingY) / activeChildCount;
         }
 
@@ -924,9 +928,9 @@ export class Layout extends Component {
             const childScaleY = this._getUsedScaleValue(scale.y);
 
             // for resizing children
-            if (this._resizeMode === ResizeMode.CHILDREN) {
+            if (this._resizeMode === LayoutResizeMode.CHILDREN) {
                 childTrans.height = newChildHeight / childScaleY;
-                if (this._layoutType === Type.GRID) {
+                if (this._layoutType === LayoutType.GRID) {
                     childTrans.width = this._cellSize.width / childScaleX;
                 }
             }
@@ -991,7 +995,7 @@ export class Layout extends Component {
         let sign = 1;
         let bottomBoundaryOfLayout = -layoutAnchor.y * layoutSize.height;
         let paddingY = this._paddingBottom;
-        if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+        if (this._verticalDirection === LayoutVerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
             bottomBoundaryOfLayout = (1 - layoutAnchor.y) * layoutSize.height;
             paddingY = this._paddingTop;
@@ -1000,12 +1004,12 @@ export class Layout extends Component {
         const fnPositionY = (child: Node, childTrans: UITransform, topOffset: number): number => bottomBoundaryOfLayout + sign * (topOffset + (1 - childTrans.anchorY) * childTrans.height * this._getUsedScaleValue(child.scale.y) + paddingY);
 
         let newHeight = 0;
-        if (this._resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === LayoutResizeMode.CONTAINER) {
             // calculate the new height of container, it won't change the position of it's children
             newHeight = this._doLayoutHorizontally(baseWidth, true, fnPositionY, false);
             bottomBoundaryOfLayout = -layoutAnchor.y * newHeight;
 
-            if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+            if (this._verticalDirection === LayoutVerticalDirection.TOP_TO_BOTTOM) {
                 sign = -1;
                 bottomBoundaryOfLayout = (1 - layoutAnchor.y) * newHeight;
             }
@@ -1013,8 +1017,8 @@ export class Layout extends Component {
 
         this._doLayoutHorizontally(baseWidth, true, fnPositionY, true);
 
-        if (this._resizeMode === ResizeMode.CONTAINER) {
-            this.node._uiProps.uiTransformComp!.setContentSize(baseWidth, newHeight);
+        if (this._resizeMode === LayoutResizeMode.CONTAINER) {
+            this.node._getUITransformComp()!.setContentSize(baseWidth, newHeight);
         }
     }
 
@@ -1024,7 +1028,7 @@ export class Layout extends Component {
         let sign = 1;
         let leftBoundaryOfLayout = -layoutAnchor.x * layoutSize.width;
         let paddingX = this._paddingLeft;
-        if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+        if (this._horizontalDirection === LayoutHorizontalDirection.RIGHT_TO_LEFT) {
             sign = -1;
             leftBoundaryOfLayout = (1 - layoutAnchor.x) * layoutSize.width;
             paddingX = this._paddingRight;
@@ -1033,12 +1037,12 @@ export class Layout extends Component {
         const fnPositionX = (child: Node, childTrans: UITransform, leftOffset: number): number => leftBoundaryOfLayout + sign * (leftOffset + (1 - childTrans.anchorX) * childTrans.width * this._getUsedScaleValue(child.scale.x) + paddingX);
 
         let newWidth = 0;
-        if (this._resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === LayoutResizeMode.CONTAINER) {
             newWidth = this._doLayoutVertically(baseHeight, true, fnPositionX, false);
 
             leftBoundaryOfLayout = -layoutAnchor.x * newWidth;
 
-            if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+            if (this._horizontalDirection === LayoutHorizontalDirection.RIGHT_TO_LEFT) {
                 sign = -1;
                 leftBoundaryOfLayout = (1 - layoutAnchor.x) * newWidth;
             }
@@ -1046,19 +1050,19 @@ export class Layout extends Component {
 
         this._doLayoutVertically(baseHeight, true, fnPositionX, true);
 
-        if (this._resizeMode === ResizeMode.CONTAINER) {
-            this.node._uiProps.uiTransformComp!.setContentSize(newWidth, baseHeight);
+        if (this._resizeMode === LayoutResizeMode.CONTAINER) {
+            this.node._getUITransformComp()!.setContentSize(newWidth, baseHeight);
         }
     }
 
     protected _doLayoutGrid (): void {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const layoutAnchor = trans.anchorPoint;
         const layoutSize = trans.contentSize;
 
-        if (this.startAxis === AxisDirection.HORIZONTAL) {
+        if (this.startAxis === LayoutAxisDirection.HORIZONTAL) {
             this._doLayoutGridAxisHorizontal(layoutAnchor, layoutSize);
-        } else if (this.startAxis === AxisDirection.VERTICAL) {
+        } else if (this.startAxis === LayoutAxisDirection.VERTICAL) {
             this._doLayoutGridAxisVertical(layoutAnchor, layoutSize);
         }
     }
@@ -1067,7 +1071,7 @@ export class Layout extends Component {
         const children = this._usefulLayoutObj;
         let baseSize = 0;
         const activeChildCount = children.length;
-        if (this._resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === LayoutResizeMode.CONTAINER) {
             for (let i = 0; i < children.length; ++i) {
                 const childTrans = children[i];
                 const child = childTrans.node;
@@ -1077,7 +1081,7 @@ export class Layout extends Component {
 
             baseSize += (activeChildCount - 1) * this._spacingX + this._getPaddingH();
         } else {
-            baseSize = this.node._uiProps.uiTransformComp!.width;
+            baseSize = this.node._getUITransformComp()!.width;
         }
 
         return baseSize;
@@ -1087,7 +1091,7 @@ export class Layout extends Component {
         const children = this._usefulLayoutObj;
         let baseSize = 0;
         const activeChildCount = children.length;
-        if (this._resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === LayoutResizeMode.CONTAINER) {
             for (let i = 0; i < children.length; ++i) {
                 const childTrans = children[i];
                 const child = childTrans.node;
@@ -1097,7 +1101,7 @@ export class Layout extends Component {
 
             baseSize += (activeChildCount - 1) * this._spacingY + this._getPaddingV();
         } else {
-            baseSize = this.node._uiProps.uiTransformComp!.height;
+            baseSize = this.node._getUITransformComp()!.height;
         }
 
         return baseSize;
@@ -1110,7 +1114,7 @@ export class Layout extends Component {
             this._childrenDirty = false;
         }
 
-        if (this._layoutType === Type.HORIZONTAL) {
+        if (this._layoutType === LayoutType.HORIZONTAL) {
             const newWidth = this._getHorizontalBaseWidth();
 
             const fnPositionY = (child: Node): number => {
@@ -1119,8 +1123,8 @@ export class Layout extends Component {
             };
 
             this._doLayoutHorizontally(newWidth, false, fnPositionY, true);
-            this.node._uiProps.uiTransformComp!.width = newWidth;
-        } else if (this._layoutType === Type.VERTICAL) {
+            this.node._getUITransformComp()!.width = newWidth;
+        } else if (this._layoutType === LayoutType.VERTICAL) {
             const newHeight = this._getVerticalBaseHeight();
 
             const fnPositionX = (child: Node): number => {
@@ -1129,8 +1133,8 @@ export class Layout extends Component {
             };
 
             this._doLayoutVertically(newHeight, false, fnPositionX, true);
-            this.node._uiProps.uiTransformComp!.height = newHeight;
-        } else if (this._layoutType === Type.GRID) {
+            this.node._getUITransformComp()!.height = newHeight;
+        } else if (this._layoutType === LayoutType.GRID) {
             this._doLayoutGrid();
         }
     }
@@ -1165,14 +1169,14 @@ export class Layout extends Component {
     }
 
     protected _getFixedBreakingNum (): number {
-        if (this._layoutType !== Type.GRID || this._constraint === Constraint.NONE || this._constraintNum <= 0) {
+        if (this._layoutType !== LayoutType.GRID || this._constraint === LayoutConstraint.NONE || this._constraintNum <= 0) {
             return 0;
         }
 
-        let num = this._constraint === Constraint.FIXED_ROW ? Math.ceil(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
+        let num = this._constraint === LayoutConstraint.FIXED_ROW ? Math.ceil(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
         // Horizontal sorting always counts the number of columns
-        if (this._startAxis === AxisDirection.VERTICAL) {
-            num = this._constraint === Constraint.FIXED_COL ? Math.ceil(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
+        if (this._startAxis === LayoutAxisDirection.VERTICAL) {
+            num = this._constraint === LayoutConstraint.FIXED_COL ? Math.ceil(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
         }
 
         return num;

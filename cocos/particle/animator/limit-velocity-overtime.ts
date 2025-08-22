@@ -24,12 +24,12 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core';
-import { Space, ModuleRandSeed } from '../enum';
+import { ParticleSpace, ParticleModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { calculateTransform, isCurveTwoValues } from '../particle-general-function';
 
-const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
+const LIMIT_VELOCITY_RAND_OFFSET = ParticleModuleRandSeed.LIMIT;
 
 const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
@@ -138,11 +138,11 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      * @en Space used to calculate limit velocity.
      * @zh 计算速度下限时采用的坐标系 [[Space]]。
      */
-    @type(Space)
+    @type(ParticleSpace)
     @serializable
     @displayOrder(1)
     @tooltip('i18n:limitVelocityOvertimeModule.space')
-    public space = Space.Local;
+    public space = ParticleSpace.Local;
 
     // TODO:functions related to drag are temporarily not supported
     public drag = null;
@@ -184,22 +184,29 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
             const randX = isCurveTwoValues(this.limitX) ? pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET) : 0;
             const randY = isCurveTwoValues(this.limitY) ? pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET) : 0;
             const randZ = isCurveTwoValues(this.limitZ) ? pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET) : 0;
-            Vec3.set(_temp_v3_1,
+            Vec3.set(
+                _temp_v3_1,
                 this.limitX.evaluate(normalizedTime, randX)!,
                 this.limitY.evaluate(normalizedTime, randY)!,
-                this.limitZ.evaluate(normalizedTime, randZ)!);
+                this.limitZ.evaluate(normalizedTime, randZ)!,
+            );
             if (this.needTransform) {
                 Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
             }
-            Vec3.set(dampedVel,
+            Vec3.set(
+                dampedVel,
                 dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
                 dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
+                dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen),
+            );
         } else {
             Vec3.normalize(dampedVel, p.ultimateVelocity);
             const rand = isCurveTwoValues(this.limit) ? pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET) : 0;
-            Vec3.multiplyScalar(dampedVel, dampedVel,
-                dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, rand)!, this.dampen));
+            Vec3.multiplyScalar(
+                dampedVel,
+                dampedVel,
+                dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, rand)!, this.dampen),
+            );
         }
         Vec3.copy(p.ultimateVelocity, dampedVel);
         Vec3.copy(p.velocity, p.ultimateVelocity);

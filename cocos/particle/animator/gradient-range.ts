@@ -26,7 +26,7 @@ import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Color, Enum, Gradient, AlphaKey, ColorKey } from '../../core';
 import { Texture2D } from '../../asset/assets';
-import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
+import { PixelFormat, TextureFilter, WrapMode } from '../../asset/assets/asset-enum';
 
 const SerializableTable = EDITOR && [
     ['_mode', 'color'],
@@ -185,6 +185,7 @@ export default class GradientRange {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props: any): any {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this._mode];
     }
 }
@@ -215,7 +216,12 @@ function evaluateHeight (gr: GradientRange): number {
         return 1;
     }
 }
-export function packGradientRange (tex: Texture2D | null, data: Uint8Array | null, samples: number, gr: GradientRange): { texture: Texture2D; texdata: Uint8Array; } {
+export function packGradientRange (
+    tex: Texture2D | null,
+    data: Uint8Array | null,
+    samples: number,
+    gr: GradientRange,
+): { texture: Texture2D; texdata: Uint8Array; } {
     const height = evaluateHeight(gr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -241,7 +247,7 @@ export function packGradientRange (tex: Texture2D | null, data: Uint8Array | nul
         }
         tex = new Texture2D();
         tex.create(samples, height, PixelFormat.RGBA8888);
-        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+        tex.setFilters(TextureFilter.LINEAR, TextureFilter.LINEAR);
         tex.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
     }
     tex.uploadData(data);

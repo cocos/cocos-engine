@@ -8,6 +8,24 @@ module.exports = {
     inspector: {
         cloneToEdit: 'Clone it. Use and go into edit.',
         cloneToDirectoryIllegal: 'Please limit the saved path to the current project assets path',
+        preview: {
+            header: 'Preview',
+            resetCameraView: 'Reset camera view',
+            viewToggle: 'Toggle the 2D/3D view',
+        },
+        spine: {
+            skin: 'Skin',
+            animation: 'Animation',
+            loop: 'Loop',
+            timeScale: 'Rate',
+            enable: 'Enable',
+            premultipliedAlpha: 'Premultiplied Alpha',
+            useTint: 'Use Tint',
+            debug: 'Debug',
+            debugSlots: 'Slots',
+            debugBones: 'Bones',
+            debugMesh: 'Mesh',
+        },
     },
 
     assets: {
@@ -413,8 +431,8 @@ module.exports = {
                 },
             },
             animationBakeRate: {
-                name: 'Animation Bake Rate',
-                title: 'Specify the animation bake rate in frames per second (fps).',
+                name: 'Animation Bake Sample Rate',
+                title: 'Specify the animation bake sample rate in frames per second (fps).',
                 auto: 'Auto',
             },
             promoteSingleRootNode: {
@@ -494,11 +512,19 @@ module.exports = {
             save: 'Save',
             abort: 'Discard',
         },
+        spine_data: {
+            atlas: 'Atlas',
+            atlas_warn: 'Failed to set up the atlas and requires a text file with the .atlas suffix',
+        },
     },
 
     menu: {
         node: 'Node Menu',
         component: 'Component Menu',
+
+        copy_property_path: 'Copy Property Path',
+        copy_property_value: 'Copy Property Value',
+        paste_property_value: 'Paste Property Value',
 
         remove_component: 'Remove',
         reset_component: 'Reset',

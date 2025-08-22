@@ -23,8 +23,8 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, JSB, WEBGPU } from 'internal:constants';
-import { cclegacy, error, getError, sys, screen, Settings, settings } from '../core';
+import { EDITOR, JSB } from 'internal:constants';
+import { cclegacy, getError, sys, screen, settings, errorID, Settings } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
@@ -100,6 +100,9 @@ export class DeviceManager {
     private _swapchain!: Swapchain;
     private _renderType: RenderType = RenderType.UNKNOWN;
     private _deviceInitialized = false;
+
+    constructor () {}
+
     public get gfxDevice (): Device {
         return this._gfxDevice;
     }
@@ -186,7 +189,7 @@ export class DeviceManager {
 
         if (!this._gfxDevice) {
             // todo fix here for wechat game
-            error('can not support canvas rendering in 3D');
+            errorID(16337);
             this._renderType = RenderType.UNKNOWN;
             return false;
         }

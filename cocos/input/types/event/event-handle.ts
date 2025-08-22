@@ -38,7 +38,7 @@ export class EventHandle extends Event {
      * @en The handle device which trigger the current handle event
      * @zh 触发当前手柄事件的手柄设备
      */
-     public handleInputDevice: HandleInputDevice;
+    public declare handleInputDevice: HandleInputDevice;
 
     /**
      * @param eventType - The type of the event

@@ -36,6 +36,7 @@ import { Model } from '../render-scene/scene/model';
 import { Camera, DirectionalLight, SpotLight } from '../render-scene/scene';
 import { shadowCulling } from './scene-culling';
 import { PipelineRuntime } from './custom/pipeline';
+import type { ShadowLayerVolume } from './shadow/csm-layers';
 
 let _phaseID = getPhaseID('shadow-caster');
 function getShadowPassIndex (subModel: SubModel): number {
@@ -56,15 +57,14 @@ function getShadowPassIndex (subModel: SubModel): number {
  * 阴影渲染队列
  */
 export class RenderShadowMapBatchedQueue {
-    private _pipeline: PipelineRuntime;
+    private declare _pipeline: PipelineRuntime;
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
-    private _instancedQueue: RenderInstancedQueue;
+    private _instancedQueue: RenderInstancedQueue = new RenderInstancedQueue();
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
-        this._instancedQueue = new RenderInstancedQueue();
     }
 
     public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0): void {
@@ -79,7 +79,7 @@ export class RenderShadowMapBatchedQueue {
                 const dirLight = light as DirectionalLight;
                 if (dirLight.shadowEnabled) {
                     const csmLayers = sceneData.csmLayers;
-                    let layer;
+                    let layer: ShadowLayerVolume;
                     if (dirLight.shadowFixedArea) {
                         layer = csmLayers.specialLayer;
                     } else {

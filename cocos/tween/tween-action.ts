@@ -103,9 +103,9 @@ export interface IInternalTweenOption<T extends object> extends ITweenOption<T> 
 }
 
 export class TweenAction<T extends object> extends ActionInterval {
-    private _opts: IInternalTweenOption<T>;
-    private _props: any;
-    private _originProps: any;
+    private declare _opts: IInternalTweenOption<T>;
+    private declare _props: any;
+    private declare _originProps: any;
     private _reversed = false;
 
     constructor (duration: number, props: any, opts?: IInternalTweenOption<T>) {
@@ -202,34 +202,34 @@ export class TweenAction<T extends object> extends ActionInterval {
         return !!this._opts.relative;
     }
 
-    clone (): TweenAction<T> {
+    override clone (): TweenAction<T> {
         const action = new TweenAction(this._duration, this._originProps, this._opts);
         action._reversed = this._reversed;
-        action.workerTarget = this.workerTarget;
+        action._owner = this._owner;
         action._id = this._id;
         this._cloneDecoration(action);
         return action;
     }
 
-    reverse (): TweenAction<T> {
+    override reverse (): TweenAction<T> {
         if (!this._opts.relative) {
-            warn('reverse: could not reverse a non-relative action');
+            warnID(16382);
             return new TweenAction<T>(0, {});
         }
 
         const action = new TweenAction(this._duration, this._originProps, this._opts);
         this._cloneDecoration(action);
         action._reversed = !this._reversed;
-        action.workerTarget = this.workerTarget;
+        action._owner = this._owner;
         return action;
     }
 
-    startWithTarget<U> (target: U | null): void {
+    override startWithTarget<U> (target: U | null): void {
         const isEqual: TypeEquality<T, U> = true;
         if (!isEqual) return;
         super.startWithTarget(target);
 
-        const workerTarget = (this.workerTarget ?? this.target) as T;
+        const workerTarget = this._getWorkerTarget<T>();
         if (!workerTarget) return;
         const relative = !!this._opts.relative;
         const props = this._props;
@@ -273,7 +273,7 @@ export class TweenAction<T extends object> extends ActionInterval {
                 } else {
                     const clone = prop.clone;
                     if (!clone) {
-                        warn(`Need 'clone' for custom prop '${property}'`);
+                        warnID(16383, property);
                         prop.valid = false;
                         continue;
                     } else {
@@ -281,11 +281,11 @@ export class TweenAction<T extends object> extends ActionInterval {
                         const sub = prop.sub;
                         if (relative) {
                             if (!add) {
-                                warn(`Need 'add' for custom prop '${property}'`);
+                                warnID(16384, property);
                                 prop.valid = false;
                             }
                             if (reversed && !sub) {
-                                warn(`Need 'sub' for custom prop '${property} in reverse mode'`);
+                                warnID(16385, property);
                                 prop.valid = false;
                             }
                             if (!prop.valid) continue;
@@ -308,7 +308,7 @@ export class TweenAction<T extends object> extends ActionInterval {
                     if (typeof convertedValue !== 'number') {
                         convertedValue = Number(convertedValue);
                         if (Number.isNaN(convertedValue)) {
-                            warn(`TweenAction: '${v}' can't be converted to number`);
+                            warnID(16386, `${v}`);
                             return null;
                         }
                     }
@@ -340,7 +340,7 @@ export class TweenAction<T extends object> extends ActionInterval {
         if (this._opts.onStart) { this._opts.onStart(workerTarget); }
     }
 
-    stop (): void {
+    override stop (): void {
         const props = this._props;
         for (const name in props) {
             const prop = props[name];
@@ -354,8 +354,8 @@ export class TweenAction<T extends object> extends ActionInterval {
         super.stop();
     }
 
-    update (t: number): void {
-        const workerTarget = (this.workerTarget ?? this.target) as T;
+    override update (t: number): void {
+        const workerTarget = this._getWorkerTarget<T>();
         if (!workerTarget) return;
 
         if (!this._opts) return;
@@ -394,7 +394,7 @@ export class TweenAction<T extends object> extends ActionInterval {
                 if (typeof newCurrent === 'number') {
                     newCurrent = newCurrent.toFixed((prop.toFixed ?? 0) as number);
                 } else if (typeof newCurrent !== 'string') {
-                    warn(`Wrong return type for 'progress', number or string needed`);
+                    warnID(16387);
                     continue;
                 }
                 prop.current = newCurrent;
@@ -414,7 +414,7 @@ export class TweenAction<T extends object> extends ActionInterval {
         return current = start + (end - start) * t;
     }
 
-    isUnknownDuration (): boolean {
+    override isUnknownDuration (): boolean {
         return false;
     }
 }

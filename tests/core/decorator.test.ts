@@ -59,6 +59,8 @@ describe(`Decorators`, () => {
     class Dummy {}
 
     describe('Visible', () => {
+        function minFn () { return 0; }
+        function maxFn () { return 1; }
         function visibleFn () { return false; }
 
         const withVisibleTrueSerializableFalse = <T>(v: T) => ({ visible: true, serializable: false, ...v });
@@ -88,7 +90,9 @@ describe(`Decorators`, () => {
             ['@range([a, b])', [range([2, 3])], withVisibleTrueSerializableFalse({ min: 2, max: 3 })],
             ['@range([a, b, c])', [range([2, 3, 4])], withVisibleTrueSerializableFalse({ min: 2, max: 3, step: 4 })],
             ['@rangeMin(a)', [rangeMin(6)], withVisibleTrueSerializableFalse({ min: 6 })],
+            ['@rangeMin(Function)', [rangeMin(minFn)], withVisibleTrueSerializableFalse({ min: minFn })],
             ['@rangeMax(a)', [rangeMax(6)], withVisibleTrueSerializableFalse({ max: 6 })],
+            ['@rangeMax(Function)', [rangeMax(maxFn)], withVisibleTrueSerializableFalse({ max: maxFn })],
             ['@rangeStep(a)', [rangeStep(6)], withVisibleTrueSerializableFalse({ step: 6 })],
             ['@slide', [slide], withVisibleTrueSerializableFalse({ slide: true })],
             ['@displayOrder(a)', [displayOrder(6)], withVisibleTrueSerializableFalse({ displayOrder: 6 })],

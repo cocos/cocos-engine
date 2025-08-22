@@ -64,7 +64,6 @@ export class WebGPUPipelineLayout extends PipelineLayout {
                 }
                 this._bindGrpLayouts[i] = bindGroupLayout;
             }
-            // setLayout.resetChange();
         }
 
         this._nativePipelineLayout = nativeDevice?.createPipelineLayout({ bindGroupLayouts: this._bindGrpLayouts }) as GPUPipelineLayout;

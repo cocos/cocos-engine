@@ -14,6 +14,7 @@ declare module 'pal/input' {
          * Register the touch event callback.
          */
         public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: TouchCallback, target?: any);
+        public dispatchEventsInCache (): void;
     }
 
     type MouseCallback = (res: import('cocos/input/types').EventMouse) => void;
@@ -30,6 +31,8 @@ declare module 'pal/input' {
         public dispatchMouseMoveEvent? (nativeMouseEvent: any);
         public dispatchMouseUpEvent? (nativeMouseEvent: any);
         public dispatchScrollEvent? (nativeMouseEvent: any);
+
+        public dispatchEventsInCache (): void
     }
 
     type KeyboardCallback = (res: import('cocos/input/types').EventKeyboard) => void;
@@ -56,11 +59,11 @@ declare module 'pal/input' {
         /**
          * @engineInternal
          */
-        public static _init ();
+        public static _init (): void;
         /**
          * @engineInternal
          */
-        public static _on (eventType: import('cocos/input/types/event-enum').InputEventType, cb: GamepadCallback, target?: any);
+        public static _on (eventType: import('cocos/input/types/event-enum').InputEventType, cb: GamepadCallback, target?: any): void;
 
         public static all: GamepadInputDevice[];
         public static xr: (GamepadInputDevice | null);
@@ -225,22 +228,22 @@ declare module 'pal/input' {
          * Asynchronously start the accelerometer.
          * TODO: return a promise.
          */
-        public start ();
+        public start (): void;
         /**
          * Stop the accelerometer.
          * TODO: return a promise.
          */
-        public stop ();
+        public stop (): void;
         /**
          * Set interval of the accelerometer callback.
          * The interval is in mile seconds.
          * @param intervalInMileSeconds interval in mile seconds.
          */
-        public setInterval (intervalInMileSeconds: number);
+        public setInterval (intervalInMileSeconds: number): void;
         /**
          * Register the acceleration event callback.
          */
-        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: AccelerometerCallback, target?: any);
+        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: AccelerometerCallback, target?: any): void;
     }
 
     type HandleCallback = (res: import('cocos/input/types').EventHandle) => void;

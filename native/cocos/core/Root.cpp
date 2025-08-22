@@ -443,6 +443,7 @@ void Root::frameMoveEnd() {
         emit<AfterRender>();
 #endif
         _device->present();
+        emit<AfterPresent>();
     }
 
     if (_batcher != nullptr) {

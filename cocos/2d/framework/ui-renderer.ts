@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, JSB } from 'internal:constants';
+import { DEBUG, EDITOR, JSB, USE_SORTING_2D } from 'internal:constants';
 import {
     ccclass, executeInEditMode, requireComponent, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
@@ -40,10 +40,11 @@ import { UITransform } from './ui-transform';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Renderer } from '../../misc/renderer';
-import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { RenderEntity, RenderEntityType, RenderEntityFillColorType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
+import { SortingLayers } from '../../sorting/sorting-layers';
 import type { Batcher2D } from '../renderer/batcher-2d';
 
 // hack
@@ -139,6 +140,10 @@ export class UIRenderer extends Renderer {
     constructor () {
         super();
         this._renderEntity = this.createRenderEntity();
+
+        if (USE_SORTING_2D) {
+            this.priority = SortingLayers.getDefaultPriority();
+        }
     }
 
     @override
@@ -168,7 +173,6 @@ export class UIRenderer extends Renderer {
      */
     @type(Material)
     @displayOrder(0)
-    @displayName('CustomMaterial')
     @disallowAnimation
     get customMaterial (): Material | null {
         return this._customMaterial;
@@ -209,16 +213,10 @@ export class UIRenderer extends Renderer {
     /**
      * As can not set setter internal individually, so add setRenderData();
      * @engineInternal
+     * @mangle
      */
     setRenderData (renderData: RenderData | null): void {
         this._renderData = renderData;
-    }
-
-    /**
-     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
-     */
-    get useVertexOpacity (): boolean {
-        return this._useVertexOpacity;
     }
 
     /**
@@ -257,12 +255,9 @@ export class UIRenderer extends Renderer {
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
 
-    // RenderEntity
-    //protected renderData: RenderData | null = null;
-    protected _renderDataFlag = true;
     protected _renderFlag = true;
 
-    protected _renderEntity: RenderEntity;
+    protected declare _renderEntity: RenderEntity;
 
     protected _instanceMaterialType = -1;
     protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;
@@ -278,8 +273,22 @@ export class UIRenderer extends Renderer {
     public _internalId = -1;
     /**
      * @engineInternal
+     * @mangle
      */
     public _flagChangedVersion = -1;
+
+    private _priority = 0;
+
+    get priority (): number {
+        return this._priority;
+    }
+
+    set priority (val: number) {
+        this._priority = val;
+        if (JSB) {
+            this._renderEntity.setPriority(val);
+        }
+    }
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
@@ -299,10 +308,48 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @en Marks for calculating opacity per vertex
-     * @zh 标记组件是否逐顶点计算透明度
+     * @en UI rendering component fill color type, COLOR means using color property value to fill, VERTEX means using vertex color value to fill.
+     * @zh UI 渲染组件填充颜色类型，COLOR 表示使用 color 属性值填充，VERTEX 表示使用顶点颜色值填充。
      */
-    protected _useVertexOpacity = false;
+    private _fillColorType = RenderEntityFillColorType.COLOR;
+
+    /**
+     * @engineInternal
+     */
+    public getFillColorType (): RenderEntityFillColorType {
+        return this._fillColorType;
+    }
+
+    /**
+     * @engineInternal
+     */
+    protected setFillColorType (val: RenderEntityFillColorType): void {
+        this._fillColorType = val;
+        if (JSB) {
+            this._renderEntity.setFillColorType(val);
+        }
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    protected set _useVertexOpacity (val: boolean) {
+        this.setFillColorType(RenderEntityFillColorType.VERTEX);
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    protected get _useVertexOpacity (): boolean {
+        return this._fillColorType === RenderEntityFillColorType.VERTEX;
+    }
+
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    get useVertexOpacity (): boolean {
+        return this._fillColorType === RenderEntityFillColorType.VERTEX;
+    }
 
     protected _lastParent: Node | null = null;
 
@@ -321,23 +368,39 @@ export class UIRenderer extends Renderer {
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.node.on(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
+        // If the renderData is invalid, it needs to be rebuilt to recalculate the batch processing.
+        if (!this._renderData && this._flushAssembler) {
+            this._flushAssembler();
+        }
         this.updateMaterial();
         this._colorDirty();
         uiRendererManager.addRenderer(this);
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
     }
 
     // For Redo, Undo
     public onRestore (): void {
         this.updateMaterial();
         // restore render data
-        this.markForUpdateRenderData();
+        this._markForUpdateRenderData();
+    }
+
+    private _destroyData (): void {
+        this.destroyRenderData();
+        if (this._materials) {
+            for (let i = 0; i < this._materials.length; i++) {
+                this.setSharedMaterial(null, i, true);
+            }
+        }
     }
 
     public onDisable (): void {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
+        // When disabling, it is necessary to free up idle space to fully utilize chunks
+        // and avoid breaking batch processing.
+        this._destroyData();
         uiRendererManager.removeRenderer(this);
         this._renderFlag = false;
         this._renderEntity.enabled = false;
@@ -348,13 +411,7 @@ export class UIRenderer extends Renderer {
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }
-        this.destroyRenderData();
-        if (this._materialInstances) {
-            for (let i = 0; i < this._materialInstances.length; i++) {
-                const instance = this._materialInstances[i];
-                if (instance) { instance.destroy(); }
-            }
-        }
+        this._destroyData();
     }
 
     /**
@@ -363,6 +420,17 @@ export class UIRenderer extends Renderer {
      * @param enable Marked necessary to update or not
      */
     public markForUpdateRenderData (enable = true): void {
+        this._markForUpdateRenderData(enable);
+    }
+
+    /**
+     * An internal method that marks the render data of the current component as modified so that the render data is recalculated.
+     * Adding this method is to minify the function name by `@mangle` since this method is frequently used in the engine.
+     * To keep the compatibility, the original method is still kept.
+     * @engineInternal
+     * @mangle
+     */
+    public _markForUpdateRenderData (enable = true): void {
         if (enable) {
             const renderData = this._renderData;
             if (renderData) {
@@ -371,7 +439,6 @@ export class UIRenderer extends Renderer {
             uiRendererManager.markDirtyRenderer(this);
         }
     }
-
     /**
      * @en Request new render data object.
      * @zh 请求新的渲染数据对象。
@@ -389,10 +456,11 @@ export class UIRenderer extends Renderer {
      * @zh 销毁当前渲染数据。
      */
     public destroyRenderData (): void {
+        this.renderEntity.clearRenderDrawInfos();
         if (!this._renderData) {
             return;
         }
-        this._renderData.removeRenderDrawInfo(this);
+
         RenderData.remove(this._renderData);
         this._renderData = null;
     }
@@ -401,8 +469,9 @@ export class UIRenderer extends Renderer {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public updateRenderer (): void {
-        if (this._assembler) {
-            this._assembler.updateRenderData(this);
+        const assembler = this._assembler;
+        if (assembler && assembler.updateRenderData) {
+            assembler.updateRenderData(this);
         }
         this._renderFlag = this._canRender();
         this._renderEntity.enabled = this._renderFlag;
@@ -453,6 +522,10 @@ export class UIRenderer extends Renderer {
     }
 
     /**
+     * cocos-test-projects/assets/cases/rendertexture depends on this method, so it should not be marked as `@mangle` now.
+     * FIXME(cjh): `protected` is not equal to `@engineInternal + public`, because `protected` methods are also APIs exposed to developers,
+     * For example, developers could implement a class which extends `UIRenderer` and call this method.
+     * The mistake was merged in https://github.com/cocos/cocos-engine/pull/14572 , and it needs to be fixed in the future.
      * @engineInternal
      */
     public updateMaterial (): void {
@@ -474,10 +547,12 @@ export class UIRenderer extends Renderer {
         this.node._uiProps.colorDirty = true;
         this.setEntityColorDirty(true);
         this.setEntityColor(this._color);
-        this.setEntityOpacity(this.node._uiProps.localOpacity);
 
-        if (this._assembler) {
-            this._assembler.updateColor(this);
+        const assembler = this._assembler;
+        if (assembler) {
+            if (assembler.updateColor) {
+                assembler.updateColor(this);
+            }
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             const renderFlag = this._renderFlag;
             this._renderFlag = this._canRender();
@@ -491,23 +566,9 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    /**
-     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
-     */
-    // for common
-    public static setEntityColorDirtyRecursively (node: Node, dirty: boolean): void {
-        const render = node._uiProps.uiComp as UIRenderer;
-        if (render && render.color) { // exclude UIMeshRenderer which has not color
-            render._renderEntity.colorDirty = dirty;
-        }
-        for (let i = 0; i < node.children.length; i++) {
-            UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
-        }
-    }
-
     private setEntityColorDirty (dirty: boolean): void {
         if (JSB) {
-            UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+            this._renderEntity.colorDirty = dirty;
         }
     }
 
@@ -525,7 +586,7 @@ export class UIRenderer extends Renderer {
      */
     public setEntityOpacity (opacity: number): void {
         if (JSB) {
-            this._renderEntity.localOpacity = opacity;
+            (this.node as any)._setLocalOpacity(opacity);
         }
     }
 
@@ -563,14 +624,14 @@ export class UIRenderer extends Renderer {
     // pos, rot, scale changed
     protected _nodeStateChange (transformType: TransformBit): void {
         if (this._renderData) {
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
         }
 
         for (let i = 0; i < this.node.children.length; ++i) {
             const child = this.node.children[i];
             const renderComp = child.getComponent(UIRenderer);
             if (renderComp) {
-                renderComp.markForUpdateRenderData();
+                renderComp._markForUpdateRenderData();
             }
         }
     }
@@ -582,7 +643,7 @@ export class UIRenderer extends Renderer {
 
     protected _onMaterialModified (idx: number, material: Material | null): void {
         if (this._renderData) {
-            this.markForUpdateRenderData();
+            this._markForUpdateRenderData();
             this._renderData.passDirty = true;
         }
         super._onMaterialModified(idx, material);

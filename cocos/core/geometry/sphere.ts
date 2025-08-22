@@ -23,7 +23,7 @@
 */
 
 import { Mat4, Quat, Vec3 } from '../math';
-import enums from './enums';
+import { ShapeType } from './enums';
 import { AABB } from './aabb';
 
 const _v3_tmp = new Vec3();
@@ -127,7 +127,7 @@ export class Sphere {
      * @zh
      * 当前球在本地坐标中的中心点。
      */
-    protected _center: Vec3 = new Vec3(0, 0, 0);
+    protected declare _center: Vec3;
     get center (): Vec3 {
         return this._center;
     }
@@ -136,7 +136,7 @@ export class Sphere {
         this._center = val;
     }
 
-    private _radius = 0;
+    private declare _radius: number;
 
     /**
       * @en
@@ -154,15 +154,15 @@ export class Sphere {
 
     /**
      * @en
-     * Gets the type of the shape, always returns `enums.SHAPE_SPHERE`.
+     * Gets the type of the shape, always returns `ShapeType.SHAPE_SPHERE`.
      * @zh
-     * 获取球的类型，固定返回 `enums.SHAPE_SPHERE`。
+     * 获取球的类型，固定返回 `ShapeType.SHAPE_SPHERE`。
      */
     get type (): number {
         return this._type;
     }
 
-    protected readonly _type: number;
+    protected readonly _type: number = ShapeType.SHAPE_SPHERE;
 
     /**
      * @en
@@ -175,7 +175,6 @@ export class Sphere {
      * @param r @en The radius of the sphere. @zh 球的半径。
      */
     constructor (cx = 0, cy = 0, cz = 0, r = 1) {
-        this._type = enums.SHAPE_SPHERE;
         this._center = new Vec3(cx, cy, cz);
         this._radius = r;
     }

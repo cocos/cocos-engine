@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { Model } from './model';
-import { Vec3, assertIsTrue } from '../../core';
+import { Vec3, assertIsTrue, v3 } from '../../core';
 import { RenderScene } from '..';
 import { Device, deviceManager } from '../../gfx';
 import { Node } from '../../scene-graph';
@@ -30,6 +30,7 @@ import { Camera, CameraProjection } from './camera';
 
 /**
  * @engineInternal
+ * @mangle
  */
 export class LODData {
     // Range in [0, 1].
@@ -59,17 +60,18 @@ export class LODData {
 
 /**
  * @engineInternal
+ * @mangle
  */
 export class LODGroup {
     public scene?: RenderScene;
 
     public node: Node = null!;
 
-    protected _device: Device;
+    protected declare _device: Device;
 
     public enabled = true;
 
-    private _localBoundaryCenter: Vec3 = new Vec3(0, 0, 0);
+    private _localBoundaryCenter: Vec3 = v3(0, 0, 0);
 
     /**
      * @en Object Size in local space, may be auto-calculated value from object bounding box or value from user input.

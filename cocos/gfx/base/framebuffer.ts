@@ -57,7 +57,7 @@ export abstract class Framebuffer extends GFXObject {
 
     public get width (): number {
         if (this.colorTextures.length > 0) {
-            return this.colorTextures[0]!.width;
+            return this.colorTextures[0]?.width ?? this._width;
         } else if (this.depthStencilTexture) {
             return this.depthStencilTexture.width;
         }
@@ -66,7 +66,7 @@ export abstract class Framebuffer extends GFXObject {
 
     public get height (): number {
         if (this.colorTextures.length > 0) {
-            return this.colorTextures[0]!.height;
+            return this.colorTextures[0]?.height ?? this._height;
         } else if (this.depthStencilTexture) {
             return this.depthStencilTexture.height;
         }
@@ -77,10 +77,15 @@ export abstract class Framebuffer extends GFXObject {
         return false;
     }
 
+    /** @mangle */
     protected _renderPass: RenderPass | null = null;
+    /** @mangle */
     protected _colorTextures: (Texture | null)[] = [];
+    /** @mangle */
     protected _depthStencilTexture: Texture | null = null;
+    /** @mangle */
     protected _width: number = 0;
+    /** @mangle */
     protected _height: number = 0;
 
     constructor () {

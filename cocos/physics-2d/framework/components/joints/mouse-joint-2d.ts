@@ -28,7 +28,7 @@ import { EJoint2DType } from '../../physics-types';
 import { CCFloat, Vec2, _decorator } from '../../../../core';
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu } = _decorator;
 
 @ccclass('cc.MouseJoint2D')
 @help('i18n:cc.Joint2D')
@@ -100,7 +100,7 @@ export class MouseJoint2D extends Joint2D {
         }
     }
 
-    update (dt): void {
+    update (dt: number): void {
         this._joint!.update!(dt);
     }
 

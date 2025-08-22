@@ -28,7 +28,7 @@ import { IFixedJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu } = _decorator;
 
 @ccclass('cc.FixedJoint2D')
 @help('i18n:cc.Joint2D')

@@ -22,23 +22,24 @@
  THE SOFTWARE.
 */
 
+import zlib from '../../../external/compression/zlib.min';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
-import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
 import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID, getCustomSubpassID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
-import { PostProcessBuilder } from '../post-process/post-process-builder';
 import { forceResizeAllWindows } from './framework';
 
 let _pipeline: WebPipeline | null = null;
 
 export const INVALID_ID = 0xFFFFFFFF;
 const defaultLayoutGraph = new LayoutGraphData();
+
+const LAYOUT_HEADER_SIZE = 8;
 
 export * from './types';
 export * from './pipeline';
@@ -74,18 +75,23 @@ export function getCustomPipeline (name: string): PipelineBuilder {
     return builder;
 }
 
-function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
-    map.set('Forward', new PostProcessBuilder());
-    map.set('Deferred', new DeferredPipelineBuilder());
-    map.set('Custom', new PostProcessBuilder());
-}
-
-addCustomBuiltinPipelines(customPipelineBuilderMap);
-
 export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
-    if (arrayBuffer) {
-        const readBinaryData = new BinaryInputArchive(arrayBuffer);
-        loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+    if (arrayBuffer && arrayBuffer.byteLength >= LAYOUT_HEADER_SIZE) {
+        // On bytedance emulator, arrayBuffer might be Uint8Array
+        // Here we use uint8Array to erase the difference.
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const header = new DataView(uint8Array.buffer, uint8Array.byteOffset, LAYOUT_HEADER_SIZE);
+        if (header.getUint32(0) === INVALID_ID) {
+            // Data is compressed
+            const inflator = new zlib.Inflate(new Uint8Array(uint8Array.buffer, uint8Array.byteOffset + LAYOUT_HEADER_SIZE));
+            const decompressed = inflator.decompress() as Uint8Array;
+            const readBinaryData = new BinaryInputArchive(decompressed.buffer, decompressed.byteOffset);
+            loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+        } else {
+            // Data is not compressed
+            const readBinaryData = new BinaryInputArchive(uint8Array.buffer, uint8Array.byteOffset);
+            loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+        }
     }
     initializeLayoutGraphData(device, defaultLayoutGraph);
 }

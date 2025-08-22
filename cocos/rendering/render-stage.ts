@@ -108,6 +108,7 @@ export abstract class RenderStage {
     @displayOrder(2)
     @serializable
     protected _tag = 0;
+
     protected _pipeline!: RenderPipeline;
     protected _flow!: RenderFlow;
 

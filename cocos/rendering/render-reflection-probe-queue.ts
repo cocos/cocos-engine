@@ -30,7 +30,7 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes, IMacroPatch } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
-import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
+import { Camera, SkyBoxFlagValue } from '../render-scene/scene/camera';
 import { PipelineRuntime } from './custom/pipeline';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { cclegacy, geometry } from '../core';
@@ -68,17 +68,16 @@ function getReflectMapPassIndex (subModel: SubModel): number {
  * 反射探针渲染队列
  */
 export class RenderReflectionProbeQueue {
-    private _pipeline: PipelineRuntime;
+    private declare _pipeline: PipelineRuntime;
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _rgbeSubModelsArray: SubModel[] = [];
-    private _instancedQueue: RenderInstancedQueue;
+    private _instancedQueue: RenderInstancedQueue = new RenderInstancedQueue();
     private _patches: IMacroPatch[] = [];
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
-        this._instancedQueue = new RenderInstancedQueue();
     }
     public gatherRenderObjects (probe: ReflectionProbe, camera: Camera, cmdBuff: CommandBuffer): void {
         this.clear();
@@ -86,7 +85,7 @@ export class RenderReflectionProbeQueue {
         const sceneData = this._pipeline.pipelineSceneData;
         const skybox = sceneData.skybox;
 
-        if (skybox.enabled && skybox.model && (probe.camera.clearFlag & SKYBOX_FLAG)) {
+        if (skybox.enabled && skybox.model && (probe.camera.clearFlag & SkyBoxFlagValue.VALUE)) {
             this.add(skybox.model);
         }
 

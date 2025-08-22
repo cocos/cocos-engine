@@ -129,6 +129,15 @@ void UIModelProxy::destroy() {
 }
 
 void UIModelProxy::clear() {
+    if (_model == nullptr) {
+        return;
+    }
+    const auto& subModels = _model->getSubModels();
+    for (const auto &subModel : subModels) {
+        auto *ia = subModel->getInputAssembler();
+        ia->setVertexCount(0);
+        ia->setIndexCount(0);
+    }
 }
 
 // for ui model

@@ -17,20 +17,27 @@ jobs:
     name: "Windows"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: windows-2019
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { buildtype: Debug }
+          - { buildtype: Release }
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download external libraries
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Install deps
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
         with:
-          vulkan-query-version: 1.2.189.0
+          vulkan-query-version: 1.3.243.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+          vulkan-use-cache: false
       - name: Compile win64
         shell: bash
         env:
@@ -41,11 +48,11 @@ jobs:
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-win64/proj
           touch build-win64/proj/cfg.cmake
+          echo "set(USE_BOX2D_JSB ON)" >> build-win64/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_USE_VULKAN ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-win64/proj/cfg.cmake
-          echo "set(USE_SPINE OFF)" >> build-win64/proj/cfg.cmake
-          echo "set(USE_DRAGONBONES OFF)" >> build-win64/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win64/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win64/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-win64/proj/cfg.cmake
@@ -53,9 +60,9 @@ jobs:
           cd build-win64
           RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win64
           COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
-          cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
-          cmake --build . --config Release
-          echo "Compile Win64 Release Done!"
+          cmake ../ -G"Visual Studio 17 2022" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
+          cmake --build . --config ${{ matrix.config.buildtype }}
+          echo "Compile Win64 ${{ matrix.config.buildtype }} Done!"
 
   compile_android_minimal:
     name: "Android Minimal"
@@ -63,7 +70,7 @@ jobs:
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download external libraries
         shell: bash
         run: |
@@ -75,7 +82,7 @@ jobs:
           ndk-version: r21e
           add-to-path: false
           local-cache: true
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         id: setup-jdk
         with:
           distribution: 'zulu'
@@ -133,6 +140,15 @@ jobs:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: armeabi-v7a }
+          - { arch: arm64-v8a }
+          - { arch: x86 }
+          - { arch: x86_64 }
+          
     steps:
       - name: Before free space
         run: |
@@ -153,7 +169,7 @@ jobs:
         run: |
           df -h
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download external libraries
         shell: bash
         run: |
@@ -165,7 +181,7 @@ jobs:
           ndk-version: r21e
           add-to-path: false
           local-cache: true
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         id: setup-jdk
         with:
           distribution: 'zulu'
@@ -187,11 +203,17 @@ jobs:
           cd $GITHUB_WORKSPACE/templates/android/build
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
+          echo "set(USE_GOOGLE_BILLING ON)" >> build-android/proj/cfg.cmake
+          echo "set(USE_GOOGLE_PLAY_GAMES ON)" >> build-android/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
+          echo "set(USE_BOX2D_JSB ON)" >> build-android/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-android/proj/cfg.cmake
+          echo "set(USE_SPINE_3_8 OFF)" >> build-android/proj/cfg.cmake
+          echo "set(USE_SPINE_4_2 ON)" >> build-android/proj/cfg.cmake
           echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-android/proj/cfg.cmake
 
@@ -215,16 +237,16 @@ jobs:
           # To speedup CI, compile arm64-v8a only
           # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
           df -h
-          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
+          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=${{ matrix.config.arch }}@g" gradle.properties
 
           echo "Compile Android - cmake ..."
           echo "ANDROID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
-          ./gradlew :CocosGame:assembleDebug --quiet
+          ./gradlew :CocosGame:assembleDebug # --quiet
           df -h
-          ./gradlew clean
-          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a@g" gradle.properties
-          ./gradlew :CocosGame:assembleDebug --quiet
-          df -h
+          # ./gradlew clean
+          # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a@g" gradle.properties
+          # ./gradlew :CocosGame:assembleDebug --quiet
+          # df -h
           echo "Compile Android Debug Done!"
 
   compile_openharmony:
@@ -232,14 +254,60 @@ jobs:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: arm64-v8a, jsEngine: V8 }
+          - { arch: arm64-v8a, jsEngine: ARK }
+          - { arch: arm64-v8a, jsEngine: JSVM }
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Show PATH env
+        run: |
+          echo "PATH=$PATH"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+          echo "ldconfig"
+          ldconfig -v 2>/dev/null | awk '{print $1}' | grep -E '^/'
+          echo "/etc/ld.so.conf"
+          cat /etc/ld.so.conf
+          cat /etc/ld.so.conf.d/*
+
+      - name: Before free space
+        run: |
+          df -h
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@d5af243ce7bacb67384aa6c5b1fc5f169e30903e
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: After free space
+        run: |
+          df -h
+
+      - name: Install libgl1
+        run: |
+          sudo apt-get install -y libgl1
+
+      - name: Checking libGL.so.1
+        run: |
+          echo "Checking libGL.so.1 since sdk/default/hms/toolchains/lib/libimage_transcoder_shared.so needs it"
+          ls -l /usr/lib/x86_64-linux-gnu/*.so*
+
+      - uses: actions/checkout@v4
       - name: Download external libraries
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         id: setup-jdk
         with:
           distribution: 'zulu'
@@ -256,21 +324,20 @@ jobs:
 
       - name: Cache OH SDK
         id: cache-oh-sdk
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
-          cache-name: cache-oh-sdk-9
+          cache-name: cache-oh-sdk-13
         with:
           path: ${{ steps.oh-sdk-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-build-${{ env.cache-name }}
 
-      - name: Add package.json
-        run: |
-          echo "{}" > package.json
-          echo "{\"name\": \"tests\",\"lockfileVersion\": 3,\"requires\": true,\"packages\": {}}" > package-lock.json
-      - uses: actions/setup-node@v3
+      # - name: Add package.json
+      #   run: |
+      #     echo "{}" > package.json
+      #     echo "{\"name\": \"tests\",\"lockfileVersion\": 3,\"requires\": true,\"packages\": {}}" > package-lock.json
+      - uses: actions/setup-node@v4
         with:
           node-version: 14
-          cache: 'npm'
 
       - if: ${{ steps.cache-oh-sdk.outputs.cache-hit != 'true' }}
         name: No Cache found, install oh sdk
@@ -278,29 +345,15 @@ jobs:
         run: |
           if [ ! -d "$HOME/openharmony" ]; then
             mkdir -p $HOME/openharmony
-            echo "Download commandline-tools-linux.zip ..."
-            curl -o commandline-tools-linux.zip "https://contentcenter-vali-drcn.dbankcdn.cn/pvt_2/DeveloperAlliance_package_901_9/b1/v3/E6zhv5UFQ2-inIwNJhTN6Q/commandline-tools-linux-2.0.0.2.zip?HW-CC-KV=V1&HW-CC-Date=20230621T074401Z&HW-CC-Expire=315360000&HW-CC-Sign=621224257B02079B1E76C0A56FDF21483400B1E3556213F88DC79BC9BE7D595D"
-            echo "Unzip commandline-tools-linux.zip ..."
-            unzip commandline-tools-linux.zip -d $HOME/openharmony > /dev/null
+            echo "Download commandline-tools-linux-x64-5.0.13.200.zip ..."
+            wget -q https://github.com/cocos/oh-sdk-for-ci/releases/download/api-15/commandline-tools-linux-x64-5.0.13.200.zip.001
+            wget -q https://github.com/cocos/oh-sdk-for-ci/releases/download/api-15/commandline-tools-linux-x64-5.0.13.200.zip.002
+            echo "Unzip commandline-tools-linux-x64-5.0.13.200.zip ..."
+            7z x commandline-tools-linux-x64-5.0.13.200.zip.001 -o$HOME/openharmony > /dev/null
             cd $HOME/openharmony
             ls -l
             cd command-line-tools
-            echo "=============== PATCHING sdkmanager/bin/sdkmgr file ==============="
-            sed -i "s@-Dfile.encoding=UTF-8@-Dfile.encoding=UTF-8 -Duser.country=CN@g" ./sdkmanager/bin/sdkmgr
-            cd bin
-            ./sdkmgr list
-            echo "=============== INSTALL HOS toolchains:9 ==============="
-            ./sdkmgr install toolchains:9 --accept-license > /dev/null
-            echo "=============== INSTALL OH SDK ets:9 ==============="
-            ./sdkmgr install OpenHarmony/ets:9 --accept-license > /dev/null
-            echo "=============== INSTALL OH SDK js:9 ==============="
-            ./sdkmgr install OpenHarmony/js:9 --accept-license > /dev/null
-            echo "=============== INSTALL OH SDK native:9 ==============="
-            ./sdkmgr install OpenHarmony/native:9 --accept-license > /dev/null
-            echo "=============== INSTALL OH SDK toolchains:9 ==============="
-            ./sdkmgr install OpenHarmony/toolchains:9 --accept-license > /dev/null
-            echo "=============== INSTALL OH SDK DONE ==============="
-            ./sdkmgr list
+            ls -l
           fi
 
       - name: Compile for Openharmony
@@ -312,20 +365,28 @@ jobs:
           npm -v
           java --version
           echo "=============== list files in oh sdk ($HOME/openharmony) ==============="
-          pushd $HOME/openharmony
+          pushd $HOME/openharmony/command-line-tools
           ls -l
           popd
+
+          export PATH=$PATH:$HOME/openharmony/command-line-tools/bin
+          echo "PATH=$PATH"
+          echo "hvigorw path:"
+          which hvigorw
+          echo "ohpm path:"
+          which ohpm
 
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling Openharmony ... "
 
-          cd $GITHUB_WORKSPACE/templates/openharmony
+          cd $GITHUB_WORKSPACE/templates/harmonyos-next
 
           echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> Pre-Sample.cmake
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
 
           mkdir -p build-oh/proj
           touch build-oh/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-oh/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-oh/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-oh/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-oh/proj/cfg.cmake
@@ -333,58 +394,68 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-oh/proj/cfg.cmake
           echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-oh/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-oh/proj/cfg.cmake
-          echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
-          echo "set(USE_SE_NAPI ON)" >> build-oh/proj/cfg.cmake
+          if [ "${{ matrix.config.jsEngine }}" = "V8" ]; then
+            echo "=============== JsEngine: V8 ==============="
+            echo "set(USE_SE_V8 ON)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM OFF)" >> build-oh/proj/cfg.cmake
+          elif [ "${{ matrix.config.jsEngine }}" = "JSVM" ]; then
+            echo "=============== JsEngine: JSVM ==============="
+            echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM ON)" >> build-oh/proj/cfg.cmake
+          else
+            echo "=============== JsEngine: ARK ==============="
+            echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_NAPI ON)" >> build-oh/proj/cfg.cmake
+            echo "set(USE_SE_JSVM OFF)" >> build-oh/proj/cfg.cmake
+          fi
 
           echo "=============== cat build-oh/proj/cfg.cmake ==============="
           cat build-oh/proj/cfg.cmake
 
           mkdir -p build-oh/assets
 
-          ASSET_DIR=$GITHUB_WORKSPACE/templates/openharmony/build-oh
+          ASSET_DIR=$GITHUB_WORKSPACE/templates/harmonyos-next/build-oh
 
           echo "=============== HACK ./entry/build-profile.json5 ==============="
           sed -i "s@[^-]DRES_DIR[^=]@$ASSET_DIR@g" ./entry/build-profile.json5
           sed -i "s@[^-]DCOMMON_DIR[^=]@$GITHUB_WORKSPACE/templates/common@g" ./entry/build-profile.json5
           # To speedup CI, compile arm64-v8a only
-          sed -i "s@\"armeabi-v7a\",@@g" ./entry/build-profile.json5
+          sed -i "s@arm64-v8a@${{ matrix.config.arch }}@g" ./entry/build-profile.json5
 
           echo "entry/build-profile.json5: "
           cat ./entry/build-profile.json5
 
-          echo "=============== HACK ./hvigor/hvigor-wrapper.js ==============="
-          sed -i "s@HVIGOR_WRAPPER_PNPM_SCRIPT_PATH,\[\"install\"\]@HVIGOR_WRAPPER_PNPM_SCRIPT_PATH,\[\"install\", \"--lockfile=false\"\]@g" ./hvigor/hvigor-wrapper.js
+          # echo "=============== UPDATE ./hvigor/hvigor-config.json5 ==============="
+          # echo "{\"hvigorVersion\":\"3.0.2\",\"dependencies\":{\"@ohos/hvigor-ohos-plugin\":\"3.0.2\"}}" > ./hvigor/hvigor-config.json5
 
-          echo "=============== SET NPM OH REGISTRY ==============="
-          echo "@ohos:registry=https://repo.harmonyos.com/npm/" >> ~/.npmrc
-          npm config get @ohos:registry
-          npm config get registry
-
-          echo "=============== UPDATE local.properties ==============="
-          echo "nodejs.dir=/usr/bin" >> local.properties
-          echo "hwsdk.dir=$HOME/openharmony/hwsdk" >> local.properties
-
-          echo "=============== UPDATE ./hvigor/hvigor-config.json5 ==============="
-          echo "{\"hvigorVersion\":\"3.0.2\",\"dependencies\":{\"@ohos/hvigor-ohos-plugin\":\"3.0.2\"}}" > ./hvigor/hvigor-config.json5
-
-          echo "=============== Do not import game.ts for cocos_worker.ts ==============="
-          sed -i '/<% if(!useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ts
+          echo "=============== Do not import game.ts for cocos_worker.ets ==============="
+          sed -i '/<% if(!useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ets
+          sed -i '/<% if(useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ets
+          ls -l ./entry/src/main/ets/workers/cocos_worker.ets
 
           echo "=============== EXECUTE hvigorw ==============="
-          ./hvigorw clean -i
-          ./hvigorw --stop-daemon -i
-          ./hvigorw assembleHap -p debuggable=true --no-daemon -d
+          ohpm install
+          hvigorw clean -i
+          hvigorw --stop-daemon -i
+          hvigorw --mode module -p product=default assembleHap --parallel --incremental debuggable=true --no-daemon -d
           #./hvigorw default@ProcessLibs -p debuggable=true --no-daemon -d
           echo "=============== EXECUTE hvigorw DONE ==============="
 
-
-  compile_mac_x86_64:
-    name: "MacOS x86_64"
+  compile_mac:
+    name: "MacOS"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: x86_64 }
+          - { arch: arm64 }
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download external libraries
         shell: bash
         run: |
@@ -403,10 +474,14 @@ jobs:
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-mac/proj
           touch build-mac/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_GLES3 OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
+          # Test JSVM v8 backend on macOS.
+          echo "set(USE_SE_V8 OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(USE_SE_JSVM ON)" >> build-mac/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-mac/proj/cfg.cmake
@@ -414,75 +489,25 @@ jobs:
 
           RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
           cd build-mac
-          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
+          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=${{ matrix.config.arch }} -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
           set +e
-          cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
-          retcode=$?
-          set -e
-          if [ $retcode -ne 0 ]; then
-              echo "-----------------------------------------------------------------------------------------------"
-              echo "------------------------------------ recompile without `-quiet` -------------------------------"
-              echo "-----------------------------------------------------------------------------------------------"
-              cmake --build . --config Release -- -jobs $NUM_OF_CORES -arch x86_64
-          fi
-          echo "Compile MacOSX x86_64 Release Done!"
-
-  compile_mac_arm64:
-    name: "MacOS arm64"
-    if: 
-      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Download external libraries
-        shell: bash
-        run: |
-          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - name: Compile
-        env:
-          COCOS_ENGINE_DEV: 1
-        run: |
-          NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
-          NATIVE_ROOT=$GITHUB_WORKSPACE/native
-          echo "Compiling MacOSX ... "
-          cd  $GITHUB_WORKSPACE/templates/mac
-          mkdir -p build-mac/proj
-          touch build-mac/proj/cfg.cmake
-          echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_GLES3 OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
-          echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-mac/proj/cfg.cmake
-          mkdir build-mac/assets
-
-          RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
-          cd build-mac
-          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
-          set +e
-          cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch arm64
-          retcode=$?
-          set -e
-          if [ $retcode -ne 0 ]; then
-              echo "-----------------------------------------------------------------------------------------------"
-              echo "------------------------------------ recompile without `-quiet` -------------------------------"
-              echo "-----------------------------------------------------------------------------------------------"
-              cmake --build . --config Release -- -jobs $NUM_OF_CORES -arch arm64
-          fi
-          echo "Compile MacOSX ARM64 Release Done!"
+          cmake --build . --config Release -- -jobs $NUM_OF_CORES -arch ${{ matrix.config.arch }}
+          echo "Compile MacOSX Release Done!"
 
   compile_iOS:
     name: "iOS"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: macos-11
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { sdk: iphoneos, arch: arm64 }
+          - { sdk: iphonesimulator, arch: x86_64 }
+
     steps:
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 12.4 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download external libraries
         shell: bash
         run: |
@@ -501,11 +526,12 @@ jobs:
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-ios/proj
           touch build-ios/proj/cfg.cmake
+          echo "set(USE_PHYSICS_PHYSX ON)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_GLES3 OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_GLES2 OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_METAL ON)" >> build-ios/proj/cfg.cmake
-          echo "set(TARGET_IOS_VERSION 11.0)" >> build-ios/proj/cfg.cmake
+          echo "set(TARGET_IOS_VERSION 12.0)" >> build-ios/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-ios/proj/cfg.cmake
           echo "set(USE_DRAGONBONES OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED OFF)" >> build-ios/proj/cfg.cmake
@@ -515,19 +541,11 @@ jobs:
           cd build-ios
           RES_DIR=$GITHUB_WORKSPACE/templates/ios/build-ios
           cmake ../ -GXcode -DCMAKE_SYSTEM_NAME=iOS \
-              -DCMAKE_OSX_SYSROOT=iphoneos \
-              -DCMAKE_OSX_ARCHITECTURES=arm64 \
+              -DCMAKE_OSX_SYSROOT=${{ matrix.config.sdk }} \
+              -DCMAKE_OSX_ARCHITECTURES=${{ matrix.config.arch }} \
               -DRES_DIR=$RES_DIR \
               -DCOCOS_X_PATH=$NATIVE_ROOT
           set +e
           #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          retcode=$?
-          set -e
-          if [ $retcode -ne 0 ]; then
-              echo "-----------------------------------------------------------------------------------------------"
-              echo "------------------------------------ recompile without `-quiet` -------------------------------"
-              echo "-----------------------------------------------------------------------------------------------"
-              cmake --build . --config Debug --  -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          fi
+          cmake --build . --config Debug -- -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           echo "Compile iOS Done!"

@@ -29,18 +29,18 @@ const CanvasProxy = new Proxy(Canvas, {
 
     canvas.addEventListener = function (type, listener, options = {}) {
       // console.log('canvas.addEventListener', type);
-      $global.document.addEventListener(type, listener, options);
+      globalThis.document.addEventListener(type, listener, options);
     };
 
     canvas.removeEventListener = function (type, listener) {
       // console.log('canvas.removeEventListener', type);
-      $global.document.removeEventListener(type, listener);
+      globalThis.document.removeEventListener(type, listener);
     };
 
     canvas.dispatchEvent = function (event = {}) {
       console.log('canvas.dispatchEvent', event.type, event);
       if (my.isIDE) {
-        $global.document.dispatchEvent(event);
+        globalThis.document.dispatchEvent(event);
       }
     };
 

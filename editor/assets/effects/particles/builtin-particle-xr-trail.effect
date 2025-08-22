@@ -40,6 +40,7 @@ CCEffect %{
 CCProgram tinted-fs %{
   precision mediump float;
   #include <legacy/output>
+  #include <builtin/internal/embedded-alpha>
 
   in vec2 uv;
   in vec4 color;
@@ -53,7 +54,7 @@ CCProgram tinted-fs %{
   };
 
   vec4 add () {
-    vec4 col = 2.0 * color * tintColor * texture(mainTexture, uv);
+    vec4 col = 2.0 * color * tintColor * CCSampleWithAlphaSeparated(mainTexture, uv);
 #if CC_DRAW_WIRE_FRAME
     if (any(lessThan(vBarycentric, vec3(0.02)))) {
         col = vec4(0., 1., 1., 1.);

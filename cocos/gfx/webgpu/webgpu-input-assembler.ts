@@ -28,7 +28,7 @@ import { WebGPUCmdFuncCreateInputAssember, WebGPUCmdFuncDestroyInputAssembler } 
 import { IWebGPUGPUInputAssembler, IWebGPUGPUBuffer } from './webgpu-gpu-objects';
 import { InputAssemblerInfo } from '../base/define';
 import { WebGPUDeviceManager } from './define';
-import { error } from '../../core';
+import { errorID } from '../../core';
 
 export class WebGPUInputAssembler extends InputAssembler {
     public get gpuInputAssembler (): IWebGPUGPUInputAssembler {
@@ -39,7 +39,7 @@ export class WebGPUInputAssembler extends InputAssembler {
 
     public initialize (info: Readonly<InputAssemblerInfo>): void {
         if (info.vertexBuffers.length === 0) {
-            error('InputAssemblerInfo.vertexBuffers is null.');
+            errorID(16331);
             return;
         }
 
@@ -81,7 +81,7 @@ export class WebGPUInputAssembler extends InputAssembler {
                 case 2: gpuIndexType = 'uint16'; break; // => WebGLRenderingContext.UNSIGNED_SHORT
                 case 4: gpuIndexType = 'uint32'; break; // => WebGLRenderingContext.UNSIGNED_INT
                 default: {
-                    error('Illegal index buffer stride.');
+                    errorID(16332);
                 }
                 }
             }

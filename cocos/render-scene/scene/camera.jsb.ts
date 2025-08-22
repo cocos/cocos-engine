@@ -123,7 +123,11 @@ export interface ICameraInfo {
     trackingType?: TrackingType;
 }
 
-export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
+export enum SkyBoxFlagValue {
+    VALUE = ClearFlagBit.STENCIL << 1,
+}
+
+export const SKYBOX_FLAG = SkyBoxFlagValue.VALUE;
 
 export const Camera: typeof JsbCamera = jsb.Camera;
 export type Camera = JsbCamera;

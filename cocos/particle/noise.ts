@@ -81,14 +81,35 @@ export class ParticleNoise {
         const BB = p[B + 1] + Z; // THE 8 CUBE CORNERS,
 
         // The perlin noise value 0 -> 1
-        const val = this.scale(this.lerp(w, this.lerp(v, this.lerp(u, this.grad(p[AA], x, y, z), // AND ADD
-            this.grad(p[BA], x - 1, y, z)), // BLENDED
-        this.lerp(u, this.grad(p[AB], x, y - 1, z), // RESULTS
-            this.grad(p[BB], x - 1, y - 1, z))), // FROM  8
-        this.lerp(v, this.lerp(u, this.grad(p[AA + 1], x, y, z - 1), // CORNERS
-            this.grad(p[BA + 1], x - 1, y, z - 1)), // OF CUBE
-        this.lerp(u, this.grad(p[AB + 1], x, y - 1, z - 1),
-            this.grad(p[BB + 1], x - 1, y - 1, z - 1)))));
+        const val = this.scale(this.lerp(
+            w,
+            this.lerp(
+                v,
+                this.lerp(
+                    u,
+                    this.grad(p[AA], x, y, z), // AND ADD
+                    this.grad(p[BA], x - 1, y, z),
+                ), // BLENDED
+                this.lerp(
+                    u,
+                    this.grad(p[AB], x, y - 1, z), // RESULTS
+                    this.grad(p[BB], x - 1, y - 1, z),
+                ),
+            ), // FROM  8
+            this.lerp(
+                v,
+                this.lerp(
+                    u,
+                    this.grad(p[AA + 1], x, y, z - 1), // CORNERS
+                    this.grad(p[BA + 1], x - 1, y, z - 1),
+                ), // OF CUBE
+                this.lerp(
+                    u,
+                    this.grad(p[AB + 1], x, y - 1, z - 1),
+                    this.grad(p[BB + 1], x - 1, y - 1, z - 1),
+                ),
+            ),
+        ));
 
         return min + val * (max - min);
     }
@@ -126,7 +147,7 @@ export class ParticleNoise {
      * @param y @en Y axis roll speed. @zh Y 轴滚动速度。
      * @param z @en Z axis roll speed. @zh Z 轴滚动速度。
      */
-    public setSpeed (x, y, z): void {
+    public setSpeed (x: number, y: number, z: number): void {
         this.noiseSpeed.set(x, y, z);
     }
 
@@ -135,7 +156,7 @@ export class ParticleNoise {
      * @zh 设置生成的噪声频率。
      * @param f @en Noise texture frequency. @zh 噪声频率。
      */
-    public setFrequency (f): void {
+    public setFrequency (f: number): void {
         this.noiseFrequency = f;
     }
 
@@ -147,7 +168,7 @@ export class ParticleNoise {
      * @param z @en Z value transformed. @zh Z 轴上噪声值的偏移。
      * @deprecated since v3.6.0
      */
-    public setAbs (x, y, z): void {
+    public setAbs (x: number, y: number, z: number): void {
         this.noiseAbs.set(x, y, z);
     }
 
@@ -158,7 +179,7 @@ export class ParticleNoise {
      * @param y @en Noise amplititude on Y axis. @zh Y 轴上的噪声强度。
      * @param z @en Noise amplititude on Z axis. @zh Z 轴上的噪声强度。
      */
-    public setAmplititude (x, y, z): void {
+    public setAmplititude (x: number, y: number, z: number): void {
         this.noiseAmplitude.set(x, y, z);
     }
 
@@ -169,7 +190,7 @@ export class ParticleNoise {
      * @param y @en For each additional noise layer, reduce the strength by this proportion. @zh 每一层的噪声强度衰减比例。
      * @param z @en For each additional noise layer, adjust the frequency by this multiplier. @zh 对于每个附加的噪声层，按此乘数调整频率。
      */
-    public setOctaves (x, y, z): void {
+    public setOctaves (x: number, y: number, z: number): void {
         this.octaves.set(x, y, z);
     }
 
@@ -178,7 +199,7 @@ export class ParticleNoise {
      * @zh 设置更新间隔时间。
      * @param t @en Update interval time. @zh 更新的间隔时间。
      */
-    public setTime (t): void {
+    public setTime (t: number): void {
         this.dt = t;
     }
 

@@ -26,10 +26,10 @@
 // Some helper methods for compile instantiation code
 
 import { TEST } from 'internal:constants';
-import { CCClass, isCCClassOrFastDefined, js, CCObject, isCCObject, cclegacy, flattenCodeArray } from '../core';
+import { CCClass, isCCClassOrFastDefined, js, CCObjectFlags, isCCObject, cclegacy, flattenCodeArray } from '../core';
 
-const Destroyed = CCObject.Flags.Destroyed;
-const PersistentMask = CCObject.Flags.PersistentMask;
+const Destroyed = CCObjectFlags.Destroyed;
+const PersistentMask = CCObjectFlags.PersistentMask;
 const DEFAULT = `${CCClass.Attr.DELIMETER}default`;
 const IDENTIFIER_RE = CCClass.IDENTIFIER_RE;
 
@@ -51,8 +51,8 @@ const escapeForJS = CCClass.escapeForJS;
 // ('foo', 'bar')
 // -> 'var foo = bar;'
 class Declaration {
-    public varName: any;
-    public expression: any;
+    public declare varName: any;
+    public declare expression: any;
 
     constructor (varName, expression) {
         this.varName = varName;
@@ -100,15 +100,23 @@ function writeAssignment (codeArray, statement, expression): void {
 // -> 't.foo1 = bar1;'
 // -> 't.foo2 = bar2;'
 class Assignments {
-    public static pool: js.Pool<{}>;
+    public static pool: js.Pool<Assignments> = new js.Pool((obj: Assignments) => {
+        obj._exps.length = 0;
+        obj._targetExp = null;
+    }, 1);
 
-    private _exps: any[];
-    private _targetExp: any;
+    private declare _exps: any[];
+    private declare _targetExp: any;
 
-    constructor (targetExpression?) {
+    constructor (targetExpression?: any) {
         this._exps = [];
         this._targetExp = targetExpression;
     }
+
+    setTargetExp (value: any): void {
+        this._targetExp = value;
+    }
+
     public append (key, expression): void {
         this._exps.push([key, expression]);
     }
@@ -130,21 +138,17 @@ class Assignments {
     }
 }
 
-Assignments.pool = new js.Pool((obj: any) => {
-    obj._exps.length = 0;
-    obj._targetExp = null;
-}, 1);
 // HACK: here we've changed the signature of get method
-(Assignments.pool.get as any) = function (this: any, targetExpression): Assignments {
-    const cache: any = this._get() || new Assignments();
-    cache._targetExp = targetExpression;
-    return cache as Assignments;
+(Assignments.pool.get as any) = function get (this: js.Pool<Assignments>, targetExpression: any): Assignments {
+    const cache: Assignments = this._get() || new Assignments();
+    cache.setTargetExp(targetExpression);
+    return cache;
 };
 
 // HELPER FUNCTIONS
 
-function getPropAccessor (key): string {
-    return IDENTIFIER_RE.test(key) ? (`.${key}`) : (`[${escapeForJS(key)}]`);
+function getPropAccessor (key: any): string {
+    return IDENTIFIER_RE.test(key as string) ? (`.${key}`) : (`[${escapeForJS(key)}]`);
 }
 
 //
@@ -157,16 +161,25 @@ function getPropAccessor (key): string {
  * {Object} o - current creating object
  */
 class Parser {
-    public parent: any;
-    public objsToClear_iN$t: any[];
-    public codeArray: any[];
-    public objs: any[];
-    public funcs: any[];
-    public funcModuleCache: any;
-    public globalVariables: any[];
-    public globalVariableId: number;
-    public localVariableId: number;
-    public result: any;
+    public declare parent: any;
+    public objsToClear_iN$t: any[] = []; // used to reset _iN$t variable
+    public codeArray: string[] = [];
+    // datas for generated code
+    public objs: any[] = [];
+    public funcs: any[] = [];
+    //
+    public declare funcModuleCache: any;
+
+    // {String[]} - variable names for circular references,
+    //              not really global, just local variables shared between sub functions
+    public globalVariables: any[] = [];
+
+    // incremental id for new global variables
+    public globalVariableId: number = 0;
+
+    // incremental id for new local variables
+    public localVariableId: number = 0;
+    public declare result: any;
     /*
     * @method constructor
     * @param {Object} obj - the object to parse
@@ -175,42 +188,29 @@ class Parser {
     constructor (obj, parent) {
         this.parent = parent;
 
-        this.objsToClear_iN$t = [];   // used to reset _iN$t variable
-        this.codeArray = [];
-
-        // datas for generated code
-        this.objs = [];
-        this.funcs = [];
-
         this.funcModuleCache = js.createMap();
-        js.mixin(this.funcModuleCache, DEFAULT_MODULE_CACHE);
-
-        // {String[]} - variable names for circular references,
-        //              not really global, just local variables shared between sub functions
-        this.globalVariables = [];
-        // incremental id for new global variables
-        this.globalVariableId = 0;
-        // incremental id for new local variables
-        this.localVariableId = 0;
+        js.mixin(this.funcModuleCache as Record<string | number, any>, DEFAULT_MODULE_CACHE);
 
         // generate codeArray
         // if (Array.isArray(obj)) {
         //    this.codeArray.push(this.instantiateArray(obj));
         // }
         // else {
-        this.codeArray.push(`${VAR + LOCAL_OBJ},${LOCAL_TEMP_OBJ};`,
+        this.codeArray.push(
+            `${VAR + LOCAL_OBJ},${LOCAL_TEMP_OBJ};`,
             'if(R){',
             `${LOCAL_OBJ}=R;`,
             '}else{',
             `${LOCAL_OBJ}=R=new ${this.getFuncModule(obj.constructor, true)}();`,
-            '}');
+            '}',
+        );
         obj._iN$t = { globalVar: 'R' };
         this.objsToClear_iN$t.push(obj);
         this.enumerateObject(this.codeArray, obj);
         // }
 
         // generate code
-        let globalVariablesDeclaration;
+        let globalVariablesDeclaration: string | string[] | undefined;
         if (this.globalVariables.length > 0) {
             globalVariablesDeclaration = `${VAR + this.globalVariables.join(',')};`;
         }
@@ -221,6 +221,7 @@ class Parser {
             '})']);
 
         // generate method and bind with objs
+        // eslint-disable-next-line no-new-func, @typescript-eslint/no-implied-eval
         this.result = Function('O', 'F', code)(this.objs, this.funcs);
 
         // if (TEST && !isPhantomJS) {
@@ -245,12 +246,13 @@ class Parser {
                 if (clsNameIsModule) {
                     try {
                         // ensure is module
+                        // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
                         clsNameIsModule = (func === Function(`return ${clsName}`)());
                         if (clsNameIsModule) {
                             this.funcModuleCache[clsName] = clsName;
                             return clsName;
                         }
-                    } catch (e) {}
+                    } catch (e) { /* empty */ }
                 }
             }
         }
@@ -278,10 +280,10 @@ class Parser {
 
     public setValueType (codeArray, defaultValue, srcValue, targetExpression): void {
         // HACK: here we've changed the signature of get method.
-        const assignments: any = (Assignments.pool.get as any)(targetExpression);
+        const assignments: Assignments = (Assignments.pool.get as any)(targetExpression);
         let fastDefinedProps = defaultValue.constructor.__props__;
         if (!fastDefinedProps) {
-            fastDefinedProps = Object.keys(defaultValue);
+            fastDefinedProps = Object.keys(defaultValue as object);
         }
         for (let i = 0; i < fastDefinedProps.length; i++) {
             const propName = fastDefinedProps[i];
@@ -416,13 +418,13 @@ class Parser {
 
     // codeArray - the source code array for this object
     public enumerateObject (codeArray, obj): void {
-        const klass = obj.constructor;
+        const klass: Constructor<unknown> = obj.constructor;
         if (isCCClassOrFastDefined(klass)) {
             this.enumerateCCClass(codeArray, obj, klass);
         } else {
             // primitive javascript object
             for (const key in obj) {
-                if (!obj.hasOwnProperty(key)
+                if (!Object.prototype.hasOwnProperty.call(obj, key)
                     || (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95   // starts with "__"
                     && key !== '__type__')
                 ) {
@@ -451,7 +453,7 @@ class Parser {
         }
 
         let createCode;
-        const ctor = obj.constructor;
+        const ctor: Constructor<unknown> = obj.constructor;
         if (isCCClassOrFastDefined(ctor)) {
             if (this.parent) {
                 if (this.parent instanceof cclegacy.Component) {

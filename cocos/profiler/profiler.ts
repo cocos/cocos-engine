@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { TEST, EDITOR } from 'internal:constants';
+import { USE_XR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
 import { Material } from '../asset/assets/material';
@@ -33,10 +33,9 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, Settings, settings, warn } from '../core';
+import { preTransforms, System, sys, cclegacy, settings, warnID, SettingsCategory, CCObjectFlags, Color } from '../core';
 import { Root } from '../root';
-import { PipelineRuntime } from '../rendering/custom/pipeline';
-import { director } from '../game';
+import { director, DirectorEvent, Game, game } from '../game';
 import { ccwindow } from '../core/global-exports';
 
 const _characters = '0123456789. ';
@@ -101,8 +100,8 @@ export class Profiler extends System {
     private _device: Device | null = null;
     private _swapchain: Swapchain | null = null;
     private _meshRenderer: MeshRenderer = null!;
-    private readonly _canvas: HTMLCanvasElement | null = null;
-    private readonly _ctx: CanvasRenderingContext2D | null = null;
+    private _canvas: HTMLCanvasElement | null = null;
+    private _ctx: CanvasRenderingContext2D | null = null;
     private _texture: Texture | null = null;
     private readonly _region: BufferTextureCopy = new BufferTextureCopy();
     private readonly _canvasArr: HTMLCanvasElement[] = [];
@@ -115,24 +114,21 @@ export class Profiler extends System {
     private _statsDone = false;
     private _inited = false;
 
-    private _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
+    private readonly _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
     private _wordHeight = 0;
     private _eachNumWidth = 0;
     private _totalLines = 0; // total lines to display
 
     private lastTime = 0;   // update use time
+    private _backgroundColor = new Color(150, 150, 150, 100);
+    private _fontColor = Color.WHITE.clone();
 
     constructor () {
         super();
-        if (!TEST) {
-            this._canvas = ccwindow.document.createElement('canvas');
-            this._ctx = this._canvas.getContext('2d')!;
-            this._canvasArr.push(this._canvas);
-        }
     }
 
     init (): void {
-        const showFPS = !!settings.querySettings(Settings.Category.PROFILING, 'showFPS');
+        const showFPS = !!settings.querySettings(SettingsCategory.PROFILING, 'showFPS');
         if (showFPS) {
             this.showStats();
         } else {
@@ -140,11 +136,33 @@ export class Profiler extends System {
         }
     }
 
+    public setBackgroundColor (color: Readonly<Color>): void {
+        if (this._backgroundColor.equals(color)) {
+            return;
+        }
+        this._backgroundColor.set(color);
+        if (this._showFPS) {
+            this.hideStats();
+            this.showStats();
+        }
+    }
+
+    public setFontColor (color: Readonly<Color>): void {
+        if (this._fontColor.equals(color)) {
+            return;
+        }
+        this._fontColor.set(color);
+        if (this._showFPS) {
+            this.hideStats();
+            this.showStats();
+        }
+    }
+
     /**
      * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
      */
     public get _stats (): IProfilerState | null {
-        warn('Profiler._stats is deprecated, please use Profiler.stats instead.');
+        warnID(16381);
         return this._profilerStats;
     }
 
@@ -161,26 +179,62 @@ export class Profiler extends System {
     }
 
     public hideStats (): void {
-        if (this._showFPS) {
-            if (this._rootNode) {
-                this._rootNode.active = false;
+        const self = this;
+        if (self._showFPS) {
+            self._profilerStats = null;
+            if (self._rootNode) {
+                self._rootNode.destroy();
+                self._rootNode = null;
+            }
+            self._device = null;
+            self._swapchain = null;
+            const meshRenderer = self._meshRenderer;
+            if (meshRenderer) {
+                meshRenderer.sharedMaterial?.destroy();
+                meshRenderer.mesh?.destroy();
+                meshRenderer.destroy();
+                self._meshRenderer = null!;
+            }
+            self._canvas = null;
+            self._ctx = null;
+            if (self._texture) {
+                self._texture.destroy();
+                self._texture = null;
             }
 
-            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_RENDER, this.afterRender, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_DRAW, this.afterPresent, this);
-            this._showFPS = false;
+            self._canvasArr.length = 0;
+            self.digitsData = null!;
+            self.offsetData = null!;
+            self.pass = null!; // Pass was destroyed in the material
+            self._canvasDone = false;
+            self._statsDone = false;
+            self._inited = false;
+
+            self._wordHeight = 0;
+            self._eachNumWidth = 0;
+            self._totalLines = 0;
+            self.lastTime = 0;
+
+            director.off(DirectorEvent.BEFORE_UPDATE, self.beforeUpdate, self);
+            director.off(DirectorEvent.AFTER_UPDATE, self.afterUpdate, self);
+            director.off(DirectorEvent.BEFORE_PHYSICS, self.beforePhysics, self);
+            director.off(DirectorEvent.AFTER_PHYSICS, self.afterPhysics, self);
+            director.off(DirectorEvent.BEFORE_DRAW, self.beforeDraw, self);
+            director.off(DirectorEvent.AFTER_RENDER, self.afterRender, self);
+            director.off(DirectorEvent.AFTER_DRAW, self.afterPresent, self);
+            self._showFPS = false;
             director.root!.pipeline.profiler = null;
             cclegacy.game.config.showFPS = false;
         }
     }
 
     public showStats (): void {
+        const game: Game = cclegacy.game;
         if (!this._showFPS) {
+            this._canvas = ccwindow.document.createElement('canvas');
+            this._ctx = this._canvas.getContext('2d')!;
+            this._canvasArr.push(this._canvas);
+
             if (!this._device) {
                 const root = cclegacy.director.root as Root;
                 this._device = deviceManager.gfxDevice;
@@ -189,47 +243,52 @@ export class Profiler extends System {
 
             this.generateCanvas();
             this.generateStats();
-            cclegacy.game.once(cclegacy.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-            cclegacy.game.on(cclegacy.Game.EVENT_RESTART, this.generateNode, this);
+            game.once(Game.EVENT_ENGINE_INITED, this.generateNode, this);
+            game.on(Game.EVENT_RESTART, this.generateNode, this);
 
             if (this._rootNode) {
                 this._rootNode.active = true;
             }
 
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_RENDER, this.afterRender, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_DRAW, this.afterPresent, this);
+            director.on(DirectorEvent.BEFORE_UPDATE, this.beforeUpdate, this);
+            director.on(DirectorEvent.AFTER_UPDATE, this.afterUpdate, this);
+            director.on(DirectorEvent.BEFORE_PHYSICS, this.beforePhysics, this);
+            director.on(DirectorEvent.AFTER_PHYSICS, this.afterPhysics, this);
+            director.on(DirectorEvent.BEFORE_DRAW, this.beforeDraw, this);
+            director.on(DirectorEvent.AFTER_RENDER, this.afterRender, this);
+            director.on(DirectorEvent.AFTER_DRAW, this.afterPresent, this);
 
             this._showFPS = true;
             this._canvasDone = true;
             this._statsDone = true;
-            cclegacy.game.config.showFPS = true;
+            game.config.showFPS = true;
         }
     }
 
+    /** @mangle */
     public generateCanvas (): void {
         if (this._canvasDone) {
             return;
         }
 
         const { textureWidth, textureHeight } = _constants;
+        const canvas = this._canvas;
+        const ctx = this._ctx;
 
-        if (!this._ctx || !this._canvas) {
+        if (!ctx || !canvas) {
             return;
         }
 
-        this._canvas.width = textureWidth;
-        this._canvas.height = textureHeight;
-        this._canvas.style.width = `${this._canvas.width}`;
-        this._canvas.style.height = `${this._canvas.height}`;
+        canvas.width = textureWidth;
+        canvas.height = textureHeight;
+        canvas.style.width = `${canvas.width}`;
+        canvas.style.height = `${canvas.height}`;
 
-        this._ctx.font = `${_constants.fontSize}px Arial`;
-        this._ctx.textBaseline = 'top';
-        this._ctx.fillStyle = '#fff';
+        ctx.font = `${_constants.fontSize}px Arial`;
+        ctx.textBaseline = 'top';
+
+        const fontColor = this._fontColor;
+        ctx.fillStyle = `rgba(${fontColor.r}, ${fontColor.g}, ${fontColor.b}, ${fontColor.a / 255})`;
 
         this._texture = this._device!.createTexture(new TextureInfo(
             TextureType.TEX2D,
@@ -239,50 +298,63 @@ export class Profiler extends System {
             textureHeight,
         ));
 
-        this._region.texExtent.width = textureWidth;
-        this._region.texExtent.height = textureHeight;
+        const texExtent = this._region.texExtent;
+        texExtent.width = textureWidth;
+        texExtent.height = textureHeight;
     }
 
+    /** @mangle */
     public generateStats (): void {
-        if (this._statsDone || !this._ctx || !this._canvas) {
+        const canvas = this._canvas;
+        const ctx = this._ctx;
+        if (this._statsDone || !ctx || !canvas) {
             return;
         }
 
         this._profilerStats = null;
         const now = performance.now();
 
-        this._ctx.textAlign = 'left';
+        ctx.textAlign = 'left';
         let i = 0;
         for (const id in _profileInfo) {
-            const element = _profileInfo[id];
-            this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            const element = _profileInfo[id] as ICounterOption;
+            ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
         this._totalLines = i;
-        this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
-        for (let j = 0; j < _characters.length; ++j) {
-            const offset = this._ctx.measureText(_characters[j]).width;
+        this._wordHeight = this._totalLines * this._lineHeight / canvas.height;
+        let j = 0;
+        for (j = 0; j < _characters.length; ++j) {
+            const offset = ctx.measureText(_characters[j]).width;
             this._eachNumWidth = Math.max(this._eachNumWidth, offset);
         }
-        for (let j = 0; j < _characters.length; ++j) {
-            this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
+        for (j = 0; j < _characters.length; ++j) {
+            ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
-        this._eachNumWidth /= this._canvas.width;
+
+        const bgColor = this._backgroundColor;
+        ctx.fillStyle = `rgba(${bgColor.r}, ${bgColor.g}, ${bgColor.b}, ${bgColor.a / 255})`;
+        ctx.fillRect(canvas.width - 4, canvas.height - 4, 4, 4);
+
+        this._eachNumWidth /= canvas.width;
 
         this._profilerStats = _profileInfo as IProfilerState;
-        this._canvasArr[0] = this._canvas;
+        this._canvasArr[0] = canvas;
         this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
+    /** @mangle */
     public generateNode (): void {
         if (this._rootNode && this._rootNode.isValid) {
             return;
         }
 
+        const canvas = this._canvas!;
+
         this._rootNode = new Node('PROFILER_NODE');
-        this._rootNode._objFlags = cclegacy.Object.Flags.DontSave | cclegacy.Object.Flags.HideInHierarchy;
-        cclegacy.game.addPersistRootNode(this._rootNode);
+        this._rootNode._objFlags = CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
+        game.addPersistRootNode(this._rootNode);
 
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
@@ -291,23 +363,76 @@ export class Profiler extends System {
         const rowHeight = height / this._totalLines;
         const lWidth = height / this._wordHeight;
         const scale = rowHeight / _constants.fontSize;
-        const columnWidth = this._eachNumWidth * this._canvas!.width * scale;
+        const columnWidth = this._eachNumWidth * canvas.width * scale;
+
+        const bgRight = lWidth + _constants.segmentsPerLine * columnWidth;
+        const bgPadding = columnWidth;
+
         const vertexPos: number[] = [
-            0,      height, 0, // top-left
-            lWidth, height, 0, // top-right
-            lWidth,      0, 0, // bottom-right
-            0,           0, 0, // bottom-left
+            -bgPadding, height + bgPadding, 0, // top-left
+            bgRight + bgPadding, height + bgPadding, 0, // top-right
+            bgRight + bgPadding, -bgPadding, 0, // bottom-right
+            -bgPadding, -bgPadding, 0, // bottom-left
         ];
         const vertexindices: number[] = [
             0, 2, 1,
             0, 3, 2,
         ];
+
+        const bgUvOriginX = (canvas.width - 3) / canvas.width;
+        const bgUvOriginY = (canvas.height - 3) / canvas.height;
+        const bgUvRight = (canvas.width - 1) / canvas.width;
+        const bgUvTop = (canvas.height - 1) / canvas.width;
+
         const vertexUV: number[] = [
-            0, 0, -1, 0,
-            1, 0, -1, 0,
-            1, this._wordHeight, -1, 0,
-            0, this._wordHeight, -1, 0,
+            bgUvOriginX, bgUvOriginY, -1, 0,
+            bgUvRight, bgUvOriginY, -1, 0,
+            bgUvRight, bgUvTop, -1, 0,
+            bgUvOriginX, bgUvTop, -1, 0,
         ];
+
+        vertexPos.push(
+            0,
+            height,
+            0, // tl
+            lWidth,
+            height,
+            0, // tr
+            lWidth,
+            0,
+            0, // br
+            0,
+            0,
+            0, // bl
+        );
+
+        vertexindices.push(
+            4,
+            6,
+            5,
+            4,
+            7,
+            6,
+        );
+        vertexUV.push(
+            0,
+            0,
+            -1,
+            0, // tl
+            1,
+            0,
+            -1,
+            0, // tr
+            1,
+            this._wordHeight,
+            -1,
+            0, // br
+            0,
+            this._wordHeight,
+            -1,
+            0, // bl
+        );
+
         let offset = 0;
         for (let i = 0; i < this._totalLines; i++) {
             for (let j = 0; j < _constants.segmentsPerLine; j++) {
@@ -315,7 +440,7 @@ export class Profiler extends System {
                 vertexPos.push(lWidth + (j + 1) * columnWidth, height - i * rowHeight, 0); // tr
                 vertexPos.push(lWidth + (j + 1) * columnWidth, height - (i + 1) * rowHeight, 0); // br
                 vertexPos.push(lWidth + j * columnWidth, height - (i + 1) * rowHeight, 0); // bl
-                offset = (i * _constants.segmentsPerLine + j + 1) * 4;
+                offset = (i * _constants.segmentsPerLine + j + 2) * 4; // + 2 means there are 2 quads offset before
                 vertexindices.push(0 + offset, 2 + offset, 1 + offset, 0 + offset, 3 + offset, 2 + offset);
                 const idx = i * _constants.segmentsPerLine + j;
                 const z = Math.floor(idx / 4);
@@ -352,29 +477,34 @@ export class Profiler extends System {
         this._inited = true;
     }
 
+    /** @mangle */
     public beforeUpdate (): void {
-        if (!this._profilerStats) {
+        const profilerStats = this._profilerStats;
+        if (!profilerStats) {
             return;
         }
 
         const now = performance.now();
-        (this._profilerStats.frame.counter as PerfCounter).start(now);
-        (this._profilerStats.logic.counter as PerfCounter).start(now);
+        (profilerStats.frame.counter as PerfCounter).start(now);
+        (profilerStats.logic.counter as PerfCounter).start(now);
     }
 
+    /** @mangle */
     public afterUpdate (): void {
-        if (!this._profilerStats) {
+        const profilerStats = this._profilerStats;
+        if (!profilerStats) {
             return;
         }
 
         const now = performance.now();
-        if (cclegacy.director.isPaused()) {
-            (this._profilerStats.frame.counter as PerfCounter).start(now);
+        if (director.isPaused()) {
+            (profilerStats.frame.counter as PerfCounter).start(now);
         } else {
-            (this._profilerStats.logic.counter as PerfCounter).end(now);
+            (profilerStats.logic.counter as PerfCounter).end(now);
         }
     }
 
+    /** @mangle */
     public beforePhysics (): void {
         if (!this._profilerStats) {
             return;
@@ -384,6 +514,7 @@ export class Profiler extends System {
         (this._profilerStats.physics.counter as PerfCounter).start(now);
     }
 
+    /** @mangle */
     public afterPhysics (): void {
         if (!this._profilerStats) {
             return;
@@ -393,6 +524,7 @@ export class Profiler extends System {
         (this._profilerStats.physics.counter as PerfCounter).end(now);
     }
 
+    /** @mangle */
     public beforeDraw (): void {
         if (!this._profilerStats || !this._inited) {
             return;
@@ -403,7 +535,7 @@ export class Profiler extends System {
         if (surfaceTransform !== this.offsetData[3]) {
             const preTransform = preTransforms[surfaceTransform];
             let x = -0.9; let y = -0.9 * clipSpaceSignY;
-            if (sys.isXR) {
+            if (USE_XR && sys.isXR) {
                 x = -0.5; y = -0.5 * clipSpaceSignY;
             }
             this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
@@ -424,24 +556,28 @@ export class Profiler extends System {
         (this._profilerStats.render.counter as PerfCounter).start(now);
     }
 
+    /** @mangle */
     public afterRender (): void {
-        if (!this._profilerStats || !this._inited) {
+        const profilerStats = this._profilerStats;
+        if (!profilerStats || !this._inited) {
             return;
         }
         const now = performance.now();
-        (this._profilerStats.render.counter as PerfCounter).end(now);
-        (this._profilerStats.present.counter as PerfCounter).start(now);
+        (profilerStats.render.counter as PerfCounter).end(now);
+        (profilerStats.present.counter as PerfCounter).start(now);
     }
 
+    /** @mangle */
     public afterPresent (): void {
-        if (!this._profilerStats || !this._inited) {
+        const profilerStats = this._profilerStats;
+        if (!profilerStats || !this._inited) {
             return;
         }
 
         const now = performance.now();
-        (this._profilerStats.frame.counter as PerfCounter).end(now);
-        (this._profilerStats.fps.counter as PerfCounter).frame(now);
-        (this._profilerStats.present.counter as PerfCounter).end(now);
+        (profilerStats.frame.counter as PerfCounter).end(now);
+        (profilerStats.fps.counter as PerfCounter).frame(now);
+        (profilerStats.present.counter as PerfCounter).end(now);
 
         if (now - this.lastTime < _average) {
             return;
@@ -449,21 +585,22 @@ export class Profiler extends System {
         this.lastTime = now;
 
         const device = this._device!;
-        (this._profilerStats.draws.counter as PerfCounter).value = device.numDrawCalls;
-        (this._profilerStats.instances.counter as PerfCounter).value = device.numInstances;
-        (this._profilerStats.bufferMemory.counter as PerfCounter).value = device.memoryStatus.bufferSize / (1024 * 1024);
-        (this._profilerStats.textureMemory.counter as PerfCounter).value = device.memoryStatus.textureSize / (1024 * 1024);
-        (this._profilerStats.tricount.counter as PerfCounter).value = device.numTris;
+        (profilerStats.draws.counter as PerfCounter).value = device.numDrawCalls;
+        (profilerStats.instances.counter as PerfCounter).value = device.numInstances;
+        (profilerStats.bufferMemory.counter as PerfCounter).value = device.memoryStatus.bufferSize / (1024 * 1024);
+        (profilerStats.textureMemory.counter as PerfCounter).value = device.memoryStatus.textureSize / (1024 * 1024);
+        (profilerStats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
         const view = this.digitsData;
-        for (const id in this._profilerStats) {
-            const stat = this._profilerStats[id] as ICounterOption;
+        const segmentsPerLine = _constants.segmentsPerLine;
+        for (const id in profilerStats) {
+            const stat = profilerStats[id] as ICounterOption;
             stat.counter.sample(now);
             const result = stat.counter.human().toString();
-            for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
-                const index = i * _constants.segmentsPerLine + j;
-                const character = result[result.length - (_constants.segmentsPerLine - j)];
+            for (let j = segmentsPerLine - 1; j >= 0; j--) {
+                const index = i * segmentsPerLine + j;
+                const character = result[result.length - (segmentsPerLine - j)];
                 let offset = _string2offset[character];
                 if (offset === undefined) { offset = 11; }
                 view[index] = offset;

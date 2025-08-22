@@ -23,7 +23,7 @@
 */
 
 import { Vec3 } from '../math';
-import enums from './enums';
+import { ShapeType } from './enums';
 
 /**
  * @en
@@ -59,8 +59,12 @@ export class Line {
      */
     public static clone (a: Line): Line {
         return new Line(
-            a.s.x, a.s.y, a.s.z,
-            a.e.x, a.e.y, a.e.z,
+            a.s.x,
+            a.s.y,
+            a.s.z,
+            a.e.x,
+            a.e.y,
+            a.e.z,
         );
     }
 
@@ -144,8 +148,8 @@ export class Line {
     public e: Vec3;
 
     /**
-     * @en Gets the type of the shape. Always returns `enums.SHAPE_LINE`.
-     * @zh 获取形状的类型，总是返回 `enums.SHAPE_LINE`。
+     * @en Gets the type of the shape. Always returns `ShapeType.SHAPE_LINE`.
+     * @zh 获取形状的类型，总是返回 `ShapeType.SHAPE_LINE`。
      */
     get type (): number {
         return this._type;
@@ -164,7 +168,7 @@ export class Line {
      * @param ez @en the z coordinate of the end position. @zh 终点的 z 坐标。
      */
     constructor (sx = 0, sy = 0, sz = 0, ex = 0, ey = 0, ez = -1) {
-        this._type = enums.SHAPE_LINE;
+        this._type = ShapeType.SHAPE_LINE;
         this.s = new Vec3(sx, sy, sz);
         this.e = new Vec3(ex, ey, ez);
     }

@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -34,12 +34,6 @@
 
 bool nativevalue_to_se(const cc::render::LightInfo &from, se::Value &to, se::Object *ctx); // NOLINT
 
-bool nativevalue_to_se(const cc::render::Descriptor &from, se::Value &to, se::Object *ctx); // NOLINT
-
-bool nativevalue_to_se(const cc::render::DescriptorBlockFlattened &from, se::Value &to, se::Object *ctx); // NOLINT
-
-bool nativevalue_to_se(const cc::render::DescriptorBlockIndex &from, se::Value &to, se::Object *ctx); // NOLINT
-
 bool nativevalue_to_se(const cc::render::ResolvePair &from, se::Value &to, se::Object *ctx); // NOLINT
 
 bool nativevalue_to_se(const cc::render::CopyPair &from, se::Value &to, se::Object *ctx); // NOLINT
@@ -51,15 +45,6 @@ bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Obje
 // if function overload is used, android build fails
 template <>
 bool sevalue_to_native(const se::Value &from, cc::render::LightInfo *to, se::Object *ctx); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &from, cc::render::Descriptor *to, se::Object *ctx); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &from, cc::render::DescriptorBlockFlattened *to, se::Object *ctx); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &from, cc::render::DescriptorBlockIndex *to, se::Object *ctx); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &from, cc::render::ResolvePair *to, se::Object *ctx); // NOLINT

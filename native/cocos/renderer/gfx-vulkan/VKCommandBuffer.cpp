@@ -502,11 +502,13 @@ void CCVKCommandBuffer::draw(const DrawInfo &info) {
         }
     } else {
         uint32_t instanceCount = std::max(info.instanceCount, 1U);
-        bool hasIndexBuffer = _curGPUInputAssembler->gpuIndexBuffer && info.indexCount > 0;
+        bool hasIndexBuffer = _curGPUInputAssembler->gpuIndexBuffer;
 
         if (hasIndexBuffer) {
-            vkCmdDrawIndexed(_gpuCommandBuffer->vkCommandBuffer, info.indexCount, instanceCount,
+            if (info.indexCount > 0) {
+                vkCmdDrawIndexed(_gpuCommandBuffer->vkCommandBuffer, info.indexCount, instanceCount,
                              info.firstIndex, info.vertexOffset, info.firstInstance);
+            }
         } else {
             vkCmdDraw(_gpuCommandBuffer->vkCommandBuffer, info.vertexCount, instanceCount,
                       info.firstVertex, info.firstInstance);

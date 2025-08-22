@@ -54,47 +54,49 @@ MeshBuffer *MiddlewareManager::getMeshBuffer(int format) {
     return mb;
 }
 
-void MiddlewareManager::clearRemoveList() {
-    for (auto *editor : _removeList) {
+void MiddlewareManager::updateOperateCache() {
+    for (const auto &op : _operateCacheQueue) {
+        IMiddleware *editor = op.first;
+        bool isAddOperation = op.second;
+
         auto it = std::find(_updateList.begin(), _updateList.end(), editor);
-        if (it != _updateList.end()) {
-            _updateList.erase(it);
+        if (isAddOperation) {
+            if (it == _updateList.end()) {
+                _updateList.push_back(editor);
+            }
+        } else {
+            if (it != _updateList.end()) {
+                _updateList.erase(it);
+            }
         }
     }
-
-    _removeList.clear();
+    _operateCacheQueue.clear();
 }
 
 void MiddlewareManager::update(float dt) {
-    isUpdating = true;
-
+    updateOperateCache();
     _attachInfo.reset();
     auto *attachBuffer = _attachInfo.getBuffer();
     if (attachBuffer) {
         attachBuffer->writeUint32(0);
     }
 
-    for (auto *editor : _updateList) {
-        if (!_removeList.empty()) {
-            auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
-            if (removeIt == _removeList.end()) {
-                if (editor) {
-                    editor->update(dt);
-                }
-            }
-        } else {
-            if (editor) {
-                editor->update(dt);
-            }
-        }
+    for (size_t i = 0, len = _updateList.size(); i < len; ++i) {
+        auto *editor = _updateList[i];
+        editor->update(dt);
     }
-
-    isUpdating = false;
-
-    clearRemoveList();
 }
 
 void MiddlewareManager::render(float dt) {
+    // Object._deferredDestroy is called after component update in Director.tick and before emitting BEFORE_DRAW event in which MiddlewareManager::render is invoked, 
+    // so the native object may be released here and it needs to be erased from _updateList.
+    for (auto &iter : _operateCacheQueue) {
+        auto it = std::find(_updateList.begin(), _updateList.end(), iter.first);
+        if (!iter.second && it != _updateList.end()) {
+            _updateList.erase(it);
+        }
+    }
+
     for (auto it : _mbMap) {
         auto *buffer = it.second;
         if (buffer) {
@@ -102,20 +104,10 @@ void MiddlewareManager::render(float dt) {
         }
     }
 
-    isRendering = true;
-
-    for (auto *editor : _updateList) {
-        if (!_removeList.empty()) {
-            auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
-            if (removeIt == _removeList.end()) {
-                editor->render(dt);
-            }
-        } else {
-            editor->render(dt);
-        }
+    for (size_t i = 0, len = _updateList.size(); i < len; ++i) {
+        auto *editor = _updateList[i];
+        editor->render(dt);
     }
-
-    isRendering = false;
 
     for (auto it : _mbMap) {
         auto *buffer = it.second;
@@ -136,32 +128,14 @@ void MiddlewareManager::render(float dt) {
         }
         batch2d->syncMeshBuffersToNative(accID, std::move(uiMeshArray));
     }
-
-    clearRemoveList();
 }
 
 void MiddlewareManager::addTimer(IMiddleware *editor) {
-    auto it0 = std::find(_updateList.begin(), _updateList.end(), editor);
-    if (it0 != _updateList.end()) {
-        return;
-    }
-
-    auto it1 = std::find(_removeList.begin(), _removeList.end(), editor);
-    if (it1 != _removeList.end()) {
-        _removeList.erase(it1);
-    }
-    _updateList.push_back(editor);
+    _operateCacheQueue.emplace_back(editor, true);
 }
 
 void MiddlewareManager::removeTimer(IMiddleware *editor) {
-    if (isUpdating || isRendering) {
-        _removeList.push_back(editor);
-    } else {
-        auto it = std::find(_updateList.begin(), _updateList.end(), editor);
-        if (it != _updateList.end()) {
-            _updateList.erase(it);
-        }
-    }
+    _operateCacheQueue.emplace_back(editor, false);
 }
 
 se_object_ptr MiddlewareManager::getVBTypedArray(int format, int bufferPos) {

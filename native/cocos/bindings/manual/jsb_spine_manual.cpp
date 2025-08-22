@@ -25,13 +25,19 @@
 #include "jsb_spine_manual.h"
 #include "base/Data.h"
 #include "base/memory/Memory.h"
-#include "bindings/auto/jsb_spine_auto.h"
+
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
 #include "bindings/manual/jsb_helper.h"
 #include "editor-support/spine-creator-support/spine-cocos2dx.h"
-#include "editor-support/spine/spine.h"
+#if CC_USE_SPINE_3_8
+    #include "bindings/auto/jsb_spine_3_8_auto.h"
+    #include "editor-support/spine/3.8/spine/spine.h"
+#else
+    #include "bindings/auto/jsb_spine_4_2_auto.h"
+    #include "editor-support/spine/4.2/spine/spine.h"
+#endif
 #include "middleware-adapter.h"
 #include "platform/FileUtils.h"
 #include "spine-creator-support/SkeletonDataMgr.h"
@@ -41,7 +47,7 @@
 
 using namespace cc;
 
-static spine::Cocos2dTextureLoader textureLoader;
+static cc::Cocos2dTextureLoader textureLoader;
 static cc::RefMap<ccstd::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
 static middleware::Texture2D *_getPreloadedAtlasTexture(const char *path) {
     CC_ASSERT(_preloadedAtlasTextures);
@@ -62,7 +68,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr = SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         spine::SkeletonData *skeletonData = mgr->retainByUUID(uuid);
@@ -89,14 +95,14 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     // create atlas from preloaded texture
 
     _preloadedAtlasTextures = &textures;
-    spine::spAtlasPage_setCustomTextureLoader(_getPreloadedAtlasTexture);
+    spAtlasPage_setCustomTextureLoader(_getPreloadedAtlasTexture);
 
     spine::Atlas *atlas = ccnew_placement(__FILE__, __LINE__) spine::Atlas(atlasText.c_str(), (int)atlasText.size(), "", &textureLoader);
 
     _preloadedAtlasTextures = nullptr;
-    spine::spAtlasPage_setCustomTextureLoader(nullptr);
+    spAtlasPage_setCustomTextureLoader(nullptr);
 
-    spine::AttachmentLoader *attachmentLoader = ccnew_placement(__FILE__, __LINE__) spine::Cocos2dAtlasAttachmentLoader(atlas);
+    spine::AttachmentLoader *attachmentLoader = ccnew_placement(__FILE__, __LINE__) Cocos2dAtlasAttachmentLoader(atlas);
     spine::SkeletonData *skeletonData = nullptr;
 
     std::size_t length = skeletonDataFile.length();
@@ -113,17 +119,20 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
             spine::SkeletonBinary binary(attachmentLoader);
             binary.setScale(scale);
             skeletonData = binary.readSkeletonData(cocos2dData.getBytes(), (int)cocos2dData.getSize());
-            CC_ASSERT(skeletonData); // Can use binary.getError() to get error message.
+            const auto &errorMsg = binary.getError();
+            CC_ASSERTF(skeletonData, "Spine parse error: %s", errorMsg.buffer());
         }
     } else {
         spine::SkeletonJson json(attachmentLoader);
         json.setScale(scale);
         skeletonData = json.readSkeletonData(skeletonDataFile.c_str());
-        CC_ASSERT(skeletonData); // Can use json.getError() to get error message.
+        const auto &errorMsg = json.getError();
+        CC_ASSERTF(skeletonData, "Spine parse error: %s", errorMsg.buffer());
     }
 
     if (skeletonData) {
         ccstd::vector<int> texturesIndex;
+        texturesIndex.reserve(textures.size());
         for (auto it = textures.begin(); it != textures.end(); it++) {
             texturesIndex.push_back(it->second->getRealTextureIndex());
         }
@@ -156,7 +165,7 @@ static bool js_register_spine_disposeSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr = SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (!hasSkeletonData) return true;
     mgr->releaseByUUID(uuid);
@@ -174,7 +183,7 @@ static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     }
     bool ok = false;
 
-    spine::SkeletonRenderer *node = nullptr;
+    cc::SkeletonRenderer *node = nullptr;
     ok = seval_to_native_ptr(args[0], &node);
     SE_PRECONDITION2(ok, false, "Converting SpineRenderer failed!");
 
@@ -182,7 +191,7 @@ static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     ok = sevalue_to_native(args[1], &uuid);
     SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr = SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         node->initWithUUID(uuid);
@@ -204,7 +213,7 @@ static bool js_register_spine_retainSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr = SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         spine::SkeletonData *skeletonData = mgr->retainByUUID(uuid);
@@ -270,12 +279,20 @@ static bool js_RegionAttachment_computeWorldVertices(se::State &s) {
     spine::RegionAttachment *regionAttachment = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     if (nullptr == regionAttachment) return true;
 
+#if CC_USE_SPINE_3_8
     spine::Bone *bone = nullptr;
+#else
+    spine::Slot *slot = nullptr;
+#endif
     size_t offset = 0, stride = 0;
     se::Value worldVerticesVal;
 
     bool ok = false;
+#if CC_USE_SPINE_3_8
     ok = sevalue_to_native(args[0], &bone, s.thisObject());
+#else
+    ok = sevalue_to_native(args[0], &slot, s.thisObject());
+#endif
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     ok = sevalue_to_native(args[1], &worldVerticesVal, s.thisObject());
@@ -291,12 +308,20 @@ static bool js_RegionAttachment_computeWorldVertices(se::State &s) {
         uint8_t* ptr = nullptr;
         size_t len = 0;
         worldVerticesVal.toObject()->getTypedArrayData(&ptr, &len);
-        regionAttachment->computeWorldVertices(*bone, reinterpret_cast<float*>(ptr), offset, stride);
+#if CC_USE_SPINE_3_8
+        regionAttachment->computeWorldVertices(*bone, reinterpret_cast<float *>(ptr), offset, stride);
+#else
+        regionAttachment->computeWorldVertices(*slot, reinterpret_cast<float *>(ptr), offset, stride);
+#endif
     } else if (worldVerticesVal.toObject()->isArray()) {
         spine::Vector<float> worldVertices;
         int count = 8;
         worldVertices.ensureCapacity(count);
+#if CC_USE_SPINE_3_8
         regionAttachment->computeWorldVertices(*bone, worldVertices, 0);
+#else
+        regionAttachment->computeWorldVertices(*slot, worldVertices, 0);
+#endif
 
         int curr = offset;
         worldVerticesVal.toObject()->setArrayElement(curr, se::Value(worldVertices[0]));
@@ -444,6 +469,7 @@ static bool js_Skin_findAttachmentsForSlot(se::State &s) {
 }
 SE_BIND_FUNC(js_Skin_findAttachmentsForSlot)
 
+#if CC_USE_SPINE_3_8
 static bool js_VertexEffect_transform(se::State &s) {
     const auto &args = s.args();
     spine::VertexEffect* effect = SE_THIS_OBJECT<spine::VertexEffect>(s);
@@ -485,6 +511,7 @@ static bool js_JitterVertexEffect_transform(se::State &s) {
     return true;
 }
 SE_BIND_FUNC(js_JitterVertexEffect_transform)
+#endif
 
 static bool js_spine_Skin_getAttachments(se::State& s) {
     CC_UNUSED bool ok = true;
@@ -555,6 +582,30 @@ static bool js_spine_Slot_getAttachment(se::State& s) {
 }
 SE_BIND_FUNC(js_spine_Slot_getAttachment)
 
+static bool js_spine_Skeleton_setSkin(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::Skeleton *arg1 = (spine::Skeleton *) NULL ;
+    spine::Skin *arg2 = (spine::Skin *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::Skeleton>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setSkin(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_Skeleton_setSkin) 
+
 bool register_all_spine_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
@@ -573,18 +624,21 @@ bool register_all_spine_manual(se::Object *obj) {
     __jsb_spine_VertexAttachment_proto->defineFunction("computeWorldVertices", _SE(js_VertexAttachment_computeWorldVertices));
     __jsb_spine_RegionAttachment_proto->defineFunction("computeWorldVertices", _SE(js_RegionAttachment_computeWorldVertices));
     __jsb_spine_Skeleton_proto->defineFunction("getBounds", _SE(js_Skeleton_getBounds));
+    __jsb_spine_Skeleton_proto->defineFunction("setSkin", _SE(js_spine_Skeleton_setSkin)); 
     __jsb_spine_Skin_proto->defineFunction("getAttachmentsForSlot", _SE(js_Skin_findAttachmentsForSlot));
     __jsb_spine_Bone_proto->defineFunction("worldToLocal", _SE(js_Bone_worldToLocal));
     __jsb_spine_Bone_proto->defineFunction("localToWorld", _SE(js_Bone_localToWorld));
     __jsb_spine_PointAttachment_proto->defineFunction("computeWorldPosition", _SE(js_PointAttachment_computeWorldPosition));
+#if CC_USE_SPINE_3_8
     __jsb_spine_VertexEffect_proto->defineFunction("transform", _SE(js_VertexEffect_transform));
     __jsb_spine_SwirlVertexEffect_proto->defineFunction("transform", _SE(js_SwirlVertexEffect_transform));
     __jsb_spine_JitterVertexEffect_proto->defineFunction("transform", _SE(js_JitterVertexEffect_transform));
+#endif
     __jsb_spine_Skin_proto->defineFunction("getAttachments", _SE(js_spine_Skin_getAttachments));
     __jsb_spine_Slot_proto->defineFunction("setAttachment", _SE(js_spine_Slot_setAttachment));
     __jsb_spine_Slot_proto->defineFunction("getAttachment", _SE(js_spine_Slot_getAttachment));
 
-    spine::setSpineObjectDisposeCallback([](void *spineObj) {
+    cc::setSpineObjectDisposeCallback([](void *spineObj) {
         if (!se::NativePtrToObjectMap::isValid()) {
             return;
         }
@@ -600,7 +654,7 @@ bool register_all_spine_manual(se::Object *obj) {
     });
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-        spine::SkeletonDataMgr::destroyInstance();
+        SkeletonDataMgr::destroyInstance();
     });
 
     se::ScriptEngine::getInstance()->clearException();

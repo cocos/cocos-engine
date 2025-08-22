@@ -26,8 +26,6 @@ import { DescriptorSet } from '../base/descriptor-set';
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
 import {
-    BufferUsageBit,
-    CommandBufferType,
     StencilFace,
     BufferSource, CommandBufferInfo,
     BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates, TextureBlit, Filter,
@@ -37,42 +35,30 @@ import { InputAssembler } from '../base/input-assembler';
 import { PipelineState } from '../base/pipeline-state';
 import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
-import { WebGL2Buffer } from './webgl2-buffer';
-import { WebGL2CommandAllocator } from './webgl2-command-allocator';
-import {
-    WebGL2Cmd,
-    WebGL2CmdBeginRenderPass,
-    WebGL2CmdBindStates,
-    WebGL2CmdBlitTexture,
-    WebGL2CmdCopyBufferToTexture,
-    WebGL2CmdDraw,
-    WebGL2CmdPackage,
-    WebGL2CmdUpdateBuffer,
-} from './webgl2-commands';
-import { WebGL2Framebuffer } from './webgl2-framebuffer';
+
 import { IWebGL2GPUInputAssembler, IWebGL2GPUDescriptorSet, IWebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
 import { WebGL2PipelineState } from './webgl2-pipeline-state';
-import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
-import { WebGL2RenderPass } from './webgl2-render-pass';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGL2DeviceManager } from './webgl2-define';
-import { error } from '../../core';
+import { errorID } from '../../core/platform/debug';
 
+/** @mangle */
 export class WebGL2CommandBuffer extends CommandBuffer {
-    public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();
-
-    protected _cmdAllocator: WebGL2CommandAllocator = new WebGL2CommandAllocator();
     protected _isInRenderPass = false;
     protected _curGPUPipelineState: IWebGL2GPUPipelineState | null = null;
     protected _curGPUDescriptorSets: IWebGL2GPUDescriptorSet[] = [];
     protected _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
     protected _curDynamicOffsets: number[] = Array(8).fill(0);
     protected _curDynamicStates: DynamicStates = new DynamicStates();
-    protected _isStateInvalied = false;
+    protected _isStateInvalid = false;
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: Readonly<CommandBufferInfo>): void {
         this._type = info.type;
@@ -85,11 +71,10 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public destroy (): void {
-        this._cmdAllocator.clearCmds(this.cmdPackage);
+
     }
 
     public begin (renderPass?: RenderPass, subpass?: number, frameBuffer?: Framebuffer): void {
-        this._cmdAllocator.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
         this._curGPUInputAssembler = null;
         this._curGPUDescriptorSets.length = 0;
@@ -99,7 +84,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public end (): void {
-        if (this._isStateInvalied) {
+        if (this._isStateInvalid) {
             this.bindStates();
         }
 
@@ -114,19 +99,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         clearDepth: number,
         clearStencil: number,
     ): void {
-        const cmd = this._cmdAllocator.beginRenderPassCmdPool.alloc(WebGL2CmdBeginRenderPass);
-        cmd.gpuRenderPass = (renderPass as WebGL2RenderPass).gpuRenderPass;
-        cmd.gpuFramebuffer = (framebuffer as WebGL2Framebuffer).gpuFramebuffer;
-        cmd.renderArea.copy(renderArea);
-        for (let i = 0; i < clearColors.length; ++i) {
-            cmd.clearColors[i] = clearColors[i];
-        }
-        cmd.clearDepth = clearDepth;
-        cmd.clearStencil = clearStencil;
-        this.cmdPackage.beginRenderPassCmds.push(cmd);
-
-        this.cmdPackage.cmds.push(WebGL2Cmd.BEGIN_RENDER_PASS);
-
+        errorID(16401);
         this._isInRenderPass = true;
     }
 
@@ -138,7 +111,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         const gpuPipelineState = (pipelineState as WebGL2PipelineState).gpuPipelineState;
         if (gpuPipelineState !== this._curGPUPipelineState) {
             this._curGPUPipelineState = gpuPipelineState;
-            this._isStateInvalied = true;
+            this._isStateInvalid = true;
         }
     }
 
@@ -146,7 +119,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         const gpuDescriptorSets = (descriptorSet as WebGL2DescriptorSet).gpuDescriptorSet;
         if (gpuDescriptorSets !== this._curGPUDescriptorSets[set]) {
             this._curGPUDescriptorSets[set] = gpuDescriptorSets;
-            this._isStateInvalied = true;
+            this._isStateInvalid = true;
         }
         if (dynamicOffsets) {
             const gpuPipelineLayout = this._curGPUPipelineState?.gpuPipelineLayout;
@@ -154,7 +127,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 const offsets = this._curDynamicOffsets;
                 const idx = gpuPipelineLayout.dynamicOffsetOffsets[set];
                 for (let i = 0; i < dynamicOffsets.length; i++) offsets[idx + i] = dynamicOffsets[i];
-                this._isStateInvalied = true;
+                this._isStateInvalid = true;
             }
         }
     }
@@ -162,7 +135,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     public bindInputAssembler (inputAssembler: InputAssembler): void {
         const gpuInputAssembler = (inputAssembler as WebGL2InputAssembler).gpuInputAssembler;
         this._curGPUInputAssembler = gpuInputAssembler;
-        this._isStateInvalied = true;
+        this._isStateInvalid = true;
     }
 
     public setViewport (viewport: Readonly<Viewport>): void {
@@ -179,7 +152,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             cache.height = viewport.height;
             cache.minDepth = viewport.minDepth;
             cache.maxDepth = viewport.maxDepth;
-            this._isStateInvalied = true;
+            this._isStateInvalid = true;
         }
     }
 
@@ -193,14 +166,14 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             cache.y = scissor.y;
             cache.width = scissor.width;
             cache.height = scissor.height;
-            this._isStateInvalied = true;
+            this._isStateInvalid = true;
         }
     }
 
     public setLineWidth (lineWidth: number): void {
         if (this._curDynamicStates.lineWidth !== lineWidth) {
             this._curDynamicStates.lineWidth = lineWidth;
-            this._isStateInvalied = true;
+            this._isStateInvalid = true;
         }
     }
 
@@ -212,7 +185,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             cache.depthBiasConstant = depthBiasConstantFactor;
             cache.depthBiasClamp = depthBiasClamp;
             cache.depthBiasSlope = depthBiasSlopeFactor;
-            this._isStateInvalied = true;
+            this._isStateInvalid = true;
         }
     }
 
@@ -223,7 +196,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             || cache.z !== blendConstants.z
             || cache.w !== blendConstants.w) {
             cache.copy(blendConstants);
-            this._isStateInvalied = true;
+            this._isStateInvalid = true;
         }
     }
 
@@ -233,7 +206,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             || cache.depthMaxBounds !== maxDepthBounds) {
             cache.depthMinBounds = minDepthBounds;
             cache.depthMaxBounds = maxDepthBounds;
-            this._isStateInvalied = true;
+            this._isStateInvalid = true;
         }
     }
 
@@ -243,13 +216,13 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         if (face & StencilFace.FRONT) {
             if (front.writeMask !== writeMask) {
                 front.writeMask = writeMask;
-                this._isStateInvalied = true;
+                this._isStateInvalid = true;
             }
         }
         if (face & StencilFace.BACK) {
             if (back.writeMask !== writeMask) {
                 back.writeMask = writeMask;
-                this._isStateInvalied = true;
+                this._isStateInvalid = true;
             }
         }
     }
@@ -262,7 +235,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 || front.reference !== reference) {
                 front.reference = reference;
                 front.compareMask = compareMask;
-                this._isStateInvalied = true;
+                this._isStateInvalid = true;
             }
         }
         if (face & StencilFace.BACK) {
@@ -270,149 +243,25 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 || back.reference !== reference) {
                 back.reference = reference;
                 back.compareMask = compareMask;
-                this._isStateInvalied = true;
+                this._isStateInvalid = true;
             }
         }
     }
 
     public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>): void {
-        if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass
-            || this._type === CommandBufferType.SECONDARY) {
-            if (this._isStateInvalied) {
-                this.bindStates();
-            }
-            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
-
-            const cmd = this._cmdAllocator.drawCmdPool.alloc(WebGL2CmdDraw);
-            cmd.drawInfo.copy(info);
-            this.cmdPackage.drawCmds.push(cmd);
-
-            this.cmdPackage.cmds.push(WebGL2Cmd.DRAW);
-
-            ++this._numDrawCalls;
-            this._numInstances += info.instanceCount;
-            const indexCount = info.indexCount || info.vertexCount;
-            if (this._curGPUPipelineState) {
-                const glPrimitive = this._curGPUPipelineState.glPrimitive;
-                switch (glPrimitive) {
-                case 0x0004: { // WebGLRenderingContext.TRIANGLES
-                    this._numTris += indexCount / 3 * Math.max(info.instanceCount, 1);
-                    break;
-                }
-                case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
-                case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
-                    this._numTris += (indexCount - 2) * Math.max(info.instanceCount, 1);
-                    break;
-                }
-                default:
-                }
-            }
-        } else {
-            error('Command \'draw\' must be recorded inside a render pass.');
-        }
+        errorID(16328);
     }
 
     public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
-        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
-            || this._type === CommandBufferType.SECONDARY) {
-            const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
-            if (gpuBuffer) {
-                const cmd = this._cmdAllocator.updateBufferCmdPool.alloc(WebGL2CmdUpdateBuffer);
-                let buffSize = 0;
-                let buff: BufferSource | null = null;
-
-                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
-                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
-                if (buffer.usage & BufferUsageBit.INDIRECT) {
-                    buff = data as BufferSource;
-                } else {
-                    if (size !== undefined) {
-                        buffSize = size;
-                    } else {
-                        buffSize = (data as ArrayBuffer).byteLength;
-                    }
-                    buff = data as BufferSource;
-                }
-
-                cmd.gpuBuffer = gpuBuffer;
-                cmd.buffer = buff;
-                cmd.offset = 0;
-                cmd.size = buffSize;
-                this.cmdPackage.updateBufferCmds.push(cmd);
-
-                this.cmdPackage.cmds.push(WebGL2Cmd.UPDATE_BUFFER);
-            }
-        } else {
-            error('Command \'updateBuffer\' must be recorded outside a render pass.');
-        }
+        errorID(16329);
     }
 
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
-        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
-            || this._type === CommandBufferType.SECONDARY) {
-            const gpuTexture = (texture as WebGL2Texture).gpuTexture;
-            if (gpuTexture) {
-                const cmd = this._cmdAllocator.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);
-                cmd.gpuTexture = gpuTexture;
-                cmd.regions = regions as BufferTextureCopy[];
-                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
-                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
-                cmd.buffers = buffers as ArrayBufferView[];
-
-                this.cmdPackage.copyBufferToTextureCmds.push(cmd);
-                this.cmdPackage.cmds.push(WebGL2Cmd.COPY_BUFFER_TO_TEXTURE);
-            }
-        } else {
-            error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
-        }
+        errorID(16330);
     }
 
     public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
-        for (let i = 0; i < count; ++i) {
-            const webGL2CmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
-
-            for (let c = 0; c < webGL2CmdBuff.cmdPackage.beginRenderPassCmds.length; ++c) {
-                const cmd = webGL2CmdBuff.cmdPackage.beginRenderPassCmds.array[c];
-                ++cmd.refCount;
-                this.cmdPackage.beginRenderPassCmds.push(cmd);
-            }
-
-            for (let c = 0; c < webGL2CmdBuff.cmdPackage.bindStatesCmds.length; ++c) {
-                const cmd = webGL2CmdBuff.cmdPackage.bindStatesCmds.array[c];
-                ++cmd.refCount;
-                this.cmdPackage.bindStatesCmds.push(cmd);
-            }
-
-            for (let c = 0; c < webGL2CmdBuff.cmdPackage.drawCmds.length; ++c) {
-                const cmd = webGL2CmdBuff.cmdPackage.drawCmds.array[c];
-                ++cmd.refCount;
-                this.cmdPackage.drawCmds.push(cmd);
-            }
-
-            for (let c = 0; c < webGL2CmdBuff.cmdPackage.updateBufferCmds.length; ++c) {
-                const cmd = webGL2CmdBuff.cmdPackage.updateBufferCmds.array[c];
-                ++cmd.refCount;
-                this.cmdPackage.updateBufferCmds.push(cmd);
-            }
-
-            for (let c = 0; c < webGL2CmdBuff.cmdPackage.copyBufferToTextureCmds.length; ++c) {
-                const cmd = webGL2CmdBuff.cmdPackage.copyBufferToTextureCmds.array[c];
-                ++cmd.refCount;
-                this.cmdPackage.copyBufferToTextureCmds.push(cmd);
-            }
-
-            for (let c = 0; c < webGL2CmdBuff.cmdPackage.blitTextureCmds.length; ++c) {
-                const cmd = webGL2CmdBuff.cmdPackage.blitTextureCmds.array[c];
-                ++cmd.refCount;
-                this.cmdPackage.blitTextureCmds.push(cmd);
-            }
-
-            this.cmdPackage.cmds.concat(webGL2CmdBuff.cmdPackage.cmds.array);
-
-            this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
-            this._numInstances += webGL2CmdBuff._numInstances;
-            this._numTris += webGL2CmdBuff._numTris;
-        }
+        errorID(16402);
     }
 
     public pipelineBarrier (
@@ -421,32 +270,16 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         buffers?: Readonly<Buffer[]>,
         textureBarriers?: Readonly<TextureBarrier[]>,
         textures?: Readonly<Texture[]>,
-    ): void {}
+    ): void {
+
+    }
 
     protected bindStates (): void {
-        const bindStatesCmd = this._cmdAllocator.bindStatesCmdPool.alloc(WebGL2CmdBindStates);
-        bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;
-        Array.prototype.push.apply(bindStatesCmd.gpuDescriptorSets, this._curGPUDescriptorSets);
-        Array.prototype.push.apply(bindStatesCmd.dynamicOffsets, this._curDynamicOffsets);
-        bindStatesCmd.gpuInputAssembler = this._curGPUInputAssembler;
-        bindStatesCmd.dynamicStates = this._curDynamicStates;
-
-        this.cmdPackage.bindStatesCmds.push(bindStatesCmd);
-        this.cmdPackage.cmds.push(WebGL2Cmd.BIND_STATES);
-
-        this._isStateInvalied = false;
+        errorID(16401);
+        this._isStateInvalid = false;
     }
 
     public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
-        const blitTextureCmd = this._cmdAllocator.blitTextureCmdPool.alloc(WebGL2CmdBlitTexture);
-        blitTextureCmd.srcTexture = (srcTexture as WebGL2Texture).gpuTexture;
-        blitTextureCmd.dstTexture = (dstTexture as WebGL2Texture).gpuTexture;
-        blitTextureCmd.regions = regions as TextureBlit[];
-        blitTextureCmd.filter = filter;
-
-        ++this._numDrawCalls;
-
-        this.cmdPackage.blitTextureCmds.push(blitTextureCmd);
-        this.cmdPackage.cmds.push(WebGL2Cmd.BLIT_TEXTURE);
+        errorID(16401);
     }
 }

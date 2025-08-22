@@ -24,13 +24,13 @@
 
 import b2 from '@cocos/box2d';
 import { b2Shape2D } from './shape-2d';
-import * as PolygonSeparator from '../../framework/utils/polygon-separator';
 import * as PolygonPartition from '../../framework/utils/polygon-partition';
 import { PolygonCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IPolygonShape } from '../../spec/i-physics-shape';
-import { Vec2, IVec2Like } from '../../../core';
+import { logID, Vec2 } from '../../../core';
 
+/** @mangle */
 export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
     _worldPoints: Vec2[] = [];
     get worldPoints (): Readonly<Vec2>[] {
@@ -62,7 +62,7 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
 
         const polys = PolygonPartition.ConvexPartition(points);
         if (!polys) {
-            console.log('[Physics2D] b2PolygonShape failed to decompose polygon into convex polygons, node name: ', comp.node.name);
+            logID(16408, comp.node.name);
             return shapes;
         }
 

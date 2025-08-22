@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 
 /**
  * @en

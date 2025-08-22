@@ -23,14 +23,15 @@
 */
 
 import { JSB } from 'internal:constants';
-import { IUV, SpriteFrame } from '../../assets/sprite-frame';
-import { Mat4, Vec3, Color, error } from '../../../core';
-import { IRenderData, RenderData } from '../../renderer/render-data';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Sprite } from '../../components/sprite';
-import { UIRenderer } from '../../framework/ui-renderer';
-import { IAssembler } from '../../renderer/base';
-import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import type { IUV, SpriteFrame } from '../../assets/sprite-frame';
+import { Mat4, Color, errorID } from '../../../core';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Sprite } from '../../components/sprite';
+import type { UIRenderer } from '../../framework/ui-renderer';
+import type { IAssembler } from '../../renderer/base';
+import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const m = new Mat4();
 
@@ -57,23 +58,26 @@ function has9SlicedOffsetVertexCount (spriteFrame: SpriteFrame): number {
     return 0;
 }
 
-export const tiled: IAssembler = {
-    createData (sprite: UIRenderer) {
+class Tiled implements IAssembler {
+    createData (sprite: UIRenderer): RenderData {
         return sprite.requestRenderData();
-    },
+    }
 
-    updateRenderData (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    updateRenderData (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const frame = sprite.spriteFrame!;
         if (!frame || !renderData) {
             return;
         }
 
+        dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+
         if (!renderData.vertDirty) {
             return;
         }
 
-        const uiTrans = sprite.node._uiProps.uiTransformComp!;
+        const uiTrans = sprite.node._getUITransformComp()!;
         const contentWidth = Math.abs(uiTrans.width);
         const contentHeight = Math.abs(uiTrans.height);
 
@@ -100,7 +104,7 @@ export const tiled: IAssembler = {
 
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
-        if (renderData.vertexCount !== row * col * 4) {
+        if (JSB && renderData.vertexCount !== row * col * 4) {
             sprite.renderEntity.colorDirty = true;
         }
         // update data property
@@ -117,15 +121,15 @@ export const tiled: IAssembler = {
         }
 
         renderData.updateRenderData(sprite, frame);
-    },
+    }
 
-    createQuadIndices (indexCount: number) {
+    private createQuadIndices (indexCount: number): void {
+        if (!JSB) return;
         if (indexCount % 6 !== 0) {
-            error('illegal index count!');
+            errorID(16308);
             return;
         }
         const quadCount = indexCount / 6;
-        QUAD_INDICES = null;
         QUAD_INDICES = new Uint16Array(indexCount);
         let offset = 0;
         for (let i = 0; i < quadCount; i++) {
@@ -136,19 +140,21 @@ export const tiled: IAssembler = {
             QUAD_INDICES[offset++] = 3 + i * 4;
             QUAD_INDICES[offset++] = 2 + i * 4;
         }
-    },
+    }
 
     // dirty Mark
     // the real update uv is on updateWorldUVData
-    updateUVs (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    updateUVs (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         renderData.vertDirty = true;
-        sprite.markForUpdateRenderData();
-    },
+        sprite._markForUpdateRenderData();
+    }
 
-    fillBuffers (sprite: Sprite, renderer: IBatcher) {
+    fillBuffers (sprite: Sprite, renderer: IBatcher): void {
         const node = sprite.node;
-        const renderData: RenderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         if (chunk === null) {
             // If too many vertices are requested, this will result in a chunk of null.
@@ -180,10 +186,11 @@ export const tiled: IAssembler = {
             meshBuffer.indexOffset += 6;
         }
         meshBuffer.setDirty();
-    },
+    }
 
-    updateWorldUVData (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    private updateWorldUVData (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = renderData.chunk.vb;
@@ -192,14 +199,15 @@ export const tiled: IAssembler = {
             vData[offset + 3] = dataList[i].u;
             vData[offset + 4] = dataList[i].v;
         }
-    },
+    }
 
     // only for TS
-    updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk) {
+    private updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const node = sprite.node;
         node.getWorldMatrix(m);
 
-        const renderData = sprite.renderData!;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = chunk.vb;
@@ -219,11 +227,12 @@ export const tiled: IAssembler = {
         }
 
         this.updateWorldUVData(sprite);
-    },
+    }
 
-    updateVerts (sprite: Sprite, sizableWidth: number, sizableHeight: number, row: number, col: number) {
-        const uiTrans = sprite.node._uiProps.uiTransformComp!;
-        const renderData: RenderData = sprite.renderData!;
+    private updateVerts (sprite: Sprite, sizableWidth: number, sizableHeight: number, row: number, col: number): void {
+        const uiTrans = sprite.node._getUITransformComp()!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const dataList: IRenderData[] = renderData.data;
         const frame = sprite.spriteFrame!;
 
@@ -491,11 +500,12 @@ export const tiled: IAssembler = {
                 dataList[curIndex + 3].v = tempYVerts[3];
             }
         }
-    },
+    }
 
     // fill color here
-    updateColorLate (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    private updateColorLate (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
         const vertexCount = renderData.vertexCount;
@@ -513,10 +523,12 @@ export const tiled: IAssembler = {
             vData[colorOffset + 3] = colorA;
             colorOffset += stride;
         }
-    },
+    }
 
     // Too early
-    updateColor (sprite: Sprite) {
+    updateColor (sprite: Sprite): void {
         // Update color by updateColorLate
-    },
-};
+    }
+}
+
+export const tiled = new Tiled();

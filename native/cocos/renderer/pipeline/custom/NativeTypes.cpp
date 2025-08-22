@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -28,6 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
+// NOLINTBEGIN(misc-include-cleaner, bugprone-easily-swappable-parameters)
 #include "NativeTypes.h"
 
 namespace cc {
@@ -37,7 +38,7 @@ namespace render {
 ProgramInfo::ProgramInfo(const allocator_type& alloc) noexcept
 : attributes(alloc) {}
 
-ProgramInfo::ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::vector<signed> blockSizesIn, ccstd::unordered_map<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept
+ProgramInfo::ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::vector<signed> blockSizesIn, ccstd::unordered_map<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc)
 : programInfo(std::move(programInfoIn)),
   shaderInfo(std::move(shaderInfoIn)),
   attributes(std::move(attributesIn), alloc),
@@ -74,4 +75,5 @@ ProgramGroup::ProgramGroup(ProgramGroup const& rhs, const allocator_type& alloc)
 
 } // namespace cc
 
+// NOLINTEND(misc-include-cleaner, bugprone-easily-swappable-parameters)
 // clang-format on

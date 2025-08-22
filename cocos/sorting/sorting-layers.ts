@@ -24,7 +24,7 @@ import { EDITOR } from 'internal:constants';
 import { director } from '../game/director';
 import { Game, game } from '../game';
 import { errorID } from '../core/platform/debug';
-import { Settings, settings } from '../core/settings';
+import { settings, SettingsCategory } from '../core/settings';
 import { Enum } from '../core/value-types';
 
 interface SortingItem {
@@ -63,6 +63,10 @@ export class SortingLayers {
      */
     public static getSortingPriority (layer = 0, order = 0): number {
         return (((layer + (1 << 15)) << 16) | (order + (1 << 15))) >>> 0;
+    }
+
+    public static getDefaultPriority (): number {
+        return this.getSortingPriority(SortingLayer.default, 0);
     }
 
     /**
@@ -111,7 +115,7 @@ export class SortingLayers {
         const keyIterator = this.nameMap.keys();
         let key = 0;
         for (let i = 0; i < count; i++) {
-            key = keyIterator.next().value;
+            key = keyIterator.next().value as number;
             if (this.nameMap.get(key) === name) return key;
         }
         errorID(2106);
@@ -146,7 +150,7 @@ export class SortingLayers {
      * @engineInternal
      */
     public static init (): void {
-        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(Settings.Category.ENGINE, 'sortingLayers');
+        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(SettingsCategory.ENGINE, 'sortingLayers');
         if (!sortingLayers || sortingLayers.length === 0) {
             sortingLayers = this.getBuiltinLayers();
         }
@@ -178,7 +182,7 @@ export class SortingLayers {
     /**
      * @engineInternal
      */
-    public static setLayer (layer, layerName, layerIndex): void {
+    public static setLayer (layer: number, layerName: string, layerIndex: number): void {
         this.nameMap.set(layer, layerName);
         this.indexMap.set(layer, layerIndex);
     }

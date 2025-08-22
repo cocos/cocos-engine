@@ -30,6 +30,7 @@
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"
+#include "engine/Engine.h"
 
 #ifdef JAVA_CLASS_WEBSOCKET
     #error "JAVA_CLASS_WEBSOCKET is already defined"
@@ -345,19 +346,7 @@ extern "C" {
     #error "JNI_PATH is already defined"
 #endif
 
-#ifdef RUN_IN_GAMETHREAD
-    #error "RUN_IN_GAMETHREAD is already defined"
-#endif
-
 #define JNI_PATH(methodName) Java_com_cocos_lib_websocket_CocosWebSocket_##methodName
-#define RUN_IN_GAMETHREAD(task)                                                       \
-    do {                                                                              \
-        if (CC_CURRENT_APPLICATION()) {                                               \
-            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
-                task;                                                                 \
-            });                                                                       \
-        }                                                                             \
-    } while (0)
 
 JNIEXPORT void JNICALL JNI_PATH(NativeInit)(JNIEnv * /*env*/, jclass /*clazz*/) {
     // nop
@@ -370,9 +359,10 @@ JNI_PATH(nativeOnStringMessage)(JNIEnv * /*env*/,
                                 jstring msg,
                                 jlong /*identifier*/,
                                 jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     std::string msgStr = JniHelper::jstring2string(msg);
-    RUN_IN_GAMETHREAD(wsOkHttp3->onStringMessage(msgStr));
+    wsOkHttp3->onStringMessage(msgStr);
 }
 
 JNIEXPORT void JNICALL
@@ -381,17 +371,13 @@ JNI_PATH(nativeOnBinaryMessage)(JNIEnv *env,
                                 jbyteArray msg,
                                 jlong /*identifier*/,
                                 jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
-    jobject strongRef = env->NewGlobalRef(msg);
-    RUN_IN_GAMETHREAD(do {
-        auto *env = JniHelper::getEnv();
-        auto len = env->GetArrayLength(static_cast<jbyteArray>(strongRef));
-        jboolean isCopy = JNI_FALSE;
-        jbyte *array = env->GetByteArrayElements(static_cast<jbyteArray>(strongRef), &isCopy);
-        wsOkHttp3->onBinaryMessage(reinterpret_cast<uint8_t *>(array), len);
-        env->ReleaseByteArrayElements(static_cast<jbyteArray>(strongRef), array, JNI_ABORT);
-        env->DeleteGlobalRef(strongRef);
-    } while (false));
+    auto len = env->GetArrayLength(static_cast<jbyteArray>(msg));
+    jboolean isCopy = JNI_FALSE;
+    jbyte *array = env->GetByteArrayElements(static_cast<jbyteArray>(msg), &isCopy);
+    wsOkHttp3->onBinaryMessage(reinterpret_cast<uint8_t *>(array), len);
+    env->ReleaseByteArrayElements(static_cast<jbyteArray>(msg), array, JNI_ABORT);
 }
 
 JNIEXPORT void JNICALL
@@ -401,10 +387,11 @@ JNI_PATH(nativeOnOpen)(JNIEnv * /*env*/,
                        jstring header,
                        jlong /*identifier*/,
                        jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     auto protocolStr = JniHelper::jstring2string(protocol);
     auto headerStr = JniHelper::jstring2string(header);
-    RUN_IN_GAMETHREAD(wsOkHttp3->onOpen(protocolStr, headerStr));
+    wsOkHttp3->onOpen(protocolStr, headerStr);
 }
 
 JNIEXPORT void JNICALL
@@ -414,9 +401,10 @@ JNI_PATH(nativeOnClosed)(JNIEnv * /*env*/,
                          jstring reason,
                          jlong /*identifier*/,
                          jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     auto closeReason = JniHelper::jstring2string(reason);
-    RUN_IN_GAMETHREAD(wsOkHttp3->onClose(static_cast<int>(code), closeReason, true));
+    wsOkHttp3->onClose(static_cast<int>(code), closeReason, true);
 }
 
 JNIEXPORT void JNICALL
@@ -425,10 +413,11 @@ JNI_PATH(nativeOnError)(JNIEnv * /*env*/,
                         jstring reason,
                         jlong /*identifier*/,
                         jlong handler) {
+    if (!cc::Engine::isValid()) return;
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     int unknownError = static_cast<int>(cc::network::WebSocket::ErrorCode::UNKNOWN);
     auto errorReason = JniHelper::jstring2string(reason);
-    RUN_IN_GAMETHREAD(wsOkHttp3->onError(unknownError, errorReason));
+    wsOkHttp3->onError(unknownError, errorReason);
 }
 
 #undef JNI_PATH

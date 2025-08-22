@@ -23,15 +23,14 @@
 */
 
 import {
-    ccclass, serializable, tooltip, type, disallowAnimation,
+    ccclass, serializable,
 } from 'cc.decorator';
 import { scene } from '../render-scene';
 import { Layers } from '../scene-graph/layers';
 import { Renderer } from './renderer';
-import { CCBoolean, cclegacy, _decorator } from '../core';
-import { Model, SubModel } from '../render-scene/scene';
+import { cclegacy, _decorator } from '../core';
+import { SubModel } from '../render-scene/scene';
 import { isEnableEffect } from '../rendering/define';
-import { Root } from '../root';
 import { getPhaseID } from '../rendering/pass-phase';
 
 let _phaseID = getPhaseID('specular-pass');
@@ -54,6 +53,10 @@ function getSkinPassIndex (subModel: SubModel): number {
  */
 @ccclass('cc.ModelRenderer')
 export class ModelRenderer extends Renderer {
+    constructor () {
+        super();
+    }
+
     /**
      * @en The visibility which will be applied to the committed models.
      * @zh 应用于所有提交渲染的 Model 的可见性

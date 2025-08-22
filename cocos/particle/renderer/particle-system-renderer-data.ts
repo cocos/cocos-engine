@@ -25,12 +25,14 @@
 import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible } from 'cc.decorator';
 import { Mesh } from '../../3d';
 import { Material, Texture2D } from '../../asset/assets';
-import { AlignmentSpace, RenderMode } from '../enum';
+import { ParticleAlignmentSpace, ParticleRenderMode } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../game/director';
 import { Device, Format, FormatFeatureBit } from '../../gfx';
 import { errorID, warnID, cclegacy } from '../../core';
+
+import type { ParticleSystem } from '../particle-system';
 
 function isSupportGPUParticle (): boolean {
     const device: Device = director.root!.device;
@@ -48,7 +50,7 @@ export default class ParticleSystemRenderer {
     /**
      * @zh 设定粒子生成模式。
      */
-    @type(RenderMode)
+    @type(ParticleRenderMode)
     @displayOrder(0)
     @tooltip('i18n:particleSystemRenderer.renderMode')
     public get renderMode (): number {
@@ -99,9 +101,9 @@ export default class ParticleSystemRenderer {
         // this._updateModel();
     }
 
-    @type(RenderMode)
+    @type(ParticleRenderMode)
     @serializable
-    private _renderMode = RenderMode.Billboard;
+    private _renderMode = ParticleRenderMode.Billboard;
 
     @serializable
     private _velocityScale = 1;
@@ -157,15 +159,12 @@ export default class ParticleSystemRenderer {
     @type(Material)
     @displayOrder(8)
     @disallowAnimation
-    @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
     public get cpuMaterial (): Material | null {
         return this._cpuMaterial;
     }
 
     public set cpuMaterial (val: Material | null) {
-        if (val === null) {
-            return;
-        } else {
+        if (val) {
             const effectName = val.effectName;
             if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
                 warnID(6035);
@@ -186,15 +185,12 @@ export default class ParticleSystemRenderer {
     @type(Material)
     @displayOrder(8)
     @disallowAnimation
-    @visible(function (this: ParticleSystemRenderer): boolean { return this._useGPU; })
     public get gpuMaterial (): Material | null {
         return this._gpuMaterial;
     }
 
     public set gpuMaterial (val: Material | null) {
-        if (val === null) {
-            return;
-        } else {
+        if (val) {
             const effectName = val.effectName;
             if (effectName.indexOf('particle-gpu') === -1) {
                 warnID(6035);
@@ -215,7 +211,6 @@ export default class ParticleSystemRenderer {
     @type(Material)
     @displayOrder(9)
     @disallowAnimation
-    @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
     public get trailMaterial (): Material | null {
         if (!this._particleSystem) {
@@ -268,26 +263,26 @@ export default class ParticleSystemRenderer {
      * @en Particle alignment space option. Includes world, local and view.
      * @zh 粒子对齐空间选择。包括世界空间，局部空间和视角空间。
      */
-    @type(AlignmentSpace)
+    @type(ParticleAlignmentSpace)
     @displayOrder(10)
     @tooltip('i18n:particle_system.alignSpace')
     public get alignSpace (): number {
         return this._alignSpace;
     }
 
-    public set alignSpace (val) {
+    public set alignSpace (val: number) {
         this._alignSpace = val;
         this._particleSystem.processor.updateAlignSpace(this._alignSpace);
     }
 
     @serializable
-    private _alignSpace = AlignmentSpace.View;
+    private _alignSpace = ParticleAlignmentSpace.View;
 
-    public static AlignmentSpace = AlignmentSpace;
+    public static AlignmentSpace = ParticleAlignmentSpace;
 
-    private _particleSystem: any = null!; // ParticleSystem
+    private _particleSystem: ParticleSystem = null!;
 
-    create (ps): void {
+    create (ps: ParticleSystem): void {
         // if particle system is null we run the old routine
         // else if particle system is not null we do nothing
         if (this._particleSystem === null) {
@@ -297,7 +292,7 @@ export default class ParticleSystemRenderer {
         }
     }
 
-    onInit (ps): void {
+    onInit (ps: ParticleSystem): void {
         this.create(ps);
         const useGPU = this._useGPU && isSupportGPUParticle();
         if (!this._particleSystem.processor) {
@@ -328,16 +323,11 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor = null!;
         }
         const useGPU = this._useGPU && isSupportGPUParticle();
-        if (!useGPU && this.cpuMaterial) {
-            this.particleMaterial = this.cpuMaterial;
-        }
-        if (useGPU && this.gpuMaterial) {
-            this.particleMaterial = this.gpuMaterial;
-        }
+        this.particleMaterial = useGPU ? this.gpuMaterial : this.cpuMaterial;
         this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
         this._particleSystem.processor.updateAlignSpace(this.alignSpace);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();
-        this._particleSystem.bindModule();
+        (this._particleSystem as any).bindModule();
     }
 }

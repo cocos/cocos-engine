@@ -1846,7 +1846,7 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
         if (gpuFramebuffer->resolveFramebuffer.isActive()) {
             device->context()->makeCurrent(resolveFramebuffer.swapchain, framebuffer.swapchain);
         } else {
-            device->context()->makeCurrent(framebuffer.swapchain);
+            device->context()->makeCurrent(framebuffer.swapchain, framebuffer.swapchain);
         }
 
         const auto fbHandle = framebuffer.getHandle();

@@ -31,7 +31,8 @@ import downloadScript from './download-script';
 import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
-import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
+import { CCON, decodeCCONBinary } from '../../serialization/ccon';
+import type { AssetManager } from './asset-manager';
 
 export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void;
 
@@ -67,43 +68,27 @@ const downloadArrayBuffer = (url: string, options: Record<string, any>, onComple
     downloadFile(url, options, options.onFileProgress as FileProgressCallback, onComplete);
 };
 
-const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
-    downloader._downloadJson(url, options, (err, json): void => {
-        if (err) {
-            onComplete(err);
-            return;
-        }
-        const cconPreface = parseCCONJson(json);
-        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk): Promise<Uint8Array> => new Promise<Uint8Array>((resolve, reject): void => {
-            downloader._downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer: ArrayBuffer): void => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(new Uint8Array(chunkBuffer));
-                }
-            });
-        })));
-        chunkPromises.then((chunks): void => {
-            const ccon = new CCON(cconPreface.document, chunks);
-            onComplete(null, ccon);
-        }).catch((err: Error): void => {
-            onComplete(err);
-        });
-    });
-};
-
 const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
-    downloader._downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer): void => {
-        if (err) {
-            onComplete(err);
-            return;
-        }
+    const handleArrayBuffer = (arrayBuffer: ArrayBuffer, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
         try {
             const ccon = decodeCCONBinary(new Uint8Array(arrayBuffer));
             onComplete(null, ccon);
         } catch (err) {
             onComplete(err as Error);
         }
+    };
+    downloader._downloadArrayBuffer(url.replace('.cconb', '.bin'), options, (err, arrayBuffer: ArrayBuffer): void => {
+        if (err) {
+            downloader._downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer): void => {
+                if (err) {
+                    onComplete(err);
+                    return;
+                }
+                handleArrayBuffer(arrayBuffer, onComplete);
+            });
+            return;
+        }
+        handleArrayBuffer(arrayBuffer, onComplete);
     });
 };
 
@@ -302,7 +287,6 @@ export class Downloader {
         '.ExportJson': downloadJson,
         '.plist': downloadText,
 
-        '.ccon': downloadCCON,
         '.cconb': downloadCCONB,
 
         '.fnt': downloadText,
@@ -344,6 +328,13 @@ export class Downloader {
         this._remoteServerAddress = remoteServerAddress;
         this.bundleVers = bundleVers;
         this.remoteBundles = remoteBundles;
+    }
+
+    /**
+     * @engineInternal
+     */
+    public get handlers (): Record<string, DownloadHandler> {
+        return this._downloaders;
     }
 
     /**
@@ -489,7 +480,7 @@ export class Downloader {
      * @deprecated loader.downloader.loadSubpackage is deprecated, please use AssetManager.loadBundle instead.
      */
     public loadSubpackage (name: string, completeCallback?: ((err?: Error | null) => void)): void {
-        cclegacy.assetManager.loadBundle(name, null, completeCallback);
+        (cclegacy.assetManager as AssetManager).loadBundle(name, null, completeCallback);
     }
 
     private constructor () {}

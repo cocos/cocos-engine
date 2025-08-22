@@ -28,6 +28,7 @@
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "scene/Model.h"
+#include "application/ApplicationManager.h"
 
 #ifndef JSB_ALLOC
     #define JSB_ALLOC(kls, ...) ccnew kls(__VA_ARGS__)
@@ -115,7 +116,7 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
     auto *cobj = SE_THIS_OBJECT<cc::Root>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
-#define DISPATCH_EVENT_TO_JS_ARGS_0(eventType, jsFuncName)                                                         \
+#define DISPATCH_EVENT_TO_JS_ARGS_0(eventType, jsFuncName, postCode)                                               \
     cobj->on<eventType>([](cc::Root *rootObj) {                                                                    \
         se::AutoHandleScope hs;                                                                                    \
         se::Value rootVal;                                                                                         \
@@ -124,12 +125,13 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
         if (rootVal.isObject()) {                                                                                  \
             se::ScriptEngine::getInstance()->callFunction(rootVal.toObject(), #jsFuncName, 0, nullptr);            \
         }                                                                                                          \
+        postCode                                                                                                   \
     });
 
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeCommit, _onDirectorBeforeCommit);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeRender, _onDirectorBeforeRender);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::AfterRender, _onDirectorAfterRender);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::PipelineChanged, _onDirectorPipelineChanged);
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeCommit, _onDirectorBeforeCommit, {});
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeRender, _onDirectorBeforeRender, {});
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::AfterRender, _onDirectorAfterRender, {});
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::PipelineChanged, _onDirectorPipelineChanged, {});
 
     return true;
 }
@@ -620,6 +622,18 @@ static bool js_scene_Node_inverseTransformPoint(void *nativeObject) // NOLINT(re
 }
 SE_BIND_FUNC_FAST(js_scene_Node_inverseTransformPoint)
 
+static bool js_scene_Node_set2DTransform(void *nativeObject) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = reinterpret_cast<cc::Node *>(nativeObject);
+    float x = tempFloatArray[0];
+    float y = tempFloatArray[1];
+    float angle = tempFloatArray[2];
+    cobj->setWorldPosition(x, y, 0);
+    cobj->setWorldRotationFromEuler(0, 0, angle);
+    return true;
+}
+SE_BIND_FUNC_FAST(js_scene_Node_set2DTransform)
+
 static bool js_scene_Pass_blocks_getter(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
@@ -675,48 +689,26 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
             if (val.toObject()->isArray()) {
                 uint32_t len = 0;
                 val.toObject()->getArrayLength(&len);
+                
+                cc::Float32Array value(len);
 
                 se::Value dataVal;
-                ccstd::array<float, 64> stackData;
-                float *pData = nullptr;
-                bool needFree = false;
-
-                if (len <= static_cast<uint32_t>(stackData.size())) {
-                    pData = stackData.data();
-                } else {
-                    pData = static_cast<float *>(CC_MALLOC(len));
-                    needFree = true;
-                }
-
                 for (uint32_t i = 0; i < len; ++i) {
                     ok = val.toObject()->getArrayElement(i, &dataVal);
                     CC_ASSERT(ok && dataVal.isNumber());
-                    pData[i] = dataVal.toFloat();
+                    value[i] = dataVal.toFloat();
                 }
 
-                cobj->setInstancedAttribute(name, pData, len * sizeof(float));
-
-                if (needFree) {
-                    CC_FREE(pData);
-                }
+                cobj->setInstancedAttribute(name, value);
                 return true;
             }
 
             if (val.toObject()->isTypedArray()) {
-                se::Object::TypedArrayType type = val.toObject()->getTypedArrayType();
-                switch (type) {
-                    case se::Object::TypedArrayType::FLOAT32: {
-                        uint8_t *data = nullptr;
-                        size_t byteLength = 0;
-                        if (val.toObject()->getTypedArrayData(&data, &byteLength) && data != nullptr && byteLength > 0) {
-                            cobj->setInstancedAttribute(name, reinterpret_cast<const float *>(data), static_cast<uint32_t>(byteLength));
-                        }
-                    } break;
-
-                    default:
-                        // FIXME:
-                        CC_ABORT();
-                        break;
+                cc::TypedArray arr;
+                ok = sevalue_to_native(val, &arr);
+                SE_PRECONDITION2(ok, false, "Error processing arguments");
+                if (ok) {
+                    cobj->setInstancedAttribute(name, arr);
                 }
                 return true;
             }
@@ -888,6 +880,7 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
 
     __jsb_cc_Node_proto->defineFunction("_setRTS", _SE(js_scene_Node_setRTS));
     __jsb_cc_Node_proto->defineFunction("_inverseTransformPoint", _SE(js_scene_Node_inverseTransformPoint));
+    __jsb_cc_Node_proto->defineFunction("_set2DTransform", _SE(js_scene_Node_set2DTransform));
 
     __jsb_cc_scene_Pass_proto->defineProperty("blocks", _SE(js_scene_Pass_blocks_getter), nullptr);
 

@@ -26,7 +26,7 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
-import { Filter, PixelFormat } from './asset-enum';
+import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { js, cclegacy } from '../../core';
@@ -83,6 +83,10 @@ export interface ITexture2DCreateInfo {
  */
 @ccclass('cc.Texture2D')
 export class Texture2D extends SimpleTexture {
+    constructor (name?: string) {
+        super(name);
+    }
+
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
      * When setup mipmap, the size of the texture and pixel format could be modified.
@@ -168,6 +172,7 @@ export class Texture2D extends SimpleTexture {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public initialize (): void {
         this.mipmaps = this._mipmaps;
@@ -293,11 +298,16 @@ export class Texture2D extends SimpleTexture {
                     if (!mipmap || !mipmap._uuid) {
                         return null;
                     }
-                    if (ctxForExporting && ctxForExporting._compressUuid) {
-                        // ctxForExporting.dependsOn('_textureSource', texture); TODO
-                        return EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
+                    let uuid = mipmap._uuid;
+                    if (ctxForExporting) {
+                        if (ctxForExporting._compressUuid) {
+                            uuid = EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
+                        }
+                        if (uuid) {
+                            ctxForExporting.dependsOn('_textureSource', uuid);
+                        }
                     }
-                    return mipmap._uuid;
+                    return uuid;
                 }),
             };
         }
@@ -326,7 +336,7 @@ export class Texture2D extends SimpleTexture {
     /**
      * @engineInternal
      */
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo {
+    protected override _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo {
         const texInfo = new TextureInfo(TextureType.TEX2D);
         texInfo.width = this._width;
         texInfo.height = this._height;
@@ -337,7 +347,7 @@ export class Texture2D extends SimpleTexture {
     /**
      * @engineInternal
      */
-    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo): TextureViewInfo {
+    protected override _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo): TextureViewInfo {
         const texViewInfo = new TextureViewInfo();
         texViewInfo.type = TextureType.TEX2D;
         Object.assign(texViewInfo, presumed);

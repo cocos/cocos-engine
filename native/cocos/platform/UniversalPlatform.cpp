@@ -27,7 +27,7 @@
 #include "platform/interfaces/OSInterface.h"
 
 extern int cocos_main(int argc, const char** argv); // NOLINT(readability-identifier-naming)
-extern void cocos_destory();                        // NOLINT(readability-identifier-naming)
+extern void cocos_destroy();                        // NOLINT(readability-identifier-naming)
 
 namespace cc {
 UniversalPlatform::OSType UniversalPlatform::getOSType() const {
@@ -76,7 +76,7 @@ void UniversalPlatform::onClose() {
 }
 
 void UniversalPlatform::onDestroy() {
-    cocos_destory();
+    cocos_destroy();
 }
 
 void UniversalPlatform::exit() {

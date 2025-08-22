@@ -14,7 +14,7 @@ test('basic test', function () {
     strictEqual(node.active, false, 'node is deactive');
 
     node._destroyImmediate();
-    strictEqual(node.isValid, false, 'node can be destoryed');
+    strictEqual(node.isValid, false, 'node can be destroyed');
 });
 
 test('test hierarchy', function () {
@@ -198,7 +198,7 @@ test('activation logic for component', function () {
     ok(obj.getComponent(MyComponentBase) === comp, 'getComponent: can get component by base type');
     ok(obj.getComponent(cc.js.getClassName(MyComponentBase)) === comp, 'getComponent: can get component by base name');
 
-    comp.expect(CallbackTester.OnDisable, 'should called onDisable when destory');
+    comp.expect(CallbackTester.OnDisable, 'should called onDisable when destroy');
     comp.destroy();     // onDisable
 
     strictEqual(obj.getComponent(MyComponent), comp, 'can still get component in this frame');
@@ -358,7 +358,7 @@ test('destroy', function () {
     parent.addChild(newChildNode);
     var newChildNodeComp = newChildNode.addComponent(NewChildNodeComp);
 
-    // do destory
+    // do destroy
 
     FO._deferredDestroy();
 

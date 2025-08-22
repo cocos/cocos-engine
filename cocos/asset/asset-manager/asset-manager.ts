@@ -25,7 +25,7 @@
 
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error, sys, Settings, settings, path, cclegacy, EventTarget } from '../../core';
+import { error, settings, path, cclegacy, EventTarget, SettingsCategory } from '../../core';
 import Bundle from './bundle';
 import Cache, { ICache } from './cache';
 import CacheManager from './cache-manager';
@@ -39,7 +39,7 @@ import packManager from './pack-manager';
 import parser, { Parser } from './parser';
 import { Pipeline } from './pipeline';
 import preprocess from './preprocess';
-import { releaseManager } from './release-manager';
+import { ReleaseManager, releaseManager } from './release-manager';
 import RequestItem from './request-item';
 import {
     presets,
@@ -49,7 +49,9 @@ import {
 import Task from './task';
 import { combine, parse, replaceOverrideAsset } from './url-transformer';
 import { asyncify, parseParameters } from './utilities';
-import { IAddressableInfo, IAssetInfo, IPackInfo, ISceneInfo } from './config';
+
+const querySettings = settings.querySettings.bind(settings);
+const SETTINGS_CATEGORY_ASSETS = SettingsCategory.ASSETS;
 
 const EVENT_ASSET_MISSING = 'asset-missing';
 /**
@@ -332,6 +334,20 @@ export class AssetManager {
     private constructor () {}
 
     /**
+     * @engineInternal
+     */
+    public get files (): Cache {
+        return this._files;
+    }
+
+    /**
+     * @engineInternal
+     */
+    public getReleaseManager (): ReleaseManager {
+        return this._releaseManager;
+    }
+
+    /**
      * @en
      * The builtin 'main' bundle.
      *
@@ -412,10 +428,10 @@ export class AssetManager {
      * @internal
      */
     public init (options: IAssetManagerOptions = {}): void {
-        const server = options.server || settings.querySettings(Settings.Category.ASSETS, 'server') || '';
-        const bundleVers = options.bundleVers || settings.querySettings(Settings.Category.ASSETS, 'bundleVers') || {};
-        const remoteBundles = options.remoteBundles || settings.querySettings(Settings.Category.ASSETS, 'remoteBundles') || [];
-        const downloadMaxConcurrency = options.downloadMaxConcurrency || settings.querySettings(Settings.Category.ASSETS, 'downloadMaxConcurrency');
+        const server = options.server || querySettings(SETTINGS_CATEGORY_ASSETS, 'server') || '';
+        const bundleVers = options.bundleVers || querySettings(SETTINGS_CATEGORY_ASSETS, 'bundleVers') || {};
+        const remoteBundles = options.remoteBundles || querySettings(SETTINGS_CATEGORY_ASSETS, 'remoteBundles') || [];
+        const downloadMaxConcurrency = options.downloadMaxConcurrency || querySettings(SETTINGS_CATEGORY_ASSETS, 'downloadMaxConcurrency');
         if (downloadMaxConcurrency && downloadMaxConcurrency > 0) {
             this.downloader.maxConcurrency = downloadMaxConcurrency;
         }
@@ -429,18 +445,18 @@ export class AssetManager {
         this.downloader.init(server, bundleVers, remoteBundles);
         this.parser.init();
         this.dependUtil.init();
-        let importBase = options.importBase || settings.querySettings(Settings.Category.ASSETS, 'importBase') || '';
+        let importBase = options.importBase || querySettings(SETTINGS_CATEGORY_ASSETS, 'importBase') || '';
         if (importBase && importBase.endsWith('/')) {
-            importBase = importBase.substr(0, importBase.length - 1);
+            importBase = importBase.substring(0, importBase.length - 1);
         }
-        let nativeBase = options.nativeBase || settings.querySettings(Settings.Category.ASSETS, 'nativeBase') || '';
+        let nativeBase = options.nativeBase || querySettings(SETTINGS_CATEGORY_ASSETS, 'nativeBase') || '';
         if (nativeBase && nativeBase.endsWith('/')) {
-            nativeBase = nativeBase.substr(0, nativeBase.length - 1);
+            nativeBase = nativeBase.substring(0, nativeBase.length - 1);
         }
         this.generalImportBase = importBase;
         this.generalNativeBase = nativeBase;
-        this._projectBundles = settings.querySettings(Settings.Category.ASSETS, 'projectBundles') || [];
-        const assetsOverride = settings.querySettings(Settings.Category.ASSETS, 'assetsOverrides') || {};
+        this._projectBundles = querySettings(SETTINGS_CATEGORY_ASSETS, 'projectBundles') || [];
+        const assetsOverride = querySettings(SETTINGS_CATEGORY_ASSETS, 'assetsOverrides') || {};
         for (const key in assetsOverride) {
             this.assetsOverrideMap.set(key, assetsOverride[key] as string);
         }

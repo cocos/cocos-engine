@@ -35,11 +35,17 @@
 namespace se {
 std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
 
-Object::Object() {}
+Object::Object(): _objRef(this) {}
 Object::~Object() {
+    if (!_destructInFinalizer && _cls != nullptr) {
+        napi_remove_wrap(_env, _objRef.getValue(_env), nullptr);
+    }
     if (__objectMap) {
         __objectMap->erase(this);
     }
+
+    delete _privateObject;
+    _privateObject = nullptr;
 }
 
 Object* Object::createObjectWithClass(Class* cls) {
@@ -123,6 +129,7 @@ Object* Object::createProxyTarget(se::Object* proxy) {
     // v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
     // Object *obj = Object::_createJSObject(nullptr, jsobj);
     // return obj;
+    assert(false);
     return nullptr;
 }
 
@@ -462,7 +469,7 @@ bool Object::init(napi_env env, napi_value js_object, Class* cls) {
     assert(env);
     _cls = cls;
     _env = env;
-    _objRef.initWeakref(env, js_object);
+    _objRef.init(env, js_object);
 
     if (__objectMap) {
         assert(__objectMap->find(this) == __objectMap->end());
@@ -525,14 +532,11 @@ void Object::setPrivateObject(PrivateObjectBase* data) {
     //issue https://github.com/nodejs/node/issues/23999
     auto tmpThis = _objRef.getValue(_env);
     //_objRef.deleteRef();
-    napi_ref result = nullptr;
     NODE_API_CALL(status, _env,
                   napi_wrap(_env, tmpThis, this, weakCallback,
-                            (void*)this /* finalize_hint */, &result));
-    //_objRef.setWeakref(_env, result);
-    setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
-
-    return;
+                            (void*)this /* finalize_hint */, nullptr));
+    // Similar to the JSVM engine, see comments related to JSVM.
+    _objRef.decRef(_env);
 }
 
 bool Object::attachObject(Object* obj) {
@@ -660,18 +664,15 @@ void Object::weakCallback(napi_env env, void* nativeObject, void* finalizeHint /
             }
         }
 
-        // TODO: remove test code before releasing.
-        const char* clsName = seObj->_getClass()->getName();
-        CC_LOG_INFO("weakCallback class name:%s, ptr:%p", clsName, rawPtr);
-
         if (seObj->_finalizeCb != nullptr) {
-            seObj->_finalizeCb(env, nativeObject, finalizeHint);
+            seObj->_finalizeCb(env, finalizeHint, finalizeHint);
         } else {
             assert(seObj->_getClass() != nullptr);
             if (seObj->_getClass()->_getFinalizeFunction() != nullptr) {
-                seObj->_getClass()->_getFinalizeFunction()(env, nativeObject, finalizeHint);
+                seObj->_getClass()->_getFinalizeFunction()(env, finalizeHint, finalizeHint);
             }
         }
+        seObj->_destructInFinalizer = true;
         seObj->decRef();
     }
 }
@@ -735,6 +736,52 @@ void Object::clearPrivateData(bool clearMapping) {
         _privateData = nullptr;
         _onCleaingPrivateData = false;
     }
+}
+
+ObjectRef::ObjectRef(Object *parent)
+: _parent(parent) {
+
+}
+
+ObjectRef::~ObjectRef() {
+    deleteRef();
+}
+
+
+napi_value ObjectRef::getValue(napi_env env) const {
+    napi_value  result;
+    napi_status status;
+    NODE_API_CALL(status, env, napi_get_reference_value(env, _ref, &result));
+    assert(status == napi_ok);
+    assert(result != nullptr);
+    return result;
+}
+
+void ObjectRef::init(napi_env env, napi_value obj) {
+    assert(_ref == nullptr);
+    _obj = obj;
+    _env = env;
+    napi_create_reference(env, obj, 1, &_ref);
+}
+
+void ObjectRef::incRef(napi_env env) {
+    napi_reference_ref(env, _ref, nullptr);
+}
+
+void ObjectRef::decRef(napi_env env) {
+    napi_reference_unref(env, _ref, nullptr);
+}
+
+void ObjectRef::deleteRef() {
+    if (!_ref) {
+        return;
+    }
+    if(!_parent->_destructInFinalizer) {
+        // Similar to jsvm, please read the comments inside jsvm.
+        napi_reference_ref(_env, _ref, nullptr);
+    }
+    napi_delete_reference(_env, _ref);
+    _ref = nullptr;
 }
 
 } // namespace se

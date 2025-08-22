@@ -22,19 +22,19 @@
  THE SOFTWARE.
 */
 
-import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation, menu } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../misc/model-renderer';
 import { EffectAsset, Texture2D } from '../asset/assets';
-import { Filter, PixelFormat, WrapMode } from '../asset/assets/asset-enum';
+import { TextureFilter, PixelFormat, WrapMode } from '../asset/assets/asset-enum';
 import { Material } from '../asset/assets/material';
 import { RenderingSubMesh } from '../asset/assets/rendering-sub-mesh';
 import { Component } from '../scene-graph/component';
-import { CCObject, isValid } from '../core/data/object';
+import { CCObjectFlags, isValid } from '../core/data/object';
 import { director } from '../game/director';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager, Texture } from '../gfx';
-import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
+import { clamp, Rect, Size, v3, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../render-scene/core/pass-utils';
 import { Pass, scene } from '../render-scene';
 import { Camera } from '../render-scene/scene/camera';
@@ -58,6 +58,8 @@ const TERRAIN_EFFECT_UUID = '1d08ef62-a503-4ce2-8b9a-46c90873f7d3';
  */
 @ccclass('cc.TerrainInfo')
 export class TerrainInfo {
+    constructor () {
+    }
     /**
      * @en tile size
      * @zh 栅格大小
@@ -200,10 +202,12 @@ class TerrainRenderable extends ModelRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _currentMaterialLayers = 0;
+
     /**
      * @engineInternal
+     * @mangle
      */
-    public _lightmap: Texture2D|null = null;
+    public _lightmap: Texture2D | null = null;
 
     public destroy (): boolean {
         // this._invalidMaterial();
@@ -405,8 +409,8 @@ export class TerrainBlock {
     private _lodKey: TerrainLodKey = new TerrainLodKey();
     private _errorMetrics: number[] = [0, 0, 0, 0];
     private _LevelDistances: number[] = [TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE];
-    private _bbMin = new Vec3();
-    private _bbMax = new Vec3();
+    private _bbMin = v3();
+    private _bbMax = v3();
 
     constructor (t: Terrain, i: number, j: number) {
         this._terrain = t;
@@ -416,7 +420,7 @@ export class TerrainBlock {
 
         this._node = new Node('TerrainBlock');
         this._node.setParent(this._terrain.node);
-        this._node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+        this._node.hideFlags |= CCObjectFlags.DontSave | CCObjectFlags.HideInHierarchy;
         this._node.layer = this._terrain.node.layer;
 
         this._renderable = this._node.addComponent(TerrainRenderable);
@@ -661,20 +665,24 @@ export class TerrainBlock {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _updateLevel (camPos: Vec3): void {
-        const maxLevel = TERRAIN_LOD_LEVELS - 1;
+        const terrain = this._terrain;
+        const terrainNode = terrain.node;
 
-        const bbMin = new Vec3();
-        const bbMax = new Vec3();
-        Vec3.add(bbMin, this._bbMin, this._terrain.node.getWorldPosition());
-        Vec3.add(bbMax, this._bbMax, this._terrain.node.getWorldPosition());
+        const maxLevel = TERRAIN_LOD_LEVELS - 1;
+        const bbMin = v3();
+        const bbMax = v3();
+
+        Vec3.add(bbMin, this._bbMin, terrainNode.worldPosition);
+        Vec3.add(bbMax, this._bbMax, terrainNode.worldPosition);
 
         const d1 = Vec3.distance(bbMin, camPos);
         const d2 = Vec3.distance(bbMax, camPos);
         let d = Math.min(d1, d2);
 
-        d -= this._terrain.LodBias;
+        d -= terrain.LodBias;
 
         this._lodLevel = 0;
         while (this._lodLevel < maxLevel) {
@@ -924,7 +932,7 @@ export class TerrainBlock {
         if (this._weightMap == null) {
             this._weightMap = new Texture2D();
             this._weightMap.create(this._terrain.weightMapSize, this._terrain.weightMapSize, PixelFormat.RGBA8888);
-            this._weightMap.setFilters(Filter.LINEAR, Filter.LINEAR);
+            this._weightMap.setFilters(TextureFilter.LINEAR, TextureFilter.LINEAR);
             this._weightMap.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
         }
 
@@ -1193,6 +1201,7 @@ export class TerrainBlock {
  */
 @ccclass('cc.Terrain')
 @help('i18n:cc.Terrain')
+@menu('Terrain/Terrain')
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {
@@ -1822,7 +1831,7 @@ export class Terrain extends Component {
         const z = j * this._tileSize;
         const y = this.getHeight(i, j);
 
-        return new Vec3(x, y, z);
+        return v3(x, y, z);
     }
 
     public getHeightField (): Uint16Array {
@@ -1922,7 +1931,7 @@ export class Terrain extends Component {
     public getNormal (i: number, j: number): Vec3 {
         const index = j * this.vertexCount[0] + i;
 
-        const n = new Vec3();
+        const n = v3();
         n.x = this._normals[index * 3 + 0];
         n.y = this._normals[index * 3 + 1];
         n.z = this._normals[index * 3 + 2];
@@ -1958,7 +1967,7 @@ export class Terrain extends Component {
         const b = this.getNormal(ix1, iz0);
         const c = this.getNormal(ix0, iz1);
         const d = this.getNormal(ix1, iz1);
-        const m = new Vec3();
+        const m = v3();
         Vec3.add(m, b, c).multiplyScalar(0.5);
 
         if (dx + dz <= 1.0) {
@@ -1973,9 +1982,9 @@ export class Terrain extends Component {
             a.add(m);
         }
 
-        const n1 = new Vec3();
-        const n2 = new Vec3();
-        const n = new Vec3();
+        const n1 = v3();
+        const n2 = v3();
+        const n = v3();
         Vec3.lerp(n1, a, b, dx);
         Vec3.lerp(n2, c, d, dx);
         Vec3.lerp(n, n1, n2, dz);
@@ -2176,24 +2185,24 @@ export class Terrain extends Component {
 
         const trace = start;
         if (worldSpace) {
-            Vec3.subtract(trace, start, this.node.getWorldPosition());
+            Vec3.subtract(trace, start, this.node.worldPosition);
         }
 
-        const delta = new Vec3();
+        const delta = v3();
         delta.set(dir);
         delta.multiplyScalar(step);
 
         let position: Vec3|null = null;
 
-        if (dir.equals(new Vec3(0, 1, 0))) {
+        if (dir.equals(v3(0, 1, 0))) {
             const y = this.getHeightAt(trace.x, trace.z);
             if (y != null && trace.y <= y) {
-                position = new Vec3(trace.x, y, trace.z);
+                position = v3(trace.x, y, trace.z);
             }
-        } else if (dir.equals(new Vec3(0, -1, 0))) {
+        } else if (dir.equals(v3(0, -1, 0))) {
             const y = this.getHeightAt(trace.x, trace.z);
             if (y != null && trace.y >= y) {
-                position = new Vec3(trace.x, y, trace.z);
+                position = v3(trace.x, y, trace.z);
             }
         } else {
             let i = 0;
@@ -2212,7 +2221,7 @@ export class Terrain extends Component {
             while (i++ < MAX_COUNT) {
                 const y = this.getHeightAt(trace.x, trace.z);
                 if (y != null && trace.y <= y) {
-                    position = new Vec3(trace.x, y, trace.z);
+                    position = v3(trace.x, y, trace.z);
                     break;
                 }
 
@@ -2377,7 +2386,7 @@ export class Terrain extends Component {
         right.subtract(here);
         up.subtract(here);
 
-        const normal = new Vec3();
+        const normal = v3();
         normal.set(up);
         normal.cross(right);
         normal.multiplyScalar(flip);

@@ -24,7 +24,7 @@
 
 // @ts-check
 
-import { ccclass, editable, help, menu, range, serializable, type } from 'cc.decorator';
+import { ccclass, editable, range, serializable, type } from 'cc.decorator';
 import { Asset } from '../../../asset/assets/asset';
 import { CCFloat, math } from '../../../core';
 

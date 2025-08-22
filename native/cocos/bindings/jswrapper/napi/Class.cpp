@@ -80,8 +80,10 @@ bool Class::init(const std::string &clsName, Object *parent, Object *parentProto
 }
 
 napi_value Class::_defaultCtor(napi_env env, napi_callback_info info) {
-    LOGE("check default ctor called");
-    return nullptr;
+    napi_value _this;
+    napi_status status;
+    NODE_API_CALL(status, env, napi_get_cb_info(env, info, nullptr, nullptr, &_this, NULL));
+    return _this;
 }
 
 void Class::defineProperty(const char* name, napi_callback g, napi_callback s) {

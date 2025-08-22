@@ -26,10 +26,10 @@ import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializabl
 import { lerp, pseudoRandom, repeat, Enum, random, error } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
-import { ModuleRandSeed } from '../enum';
+import { ParticleModuleRandSeed } from '../enum';
 import { isCurveTwoValues } from '../particle-general-function';
 
-const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
+const TEXTURE_ANIMATION_RAND_OFFSET = ParticleModuleRandSeed.TEXTURE;
 
 /**
  * @en Texture animation type.
@@ -75,6 +75,9 @@ const Animation = Enum({
  */
 @ccclass('cc.TextureAnimationModule')
 export default class TextureAnimationModule extends ParticleModuleBase {
+    constructor () {
+        super();
+    }
     @serializable
     private _enable = false;
 
@@ -293,5 +296,14 @@ export default class TextureAnimationModule extends ParticleModuleBase {
                 p.frameIndex = lerp(from, to, repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, randFrame)! + startFrame), 1));
             }
         }
+    }
+
+    /**
+     * @engineInternal
+     * @mangle
+     */
+    public scaleNumTilesXY (scale: number): void {
+        this._numTilesX *= scale;
+        this._numTilesY *= scale;
     }
 }

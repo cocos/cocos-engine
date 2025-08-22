@@ -31,7 +31,7 @@ import { help, serializable, tooltip, type } from '../../../../core/data/decorat
 const tempVec3_1 = new Vec3();
 const tempVec3_2 = new Vec3();
 
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu } = _decorator;
 
 @ccclass('cc.RelativeJoint2D')
 @help('i18n:cc.Joint2D')
@@ -104,11 +104,17 @@ export class RelativeJoint2D extends Joint2D {
     get linearOffset (): Vec2 {
         if (this._autoCalcOffset) {
             if (this.connectedBody) {
-                return Vec2.subtract(this._linearOffset, this.connectedBody.node.worldPosition as IVec2Like,
-                    this.node.worldPosition as IVec2Like) as Vec2;
+                return Vec2.subtract(
+                    this._linearOffset,
+this.connectedBody.node.worldPosition as IVec2Like,
+this.node.worldPosition as IVec2Like,
+                ) as Vec2;
             } else { //if connected body is not set, use scene origin as connected body
-                return Vec2.subtract(this._linearOffset, new Vec2(0, 0),
-                    this.node.worldPosition as IVec2Like) as Vec2;
+                return Vec2.subtract(
+                    this._linearOffset,
+                    new Vec2(0, 0),
+this.node.worldPosition as IVec2Like,
+                ) as Vec2;
             }
         }
         return this._linearOffset;

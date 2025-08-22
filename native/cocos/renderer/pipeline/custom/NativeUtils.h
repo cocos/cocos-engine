@@ -30,7 +30,6 @@
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
 namespace cc {
 

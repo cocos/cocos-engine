@@ -22,14 +22,16 @@
  THE SOFTWARE.
 */
 
-import { FontAtlas } from '../../assets/bitmap-font';
-import { Color, macro, log, warnID } from '../../../core';
+import { JSB } from 'internal:constants';
+import { FontAtlas, FontLetterDefinition } from '../../assets/bitmap-font';
+import { Color, macro, warnID } from '../../../core';
 import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset, getSymbolCodeAt } from '../../utils/text-utils';
-import { director, Director } from '../../../game/director';
+import { director, DirectorEvent } from '../../../game/director';
 import { ccwindow } from '../../../core/global-exports';
+import { TextureBase } from '../../../asset/assets/texture-base';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -45,6 +47,9 @@ export class CanvasPool {
         }
         return _canvasPool;
     }
+
+    private constructor () {}
+
     public pool: ISharedLabelData[] = [];
     public get (): ISharedLabelData {
         let data = this.pool.pop();
@@ -63,6 +68,14 @@ export class CanvasPool {
 
     public put (canvas: ISharedLabelData): void {
         if (this.pool.length >= macro.MAX_LABEL_CANVAS_POOL_SIZE) {
+            if (JSB) {
+                const c = canvas.canvas as any;
+                if (c && c._destroy) {
+                    c._destroy();
+                }
+                canvas.canvas = null!;
+                canvas.context = null;
+            }
             return;
         }
         this.pool.push(canvas);
@@ -104,32 +117,20 @@ const WHITE = Color.WHITE.clone();
 const space = 0;
 const bleed = 2;
 
-class FontLetterDefinition {
-    public u = 0;
-    public v = 0;
-    public w = 0;
-    public h = 0;
-    public texture: LetterRenderTexture | null = null;
-    public offsetX = 0;
-    public offsetY = 0;
-    public valid = false;
-    public xAdvance = 0;
-}
-
 const _backgroundStyle = `rgba(255, 255, 255, ${(1 / 255).toFixed(3)})`;
 const BASELINE_OFFSET = getBaselineOffset();
 
 class LetterTexture {
     public image: ImageAsset | null = null;
-    public labelInfo: ILabelInfo;
-    public char: string;
+    public declare labelInfo: ILabelInfo;
+    public declare char: string;
     public data: ISharedLabelData | null  = null;
     public canvas: HTMLCanvasElement | null = null;
     public context: CanvasRenderingContext2D | null = null;
     public width = 0;
     public height = 0;
     public offsetY = 0;
-    public hash: string;
+    public declare hash: string;
     constructor (char: string, labelInfo: ILabelInfo) {
         this.char = char;
         this.labelInfo = labelInfo;
@@ -143,8 +144,8 @@ class LetterTexture {
 
     public destroy (): void {
         this.image = null;
-        // Label._canvasPool.put(this._data);
         CanvasPool.getInstance().put(this.data as ISharedLabelData);
+        this.data = null;
     }
 
     private _updateProperties (): void {
@@ -251,7 +252,7 @@ export class LetterRenderTexture extends Texture2D {
 
         const gfxDevice = this._getGFXDevice();
         if (!gfxDevice) {
-            log('Unable to get device');
+            warnID(16363);
             return;
         }
 
@@ -290,18 +291,18 @@ export class LetterAtlas {
         this._halfBleed = bleed / 2;
         this._width = width;
         this._height = height;
-        director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+        director.on(DirectorEvent.BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
     }
 
     public insertLetterTexture (letterTexture: LetterTexture): FontLetterDefinition | null {
-        const texture = letterTexture.image;
+        const img = letterTexture.image;
         const device = director.root!.device;
-        if (!texture || !this.fontDefDictionary || !device) {
+        if (!img || !this.fontDefDictionary || !device) {
             return null;
         }
 
-        const width = texture.width;
-        const height = texture.height;
+        const width = img.width;
+        const height = img.height;
 
         if ((this._x + width + space) > this._width) {
             this._x = space;
@@ -317,14 +318,18 @@ export class LetterAtlas {
             return null;
         }
 
-        this.fontDefDictionary.texture.drawTextureAt(texture, this._x, this._y);
+        if (!this.fontDefDictionary.texture) {
+            return null;
+        }
+
+        const rt = this.fontDefDictionary.texture as LetterRenderTexture;
+        rt.drawTextureAt(img, this._x, this._y);
 
         this._dirty = true;
 
         const letterDefinition = new FontLetterDefinition();
         letterDefinition.u = this._x + this._halfBleed;
         letterDefinition.v = this._y + this._halfBleed;
-        letterDefinition.texture = this.fontDefDictionary.texture;
         letterDefinition.valid = true;
         letterDefinition.w = letterTexture.width - bleed;
         letterDefinition.h = letterTexture.height - bleed;
@@ -372,13 +377,13 @@ export class LetterAtlas {
 
     public destroy (): void {
         this.reset();
-        if (this.fontDefDictionary) {
-            this.fontDefDictionary.texture.destroy();
-            this.fontDefDictionary.texture = null;
+        const dict = this.fontDefDictionary;
+        if (dict && dict.texture) {
+            dict.texture = null;
         }
     }
 
-    getTexture (): any {
+    getTexture (): TextureBase | null {
         return this.fontDefDictionary.getTexture();
     }
 
@@ -395,13 +400,13 @@ export class LetterAtlas {
         this.fontDefDictionary.texture = texture;
     }
 
-    public getLetter (key: string): any {
+    public getLetter (key: string): FontLetterDefinition {
         return this.fontDefDictionary.letterDefinitions[key];
     }
 
-    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): any {
+    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): FontLetterDefinition | null {
         const hash = getSymbolCodeAt(char, 0) + labelInfo.hash;
-        let letter = this.fontDefDictionary.letterDefinitions[hash];
+        let letter: FontLetterDefinition | null = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
             const temp = new LetterTexture(char, labelInfo);
             temp.updateRenderData();

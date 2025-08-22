@@ -26,6 +26,7 @@ import { garbageCollectionManager } from './garbage-collection';
  */
 export class GCObject {
     constructor () {
+        // eslint-disable-next-line no-constructor-return
         return garbageCollectionManager.registerGCObject(this);
     }
 

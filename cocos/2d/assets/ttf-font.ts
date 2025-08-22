@@ -39,6 +39,10 @@ export class TTFFont extends Font {
     @serializable
     public _fontFamily: string | null = null;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -60,7 +64,7 @@ export class TTFFont extends Font {
         __nativeName__: string;
         ext: string;
         __isNative__: boolean;
-    } {
+        } {
         return { uuid: this._uuid, __nativeName__: this._native, ext: path.extname(this._native), __isNative__: true };
     }
 

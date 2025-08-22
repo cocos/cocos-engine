@@ -1,15 +1,26 @@
-#ifndef _SPINE_SKELETON_INSTANCE_H_
-#define _SPINE_SKELETON_INSTANCE_H_
+#pragma once
+
 #include <spine/spine.h>
-#include <functional>
-#include <map>
-#include <memory>
+
+#include <cstdint>
 #include <string>
 #include "mesh-type-define.h"
 #include "spine-model.h"
-using namespace spine;
+#include "AtlasAttachmentLoaderExtension.h"
 
+namespace {
+    struct SpineEventInfo {
+        spine::TrackEntry *entry{nullptr};
+        spine::EventType eventType{spine::EventType::EventType_Start};
+        spine::Event *event{nullptr};
+    };
 
+    struct SlotCacheInfo {
+        bool isOwner{false};
+        spine::Attachment *attachment{nullptr};
+        AttachmentVertices *attachmentVertices{nullptr};
+    };
+}
 enum DEBUG_SHAPE_TYPE {
     DEBUG_REGION = 0,
     DEBUG_MESH = 1
@@ -37,52 +48,59 @@ class SpineSkeletonInstance {
 public:
     SpineSkeletonInstance();
     ~SpineSkeletonInstance();
-    Skeleton *initSkeleton(SkeletonData *data);
-    TrackEntry *setAnimation(float trackIndex, const std::string &name, bool loop);
-    void setSkin(const std::string &name);
+    spine::Skeleton *initSkeleton(spine::SkeletonData *data);
+    spine::TrackEntry *setAnimation(float trackIndex, const spine::String &name, bool loop);
+    void setSkin(const spine::String &name);
     void updateAnimation(float dltTime);
     SpineModel *updateRenderData();
     void setPremultipliedAlpha(bool val);
     void setUseTint(bool useTint);
     void setDebugMode(bool debug);
     void setColor(float r, float g, float b, float a);
-    void setJitterEffect(JitterVertexEffect *effect);
-    void setSwirlEffect(SwirlVertexEffect *effect);
+#ifdef CC_SPINE_VERSION_3_8
+    void setJitterEffect(spine::JitterVertexEffect *effect);
+    void setSwirlEffect(spine::SwirlVertexEffect *effect);
     void clearEffect();
-    AnimationState *getAnimationState();
-    void setMix(const std::string &from, const std::string &to, float duration);
-    void setListener(uint32_t listenerID, uint32_t type);
-    void setTrackEntryListener(uint32_t trackId, TrackEntry *entry);
-    void onAnimationStateEvent(TrackEntry *entry, EventType type, Event *event);
-    void onTrackEntryEvent(TrackEntry *entry, EventType type, Event *event);
-    std::vector<SpineDebugShape> &getDebugShapes();
-    void resizeSlotRegion(const std::string &slotName, uint32_t width, uint32_t height, bool createNew = false);
-    void setSlotTexture(const std::string &slotName, uint32_t index);
+#endif
+    spine::AnimationState *getAnimationState();
+    void setMix(const spine::String &from, const spine::String &to, float duration);
+    inline void setListener(uint32_t listenerID) { _eventListenerID = listenerID;}
+    void setTrackEntryListener(uint32_t trackId, spine::TrackEntry *entry);
+    void onAnimationStateEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event);
+    void onTrackEntryEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event);
+    inline spine::Vector<SpineDebugShape> &getDebugShapes() { return _debugShapes; }
+    void resizeSlotRegion(const spine::String &slotName, uint32_t width, uint32_t height, bool createNew = false);
+    void setSlotTexture(const spine::String &slotName, const spine::String& textureUuid);
     void destroy();
     bool isCache{false};
-    bool enable{true};
     float dtRate{1.0F};
+
+    // Used internal for cache event
+    spine::Vector<SpineEventInfo> animationEvents;
+    spine::Vector<SpineEventInfo> trackEvents;
+    // Used internal for dispatch event
+    void dispatchEvents();
 private:
     void collectMeshData();
+    void releaseSlotCacheInfo(SlotCacheInfo &info);
 
 private:
-    Skeleton *_skeleton = nullptr;
-    SkeletonData *_skeletonData = nullptr;
-    AnimationStateData *_animStateData = nullptr;
-    AnimationState *_animState = nullptr;
-    SkeletonClipping *_clipper = nullptr;
-    VertexEffect *_effect = nullptr;
-    SpineModel *_model = nullptr;
-    uint32_t _startListenerID = 0;
-    uint32_t _interruptListenerID = 0;
-    uint32_t _endListenerID = 0;
-    uint32_t _disposeListenerID = 0;
-    uint32_t _completeListenerID = 0;
-    uint32_t _eventListenerID = 0;
-    uint32_t _trackEntryListenerID = 0;
-    UserData _userData;
-    std::vector<SpineDebugShape> _debugShapes{};
-    std::map<Slot *, uint32_t> slotTextureSet{};
-};
-
+    spine::Skeleton *_skeleton = nullptr;
+    spine::SkeletonData *_skeletonData = nullptr;
+    spine::AnimationStateData *_animStateData = nullptr;
+    spine::AnimationState *_animState = nullptr;
+    spine::SkeletonClipping *_clipper = nullptr;
+#ifdef CC_SPINE_VERSION_3_8
+    spine::VertexEffect *_effect = nullptr;
 #endif
+    SpineModel *_model = nullptr;
+    uint32_t _eventListenerID = 0;
+    spine::HashMap<spine::TrackEntry *, uint32_t> _trackListenerSet{};
+    UserData _userData;
+    spine::Vector<SpineDebugShape> _debugShapes{};
+    /**
+     * The slot's attachment may be modified when calling AnimationState::apply(), which can cause custom attachments to malfunction. 
+     * To prevent this, we need to cache the original attachment.
+     */
+    spine::HashMap<spine::Slot*, SlotCacheInfo> _slotTextureSet{};
+};

@@ -27,8 +27,8 @@ import { legacyCC } from '../core/global-exports';
 import { log2 } from '../core/math/bits';
 import { js } from '../core';
 import { assertIsTrue } from '../core/data/utils/asserts';
-import { getError } from '../core/platform/debug';
-import { Settings, settings } from '../core/settings';
+import { getError, warnID } from '../core/platform/debug';
+import { settings, SettingsCategory } from '../core/settings';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -58,6 +58,7 @@ export interface LayerItem {
  * Every node can be assigned to multiple layers with different bit masks, you can setup layer with inclusive or exclusive operation.
  */
 export class Layers {
+    private constructor () {}
     /**
      * @en All layers in an Enum
      * @zh 以 Enum 形式存在的所有层列表
@@ -74,7 +75,7 @@ export class Layers {
      * @internal
      */
     public static init (): void {
-        const userLayers = settings.querySettings<LayerItem[]>(Settings.Category.ENGINE, 'customLayers');
+        const userLayers = settings.querySettings<LayerItem[]>(SettingsCategory.ENGINE, 'customLayers');
         if (!userLayers) return;
         for (let i = 0; i < userLayers.length; i++) {
             const layer = userLayers[i];
@@ -91,11 +92,7 @@ export class Layers {
      * @return A filter which can detect all accepted layers
      */
     public static makeMaskInclude (includes: number[]): number {
-        let mask = 0;
-        for (const inc of includes) {
-            mask |= inc;
-        }
-        return mask;
+        return includes.reduce((mask, inc) => mask | inc, 0);
     }
 
     /**
@@ -118,11 +115,11 @@ export class Layers {
      */
     public static addLayer (name: string, bitNum: number): void {
         if (bitNum === undefined) {
-            console.warn('bitNum can\'t be undefined');
+            warnID(16364);
             return;
         }
         if (bitNum > 19 || bitNum < 0) {
-            console.warn('maximum layers reached.');
+            warnID(16365);
             return;
         }
         const val = 1 << bitNum;
@@ -143,7 +140,7 @@ export class Layers {
      */
     public static deleteLayer (bitNum: number): void {
         if (bitNum > 19 || bitNum < 0) {
-            console.warn('do not change buildin layers.');
+            warnID(16366);
             return;
         }
         const val = 1 << bitNum;
@@ -163,7 +160,7 @@ export class Layers {
      */
     public static nameToLayer (name: string): number {
         if (name === undefined) {
-            console.warn('name can\'t be undefined');
+            warnID(16367);
             return -1;
         }
 
@@ -177,7 +174,7 @@ export class Layers {
      */
     public static layerToName (bitNum: number): string {
         if (bitNum > 31 || bitNum < 0) {
-            console.warn('Unable to access unknown layer.');
+            warnID(16368);
             return '';
         }
 

@@ -22,16 +22,16 @@
  THE SOFTWARE.
 */
 
-import { Component } from '../../scene-graph';
 import { Attribute, deviceManager, Feature } from '../../gfx';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../asset/assets';
 import { Particle, IParticleModule } from '../particle';
-import { RenderMode } from '../enum';
+import { ParticleRenderMode } from '../enum';
 import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene';
 import type { ParticleSystem } from '../particle-system';
+import type { Root } from '../../root';
 
 export abstract class ParticleSystemRendererBase {
     protected _particleSystem: ParticleSystem | null = null;
@@ -84,7 +84,7 @@ export abstract class ParticleSystemRendererBase {
 
     public onDestroy (): void {
         if (this._model) {
-            cclegacy.director.root.destroyModel(this._model);
+            (cclegacy.director.root as Root).destroyModel(this._model);
             this._model = null;
         }
     }
@@ -107,7 +107,7 @@ export abstract class ParticleSystemRendererBase {
     public setVertexAttributes (): void {
         if (this._model) {
             this.updateVertexAttrib();
-            this._model.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
+            this._model.setVertexAttributes(this._renderInfo!.renderMode === ParticleRenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
         }
     }
 
@@ -128,14 +128,14 @@ export abstract class ParticleSystemRendererBase {
     }
 
     public updateTrailMaterial (): void {}
-    public getDefaultTrailMaterial (): null { return null; }
-    public abstract getParticleCount () : number;
+    public getDefaultTrailMaterial (): Material | null { return null; }
+    public abstract getParticleCount (): number;
     public abstract getFreeParticle (): Particle | null;
-    public abstract onMaterialModified (index: number, material: Material) : void;
-    public abstract onRebuildPSO (index: number, material: Material) : void;
+    public abstract onMaterialModified (index: number, material: Material): void;
+    public abstract onRebuildPSO (index: number, material: Material): void;
     public abstract updateVertexAttrib (): void;
-    public abstract updateRenderMode () : void;
-    public abstract updateMaterialParams () : void;
+    public abstract updateRenderMode (): void;
+    public abstract updateMaterialParams (): void;
     public abstract setNewParticle (p: Particle): void;
     public abstract getDefaultMaterial(): Material | null;
     public abstract updateRotation (pass: Pass | null): void;
@@ -146,4 +146,5 @@ export abstract class ParticleSystemRendererBase {
     public abstract beforeRender (): void;
     public abstract setUseInstance (value: boolean): void;
     public abstract getNoisePreview (out: number[], width: number, height: number): void;
+    public abstract updateAlignSpace (space: number): void;
 }

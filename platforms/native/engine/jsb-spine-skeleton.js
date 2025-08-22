@@ -70,13 +70,13 @@ const cacheManager = require('./jsb-cache-manager');
     spine.skeletonCacheMgr = skeletonCacheMgr;
     skeletonDataProto.destroy = function () {
         this.reset();
-        skeletonCacheMgr.removeSkeletonCache(this._uuid);
+        skeletonCacheMgr.removeSkeletonCache(this.mergedUUID());
         cc.Asset.prototype.destroy.call(this);
     };
 
     skeletonDataProto.reset = function () {
         if (this._skeletonCache) {
-            spine.disposeSkeletonData(this._uuid);
+            spine.disposeSkeletonData(this.mergedUUID());
             this._jsbTextures = null;
             this._skeletonCache = null;
         }
@@ -93,7 +93,7 @@ const cacheManager = require('./jsb-cache-manager');
     skeletonDataProto.init = function () {
         if (this._skeletonCache) return;
 
-        const uuid = this._uuid;
+        const uuid = this.mergedUUID();
         if (!uuid) {
             cc.errorID(7504);
             return;
@@ -125,10 +125,8 @@ const cacheManager = require('./jsb-cache-manager');
         }
         this._jsbTextures = jsbTextures;
 
-        let filePath = null;
-        if (this.skeletonJsonStr) {
-            filePath = this.skeletonJsonStr;
-        } else {
+        let filePath = this.skeletonJsonStr;
+        if (!filePath) {
             filePath = cacheManager.getCache(this.nativeUrl) || this.nativeUrl;
         }
         this._skeletonCache = spine.initSkeletonData(uuid, filePath, atlasText, jsbTextures, this.scale);
@@ -176,8 +174,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._target = target;
         this._callback = callback;
 
-        // eslint-disable-next-line no-undef
-        const AnimationEventType = legacyCC.internal.SpineAnimationEventType;
+        const AnimationEventType = cc.internal.SpineAnimationEventType;
 
         this.setStartListener(function (trackEntry) {
             if (this._target && this._callback) {
@@ -293,13 +290,18 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    skeleton.setSkeletonData = function (skeletonData) {
+    skeleton._updateUITransform = function () {
+        const skeletonData = this._skeletonData;
+        if (!skeletonData) return;
+
         if (skeletonData.width != null && skeletonData.height != null) {
             const uiTrans = this.node._uiProps.uiTransformComp;
             uiTrans.setContentSize(skeletonData.width, skeletonData.height);
         }
+    };
 
-        const uuid = skeletonData._uuid;
+    skeleton.setSkeletonData = function (skeletonData) {
+        const uuid = skeletonData.mergedUUID();
         if (!uuid) {
             cc.errorID(7504);
             return;
@@ -366,7 +368,9 @@ const cacheManager = require('./jsb-cache-manager');
 
     skeleton._updateColor = function () {
         if (this._nativeSkeleton) {
-            const compColor = this.color;
+            const compColor = this._color;
+            this.setEntityColorDirty(true);
+            this.setEntityColor(compColor);
             this._nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
             this.markForUpdateRenderData();
         }
@@ -404,6 +408,10 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setVertexEffectDelegate = function (effectDelegate) {
+        if (cc.internal.SPINE_VERSION === '4.2') {
+            cc.warn('setVertexEffectDelegate is deprecated since spine 4.2');
+            return;
+        }
         if (this._nativeSkeleton && !this.isAnimationCached()) {
             this._nativeSkeleton.setVertexEffectDelegate(effectDelegate);
         }
@@ -489,6 +497,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setSkin = function (skinName) {
+        this._skinName = skinName;
         if (this._nativeSkeleton) return this._nativeSkeleton.setSkin(skinName);
         return null;
     };
@@ -694,20 +703,30 @@ const cacheManager = require('./jsb-cache-manager');
             this.attachUtil.init(this);
             this._preCacheMode = this._cacheMode;
 
-            this.defaultSkin && this._nativeSkeleton.setSkin(this.defaultSkin);
-            this.animation = this.defaultAnimation;
+            if (this.defaultSkin && this.defaultSkin !== '') {
+                this.setSkin(this.defaultSkin);
+            } else if (this._skinName && this._skinName !== '') {
+                this.setSkin(this._skinName);
+            }
+            if (this.defaultAnimation) {
+                this.animation = this.defaultAnimation;
+            } else if (this._animationName) {
+                this.animation = this._animationName;
+            } else {
+                this.animation = '';
+            }
         } else if (this._nativeSkeleton) {
             this._nativeSkeleton.stopSchedule();
             this._nativeSkeleton._comp = null;
             this._nativeSkeleton = null;
         }
-        this._needUpdateSkeltonData = false;
     };
 
     const _onDestroy = skeleton.onDestroy;
     skeleton.onDestroy = function () {
         _onDestroy.call(this);
         if (this._nativeSkeleton) {
+            this._nativeSkeleton.setRenderEntity(null);
             this._nativeSkeleton.stopSchedule();
             this._nativeSkeleton._comp = null;
             this._nativeSkeleton = null;

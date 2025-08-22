@@ -44,6 +44,10 @@ export class TextAsset extends Asset {
     public toString (): string {
         return this.text;
     }
+
+    constructor (name?: string) {
+        super(name);
+    }
 }
 
 cclegacy.TextAsset = TextAsset;

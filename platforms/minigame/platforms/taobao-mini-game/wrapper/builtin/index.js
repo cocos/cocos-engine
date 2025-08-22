@@ -19,9 +19,9 @@ function inject () {
   const { platform } = my.getSystemInfoSync();
 
   // Developer tools cannot redefine window
-  if (typeof __devtoolssubcontext === 'undefined' && platform === 'devtools') {
+  if (my.isIDE) {
     for (const key in _window) {
-      const descriptor = Object.getOwnPropertyDescriptor(global, key);
+      const descriptor = Object.getOwnPropertyDescriptor(window, key);
 
       if (!descriptor || descriptor.configurable === true) {
         Object.defineProperty(window, key, {
@@ -31,22 +31,20 @@ function inject () {
     }
 
     for (const key in _window.document) {
-      const descriptor = Object.getOwnPropertyDescriptor(global.document, key);
+      const descriptor = Object.getOwnPropertyDescriptor(window.document, key);
 
       if (!descriptor || descriptor.configurable === true) {
-        Object.defineProperty(global.document, key, {
+        Object.defineProperty(window.document, key, {
           value: _window.document[key],
         });
       }
     }
     window.parent = window;
+    window.my = my;
   } else {
     for (const key in _window) {
-      global[key] = _window[key];
+      window[key] = _window[key];
     }
-    global.window = _window;
-    window = global;
-    window.top = window.parent = window;
   }
 
   const windowInfo = my.getWindowInfoSync();

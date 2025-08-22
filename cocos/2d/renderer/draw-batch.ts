@@ -23,39 +23,19 @@
 */
 
 import { Material } from '../../asset/assets/material';
-import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../gfx';
+import { Texture, Sampler, InputAssembler, DescriptorSet, Shader, DepthStencilState } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Model } from '../../render-scene/scene/model';
 import { Layers } from '../../scene-graph/layers';
 import { cclegacy } from '../../core';
-import { Pass } from '../../render-scene/core/pass';
+import { IMacroPatch, Pass } from '../../render-scene/core/pass';
 import { IBatcher } from './i-batcher';
+import type { Root } from '../../root';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
+
+/** @mangle */
 export class DrawBatch2D {
-    public get inputAssembler (): InputAssembler | null {
-        return this._inputAssembler;
-    }
-
-    public set inputAssembler (ia: InputAssembler | null) {
-        this._inputAssembler = ia;
-    }
-
-    public get descriptorSet (): DescriptorSet | null {
-        return this._descriptorSet;
-    }
-
-    public set descriptorSet (ds: DescriptorSet | null) {
-        this._descriptorSet = ds;
-    }
-
-    public get visFlags (): number {
-        return this._visFlags;
-    }
-    public set visFlags (vis) {
-        this._visFlags = vis;
-    }
-
     get passes (): Pass[] {
         return this._passes;
     }
@@ -76,9 +56,9 @@ export class DrawBatch2D {
     public samplerHash = 0;
     private _passes: Pass[] = [];
     private _shaders: Shader[] = [];
-    private _visFlags: number = UI_VIS_FLAG;
-    private _inputAssembler: InputAssembler | null = null;
-    private _descriptorSet: DescriptorSet | null = null;
+    public visFlags: number = UI_VIS_FLAG;
+    public inputAssembler: InputAssembler | null = null;
+    public descriptorSet: DescriptorSet | null = null;
     //private declare _nativeObj: any;
 
     public destroy (ui: IBatcher): void {
@@ -87,8 +67,8 @@ export class DrawBatch2D {
 
     public clear (): void {
         // this.bufferBatch = null;
-        this._inputAssembler = null;
-        this._descriptorSet = null;
+        this.inputAssembler = null;
+        this.descriptorSet = null;
         // this.camera = null;
         this.texture = null;
         this.sampler = null;
@@ -102,7 +82,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, patches): void {
+    public fillPasses (mat: Material | null, dss: DepthStencilState | null, dssHash: number, patches: Readonly<IMacroPatch[] | null>): void {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
@@ -114,7 +94,7 @@ export class DrawBatch2D {
 
             for (let i = 0; i < passes.length; i++) {
                 if (!this._passes[i]) {
-                    this._passes[i] = new Pass(cclegacy.director.root);
+                    this._passes[i] = new Pass(cclegacy.director.root as Root);
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];

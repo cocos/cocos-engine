@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override, displayName } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable,
+    range, visible, override, displayName } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
 import { Vec3, cclegacy, Vec4, Vec2, CCBoolean } from '../core';
 import { LineModel } from './models/line-model';
@@ -228,7 +229,7 @@ export class Line extends ModelRenderer {
     }
 
     public onLoad (): void {
-        const model = cclegacy.director.root.createModel(LineModel);
+        const model = cclegacy.director.root.createModel(LineModel) as LineModel;
         if (this._models.length === 0) {
             this._models.push(model);
         } else {

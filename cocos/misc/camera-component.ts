@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible, range, rangeMin } from 'cc.decorator';
 import { RenderTexture } from '../asset/assets/render-texture';
 import { UITransform } from '../2d/framework';
@@ -31,7 +31,7 @@ import { Component } from '../scene-graph';
 import { Color, Rect, toRadian, Vec3, cclegacy, geometry, Enum } from '../core';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { scene } from '../render-scene';
-import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
+import { SkyBoxFlagValue, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
     CameraType, TrackingType } from '../render-scene/scene/camera';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
@@ -41,6 +41,8 @@ import { ClearFlagBit } from '../gfx';
 import { PostProcess } from '../rendering/post-process/components/post-process';
 import { property } from '../core/data/class-decorator';
 import type { Ray } from '../core/geometry';
+import type { View } from '../ui/view';
+import type { Root } from '../root';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -59,7 +61,7 @@ export const ClearFlag = Enum({
      * @en Clear the screen with [[SceneGlobals.skybox]], will clear the depth and stencil buffer at the same time.
      * @zh 使用指定天空盒 [[SceneGlobals.skybox]] 清屏，会同时清理深度和蒙版缓冲。
      */
-    SKYBOX: SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
+    SKYBOX: SkyBoxFlagValue.VALUE | ClearFlagBit.DEPTH_STENCIL,
     /**
      * @en Clear the screen with the given [[Camera.clearColor]], will clear the depth and stencil buffer at the same time.
      * @zh 使用指定的相机清屏颜色 [[Camera.clearColor]] 来清屏，会同时清理将深度和蒙版缓冲。
@@ -87,6 +89,10 @@ export declare namespace Camera {
     export type Aperture = EnumAlias<typeof Aperture>;
     export type Shutter = EnumAlias<typeof Shutter>;
     export type ISO = EnumAlias<typeof ISO>;
+}
+
+export enum CameraEvent {
+    TARGET_TEXTURE_CHANGE = 'tex-change',
 }
 
 /**
@@ -132,7 +138,7 @@ export class Camera extends Component {
      * @en The event for target texture changing.
      * @zh 目标贴图修改的事件。
      */
-    public static TARGET_TEXTURE_CHANGE = 'tex-change';
+    public static TARGET_TEXTURE_CHANGE = CameraEvent.TARGET_TEXTURE_CHANGE;
 
     @serializable
     protected _projection = ProjectionType.PERSPECTIVE;
@@ -182,6 +188,10 @@ export class Camera extends Component {
     protected _cameraType: CameraType = CameraType.DEFAULT;
     @serializable
     protected _trackingType: TrackingType = TrackingType.NO_TRACKING;
+
+    constructor () {
+        super();
+    }
 
     /**
      * @en The render camera representation.
@@ -389,7 +399,9 @@ export class Camera extends Component {
      * @zh 相机的远裁剪距离，应在可接受范围内尽量取最小。
      */
     @displayOrder(11)
-    @rangeMin(0)
+    @rangeMin(function (this: Camera): number {
+        return this._near + 0.001;
+    })
     @tooltip('i18n:camera.far')
     get far (): number {
         return this._far;
@@ -485,10 +497,10 @@ export class Camera extends Component {
         this._updateTargetTexture();
 
         if (!value && this._camera) {
-            this._camera.changeTargetWindow(EDITOR ? cclegacy.director.root.tempWindow : null);
+            this._camera.changeTargetWindow(EDITOR_NOT_IN_PREVIEW ? (cclegacy.director.root as Root).tempWindow : null);
             this._camera.isWindowSize = true;
         }
-        this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
+        this.node.emit(CameraEvent.TARGET_TEXTURE_CHANGE, this);
     }
 
     @tooltip('i18n:camera.use_postprocess')
@@ -539,8 +551,8 @@ export class Camera extends Component {
     set inEditorMode (value) {
         this._inEditorMode = value;
         if (this._camera) {
-            this._camera.changeTargetWindow(value ? cclegacy.director.root && cclegacy.director.root.mainWindow
-                : cclegacy.director.root && cclegacy.director.root.tempWindow);
+            const root = cclegacy.director.root as Root;
+            this._camera.changeTargetWindow(value ? root && root.mainWindow : root && root.tempWindow);
         }
     }
 
@@ -607,8 +619,8 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Convert a screen space (left-top origin) point to a ray.
-     * @zh 将一个屏幕空间（左上角为原点）坐标转换为射线。
+     * @en Convert a screen space (left-bottom origin) point to a ray.
+     * @zh 将一个屏幕空间（左下角为原点）坐标转换为射线。
      * @param x The x axis position on screen.
      * @param y The y axis position on screen.
      * @param out The output ray object.
@@ -621,8 +633,8 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Convert a world position to a screen space (left-top origin) position.
-     * @zh 将一个世界空间坐标转换为屏幕空间（左上角为原点）坐标。
+     * @en Convert a world position to a screen space (left-bottom origin) position.
+     * @zh 将一个世界空间坐标转换为屏幕空间（左下角为原点）坐标。
      * @param worldPos The position in world space coordinates
      * @param out The output position in screen space coordinates.
      * @returns Return the output position object.
@@ -634,8 +646,8 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Convert a screen space (left-top origin) position to a world space position.
-     * @zh 将一个屏幕空间（左上角为原点）转换为世界空间坐标。
+     * @en Convert a screen space (left-bottom origin) position to a world space position.
+     * @zh 将一个屏幕空间（左下角为原点）转换为世界空间坐标。
      * @param screenPos The position in screen space coordinates
      * @param out The output position in world space coordinates
      * @returns Return the output position object.
@@ -668,11 +680,12 @@ export class Camera extends Component {
 
         this.worldToScreen(wpos, _temp_vec3_1);
         const cmp = uiNode.getComponent('cc.UITransform') as UITransform;
-        const designSize = cclegacy.view.getVisibleSize();
+        const view = cclegacy.view as View;
+        const designSize = view.getVisibleSize();
         const xoffset = _temp_vec3_1.x - this._camera.width * 0.5;
         const yoffset = _temp_vec3_1.y - this._camera.height * 0.5;
-        _temp_vec3_1.x = xoffset / cclegacy.view.getScaleX() + designSize.width * 0.5;
-        _temp_vec3_1.y = yoffset / cclegacy.view.getScaleY() + designSize.height * 0.5;
+        _temp_vec3_1.x = xoffset / view.getScaleX() + designSize.width * 0.5;
+        _temp_vec3_1.y = yoffset / view.getScaleY() + designSize.height * 0.5;
 
         if (cmp) {
             cmp.convertToNodeSpaceAR(_temp_vec3_1, out);
@@ -686,8 +699,8 @@ export class Camera extends Component {
      */
     public _createCamera (): void {
         if (!this._camera) {
-            this._camera = (cclegacy.director.root).createCamera();
-            this._camera!.initialize({
+            this._camera = (cclegacy.director.root as Root).createCamera();
+            this._camera.initialize({
                 name: this.node.name,
                 node: this.node,
                 projection: this._projection,
@@ -698,22 +711,23 @@ export class Camera extends Component {
                 trackingType: this.trackingType,
             });
 
-            this._camera!.setViewportInOrientedSpace(this._rect);
-            this._camera!.fovAxis = this._fovAxis;
-            this._camera!.fov = toRadian(this._fov);
-            this._camera!.orthoHeight = this._orthoHeight;
-            this._camera!.nearClip = this._near;
-            this._camera!.farClip = this._far;
-            this._camera!.clearColor = this._color;
-            this._camera!.clearDepth = this._depth;
-            this._camera!.clearStencil = this._stencil;
-            this._camera!.clearFlag = this._clearFlags;
-            this._camera!.visibility = this._visibility;
-            this._camera!.aperture = this._aperture;
-            this._camera!.shutter = this._shutter;
-            this._camera!.iso = this._iso;
-            this._camera!.postProcess = this._postProcess;
-            this._camera!.usePostProcess = this._usePostProcess;
+            this._camera.setViewportInOrientedSpace(this._rect);
+            this._camera.fovAxis = this._fovAxis;
+            this._camera.fov = toRadian(this._fov);
+            this._camera.orthoHeight = this._orthoHeight;
+            this._camera.nearClip = this._near;
+            this._camera.farClip = this._far;
+            this._camera.clearColor = this._color;
+            this._camera.clearDepth = this._depth;
+            this._camera.clearStencil = this._stencil;
+            this._camera.clearFlag = this._clearFlags;
+            this._camera.visibility = this._visibility;
+            this._camera.aperture = this._aperture;
+            this._camera.shutter = this._shutter;
+            this._camera.iso = this._iso;
+            this._camera.postProcess = this._postProcess;
+            this._camera.usePostProcess = this._usePostProcess;
+            this._camera.update();
         }
 
         this._updateTargetTexture();

@@ -174,6 +174,7 @@ export function removeIf<T> (array: T[], predicate: (value: T) => boolean): T | 
         removeAt(array, index);
         return value;
     }
+    return undefined;
 }
 
 /**
@@ -257,4 +258,10 @@ export function copy<T> (array: T[]): T[] {
         cloned[i] = array[i];
     }
     return cloned;
+}
+
+export function fillItems<T> (array: T[], ...items: T[]): void {
+    for (let i = 0, len = items.length; i < len; ++i) {
+        array[i] = items[i];
+    }
 }

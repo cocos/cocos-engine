@@ -35,6 +35,7 @@ import { find } from '../../../scene-graph';
 
 const tempB2Vec2 = { x: 0, y: 0 };//new b2.Vec2();
 
+/** @mangle */
 export class B2MouseJoint extends B2Joint implements IMouseJoint {
     _touchPoint = new Vec2();
     _isTouched = false;
@@ -62,7 +63,7 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         }
     }
 
-    _createJointDef (): any {
+    override _createJointDef (): any {
         const def = new B2.MouseJointDef();
         const comp = this._jointComp as MouseJoint2D;
         def.target = { x: this._touchPoint.x / PHYSICS_2D_PTM_RATIO, y: this._touchPoint.y / PHYSICS_2D_PTM_RATIO };
@@ -72,24 +73,28 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         return def;
     }
 
-    initialize (comp: Joint2D): void {
-        super.initialize(comp);
+    override start (): void {
+        // empty implementation to override its parent's start, so don't remove it.
+    }
 
+    override onEnable (): void {
+        this._enableTouch(true);
+    }
+
+    override onDisable (): void {
+        super.onDisable();
+        this._enableTouch(false);
+    }
+
+    private _enableTouch (v: boolean): void {
         const canvas = find('Canvas');
         if (canvas) {
-            canvas.on(NodeEventType.TOUCH_START, this.onTouchBegan, this);
-            canvas.on(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
-            canvas.on(NodeEventType.TOUCH_END, this.onTouchEnd, this);
-            canvas.on(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
+            const cb = v ? canvas.on : canvas.off;
+            cb.call(canvas, NodeEventType.TOUCH_START, this.onTouchBegan, this);
+            cb.call(canvas, NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
+            cb.call(canvas, NodeEventType.TOUCH_END, this.onTouchEnd, this);
+            cb.call(canvas, NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
         }
-    }
-
-    onEnable (): void {
-        //empty
-    }
-
-    start (): void {
-        //empty
     }
 
     onTouchBegan (event: Touch): void {

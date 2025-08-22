@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -28,6 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
+// NOLINTBEGIN(misc-include-cleaner, bugprone-easily-swappable-parameters)
 #pragma once
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -38,7 +39,6 @@
 #include "cocos/base/std/container/vector.h"
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/core/assets/Material.h"
-#include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
@@ -50,6 +50,7 @@
 #include "cocos/renderer/pipeline/custom/details/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/scene/Camera.h"
+#include "cocos/scene/Model.h"
 
 namespace cc {
 
@@ -85,14 +86,14 @@ struct RasterView {
     }
 
     RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
-    RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource());
+    RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource());
     RasterView(RasterView&& rhs, const allocator_type& alloc);
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
     RasterView(RasterView&& rhs) noexcept = default;
     RasterView(RasterView const& rhs) = delete;
-    RasterView& operator=(RasterView&& rhs) = default;
+    RasterView& operator=(RasterView&& rhs) noexcept = default;
     RasterView& operator=(RasterView const& rhs) = default;
 
     ccstd::pmr::string slotName;
@@ -108,8 +109,8 @@ struct RasterView {
 };
 
 inline bool operator==(const RasterView& lhs, const RasterView& rhs) noexcept {
-    return std::forward_as_tuple(lhs.slotName, lhs.slotName1, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags, lhs.shaderStageFlags) ==
-           std::forward_as_tuple(rhs.slotName, rhs.slotName1, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags, rhs.shaderStageFlags);
+    return std::forward_as_tuple(lhs.slotName, lhs.slotName1, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags, lhs.clearColor, lhs.shaderStageFlags) ==
+           std::forward_as_tuple(rhs.slotName, rhs.slotName1, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags, rhs.clearColor, rhs.shaderStageFlags);
 }
 
 inline bool operator!=(const RasterView& lhs, const RasterView& rhs) noexcept {
@@ -123,14 +124,14 @@ struct ComputeView {
     }
 
     ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
-    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, uint32_t planeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource());
+    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, uint32_t planeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource());
     ComputeView(ComputeView&& rhs, const allocator_type& alloc);
     ComputeView(ComputeView const& rhs, const allocator_type& alloc);
 
     ComputeView(ComputeView&& rhs) noexcept = default;
     ComputeView(ComputeView const& rhs) = delete;
-    ComputeView& operator=(ComputeView&& rhs) = default;
+    ComputeView& operator=(ComputeView&& rhs) noexcept = default;
     ComputeView& operator=(ComputeView const& rhs) = default;
 
     bool isRead() const {
@@ -188,14 +189,21 @@ struct ResourceTraits {
 
 struct RenderSwapchain {
     RenderSwapchain() = default;
-    RenderSwapchain(gfx::Swapchain* swapchainIn) noexcept // NOLINT
-    : swapchain(swapchainIn) {}
+    RenderSwapchain(gfx::Swapchain* swapchainIn, bool isDepthStencilIn) noexcept // NOLINT
+    : swapchain(swapchainIn),
+      isDepthStencil(isDepthStencilIn) {}
+
+    static gfx::Texture* getColorTexture(gfx::Swapchain* swapchain) noexcept;
+    static gfx::Texture* getColorTexture(scene::RenderWindow* renderWindow) noexcept;
+    static gfx::Texture* getDepthStencilTexture(gfx::Swapchain* swapchain) noexcept;
 
     gfx::Swapchain* swapchain{nullptr};
     scene::RenderWindow* renderWindow{nullptr};
     uint32_t currentID{0};
     uint32_t numBackBuffers{0};
     uint32_t generation{0xFFFFFFFF};
+    bool isDepthStencil{false};
+    gfx::Texture* texture{nullptr};
 };
 
 struct ResourceStates {
@@ -258,7 +266,7 @@ struct Subpass {
 
     Subpass(Subpass&& rhs) noexcept = default;
     Subpass(Subpass const& rhs) = delete;
-    Subpass& operator=(Subpass&& rhs) = default;
+    Subpass& operator=(Subpass&& rhs) noexcept = default;
     Subpass& operator=(Subpass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
@@ -281,7 +289,7 @@ struct SubpassGraph {
         return {_vertices.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -291,7 +299,7 @@ struct SubpassGraph {
 
     SubpassGraph(SubpassGraph&& rhs) noexcept = default;
     SubpassGraph(SubpassGraph const& rhs) = delete;
-    SubpassGraph& operator=(SubpassGraph&& rhs) = default;
+    SubpassGraph& operator=(SubpassGraph&& rhs) noexcept = default;
     SubpassGraph& operator=(SubpassGraph const& rhs) = default;
 
     // Graph
@@ -332,29 +340,29 @@ struct SubpassGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -378,7 +386,7 @@ struct SubpassGraph {
 
         Vertex(Vertex&& rhs) noexcept = default;
         Vertex(Vertex const& rhs) = delete;
-        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex&& rhs) noexcept = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
@@ -417,7 +425,7 @@ struct RasterSubpass {
 
     RasterSubpass(RasterSubpass&& rhs) noexcept = default;
     RasterSubpass(RasterSubpass const& rhs) = delete;
-    RasterSubpass& operator=(RasterSubpass&& rhs) = default;
+    RasterSubpass& operator=(RasterSubpass&& rhs) noexcept = default;
     RasterSubpass& operator=(RasterSubpass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
@@ -443,7 +451,7 @@ struct ComputeSubpass {
 
     ComputeSubpass(ComputeSubpass&& rhs) noexcept = default;
     ComputeSubpass(ComputeSubpass const& rhs) = delete;
-    ComputeSubpass& operator=(ComputeSubpass&& rhs) = default;
+    ComputeSubpass& operator=(ComputeSubpass&& rhs) noexcept = default;
     ComputeSubpass& operator=(ComputeSubpass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
@@ -463,7 +471,7 @@ struct RasterPass {
 
     RasterPass(RasterPass&& rhs) noexcept = default;
     RasterPass(RasterPass const& rhs) = delete;
-    RasterPass& operator=(RasterPass&& rhs) = default;
+    RasterPass& operator=(RasterPass&& rhs) noexcept = default;
     RasterPass& operator=(RasterPass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
@@ -504,7 +512,7 @@ struct PersistentRenderPassAndFramebuffer {
 
     PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs) noexcept = default;
     PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs) = delete;
-    PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer&& rhs) = default;
+    PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer&& rhs) noexcept = default;
     PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer const& rhs) = default;
 
     IntrusivePtr<gfx::RenderPass> renderPass;
@@ -546,7 +554,7 @@ struct ResourceGraph {
         return {_vertices.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -594,29 +602,29 @@ struct ResourceGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -642,17 +650,17 @@ struct ResourceGraph {
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
@@ -696,7 +704,7 @@ struct ResourceGraph {
 
         Vertex(Vertex&& rhs) noexcept = default;
         Vertex(Vertex const& rhs) = delete;
-        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex&& rhs) noexcept = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
@@ -748,7 +756,7 @@ struct ComputePass {
 
     ComputePass(ComputePass&& rhs) noexcept = default;
     ComputePass(ComputePass const& rhs) = delete;
-    ComputePass& operator=(ComputePass&& rhs) = default;
+    ComputePass& operator=(ComputePass&& rhs) noexcept = default;
     ComputePass& operator=(ComputePass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
@@ -767,7 +775,7 @@ struct ResolvePass {
 
     ResolvePass(ResolvePass&& rhs) noexcept = default;
     ResolvePass(ResolvePass const& rhs) = delete;
-    ResolvePass& operator=(ResolvePass&& rhs) = default;
+    ResolvePass& operator=(ResolvePass&& rhs) noexcept = default;
     ResolvePass& operator=(ResolvePass const& rhs) = default;
 
     ccstd::pmr::vector<ResolvePair> resolvePairs;
@@ -784,7 +792,7 @@ struct CopyPass {
 
     CopyPass(CopyPass&& rhs) noexcept = default;
     CopyPass(CopyPass const& rhs) = delete;
-    CopyPass& operator=(CopyPass&& rhs) = default;
+    CopyPass& operator=(CopyPass&& rhs) noexcept = default;
     CopyPass& operator=(CopyPass const& rhs) = delete;
 
     ccstd::pmr::vector<CopyPair> copyPairs;
@@ -803,7 +811,7 @@ struct MovePass {
 
     MovePass(MovePass&& rhs) noexcept = default;
     MovePass(MovePass const& rhs) = delete;
-    MovePass& operator=(MovePass&& rhs) = default;
+    MovePass& operator=(MovePass&& rhs) noexcept = default;
     MovePass& operator=(MovePass const& rhs) = default;
 
     ccstd::pmr::vector<MovePair> movePairs;
@@ -821,7 +829,7 @@ struct RaytracePass {
 
     RaytracePass(RaytracePass&& rhs) noexcept = default;
     RaytracePass(RaytracePass const& rhs) = delete;
-    RaytracePass& operator=(RaytracePass&& rhs) = default;
+    RaytracePass& operator=(RaytracePass&& rhs) noexcept = default;
     RaytracePass& operator=(RaytracePass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
@@ -841,13 +849,13 @@ struct ClearView {
     }
 
     ClearView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource());
     ClearView(ClearView&& rhs, const allocator_type& alloc);
     ClearView(ClearView const& rhs, const allocator_type& alloc);
 
     ClearView(ClearView&& rhs) noexcept = default;
     ClearView(ClearView const& rhs) = delete;
-    ClearView& operator=(ClearView&& rhs) = default;
+    ClearView& operator=(ClearView&& rhs) noexcept = default;
     ClearView& operator=(ClearView const& rhs) = default;
 
     ccstd::pmr::string slotName;
@@ -857,18 +865,21 @@ struct ClearView {
 
 struct RenderQueue {
     RenderQueue() = default;
-    RenderQueue(QueueHint hintIn, uint32_t phaseIDIn) noexcept
+    RenderQueue(QueueHint hintIn, uint32_t phaseIDIn, uint32_t passLayoutIDIn) noexcept // NOLINT
     : hint(hintIn),
-      phaseID(phaseIDIn) {}
-    RenderQueue(uint32_t phaseIDIn) noexcept // NOLINT
-    : phaseID(phaseIDIn) {}
+      phaseID(phaseIDIn),
+      passLayoutID(passLayoutIDIn) {}
+    RenderQueue(uint32_t phaseIDIn, uint32_t passLayoutIDIn) noexcept
+    : phaseID(phaseIDIn),
+      passLayoutID(passLayoutIDIn) {}
 
     QueueHint hint{QueueHint::RENDER_OPAQUE};
     uint32_t phaseID{0xFFFFFFFF};
+    uint32_t passLayoutID{0xFFFFFFFF};
     gfx::Viewport viewport;
 };
 
-enum class CullingFlags : uint32_t {
+enum class CullingFlags : uint32_t { // NOLINT(performance-enum-size)
     NONE = 0,
     CAMERA_FRUSTUM = 0x1,
     LIGHT_FRUSTUM = 0x2,
@@ -937,18 +948,36 @@ struct Dispatch {
     uint32_t threadGroupCountZ{0};
 };
 
+enum class BlitType : uint8_t {
+    FULLSCREEN_QUAD,
+    DRAW_2D,
+    DRAW_PROFILE,
+    DRAW_3D,
+};
+
 struct Blit {
-    Blit() = default;
-    Blit(IntrusivePtr<Material> materialIn, uint32_t passIDIn, SceneFlags sceneFlagsIn, scene::Camera* cameraIn) noexcept
-    : material(std::move(materialIn)),
-      passID(passIDIn),
-      sceneFlags(sceneFlagsIn),
-      camera(cameraIn) {}
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {models.get_allocator().resource()};
+    }
+
+    Blit(const allocator_type& alloc) noexcept; // NOLINT
+    Blit(IntrusivePtr<Material> materialIn, uint32_t passIDIn, SceneFlags sceneFlagsIn, const scene::Camera* cameraIn, BlitType blitTypeIn, const allocator_type& alloc) noexcept;
+    Blit(const scene::Camera* cameraIn, BlitType blitTypeIn, ccstd::pmr::vector<IntrusivePtr<scene::Model>> modelsIn, const allocator_type& alloc);
+    Blit(Blit&& rhs, const allocator_type& alloc);
+    Blit(Blit const& rhs, const allocator_type& alloc);
+
+    Blit(Blit&& rhs) noexcept = default;
+    Blit(Blit const& rhs) = delete;
+    Blit& operator=(Blit&& rhs) noexcept = default;
+    Blit& operator=(Blit const& rhs) = default;
 
     IntrusivePtr<Material> material;
     uint32_t passID{0};
     SceneFlags sceneFlags{SceneFlags::NONE};
-    scene::Camera* camera{nullptr};
+    const scene::Camera* camera{nullptr};
+    BlitType blitType{BlitType::FULLSCREEN_QUAD};
+    ccstd::pmr::vector<IntrusivePtr<scene::Model>> models;
 };
 
 struct RenderData {
@@ -962,7 +991,7 @@ struct RenderData {
 
     RenderData(RenderData&& rhs) noexcept = default;
     RenderData(RenderData const& rhs) = delete;
-    RenderData& operator=(RenderData&& rhs) = default;
+    RenderData& operator=(RenderData&& rhs) noexcept = default;
     RenderData& operator=(RenderData const& rhs) = delete;
 
     PmrFlatMap<uint32_t, ccstd::pmr::vector<char>> constants;
@@ -978,7 +1007,7 @@ struct RenderGraph {
         return {objects.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -987,7 +1016,7 @@ struct RenderGraph {
 
     RenderGraph(RenderGraph&& rhs) noexcept = default;
     RenderGraph(RenderGraph const& rhs) = delete;
-    RenderGraph& operator=(RenderGraph&& rhs) = default;
+    RenderGraph& operator=(RenderGraph&& rhs) noexcept = default;
     RenderGraph& operator=(RenderGraph const& rhs) = delete;
 
     // Graph
@@ -1028,29 +1057,29 @@ struct RenderGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -1076,17 +1105,17 @@ struct RenderGraph {
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return objects[v].children;
     }
-    inline const ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return objects[v].children;
     }
 
-    inline ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) noexcept {
         return objects[v].parents;
     }
-    inline const ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return objects[v].parents;
     }
 
@@ -1129,7 +1158,7 @@ struct RenderGraph {
 
         Object(Object&& rhs) noexcept = default;
         Object(Object const& rhs) = delete;
-        Object& operator=(Object&& rhs) = default;
+        Object& operator=(Object&& rhs) noexcept = default;
         Object& operator=(Object const& rhs) = default;
 
         ccstd::pmr::vector<ChildEdge> children;
@@ -1148,7 +1177,7 @@ struct RenderGraph {
 
         Vertex(Vertex&& rhs) noexcept = default;
         Vertex(Vertex const& rhs) = delete;
-        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex&& rhs) noexcept = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
@@ -1188,6 +1217,7 @@ struct RenderGraph {
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
     ccstd::pmr::vector<vertex_descriptor> sortedVertices;
+    RenderData globalRenderData;
 };
 
 } // namespace render
@@ -1214,6 +1244,7 @@ inline hash_t hash<cc::render::RasterView>::operator()(const cc::render::RasterV
     hash_combine(seed, val.loadOp);
     hash_combine(seed, val.storeOp);
     hash_combine(seed, val.clearFlags);
+    hash_combine(seed, val.clearColor);
     hash_combine(seed, val.shaderStageFlags);
     return seed;
 }
@@ -1259,4 +1290,5 @@ inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
 
 } // namespace ccstd
 
+// NOLINTEND(misc-include-cleaner, bugprone-easily-swappable-parameters)
 // clang-format on

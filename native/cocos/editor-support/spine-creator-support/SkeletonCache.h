@@ -34,7 +34,7 @@
 #include "SkeletonAnimation.h"
 #include "middleware-adapter.h"
 
-namespace spine {
+namespace cc {
 class SkeletonCache : public SkeletonAnimation {
 public:
     struct SegmentData {
@@ -134,7 +134,7 @@ public:
     virtual void stopSchedule() override {}
     virtual void update(float deltaTime) override;
     virtual void render(float deltaTime) override {}
-    virtual void onAnimationStateEvent(TrackEntry *entry, EventType type, Event *event) override;
+    virtual void onAnimationStateEvent(spine::TrackEntry *entry, spine::EventType type, spine::Event *event) override;
 
     void updateToFrame(const std::string &animationName, int toFrameIdx = -1);
     // if animation data is empty, it will build new one.
@@ -154,4 +154,4 @@ private:
     std::string _curAnimationName = "";
     std::map<std::string, AnimationData *> _animationCaches;
 };
-} // namespace spine
+} // namespace cc

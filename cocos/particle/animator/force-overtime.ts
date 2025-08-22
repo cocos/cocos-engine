@@ -23,14 +23,14 @@
 */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
-import { pseudoRandom, Quat, Vec3 } from '../../core';
-import { Space, ModuleRandSeed } from '../enum';
+import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core';
+import { ParticleSpace, ParticleModuleRandSeed } from '../enum';
 import { calculateTransform, isCurveTwoValues } from '../particle-general-function';
 import CurveRange from './curve-range';
 
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 
-const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
+const FORCE_OVERTIME_RAND_OFFSET = ParticleModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
 
@@ -96,11 +96,11 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @en Force calculation coordinate. See [[Space]].
      * @zh 加速度计算时采用的坐标系 [[Space]]。
      */
-    @type(Space)
+    @type(ParticleSpace)
     @serializable
     @displayOrder(1)
     @tooltip('i18n:forceOvertimeModule.space')
-    public space = Space.Local;
+    public space = ParticleSpace.Local;
 
     // TODO:currently not supported
     public randomized = false;
@@ -123,7 +123,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @param worldTransform @en Particle system world transform. @zh 粒子系统的世界变换矩阵。
      * @internal
      */
-    public update (space, worldTransform): void {
+    public update (space: number, worldTransform: Mat4): void {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
@@ -134,16 +134,18 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
      * @internal
      */
-    public animate (p: Particle, dt): void {
+    public animate (p: Particle, dt: number): void {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
         const randY = isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
         const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
 
-        const force = Vec3.set(_temp_v3,
+        const force = Vec3.set(
+            _temp_v3,
             this.x.evaluate(normalizedTime, randX)!,
             this.y.evaluate(normalizedTime, randY)!,
-            this.z.evaluate(normalizedTime, randZ)!);
+            this.z.evaluate(normalizedTime, randZ)!,
+        );
         if (this.needTransform) {
             Vec3.transformQuat(force, force, this.rotation);
         }

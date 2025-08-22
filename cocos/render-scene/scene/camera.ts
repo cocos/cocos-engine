@@ -21,9 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR } from 'internal:constants';
+import { EDITOR, USE_XR } from 'internal:constants';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
-import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like, preTransforms, warnID, geometry, cclegacy, Vec4 } from '../../core';
+import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like, preTransforms, warnID, geometry, cclegacy, Vec4, rect, mat4, v3 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
@@ -31,7 +31,7 @@ import { RenderWindow } from '../core/render-window';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
 import { PostProcess } from '../../rendering/post-process/components/post-process';
 import type { Frustum } from '../../core/geometry';
-import { PipelineSettings } from '../../rendering/custom/settings';
+import type { Root } from '../../root';
 
 /**
  * @en The enumeration type for the fixed axis of the camera.
@@ -387,13 +387,19 @@ export interface ICameraInfo {
     usage?: CameraUsage;
 }
 
-const v_a = new Vec3();
-const v_b = new Vec3();
-const _tempMat1 = new Mat4();
+const v_a = v3();
+const v_b = v3();
+const _tempMat1 = mat4();
 
-export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
+export enum SkyBoxFlagValue {
+    VALUE = ClearFlagBit.STENCIL << 1,
+}
+
+export const SKYBOX_FLAG = SkyBoxFlagValue.VALUE;
 
 const correctionMatrices: Mat4[] = [];
+
+let _cameraCount = 0;
 
 /**
  * @en The render camera representation in the render scene, it's managed by [[Camera]]
@@ -795,6 +801,11 @@ export class Camera {
         return this._matViewProjInv;
     }
 
+    /** @engineInternal */
+    get cameraId (): number {
+        return this._cameraId;
+    }
+
     /**
      * @en Whether the camera is fixed size or matching the window size.
      * @zh 相机是固定尺寸还是跟随屏幕尺寸
@@ -806,41 +817,41 @@ export class Camera {
      * set to 1 to keep the same with the canvas size.
      * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
      */
-    public screenScale: number;
+    public screenScale: number = 1;
 
     public postProcess: PostProcess | null = null;
     public usePostProcess = false;
     public pipeline = '';
-    public pipelineSettings: PipelineSettings | null = null;
+    public pipelineSettings: object | null = null;
 
-    private _device: Device;
+    private declare _device: Device;
     private _scene: RenderScene | null = null;
     private _node: Node | null = null;
     private _name: string | null = null;
     private _enabled = false;
-    private _proj: CameraProjection = -1;
-    private _aspect: number;
+    private _proj: CameraProjection = -1 as CameraProjection;
+    private _aspect: number = 1;
     private _orthoHeight = 10.0;
     private _fovAxis = CameraFOVAxis.VERTICAL;
     private _fov: number = toRadian(45);
     private _nearClip = 1.0;
     private _farClip = 1000.0;
     private _clearColor = new Color(0.2, 0.2, 0.2, 1);
-    private _viewport: Rect = new Rect(0, 0, 1, 1);
-    private _orientedViewport: Rect = new Rect(0, 0, 1, 1);
+    private _viewport: Rect = rect(0, 0, 1, 1);
+    private _orientedViewport: Rect = rect(0, 0, 1, 1);
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
-    private _matView: Mat4 = new Mat4();
-    private _matProj: Mat4 = new Mat4();
-    private _matProjInv: Mat4 = new Mat4();
-    private _matViewProj: Mat4 = new Mat4();
-    private _matViewProjInv: Mat4 = new Mat4();
+    private _matView: Mat4 = mat4();
+    private _matProj: Mat4 = mat4();
+    private _matProjInv: Mat4 = mat4();
+    private _matViewProj: Mat4 = mat4();
+    private _matViewProjInv: Mat4 = mat4();
     private _frustum: geometry.Frustum = new geometry.Frustum();
-    private _forward: Vec3 = new Vec3();
-    private _position: Vec3 = new Vec3();
+    private _forward: Vec3 = v3();
+    private _position: Vec3 = v3();
     private _priority = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
-    private _apertureValue: number;
+    private declare _apertureValue: number;
     private _shutter: CameraShutter = CameraShutter.D125;
     private _shutterValue = 0.0;
     private _iso: CameraISO = CameraISO.ISO100;
@@ -858,6 +869,7 @@ export class Camera {
     private _cameraType: CameraType = CameraType.DEFAULT;
     private _trackingType: TrackingType = TrackingType.NO_TRACKING;
     private _usage: CameraUsage = CameraUsage.GAME;
+    private _cameraId = _cameraCount++;
 
     constructor (device: Device) {
         this._device = device;
@@ -865,7 +877,6 @@ export class Camera {
         this._shutterValue = SHUTTERS[this._shutter];
         this._isoValue = ISOS[this._iso];
 
-        this._aspect = this.screenScale = 1;
         this._frustum.accurate = true;
 
         if (!correctionMatrices.length) {
@@ -984,7 +995,7 @@ export class Camera {
      * Editor specific gizmo camera logic
      * @internal
      */
-    public syncCameraEditor (camera): void {
+    public syncCameraEditor (camera: Camera): void {
         if (EDITOR) {
             this.position = camera.position;
             this.forward = camera.forward;
@@ -1005,19 +1016,25 @@ export class Camera {
 
         let viewProjDirty = false;
         const xr = globalThis.__globalXR;
-        if (xr && xr.isWebXR && xr.webXRWindowMap && xr.updateViewport) {
-            const x = xr.webXRMatProjs ? 1 / xr.webXRMatProjs.length : 1;
-            const wndXREye = xr.webXRWindowMap.get(this._window);
-            this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
+        if (USE_XR) {
+            if (xr && xr.isWebXR && xr.webXRWindowMap && xr.updateViewport) {
+                const x = xr.webXRMatProjs ? 1 / xr.webXRMatProjs.length : 1;
+                const wndXREye = xr.webXRWindowMap.get(this._window);
+                this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
+            }
         }
+
+        const forward = this._forward;
+        const matView = this._matView;
+        const matProj = this._matProj;
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
-            Mat4.invert(this._matView, this._node.worldMatrix);
-            this._forward.x = -this._matView.m02;
-            this._forward.y = -this._matView.m06;
-            this._forward.z = -this._matView.m10;
+            Mat4.invert(matView, this._node.worldMatrix);
+            forward.x = -matView.m02;
+            forward.y = -matView.m06;
+            forward.z = -matView.m10;
             // Remove scale
-            Mat4.multiply(this._matView, new Mat4().scale(this._node.worldScale), this._matView);
+            Mat4.multiply(matView, new Mat4().scale(this._node.worldScale), matView);
             this._node.getWorldPosition(this._position);
             viewProjDirty = true;
         }
@@ -1030,12 +1047,12 @@ export class Camera {
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
             // Only for rendertexture processing
             if (this._proj === CameraProjection.PERSPECTIVE) {
-                if (xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
+                if (USE_XR && xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
                     const wndXREye = xr.webXRWindowMap.get(this._window);
-                    this._matProj.set(xr.webXRMatProjs[wndXREye]);
+                    matProj.set(xr.webXRMatProjs[wndXREye] as Mat4);
                 } else {
                     Mat4.perspective(
-                        this._matProj,
+                        matProj,
                         this._fov,
                         this._aspect,
                         this._nearClip,
@@ -1050,7 +1067,7 @@ export class Camera {
                 const x = this._orthoHeight * this._aspect;
                 const y = this._orthoHeight;
                 Mat4.ortho(
-                    this._matProj,
+                    matProj,
                     -x,
                     x,
                     -y,
@@ -1062,14 +1079,14 @@ export class Camera {
                     orientation,
                 );
             }
-            Mat4.invert(this._matProjInv, this._matProj);
+            Mat4.invert(this._matProjInv, matProj);
             viewProjDirty = true;
             this._isProjDirty = false;
         }
 
         // view-projection
         if (viewProjDirty) {
-            Mat4.multiply(this._matViewProj, this._matProj, this._matView);
+            Mat4.multiply(this._matViewProj, matProj, matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
         }
@@ -1132,7 +1149,8 @@ export class Camera {
      */
     public initGeometryRenderer (): void {
         if (!this._geometryRenderer) {
-            this._geometryRenderer = cclegacy.internal.GeometryRenderer ? new cclegacy.internal.GeometryRenderer() : null;
+            const GeometryRenderer = cclegacy.internal.GeometryRenderer;
+            this._geometryRenderer = GeometryRenderer ? new GeometryRenderer() : null;
             this._geometryRenderer?.activate(this._device);
         }
     }
@@ -1179,7 +1197,7 @@ export class Camera {
         if (this._window) {
             this._window.detachCamera(this);
         }
-        const win = window || cclegacy.director.root.mainWindow;
+        const win = window || (cclegacy.director.root as Root).mainWindow;
         if (win) {
             win.attachCamera(this);
             this.window = win;

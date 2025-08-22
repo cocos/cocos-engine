@@ -23,28 +23,36 @@
 */
 
 import { ccclass, editable, serializable, type } from 'cc.decorator';
-import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW, USE_UI_SKEW } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core/global-exports';
 import { nodePolyfill } from './node-dev';
 import { ISchedulable } from '../core/scheduler';
-import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../core/math';
+import { approx, EPSILON, Mat3, mat4, Mat4, quat, Quat, v3, Vec3 } from '../core/math';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { errorID, warnID, error, log, getError } from '../core/platform/debug';
 import { Component } from './component';
 import { property } from '../core/data/decorators/property';
-import { CCObject, js } from '../core';
-import type { Scene } from './scene';
+import { CCObject, CCObjectFlags, js } from '../core';
 import { PrefabInfo, PrefabInstance } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
 import { Event } from '../input/types';
-import type { NodeEventProcessor } from './node-event-processor';
+import { DispatcherEventType, NodeEventProcessor } from './node-event-processor';
+import { findSkewAndGetOriginalWorldMatrix, updateLocalMatrixBySkew } from '../2d/framework/ui-skew-utils';
 
-const Destroying = CCObject.Flags.Destroying;
-const DontDestroy = CCObject.Flags.DontDestroy;
-const Deactivating = CCObject.Flags.Deactivating;
+import type { Scene } from './scene';
+import type { Director } from '../game/director';
+import type { Game } from '../game/game';
+import type { UITransform } from '../2d/framework';
+import type { UISkew } from '../2d/framework/ui-skew';
+
+const Destroying = CCObjectFlags.Destroying;
+const DontDestroy = CCObjectFlags.DontDestroy;
+const Deactivating = CCObjectFlags.Deactivating;
+const TRANSFORM_CHANGED = NodeEventType.TRANSFORM_CHANGED;
+const ACTIVE_CHANGED = NodeEventType.ACTIVE_CHANGED;
 
 export const TRANSFORM_ON = 1 << 0;
 const ACTIVE_ON = 1 << 1;
@@ -63,19 +71,20 @@ function getConstructor<T> (typeOrClassName: string | Constructor<T> | Abstracte
     return typeOrClassName;
 }
 
-const v3_a = new Vec3();
-const v3_b = new Vec3();
-const q_a = new Quat();
-const q_b = new Quat();
-const qt_1 = new Quat();
+const v3_a = v3();
+const v3_b = v3();
+const q_a = quat();
+const q_b = quat();
+const qt_1 = quat();
 const m3_1 = new Mat3();
-const m3_scaling = new Mat3();
-const m4_1 = new Mat4();
-const m4_2 = new Mat4();
-const dirtyNodes: any[] = [];
+const m4_1 = mat4();
+const m4_2 = mat4();
+const dirtyNodes: Node[] = [];
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 let globalFlagChangeVersion = 0;
+
+let skewCompCount = 0;
 
 /**
  * @zh
@@ -192,7 +201,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (parent) {
                 const couldActiveInScene = parent._activeInHierarchy;
                 if (couldActiveInScene) {
-                    legacyCC.director._nodeActivator.activateNode(this, isActive);
+                    (cclegacy.director as Director)._nodeActivator.activateNode(this, isActive);
                 }
             }
         }
@@ -200,6 +209,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     /**
      * @engineInternal please don't use this method.
+     * @mangle
      */
     public _setActiveInHierarchy (v: boolean): void {
         this._activeInHierarchy = v;
@@ -268,6 +278,20 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     protected static _setScene (node: Node): void {
         node._updateScene();
+    }
+
+    /**
+     * @engineInternal
+     */
+    static _incSkewCompCount (): void {
+        ++skewCompCount;
+    }
+
+    /**
+     * @engineInternal
+     */
+    static _decSkewCompCount (): void {
+        --skewCompCount;
     }
 
     protected static _findComponent<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
@@ -357,6 +381,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * NOTE: components getter is typeof ReadonlyArray
      * @engineInternal
+     * @mangle
      */
     public getWritableComponents (): Component[] { return this._components; }
     @serializable
@@ -383,9 +408,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public set id (v: string) { this._id = v; }
     protected _id: string = idGenerator.getNewId();
 
-    protected _name: string;
+    protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this);
 
-    protected _eventProcessor: NodeEventProcessor = new (legacyCC.NodeEventProcessor as typeof NodeEventProcessor)(this);
+    /**
+     * @dontmangle Ensure _eventMask not to be mangled since it is visited by UISkew._updateNodeTransformFlags with 'any' conversion.
+     */
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
@@ -414,7 +441,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     protected _updateScene (): void {
         if (this._parent == null) {
-            error('Node %s(%s) has not attached to a scene.', this.name, this.uuid);
+            errorID(1640, this.name, this.uuid);
         } else {
             this._scene = this._parent._scene;
         }
@@ -450,6 +477,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * As there are setter and setParent(), and both of them not just modify _parent, but have
      * other logic. So add a new function that only modify _parent value.
      * @engineInternal
+     * @mangle
      */
     public modifyParent (parent: this | null): void {
         this._parent = parent;
@@ -633,7 +661,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             return;
         }
         const siblings = this._parent._children;
-        index = index !== -1 ? index : siblings.length - 1;
+        index = index >= 0 ? index : siblings.length + index;
         const oldIndex = siblings.indexOf(this);
         if (index !== oldIndex) {
             siblings.splice(oldIndex, 1);
@@ -834,20 +862,36 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public getComponent<T extends Component>(classConstructor: Constructor<T> | AbstractedConstructor<T>): T | null;
 
     /**
-      * @en
-      * Returns the component of supplied type if the node has one attached, null if it doesn't.
-      * You can also get component in the node by passing in the name of the script.
-      * @zh
-      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。
-      * 传入参数也可以是脚本的名称。
-      * @param className The class name of the target component
-      * @example
-      * ```
-      * // get custom test class.
-      * var test = node.getComponent("Test");
-      * ```
-      */
+     * @en
+     * Returns the component of supplied type if the node has one attached, null if it doesn't.
+     * You can also get component in the node by passing in the name of the script.
+     * @zh
+     * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。
+     * 传入参数也可以是脚本的名称。
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * // get custom test class.
+     * var test = node.getComponent("Test") as Test | null;
+     * ```
+     */
     public getComponent(className: string): Component | null;
+
+    /**
+     * @en
+     * Returns the component of supplied type if the node has one attached, null if it doesn't.
+     * You can also get component in the node by passing in the name of the script.
+     * @zh
+     * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。
+     * 传入参数也可以是脚本的名称。
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * // get custom test class.
+     * var test = node.getComponent<Test>("Test");
+     * ```
+     */
+    public getComponent<T extends Component>(className: string): T | null;
 
     public getComponent<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): T | null {
         const constructor = getConstructor(typeOrClassName);
@@ -868,12 +912,27 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Returns all components of given type in the node.
      * @zh 返回节点上指定类型的所有组件。
      * @param className The class name of the target component
+     * @example
+     * ```
+     * var test = node.getComponents('Test') as Test[];
+     * ```
      */
     public getComponents(className: string): Component[];
 
-    public getComponents<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): Component[] {
+    /**
+     * @en Returns all components of given type in the node.
+     * @zh 返回节点上指定类型的所有组件。
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * var test = node.getComponents<Test>('Test');
+     * ```
+     */
+    public getComponents<T extends Component>(className: string): T[];
+
+    public getComponents<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): T[] {
         const constructor = getConstructor(typeOrClassName);
-        const components: Component[] = [];
+        const components: T[] = [];
         if (constructor) {
             Node._findComponents(this, constructor, components);
         }
@@ -897,10 +956,21 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param className The class name of the target component
      * @example
      * ```
-     * var Test = node.getComponentInChildren("Test");
+     * var test = node.getComponentInChildren("Test") as Test | null;
      * ```
      */
     public getComponentInChildren(className: string): Component | null;
+
+    /**
+     * @en Returns the component of given type in any of its children using depth first search.
+     * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * var test = node.getComponentInChildren<Test>("Test");
+     * ```
+     */
+    public getComponentInChildren<T extends Component>(className: string): T | null;
 
     public getComponentInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): T | null {
         const constructor = getConstructor(typeOrClassName);
@@ -927,14 +997,25 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param className The class name of the target component
      * @example
      * ```
-     * var tests = node.getComponentsInChildren("Test");
+     * var tests = node.getComponentsInChildren("Test") as Test[];
      * ```
      */
     public getComponentsInChildren(className: string): Component[];
 
-    public getComponentsInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): Component[] {
+    /**
+     * @en Returns all components of given type in self or any of its children.
+     * @zh 递归查找自身或所有子节点中指定类型的组件
+     * @param className The class name of the target component
+     * @example
+     * ```
+     * var tests = node.getComponentsInChildren<Test>("Test");
+     * ```
+     */
+    public getComponentsInChildren<T extends Component>(className: string): T[];
+
+    public getComponentsInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): T[] {
         const constructor = getConstructor(typeOrClassName);
-        const components: Component[] = [];
+        const components: T[] = [];
         if (constructor) {
             Node._findComponents(this, constructor, components);
             Node._findChildComponents(this._children, constructor, components);
@@ -961,10 +1042,22 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @throws `TypeError` if the `className` does not specify a cc-class constructor extending the `Component`.
      * @example
      * ```
-     * var test = node.addComponent("Test");
+     * var test = node.addComponent("Test") as Test;
      * ```
      */
     public addComponent(className: string): Component;
+
+    /**
+     * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
+     * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
+     * @param className The class name of the component to add
+     * @throws `TypeError` if the `className` does not specify a cc-class constructor extending the `Component`.
+     * @example
+     * ```
+     * var test = node.addComponent<Test>("Test");
+     * ```
+     */
+    public addComponent<T extends Component>(className: string): T;
 
     public addComponent<T extends Component> (typeOrClassName: string | Constructor<T>): T {
         if (EDITOR && (this._objFlags & Destroying)) {
@@ -977,7 +1070,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (typeof typeOrClassName === 'string') {
             constructor = js.getClassByName(typeOrClassName) as Constructor<T> | undefined;
             if (!constructor) {
-                if (legacyCC._RF.peek()) {
+                if (cclegacy._RF.peek()) {
                     errorID(3808, typeOrClassName);
                 }
                 throw TypeError(getError(3807, typeOrClassName));
@@ -994,7 +1087,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (typeof constructor !== 'function') {
             throw TypeError(getError(3809));
         }
-        if (!js.isChildClassOf(constructor, legacyCC.Component)) {
+        if (!js.isChildClassOf(constructor, cclegacy.Component)) {
             throw TypeError(getError(3810));
         }
 
@@ -1041,7 +1134,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
         this.emit(NodeEventType.COMPONENT_ADDED, component);
         if (this._activeInHierarchy) {
-            legacyCC.director._nodeActivator.activateComp(component);
+            (cclegacy.director as Director)._nodeActivator.activateComp(component);
         }
         if (EDITOR_NOT_IN_PREVIEW) {
             component.resetInEditor?.();
@@ -1146,10 +1239,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: boolean = false): void {
         switch (type) {
-        case NodeEventType.TRANSFORM_CHANGED:
+        case TRANSFORM_CHANGED:
             this._eventMask |= TRANSFORM_ON;
             break;
-        case NodeEventType.ACTIVE_CHANGED:
+        case ACTIVE_CHANGED:
             this._eventMask |= ACTIVE_ON;
             break;
         default:
@@ -1181,10 +1274,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         // All listener removed
         if (!hasListeners) {
             switch (type) {
-            case NodeEventType.TRANSFORM_CHANGED:
+            case TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
                 break;
-            case NodeEventType.ACTIVE_CHANGED:
+            case ACTIVE_CHANGED:
                 this._eventMask &= ~ACTIVE_ON;
                 break;
             default:
@@ -1262,11 +1355,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public targetOff (target: unknown): void {
         this._eventProcessor.targetOff(target);
         // Check for event mask reset
-        if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
+        if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(TRANSFORM_CHANGED)) {
             this._eventMask &= ~TRANSFORM_ON;
         }
 
-        if ((this._eventMask & ACTIVE_ON) && !this._eventProcessor.hasEventListener(NodeEventType.ACTIVE_CHANGED)) {
+        if ((this._eventMask & ACTIVE_ON) && !this._eventProcessor.hasEventListener(ACTIVE_CHANGED)) {
             this._eventMask &= ~ACTIVE_ON;
         }
     }
@@ -1330,9 +1423,17 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this.emit(NodeEventType.CHILDREN_ORDER_CHANGED);
     }
 
+    /**
+     * @dontmangle
+     * NOTE: the protected method `_instantiate` is invoked by dynamically without type information.
+     * See `instantiate` in cocos/serialization/instantiate.ts.
+     * ```ts
+     * clone = original._instantiate(null, true); // original is any, so _instantiate should not be mangled.
+     * ```
+     */
     protected _instantiate (cloned?: Node | null, isSyncedNode: boolean = false): Node {
         if (!cloned) {
-            cloned = legacyCC.instantiate._clone(this, this) as Node;
+            cloned = cclegacy.instantiate._clone(this, this) as Node;
         }
 
         const newPrefabInfo = cloned._prefab;
@@ -1356,15 +1457,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     protected _onHierarchyChangedBase (oldParent: this | null): void {
         const newParent = this._parent;
-        if (this._persistNode && !(newParent instanceof legacyCC.Scene)) {
-            legacyCC.game.removePersistRootNode(this);
+        if (this._persistNode && !(newParent instanceof cclegacy.Scene)) {
+            cclegacy.game.removePersistRootNode(this);
             if (EDITOR) {
                 warnID(1623);
             }
         }
 
         if (EDITOR) {
-            const scene = legacyCC.director.getScene() as this | null;
+            const scene = (cclegacy.director as Director).getScene() as this | null;
             const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
@@ -1385,7 +1486,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         const shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
         if (this._activeInHierarchy !== shouldActiveNow) {
-            legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
+            (cclegacy.director as Director)._nodeActivator.activateNode(this, shouldActiveNow);
         }
     }
 
@@ -1404,7 +1505,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         // remove from persist
         if (this._persistNode) {
-            legacyCC.game.removePersistRootNode(this);
+            (cclegacy.game as Game).removePersistRootNode(this);
         }
 
         if (!destroyByParent) {
@@ -1542,15 +1643,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    protected _transformFlags = TransformBit.TRS; // does the world transform need to update?
+    protected _transformFlags = TransformBit.TRS | TransformBit.SKEW; // does the world transform need to update?
     protected _eulerDirty = false;
 
     protected _flagChangeVersion = 0;
     protected _hasChangedFlags = 0;
 
     constructor (name?: string) {
+        if (name === undefined) name = 'New Node';
         super(name);
-        this._name = name !== undefined ? name : 'New Node';
 
         this._pos = new Vec3();
         this._rot = new Quat();
@@ -1563,7 +1664,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 指定对象是否是普通的节点？如果传入 [[Scene]] 会返回 false。
      */
     public static isNode (obj: unknown): obj is Node {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cclegacy.Scene));
     }
 
     protected _onPreDestroy (): boolean {
@@ -1584,6 +1685,54 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
+     * @en Get x axis value in local coordinate system
+     * @zh 获取本地 x 轴坐标分量
+     */
+    get x (): number {
+        return this._lpos.x;
+    }
+
+    /**
+     * @en Set x axis value in local coordinate system
+     * @zh 设置本地 x 轴坐标分量
+     */
+    set x (val: number) {
+        this.setPosition(val, this._lpos.y, this._lpos.z);
+    }
+
+    /**
+     * @en Get y axis value in local coordinate system
+     * @zh 获取本地 y 轴坐标分量
+     */
+    get y (): number {
+        return this._lpos.y;
+    }
+
+    /**
+     * @en Set y axis value in local coordinate system
+     * @zh 设置本地 y 轴坐标分量
+     */
+    set y (val: number) {
+        this.setPosition(this._lpos.x, val, this._lpos.z);
+    }
+
+    /**
+     * @en Get z axis value in local coordinate system
+     * @zh 获取本地 z 轴坐标分量
+     */
+    get z (): number {
+        return this._lpos.z;
+    }
+
+    /**
+     * @en Set z axis value in local coordinate system
+     * @zh 设置本地 z 轴坐标分量
+     */
+    set z (val: number) {
+        this.setPosition(this._lpos.x, this._lpos.y, val);
+    }
+
+    /**
      * @en Position in world coordinate system
      * @zh 世界坐标系下的坐标
      */
@@ -1595,6 +1744,57 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     public set worldPosition (val: Readonly<Vec3>) {
         this.setWorldPosition(val as Vec3);
+    }
+
+    /**
+     * @en Get x axis value in world coordinate system
+     * @zh 获取世界坐标 x 轴分量
+     */
+    get worldPositionX (): number {
+        this.updateWorldTransform();
+        return this._pos.x;
+    }
+
+    /**
+     * @en Set x axis value in world coordinate system
+     * @zh 设置世界坐标 x 轴分量
+     */
+    set worldPositionX (val: number) {
+        this.setWorldPosition(val, this._pos.y, this._pos.z);
+    }
+
+    /**
+     * @en Get y axis value in world coordinate system
+     * @zh 获取世界坐标 y 轴分量
+     */
+    get worldPositionY (): number {
+        this.updateWorldTransform();
+        return this._pos.y;
+    }
+
+    /**
+     * @en Set y axis value in world coordinate system
+     * @zh 设置世界坐标 y 轴分量
+     */
+    set worldPositionY (val: number) {
+        this.setWorldPosition(this._pos.x, val, this._pos.z);
+    }
+
+    /**
+     * @en Get z axis value in world coordinate system
+     * @zh 获取世界坐标 z 轴分量
+     */
+    get worldPositionZ (): number {
+        this.updateWorldTransform();
+        return this._pos.z;
+    }
+
+    /**
+     * @en Set z axis value in world coordinate system
+     * @zh 设置世界坐标 z 轴分量
+     */
+    set worldPositionZ (val: number) {
+        this.setWorldPosition(this._pos.x, this._pos.y, val);
     }
 
     /**
@@ -1637,17 +1837,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     set angle (val: number) {
-        if (this._euler.equals(v3_a.set(0, 0, val))) {
-            return;
-        }
-
         Vec3.set(this._euler, 0, 0, val);
         Quat.fromAngleZ(this._lrot, val);
         this._eulerDirty = false;
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -1697,11 +1893,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 本地坐标系变换矩阵
      */
     public set matrix (val: Readonly<Mat4>) {
-        Mat4.toRTS(val, this._lrot, this._lpos, this._lscale);
+        Mat4.toSRT(val, this._lrot, this._lpos, this._lscale);
         this.invalidateChildren(TransformBit.TRS);
         this._eulerDirty = true;
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.TRS);
+            this.emit(TRANSFORM_CHANGED, TransformBit.TRS);
         }
     }
 
@@ -1767,17 +1963,19 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     @editable
     set layer (l: number) {
-        if (this._layer === l) {
+        const self = this;
+        if (self._layer === l) {
             return;
         }
 
-        this._layer = l;
+        self._layer = l;
 
-        if (this._uiProps && this._uiProps.uiComp) {
-            this._uiProps.uiComp.setNodeDirty();
-            this._uiProps.uiComp.markForUpdateRenderData();
+        const uiComp = self._uiProps && self._uiProps.uiComp;
+        if (uiComp) {
+            uiComp.setNodeDirty();
+            uiComp._markForUpdateRenderData();
         }
-        this.emit(NodeEventType.LAYER_CHANGED, this._layer);
+        self.emit(NodeEventType.LAYER_CHANGED, self._layer);
     }
 
     get layer (): number {
@@ -1873,33 +2071,56 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onSetParent (oldParent: this | null, keepWorldTransform = false): void {
-        if (this._parent) {
-            if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
-                this.walk(Node._setScene);
+        const self = this;
+        const parent = self._parent;
+        if (parent) {
+            if ((oldParent == null || oldParent._scene !== parent._scene) && parent._scene != null) {
+                self.walk(Node._setScene);
             }
         }
 
         if (keepWorldTransform) {
-            const parent = this._parent;
             if (parent) {
                 parent.updateWorldTransform();
                 if (approx(Mat4.determinant(parent._mat), 0, EPSILON)) {
                     warnID(14300);
-                    this._transformFlags |= TransformBit.TRS;
-                    this.updateWorldTransform();
+                    self._transformFlags |= TransformBit.TRS;
+                    self.updateWorldTransform();
                 } else {
-                    Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
-                    Mat4.toRTS(m4_1, this._lrot, this._lpos, this._lscale);
+                    let newParentMatWithoutSkew = parent._mat;
+                    if (USE_UI_SKEW) {
+                        const hasSkew = skewCompCount > 0;
+                        if (hasSkew) {
+                            if (oldParent) {
+                                // Calculate old parent's world matrix without skew side effect.
+                                const foundSkewInOldParent = findSkewAndGetOriginalWorldMatrix(oldParent, m4_2);
+                                Mat4.fromSRT(m4_1, self._lrot, self._lpos, self._lscale);
+                                const oldParentMatWithoutSkew = foundSkewInOldParent ? m4_2 : oldParent._mat;
+                                // Calculate current node's world matrix without skew side effect.
+                                Mat4.multiply(self._mat, oldParentMatWithoutSkew, m4_1);
+                            }
+
+                            // Calculate new parent's world matrix without skew side effect.
+                            const foundSkewInNewParent = findSkewAndGetOriginalWorldMatrix(parent, m4_2);
+                            if (foundSkewInNewParent) {
+                                newParentMatWithoutSkew = m4_2;
+                            }
+                        }
+                    }
+
+                    // Calculate current node's new local transform
+                    Mat4.multiply(m4_1, Mat4.invert(m4_1, newParentMatWithoutSkew), self._mat);
+                    Mat4.toSRT(m4_1, self._lrot, self._lpos, self._lscale);
                 }
             } else {
-                Vec3.copy(this._lpos, this._pos);
-                Quat.copy(this._lrot, this._rot);
-                Vec3.copy(this._lscale, this._scale);
+                Vec3.copy(self._lpos, self._pos);
+                Quat.copy(self._lrot, self._rot);
+                Vec3.copy(self._lscale, self._scale);
             }
-            this._eulerDirty = true;
+            self._eulerDirty = true;
         }
 
-        this.invalidateChildren(TransformBit.TRS);
+        self.invalidateChildren(TransformBit.TRS);
     }
 
     protected _onHierarchyChanged (oldParent: this | null): void {
@@ -1913,16 +2134,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public _onBatchCreated (dontSyncChildPrefab: boolean): void {
         if (this._eventMask & ACTIVE_ON) {
             if (!this._activeInHierarchy) {
-                this.emit(NodeEventType.ACTIVE_CHANGED, this, false);
+                this.emit(ACTIVE_CHANGED, this, false);
             }
         }
 
         this.hasChangedFlags = TransformBit.TRS;
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            this._children[i]._siblingIndex = i;
-            this._children[i]._onBatchCreated(dontSyncChildPrefab);
-        }
+        this._children.forEach((child: Node, i: number) => {
+            child._siblingIndex = i;
+            child._onBatchCreated(dontSyncChildPrefab);
+        });
     }
 
     /**
@@ -1937,20 +2157,38 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onPostActivated (active: boolean): void {
-        if (this._eventMask & ACTIVE_ON) {
-            this.emit(NodeEventType.ACTIVE_CHANGED, this, active);
+        const self = this;
+        if (self._eventMask & ACTIVE_ON) {
+            self.emit(ACTIVE_CHANGED, self, active);
         }
 
-        this._eventProcessor.setEnabled(active);
+        const eventProcessor = this._eventProcessor;
+        // If the 'enable' state of event processor is equal to the node's active state, we should mark the list dirty for the global callback invoker
+        // which will trigger re-sorting logic in PointerEventDispatcher._sortPointerEventProcessorList.
+        // Otherwise, pointerEventProcessorList will not be sorted correctly since the 'enable' state may not change and the following
+        // eventProcessor.setEnabled(active) may return directly.
+        // Think of the case:
+        //   this.node.pauseSystemEvents(true);  // child's eventProcessor will be disabled.
+        //   child.active = false;               // child's active state is false and its eventProcessor keeps disabled.
+        //   this.node.resumeSystemEvents(true); // child's eventProcessor will be enabled, MARK_LIST_DIRTY will be emitted,
+        //                                          but the node is not active, so the resorting logic will take the child to the end of the list,
+        //                                          see PointerEventDispatcher._sortByPriority.
+        //   child.active = true;                // child's eventProcessor has already been enabled, eventProcessor.setEnabled(true) will do nothing.
+        if (eventProcessor.isEnabled === active) {
+            NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
+        }
+
+        eventProcessor.setEnabled(active);
 
         if (active) { // activated
             // in case transform updated during deactivated period
-            this.invalidateChildren(TransformBit.TRS);
+            self.invalidateChildren(TransformBit.TRS);
             // ALL Node renderData dirty flag will set on here
-            if (this._uiProps && this._uiProps.uiComp) {
-                this._uiProps.uiComp.setNodeDirty();
-                this._uiProps.uiComp.setTextureDirty(); // for dynamic atlas
-                this._uiProps.uiComp.markForUpdateRenderData();
+            const uiComp = self._uiProps && self._uiProps.uiComp;
+            if (uiComp) {
+                uiComp.setNodeDirty();
+                uiComp.setTextureDirty(); // for dynamic atlas
+                uiComp._markForUpdateRenderData();
             }
         }
     }
@@ -1988,7 +2226,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -2014,7 +2252,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this._eulerDirty = true;
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -2042,8 +2280,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         let i = 0;
         let j = 0;
         let l = 0;
-        let cur: this;
-        let children: this[];
+        let cur: Node;
+        let children: Node[];
         let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
@@ -2052,7 +2290,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         while (i >= 0) {
             cur = dirtyNodes[i--];
             hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+            if (cur.isValid && !cur.isSkipTransformUpdate && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._transformFlags |= dirtyBit;
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
@@ -2074,47 +2312,85 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (!this._transformFlags) { return; }
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let cur: this | null = this;
+        let cur: Node | null = this;
         let i = 0;
         while (cur && cur._transformFlags) {
             // top level node
             dirtyNodes[i++] = cur;
             cur = cur._parent;
         }
-        let child: this; let dirtyBits = 0;
+        let child: Node;
+        let childMat: Mat4;
+        let childPos: Vec3;
+        let dirtyBits = 0;
+        let positionDirty = 0;
+        let rotationScaleSkewDirty = 0;
+        let uiSkewComp: UISkew | null = null;
+        let foundSkewInAncestor = false;
 
         while (i) {
             child = dirtyNodes[--i];
+            childMat = child._mat;
+            childPos = child._pos;
             dirtyBits |= child._transformFlags;
+            positionDirty = dirtyBits & TransformBit.POSITION;
+            rotationScaleSkewDirty = dirtyBits & TransformBit.RSS;
             if (cur) {
-                if (dirtyBits & TransformBit.POSITION) {
-                    Vec3.transformMat4(child._pos, child._lpos, cur._mat);
-                    child._mat.m12 = child._pos.x;
-                    child._mat.m13 = child._pos.y;
-                    child._mat.m14 = child._pos.z;
+                if (positionDirty && !rotationScaleSkewDirty) {
+                    Vec3.transformMat4(childPos, child._lpos, cur._mat);
+                    childMat.m12 = childPos.x;
+                    childMat.m13 = childPos.y;
+                    childMat.m14 = childPos.z;
                 }
-                if (dirtyBits & TransformBit.RS) {
-                    Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
-                    Mat4.multiply(child._mat, cur._mat, child._mat);
+                if (rotationScaleSkewDirty) {
+                    let originalWorldMatrix = childMat;
+                    Mat4.fromSRT(m4_1, child._lrot, child._lpos, child._lscale); // m4_1 stores local matrix
+                    if (USE_UI_SKEW && skewCompCount > 0) {
+                        foundSkewInAncestor = findSkewAndGetOriginalWorldMatrix(cur, m4_2); // m4_2 stores parent's world matrix without skew
+                        uiSkewComp = child._uiProps._uiSkewComp;
+                        if (uiSkewComp || foundSkewInAncestor) {
+                            // Save the original world matrix without skew side effect.
+                            Mat4.multiply(m4_2, m4_2, m4_1); // m4_2 stores orignal world matrix without skew
+                            if (uiSkewComp) {
+                                updateLocalMatrixBySkew(uiSkewComp, m4_1);
+                            }
+                            originalWorldMatrix = m4_2;
+                        }
+                    }
+
+                    Mat4.multiply(childMat, cur._mat, m4_1); // m4_1 stores local matrix with skew
 
                     const rotTmp = dirtyBits & TransformBit.ROTATION ? child._rot : null;
-                    Mat4.toRTS(child._mat, rotTmp, null, child._scale);
+                    Mat4.toSRT(originalWorldMatrix, rotTmp, childPos, child._scale);
+
+                    if (USE_UI_SKEW && foundSkewInAncestor) {
+                        // NOTE: world position from Mat4.toSRT(originalWorldMatrix, ...) will not consider the skew factor.
+                        // So we need to update the world position manually here.
+                        Vec3.transformMat4(childPos, child._lpos, cur._mat);
+                    }
                 }
             } else {
-                if (dirtyBits & TransformBit.POSITION) {
-                    Vec3.copy(child._pos, child._lpos);
-                    child._mat.m12 = child._pos.x;
-                    child._mat.m13 = child._pos.y;
-                    child._mat.m14 = child._pos.z;
+                if (positionDirty) {
+                    Vec3.copy(childPos, child._lpos);
+                    childMat.m12 = childPos.x;
+                    childMat.m13 = childPos.y;
+                    childMat.m14 = childPos.z;
                 }
-                if (dirtyBits & TransformBit.RS) {
+                if (rotationScaleSkewDirty) {
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.copy(child._rot, child._lrot);
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
                     }
-                    Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
+                    Mat4.fromSRT(childMat, child._rot, child._pos, child._scale);
+
+                    if (USE_UI_SKEW && skewCompCount > 0) {
+                        uiSkewComp = child._uiProps._uiSkewComp;
+                        if (uiSkewComp) {
+                            updateLocalMatrixBySkew(uiSkewComp, childMat);
+                        }
+                    }
                 }
             }
 
@@ -2147,27 +2423,18 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const localPosition = this._lpos;
 
         if (y === undefined) {
-            // The type of val is Readonly<Vec3>
-            if (localPosition.equals(val as Vec3)) {
-                return;
-            }
-
             Vec3.copy(localPosition, val as Vec3);
         } else {
             if (z === undefined) {
                 z = localPosition.z;
             }
 
-            if (localPosition.equals(v3_a.set(val as number, y, z))) {
-                return;
-            }
-
-            Vec3.copy(localPosition, v3_a);
+            Vec3.set(localPosition, val as number, y, z);
         }
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -2204,26 +2471,16 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setRotation(x: number, y: number, z: number, w: number): void;
 
     public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
-        const localRotation = this._lrot;
-
         if (y === undefined) {
-            if (localRotation.equals(val as Quat)) {
-                return;
-            }
-
-            Quat.copy(localRotation, val as Quat);
+            Quat.copy(this._lrot, val as Quat);
         } else {
-            if (localRotation.equals(q_a.set(val as number, y, z, w))) {
-                return;
-            }
-
-            Quat.copy(localRotation, q_a);
+            Quat.set(this._lrot, val as number, y, z!, w!);
         }
 
         this._eulerDirty = true;
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -2244,23 +2501,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setRotationFromEuler(x: number, y: number, zOpt?: number): void;
 
     public setRotationFromEuler (val: Vec3 | number, y?: number, zOpt?: number): void {
-        const euler = this._euler;
-
         if (y === undefined) {
-            if (euler.equals(val as Vec3)) {
-                return;
-            }
-
-            Vec3.copy(euler, val as Vec3);
+            Vec3.copy(this._euler, val as Vec3);
             Quat.fromEuler(this._lrot, (val as Vec3).x, (val as Vec3).y, (val as Vec3).z);
         } else {
             const z = zOpt === undefined ? this._euler.z : zOpt;
-            Vec3.set(v3_a, val as number, y, z);
-            if (euler.equals(v3_a)) {
-                return;
-            }
-
-            Vec3.copy(euler, v3_a);
+            Vec3.set(this._euler, val as number, y, z);
             Quat.fromEuler(this._lrot, val as number, y, z);
         }
 
@@ -2268,7 +2514,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -2305,28 +2551,18 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const localScale = this._lscale;
 
         if (y === undefined) {
-            if (localScale.equals(val as Vec3)) {
-                return;
-            }
-
             Vec3.copy(localScale, val as Vec3);
         } else {
             if (z === undefined) {
                 z = localScale.z;
             }
-
-            Vec3.set(v3_a, val as number, y, z);
-            if (localScale.equals(v3_a)) {
-                return;
-            }
-
-            Vec3.copy(localScale, v3_a);
+            Vec3.set(localScale, val as number, y, z);
         }
 
         this.invalidateChildren(TransformBit.SCALE);
 
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -2353,7 +2589,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         Vec3.copy(out, p);
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let cur = this;
+        let cur: Node = this;
         let i = 0;
         while (cur._parent) {
             dirtyNodes[i++] = cur;
@@ -2385,27 +2621,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number): void {
         const worldPosition = this._pos;
 
-        // Force update may happen in the situation:
-        // - node is created, and added to a scene
-        // - set node's world position to default value(Vec3.ZERO), which equals to node._pos
-        // Then need to update local position, or local position will be wrong.
-        const forceUpdateLocalPosition = this._parent
-                                         && (this._transformFlags & TransformBit.POSITION) !== TransformBit.NONE;
-
         if (y === undefined) {
-            if (!forceUpdateLocalPosition && worldPosition.equals(val as Vec3)) {
-                return;
-            }
-
             Vec3.copy(worldPosition, val as Vec3);
         } else {
-            Vec3.set(v3_a, val as number, y, z!);
-
-            if (!forceUpdateLocalPosition && worldPosition.equals(v3_a)) {
-                return;
-            }
-
-            Vec3.copy(worldPosition, v3_a);
+            Vec3.set(worldPosition, val as number, y, z!);
         }
 
         const parent = this._parent;
@@ -2424,7 +2643,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -2461,27 +2680,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number): void {
         const worldRotation = this._rot;
-
-        // Force update may happen in the situation:
-        // - node is created, and added to a scene
-        // - set node's world rotation to default value(Vec3.ZERO), which equals to node._rot
-        // Then need to update local rotation.
-        const forceUpdateLocalRotation = this._parent
-                                        && (this._transformFlags & TransformBit.ROTATION) !== TransformBit.NONE;
-
         if (y === undefined) {
-            if (!forceUpdateLocalRotation && worldRotation.equals(val as Quat)) {
-                return;
-            }
-
             Quat.copy(worldRotation, val as Quat);
         } else {
-            Quat.set(q_a, val as number, y, z!, w!);
-            if (!forceUpdateLocalRotation && worldRotation.equals(q_a)) {
-                return;
-            }
-
-            Quat.copy(worldRotation, q_a);
+            Quat.set(worldRotation, val as number, y, z!, w!);
         }
 
         if (this._parent) {
@@ -2494,7 +2696,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -2541,50 +2743,73 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldScale(x: number, y: number, z: number): void;
 
     public setWorldScale (val: Vec3 | number, y?: number, z?: number): void {
-        const worldScale = this._scale;
-
-        // Force update may happen in the situation:
-        // - node is created, and added to a scene
-        // - set node's world scale to default value(Vec3(1,1,1)), which equals to node._scale
-        // Then need to update local scale.
-        const forceUpdateLocalScale = this._parent
-                                    && (this._transformFlags & TransformBit.SCALE) !== TransformBit.NONE;
-        const parent = this._parent;
+        const self = this;
+        const parent = self._parent;
         if (parent) {
-            this.updateWorldTransform();
+            self.updateWorldTransform();
         }
-        if (y === undefined) {
-            if (!forceUpdateLocalScale && worldScale.equals(val as Vec3)) {
-                return;
-            }
 
+        const worldScale = self._scale;
+        if (y === undefined) {
             Vec3.copy(worldScale, val as Vec3);
         } else {
-            Vec3.set(v3_a, val as number, y, z!);
-            if (!forceUpdateLocalScale && worldScale.equals(v3_a)) {
-                return;
+            Vec3.set(worldScale, val as number, y, z!);
+        }
+
+        let rotationFlag = TransformBit.NONE;
+        if (parent) {
+            const worldMatrix = self._mat;
+            const uiSkewComp = self._uiProps._uiSkewComp;
+            if (uiSkewComp) {
+                Mat4.fromSRT(m4_1, self._lrot, self._lpos, self._lscale);
+                Mat4.multiply(worldMatrix, parent._mat, m4_1);
+            }
+            const xScale = Vec3.set(v3_b, worldMatrix.m00, worldMatrix.m01, worldMatrix.m02).length();
+            const yScale = Vec3.set(v3_b, worldMatrix.m04, worldMatrix.m05, worldMatrix.m06).length();
+            const zScale = Vec3.set(v3_b, worldMatrix.m08, worldMatrix.m09, worldMatrix.m10).length();
+            if (xScale === 0) {
+                v3_a.x = worldScale.x;
+                worldMatrix.m00 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.x = worldScale.x / xScale;
             }
 
-            Vec3.copy(worldScale, v3_a);
-        }
-        if (parent) {
-            v3_a.x = worldScale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
-            v3_a.y = worldScale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
-            v3_a.z = worldScale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
-            Mat4.scale(m4_1, this._mat, v3_a);
+            if (yScale === 0) {
+                v3_a.y = worldScale.y;
+                worldMatrix.m05 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.y = worldScale.y / yScale;
+            }
+
+            if (zScale === 0) {
+                v3_a.z = worldScale.z;
+                worldMatrix.m10 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.z = worldScale.z / zScale;
+            }
+
+            Mat4.scale(m4_1, worldMatrix, v3_a);
             Mat4.multiply(m4_2, Mat4.invert(m4_2, parent._mat), m4_1);
-            Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._lrot));
+            Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, self._lrot));
             Mat3.multiplyMat4(m3_1, m3_1, m4_2);
-            this._lscale.x = Vec3.set(v3_a, m3_1.m00, m3_1.m01, m3_1.m02).length();
-            this._lscale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
-            this._lscale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();
+
+            const localScale = self._lscale;
+            localScale.x = Vec3.set(v3_a, m3_1.m00, m3_1.m01, m3_1.m02).length();
+            localScale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
+            localScale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();
+            if (localScale.x === 0 || localScale.y === 0 || localScale.z === 0) {
+                rotationFlag = TransformBit.ROTATION;
+            }
         } else {
-            Vec3.copy(this._lscale, worldScale);
+            Vec3.copy(self._lscale, worldScale);
         }
 
-        this.invalidateChildren(TransformBit.SCALE);
-        if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+        self.invalidateChildren(TransformBit.SCALE | rotationFlag);
+        if (self._eventMask & TRANSFORM_ON) {
+            self.emit(TRANSFORM_CHANGED, TransformBit.SCALE | rotationFlag);
         }
     }
 
@@ -2671,7 +2896,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (dirtyBit) {
             this.invalidateChildren(dirtyBit);
             if (this._eventMask & TRANSFORM_ON) {
-                this.emit(NodeEventType.TRANSFORM_CHANGED, dirtyBit);
+                this.emit(TRANSFORM_CHANGED, dirtyBit);
             }
         }
     }
@@ -2748,15 +2973,41 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public getPathInHierarchy (): string {
         let result = this.name;
         let curNode: Node | null = this.parent;
-        while (curNode && !(curNode instanceof legacyCC.Scene)) {
+        while (curNode && !(curNode instanceof cclegacy.Scene)) {
             result = `${curNode.name}/${result}`;
             curNode = curNode.parent;
         }
 
         return result;
     }
+
+    /**
+     * @mangle
+     * @engineInternal
+     */
+    _getUITransformComp (): UITransform | null {
+        return this._uiProps.uiTransformComp;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set isSkipTransformUpdate (skip: boolean) {
+        if (skip) {
+            this._objFlags |= CCObjectFlags.IsSkipTransformUpdate;
+        } else {
+            this._objFlags &= ~CCObjectFlags.IsSkipTransformUpdate;
+        }
+    }
+
+    /**
+     * @engineInternal
+     */
+    get isSkipTransformUpdate (): boolean {
+        return (this._objFlags & CCObjectFlags.IsSkipTransformUpdate) !== 0;
+    }
 }
 
 nodePolyfill(Node);
 
-legacyCC.Node = Node;
+cclegacy.Node = Node;

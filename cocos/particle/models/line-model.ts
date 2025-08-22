@@ -37,7 +37,7 @@ const _vertex_attrs = [
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGBA32F), // x:index y:size zw:texcoord
     new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F), // xyz:velocity
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),
-];
+] as (Attribute & { offset: number })[];
 
 const _temp_v1 = new Vec3();
 const _temp_v2 = new Vec3();
@@ -73,7 +73,7 @@ export class LineModel extends scene.Model {
     public createBuffer (): void {
         this._vertSize = 0;
         for (const a of _vertex_attrs) {
-            (a as any).offset = this._vertSize;
+            a.offset = this._vertSize;
             this._vertSize += FormatInfos[a.format].size;
         }
         this._vertAttrsFloatCount = this._vertSize / 4; // number of float

@@ -79,7 +79,8 @@ jest.mock(
     'external:emscripten/webgpu/webgpu_wasm.wasm',
     'external:emscripten/webgpu/glslang.wasm',
     'external:emscripten/physx/physx.release.wasm.wasm',
-    'external:emscripten/spine/spine.wasm',
+    'external:emscripten/spine/3.8/spine.wasm',
+    'external:emscripten/spine/4.2/spine.wasm',
     'external:emscripten/box2d/box2d.release.wasm.wasm',
     'external:emscripten/meshopt/meshopt_decoder.wasm.wasm',
 ].forEach(mockModuleId => {
@@ -138,6 +139,7 @@ import { glsl4 } from './fixtures/builtin-glsl4';
 import { initBuiltinMaterial } from './fixtures/builtin-material';
 import { initBuiltinPhysicsMaterial } from './fixtures/builtin-physics-material';
 import '../cocos/2d/utils/dynamic-atlas/atlas-manager';
+import '../exports/legacy-pipeline';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');

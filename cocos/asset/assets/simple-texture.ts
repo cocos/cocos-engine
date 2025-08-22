@@ -26,7 +26,7 @@ import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
 import { assertID, error, js, macro, cclegacy } from '../../core';
-import { Filter } from './asset-enum';
+import { TextureFilter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
 import dependUtil from '../asset-manager/depend-util';
@@ -61,10 +61,12 @@ function canGenerateMipmap (device: Device, w: number, h: number): boolean | 0 {
 export class SimpleTexture extends TextureBase {
     /**
      * @engineInternal
+     * @mangle
      */
     protected _gfxTexture: Texture | null = null;
     /**
      * @engineInternal
+     * @mangle
      */
     protected _gfxTextureView: Texture | null = null;
     private _mipmapLevel = 1;
@@ -74,12 +76,18 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _baseLevel = 0;
     /**
      * @engineInternal
+     * @mangle
      */
     protected _maxLevel = 1000;
+
+    constructor (name?: string) {
+        super(name);
+    }
 
     /**
      * @en The mipmap level of the texture.
@@ -174,6 +182,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number): void {
         const data = image.data;
@@ -195,6 +204,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _checkTextureLoaded (): void {
         this._textureReady();
@@ -202,6 +212,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _textureReady (): void {
         this.loaded = true;
@@ -216,6 +227,7 @@ export class SimpleTexture extends TextureBase {
      * 设置此贴图的 mipmap 层级
      * @param value The mipmap level.
      * @engineInternal
+     * @mangle
      *
      */
     protected _setMipmapLevel (value: number): void {
@@ -224,6 +236,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _setMipRange (baseLevel: number, maxLevel: number): void {
         this._baseLevel = baseLevel < 1 ? 0 : baseLevel;
@@ -257,6 +270,7 @@ export class SimpleTexture extends TextureBase {
      * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
      * @param presumed The presumed GFX texture info.
      * @engineInternal
+     * @mangle
      */
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo | null {
         return null;
@@ -267,6 +281,7 @@ export class SimpleTexture extends TextureBase {
      * @zh 这个方法被派生类重写以提供 GFX 纹理视图信息。
      * @param presumed The presumed GFX TextureViewInfo.
      * @engineInternal
+     * @mangle
      */
     protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo): TextureViewInfo | null {
         return null;
@@ -274,6 +289,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _tryReset (): void {
         this._tryDestroyTextureView();
@@ -299,11 +315,12 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _createTexture (device: Device): void {
         if (this._width === 0 || this._height === 0) { return; }
         let flags = TextureFlagBit.NONE;
-        if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
+        if (this._mipFilter !== TextureFilter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
             if (!this.isUsingOfflineMipmaps() && !this.isCompressed) {
                 flags = TextureFlagBit.GEN_MIPMAP;
@@ -328,6 +345,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _createTextureView (device: Device): Texture | null {
         if (!this._gfxTexture) {
@@ -349,6 +367,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _tryDestroyTexture (): void {
         if (this._gfxTexture) {
@@ -359,6 +378,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @engineInternal
+     * @mangle
      */
     protected _tryDestroyTextureView (): void {
         if (this._gfxTextureView) {

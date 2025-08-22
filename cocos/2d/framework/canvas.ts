@@ -25,20 +25,19 @@
 
 import { ccclass, help, disallowMultiple, executeInEditMode,
     executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { Camera } from '../../misc/camera-component';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { Camera, CameraEvent } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
 import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
 import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
-import { NodeEventType } from '../../scene-graph/node-event';
 
 const _worldPos = new Vec3();
 
-const RenderMode = Enum({
-    OVERLAY: 0,
-    INTERSPERSE: 1,
-});
+enum CanvasRenderMode {
+    OVERLAY = 0,
+    INTERSPERSE= 1,
+}
 
 /**
  * @en
@@ -122,23 +121,23 @@ export class Canvas extends RenderRoot2D {
     @serializable
     protected _alignCanvasWithScreen = true;
 
-    protected _thisOnCameraResized: () => void;
+    protected declare _thisOnCameraResized: () => void;
     // fit canvas node to design resolution
-    protected fitDesignResolution_EDITOR: (() => void) | undefined;
+    protected declare fitDesignResolution_EDITOR: (() => void) | undefined;
 
     private _pos = new Vec3();
-    private _renderMode = RenderMode.OVERLAY;
+    private _renderMode = CanvasRenderMode.OVERLAY;
 
     constructor () {
         super();
         this._thisOnCameraResized = this._onResizeCamera.bind(this);
 
-        if (EDITOR) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             this.fitDesignResolution_EDITOR = (): void => {
                 // TODO: support paddings of locked widget
                 this.node.getPosition(this._pos);
                 const nodeSize = view.getDesignResolutionSize();
-                const trans = this.node._uiProps.uiTransformComp!;
+                const trans = this.node._getUITransformComp()!;
 
                 let scaleX = this.node.scale.x;
                 let anchorX = trans.anchorX;
@@ -176,48 +175,49 @@ export class Canvas extends RenderRoot2D {
         const widget = this.getComponent('cc.Widget') as unknown as Widget;
         if (widget) {
             widget.updateAlignment();
-        } else if (EDITOR) {
+        } else if (EDITOR_NOT_IN_PREVIEW) {
             this.fitDesignResolution_EDITOR!();
         }
 
-        if (!EDITOR) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (this._cameraComponent) {
                 this._cameraComponent._createCamera();
-                this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+                this._cameraComponent.node.on(CameraEvent.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
             }
         }
 
         this._onResizeCamera();
 
-        if (EDITOR) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
             // (anchor in uiTransform, but it can edit, this is different from cocos creator)
             this._objFlags |= cclegacy.Object.Flags.IsPositionLocked | cclegacy.Object.Flags.IsSizeLocked | cclegacy.Object.Flags.IsAnchorLocked;
         } else {
             // In Editor dont need resized camera when scene window resize
-            this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+            view.on('canvas-resize', this._thisOnCameraResized, this);
+            view.on('design-resolution-changed', this._thisOnCameraResized, this);
         }
     }
 
     public onEnable (): void {
         super.onEnable();
-        if (!EDITOR && this._cameraComponent) {
-            this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+        if (!EDITOR_NOT_IN_PREVIEW && this._cameraComponent) {
+            this._cameraComponent.node.on(CameraEvent.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
     }
 
     public onDisable (): void {
         super.onDisable();
         if (this._cameraComponent) {
-            this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+            this._cameraComponent.node.off(CameraEvent.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
     }
 
     public onDestroy (): void {
         super.onDestroy();
-
-        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+        view.off('canvas-resize', this._thisOnCameraResized, this);
+        view.off('design-resolution-changed', this._thisOnCameraResized, this);
     }
 
     protected _onResizeCamera (): void {
@@ -237,7 +237,7 @@ export class Canvas extends RenderRoot2D {
     private _getViewPriority (): number {
         if (this._cameraComponent) {
             let priority = this.cameraComponent?.priority as number;
-            priority = this._renderMode === RenderMode.OVERLAY ? priority | 1 << 30 : priority & ~(1 << 30);
+            priority = this._renderMode === CanvasRenderMode.OVERLAY ? priority | 1 << 30 : priority & ~(1 << 30);
             return priority;
         }
 

@@ -112,17 +112,14 @@ export class Prefab extends Asset {
     public persistent = false;
 
     // Cache function to optimize instance creation.
-    private _createFunction: ((...arg: any[]) => Node) | null;
-    private _instantiatedTimes: number;
+    private _createFunction: ((...arg: any[]) => Node) | null = null;
+    private _instantiatedTimes: number = 0;
     constructor () {
         super();
-        this._createFunction = null;
-
-        this._instantiatedTimes = 0;
     }
 
     public createNode (cb: (err: Error | null, node: Node) => void): void {
-        const node = legacyCC.instantiate(this);
+        const node = legacyCC.instantiate(this) as Node;
         node.name = this.name;
         cb(null, node);
     }
@@ -138,7 +135,9 @@ export class Prefab extends Asset {
      * 但是您可以在脚本中修改原始预制数据后重新调用以刷新创建功能。
      */
     public compileCreateFunction (): void {
-        this._createFunction = compile(this.data);
+        if (SUPPORT_JIT) {
+            this._createFunction = compile(this.data);
+        }
     }
 
     // just instantiate, will not initialize the Node, this will be called during Node's initialization.
@@ -158,7 +157,15 @@ export class Prefab extends Asset {
         return this._createFunction!(rootToRedirect);  // this.data._instantiate();
     }
 
-    private _instantiate (): Node {
+    /**
+     * @dontmangle
+     * NOTE: the protected method `_instantiate` is invoked by dynamically without type information.
+     * See `instantiate` in cocos/serialization/instantiate.ts.
+     * ```ts
+     * clone = original._instantiate(null, true); // original is any, so _instantiate should not be mangled.
+     * ```
+     */
+    protected _instantiate (): Node {
         let node: Node;
         let useJit = false;
         if (SUPPORT_JIT) {

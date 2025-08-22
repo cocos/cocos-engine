@@ -31,7 +31,7 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
-import { OS } from '../../../pal/system-info/enum-type';
+import { OS } from '../../system-info/enum-type';
 
 interface ICachedStyle {
     width: string;
@@ -266,7 +266,7 @@ class ScreenAdapter extends EventTarget {
             return new Size(width, height);
         case WindowType.Unknown:
         default:
-            return new Size(0, 0);
+            return new Size(1, 1);
         }
     }
     private get _windowType (): WindowType {
@@ -386,7 +386,7 @@ class ScreenAdapter extends EventTarget {
             // if (!this.handleResizeEvent) {
             //     return;
             // }
-            this._resizeFrame();
+            this._updateFrame();
         });
 
         const notifyOrientationChange = (orientation): void => {
@@ -434,12 +434,19 @@ class ScreenAdapter extends EventTarget {
         };
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = (): void => {
-                const dpr = window.devicePixelRatio;
+                const dpr = this.devicePixelRatio;
                 // NOTE: some browsers especially on iPhone doesn't support MediaQueryList
-                window.matchMedia(`(resolution: ${dpr}dppx)`)?.addEventListener?.('change', (): void => {
-                    this.emit('window-resize', this.windowSize.width, this.windowSize.height);
-                    updateDPRChangeListener();
-                }, { once: true });
+                const mediaQueryResolution = window.matchMedia(`(resolution: ${dpr}dppx)`);
+                if (mediaQueryResolution.addEventListener) {
+                    mediaQueryResolution.addEventListener('change', (): void => {
+                        this.emit('window-resize', this.windowSize.width, this.windowSize.height);
+                        updateDPRChangeListener();
+                    }, { once: true });
+                } else if (mediaQueryResolution.addListener) {
+                    mediaQueryResolution.addListener((): void => {
+                        this.emit('window-resize', this.windowSize.width, this.windowSize.height);
+                    });
+                }
             };
             updateDPRChangeListener();
 
@@ -474,8 +481,13 @@ class ScreenAdapter extends EventTarget {
                 }
                 notifyOrientationChange(tmpOrientation);
             };
-            mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
-            mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
+            if (mediaQueryPortrait.addEventListener) {
+                mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
+                mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
+            } else if (mediaQueryPortrait.addListener) {
+                mediaQueryPortrait.addListener(orientationChangeCallback);
+                mediaQueryLandscape.addListener(orientationChangeCallback);
+            }
         } else {
             handleOrientationChange = (): void => {
                 const tmpOrientation = getOrientation();

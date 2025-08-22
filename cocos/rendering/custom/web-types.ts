@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -28,9 +28,9 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Attribute, ShaderInfo } from '../../gfx';
-import { ProgramProxy } from './private';
-import { IProgramInfo } from '../../render-scene/core/program-lib';
+import type { Attribute, ShaderInfo } from '../../gfx';
+import type { ProgramProxy } from './private';
+import type { IProgramInfo } from '../../render-scene/core/program-lib';
 
 export class ProgramInfo {
     constructor (
@@ -46,11 +46,11 @@ export class ProgramInfo {
         this.blockSizes = blockSizes;
         this.handleMap = handleMap;
     }
-    readonly programInfo: IProgramInfo;
-    readonly shaderInfo: ShaderInfo;
-    readonly attributes: Attribute[];
-    readonly blockSizes: number[];
-    readonly handleMap: Record<string, number>;
+    declare readonly programInfo: IProgramInfo;
+    declare readonly shaderInfo: ShaderInfo;
+    declare readonly attributes: Attribute[];
+    declare readonly blockSizes: number[];
+    declare readonly handleMap: Record<string, number>;
 }
 
 export class ProgramGroup {

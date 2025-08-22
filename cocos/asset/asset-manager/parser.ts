@@ -23,7 +23,7 @@
 */
 
 import { ImageAsset, IMemoryImageSource } from '../assets/image-asset';
-import { js } from '../../core';
+import { getError, js, warn } from '../../core';
 import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';
@@ -32,7 +32,7 @@ import { files, parsed } from './shared';
 import { CCON } from '../../serialization/ccon';
 import { Asset } from '../assets';
 
-export type ParseHandler = (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
+export type ParseHandler = (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void;
 
 /**
  * @en
@@ -43,7 +43,7 @@ export type ParseHandler = (file: any, options: Record<string, any>, onComplete:
  *
  */
 export class Parser {
-    private _parsing = new Cache<((err: Error | null, data?: any | null) => void)[]>();
+    private _parsing = new Cache<((err: Error | null, data?: any) => void)[]>();
 
     private _parsers: Record<string, ParseHandler> = {
         '.png': this.parseImage,
@@ -79,68 +79,93 @@ export class Parser {
 
     /**
      * @engineInternal
+     * @mangle
      */
-    public parseImage (file: HTMLImageElement | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: HTMLImageElement | ImageBitmap | null) => void)): void {
+    public parseImage (
+        file: HTMLImageElement | Blob,
+        options: Record<string, any>,
+        onComplete: ((err: Error | null, data?: HTMLImageElement | ImageBitmap | null) => void),
+    ): void {
         if (file instanceof HTMLImageElement) {
             onComplete(null, file);
             return;
         }
         createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result): void => {
             onComplete(null, result);
-        }, (err): void => {
+        }, (err: Error | null): void => {
             onComplete(err, null);
         });
     }
 
     /**
      * @engineInternal
+     * Don't mangle this function since it's used in platform adapter code.
      */
-    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
+    public parsePVRTex (
+        file: ArrayBuffer | ArrayBufferView,
+        options: Record<string, any>,
+        onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void),
+    ): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
             out = ImageAsset.parseCompressedTextures(file, 0);
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
         onComplete(err, out);
     }
 
     /**
      * @engineInternal
+     * Don't mangle this function since it's used in platform adapter code.
      */
-    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
+    public parsePKMTex (
+        file: ArrayBuffer | ArrayBufferView,
+        options: Record<string, any>,
+        onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void),
+    ): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
             out = ImageAsset.parseCompressedTextures(file, 1);
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
         onComplete(err, out);
     }
 
     /**
      * @engineInternal
+     * Don't mangle this function since it's used in platform adapter code.
      */
-    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
+    public parseASTCTex (
+        file: ArrayBuffer | ArrayBufferView,
+        options: Record<string, any>,
+        onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void),
+    ): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
             out = ImageAsset.parseCompressedTextures(file, 2);
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
         onComplete(err, out);
     }
 
     /**
      * @engineInternal
+     * Don't mangle this function since it's used in platform adapter code.
      */
-    public parsePlist (file: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
+    public parsePlist (
+        file: string,
+        options: Record<string, any>,
+        onComplete: ((err: Error | null, data?: any) => void),
+    ): void {
         let err: Error | null = null;
         const result = plistParser.parse(file);
         if (!result) { err = new Error('parse failed'); }
@@ -149,10 +174,15 @@ export class Parser {
 
     /**
      * @engineInternal
+     * @mangle
      */
-    public parseImport (file: Record<string, any> | CCON, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)): void {
+    public parseImport (
+        file: Record<string, any> | CCON,
+        options: Record<string, any>,
+        onComplete: ((err: Error | null, data?: Asset | null) => void),
+    ): void {
         if (!file) {
-            onComplete(new Error(`The json file of asset ${options.__uuid__ as string} is empty or missing`));
+            onComplete(new Error(getError(3702, options.__uuid__ as string)));
             return;
         }
         let result: Asset | null = null;
@@ -167,6 +197,7 @@ export class Parser {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public init (): void {
         this._parsing.clear();
@@ -193,11 +224,21 @@ export class Parser {
      *                  '.ext': (file, options, onComplete) => onComplete(null, null)});
      *
      */
-    public register (type: string, handler: (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void): void;
-    public register (map: Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>): void;
     public register (
-        type: string | Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>,
-        handler?: (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void,
+        type: string,
+        handler: (file: any,
+            options: Record<string, any>,
+            onComplete: ((err: Error | null, data?: any) => void)
+        ) => void
+    ): void;
+    public register (
+        map: Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void>): void;
+    public register (
+        type: string | Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void>,
+        handler?: (file: any,
+            options: Record<string, any>,
+            onComplete: ((err: Error | null, data?: any) => void)
+        ) => void,
     ): void {
         if (typeof type === 'object') {
             js.mixin(this._parsers, type);
@@ -227,7 +268,13 @@ export class Parser {
      * });
      *
      */
-    public parse (id: string, file: any, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
+    public parse (
+        id: string,
+        file: any,
+        type: string,
+        options: Record<string, any>,
+        onComplete: ((err: Error | null, data?: any) => void),
+    ): void {
         const parsedAsset = parsed.get(id);
         if (parsedAsset) {
             onComplete(null, parsedAsset);

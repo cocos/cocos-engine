@@ -2,11 +2,12 @@
 const fs = require('fs');
 const path = require('path');
 module.paths.push(path.join(Editor.App.path, 'node_modules'));
+const { clipboard } = require('electron');
 const Profile = require('@base/electron-profile');
 const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
-const { injectionStyle } = require('../utils/prop');
+const { injectionStyle, setLabel } = require('../utils/prop');
 
 // ipc messages protocol
 const messageProtocol = {
@@ -473,6 +474,7 @@ exports.$ = {
     nodeRotation: '.container > .body > .node > .rotation',
     nodeScale: '.container > .body > .node > .scale',
     nodeMobility: '.container > .body > .node > .mobility',
+    nodeLayer: '.container > .body > .node > .layer > ui-label',
     nodeLayerSelect: '.container > .body > .node > .layer .layer-select',
     nodeLayerButton: '.container > .body > .node > .layer .layer-edit',
 
@@ -502,7 +504,7 @@ const Elements = {
             }, 100, { leading: false, trailing: true });
 
             panel.__nodeChanged__ = (uuid) => {
-                if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
+                if (panel.throttleUpdate && Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
                     panel.throttleUpdate();
                 }
             };
@@ -547,7 +549,9 @@ const Elements = {
                 }
             }, 100, { leading: false, trailing: true });
 
-            Profile.on('change', panel.__throttleProfileChanged__);
+            if (panel.__throttleProfileChanged__) {
+                Profile.on('change', panel.__throttleProfileChanged__);
+            }
 
             // 识别拖入脚本资源
             panel.$.container.addEventListener('dragover', (event) => {
@@ -575,14 +579,14 @@ const Elements = {
                     additional.push({ value, type });
                 }
 
-                // Todo
-                // await beginRecording(panel.uuidList);
+                const undoID = await Editor.Message.request('scene', 'begin-recording', panel.uuidList);
                 for (const info of additional) {
                     const config = panel.dropConfig[info.type];
                     if (config) {
                         await Editor.Message.request(config.package, config.message, info, panel.dumps, panel.uuidList);
                     }
                 }
+                await Editor.Message.request('scene', 'end-recording', undoID);
             });
 
             panel._readyToUpdate = true;
@@ -594,7 +598,7 @@ const Elements = {
                     },
                     set(val) {
                         panel._readyToUpdate = val;
-                        if (val) {
+                        if (val && panel.throttleUpdate) {
                             panel.throttleUpdate();
                         }
                     },
@@ -644,15 +648,19 @@ const Elements = {
         close() {
             const panel = this;
 
-            panel.throttleUpdate.cancel();
+            if (panel.throttleUpdate) {
+                panel.throttleUpdate.cancel();
+            }
             panel.throttleUpdate = undefined;
 
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
             Editor.Message.removeBroadcastListener('scene:animation-time-change', panel.__animationTimeChange__);
             Editor.Message.removeBroadcastListener('project:setting-change', panel.__projectSettingChanged__);
 
-            Profile.removeListener('change', panel.__throttleProfileChanged__);
-            panel.__throttleProfileChanged__.cancel();
+            if (panel.__throttleProfileChanged__) {
+                Profile.removeListener('change', panel.__throttleProfileChanged__);
+                panel.__throttleProfileChanged__.cancel();
+            }
             panel.__throttleProfileChanged__ = undefined;
         },
     },
@@ -1160,8 +1168,61 @@ const Elements = {
                 event.stopPropagation();
             });
 
-            Elements.node.i18nChangeBind = Elements.node.i18nChange.bind(panel);
-            Editor.Message.addBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
+            panel.i18nChangeBind = Elements.node.i18nChange.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', panel.i18nChangeBind);
+
+            // 针对layer节点属性的右键菜单
+            panel.$.nodeLayer && panel.$.nodeLayer.addEventListener('contextmenu', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+
+                if (!panel.dump || !panel.dump.layer) { return; }
+                const layer = panel.dump.layer;
+
+                const store = Elements.node.getAndParseClipboard();
+                const pasteEnable = Elements.node.validatePasteEnable(layer, store);
+
+                Editor.Menu.popup({
+                    menu: [
+                        {
+                            label: Editor.I18n.t('ENGINE.menu.copy_property_path'),
+                            async click() {
+                                if (layer.path) { clipboard.writeText(layer.path); }
+                            },
+                        },
+                        { type: 'separator' },
+                        {
+                            label: Editor.I18n.t('ENGINE.menu.copy_property_value'),
+                            click() {
+                                const { type = '', value, enumList } = layer;
+                                const storeData = {
+                                    type,
+                                    value,
+                                    enumList,
+                                };
+
+                                clipboard.writeText(JSON.stringify(storeData));
+                            },
+                        },
+                        {
+                            label: Editor.I18n.t('ENGINE.menu.paste_property_value'),
+                            enabled: pasteEnable,
+                            click() {
+                                const select = panel.$.nodeLayerSelect.querySelector('ui-select');
+                                if (select) {
+                                    select.value = store.value;
+                                    layer.value = store.value;
+                                    if (layer.values) {
+                                        layer.values.forEach((val, index) => dump.values[index] = store.value);
+                                    }
+                                    select.dispatch('change');
+                                    select.dispatch('confirm');
+                                }
+                            },
+                        },
+                    ],
+                });
+            });
         },
         async update() {
             const panel = this;
@@ -1178,6 +1239,7 @@ const Elements = {
             panel.$.nodeRotation.render(panel.dump.rotation);
             panel.$.nodeScale.render(panel.dump.scale);
             panel.$.nodeMobility.render(panel.dump.mobility);
+            setLabel(panel.dump.layer, panel.$.nodeLayer);
 
             // 查找需要渲染的 component 列表
             const componentList = [];
@@ -1404,13 +1466,48 @@ const Elements = {
             }
         },
         close() {
-            Editor.Message.removeBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
+            const panel = this;
+
+            Editor.Message.removeBroadcastListener('i18n:change', panel.i18nChangeBind);
         },
         i18nChange() {
             const panel = this;
 
             const $links = panel.$.container.querySelectorAll('ui-link');
             $links.forEach($link => panel.setHelpUrl($link));
+        },
+        getAndParseClipboard() {
+            const store = clipboard.readText();
+            if (!store) { return; }
+
+            try {
+                return JSON.parse(store);
+            } catch (err) {
+                return;
+            }
+        },
+        validatePasteEnable(dump, store) {
+            if (!store) { return false; }
+
+            const { type, value, enumList = [], bitmaskList = [] } = store;
+
+            if (typeof type === 'undefined' || typeof value === 'undefined') { return false; }
+
+            if (type !== dump.type || Boolean(dump.isArray) !== Array.isArray(value) || dump.readonly) { return false; }
+
+            switch (type) {
+                case 'BitMask': {
+                    return bitmaskList.length === dump.bitmaskList?.length && bitmaskList.every((item, index) => {
+                        return item.name === dump.bitmaskList?.[index].name && item.value === dump.bitmaskList?.[index].value;
+                    });
+                }
+                case 'Enum': {
+                    return enumList.length === dump.enumList?.length && enumList.every((item, index) => {
+                        return item.name === dump.enumList?.[index].name && item.value === dump.enumList?.[index].value;
+                    }) && enumList.some(item => item.value === value);
+                }
+                default: return true;
+            }
         },
     },
     missingComponent: {

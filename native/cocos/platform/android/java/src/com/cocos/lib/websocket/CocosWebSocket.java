@@ -3,6 +3,7 @@ package com.cocos.lib.websocket;
 import android.os.Build;
 import android.util.Log;
 
+import com.cocos.lib.CocosHelper;
 import com.cocos.lib.GlobalObject;
 
 import org.cocos2dx.okhttp3.CipherSuite;
@@ -137,10 +138,12 @@ public class CocosWebSocket extends WebSocketListener {
             requestBuilder = requestBuilder.url(url.trim());
             uriObj = URI.create(url);
         } catch (NullPointerException | IllegalArgumentException  e) {
-            synchronized (_wsContext) {
-                nativeOnError("invalid url", _wsContext.identifier,
-                    _wsContext.handlerPtr);
-            }
+            CocosHelper.runOnGameThread(() -> {
+                synchronized (_wsContext) {
+                    nativeOnError("invalid url", _wsContext.identifier,
+                        _wsContext.handlerPtr);
+                }
+            });
             return;
         }
         if (!protocols.isEmpty()) {
@@ -191,13 +194,13 @@ public class CocosWebSocket extends WebSocketListener {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                String errMsg = e.getMessage();
-                if (errMsg == null) {
-                    errMsg = "unknown error";
-                }
-                synchronized (_wsContext) {
-                    nativeOnError(errMsg, _wsContext.identifier, _wsContext.handlerPtr);
-                }
+                String msg = e.getMessage();
+                final String errMsg = msg != null ? msg : "unknown error";
+                CocosHelper.runOnGameThread(() -> {
+                    synchronized (_wsContext) {
+                        nativeOnError(errMsg, _wsContext.identifier, _wsContext.handlerPtr);
+                    }
+                });
                 return;
             }
 
@@ -240,13 +243,13 @@ public class CocosWebSocket extends WebSocketListener {
                 builder.sslSocketFactory(customSslSocketFactory, trustManager);
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
-                String errMsg = e.getMessage();
-                if (errMsg == null) {
-                    errMsg = "unknown error";
-                }
-                synchronized (_wsContext) {
-                    nativeOnError(errMsg, _wsContext.identifier, _wsContext.handlerPtr);
-                }
+                String msg = e.getMessage();
+                final String errMsg = msg != null ? msg : "unknown error";
+                CocosHelper.runOnGameThread(() -> {
+                    synchronized (_wsContext) {
+                        nativeOnError(errMsg, _wsContext.identifier, _wsContext.handlerPtr);
+                    }
+                });
                 return;
             }
         }
@@ -270,28 +273,34 @@ public class CocosWebSocket extends WebSocketListener {
     @Override
     public void onOpen(org.cocos2dx.okhttp3.WebSocket _webSocket, Response response) {
         output("WebSocket onOpen _client: " + _client);
-        synchronized (_wsContext) {
-            nativeOnOpen(response.protocol().toString(),
-                response.headers().toString(), _wsContext.identifier,
-                _wsContext.handlerPtr);
-        }
+        CocosHelper.runOnGameThread(() -> {
+            synchronized (_wsContext) {
+                nativeOnOpen(response.protocol().toString(),
+                    response.headers().toString(), _wsContext.identifier,
+                    _wsContext.handlerPtr);
+            }
+        });
     }
 
     @Override
     public void onMessage(org.cocos2dx.okhttp3.WebSocket _webSocket, String text) {
         //        output("Receiving string msg: " + text);
-        synchronized (_wsContext) {
-            nativeOnStringMessage(text, _wsContext.identifier, _wsContext.handlerPtr);
-        }
+        CocosHelper.runOnGameThread(() -> {
+            synchronized (_wsContext) {
+                nativeOnStringMessage(text, _wsContext.identifier, _wsContext.handlerPtr);
+            }
+        });
     }
 
     @Override
     public void onMessage(org.cocos2dx.okhttp3.WebSocket _webSocket, ByteString bytes) {
         //        output("Receiving binary msg");
-        synchronized (_wsContext) {
-            nativeOnBinaryMessage(bytes.toByteArray(), _wsContext.identifier,
-                _wsContext.handlerPtr);
-        }
+        CocosHelper.runOnGameThread(() -> {
+            synchronized (_wsContext) {
+                nativeOnBinaryMessage(bytes.toByteArray(), _wsContext.identifier,
+                    _wsContext.handlerPtr);
+            }
+        });
     }
 
     @Override
@@ -306,24 +315,30 @@ public class CocosWebSocket extends WebSocketListener {
     @Override
     public void onFailure(org.cocos2dx.okhttp3.WebSocket _webSocket, Throwable t,
                           Response response) {
-        String msg = "";
+        final String msg;
         if (t != null) {
             msg = t.getMessage() == null ?  t.getClass().getSimpleName() : t.getMessage();
+        } else {
+            msg = "";
         }
         output("onFailure Error : " + msg);
-        synchronized (_wsContext) {
-            nativeOnError(msg, _wsContext.identifier, _wsContext.handlerPtr);
-        }
+        CocosHelper.runOnGameThread(() -> {
+            synchronized (_wsContext) {
+                nativeOnError(msg, _wsContext.identifier, _wsContext.handlerPtr);
+            }
+        });
     }
 
     @Override
     public void onClosed(org.cocos2dx.okhttp3.WebSocket _webSocket, int code,
                          String reason) {
         output("onClosed : " + code + " / " + reason);
-        synchronized (_wsContext) {
-            nativeOnClosed(code, reason, _wsContext.identifier,
-                _wsContext.handlerPtr);
-        }
+        CocosHelper.runOnGameThread(() -> {
+            synchronized (_wsContext) {
+                nativeOnClosed(code, reason, _wsContext.identifier,
+                    _wsContext.handlerPtr);
+            }
+        });
     }
 
     private static native void NativeInit();

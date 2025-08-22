@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { EDITOR_NOT_IN_PREVIEW, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, JSB, MINIGAME, RUNTIME_BASED, USE_XR } from 'internal:constants';
 import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../scene-graph/component';
@@ -33,14 +33,14 @@ import { Size } from '../../core/math';
 import { EventTouch } from '../../input/types';
 import { Node } from '../../scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
-import { Sprite } from '../../2d/components/sprite';
+import { Sprite, SpriteEventType } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
-import { director, Director } from '../../game/director';
+import { director, DirectorEvent } from '../../game/director';
 
 const LEFT_PADDING = 2;
 
@@ -52,7 +52,7 @@ function capitalizeFirstLetter (str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-enum EventType {
+enum EditBoxEventType {
     EDITING_DID_BEGAN = 'editing-did-began',
     EDITING_DID_ENDED = 'editing-did-ended',
     TEXT_CHANGED = 'text-changed',
@@ -326,7 +326,7 @@ export class EditBox extends Component {
      * @en Keyboard event enumeration.
      * @zh 键盘的事件枚举。
      */
-    public static EventType = EventType;
+    public static EventType = EditBoxEventType;
     /**
      * @en
      * The event handler to be called when EditBox began to edit text.
@@ -409,6 +409,10 @@ export class EditBox extends Component {
 
     private _isLabelVisible = false;
 
+    constructor () {
+        super();
+    }
+
     public __preload (): void {
         this._init();
     }
@@ -440,7 +444,7 @@ export class EditBox extends Component {
     }
 
     public onDestroy (): void {
-        director.off(Director.EVENT_BEFORE_DRAW, this._beforeDraw, this);
+        director.off(DirectorEvent.BEFORE_DRAW, this._beforeDraw, this);
         if (this._impl) {
             this._impl.clear();
         }
@@ -493,7 +497,7 @@ export class EditBox extends Component {
      */
     public _editBoxEditingDidBegan (): void {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
-        this.node.emit(EventType.EDITING_DID_BEGAN, this);
+        this.node.emit(EditBoxEventType.EDITING_DID_BEGAN, this);
     }
 
     /**
@@ -504,7 +508,7 @@ export class EditBox extends Component {
      */
     public _editBoxEditingDidEnded (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit(EventType.EDITING_DID_ENDED, this, text);
+        this.node.emit(EditBoxEventType.EDITING_DID_ENDED, this, text);
     }
 
     /**
@@ -514,7 +518,7 @@ export class EditBox extends Component {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
         ComponentEventHandler.emitEvents(this.textChanged, text, this);
-        this.node.emit(EventType.TEXT_CHANGED, this);
+        this.node.emit(EditBoxEventType.TEXT_CHANGED, this);
     }
 
     /**
@@ -525,7 +529,7 @@ export class EditBox extends Component {
      */
     public _editBoxEditingReturn (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit(EventType.EDITING_RETURN, this, text);
+        this.node.emit(EditBoxEventType.EDITING_RETURN, this, text);
     }
 
     /**
@@ -569,7 +573,7 @@ export class EditBox extends Component {
         this._updateTextLabel();
         this._isLabelVisible = true;
         this.node.on(NodeEventType.SIZE_CHANGED, this._resizeChildNodes, this);
-        director.on(Director.EVENT_BEFORE_DRAW, this._beforeDraw, this);
+        director.on(DirectorEvent.BEFORE_DRAW, this._beforeDraw, this);
 
         const impl = this._impl = new EditBox._EditBoxImpl();
         impl.init(this);
@@ -647,11 +651,11 @@ export class EditBox extends Component {
     }
 
     protected _syncSize (): void {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const size = trans.contentSize;
 
         if (this._background) {
-            const bgTrans = this._background.node._uiProps.uiTransformComp!;
+            const bgTrans = this._background.node._getUITransformComp()!;
             bgTrans.anchorPoint = trans.anchorPoint;
             bgTrans.setContentSize(size);
         }
@@ -712,19 +716,27 @@ export class EditBox extends Component {
     }
 
     protected _registerEvent (): void {
-        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        const self = this;
+        const node = self.node;
+        node.on(NodeEventType.TOUCH_START, self._onTouchBegan, self);
+        node.on(NodeEventType.TOUCH_END, self._onTouchEnded, self);
 
-        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
-        this.node.on(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
+        if (USE_XR) {
+            node.on(XrUIPressEventType.XRUI_UNCLICK, self._xrUnClick, self);
+            node.on(XrKeyboardEventType.XR_KEYBOARD_INPUT, self._xrKeyBoardInput, self);
+        }
     }
 
     protected _unregisterEvent (): void {
-        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        const self = this;
+        const node = self.node;
+        node.off(NodeEventType.TOUCH_START, self._onTouchBegan, self);
+        node.off(NodeEventType.TOUCH_END, self._onTouchEnded, self);
 
-        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
-        this.node.off(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
+        if (USE_XR) {
+            node.off(XrUIPressEventType.XRUI_UNCLICK, self._xrUnClick, self);
+            node.off(XrKeyboardEventType.XR_KEYBOARD_INPUT, self._xrKeyBoardInput, self);
+        }
     }
 
     private _onBackgroundSpriteFrameChanged (): void {
@@ -736,23 +748,23 @@ export class EditBox extends Component {
 
     private _registerBackgroundEvent (): void {
         const node = this._background && this._background.node;
-        node?.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+        node?.on(SpriteEventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     private _unregisterBackgroundEvent (): void {
         const node = this._background && this._background.node;
-        node?.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+        node?.off(SpriteEventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     protected _updateLabelPosition (size: Size): void {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const offX = -trans.anchorX * trans.width;
         const offY = -trans.anchorY * trans.height;
 
         const placeholderLabel = this._placeholderLabel;
         const textLabel = this._textLabel;
         if (textLabel) {
-            textLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
+            textLabel.node._getUITransformComp()!.setContentSize(size.width - LEFT_PADDING, size.height);
             textLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, textLabel.node.position.z);
             if (this._inputMode === InputMode.ANY) {
                 textLabel.verticalAlign = VerticalTextAlignment.TOP;
@@ -761,37 +773,39 @@ export class EditBox extends Component {
         }
 
         if (placeholderLabel) {
-            placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
+            placeholderLabel.node._getUITransformComp()!.setContentSize(size.width - LEFT_PADDING, size.height);
             placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
             placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY;
         }
     }
 
     protected _resizeChildNodes (): void {
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         const textLabelNode = this._textLabel && this._textLabel.node;
         if (textLabelNode) {
             textLabelNode.setPosition(-trans.width / 2, trans.height / 2, textLabelNode.position.z);
-            textLabelNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
+            textLabelNode._getUITransformComp()!.setContentSize(trans.contentSize);
         }
         const placeholderLabelNode = this._placeholderLabel && this._placeholderLabel.node;
         if (placeholderLabelNode) {
             placeholderLabelNode.setPosition(-trans.width / 2, trans.height / 2, placeholderLabelNode.position.z);
-            placeholderLabelNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
+            placeholderLabelNode._getUITransformComp()!.setContentSize(trans.contentSize);
         }
         const backgroundNode = this._background && this._background.node;
         if (backgroundNode) {
-            backgroundNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
+            backgroundNode._getUITransformComp()!.setContentSize(trans.contentSize);
         }
 
         this._syncSize();
     }
 
     protected _xrUnClick (): void {
-        this.node.emit(EventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
+        if (!USE_XR) return;
+        this.node.emit(EditBoxEventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
     }
 
     protected _xrKeyBoardInput (str: string): void {
+        if (!USE_XR) return;
         this.string = str;
     }
 }

@@ -119,11 +119,7 @@ function getPlatformBinaryUrl (binaryUrl: string): Promise<string> {
         if (XIAOMI) {
             resolve(`src/cocos-js/${binaryUrl}`);
         } if (TAOBAO_MINIGAME && WASM_SUBPACKAGE) {
-            if (minigame.isDevTool) {
-                resolve(`cocos-js/${binaryUrl}`);
-            } else {
-                resolve(`__ccWasmAssetSubpkg__/${basename(binaryUrl)}`);
-            }
+            resolve(`__ccWasmAssetSubpkg__/${basename(binaryUrl)}`);
         } else {
             resolve(`cocos-js/${binaryUrl}`);
         }

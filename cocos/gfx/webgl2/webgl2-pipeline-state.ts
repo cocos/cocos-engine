@@ -28,25 +28,31 @@ import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2Shader } from './webgl2-shader';
 import { DynamicStateFlagBit } from '../base/define';
 import { WebGL2PipelineLayout } from './webgl2-pipeline-layout';
+import { WebGLConstants } from '../gl-constants';
 
 const WebGLPrimitives: GLenum[] = [
-    0x0000, // WebGLRenderingContext.POINTS,
-    0x0001, // WebGLRenderingContext.LINES,
-    0x0003, // WebGLRenderingContext.LINE_STRIP,
-    0x0002, // WebGLRenderingContext.LINE_LOOP,
-    0x0000, // WebGLRenderingContext.NONE,
-    0x0000, // WebGLRenderingContext.NONE,
-    0x0000, // WebGLRenderingContext.NONE,
-    0x0004, // WebGLRenderingContext.TRIANGLES,
-    0x0005, // WebGLRenderingContext.TRIANGLE_STRIP,
-    0x0006, // WebGLRenderingContext.TRIANGLE_FAN,
-    0x0000, // WebGLRenderingContext.NONE,
-    0x0000, // WebGLRenderingContext.NONE,
-    0x0000, // WebGLRenderingContext.NONE,
-    0x0000, // WebGLRenderingContext.NONE,
+    WebGLConstants.POINTS,
+    WebGLConstants.LINES,
+    WebGLConstants.LINE_STRIP,
+    WebGLConstants.LINE_LOOP,
+    WebGLConstants.NONE,
+    WebGLConstants.NONE,
+    WebGLConstants.NONE,
+    WebGLConstants.TRIANGLES,
+    WebGLConstants.TRIANGLE_STRIP,
+    WebGLConstants.TRIANGLE_FAN,
+    WebGLConstants.NONE,
+    WebGLConstants.NONE,
+    WebGLConstants.NONE,
+    WebGLConstants.NONE,
 ];
 
+/** @mangle */
 export class WebGL2PipelineState extends PipelineState {
+    constructor () {
+        super();
+    }
+
     get gpuPipelineState (): IWebGL2GPUPipelineState {
         return  this._gpuPipelineState!;
     }
@@ -87,11 +93,11 @@ export class WebGL2PipelineState extends PipelineState {
         this._gpuPipelineState = {
             glPrimitive: WebGLPrimitives[info.primitive],
             gpuShader: (info.shader as WebGL2Shader).gpuShader,
-            gpuPipelineLayout: (info.pipelineLayout as WebGL2PipelineLayout).gpuPipelineLayout,
+            gpuPipelineLayout: (info.pipelineLayout as WebGL2PipelineLayout).getGpuPipelineLayout(),
             rs: info.rasterizerState,
             dss: info.depthStencilState,
             bs: info.blendState,
-            gpuRenderPass: (info.renderPass as WebGL2RenderPass).gpuRenderPass,
+            gpuRenderPass: (info.renderPass as WebGL2RenderPass).getGpuRenderPass(),
             dynamicStates,
         };
     }

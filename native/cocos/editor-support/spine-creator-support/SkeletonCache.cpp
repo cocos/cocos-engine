@@ -30,11 +30,15 @@
 #include "SkeletonCache.h"
 #include "base/memory/Memory.h"
 #include "spine-creator-support/AttachmentVertices.h"
+#include "SkeletonDataMgr.h"
 
 USING_NS_MW;        // NOLINT(google-build-using-namespace)
 using namespace cc; // NOLINT(google-build-using-namespace)
+using namespace spine;
 
-namespace spine {
+extern "C" AttachmentVertices *generateAttachmentVertices(Attachment *attachment);
+
+namespace cc {
 
 float SkeletonCache::FrameTime = 1.0F / 60.0F;
 float SkeletonCache::MaxCacheTime = 120.0F;
@@ -192,7 +196,12 @@ void SkeletonCache::update(float deltaTime) {
     if (_ownsSkeleton) _skeleton->update(deltaTime);
     _state->update(deltaTime);
     _state->apply(*_skeleton);
+#if CC_USE_SPINE_3_8
     _skeleton->updateWorldTransform();
+#else
+    _skeleton->updateWorldTransform(Physics::Physics_Update);
+#endif
+    dispatchEvents();
 }
 
 void SkeletonCache::updateToFrame(const std::string &animationName, int toFrameIdx /*= -1*/) {
@@ -307,6 +316,10 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
         matm[13] = bone->getWorldY();
     }
 
+
+    auto *skeletonDataInfo = SkeletonDataMgr::getInstance()->getSkeletonDataInfo(_uuid);
+    if (!skeletonDataInfo) return;
+    auto &attachmentVerticesMap = skeletonDataInfo->attachmentVerticesMap;
     auto &drawOrder = _skeleton->getDrawOrder();
     for (size_t i = 0, n = drawOrder.size(); i < n; ++i) {
         slot = drawOrder[i];
@@ -315,17 +328,35 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             continue;
         }
 
-        if (!slot->getAttachment()) {
+        auto *tmpAttachment = slot->getAttachment();
+        if (!tmpAttachment) {
             _clipper->clipEnd(*slot);
             continue;
         }
         const spine::Color &slotColor = slot->getColor();
 
+        auto iterAttachment = attachmentVerticesMap.find(tmpAttachment);
+        if (iterAttachment != attachmentVerticesMap.end()) {
+            attachmentVertices = iterAttachment->second;
+        } else {
+            attachmentVertices = nullptr;
+        }
+
         TwoColorTriangles trianglesTwoColor;
         spine::Color attachmentColor;
-        if (slot->getAttachment()->getRTTI().isExactly(RegionAttachment::rtti)) {
-            auto *attachment = dynamic_cast<RegionAttachment *>(slot->getAttachment());
-            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
+        if (tmpAttachment->getRTTI().isExactly(RegionAttachment::rtti)) {
+            auto *attachment = dynamic_cast<RegionAttachment *>(tmpAttachment);
+#if CC_USE_SPINE_4_2
+            if (!attachment->getRegion()) {
+                attachment->getSequence()->apply(slot, attachment);
+                if (attachment->getRegion()) {
+                    attachmentVertices = generateAttachmentVertices(attachment);
+                    if (attachmentVertices) {
+                        attachmentVerticesMap[attachment] = attachmentVertices;
+                    }
+                }
+            }
+#endif
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -340,7 +371,11 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                 trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
             }
+#if CC_USE_SPINE_3_8
             attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
+#else
+            attachment->computeWorldVertices(*slot, reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
+#endif
 
             trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
             ibSize = static_cast<int32_t>(trianglesTwoColor.indexCount * sizeof(uint16_t));
@@ -350,9 +385,19 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
 
             attachmentColor = attachment->getColor();
 
-        } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
-            auto *attachment = dynamic_cast<MeshAttachment *>(slot->getAttachment());
-            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
+        } else if (tmpAttachment->getRTTI().isExactly(MeshAttachment::rtti)) {
+            auto *attachment = dynamic_cast<MeshAttachment *>(tmpAttachment);
+#if CC_USE_SPINE_4_2
+            if (!attachment->getRegion()) {
+                attachment->getSequence()->apply(slot, attachment);
+                if (attachment->getRegion()) {
+                    attachmentVertices = generateAttachmentVertices(attachment);
+                    if (attachmentVertices) {
+                        attachmentVerticesMap[attachment] = attachmentVertices;
+                    }
+                }
+            }
+#endif
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -375,8 +420,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
             memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
             attachmentColor = attachment->getColor();
-        } else if (slot->getAttachment()->getRTTI().isExactly(ClippingAttachment::rtti)) {
-            auto *clip = dynamic_cast<ClippingAttachment *>(slot->getAttachment());
+        } else if (tmpAttachment->getRTTI().isExactly(ClippingAttachment::rtti)) {
+            auto *clip = dynamic_cast<ClippingAttachment *>(tmpAttachment);
             _clipper->clipStart(*slot, clip);
             continue;
         } else {
@@ -543,4 +588,4 @@ void SkeletonCache::resetAnimationData(const std::string &animationName) {
         }
     }
 }
-} // namespace spine
+} // namespace cc

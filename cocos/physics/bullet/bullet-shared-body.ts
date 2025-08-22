@@ -46,6 +46,7 @@ let IDCounter = 0;
  * shared object, node : shared = 1 : 1
  * body for static \ dynamic \ kinematic (collider)
  * ghost for trigger
+ * @mangle
  */
 export class BulletSharedBody {
     private static idCounter = 0;
@@ -162,6 +163,14 @@ export class BulletSharedBody {
                 || (this.bodyStruct.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy);
 
             if (isRemoveBody) {
+                const impl = this.body;
+                const constraints = this.wrappedWorld.constraints;
+                constraints.forEach((worldConstraint) => {
+                    if (worldConstraint.constraint.attachedBody?.body?.impl === impl) {
+                        this.wrappedWorld.removeConstraint(worldConstraint);
+                    }
+                });
+
                 bt.RigidBody_clearState(this.body); // clear velocity etc.
                 this.bodyIndex = -1;
                 this.wrappedWorld.removeSharedBody(this);
@@ -425,7 +434,7 @@ export class BulletSharedBody {
         const bt_quat = BulletCache.instance.BT_QUAT_0;
         const bt_transform = BulletCache.instance.BT_TRANSFORM_0;
         bt.RigidBody_getWorldTransform(this.body, bt_transform);
-        const originPosPtr = bt.Transform_getRotationAndOrigin(bt_transform, bt_quat) as number;
+        const originPosPtr = bt.Transform_getRotationAndOrigin(bt_transform, bt_quat);
         this.node.worldRotation = bullet2CocosQuat(quat_0, bt_quat);
         this.node.worldPosition = bullet2CocosVec3(v3_0, originPosPtr);
 
@@ -513,7 +522,7 @@ export class BulletSharedBody {
         (this.wrappedWorld as any) = null;
         if (this._bodyStruct) {
             const bodyStruct = this._bodyStruct;
-            BulletCache.delWrapper(bodyStruct.body, btCache.BODY_CACHE_NAME);
+            BulletCache.delWrapper(this.id, btCache.BODY_CACHE_NAME);
             bt._safe_delete(bodyStruct.motionState, EBulletType.EBulletTypeMotionState);
             bt._safe_delete(bodyStruct.compound, EBulletType.EBulletTypeCollisionShape);
             bt._safe_delete(bodyStruct.body, EBulletType.EBulletTypeCollisionObject);

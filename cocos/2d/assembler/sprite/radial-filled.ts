@@ -23,14 +23,14 @@
 */
 
 import { JSB } from 'internal:constants';
-import { SpriteFrame } from '../../assets';
+import type { SpriteFrame } from '../../assets';
 import { Mat4, Vec2 } from '../../../core';
-import { IRenderData, RenderData } from '../../renderer/render-data';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Sprite } from '../../components';
-import { IAssembler } from '../../renderer/base';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Sprite } from '../../components';
+import type { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const PI_2 = Math.PI * 2;
 const EPSILON = 1e-6;
@@ -45,7 +45,15 @@ const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 let QUAD_INDICES: Uint16Array | null = null;
 
-function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle: number, intersectPoints: Vec2[]): void {
+function _calcIntersectedPoints (
+    left: number,
+    right: number,
+    bottom: number,
+    top: number,
+    center: Vec2,
+    angle: number,
+    intersectPoints: Vec2[],
+): void {
     // left bottom, right, top
     let sinAngle = Math.sin(angle);
     sinAngle = Math.abs(sinAngle) > EPSILON ? sinAngle : 0;
@@ -86,7 +94,7 @@ function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle: 
 }
 
 function _calculateVertices (sprite: Sprite): void {
-    const uiTrans = sprite.node._uiProps.uiTransformComp!;
+    const uiTrans = sprite.node._getUITransformComp()!;
     const width = uiTrans.width;
     const height = uiTrans.height;
     const appX = uiTrans.anchorX * width;
@@ -112,9 +120,9 @@ function _calculateVertices (sprite: Sprite): void {
     _vertPos[0].y = _vertPos[1].y = b;
     _vertPos[2].y = _vertPos[3].y = t;
 
-    for (const num of _triangles) {
+    _triangles.forEach((num) => {
         Vec2.set(num, 0, 0);
-    }
+    });
 
     if (cx !== vertices[0]) {
         Vec2.set(_triangles[0], 3, 0);
@@ -232,14 +240,12 @@ function _generateUV (progressX: number, progressY: number, data: IRenderData[],
  * radialFilled 组装器
  * 可通过 `UI.radialFilled` 获取该组装器。
  */
-export const radialFilled: IAssembler = {
-    useModel: false,
-
-    createData (sprite: Sprite) {
+class RadialFilled implements IAssembler {
+    createData (sprite: Sprite): RenderData {
         return sprite.requestRenderData();
-    },
+    }
 
-    updateRenderData (sprite: Sprite) {
+    updateRenderData (sprite: Sprite): void {
         const frame = sprite.spriteFrame;
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
         // TODO update material and uv
@@ -380,20 +386,22 @@ export const radialFilled: IAssembler = {
             }
             renderData.updateRenderData(sprite, frame);
         }
-    },
+    }
 
-    createQuadIndices (indexCount: number) {
+    private createQuadIndices (indexCount: number): void {
+        if (!JSB) return;
         QUAD_INDICES = null;
         QUAD_INDICES = new Uint16Array(indexCount);
         let offset = 0;
         for (let i = 0; i < indexCount; i++) {
             QUAD_INDICES[offset++] = i;
         }
-    },
+    }
 
-    fillBuffers (comp: Sprite, renderer: IBatcher) {
+    fillBuffers (comp: Sprite, renderer: IBatcher): void {
         const node = comp.node;
-        const renderData: RenderData = comp.renderData!;
+        const renderData = comp.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         if (comp._flagChangedVersion !== node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexAndUVData(comp, chunk);
@@ -414,10 +422,12 @@ export const radialFilled: IAssembler = {
         }
         meshBuffer.indexOffset += renderData.indexCount;
         meshBuffer.setDirty();
-    },
+    }
 
-    updateWorldUVData (sprite: Sprite, chunk: StaticVBChunk) {
-        const renderData = sprite.renderData!;
+    private updateWorldUVData (sprite: Sprite): void {
+        if (!JSB) return;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = renderData.chunk.vb;
@@ -426,16 +436,17 @@ export const radialFilled: IAssembler = {
             vData[offset + 3] = dataList[i].u;
             vData[offset + 4] = dataList[i].v;
         }
-    },
+    }
 
     // only for TS
-    updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk) {
+    private updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk): void {
         const node = sprite.node;
         node.getWorldMatrix(m);
 
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const stride = renderData.floatStride;
-        const dataList = sprite.renderData!.data;
+        const dataList = sprite.renderData.data;
         const vData = chunk.vb;
         const vertexCount = renderData.vertexCount;
 
@@ -454,19 +465,21 @@ export const radialFilled: IAssembler = {
             vData[vertexOffset + 4] = vert.v;
             vertexOffset += stride;
         }
-    },
+    }
 
     // dirty Mark
     // the real update uv is on updateWorldUVData
-    updateUVs (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    updateUVs (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         renderData.vertDirty = true;
-        sprite.markForUpdateRenderData();
-    },
+        sprite._markForUpdateRenderData();
+    }
 
     // fill color here
-    updateColorLate (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    private updateColorLate (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
         const vertexCount = renderData.vertexCount;
@@ -484,10 +497,12 @@ export const radialFilled: IAssembler = {
             vData[colorOffset + 3] = colorA;
             colorOffset += stride;
         }
-    },
+    }
 
     // Too early
-    updateColor (sprite: Sprite) {
+    updateColor (sprite: Sprite): void {
         // Update color by updateColorLate
-    },
-};
+    }
+}
+
+export const radialFilled = new RadialFilled();

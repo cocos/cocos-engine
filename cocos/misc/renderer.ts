@@ -55,6 +55,10 @@ const { ccclass, serializable, disallowMultiple, type, displayOrder, displayName
 @ccclass('cc.Renderer')
 @disallowMultiple
 export class Renderer extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en Get the default shared material
      * @zh 获取默认的共享材质
@@ -168,10 +172,13 @@ export class Renderer extends Component {
      * new material instance will be created automatically if the sub-model is already using one.
      * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
      */
-    public setSharedMaterial (material: Material | null, index: number): void {
+    public setSharedMaterial (material: Material | null, index: number, forceUpdate = false): void {
         if (material && material instanceof MaterialInstance) {
             errorID(12012);
         }
+
+        if (!forceUpdate && this._materials[index] === material) return;
+
         this._materials[index] = material;
         const inst = this._materialInstances[index];
         if (inst) {
@@ -249,6 +256,7 @@ export class Renderer extends Component {
 
     /**
      * @engineInternal
+     * @mangle
      */
     public _onRebuildPSO (index: number, material: Material | null): void {
         /* empty */

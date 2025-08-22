@@ -51,6 +51,7 @@ export function getReadonlyNodeSize (parent: Node | Scene): {
     height: number;
     init(visibleRect_: Rect): void;
 } | Readonly<Size> {
+    const parentUITransform = parent._getUITransformComp();
     if (parent instanceof Scene) {
         if (EDITOR) {
             // const canvasComp = parent.getComponentInChildren(Canvas);
@@ -62,8 +63,8 @@ export function getReadonlyNodeSize (parent: Node | Scene): {
         }
 
         return visibleRect;
-    } else if (parent._uiProps.uiTransformComp) {
-        return parent._uiProps.uiTransformComp.contentSize;
+    } else if (parentUITransform) {
+        return parentUITransform.contentSize;
     } else {
         return Size.ZERO;
     }
@@ -71,7 +72,7 @@ export function getReadonlyNodeSize (parent: Node | Scene): {
 
 export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec2, out_inverseScale: Vec2): void {
     if (widgetNode.parent) {
-        _tempScale.set(widgetNode.parent.getScale().x, widgetNode.parent.getScale().y);
+        _tempScale.set(widgetNode.parent.scale.x, widgetNode.parent.scale.y);
     } else {
         _tempScale.set(0, 0);
     }
@@ -87,14 +88,14 @@ export function computeInverseTransForTarget (widgetNode: Node, target: Node, ou
             return;
         }
 
-        const pos = node.getPosition();
+        const pos = node.position;
         translateX += pos.x;
         translateY += pos.y;
         node = node.parent;    // loop increment
 
         if (node !== target) {
             if (node) {
-                _tempScale.set(node.getScale().x, node.getScale().y);
+                _tempScale.set(node.scale.x, node.scale.y);
             } else {
                 _tempScale.set(0, 0);
             }
@@ -224,6 +225,10 @@ const LEFT_RIGHT = AlignFlags.LEFT | AlignFlags.RIGHT;
 @requireComponent(UITransform)
 @executeInEditMode
 export class Widget extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Specifies an alignment target that can only be one of the parent nodes of the current node.
@@ -833,7 +838,7 @@ export class Widget extends Component {
 
     public onEnable (): void {
         this.node.getPosition(this._lastPos);
-        this._lastSize.set(this.node._uiProps.uiTransformComp!.contentSize);
+        this._lastSize.set(this.node._getUITransformComp()!.contentSize);
         cclegacy._widgetManager.add(this);
         this._hadAlignOnce = false;
         this._registerEvent();
@@ -957,6 +962,7 @@ export class Widget extends Component {
         if (target) {
             target.off(NodeEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
             target.off(NodeEventType.SIZE_CHANGED, this._setDirtyByMode, this);
+            target.off(NodeEventType.ANCHOR_CHANGED, this._setDirtyByMode, this);
         }
     }
     protected _setDirtyByMode (): void {
@@ -971,7 +977,7 @@ export class Widget extends Component {
             return;
         }
         const isHorizontal = (flag & LEFT_RIGHT) > 0;
-        const trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._getUITransformComp()!;
         if (isAlign) {
             this._alignFlags |= flag;
 

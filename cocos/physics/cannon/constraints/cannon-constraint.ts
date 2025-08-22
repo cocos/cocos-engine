@@ -26,8 +26,6 @@ import CANNON from '@cocos/cannon';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { Constraint, RigidBody } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
-import { getWrap } from '../../utils/util';
-import { CannonSharedBody } from '../cannon-shared-body';
 
 (CANNON.World as any).staticBody = new CANNON.Body();
 (CANNON.World as any).idToConstraintMap = {};

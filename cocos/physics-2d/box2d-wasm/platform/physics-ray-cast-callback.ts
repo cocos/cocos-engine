@@ -44,9 +44,9 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
         PhysicsRayCastCallback._fractions.length = 0;
     }
 
-    static ReportFixture (fixture: number, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
+    static ReportFixture (fixture: number, point: B2.Vec2, normal: B2.Vec2, fraction: number): number {
         if ((B2.FixtureGetFilterData(fixture).categoryBits & PhysicsRayCastCallback._mask) === 0) {
-            return 0;
+            return -1;
         }
 
         if (PhysicsRayCastCallback._type === ERaycast2DType.Closest) {

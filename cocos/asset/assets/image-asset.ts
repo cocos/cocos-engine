@@ -24,11 +24,11 @@
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
-import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM, BYTEDANCE } from 'internal:constants';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { warnID, macro, sys, cclegacy } from '../../core';
+import { warnID, macro, sys, cclegacy, warn } from '../../core';
 import { ccwindow } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 
@@ -163,7 +163,7 @@ function fetchImageSource (imageSource: ImageSource): HTMLCanvasElement | HTMLIm
 
 // 返回该图像源是否是平台提供的图像对象。
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || TAOBAO || TAOBAO_MINIGAME || XIAOMI || BAIDU || WECHAT_MINI_PROGRAM) {
+    if (ALIPAY || TAOBAO || TAOBAO_MINIGAME || XIAOMI || WECHAT_MINI_PROGRAM || BYTEDANCE) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
     }
@@ -231,8 +231,11 @@ export class ImageAsset extends Asset {
             let dataOffset = fileHeaderLength;
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                outView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
-                    file.byteLength, true); //add file data size
+                outView.setUint32(
+                    COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
+                    file.byteLength,
+                    true,
+                ); //add file data size
 
                 // Append compresssed file
                 if (file instanceof ArrayBuffer) {
@@ -246,7 +249,7 @@ export class ImageAsset extends Asset {
             }
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
 
         return out;
@@ -256,6 +259,7 @@ export class ImageAsset extends Asset {
      * @param file 解析压缩纹理。
      * @param type 压缩纹理类型。
      * @engineInternal
+     * @mangle
      */
     public static parseCompressedTextures (file: ArrayBuffer | ArrayBufferView, type: number): IMemoryImageSource {
         const out: IMemoryImageSource = {
@@ -304,9 +308,16 @@ export class ImageAsset extends Asset {
      * @param type @zh 压缩纹理类型。
      * @param out @zh 压缩纹理输出。
      * @engineInternal
+     * @mangle
      */
-    public static parseCompressedTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource): void {
+    public static parseCompressedTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        type: number,
+        out: IMemoryImageSource,
+    ): void {
         switch (type) {
         case compressType.PVR:
             ImageAsset.parsePVRTexture(file, levelIndex, beginOffset, endOffset, out);
@@ -330,9 +341,15 @@ export class ImageAsset extends Asset {
      * @param endOffset @zh 压缩纹理结束时的偏移。
      * @param out @zh 压缩纹理输出。
      * @engineInternal
+     * @mangle
      */
-    public static parsePVRTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parsePVRTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         // Get a view of the arrayBuffer that represents the DDS header.
         const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
@@ -382,9 +399,15 @@ export class ImageAsset extends Asset {
      * @param endOffset @zh 压缩纹理结束时的偏移。
      * @param out @zh 压缩纹理输出。
      * @engineInternal
+     * @mangle
      */
-    public static parsePKMTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parsePKMTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
         const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
@@ -416,9 +439,15 @@ export class ImageAsset extends Asset {
      * @param endOffset @zh 压缩纹理结束时的偏移。
      * @param out @zh 压缩纹理输出。
      * @engineInternal
+     * @mangle
      */
-    public static parseASTCTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parseASTCTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
 
@@ -459,6 +488,7 @@ export class ImageAsset extends Asset {
     /**
      * @en extract the first mipmap from a compressed image asset
      * @engineInternal
+     * @mangle
      */
     public extractMipmap0 (): ImageAsset {
         if (this.mipmapLevelDataSize && this.mipmapLevelDataSize.length > 0) {
@@ -484,6 +514,7 @@ export class ImageAsset extends Asset {
     /**
      * @en extract mipmaps from a compressed image asset
      * @engineInternal
+     * @mangle
      */
     public extractMipmaps (): ImageAsset[] {
         const images: ImageAsset[] = [];
@@ -531,7 +562,7 @@ export class ImageAsset extends Asset {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
             value.format = value.format || this._format;
         }
-        this.reset(value);
+        this.reset(value as ImageSource);
     }
 
     /**
@@ -601,6 +632,7 @@ export class ImageAsset extends Asset {
 
     private _nativeData: ImageSource;
 
+    //NOTE: _exportedExts is used by editor, should not rename or mangle it.
     private _exportedExts: string[] | null | undefined = undefined;
 
     private _format: PixelFormat = PixelFormat.RGBA8888;

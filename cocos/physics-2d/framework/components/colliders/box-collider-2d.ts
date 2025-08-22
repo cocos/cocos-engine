@@ -28,7 +28,7 @@ import { ECollider2DType } from '../../physics-types';
 import { IBoxShape } from '../../../spec/i-physics-shape';
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu } = _decorator;
 
 @ccclass('cc.BoxCollider2D')
 @help('i18n:cc.BoxCollider2D')

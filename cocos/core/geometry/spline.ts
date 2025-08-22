@@ -22,10 +22,13 @@
  THE SOFTWARE.
 */
 
-import { assertIsTrue } from '../data/utils/asserts';
-import { clamp, Vec3 } from '../math';
-import { warnID } from '../platform/debug';
-import enums from './enums';
+import { clamp, v3, Vec3 } from '../math';
+import { assertID, warnID } from '../platform/debug';
+import { ShapeType } from './enums';
+import { assertsArrayIndex } from '../data/utils/asserts';
+
+const vec3MultiplyScalar = Vec3.multiplyScalar;
+const vec3Add = Vec3.add;
 
 export enum SplineMode {
     /**
@@ -76,10 +79,10 @@ export enum SplineMode {
 
 const SPLINE_WHOLE_INDEX = 0xffffffff;
 
-const _v0 = new Vec3();
-const _v1 = new Vec3();
-const _v2 = new Vec3();
-const _v3 = new Vec3();
+const _v0 = v3();
+const _v1 = v3();
+const _v2 = v3();
+const _v3 = v3();
 
 /**
  * @en
@@ -90,15 +93,15 @@ const _v3 = new Vec3();
 
 export class Spline {
     private readonly _type: number;
-    private _mode: SplineMode = SplineMode.CATMULL_ROM;
+    private declare _mode: SplineMode;
     private _knots: Vec3[] = [];
 
     private constructor (mode: SplineMode = SplineMode.CATMULL_ROM, knots: Readonly<Vec3[]> = []) {
-        this._type = enums.SHAPE_SPLINE;
+        this._type = ShapeType.SHAPE_SPLINE;
         this._mode = mode;
 
         for (let i = 0; i < knots.length; i++) {
-            this._knots[i] = new Vec3(knots[i]);
+            this._knots[i] = v3(knots[i]);
         }
     }
 
@@ -143,7 +146,7 @@ export class Spline {
         const knots = s.knots;
         const length = knots.length;
         for (let i = 0; i < length; i++) {
-            out._knots[i] = new Vec3(knots[i]);
+            out._knots[i] = v3(knots[i]);
         }
 
         return out;
@@ -151,9 +154,9 @@ export class Spline {
 
     /**
      * @en
-     * Gets the type of this Spline instance, always returns `enums.SHAPE_SPLINE`.
+     * Gets the type of this Spline instance, always returns `ShapeType.SHAPE_SPLINE`.
      * @zh
-     * 获取此 Spline 的类型，固定返回 `enums.SHAPE_SPLINE`
+     * 获取此 Spline 的类型，固定返回 `ShapeType.SHAPE_SPLINE`
      */
     get type (): number {
         return this._type;
@@ -192,7 +195,7 @@ export class Spline {
         this._knots.length = 0;
 
         for (let i = 0; i < knots.length; i++) {
-            this._knots[i] = new Vec3(knots[i]);
+            this._knots[i] = v3(knots[i]);
         }
     }
 
@@ -225,7 +228,7 @@ export class Spline {
      * @param knot @en The knot to add to this Spline instance. @zh 要添加到当前 Spline 实例的结点。
      */
     public addKnot (knot: Vec3): void {
-        this._knots.push(new Vec3(knot));
+        this._knots.push(v3(knot));
     }
 
     /**
@@ -237,7 +240,7 @@ export class Spline {
      * @param knot @en The knot to be inserted. @zh 要插入的结点。
      */
     public insertKnot (index: number, knot: Vec3): void {
-        const item = new Vec3(knot);
+        const item = v3(knot);
         if (index >= this._knots.length) {
             this._knots.push(item);
             return;
@@ -254,7 +257,7 @@ export class Spline {
      * @param index
      */
     public removeKnot (index: number): void {
-        assertIsTrue(index >= 0 && index < this._knots.length, 'Spline: invalid index');
+        assertsArrayIndex(this._knots, index);
 
         this._knots.splice(index, 1);
     }
@@ -268,7 +271,7 @@ export class Spline {
      * @param knot @en The knot to be set to the specified position. @zh 要设置的结点。
      */
     public setKnot (index: number, knot: Vec3): void {
-        assertIsTrue(index >= 0 && index < this._knots.length, 'Spline: invalid index');
+        assertsArrayIndex(this._knots, index);
 
         this._knots[index].set(knot);
     }
@@ -282,7 +285,7 @@ export class Spline {
      * @returns @en The knot of the specified position of this Spline instance. @zh 当前 Spline 实例指定位置的结点。
      */
     public getKnot (index: number): Readonly<Vec3> {
-        assertIsTrue(index >= 0 && index < this._knots.length, 'Spline: invalid index');
+        assertsArrayIndex(this._knots, index);
 
         return this._knots[index];
     }
@@ -301,7 +304,7 @@ export class Spline {
 
         const segments = this.getSegments();
         if (segments === 0) {
-            return new Vec3(0.0, 0.0, 0.0);
+            return v3();
         }
 
         if (index === SPLINE_WHOLE_INDEX) {
@@ -311,22 +314,26 @@ export class Spline {
             t     = (t % deltaT) / deltaT;
         }
 
+        const knots = this._knots;
+
         if (index >= segments) {
-            return new Vec3(this._knots[this._knots.length - 1]);
+            return v3(knots[knots.length - 1]);
         }
 
         switch (this._mode) {
         case SplineMode.LINEAR:
-            return Spline.calcLinear(this._knots[index], this._knots[index + 1], t);
-        case SplineMode.BEZIER:
-            return Spline.calcBezier(this._knots[index * 4], this._knots[index * 4 + 1], this._knots[index * 4 + 2], this._knots[index * 4 + 3], t);
+            return Spline.calcLinear(knots[index], knots[index + 1], t);
+        case SplineMode.BEZIER: {
+            const start = index * 4;
+            return Spline.calcBezier(knots[start], knots[start + 1], knots[start + 2], knots[start + 3], t);
+        }
         case SplineMode.CATMULL_ROM: {
-            const v0 = index > 0 ? this._knots[index - 1] : this._knots[index];
-            const v3 = index + 2 < this._knots.length ? this._knots[index + 2] : this._knots[index + 1];
-            return Spline.calcCatmullRom(v0, this._knots[index], this._knots[index + 1], v3, t);
+            const v0 = index > 0 ? knots[index - 1] : knots[index];
+            const v3 = index + 2 < knots.length ? knots[index + 2] : knots[index + 1];
+            return Spline.calcCatmullRom(v0, knots[index], knots[index + 1], v3, t);
         }
         default:
-            return new Vec3(0.0, 0.0, 0.0);
+            return v3();
         }
     }
 
@@ -362,6 +369,7 @@ export class Spline {
         return points;
     }
 
+    // eslint-disable-next-line consistent-return
     private getSegments (): number {
         const count = this._knots.length;
         switch (this._mode) {
@@ -374,22 +382,23 @@ export class Spline {
 
             return count - 1;
         case SplineMode.BEZIER:
-            if (count < 4 || count % 4 != 0) {
+            if (count < 4 || count % 4 !== 0) {
                 warnID(14301);
                 return 0;
             }
 
             return count / 4;
         default:
-            assertIsTrue(false, 'Spline error: invalid mode');
+            assertID(false, 16407);
+            return 0;
         }
     }
 
     private static calcLinear (v0: Vec3, v1: Vec3, t: number): Vec3 {
         const result = new Vec3();
-        Vec3.multiplyScalar(_v0, v0, (1.0 - t));
-        Vec3.multiplyScalar(_v1, v1, t);
-        Vec3.add(result, _v0, _v1);
+        vec3MultiplyScalar(_v0, v0, (1.0 - t));
+        vec3MultiplyScalar(_v1, v1, t);
+        vec3Add(result, _v0, _v1);
 
         return result;
     }
@@ -397,13 +406,13 @@ export class Spline {
     private static calcBezier (v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number): Vec3 {
         const result = new Vec3();
         const s = 1.0 - t;
-        Vec3.multiplyScalar(_v0, v0, s * s * s);
-        Vec3.multiplyScalar(_v1, v1, 3.0 * t * s * s);
-        Vec3.multiplyScalar(_v2, v2, 3.0 * t * t * s);
-        Vec3.multiplyScalar(_v3, v3, t * t * t);
-        Vec3.add(_v0, _v0, _v1);
-        Vec3.add(_v2, _v2, _v3);
-        Vec3.add(result, _v0, _v2);
+        vec3MultiplyScalar(_v0, v0, s * s * s);
+        vec3MultiplyScalar(_v1, v1, 3.0 * t * s * s);
+        vec3MultiplyScalar(_v2, v2, 3.0 * t * t * s);
+        vec3MultiplyScalar(_v3, v3, t * t * t);
+        vec3Add(_v0, _v0, _v1);
+        vec3Add(_v2, _v2, _v3);
+        vec3Add(result, _v0, _v2);
 
         return result;
     }
@@ -411,13 +420,13 @@ export class Spline {
         const result = new Vec3();
         const t2 = t * t;
         const t3 = t2 * t;
-        Vec3.multiplyScalar(_v0, v0, -0.5 * t3 + t2 - 0.5 * t);
-        Vec3.multiplyScalar(_v1, v1, 1.5 * t3 - 2.5 * t2 + 1.0);
-        Vec3.multiplyScalar(_v2, v2, -1.5 * t3 + 2.0 * t2 + 0.5 * t);
-        Vec3.multiplyScalar(_v3, v3, 0.5 * t3 - 0.5 * t2);
-        Vec3.add(_v0, _v0, _v1);
-        Vec3.add(_v2, _v2, _v3);
-        Vec3.add(result, _v0, _v2);
+        vec3MultiplyScalar(_v0, v0, -0.5 * t3 + t2 - 0.5 * t);
+        vec3MultiplyScalar(_v1, v1, 1.5 * t3 - 2.5 * t2 + 1.0);
+        vec3MultiplyScalar(_v2, v2, -1.5 * t3 + 2.0 * t2 + 0.5 * t);
+        vec3MultiplyScalar(_v3, v3, 0.5 * t3 - 0.5 * t2);
+        vec3Add(_v0, _v0, _v1);
+        vec3Add(_v2, _v2, _v3);
+        vec3Add(result, _v0, _v2);
 
         return result;
     }

@@ -268,6 +268,8 @@ public:
      * @js NA
      */
     void removeAllFunctionsToBePerformedInCocosThread();
+    
+    void runFunctionsToBePerformedInCocosThread();
 
     bool isCurrentTargetSalvaged() const { return _currentTargetSalvaged; };
 

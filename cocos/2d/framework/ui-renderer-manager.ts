@@ -27,6 +27,7 @@ import { assert, js } from '../../core';
 import { UIMeshRenderer } from '../components';
 import { UIRenderer } from './ui-renderer';
 
+/** @mangle */
 export class UIRendererManager {
     private _allRenderers: (UIRenderer | UIMeshRenderer)[] = [];
     private _dirtyRenderers: (UIRenderer | UIMeshRenderer)[] = [];
@@ -62,9 +63,8 @@ export class UIRendererManager {
     }
 
     public updateAllDirtyRenderers (): void {
-        const length = this._dirtyRenderers.length;
         const dirtyRenderers = this._dirtyRenderers;
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < this._dirtyRenderers.length; i++) {
             if (DEBUG) {
                 assert(dirtyRenderers[i]._internalId !== -1);
             }

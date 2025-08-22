@@ -22,13 +22,14 @@
  THE SOFTWARE.
 */
 
+/** @mangle */
 class Aim {
     // vertex index in coordinates array
-    public i: number;
+    public declare i: number;
 
     // vertex coordinates
-    public x: number;
-    public y: number;
+    public declare x: number;
+    public declare y: number;
 
     // previous and next vertex nodes in a polygon ring
     public prev: Aim | null = null;
@@ -182,7 +183,7 @@ function isEar (ear: Aim): boolean {
     return true;
 }
 
-function isEarHashed (ear: Aim, minX: number, minY: number, size): boolean {
+function isEarHashed (ear: Aim, minX: number, minY: number, size: number): boolean {
     const a = ear.prev!;
     const b = ear;
     const c = ear.next!;
@@ -317,7 +318,7 @@ function compareX (a, b): number {
     return a.x - b.x;
 }
 
-// find a bridge between vertices that connects hole with an outer ring and and link it
+// find a bridge between vertices that connects hole with an outer ring and link it
 function eliminateHole (hole: Aim, outerNode: Aim | null): void {
     outerNode = findHoleBridge(hole, outerNode!);
     if (outerNode) {

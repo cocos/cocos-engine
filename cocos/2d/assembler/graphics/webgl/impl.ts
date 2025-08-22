@@ -24,7 +24,7 @@
 
 import { JSB } from 'internal:constants';
 import { Color, Vec2 } from '../../../../core';
-import { Graphics } from '../../../components';
+import { Graphics } from '../../../components/graphics';
 import { RenderData, MeshRenderData } from '../../../renderer/render-data';
 import { RenderDrawInfoType } from '../../../renderer/render-draw-info';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
@@ -37,6 +37,10 @@ export class Point extends Vec2 {
     public dmy = 0;
     public flags = 0;
     public len = 0;
+
+    constructor (x: number, y: number) {
+        super(x, y);
+    }
 
     public reset (): void {
         this.dx = 0;
@@ -62,6 +66,7 @@ export class Path {
     }
 }
 
+/** @mangle */
 export class Impl {
     public dataOffset = 0;
     public updatePathOffset = false;
@@ -86,7 +91,7 @@ export class Impl {
     private _points: Point[] = [];
     private _renderDataList: MeshRenderData[] = [];
     private _curPath: Path | null = null;
-    private _comp: Graphics;
+    private declare _comp: Graphics;
 
     constructor (comp: Graphics) {
         this._comp = comp;
@@ -182,7 +187,9 @@ export class Impl {
             }
 
             MeshRenderData.remove(data);
-            data.removeRenderDrawInfo(this._comp);
+            if (JSB) {
+                this._comp.renderEntity.clearRenderDrawInfos();
+            }
         }
 
         this._renderDataList.length = 0;

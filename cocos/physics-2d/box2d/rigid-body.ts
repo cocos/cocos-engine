@@ -23,21 +23,23 @@
 */
 
 import b2 from '@cocos/box2d';
+import { DEBUG } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, TWO_PI, HALF_PI, warn } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
 import { Collider2D } from '../framework';
-import { NodeEventType } from '../../scene-graph/node-event';
+import { TransformBit } from '../../scene-graph/node-enum';
 
 const tempVec3 = new Vec3();
 
 const tempVec2_1 = new b2.Vec2();
 
+/** @mangle */
 export class b2RigidBody2D implements IRigidBody2D {
     get impl (): b2.Body | null {
         return this._body;
@@ -82,7 +84,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         this.setActive(false);
     }
 
-    nodeTransformChanged (type): void {
+    nodeTransformChanged (type: TransformBit): void {
         if (PhysicsSystem2D.instance.stepping) {
             return;
         }
@@ -160,7 +162,7 @@ export class b2RigidBody2D implements IRigidBody2D {
 
         const pos = this._rigidBody.node.worldPosition;
 
-        let temp;
+        let temp: b2.Vec2;
         const bodyType = this._rigidBody.type;
         if (bodyType === ERigidBody2DType.Animated) {
             temp = b2body.GetLinearVelocity();
@@ -207,6 +209,7 @@ export class b2RigidBody2D implements IRigidBody2D {
     }
 
     setType (v: ERigidBody2DType): void {
+        (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld)._updateBodyType(this);
         this._body!.SetType(v as number);
     }
     setLinearDamping (v: number): void {
@@ -228,7 +231,11 @@ export class b2RigidBody2D implements IRigidBody2D {
         return this._body!.IsActive();
     }
     setActive (v: boolean): void {
-        this._body!.SetActive(v);
+        if (!this._body!.m_world.IsLocked()) {
+            this._body!.SetActive(v);
+        } else if (DEBUG) {
+            warn('Can not active RigidBody in contract listener.');
+        }
     }
     wakeUp (): void {
         this._body!.SetAwake(true);

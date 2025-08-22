@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { BufferFlagBit, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../base/define';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { WebGPUBuffer } from './webgpu-buffer';
@@ -58,16 +59,54 @@ export function hashCombineStr (str: string, currHash: number): number {
     return hashCombine(hash, currHash);
 }
 
+interface WebGPU {
+    glslang: any;
+    twgsl: any;
+}
+
+export const webGPU: WebGPU = {
+    glslang: undefined,
+    twgsl: undefined,
+};
+function overrideClass (wasm): void {
+    if ('compileGLSL' in wasm) {
+        webGPU.glslang = wasm;
+    } else if ('convertSpirV2WGSL' in wasm) {
+        webGPU.twgsl = wasm;
+    }
+}
+
+export function overrideWebGPUDefine (wasm): void {
+    overrideClass(wasm);
+}
+
 export class DefaultResources {
     // hash, targetResource
     buffersDescLayout: Map<number, WebGPUBuffer> = new Map<number, WebGPUBuffer>();
     texturesDescLayout: Map<number, WebGPUTexture> = new Map<number, WebGPUTexture>();
     samplersDescLayout: Map<number, WebGPUSampler> = new Map<number, WebGPUSampler>();
     buffer!: WebGPUBuffer;
+    storageBuffers: WebGPUBuffer[] = [];
     texture!: WebGPUTexture;
+    cubeTexture!: WebGPUTexture;
     sampler!: WebGPUSampler;
     setLayout!: DescriptorSetLayout;
     descSet!: DescriptorSet;
+    getStorageBuffer (idx: number): WebGPUBuffer {
+        if (this.storageBuffers[idx]) {
+            return this.storageBuffers[idx];
+        }
+        const bufferInfo = new BufferInfo(
+            BufferUsageBit.STORAGE,
+            MemoryUsageBit.DEVICE,
+            16,
+            16, // in bytes
+            BufferFlagBit.NONE,
+        );
+        const defaultBuff = WebGPUDeviceManager.instance.createBuffer(bufferInfo) as WebGPUBuffer;
+        this.storageBuffers[idx] = defaultBuff;
+        return defaultBuff;
+    }
 }
 
 export function isBound (binds: number[], compares: number[]): boolean {

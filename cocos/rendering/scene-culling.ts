@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 import { Model } from '../render-scene/scene/model';
-import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
-import { Vec3, Pool, geometry, cclegacy } from '../core';
-import { RenderPipeline } from './render-pipeline';
-import { IRenderObject, UBOShadow } from './define';
+import { Camera, CameraUsage, SkyBoxFlagValue } from '../render-scene/scene/camera';
+import { Vec3, Pool, geometry, cclegacy, warnID } from '../core';
+import { PipelineUBO } from './pipeline-ubo';
+import { IRenderObject, UBOShadowEnum } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
@@ -50,15 +50,15 @@ function getRenderObject (model: Model, camera: Camera): IRenderObject {
     return ro;
 }
 
-export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera): void {
-    const sceneData = pipeline.pipelineSceneData;
+export function validPunctualLightsCulling (sceneData: PipelineSceneData, camera: Camera): void {
     const validPunctualLights = sceneData.validPunctualLights;
     validPunctualLights.length = 0;
 
     const { spotLights } = camera.scene!;
+    const disableLightmap = camera.node.scene.globals.disableLightmap;
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
-        if (light.baked && !camera.node.scene.globals.disableLightmap) {
+        if (light.baked && !disableLightmap) {
             continue;
         }
 
@@ -71,7 +71,7 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     const { sphereLights } = camera.scene!;
     for (let i = 0; i < sphereLights.length; i++) {
         const light = sphereLights[i];
-        if (light.baked && !camera.node.scene.globals.disableLightmap) {
+        if (light.baked && !disableLightmap) {
             continue;
         }
         geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
@@ -147,10 +147,9 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     }
 }
 
-export function sceneCulling (pipeline: RenderPipeline, camera: Camera): void {
+export function sceneCulling (sceneData: PipelineSceneData, pipelineUBO: PipelineUBO, camera: Camera): void {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
-    const sceneData = pipeline.pipelineSceneData;
     const shadows = sceneData.shadows;
     const skybox = sceneData.skybox;
     const csmLayers = sceneData.csmLayers;
@@ -164,7 +163,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera): void {
     csmLayerObjects.clear();
 
     if (shadows.enabled) {
-        pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
+        pipelineUBO.updateShadowUBORange(UBOShadowEnum.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
             // update CSM layers
             if (mainLight && mainLight.node) {
@@ -173,11 +172,11 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera): void {
         }
     }
 
-    if ((camera.clearFlag & SKYBOX_FLAG)) {
+    if ((camera.clearFlag & SkyBoxFlagValue.VALUE)) {
         if (skybox.enabled && skybox.model) {
             renderObjects.push(getRenderObject(skybox.model, camera));
         } else if (camera.cameraUsage !== CameraUsage.EDITOR && camera.cameraUsage !== CameraUsage.SCENE_VIEW) {
-            cclegacy.warnID(15100, camera.name);
+            warnID(15100, camera.name!);
         }
     }
 

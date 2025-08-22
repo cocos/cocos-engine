@@ -28,9 +28,15 @@ import { IWebGPUGPUSampler } from './webgpu-gpu-objects';
 import { SamplerInfo } from '../base/define';
 import { WebGPUDeviceManager } from './define';
 
+const samplerCaches: Map<number, GPUSampler> = new Map();
+
 export class WebGPUSampler extends Sampler {
     public get gpuSampler (): IWebGPUGPUSampler {
         return this._gpuSampler!;
+    }
+
+    public get samplerInfo (): SamplerInfo {
+        return this._info;
     }
 
     private _gpuSampler: IWebGPUGPUSampler | null = null;
@@ -64,13 +70,34 @@ export class WebGPUSampler extends Sampler {
         };
     }
 
-    public createGPUSampler (mipLevel: number = 1): void {
-        if (this._gpuSampler && !this.gpuSampler.gpuSampler) {
-            this._gpuSampler.mipLevel = mipLevel;
-            const device = WebGPUDeviceManager.instance;
-            this._hasChange = true;
-            WebGPUCmdFuncCreateSampler(device, this._gpuSampler);
+    private _computeSamplerKey (info: IWebGPUGPUSampler): number {
+        let hash = info.minFilter;
+        hash |= ((info.magFilter as number) << 2);
+        hash |= ((info.mipFilter as number) << 4);
+        hash |= ((info.addressU as number) << 6);
+        hash |= ((info.addressV as number) << 8);
+        hash |= ((info.addressW as number) << 10);
+        hash |= (info.maxAnisotropy << 12);
+        hash |= ((info.compare as number) << 16);
+        hash |= ((info.mipLevel) << 18);
+        return hash;
+    }
+
+    public createGPUSampler (mipLevel: number = 1): GPUSampler | null {
+        if (!this._gpuSampler) {
+            return null;
         }
+        this._gpuSampler.mipLevel = mipLevel;
+        const currKey = this._computeSamplerKey(this._gpuSampler);
+        let currGPUSampler = samplerCaches.get(currKey);
+        if (currGPUSampler) return currGPUSampler;
+
+        const device = WebGPUDeviceManager.instance;
+        this._hasChange = true;
+        WebGPUCmdFuncCreateSampler(device, this._gpuSampler);
+        currGPUSampler = this._gpuSampler.gpuSampler!;
+        samplerCaches.set(currKey, currGPUSampler);
+        return currGPUSampler;
     }
 
     public destroy (): void {

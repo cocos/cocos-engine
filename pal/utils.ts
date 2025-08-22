@@ -22,14 +22,15 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, USE_XR } from 'internal:constants';
+import { warnID } from '../cocos/core/platform/debug';
 
 /**
  * This method clones methods in minigame environment, sub as `wx`, `swan` etc. to a module called minigame.
  * @param targetObject Usually it's specified as the minigame module.
  * @param originObj Original minigame environment such as `wx`, `swan` etc.
  */
-export function cloneObject (targetObject: any, originObj: any): void {
+export function cloneObject<T extends object = any> (targetObject: T, originObj: T): void {
     Object.keys(originObj).forEach((key) => {
         if (typeof originObj[key] === 'function') {
             targetObject[key] = originObj[key].bind(originObj);
@@ -169,7 +170,7 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
 export function versionCompare (versionA: string, versionB: string): number {
     const versionRegExp = /\d+\.\d+\.\d+/;
     if (!(versionRegExp.test(versionA) && versionRegExp.test(versionB))) {
-        console.warn('wrong format of version when compare version');
+        warnID(16356);
         return 0;
     }
     const versionNumbersA = versionA.split('.').map((num: string) => Number.parseInt(num));
@@ -191,7 +192,7 @@ export function versionCompare (versionA: string, versionB: string): number {
  * @param args The arguments to be passed to the callback function.
  * @returns A unique identifier for the timer.
  */
-export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number, ...args: any[]): number {
+export function setTimeoutRAF<T extends any[]> (callback: (...args: T) => void, delay: number, ...args: T): number {
     const start = performance.now();
 
     const raf = requestAnimationFrame
@@ -201,7 +202,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
     || window.oRequestAnimationFrame
     || window.msRequestAnimationFrame;
 
-    if (EDITOR || raf === undefined || globalThis.__globalXR?.isWebXR) {
+    if (EDITOR || raf === undefined || (USE_XR && globalThis.__globalXR?.isWebXR)) {
         return setTimeout(callback, delay, ...args);
     }
 
@@ -221,7 +222,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
  * @param id A numeric ID that represents the timer to be canceled.
  * @returns Nothing.
  */
-export function clearTimeoutRAF (id): void {
+export function clearTimeoutRAF (id: number): void {
     const caf = cancelAnimationFrame
         || window.cancelAnimationFrame
         || window.cancelRequestAnimationFrame
@@ -233,7 +234,7 @@ export function clearTimeoutRAF (id): void {
         || window.mozCancelAnimationFrame
         || window.webkitCancelAnimationFrame
         || window.ocancelAnimationFrame;
-    if (EDITOR || caf === undefined || globalThis.__globalXR?.isWebXR) {
+    if (EDITOR || caf === undefined || (USE_XR && globalThis.__globalXR?.isWebXR)) {
         clearTimeout(id);
     } else {
         caf(id);

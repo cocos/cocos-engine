@@ -66,6 +66,18 @@ export enum StencilSharedBufferView {
     count,
 }
 
+/** @mangle */
+interface StencilPattern {
+    stencilTest: boolean;
+    func: ComparisonFunc;
+    stencilMask: number;
+    writeMask: number;
+    failOp: StencilOp;
+    zFailOp: StencilOp;
+    passOp: StencilOp;
+    ref: number;
+}
+
 /**
  * @en Stencil state manager.
  * @zh 模板状态管理器。
@@ -73,8 +85,8 @@ export enum StencilSharedBufferView {
  */
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
-    private _maskStack: any[] = [];
-    private _stencilPattern = {
+    private _maskStack: number[] = [];
+    private _stencilPattern: StencilPattern = {
         stencilTest: true,
         func: ComparisonFunc.ALWAYS,
         stencilMask: 0xffff,
@@ -112,7 +124,7 @@ export class StencilManager {
         zFailOp: StencilOp;
         passOp: StencilOp;
         ref: number;
-    } {
+        } {
         return this._stencilPattern;
     }
 
@@ -121,7 +133,7 @@ export class StencilManager {
      * @zh 添加mask嵌套。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public pushMask (mask: any): void {
+    public pushMask (mask: number): void {
         this._maskStack.push(mask);
     }
 
@@ -236,38 +248,39 @@ export class StencilManager {
             let depthWriteValue = 0;
             if (dss.depthTest) depthTestValue = 1;
             if (dss.depthWrite) depthWriteValue = 1;
-            key = (depthTestValue) | (depthWriteValue << 1) | (dss.depthFunc << 2)  | (stage << 6) | (this._maskStack.length << 9);
+            key = (depthTestValue) | (depthWriteValue << 1) | ((dss.depthFunc as number) << 2) | ((stage as number) << 6) | (this._maskStack.length << 9);
             depthTest = dss.depthTest;
             depthWrite = dss.depthWrite;
             depthFunc = dss.depthFunc;
             cacheMap = this.stencilStateMapWithDepth;
         } else {
-            key = (stage << 16) | this._maskStack.length;
+            key = ((stage as number) << 16) | this._maskStack.length;
         }
         if (cacheMap && cacheMap.has(key)) {
             return cacheMap.get(key) as DepthStencilState;
         }
         this.setStateFromStage(stage);
+        const stencilPattern = this._stencilPattern;
         const depthStencilState = new DepthStencilState(
             depthTest,
             depthWrite,
             depthFunc,
-            this._stencilPattern.stencilTest,
-            this._stencilPattern.func,
-            this._stencilPattern.stencilMask,
-            this._stencilPattern.writeMask,
-            this._stencilPattern.failOp,
-            this._stencilPattern.zFailOp,
-            this._stencilPattern.passOp,
-            this._stencilPattern.ref,
-            this._stencilPattern.stencilTest,
-            this._stencilPattern.func,
-            this._stencilPattern.stencilMask,
-            this._stencilPattern.writeMask,
-            this._stencilPattern.failOp,
-            this._stencilPattern.zFailOp,
-            this._stencilPattern.passOp,
-            this._stencilPattern.ref,
+            stencilPattern.stencilTest,
+            stencilPattern.func,
+            stencilPattern.stencilMask,
+            stencilPattern.writeMask,
+            stencilPattern.failOp,
+            stencilPattern.zFailOp,
+            stencilPattern.passOp,
+            stencilPattern.ref,
+            stencilPattern.stencilTest,
+            stencilPattern.func,
+            stencilPattern.stencilMask,
+            stencilPattern.writeMask,
+            stencilPattern.failOp,
+            stencilPattern.zFailOp,
+            stencilPattern.passOp,
+            stencilPattern.ref,
         );
         cacheMap.set(key, depthStencilState);
         return depthStencilState;
@@ -283,7 +296,7 @@ export class StencilManager {
     }
 
     // Notice: Only children node in Mask need use this.stage
-    private setStateFromStage (stage): void {
+    private setStateFromStage (stage: Stage): void {
         const pattern = this._stencilPattern;
         if (stage === Stage.DISABLED) {
             pattern.stencilTest = false;

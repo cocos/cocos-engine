@@ -618,6 +618,20 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
             CC_LOG_ERROR("Invalid phase ID");
             return;
         }
+    } else {
+        // Here we are in legacy-pipeline
+        if (info.phaseID != INVALID_ID) {
+            _passID = info.passID;
+        } else {
+            if (info.pass && *info.pass != "default") {
+                // In legacy pipeline, user might select invalid material,
+                // whose pass name is not 'default'.
+                // We should filter these passes.
+                // Here we set _passID to 0, if pass is not 'default'.
+                CC_ASSERT(_passID == INVALID_ID);
+                _passID = 0;
+            }
+        }
     }
     _phaseString = "default";
     _phase = pipeline::getPhaseID(_phaseString);

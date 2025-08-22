@@ -22,57 +22,58 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, HUAWEI, EDITOR, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit,
     BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
-import { macro, warnID, warn, debug } from '../../core';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import { IWebGLBlitManager } from './webgl-gpu-objects';
+import { WebGLConstants } from '../gl-constants';
+import { macro } from '../../core/platform/macro';
+import { debug, warn, warnID } from '../../core/platform/debug';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
 function initStates (gl: WebGLRenderingContext): void {
-    gl.activeTexture(gl.TEXTURE0);
-    gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.activeTexture(WebGLConstants.TEXTURE0);
+    gl.pixelStorei(WebGLConstants.PACK_ALIGNMENT, 1);
+    gl.pixelStorei(WebGLConstants.UNPACK_ALIGNMENT, 1);
+    gl.pixelStorei(WebGLConstants.UNPACK_FLIP_Y_WEBGL, false);
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, null);
 
     // rasterizer state
-    gl.enable(gl.SCISSOR_TEST);
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
-    gl.frontFace(gl.CCW);
-    gl.disable(gl.POLYGON_OFFSET_FILL);
+    gl.enable(WebGLConstants.SCISSOR_TEST);
+    gl.enable(WebGLConstants.CULL_FACE);
+    gl.cullFace(WebGLConstants.BACK);
+    gl.frontFace(WebGLConstants.CCW);
+    gl.disable(WebGLConstants.POLYGON_OFFSET_FILL);
     gl.polygonOffset(0.0, 0.0);
 
     // depth stencil state
-    gl.enable(gl.DEPTH_TEST);
+    gl.enable(WebGLConstants.DEPTH_TEST);
     gl.depthMask(true);
-    gl.depthFunc(gl.LESS);
+    gl.depthFunc(WebGLConstants.LESS);
     gl.depthRange(0.0, 1.0);
 
-    gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffff);
-    gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
-    gl.stencilMaskSeparate(gl.FRONT, 0xffff);
-    gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, 0xffff);
-    gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
-    gl.stencilMaskSeparate(gl.BACK, 0xffff);
+    gl.stencilFuncSeparate(WebGLConstants.FRONT, WebGLConstants.ALWAYS, 1, 0xffff);
+    gl.stencilOpSeparate(WebGLConstants.FRONT, WebGLConstants.KEEP, WebGLConstants.KEEP, WebGLConstants.KEEP);
+    gl.stencilMaskSeparate(WebGLConstants.FRONT, 0xffff);
+    gl.stencilFuncSeparate(WebGLConstants.BACK, WebGLConstants.ALWAYS, 1, 0xffff);
+    gl.stencilOpSeparate(WebGLConstants.BACK, WebGLConstants.KEEP, WebGLConstants.KEEP, WebGLConstants.KEEP);
+    gl.stencilMaskSeparate(WebGLConstants.BACK, 0xffff);
 
-    gl.disable(gl.STENCIL_TEST);
+    gl.disable(WebGLConstants.STENCIL_TEST);
 
     // blend state
-    gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
-    gl.disable(gl.BLEND);
-    gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
-    gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
+    gl.disable(WebGLConstants.SAMPLE_ALPHA_TO_COVERAGE);
+    gl.disable(WebGLConstants.BLEND);
+    gl.blendEquationSeparate(WebGLConstants.FUNC_ADD, WebGLConstants.FUNC_ADD);
+    gl.blendFuncSeparate(WebGLConstants.ONE, WebGLConstants.ZERO, WebGLConstants.ONE, WebGLConstants.ZERO);
     gl.colorMask(true, true, true, true);
     gl.blendColor(0.0, 0.0, 0.0, 0.0);
 }
@@ -148,7 +149,7 @@ export function getExtensions (gl: WebGLRenderingContext): IWebGLExtensions {
 
         if (RUNTIME_BASED) {
             // VAO implementations doesn't work well on some runtime platforms
-            if (LINKSURE || QTT || COCOSPLAY || HUAWEI) {
+            if (HUAWEI) {
                 res.OES_vertex_array_object = null;
             }
         }
@@ -214,6 +215,7 @@ export function getContext (canvas: HTMLCanvasElement): WebGLRenderingContext | 
     return context;
 }
 
+/** @mangle */
 export class WebGLSwapchain extends Swapchain {
     get extensions (): IWebGLExtensions {
         return this._extensions as IWebGLExtensions;
@@ -224,7 +226,6 @@ export class WebGLSwapchain extends Swapchain {
     }
 
     public stateCache: WebGLStateCache = new WebGLStateCache();
-    public cmdAllocator: WebGLCommandAllocator = new WebGLCommandAllocator();
     public nullTex2D: WebGLTexture = null!;
     public nullTexCube: WebGLTexture = null!;
 
@@ -233,20 +234,23 @@ export class WebGLSwapchain extends Swapchain {
     private _extensions: IWebGLExtensions | null = null;
     private _blitManager: IWebGLBlitManager | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<SwapchainInfo>): void {
-        this._canvas = info.windowHandle;
+        const self = this;
+        self._canvas = info.windowHandle;
 
-        this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);
-        this._canvas.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
+        self._webGLContextLostHandler = self._onWebGLContextLost.bind(self);
+        self._canvas.addEventListener(eventWebGLContextLost, self._webGLContextLostHandler);
 
-        const gl = WebGLDeviceManager.instance.gl;
+        const { instance } = WebGLDeviceManager;
+        const { gl, capabilities } = instance;
 
-        this.stateCache.initialize(
-            WebGLDeviceManager.instance.capabilities.maxTextureUnits,
-            WebGLDeviceManager.instance.capabilities.maxVertexAttributes,
-        );
+        self.stateCache.initialize(capabilities.maxTextureUnits, capabilities.maxVertexAttributes);
 
-        this._extensions = getExtensions(gl);
+        self._extensions = getExtensions(gl);
 
         // init states
         initStates(gl);
@@ -254,8 +258,8 @@ export class WebGLSwapchain extends Swapchain {
         const colorFmt = Format.RGBA8;
         let depthStencilFmt = Format.DEPTH_STENCIL;
 
-        let depthBits = gl.getParameter(gl.DEPTH_BITS);
-        const stencilBits = gl.getParameter(gl.STENCIL_BITS);
+        let depthBits = gl.getParameter(WebGLConstants.DEPTH_BITS);
+        const stencilBits = gl.getParameter(WebGLConstants.STENCIL_BITS);
 
         if (ALIPAY) {
             depthBits = 24;
@@ -264,24 +268,24 @@ export class WebGLSwapchain extends Swapchain {
         if (depthBits && stencilBits) depthStencilFmt = Format.DEPTH_STENCIL;
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
-        this._colorTexture = new WebGLTexture();
-        this._colorTexture.initAsSwapchainTexture({
-            swapchain: this,
+        self._colorTexture = new WebGLTexture();
+        self._colorTexture.initAsSwapchainTexture({
+            swapchain: self,
             format: colorFmt,
             width: info.width,
             height: info.height,
         });
 
-        this._depthStencilTexture = new WebGLTexture();
-        this._depthStencilTexture.initAsSwapchainTexture({
-            swapchain: this,
+        self._depthStencilTexture = new WebGLTexture();
+        self._depthStencilTexture.initAsSwapchainTexture({
+            swapchain: self,
             format: depthStencilFmt,
             width: info.width,
             height: info.height,
         });
 
         // create default null texture
-        this.nullTex2D = WebGLDeviceManager.instance.createTexture(new TextureInfo(
+        self.nullTex2D = instance.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -290,7 +294,7 @@ export class WebGLSwapchain extends Swapchain {
             TextureFlagBit.GEN_MIPMAP,
         )) as WebGLTexture;
 
-        this.nullTexCube = WebGLDeviceManager.instance.createTexture(new TextureInfo(
+        self.nullTexCube = instance.createTexture(new TextureInfo(
             TextureType.CUBE,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -304,50 +308,53 @@ export class WebGLSwapchain extends Swapchain {
         nullTexRegion.texExtent.width = 2;
         nullTexRegion.texExtent.height = 2;
 
-        const nullTexBuff = new Uint8Array(this.nullTex2D.size);
+        const nullTexBuff = new Uint8Array(self.nullTex2D.size);
         nullTexBuff.fill(0);
-        WebGLDeviceManager.instance.copyBuffersToTexture([nullTexBuff], this.nullTex2D, [nullTexRegion]);
+        instance.copyBuffersToTexture([nullTexBuff], self.nullTex2D, [nullTexRegion]);
 
         nullTexRegion.texSubres.layerCount = 6;
-        WebGLDeviceManager.instance.copyBuffersToTexture(
+        instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube, [nullTexRegion],
+            self.nullTexCube,
+            [nullTexRegion],
         );
-        this._blitManager = new IWebGLBlitManager();
+        self._blitManager = new IWebGLBlitManager();
     }
 
     public destroy (): void {
-        if (this._canvas && this._webGLContextLostHandler) {
-            this._canvas.removeEventListener(eventWebGLContextLost, this._webGLContextLostHandler);
-            this._webGLContextLostHandler = null;
+        const self = this;
+        if (self._canvas && self._webGLContextLostHandler) {
+            self._canvas.removeEventListener(eventWebGLContextLost, self._webGLContextLostHandler);
+            self._webGLContextLostHandler = null;
         }
 
-        if (this.nullTex2D) {
-            this.nullTex2D.destroy();
-            this.nullTex2D = null!;
+        if (self.nullTex2D) {
+            self.nullTex2D.destroy();
+            self.nullTex2D = null!;
         }
 
-        if (this.nullTexCube) {
-            this.nullTexCube.destroy();
-            this.nullTexCube = null!;
+        if (self.nullTexCube) {
+            self.nullTexCube.destroy();
+            self.nullTexCube = null!;
         }
 
-        if (this._blitManager) {
-            this._blitManager.destroy();
-            this._blitManager = null!;
+        if (self._blitManager) {
+            self._blitManager.destroy();
+            self._blitManager = null!;
         }
 
-        this._extensions = null;
-        this._canvas = null;
+        self._extensions = null;
+        self._canvas = null;
     }
 
     public resize (width: number, height: number, surfaceTransform: SurfaceTransform): void {
-        if (this._colorTexture.width !== width || this._colorTexture.height !== height) {
+        const self = this;
+        if (self._colorTexture.width !== width || self._colorTexture.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
-            this._canvas!.width = width;
-            this._canvas!.height = height;
-            this._colorTexture.resize(width, height);
-            this._depthStencilTexture.resize(width, height);
+            self._canvas!.width = width;
+            self._canvas!.height = height;
+            self._colorTexture.resize(width, height);
+            self._depthStencilTexture.resize(width, height);
         }
     }
 

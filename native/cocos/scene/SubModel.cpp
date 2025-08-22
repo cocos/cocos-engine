@@ -154,41 +154,6 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const SharedPassArray &pPas
 
     const auto &passes = *_passes;
     _priority = pipeline::RenderPriority::DEFAULT;
-
-    // initialize resources for reflection material
-    if (passes[0]->getPhase() == pipeline::getPhaseID("reflection")) {
-        const auto *mainWindow = Root::getInstance()->getMainWindow();
-        uint32_t texWidth = mainWindow->getWidth();
-        uint32_t texHeight = mainWindow->getHeight();
-        const uint32_t minSize = 512;
-        if (texHeight < texWidth) {
-            texWidth = minSize * texWidth / texHeight;
-            texHeight = minSize;
-        } else {
-            texWidth = minSize;
-            texHeight = minSize * texHeight / texWidth;
-        }
-        _reflectionTex = _device->createTexture(gfx::TextureInfo{
-            gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::SAMPLED,
-            gfx::Format::RGBA8,
-            texWidth,
-            texHeight,
-        });
-        _descriptorSet->bindTexture(pipeline::REFLECTIONTEXTURE::BINDING, _reflectionTex);
-
-        const gfx::SamplerInfo samplerInfo{
-            gfx::Filter::LINEAR,
-            gfx::Filter::LINEAR,
-            gfx::Filter::NONE,
-            gfx::Address::CLAMP,
-            gfx::Address::CLAMP,
-            gfx::Address::CLAMP,
-        };
-        _reflectionSampler = _device->getSampler(samplerInfo);
-        _descriptorSet->bindSampler(pipeline::REFLECTIONTEXTURE::BINDING, _reflectionSampler);
-        _descriptorSet->bindTexture(pipeline::REFLECTIONSTORAGE::BINDING, _reflectionTex);
-    }
 }
 
 void SubModel::destroy() {
@@ -203,9 +168,6 @@ void SubModel::destroy() {
     _subMesh = nullptr;
     _passes.reset();
     _shaders.clear();
-
-    CC_SAFE_DESTROY_NULL(_reflectionTex);
-    _reflectionSampler = nullptr;
 }
 
 void SubModel::onPipelineStateChanged() {
@@ -315,7 +277,7 @@ void SubModel::updateInstancedWorldMatrix(const Mat4 &mat, int32_t idx) {
     auto &v2 = ccstd::get<Float32Array>(attrs[idx + 1]);
     auto &v3 = ccstd::get<Float32Array>(attrs[idx + +2]);
     const uint32_t copyBytes = sizeof(float) * 3;
-    auto *buffer = const_cast<uint8_t *>(v1.buffer()->getData());
+    auto *buffer = v1.buffer()->getData();
 
     uint8_t *dst = buffer + v1.byteOffset();
     memcpy(dst, mat.m, copyBytes);
@@ -362,7 +324,7 @@ void SubModel::setSubMesh(RenderingSubMesh *subMesh) {
     _subMesh = subMesh;
 }
 
-void SubModel::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
+void SubModel::setInstancedAttribute(const ccstd::string &name, const TypedArray &value) {
     const auto &attributes = _instancedAttributeBlock.attributes;
     auto &views = _instancedAttributeBlock.views;
     for (size_t i = 0, len = attributes.size(); i < len; ++i) {
@@ -370,22 +332,17 @@ void SubModel::setInstancedAttribute(const ccstd::string &name, const float *val
         if (attribute.name == name) {
             const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
             switch (info.type) {
-                case gfx::FormatType::NONE:
                 case gfx::FormatType::UNORM:
                 case gfx::FormatType::SNORM:
                 case gfx::FormatType::UINT:
-                case gfx::FormatType::INT: {
-                    CC_ABORT();
-                } break;
+                case gfx::FormatType::INT:
                 case gfx::FormatType::FLOAT:
                 case gfx::FormatType::UFLOAT: {
-                    CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
-                    auto &view = ccstd::get<Float32Array>(views[i]);
-                    auto *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
-                    CC_ASSERT(byteLength <= view.byteLength());
-                    memcpy(dstData, value, byteLength);
+                    copyTypedArray(views[i], 0, value);
                 } break;
+                case gfx::FormatType::NONE:
                 default:
+                    CC_ABORT();
                     break;
             }
         }

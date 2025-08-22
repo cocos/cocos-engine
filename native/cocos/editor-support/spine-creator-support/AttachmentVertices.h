@@ -32,7 +32,7 @@
 #include "base/Macros.h"
 #include "middleware-adapter.h"
 
-namespace spine {
+namespace cc {
 /**
      *  Store attachment vertex and indice list
      */
@@ -45,4 +45,4 @@ public:
     cc::middleware::Texture2D *_texture = nullptr;
     cc::middleware::Triangles *_triangles = nullptr;
 };
-} // namespace spine
+} // namespace cc

@@ -24,8 +24,9 @@
  THE SOFTWARE.
 */
 
-import { EDITOR_NOT_IN_PREVIEW, NATIVE } from 'internal:constants';
-import { AccelerometerInputSource, GamepadInputDevice, HMDInputDevice, HandheldInputDevice, HandleInputDevice, KeyboardInputSource, MouseInputSource, TouchInputSource } from 'pal/input';
+import { EDITOR_NOT_IN_PREVIEW, HTML5, NATIVE } from 'internal:constants';
+import { AccelerometerInputSource, GamepadInputDevice, HMDInputDevice, HandheldInputDevice,
+    HandleInputDevice, KeyboardInputSource, MouseInputSource, TouchInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
 import { EventTarget, error, sys } from '../core';
 import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
@@ -52,7 +53,7 @@ export interface IEventDispatcher {
 
 class InputEventDispatcher implements IEventDispatcher {
     public priority: EventDispatcherPriority = EventDispatcherPriority.GLOBAL;
-    private _inputEventTarget: EventTarget;
+    private declare _inputEventTarget: EventTarget;
 
     constructor (inputEventTarget: EventTarget) {
         this._inputEventTarget = inputEventTarget;
@@ -79,25 +80,37 @@ export declare namespace Input {
 }
 
 interface InputEventMap {
-    [Input.EventType.MOUSE_DOWN]: (event: EventMouse) => void,
-    [Input.EventType.MOUSE_MOVE]: (event: EventMouse) => void,
-    [Input.EventType.MOUSE_UP]: (event: EventMouse) => void,
-    [Input.EventType.MOUSE_WHEEL]: (event: EventMouse) => void,
-    [Input.EventType.TOUCH_START]: (event: EventTouch) => void,
-    [Input.EventType.TOUCH_MOVE]: (event: EventTouch) => void,
-    [Input.EventType.TOUCH_END]: (event: EventTouch) => void,
-    [Input.EventType.TOUCH_CANCEL]: (event: EventTouch) => void,
-    [Input.EventType.KEY_DOWN]: (event: EventKeyboard) => void,
-    [Input.EventType.KEY_PRESSING]: (event: EventKeyboard) => void,
-    [Input.EventType.KEY_UP]: (event: EventKeyboard) => void,
-    [Input.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
-    [Input.EventType.GAMEPAD_CHANGE]: (event: EventGamepad) => void,
-    [Input.EventType.GAMEPAD_INPUT]: (event: EventGamepad) => void,
-    [Input.EventType.HANDLE_INPUT]: (event: EventHandle) => void,
-    [Input.EventType.HANDLE_POSE_INPUT]: (event: EventHandle) => void,
-    [Input.EventType.HMD_POSE_INPUT]: (event: EventHMD) => void,
-    [Input.EventType.HANDHELD_POSE_INPUT]: (event: EventHandheld) => void,
+    [InputEventType.MOUSE_DOWN]: (event: EventMouse) => void,
+    [InputEventType.MOUSE_MOVE]: (event: EventMouse) => void,
+    [InputEventType.MOUSE_UP]: (event: EventMouse) => void,
+    [InputEventType.MOUSE_WHEEL]: (event: EventMouse) => void,
+    [InputEventType.TOUCH_START]: (event: EventTouch) => void,
+    [InputEventType.TOUCH_MOVE]: (event: EventTouch) => void,
+    [InputEventType.TOUCH_END]: (event: EventTouch) => void,
+    [InputEventType.TOUCH_CANCEL]: (event: EventTouch) => void,
+    [InputEventType.KEY_DOWN]: (event: EventKeyboard) => void,
+    [InputEventType.KEY_PRESSING]: (event: EventKeyboard) => void,
+    [InputEventType.KEY_UP]: (event: EventKeyboard) => void,
+    [InputEventType.DEVICEMOTION]: (event: EventAcceleration) => void,
+    [InputEventType.GAMEPAD_CHANGE]: (event: EventGamepad) => void,
+    [InputEventType.GAMEPAD_INPUT]: (event: EventGamepad) => void,
+    [InputEventType.HANDLE_INPUT]: (event: EventHandle) => void,
+    [InputEventType.HANDLE_POSE_INPUT]: (event: EventHandle) => void,
+    [InputEventType.HMD_POSE_INPUT]: (event: EventHMD) => void,
+    [InputEventType.HANDHELD_POSE_INPUT]: (event: EventHandheld) => void,
 }
+
+/**
+ * @en Dispatch input event immediately.
+ * The input events are collocted to be dispatched in each main loop by default.
+ * If you need to recieve the input event immediately, please set this to true.
+ * NOTE: if set this to true, the input events are dispatched between each tick, the input event can't be optimized by engine.
+ *
+ * @zh 立即派发输入事件。
+ * 输入事件默认会被收集到每一帧主循环里派发，如果你需要立即接收到输入事件，请把该属性设为 true。
+ * 注意：如果设置为 true，则输入事件可能会在帧间触发，这样的输入事件是没办法被引擎优化的。
+ */
+const dispatchImmediately = !NATIVE;
 
 /**
  * @en
@@ -110,8 +123,8 @@ interface InputEventMap {
  *
  * @example
  * ```
- * input.on(Input.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
- * input.off(Input.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * input.on(InputEventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * input.off(InputEventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
  * ```
  */
 export class Input {
@@ -121,29 +134,16 @@ export class Input {
      */
     public static EventType = InputEventType;
 
-    /**
-     * @en Dispatch input event immediately.
-     * The input events are collocted to be dispatched in each main loop by default.
-     * If you need to recieve the input event immediately, please set this to true.
-     * NOTE: if set this to true, the input events are dispatched between each tick, the input event can't be optimized by engine.
-     *
-     * @zh 立即派发输入事件。
-     * 输入事件默认会被收集到每一帧主循环里派发，如果你需要立即接收到输入事件，请把该属性设为 true。
-     * 注意：如果设置为 true，则输入事件可能会在帧间触发，这样的输入事件是没办法被引擎优化的。
-     */
-    private _dispatchImmediately = !NATIVE;
-
     private _eventTarget: EventTarget = new EventTarget();
     private _touchInput = new TouchInputSource();
     private _mouseInput = new MouseInputSource();
     private _keyboardInput = new KeyboardInputSource();
     private _accelerometerInput = new AccelerometerInputSource();
-    private _handleInput = new HandleInputDevice();
-    private _hmdInput = new HMDInputDevice();
-    private _handheldInput = new HandheldInputDevice();
 
-    private _eventTouchList: EventTouch[] = [];
-    private _eventMouseList: EventMouse[] = [];
+    private declare _handleInput: HandleInputDevice;
+    private declare _hmdInput: HMDInputDevice;
+    private declare _handheldInput: HandheldInputDevice;
+
     private _eventKeyboardList: EventKeyboard[] = [];
     private _eventAccelerationList: EventAcceleration[] = [];
     private _eventGamepadList: EventGamepad[] = [];
@@ -153,14 +153,21 @@ export class Input {
 
     private _needSimulateTouchMoveEvent = false;
 
-    private _inputEventDispatcher: InputEventDispatcher;
+    private declare _inputEventDispatcher: InputEventDispatcher;
     private _eventDispatcherList: IEventDispatcher[] = [];
 
     constructor () {
+        if (HTML5 || NATIVE) {
+            this._handleInput = new HandleInputDevice();
+            this._hmdInput = new HMDInputDevice();
+            this._handheldInput = new HandheldInputDevice();
+        }
         this._registerEvent();
         this._inputEventDispatcher = new InputEventDispatcher(this._eventTarget);
         this._registerEventDispatcher(this._inputEventDispatcher);
-        GamepadInputDevice._init();
+        if (HTML5 || NATIVE) {
+            GamepadInputDevice._init();
+        }
     }
 
     /**
@@ -324,7 +331,7 @@ export class Input {
         if (eventType === InputEventType.TOUCH_END) {
             touchManager.releaseTouch(touchID);
         }
-        this._dispatchOrPushEventTouch(eventTouch, this._eventTouchList);
+        this._dispatchEventTouch(eventTouch);
     }
 
     /**
@@ -352,106 +359,111 @@ export class Input {
     }
 
     private _registerEvent (): void {
+        const self = this;
+        const touchInput = self._touchInput;
+        const mouseInput = self._mouseInput;
+        const keyboardInput = self._keyboardInput;
+        const handleInput = self._handleInput;
         if (sys.hasFeature(sys.Feature.INPUT_TOUCH)) {
-            const eventTouchList = this._eventTouchList;
-            this._touchInput.on(InputEventType.TOUCH_START, (event): void => {
-                this._dispatchOrPushEventTouch(event, eventTouchList);
+            touchInput.on(InputEventType.TOUCH_START, (event): void => {
+                self._dispatchEventTouch(event);
             });
-            this._touchInput.on(InputEventType.TOUCH_MOVE, (event): void => {
-                this._dispatchOrPushEventTouch(event, eventTouchList);
+            touchInput.on(InputEventType.TOUCH_MOVE, (event): void => {
+                self._dispatchEventTouch(event);
             });
-            this._touchInput.on(InputEventType.TOUCH_END, (event): void => {
-                this._dispatchOrPushEventTouch(event, eventTouchList);
+            touchInput.on(InputEventType.TOUCH_END, (event): void => {
+                self._dispatchEventTouch(event);
             });
-            this._touchInput.on(InputEventType.TOUCH_CANCEL, (event): void => {
-                this._dispatchOrPushEventTouch(event, eventTouchList);
+            touchInput.on(InputEventType.TOUCH_CANCEL, (event): void => {
+                self._dispatchEventTouch(event);
             });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_MOUSE)) {
-            const eventMouseList = this._eventMouseList;
-            this._mouseInput.on(InputEventType.MOUSE_DOWN, (event): void => {
-                this._needSimulateTouchMoveEvent = true;
-                this._simulateEventTouch(event);
-                this._dispatchOrPushEvent(event, eventMouseList);
+            mouseInput.on(InputEventType.MOUSE_DOWN, (event): void => {
+                self._needSimulateTouchMoveEvent = true;
+                self._simulateEventTouch(event);
+                self._dispatchEventMouse(event);
             });
-            this._mouseInput.on(InputEventType.MOUSE_MOVE, (event): void => {
-                if (this._needSimulateTouchMoveEvent) {
-                    this._simulateEventTouch(event);
+            mouseInput.on(InputEventType.MOUSE_MOVE, (event): void => {
+                if (self._needSimulateTouchMoveEvent) {
+                    self._simulateEventTouch(event);
                 }
-                this._dispatchOrPushEvent(event, eventMouseList);
+                self._dispatchEventMouse(event);
             });
-            this._mouseInput.on(InputEventType.MOUSE_UP, (event): void => {
-                this._needSimulateTouchMoveEvent = false;
-                this._simulateEventTouch(event);
-                this._dispatchOrPushEvent(event, eventMouseList);
+            mouseInput.on(InputEventType.MOUSE_UP, (event): void => {
+                self._needSimulateTouchMoveEvent = false;
+                self._simulateEventTouch(event);
+                self._dispatchEventMouse(event);
             });
-            this._mouseInput.on(InputEventType.MOUSE_WHEEL, (event): void => {
-                this._dispatchOrPushEvent(event, eventMouseList);
+            mouseInput.on(InputEventType.MOUSE_WHEEL, (event): void => {
+                self._dispatchEventMouse(event);
             });
-            this._mouseInput.on(InputEventType.MOUSE_LEAVE, (event): void => {
-                this._dispatchOrPushEvent(event, eventMouseList);
+            mouseInput.on(InputEventType.MOUSE_LEAVE, (event): void => {
+                self._dispatchEventMouse(event);
             });
-            this._mouseInput.on(InputEventType.MOUSE_ENTER, (event): void => {
-                this._dispatchOrPushEvent(event, eventMouseList);
+            mouseInput.on(InputEventType.MOUSE_ENTER, (event): void => {
+                self._dispatchEventMouse(event);
             });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_KEYBOARD)) {
-            const eventKeyboardList = this._eventKeyboardList;
-            this._keyboardInput.on(InputEventType.KEY_DOWN, (event): void => {
-                this._dispatchOrPushEvent(event, eventKeyboardList);
+            const eventKeyboardList = self._eventKeyboardList;
+            keyboardInput.on(InputEventType.KEY_DOWN, (event): void => {
+                self._dispatchOrPushEvent(event, eventKeyboardList);
             });
-            this._keyboardInput.on(InputEventType.KEY_PRESSING, (event): void => {
-                this._dispatchOrPushEvent(event, eventKeyboardList);
+            keyboardInput.on(InputEventType.KEY_PRESSING, (event): void => {
+                self._dispatchOrPushEvent(event, eventKeyboardList);
             });
-            this._keyboardInput.on(InputEventType.KEY_UP, (event): void => {
-                this._dispatchOrPushEvent(event, eventKeyboardList);
+            keyboardInput.on(InputEventType.KEY_UP, (event): void => {
+                self._dispatchOrPushEvent(event, eventKeyboardList);
             });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_ACCELEROMETER)) {
-            const eventAccelerationList = this._eventAccelerationList;
-            this._accelerometerInput.on(InputEventType.DEVICEMOTION, (event): void => {
-                this._dispatchOrPushEvent(event, eventAccelerationList);
+            const eventAccelerationList = self._eventAccelerationList;
+            self._accelerometerInput.on(InputEventType.DEVICEMOTION, (event): void => {
+                self._dispatchOrPushEvent(event, eventAccelerationList);
             });
         }
 
-        if (sys.hasFeature(sys.Feature.EVENT_GAMEPAD)) {
-            const eventGamepadList = this._eventGamepadList;
-            GamepadInputDevice._on(InputEventType.GAMEPAD_CHANGE, (event): void => {
-                this._dispatchOrPushEvent(event, eventGamepadList);
-            });
-            GamepadInputDevice._on(InputEventType.GAMEPAD_INPUT, (event): void => {
-                this._dispatchOrPushEvent(event, eventGamepadList);
-            });
-            GamepadInputDevice._on(InputEventType.HANDLE_POSE_INPUT, (event): void => {
-                this._dispatchOrPushEvent(event, eventGamepadList);
-            });
-        }
+        if (HTML5 || NATIVE) {
+            if (sys.hasFeature(sys.Feature.EVENT_GAMEPAD)) {
+                const eventGamepadList = self._eventGamepadList;
+                GamepadInputDevice._on(InputEventType.GAMEPAD_CHANGE, (event): void => {
+                    self._dispatchOrPushEvent(event, eventGamepadList);
+                });
+                GamepadInputDevice._on(InputEventType.GAMEPAD_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventGamepadList);
+                });
+                GamepadInputDevice._on(InputEventType.HANDLE_POSE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventGamepadList);
+                });
+            }
 
-        if (sys.hasFeature(sys.Feature.EVENT_HANDLE)) {
-            const eventHandleList = this._eventHandleList;
-            this._handleInput._on(InputEventType.HANDLE_INPUT, (event): void => {
-                this._dispatchOrPushEvent(event, eventHandleList);
-            });
-            this._handleInput._on(InputEventType.HANDLE_POSE_INPUT, (event): void => {
-                this._dispatchOrPushEvent(event, eventHandleList);
-            });
-        }
+            if (sys.hasFeature(sys.Feature.EVENT_HANDLE)) {
+                const eventHandleList = self._eventHandleList;
+                handleInput._on(InputEventType.HANDLE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventHandleList);
+                });
+                handleInput._on(InputEventType.HANDLE_POSE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventHandleList);
+                });
+            }
 
-        if (sys.hasFeature(sys.Feature.EVENT_HMD)) {
-            const eventHMDList = this._eventHMDList;
-            this._hmdInput._on(InputEventType.HMD_POSE_INPUT, (event): void => {
-                this._dispatchOrPushEvent(event, eventHMDList);
-            });
-        }
+            if (sys.hasFeature(sys.Feature.EVENT_HMD)) {
+                const eventHMDList = self._eventHMDList;
+                self._hmdInput._on(InputEventType.HMD_POSE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventHMDList);
+                });
+            }
 
-        if (sys.hasFeature(sys.Feature.EVENT_HANDHELD)) {
-            const eventHandheldList = this._eventHandheldList;
-            this._handheldInput._on(InputEventType.HANDHELD_POSE_INPUT, (event): void => {
-                this._dispatchOrPushEvent(event, eventHandheldList);
-            });
+            if (sys.hasFeature(sys.Feature.EVENT_HANDHELD)) {
+                const eventHandheldList = self._eventHandheldList;
+                self._handheldInput._on(InputEventType.HANDHELD_POSE_INPUT, (event): void => {
+                    self._dispatchOrPushEvent(event, eventHandheldList);
+                });
+            }
         }
     }
 
@@ -459,8 +471,6 @@ export class Input {
      * @engineInternal
      */
     public _clearEvents (): void {
-        this._eventMouseList.length = 0;
-        this._eventTouchList.length = 0;
         this._eventKeyboardList.length = 0;
         this._eventAccelerationList.length = 0;
         this._eventGamepadList.length = 0;
@@ -469,24 +479,24 @@ export class Input {
     }
 
     private _dispatchOrPushEvent (event: Event, eventList: Event[]): void {
-        if (this._dispatchImmediately) {
+        if (dispatchImmediately) {
             this._emitEvent(event);
         } else {
             eventList.push(event);
         }
     }
 
-    private _dispatchOrPushEventTouch (eventTouch: EventTouch, touchEventList: EventTouch[]): void {
-        if (this._dispatchImmediately) {
-            const touches = eventTouch.getTouches();
-            const touchesLength = touches.length;
-            for (let i = 0; i < touchesLength; ++i) {
-                eventTouch.touch = touches[i];
-                eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
-                this._emitEvent(eventTouch);
-            }
-        } else {
-            touchEventList.push(eventTouch);
+    private _dispatchEventMouse (event: Event): void {
+        this._emitEvent(event);
+    }
+
+    private _dispatchEventTouch (eventTouch: EventTouch): void {
+        const touches = eventTouch.getTouches();
+        const touchesLength = touches.length;
+        for (let i = 0; i < touchesLength; ++i) {
+            eventTouch.touch = touches[i];
+            eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
+            this._emitEvent(eventTouch);
         }
     }
 
@@ -494,6 +504,7 @@ export class Input {
      * @engineInternal
      */
     public _frameDispatchEvents (): void {
+        if (dispatchImmediately) return;
         const eventHMDList = this._eventHMDList;
         // TODO: culling event queue
         for (let i = 0, length = eventHMDList.length; i < length; ++i) {
@@ -508,25 +519,8 @@ export class Input {
             this._emitEvent(eventHandheld);
         }
 
-        const eventMouseList = this._eventMouseList;
-        // TODO: culling event queue
-        for (let i = 0, length = eventMouseList.length; i < length; ++i) {
-            const eventMouse = eventMouseList[i];
-            this._emitEvent(eventMouse);
-        }
-
-        const eventTouchList = this._eventTouchList;
-        // TODO: culling event queue
-        for (let i = 0, length = eventTouchList.length; i < length; ++i) {
-            const eventTouch = eventTouchList[i];
-            const touches = eventTouch.getTouches();
-            const touchesLength = touches.length;
-            for (let j = 0; j < touchesLength; ++j) {
-                eventTouch.touch = touches[j];
-                eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
-                this._emitEvent(eventTouch);
-            }
-        }
+        this._mouseInput.dispatchEventsInCache();
+        this._touchInput.dispatchEventsInCache();
 
         const eventKeyboardList = this._eventKeyboardList;
         // TODO: culling event queue
@@ -569,8 +563,8 @@ export class Input {
  *
  * @example
  * ```
- * input.on(Input.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
- * input.off(Input.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * input.on(InputEventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * input.off(InputEventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
  * ```
  */
 export const input = new Input();

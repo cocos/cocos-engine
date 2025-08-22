@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { murmurhash2_32_gc } from '../../../core';
+import { murmurhash2_32_gc } from '../../../core/algorithm/murmurhash2_gc';
 import { GFXObject, ObjectType, GeneralBarrierInfo } from '../define';
 
 /**
@@ -33,7 +33,9 @@ export class GeneralBarrier extends GFXObject {
     get info (): Readonly<GeneralBarrierInfo> { return this._info; }
     get hash (): number { return this._hash; }
 
+    /** @mangle */
     protected _info: GeneralBarrierInfo = new GeneralBarrierInfo();
+    /** @mangle */
     protected _hash = 0;
 
     constructor (info: Readonly<GeneralBarrierInfo>, hash: number) {

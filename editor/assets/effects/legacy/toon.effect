@@ -171,8 +171,11 @@ CCProgram toon-vs %{
     #endif
 
     CC_TRANSFER_SHADOW(pos);
-
-    return cc_matProj * (cc_matView * matWorld) * In.position;
+    #if CC_USE_2D
+      return cc_matProj * cc_matView * In.position;
+    #else
+      return cc_matProj * (cc_matView * matWorld) * In.position;
+    #endif
   }
 }%
 

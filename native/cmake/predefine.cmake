@@ -125,14 +125,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
     set(WERROR_FLAGS "-Werror -Werror=return-type") # -Wshorten-64-to-32 -Werror=return-type
     
-    if(MACOSX)
+    if(APPLE)
         set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unqualified-std-cast-call")
-    elseif(APPLE)
-        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations")
     elseif(LINUX)
         set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-nullability-completeness -Wno-deprecated-declarations")
     elseif(ANDROID)
         set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations -Wno-unknown-warning-option -Wno-deprecated-builtins")
+    elseif(OPENHARMONY)
+        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unused-command-line-argument -Wno-format")
     endif()
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")

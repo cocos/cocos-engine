@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { nextPow2 } from '../../core';
 import {
     DescriptorType, BufferUsage, Format, MemoryUsage, SampleCount, DynamicStateFlagBit,
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type,
@@ -37,25 +36,32 @@ import { WebGLCmdFuncBindStates, WebGLCmdFuncCreateBuffer, WebGLCmdFuncCreateInp
     WebGLCmdFuncDestroyShader, WebGLCmdFuncDraw, WebGLCmdFuncUpdateBuffer,
 } from './webgl-commands';
 import { WebGLDeviceManager } from './webgl-define';
+import { WebGLConstants } from '../gl-constants';
+import { nextPow2 } from '../../core/math/bits';
 
+function createInt32Array (capacity: number): Int32Array {
+    return new Int32Array(capacity);
+}
+
+/** @mangle */
 export class WebGLIndirectDrawInfos {
-    public counts: Int32Array;
-    public offsets: Int32Array;
-    public instances: Int32Array;
+    public declare counts: Int32Array;
+    public declare offsets: Int32Array;
+    public declare instances: Int32Array;
     public drawCount = 0;
     public drawByIndex = false;
     public instancedDraw = false;
 
     // staging buffer
-    public byteOffsets: Int32Array;
+    public declare byteOffsets: Int32Array;
 
     private _capacity = 4;
 
     constructor () {
-        this.counts = new Int32Array(this._capacity);
-        this.offsets = new Int32Array(this._capacity);
-        this.instances  = new Int32Array(this._capacity);
-        this.byteOffsets = new Int32Array(this._capacity);
+        this.counts = createInt32Array(this._capacity);
+        this.offsets = createInt32Array(this._capacity);
+        this.instances  = createInt32Array(this._capacity);
+        this.byteOffsets = createInt32Array(this._capacity);
     }
 
     public clearDraws (): void {
@@ -84,10 +90,10 @@ export class WebGLIndirectDrawInfos {
         if (this._capacity > target) return;
         this._capacity = nextPow2(target);
 
-        const counts = new Int32Array(this._capacity);
-        const offsets = new Int32Array(this._capacity);
-        const instances = new Int32Array(this._capacity);
-        this.byteOffsets = new Int32Array(this._capacity);
+        const counts = createInt32Array(this._capacity);
+        const offsets = createInt32Array(this._capacity);
+        const instances = createInt32Array(this._capacity);
+        this.byteOffsets = createInt32Array(this._capacity);
 
         counts.set(this.counts);
         offsets.set(this.offsets);
@@ -99,6 +105,7 @@ export class WebGLIndirectDrawInfos {
     }
 }
 
+/** @mangle */
 export interface IWebGLGPUUniformInfo {
     name: string;
     type: Type;
@@ -108,12 +115,14 @@ export interface IWebGLGPUUniformInfo {
     isDirty: boolean;
 }
 
+/** @mangle */
 export interface IWebGLBindingMapping {
     blockOffsets: number[];
     samplerTextureOffsets: number[];
     flexibleSet: number;
 }
 
+/** @mangle */
 export interface IWebGLGPUBufferView {
     gpuBuffer: IWebGLGPUBuffer;
     offset: number;
@@ -121,19 +130,29 @@ export interface IWebGLGPUBufferView {
 }
 
 export interface IWebGLGPUBuffer {
+    /** @mangle */
     usage: BufferUsage;
+    /** @mangle */
     memUsage: MemoryUsage;
+    /** @mangle */
     size: number;
+    /** @mangle */
     stride: number;
 
+    /** @mangle */
     glTarget: GLenum;
+    /** @mangle */
     glBuffer: WebGLBuffer | null;
 
+    /** @mangle */
     buffer: ArrayBufferView | null;
+    // Should not mangle vf32 since there is a `if ('vf32' in gpuBuffer)` code in webgl-commands.ts
     vf32: Float32Array | null;
+    /** @mangle */
     indirects: WebGLIndirectDrawInfos;
 }
 
+/** @mangle */
 export interface IWebGLGPUTexture {
     type: TextureType;
     format: Format;
@@ -159,15 +178,16 @@ export interface IWebGLGPUTexture {
     glWrapT: GLenum;
     glMinFilter: GLenum;
     glMagFilter: GLenum;
-
     isSwapchainTexture: boolean;
 }
 
+/** @mangle */
 export interface IWebGLGPURenderPass {
     colorAttachments: ColorAttachment[];
     depthStencilAttachment: DepthStencilAttachment | null;
 }
 
+/** @mangle */
 export interface IWebGLGPUFramebuffer {
     gpuRenderPass: IWebGLGPURenderPass;
     gpuColorTextures: IWebGLGPUTexture[];
@@ -179,6 +199,7 @@ export interface IWebGLGPUFramebuffer {
     lodLevel: number;
 }
 
+/** @mangle */
 export interface IWebGLGPUSampler {
     glMinFilter: GLenum;
     glMagFilter: GLenum;
@@ -187,6 +208,7 @@ export interface IWebGLGPUSampler {
     glWrapR: GLenum;
 }
 
+/** @mangle */
 export interface IWebGLGPUInput {
     binding: number;
     name: string;
@@ -199,6 +221,7 @@ export interface IWebGLGPUInput {
     glLoc: GLint;
 }
 
+/** @mangle */
 export interface IWebGLGPUUniform {
     binding: number;
     name: string;
@@ -213,6 +236,7 @@ export interface IWebGLGPUUniform {
     array: Int32Array | Float32Array;
 }
 
+/** @mangle */
 export interface IWebGLGPUUniformBlock {
     set: number;
     binding: number;
@@ -222,6 +246,7 @@ export interface IWebGLGPUUniformBlock {
     glActiveUniforms: IWebGLGPUUniform[];
 }
 
+/** @mangle */
 export interface IWebGLGPUUniformSamplerTexture {
     set: number;
     binding: number;
@@ -235,12 +260,14 @@ export interface IWebGLGPUUniformSamplerTexture {
     glLoc: WebGLUniformLocation;
 }
 
+/** @mangle */
 export interface IWebGLGPUShaderStage {
     type: ShaderStageFlagBit;
     source: string;
     glShader: WebGLShader | null;
 }
 
+/** @mangle */
 export interface IWebGLGPUShader {
     name: string;
     blocks: UniformBlock[];
@@ -255,6 +282,7 @@ export interface IWebGLGPUShader {
     glSamplerTextures: IWebGLGPUUniformSamplerTexture[];
 }
 
+/** @mangle */
 export interface IWebGLGPUDescriptorSetLayout {
     bindings: DescriptorSetLayoutBinding[];
     dynamicBindings: number[];
@@ -262,6 +290,7 @@ export interface IWebGLGPUDescriptorSetLayout {
     descriptorCount: number;
 }
 
+/** @mangle */
 export interface IWebGLGPUPipelineLayout {
     gpuSetLayouts: IWebGLGPUDescriptorSetLayout[];
     dynamicOffsetCount: number;
@@ -269,6 +298,7 @@ export interface IWebGLGPUPipelineLayout {
     dynamicOffsetIndices: number[][];
 }
 
+/** @mangle */
 export interface IWebGLGPUPipelineState {
     glPrimitive: GLenum;
     gpuShader: IWebGLGPUShader | null;
@@ -280,6 +310,7 @@ export interface IWebGLGPUPipelineState {
     gpuRenderPass: IWebGLGPURenderPass | null;
 }
 
+/** @mangle */
 export interface IWebGLGPUDescriptor {
     type: DescriptorType;
     gpuBuffer: IWebGLGPUBuffer | IWebGLGPUBufferView | null;
@@ -287,11 +318,13 @@ export interface IWebGLGPUDescriptor {
     gpuSampler: IWebGLGPUSampler | null;
 }
 
+/** @mangle */
 export interface IWebGLGPUDescriptorSet {
     gpuDescriptors: IWebGLGPUDescriptor[];
     descriptorIndices: number[];
 }
 
+/** @mangle */
 export interface IWebGLAttrib {
     name: string;
     glBuffer: WebGLBuffer | null;
@@ -305,6 +338,7 @@ export interface IWebGLAttrib {
     offset: number;
 }
 
+/** @mangle */
 export interface IWebGLGPUInputAssembler {
     attributes: Attribute[];
     gpuVertexBuffers: IWebGLGPUBuffer[];
@@ -316,6 +350,7 @@ export interface IWebGLGPUInputAssembler {
     glVAOs: Map<WebGLProgram, WebGLVertexArrayObjectOES>;
 }
 
+/** @mangle */
 export class IWebGLBlitManager {
     private _gpuShader: IWebGLGPUShader | null = null;
     private _gpuDescriptorSetLayout: IWebGLGPUDescriptorSetLayout | null = null;
@@ -334,7 +369,6 @@ export class IWebGLBlitManager {
     private _uniformBuffer: Float32Array | null = null;
 
     constructor () {
-        const { gl } = WebGLDeviceManager.instance;
         const device = WebGLDeviceManager.instance;
         const samplerOffset = device.bindingMappingInfo.maxBlockCounts[0];
 
@@ -358,32 +392,26 @@ export class IWebGLBlitManager {
                 {
                     type: ShaderStageFlagBit.VERTEX,
                     source: `
-                    precision mediump float;
-
-                    attribute vec2 a_position;
-                    attribute vec2 a_texCoord;
-            
-                    uniform vec4 tilingOffsetSrc;
-                    uniform vec4 tilingOffsetDst;
-            
-                    varying vec2 v_texCoord;
-            
-                    void main() {
-                        v_texCoord = a_texCoord * tilingOffsetSrc.xy + tilingOffsetSrc.zw;
-                        gl_Position = vec4((a_position + 1.0) * tilingOffsetDst.xy - 1.0 + tilingOffsetDst.zw * 2.0, 0, 1);
-                    }`,
+precision mediump float;
+attribute vec2 a_position;
+attribute vec2 a_texCoord;
+uniform vec4 tilingOffsetSrc;
+uniform vec4 tilingOffsetDst;
+varying vec2 v_texCoord;
+void main() {
+    v_texCoord = a_texCoord * tilingOffsetSrc.xy + tilingOffsetSrc.zw;
+    gl_Position = vec4((a_position + 1.0) * tilingOffsetDst.xy - 1.0 + tilingOffsetDst.zw * 2.0, 0, 1);
+}`,
                     glShader: null },
                 {
                     type: ShaderStageFlagBit.FRAGMENT,
                     source: `
-                    precision mediump float;
-                    uniform sampler2D textureSrc;
-
-                    varying vec2 v_texCoord;
-                    
-                    void main() {
-                        gl_FragColor = texture2D(textureSrc, v_texCoord);
-                    }`,
+precision mediump float;
+uniform sampler2D textureSrc;
+varying vec2 v_texCoord;
+void main() {
+    gl_FragColor = texture2D(textureSrc, v_texCoord);
+}`,
                     glShader: null },
 
             ],
@@ -417,7 +445,7 @@ export class IWebGLBlitManager {
         };
 
         this._gpuPipelineState = {
-            glPrimitive: gl.TRIANGLE_STRIP,
+            glPrimitive: WebGLConstants.TRIANGLE_STRIP,
             gpuShader: this._gpuShader,
             gpuPipelineLayout: this._gpuPipelineLayout,
             rs: null!,
@@ -542,26 +570,26 @@ export class IWebGLBlitManager {
         descriptor.gpuSampler = filter === Filter.POINT ? this._gpuPointSampler : this._gpuLinearSampler;
 
         const formatInfo = FormatInfos[gpuTextureDst.format];
-        let attachment: number = gl.COLOR_ATTACHMENT0;
+        let attachment: number = WebGLConstants.COLOR_ATTACHMENT0;
         if (formatInfo.hasStencil) {
-            attachment = gl.DEPTH_STENCIL_ATTACHMENT;
+            attachment = WebGLConstants.DEPTH_STENCIL_ATTACHMENT;
         } else if (formatInfo.hasDepth) {
-            attachment = gl.DEPTH_ATTACHMENT;
+            attachment = WebGLConstants.DEPTH_ATTACHMENT;
         }
 
         const regionIndices = regions.map((_, i): number => i);
         regionIndices.sort((a, b): number => regions[a].srcSubres.mipLevel - regions[b].srcSubres.mipLevel);
 
         if (stateCache.glFramebuffer !== this._glFramebuffer) {
-            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, this._glFramebuffer);
+            gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, this._glFramebuffer);
             stateCache.glFramebuffer = this._glFramebuffer;
         }
 
         let mipLevel = regions[0].dstSubres.mipLevel;
         if (gpuTextureDst.glTexture) {
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gpuTextureDst.glTarget, gpuTextureDst.glTexture, mipLevel);
+            gl.framebufferTexture2D(WebGLConstants.FRAMEBUFFER, attachment, gpuTextureDst.glTarget, gpuTextureDst.glTexture, mipLevel);
         } else {
-            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachment, gl.RENDERBUFFER, gpuTextureDst.glRenderbuffer);
+            gl.framebufferRenderbuffer(WebGLConstants.FRAMEBUFFER, attachment, WebGLConstants.RENDERBUFFER, gpuTextureDst.glRenderbuffer);
         }
 
         for (let i = 0; i < regionIndices.length; ++i) {
@@ -569,7 +597,7 @@ export class IWebGLBlitManager {
 
             if (gpuTextureSrc.glTexture && mipLevel !== region.srcSubres.mipLevel) {
                 mipLevel = region.srcSubres.mipLevel;
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gpuTextureDst.glTarget, gpuTextureDst.glTexture, mipLevel);
+                gl.framebufferTexture2D(WebGLConstants.FRAMEBUFFER, attachment, gpuTextureDst.glTarget, gpuTextureDst.glTexture, mipLevel);
             }
 
             const srcWidth = gpuTextureSrc.width;
@@ -599,7 +627,7 @@ export class IWebGLBlitManager {
 
         // restore fbo
         if (stateCache.glFramebuffer !== origFramebuffer) {
-            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, origFramebuffer);
+            gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, origFramebuffer);
             stateCache.glFramebuffer = origFramebuffer;
         }
         // restore viewport

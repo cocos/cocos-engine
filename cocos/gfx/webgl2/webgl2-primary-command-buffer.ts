@@ -32,14 +32,20 @@ import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
     WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncBlitTexture, WebGL2CmdFuncCopyBuffersToTexture,
-    WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
+    WebGL2CmdFuncDraw, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2DeviceManager } from './webgl2-define';
+import { errorID } from '../../core/platform/debug';
 
+/** @mangle */
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
+    constructor () {
+        super();
+    }
+
     public beginRenderPass (
         renderPass: RenderPass,
         framebuffer: Framebuffer,
@@ -50,16 +56,19 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     ): void {
         WebGL2CmdFuncBeginRenderPass(
             WebGL2DeviceManager.instance,
-            (renderPass as WebGL2RenderPass).gpuRenderPass,
-            (framebuffer as WebGL2Framebuffer).gpuFramebuffer,
-            renderArea, clearColors, clearDepth, clearStencil,
+            (renderPass as WebGL2RenderPass).getGpuRenderPass(),
+            (framebuffer as WebGL2Framebuffer).getGpuFramebuffer(),
+            renderArea,
+            clearColors,
+            clearDepth,
+            clearStencil,
         );
         this._isInRenderPass = true;
     }
 
     public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>): void {
         if (this._isInRenderPass) {
-            if (this._isStateInvalied) {
+            if (this._isStateInvalid) {
                 this.bindStates();
             }
 
@@ -86,12 +95,13 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 }
             }
         } else {
-            console.error('Command \'draw\' must be recorded inside a render pass.');
+            errorID(16328);
         }
     }
 
     public setViewport (viewport: Readonly<Viewport>): void {
-        const { stateCache: cache, gl } = WebGL2DeviceManager.instance;
+        const { gl } = WebGL2DeviceManager.instance;
+        const cache = WebGL2DeviceManager.instance.getStateCache();
 
         if (cache.viewport.left !== viewport.left
             || cache.viewport.top !== viewport.top
@@ -107,7 +117,8 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     public setScissor (scissor: Readonly<Rect>): void {
-        const { stateCache: cache, gl } = WebGL2DeviceManager.instance;
+        const { gl } = WebGL2DeviceManager.instance;
+        const cache = WebGL2DeviceManager.instance.getStateCache();
 
         if (cache.scissorRect.x !== scissor.x
             || cache.scissorRect.y !== scissor.y
@@ -124,7 +135,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
 
     public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
         if (!this._isInRenderPass) {
-            const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
+            const gpuBuffer = (buffer as WebGL2Buffer).getGpuBuffer();
             if (gpuBuffer) {
                 let buffSize: number;
                 if (size !== undefined) {
@@ -138,7 +149,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 WebGL2CmdFuncUpdateBuffer(WebGL2DeviceManager.instance, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
-            console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            errorID(16329);
         }
     }
 
@@ -149,25 +160,24 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 WebGL2CmdFuncCopyBuffersToTexture(WebGL2DeviceManager.instance, buffers, gpuTexture, regions);
             }
         } else {
-            console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            errorID(16330);
         }
     }
 
     public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
-        for (let i = 0; i < count; ++i) {
-            // actually they are secondary buffers, the cast here is only for type checking
-            const webGL2CmdBuff = cmdBuffs[i] as WebGL2PrimaryCommandBuffer;
-            WebGL2CmdFuncExecuteCmds(WebGL2DeviceManager.instance, webGL2CmdBuff.cmdPackage);
-            this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
-            this._numInstances += webGL2CmdBuff._numInstances;
-            this._numTris += webGL2CmdBuff._numTris;
-        }
+        errorID(16402);
     }
 
     protected bindStates (): void {
-        WebGL2CmdFuncBindStates(WebGL2DeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
-            this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
-        this._isStateInvalied = false;
+        WebGL2CmdFuncBindStates(
+            WebGL2DeviceManager.instance,
+            this._curGPUPipelineState,
+            this._curGPUInputAssembler,
+            this._curGPUDescriptorSets,
+            this._curDynamicOffsets,
+            this._curDynamicStates,
+        );
+        this._isStateInvalid = false;
     }
 
     public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {

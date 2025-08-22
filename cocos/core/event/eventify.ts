@@ -43,7 +43,7 @@ export interface IEventified {
      * @param callback - Callback function when event triggered.
      * @param target - Callback callee.
      */
-    hasEventListener (type: string, callback?: (...any) => void, target?: any): boolean;
+    hasEventListener (type: string, callback?: (...args: any[]) => void, target?: any): boolean;
 
     /**
      * @en
@@ -63,7 +63,7 @@ export interface IEventified {
      *     log("fire in the hole");
      * }, node);
      */
-    on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
+    on<TFunction extends (...args: any[]) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
 
     /**
      * @en
@@ -82,7 +82,7 @@ export interface IEventified {
      *     log("this is the callback and will be invoked only once");
      * }, node);
      */
-    once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
+    once<TFunction extends (...args: any[]) => void> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
 
     /**
      * @en
@@ -105,7 +105,7 @@ export interface IEventified {
      * // remove all fire event listeners
      * eventTarget.off('fire');
      */
-    off<TFunction extends (...any) => void> (type: EventType, callback?: TFunction, thisArg?: any): void;
+    off<TFunction extends (...args: any[]) => void> (type: EventType, callback?: TFunction, thisArg?: any): void;
 
     /**
      * @en Removes all callbacks previously registered with the same target (passed as parameter).
@@ -151,7 +151,14 @@ export interface IEventified {
  */
 export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & IEventified> {
     class Eventified extends (base as unknown as any) {
-        private _callbackTable = createMap(true);
+        /**
+         * @dontmangle
+         * NOTE: Eventified mixins all properties from CallbacksInvoker.prototype in the following code.
+         * After invoking `Eventify` for a class, CallbacksInvoker's constructor will not be called,
+         * but its functions may invoke `this._callbackTable` which is declared as `public` in CallbacksInvoker.
+         * Marking it as dontmangle is a workaround to avoid the issue that `this._callbackTable` is not defined.
+         */
+        protected _callbackTable = createMap(true);
 
         public once<Callback extends (...any) => void> (type: EventType, callback: Callback, target?: any): Callback {
             return this.on(type, callback, target, true) as Callback;
@@ -164,7 +171,7 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
 
     // Mixin with `CallbacksInvokers`'s prototype
     const callbacksInvokerPrototype = CallbacksInvoker.prototype;
-    const propertyKeys: (string | symbol)[] =        (Object.getOwnPropertyNames(callbacksInvokerPrototype) as (string | symbol)[]).concat(
+    const propertyKeys: (string | symbol)[] = (Object.getOwnPropertyNames(callbacksInvokerPrototype) as (string | symbol)[]).concat(
         Object.getOwnPropertySymbols(callbacksInvokerPrototype),
     );
     for (let iPropertyKey = 0; iPropertyKey < propertyKeys.length; ++iPropertyKey) {

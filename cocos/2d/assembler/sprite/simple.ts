@@ -27,12 +27,12 @@
  * @module ui-assembler
  */
 
-import { IAssembler } from '../../renderer/base';
-import { IRenderData, RenderData } from '../../renderer/render-data';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Sprite } from '../../components';
+import type { IAssembler } from '../../renderer/base';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
@@ -40,16 +40,16 @@ const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
-export const simple: IAssembler = {
-    createData (sprite: Sprite) {
+class Simple implements IAssembler {
+    createData (sprite: Sprite): RenderData {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 4;
         renderData.resize(4, 6);
         renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
-    },
+    }
 
-    updateRenderData (sprite: Sprite) {
+    updateRenderData (sprite: Sprite): void {
         const frame = sprite.spriteFrame;
 
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
@@ -63,39 +63,45 @@ export const simple: IAssembler = {
             }
             renderData.updateRenderData(sprite, frame);
         }
-    },
+    }
 
-    updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk) {
-        const renderData = sprite.renderData!;
+    private updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = chunk.vb;
 
         const dataList: IRenderData[] = renderData.data;
         const node = sprite.node;
         const m = node.worldMatrix;
 
+        const m00 = m.m00; const m01 = m.m01; const m02 = m.m02; const m03 = m.m03;
+        const m04 = m.m04; const m05 = m.m05; const m06 = m.m06; const m07 = m.m07;
+        const m12 = m.m12; const m13 = m.m13; const m14 = m.m14; const m15 = m.m15;
+
         const stride = renderData.floatStride;
         let offset = 0;
         const length = dataList.length;
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < length; ++i) {
             const curData = dataList[i];
             const x = curData.x;
             const y = curData.y;
-            let rhw = m.m03 * x + m.m07 * y + m.m15;
+            let rhw = m03 * x + m07 * y + m15;
             rhw = rhw ? 1 / rhw : 1;
 
             offset = i * stride;
-            vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
-            vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
-            vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
+            vData[offset + 0] = (m00 * x + m04 * y + m12) * rhw;
+            vData[offset + 1] = (m01 * x + m05 * y + m13) * rhw;
+            vData[offset + 2] = (m02 * x + m06 * y + m14) * rhw;
         }
-    },
+    }
 
-    fillBuffers (sprite: Sprite, renderer: IBatcher) {
+    fillBuffers (sprite: Sprite, renderer: IBatcher): void {
         if (sprite === null) {
             return;
         }
 
-        const renderData = sprite.renderData!;
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const chunk = renderData.chunk;
         if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             // const vb = chunk.vertexAccessor.getVertexBuffer(chunk.bufferId);
@@ -130,15 +136,15 @@ export const simple: IAssembler = {
         meshBuffer.indexOffset += 6;
         // slow version
         // renderer.switchBufferAccessor().appendIndices(chunk);
-    },
+    }
 
-    updateVertexData (sprite: Sprite) {
+    private updateVertexData (sprite: Sprite): void {
         const renderData: RenderData | null = sprite.renderData;
         if (!renderData) {
             return;
         }
 
-        const uiTrans = sprite.node._uiProps.uiTransformComp!;
+        const uiTrans = sprite.node._getUITransformComp()!;
         const dataList: IRenderData[] = renderData.data;
         const cw = uiTrans.width;
         const ch = uiTrans.height;
@@ -180,25 +186,26 @@ export const simple: IAssembler = {
         dataList[3].y = t;
 
         renderData.vertDirty = true;
-    },
+    }
 
-    updateUVs (sprite: Sprite) {
-        if (!sprite.spriteFrame) return;
-        const renderData = sprite.renderData!;
+    updateUVs (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!sprite.spriteFrame || !renderData) return;
         const vData = renderData.chunk.vb;
         const uv = sprite.spriteFrame.uv;
-        vData[3] = uv[0];
-        vData[4] = uv[1];
-        vData[12] = uv[2];
-        vData[13] = uv[3];
-        vData[21] = uv[4];
-        vData[22] = uv[5];
-        vData[30] = uv[6];
-        vData[31] = uv[7];
-    },
+        const stride = renderData.floatStride;
+        let uvOffset = 3;
+        for (let i = 0; i < renderData.dataLength; ++i) {
+            const index = i * 2;
+            vData[uvOffset] = uv[index];
+            vData[uvOffset + 1] = uv[index + 1];
+            uvOffset += stride;
+        }
+    }
 
-    updateColor (sprite: Sprite) {
-        const renderData = sprite.renderData!;
+    updateColor (sprite: Sprite): void {
+        const renderData = sprite.renderData;
+        if (!renderData) return;
         const vData = renderData.chunk.vb;
         let colorOffset = 5;
         const color = sprite.color;
@@ -212,5 +219,7 @@ export const simple: IAssembler = {
             vData[colorOffset + 2] = colorB;
             vData[colorOffset + 3] = colorA;
         }
-    },
-};
+    }
+}
+
+export const simple = new Simple();

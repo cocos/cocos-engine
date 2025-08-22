@@ -47,7 +47,7 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
                 });
                 return;
             } else if (PREVIEW) {
-                // NOTE: we resolve '/engine_external/' in in editor preview server.
+                // NOTE: we resolve '/engine_external/' in editor preview server.
                 fetch(`/engine_external/?url=${binaryUrl}`).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {
                     // noop
                 });

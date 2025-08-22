@@ -25,7 +25,7 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Asset } from '../asset/assets';
 import { ArmatureCache } from './ArmatureCache';
-import { Enum, cclegacy, _decorator } from '../core';
+import { Enum, cclegacy, _decorator, warn } from '../core';
 import { CCFactory } from './CCFactory';
 import { Node } from '../scene-graph';
 
@@ -64,7 +64,8 @@ export class DragonBonesAsset extends Asset {
 
     private _armaturesEnum: any = null;
 
-    constructctor (): void {
+    constructor (name?: string) {
+        super(name);
         this.reset();
     }
     /**
@@ -115,7 +116,7 @@ export class DragonBonesAsset extends Asset {
             if (dbData) {
                 this._uuid = dbData.name;
             } else {
-                console.warn('dragonbones name is empty');
+                warn('dragonbones name is empty');
             }
         }
 

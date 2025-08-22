@@ -48,6 +48,10 @@
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "cocos/bindings/manual/jsb_scene_manual.h"
 #include "cocos/bindings/manual/jsb_xmlhttprequest.h"
+#if CC_USE_BOX2D_JSB
+#include "cocos/bindings/manual/jsb_box2d_manual.h"
+#include "cocos/bindings/auto/jsb_box2d_auto.h"
+#endif
 
 #if USE_GFX_RENDERER
 #endif
@@ -80,7 +84,11 @@
     #include "cocos/bindings/manual/JavaScriptJavaBridge.h"
 #endif
 
-#if(CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+#if (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #include "cocos/bindings/manual/JavaScriptArkTsBridge.h"
+#endif
+
+#if (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
     #if CC_USE_WEBVIEW
         #include "cocos/bindings/auto/jsb_webview_auto.h"
     #endif
@@ -106,7 +114,12 @@
     #include "cocos/bindings/auto/jsb_editor_support_auto.h"
 
     #if CC_USE_SPINE
-        #include "cocos/bindings/auto/jsb_spine_auto.h"
+        #if CC_USE_SPINE_3_8
+            #include "cocos/bindings/auto/jsb_spine_3_8_auto.h"
+        #elif CC_USE_SPINE_4_2
+            #include "cocos/bindings/auto/jsb_spine_4_2_auto.h"
+        #endif
+
         #include "cocos/bindings/manual/jsb_spine_manual.h"
     #endif
 
@@ -119,6 +132,14 @@
 
 #if CC_USE_PHYSICS_PHYSX
     #include "cocos/bindings/auto/jsb_physics_auto.h"
+#endif
+
+#if CC_USE_GOOGLE_BILLING
+    #include "cocos/bindings/auto/jsb_google_billing_auto.h"
+#endif
+
+#if CC_USE_GOOGLE_PLAY_GAMES
+    #include "cocos/bindings/auto/jsb_google_play_auto.h"
 #endif
 
 bool jsb_register_all_modules() {
@@ -156,6 +177,10 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_scene_manual);
     se->addRegisterCallback(register_all_render);
     se->addRegisterCallback(register_all_native2d);
+#if CC_USE_BOX2D_JSB
+    se->addRegisterCallback(register_all_box2d);
+    se->addRegisterCallback(register_all_box2d_manual);
+#endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     se->addRegisterCallback(register_javascript_objc_bridge);
@@ -165,6 +190,10 @@ bool jsb_register_all_modules() {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     se->addRegisterCallback(register_javascript_java_bridge);
     se->addRegisterCallback(register_script_native_bridge);
+#endif
+
+#if (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    se->addRegisterCallback(register_javascript_arkTs_bridge);
 #endif
 
 #if CC_USE_AUDIO
@@ -180,6 +209,14 @@ bool jsb_register_all_modules() {
 #if CC_USE_SOCKET
     se->addRegisterCallback(register_all_websocket);
     se->addRegisterCallback(register_all_socketio);
+#endif
+
+#if CC_USE_GOOGLE_BILLING
+    se->addRegisterCallback(register_all_billing);
+#endif
+
+#if CC_USE_GOOGLE_PLAY_GAMES
+    se->addRegisterCallback(register_all_play);
 #endif
 
 #if CC_USE_MIDDLEWARE

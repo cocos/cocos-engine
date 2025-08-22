@@ -31,6 +31,7 @@ import Bundle from '../asset-manager/bundle';
 import { Settings, settings, cclegacy } from '../../core';
 import { releaseManager } from '../asset-manager/release-manager';
 import type { BuiltinResMgr as JsbBuiltinResMgr } from './builtin-res-mgr';
+import { PixelFormat } from '../assets/asset-enum';
 
 declare const jsb: any;
 
@@ -61,7 +62,7 @@ builtinResMgrProto.init = function () {
         height: len,
         _data: blackValueView,
         _compressed: false,
-        format: Texture2D.PixelFormat.RGBA8888,
+        format: PixelFormat.RGBA8888,
     };
 
     // black texture

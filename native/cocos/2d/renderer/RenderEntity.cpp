@@ -33,6 +33,11 @@ RenderEntity::RenderEntity(RenderEntityType type) : _renderEntityType(type) {
     } else {
         ccnew_placement(&_dynamicDrawInfos) ccstd::vector<RenderDrawInfo*>();
     }
+    
+    _entityAttrLayout.enabledIndex = 0;
+    _entityAttrLayout.useLocal = 0;
+    _entityAttrLayout.paddings = 0;
+    
     _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
 

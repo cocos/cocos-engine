@@ -39,7 +39,7 @@ export class CachedArray<T> extends ScalableContainer {
      * @zh
      * 实际存储数据内容的数组。
      */
-    public array: T[];
+    public declare array: T[];
 
     /**
      * @en
@@ -49,7 +49,7 @@ export class CachedArray<T> extends ScalableContainer {
      */
     public length = 0;
 
-    private _compareFn?: (a: T, b: T) => number;
+    private declare _compareFn?: (a: T, b: T) => number;
     private _initSize = 0;
 
     /**
@@ -65,7 +65,6 @@ export class CachedArray<T> extends ScalableContainer {
         super();
         this.array = new Array(length);
         this._initSize = length;
-        this.length = 0;
         this._compareFn = compareFn;
     }
 

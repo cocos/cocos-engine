@@ -202,7 +202,7 @@ export class RenderWindow {
                 }
                 this._colorTextures.push(device.createTexture(textureInfo));
             }
-            if (info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {
+            if (info.renderPassInfo.depthStencilAttachment && info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {
                 this._depthStencilTexture = device.createTexture(new TextureInfo(
                     TextureType.TEX2D,
                     TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
@@ -276,9 +276,9 @@ export class RenderWindow {
             ));
         }
 
-        for (const camera of this._cameras) {
+        this._cameras.forEach((camera) => {
             camera.resize(width, height);
-        }
+        });
 
         // This resize should only be handled by the render pipeline
         this._isResized = true;
@@ -313,6 +313,11 @@ export class RenderWindow {
         }
         this._cameras.push(camera);
         this.sortCameras();
+
+        // This resize should only be handled by the render pipeline
+        // If the camera is attached to the render window,
+        // resize handler should be called to update render window resouces
+        this._isResized = true;
     }
 
     /**
