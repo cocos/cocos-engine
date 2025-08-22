@@ -2660,6 +2660,10 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     regions: Readonly<BufferTextureCopy[]>,
 ): void {
     const { gl } = device;
+
+    gl.pixelStorei(WebGLConstants.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(WebGLConstants.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+
     const cache = device.getStateCache();
     const glTexUnit = cache.glTexUnits[cache.texUnit];
     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
