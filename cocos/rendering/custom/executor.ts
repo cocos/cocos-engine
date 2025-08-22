@@ -978,8 +978,8 @@ class DeviceRenderPass implements RecordingInterface {
             const cmdBuff = context.commandBuffer;
             const sourceTex = this._getOrCreateDeviceTex(resolve.source).getGPUTexture();
             const targetTex = this._getOrCreateDeviceTex(resolve.target).getGPUTexture();
-            textureBlit.srcExtent.width = sourceTex.width;
-            textureBlit.srcExtent.height = sourceTex.height;
+            textureBlit.srcExtent.width = targetTex.width;
+            textureBlit.srcExtent.height = targetTex.height;
             textureBlit.dstExtent.width = targetTex.width;
             textureBlit.dstExtent.height = targetTex.height;
             cmdBuff.blitTexture(sourceTex, targetTex, [textureBlit], Filter.LINEAR);

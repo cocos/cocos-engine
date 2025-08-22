@@ -1747,7 +1747,6 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         return this.addRenderPassImpl(width, height, layoutName);
     }
     addMultisampleRenderPass (width: number, height: number, count: number, quality: number, layoutName = 'default'): BasicMultisampleRenderPassBuilder {
-        assert(count > 1);
         const rasterPassBuilder = this.addRenderPassImpl(width, height, layoutName, count, quality) as WebRenderPassBuilder;
         rasterPassBuilder.addRenderSubpass();
         return rasterPassBuilder;
