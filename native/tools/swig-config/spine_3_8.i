@@ -52,6 +52,7 @@ using namespace spine;
 %ignore spine::Polygon::Polygon;
 %ignore spine::Polygon::_vertices;
 
+%ignore cc::SkeletonDataInfo;
 %ignore cc::SlotCacheInfo;
 %ignore cc::SkeletonRenderer::create;
 %ignore cc::SkeletonRenderer::initWithJsonFile;
@@ -116,6 +117,7 @@ using namespace spine;
 %ignore cc::SkeletonDataMgr::retainByUUID;
 %ignore cc::SkeletonDataMgr::releaseByUUID;
 %ignore cc::SkeletonDataMgr::getSkeletonDataInfo;
+%ignore cc::SkeletonDataMgr::getSkeletonDataInfos();
 %ignore cc::SkeletonCacheAnimation::render;
 %ignore cc::SkeletonCacheAnimation::requestDrawInfo;
 %ignore cc::SkeletonCacheAnimation::requestMaterial;

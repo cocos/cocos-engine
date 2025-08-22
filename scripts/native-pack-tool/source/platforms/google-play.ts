@@ -111,11 +111,11 @@ export class GooglePlayPackTool extends NativePackTool {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
-        await this.excuteCocosTemplateTask();
+        await this.executeCocosTemplateTask();
 
         await this.updateAndroidGradleValues();
         await this.updateManifest();
-        await this.encrypteScripts();
+        await this.encryptScripts();
         await this.generateAppNameValues();
         return true;
     }

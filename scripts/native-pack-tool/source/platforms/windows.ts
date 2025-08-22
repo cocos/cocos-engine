@@ -4,7 +4,6 @@ import * as ps from 'path';
 import * as os from 'os';
 import { cchelper, toolHelper, Paths } from "../utils";
 import { cocosConfig } from "../cocosConfig";
-import { spawn } from "child_process";
 
 export interface IWindowsParam {
     targetPlatform: 'x64';
@@ -18,9 +17,9 @@ export class WindowsPackTool extends NativePackTool {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
-        await this.excuteCocosTemplateTask();
+        await this.executeCocosTemplateTask();
 
-        await this.encrypteScripts();
+        await this.encryptScripts();
         return true;
     }
 
@@ -61,6 +60,11 @@ export class WindowsPackTool extends NativePackTool {
     async make() {
         const nativePrjDir = this.paths.nativePrjDir;
         await toolHelper.runCmake(['--build', `"${cchelper.fixPath(nativePrjDir)}"`, '--config', this.params.debug ? 'Debug' : 'Release', '--', '-verbosity:quiet']);
+        return true;
+    }
+
+    static async openWithIDE(projPath: string) {
+        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(projPath)}"`]);
         return true;
     }
 
@@ -125,7 +129,7 @@ export class WindowsPackTool extends NativePackTool {
 
     async run(): Promise<boolean> {
         const executableDir = ps.join(this.paths.nativePrjDir, this.params.debug ? 'Debug' : 'Release')
-        const targetFile = this.getExcutableNameOrDefault();
+        const targetFile = this.getExecutableNameOrDefault();
         const executableFile = ps.join(executableDir, targetFile + '.exe');
         if (!executableFile || !fs.existsSync(executableFile)) {
             throw new Error(`[windows run] '${targetFile}' is not found within ' + ${executableDir}!`);

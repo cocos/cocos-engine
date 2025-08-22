@@ -23,12 +23,13 @@
 */
 
 import { ALIPAY, BYTEDANCE, HUAWEI, OPPO, RUNTIME_BASED, VIVO, MIGU, HONOR, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
-import { minigame } from 'pal/minigame';
+import { minigame, SystemInfo as MinigameSystemInfo } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 import { warn } from '../../../cocos/core/platform/debug';
+import { versionCompare } from '../../utils';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -92,6 +93,41 @@ if (BYTEDANCE) {
         return true;
     };
 }
+
+const originalGetSystemInfoSync = minigame.getSystemInfoSync;
+let _cachedSystemInfo: MinigameSystemInfo = originalGetSystemInfoSync.call(minigame);
+
+function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number): void {
+    let successfullyTestTimes = 0;
+    let intervalTimer: number | null = null;
+    function testCachedSystemInfo (): void {
+        const currentSystemInfo = originalGetSystemInfoSync.call(minigame);
+        if (_cachedSystemInfo.screenWidth === currentSystemInfo.screenWidth && _cachedSystemInfo.screenHeight === currentSystemInfo.screenHeight) {
+            if (++successfullyTestTimes >= testAmount && intervalTimer !== null) {
+                clearInterval(intervalTimer);
+                intervalTimer = null;
+            }
+        } else {
+            successfullyTestTimes = 0;
+        }
+        _cachedSystemInfo = currentSystemInfo;
+    }
+    intervalTimer = setInterval(testCachedSystemInfo, testInterval);
+}
+
+if (WECHAT && versionCompare(minigame.getAppBaseInfo().SDKVersion, '2.25.3') < 0) {
+    testAndUpdateSystemInfoCache(10, 500);
+}
+
+minigame.onWindowResize?.(() => {
+    // update cached system info
+    _cachedSystemInfo = originalGetSystemInfoSync.call(minigame);
+});
+
+minigame.getSystemInfoSync = function (): MinigameSystemInfo {
+    return _cachedSystemInfo;
+};
+
 class SystemInfo extends EventTarget {
     public declare readonly networkType: NetworkType;
     public declare readonly isNative: boolean;

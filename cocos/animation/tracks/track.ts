@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /*
  Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -25,7 +26,7 @@
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import { SUPPORT_JIT } from 'internal:constants';
 import type { Component } from '../../scene-graph/component';
-import { error, ObjectCurve, QuatCurve, RealCurve, errorID, warnID, js } from '../../core';
+import { ObjectCurve, QuatCurve, RealCurve, errorID, warnID, js } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 
 import { Node } from '../../scene-graph';
@@ -238,7 +239,7 @@ class TrackPath {
     /**
      * @internal
      */
-    public [parseTrsPathTag] (): { node: string; property: "position" | "scale" | "rotation" | "eulerAngles"; } | null {
+    public [parseTrsPathTag] (): { node: string; property: 'position' | 'scale' | 'rotation' | 'eulerAngles'; } | null {
         const { _paths: paths } = this;
         const nPaths = paths.length;
 
@@ -331,7 +332,7 @@ export class TrackBinding {
 
     private static _animationFunctions = new WeakMap<Constructor, Map<string | number, AnimationFunction>>();
 
-    public parseTrsPath (): { node: string; property: "position" | "scale" | "rotation" | "eulerAngles"; } | null {
+    public parseTrsPath (): { node: string; property: 'position' | 'scale' | 'rotation' | 'eulerAngles'; } | null {
         if (this.proxy) {
             return null;
         } else {
@@ -339,6 +340,7 @@ export class TrackBinding {
         }
     }
 
+    // eslint-disable-next-line max-len
     public createRuntimeBinding (target: unknown, poseOutput: PoseOutput | undefined, isConstant: boolean): RuntimeBinding<unknown> | { target: any; setValue: any; getValue: any; } | null {
         const { path, proxy } = this;
         const nPaths = path.length;
@@ -367,9 +369,9 @@ export class TrackBinding {
                 if (!accessor) {
                     accessor = {
                         // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-                        setValue: Function('value', `this.target.${lastPropertyKey} = value;`) as (val: any) => void,
+                        setValue: Function('value', `this.target["${lastPropertyKey}"] = value;`) as (val: any) => void,
                         // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-                        getValue: Function(`return this.target.${lastPropertyKey};`) as () => any,
+                        getValue: Function(`return this.target["${lastPropertyKey}"];`) as () => any,
                     };
                     animationFunction.set(lastPropertyKey, accessor);
                 }

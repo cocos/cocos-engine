@@ -22,10 +22,11 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame, SystemInfo } from 'pal/minigame';
+import { IMiniGame, SystemInfo, DeviceInfo, WindowInfo, AppBaseInfo, SystemSetting, AppAuthorizeSetting } from 'pal/minigame';
 import { checkPalIntegrity, withImpl } from '../integrity-check';
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
+import { sys, systemEvent } from '../../typedoc-index';
 
 declare let wx: any;
 
@@ -42,38 +43,100 @@ minigame.wx.onMouseUp = wx.onMouseUp?.bind(wx);
 minigame.wx.onWheel = wx.onWheel?.bind(wx);
 // #endregion platform related
 
-// #region SystemInfo
-let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
-
-function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number): void {
-    let successfullyTestTimes = 0;
-    let intervalTimer: number | null = null;
-    function testCachedSystemInfo (): void {
-        const currentSystemInfo = wx.getSystemInfoSync() as SystemInfo;
-        if (_cachedSystemInfo.screenWidth === currentSystemInfo.screenWidth && _cachedSystemInfo.screenHeight === currentSystemInfo.screenHeight) {
-            if (++successfullyTestTimes >= testAmount && intervalTimer !== null) {
-                clearInterval(intervalTimer);
-                intervalTimer = null;
-            }
-        } else {
-            successfullyTestTimes = 0;
-        }
-        _cachedSystemInfo = currentSystemInfo;
-    }
-    intervalTimer = setInterval(testCachedSystemInfo, testInterval);
+// This interface is not supported in versions below 2.25.3.
+if (minigame.getSystemSetting === undefined) {
+    minigame.getSystemSetting = function (): SystemSetting {
+        const systemInfo = minigame.getSystemInfoSync();
+        return {
+            bluetoothEnabled: systemInfo.bluetoothEnabled,
+            locationEnabled: systemInfo.locationEnabled,
+            wifiEnabled: systemInfo.wifiEnabled,
+            deviceOrientation: systemInfo.deviceOrientation,
+        };
+    };
 }
-testAndUpdateSystemInfoCache(10, 500);
 
-minigame.onWindowResize?.(() => {
-    // update cached system info
-    _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
-});
-minigame.getSystemInfoSync = function (): SystemInfo {
-    return _cachedSystemInfo;
-};
+if (minigame.getAppAuthorizeSetting === undefined) {
+    minigame.getAppAuthorizeSetting = function (): AppAuthorizeSetting {
+        const systemInfo = minigame.getSystemInfoSync();
+        return {
+            albumAuthorized: systemInfo.albumAuthorized === undefined ? undefined : ((systemInfo.albumAuthorized) ? 'authorized' : 'denied'),
+            bluetoothAuthorized: systemInfo.bluetoothAuthorized === undefined ? undefined
+                : ((systemInfo.bluetoothAuthorized) ? 'authorized' : 'denied'),
+            cameraAuthorized: systemInfo.cameraAuthorized === undefined ? undefined
+                : ((systemInfo.cameraAuthorized) ? 'authorized' : 'denied'),
+            locationAuthorized: systemInfo.locationAuthorized === undefined ? undefined
+                : ((systemInfo.locationAuthorized) ? 'authorized' : 'denied'),
+            locationReducedAccuracy: systemInfo.locationReducedAccuracy === undefined ? undefined : (systemInfo.locationReducedAccuracy),
+            microphoneAuthorized: systemInfo.microphoneAuthorized === undefined ? undefined
+                : ((systemInfo.microphoneAuthorized) ? 'authorized' : 'denied'),
+            notificationAuthorized: systemInfo.notificationAuthorized === undefined ? undefined
+                : ((systemInfo.notificationAuthorized) ? 'authorized' : 'denied'),
+            notificationAlertAuthorized: systemInfo.notificationAlertAuthorized === undefined ? undefined
+                : ((systemInfo.notificationAlertAuthorized) ? 'authorized' : 'denied'),
+            notificationBadgeAuthorized: systemInfo.notificationBadgeAuthorized === undefined ? undefined
+                : ((systemInfo.notificationBadgeAuthorized) ? 'authorized' : 'denied'),
+            notificationSoundAuthorized: systemInfo.notificationSoundAuthorized === undefined ? undefined
+                : ((systemInfo.notificationSoundAuthorized) ? 'authorized' : 'denied'),
+            phoneCalendarAuthorized: systemInfo.phoneCalendarAuthorized === undefined ? undefined
+                : ((systemInfo.phoneCalendarAuthorized) ? 'authorized' : 'denied'),
+        };
+    };
+}
 
-const systemInfo = minigame.getSystemInfoSync();
-minigame.isDevTool = (systemInfo.platform === 'devtools');
+if (minigame.getDeviceInfo === undefined) {
+    minigame.getDeviceInfo = function (): DeviceInfo {
+        const systemInfo = minigame.getSystemInfoSync();
+        return {
+            abi: systemInfo.abi,
+            deviceAbi: systemInfo.deviceAbi,
+            benchmarkLevel: systemInfo.benchmarkLevel,
+            brand: systemInfo.brand,
+            model: systemInfo.model,
+            system: systemInfo.system,
+            platform: systemInfo.platform,
+            cpuType: systemInfo.cpuType,
+            memorySize: systemInfo.memorySize,
+        };
+    };
+}
+
+if (minigame.getWindowInfo === undefined) {
+    minigame.getWindowInfo = function (): WindowInfo {
+        const systemInfo = minigame.getSystemInfoSync();
+        return {
+            pixelRatio: systemInfo.pixelRatio,
+            screenWidth: systemInfo.screenWidth,
+            screenHeight: systemInfo.screenHeight,
+            windowWidth: systemInfo.windowWidth,
+            windowHeight: systemInfo.windowHeight,
+            statusBarHeight: systemInfo.statusBarHeight,
+            safeArea: systemInfo.safeArea,
+            screenTop: systemInfo.screenTop,
+        };
+    };
+}
+
+if (minigame.getAppBaseInfo === undefined) {
+    minigame.getAppBaseInfo = function (): AppBaseInfo {
+        const systemInfo = minigame.getSystemInfoSync();
+        return {
+            SDKVersion: systemInfo.SDKVersion,
+            enableDebug: systemInfo.enableDebug,
+            host: systemInfo.host, // not
+            language: systemInfo.language,
+            version: systemInfo.version,
+            theme: systemInfo.theme,
+            mode: systemInfo.mode,
+            fontSizeScaleFactor: systemInfo.fontSizeScaleFactor,
+            fontSizeSetting: systemInfo.fontSizeSetting,
+        };
+    };
+}
+
+const devideInfo = minigame.getDeviceInfo();
+
+minigame.isDevTool = (devideInfo.platform === 'devtools');
 // NOTE: size and orientation info is wrong at the init phase, especially on iOS device
 Object.defineProperty(minigame, 'isLandscape', {
     get () {
@@ -87,7 +150,7 @@ Object.defineProperty(minigame, 'isLandscape', {
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
 let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-if (systemInfo.platform.toLocaleLowerCase() !== 'android') {
+if (devideInfo.platform.toLocaleLowerCase() !== 'android') {
     // onDeviceOrientationChange doesn't work well on Android.
     // see this issue: https://developers.weixin.qq.com/community/minigame/doc/000482138dc460e56cfaa5cb15bc00
     wx.onDeviceOrientationChange((res) => {
@@ -153,16 +216,16 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(wx, {
 // #region SafeArea
 // FIX_ME: wrong safe area when orientation is landscape left
 minigame.getSafeArea = function (): SafeArea {
-    const locSystemInfo = wx.getSystemInfoSync() as SystemInfo;
-    let safeArea = locSystemInfo.safeArea;
+    const windowInfo: WindowInfo = minigame.getWindowInfo();
+    let safeArea = windowInfo.safeArea;
     if (!safeArea) {
         safeArea = {
             left: 0,
             top: 0,
-            bottom: systemInfo.screenHeight,
-            right: systemInfo.screenWidth,
-            width: systemInfo.screenWidth,
-            height: systemInfo.screenHeight,
+            bottom: windowInfo.screenHeight,
+            right: windowInfo.screenWidth,
+            width: windowInfo.screenWidth,
+            height: windowInfo.screenHeight,
         };
     }
     return safeArea;
@@ -172,7 +235,8 @@ minigame.getSafeArea = function (): SafeArea {
 declare const canvas: any;  // defined in global
 
 // HACK: adapt GL.useProgram: use program not supported to unbind program on pc end
-if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '2.16.0') < 0) {
+const appBaseInfo = minigame.getAppBaseInfo();
+if (devideInfo.platform === 'windows' && versionCompare(appBaseInfo.SDKVersion, '2.16.0') < 0) {
     const locCanvas = canvas;
     if (locCanvas) {
         const webglRC = locCanvas.getContext('webgl');

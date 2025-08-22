@@ -26,8 +26,8 @@
 import { systemInfo } from 'pal/system-info';
 import { DEBUG, EDITOR } from 'internal:constants';
 import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, ResolveMode, SampleCount, Color, ComparisonFunc, Buffer } from '../../gfx';
-import { Vec4, macro, cclegacy, RecyclePool, Mat4, Quat, Vec2 } from '../../core';
-import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RenderCommonObjectPool, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
+import { Vec4, macro, cclegacy, RecyclePool, Mat4, Quat, Vec2, assert } from '../../core';
+import { ResolveFlags, AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RenderCommonObjectPool, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer, RenderGraphObjectPool, CullingFlags, ManagedResource, ManagedBuffer, BlitType } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter, SceneBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -75,6 +75,7 @@ class PipelinePool {
     rasterPass = new RasterPass();
     rasterSubpass = new RasterSubpass();
     renderQueue = new RenderQueue();
+    resolvePair = new RecyclePool<ResolvePair>(() => new ResolvePair(), 16);
     sceneBuilder = new RecyclePool<WebSceneBuilder>(() => new WebSceneBuilder(this.renderData, this.layoutGraph, this.rg, this.vertId, this.sceneData), 16);
     renderPassBuilder = new RecyclePool<WebRenderPassBuilder>(() => new WebRenderPassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.rasterPass, this.getPipelineSceneData()), 16);
     computeQueueBuilder = new RecyclePool<WebComputeQueueBuilder>(() => new WebComputeQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 16);
@@ -130,6 +131,7 @@ class PipelinePool {
         this.renderCommonObjectPool.reset();
         this.renderGraphPool.reset();
         this.viewport.reset();
+        this.resolvePair.reset();
         this.samplerInfo.reset();
         this.color.reset();
         this.renderQueueBuilder.reset();
@@ -256,30 +258,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
         const lightTarget = light.light;
-        const sceneData = renderGraphPool.createSceneData(
-            camera.scene,
-            camera,
-            sceneFlags,
-            lightTarget && !(sceneFlags & SceneFlags.SHADOW_CASTER) ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
-            lightTarget,
-        );
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, name, '', renderGraphPool.createRenderData(), !DEBUG, this._vertID);
-        const layoutName = this.getParentLayout();
-        const scene: Scene = cclegacy.director.getScene();
-        setCameraUBOValues(
-            this,
-            camera,
-            this._pipeline,
-            camera.scene || (scene ? scene.renderScene : null),
-            layoutName,
-        );
-        if (sceneFlags & SceneFlags.SHADOW_CASTER || (lightTarget && lightTarget.type !== LightType.DIRECTIONAL)) {
-            setShadowUBOLightView(this, camera, lightTarget!, light.level, layoutName);
-        } else {
-            setShadowUBOView(this, camera, layoutName);
-        }
+        this.addScene(camera, sceneFlags, lightTarget);
     }
-    addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined = undefined, scene: RenderScene | undefined = undefined): SceneBuilder {
+    addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined | null = null, scene: RenderScene | undefined = undefined): SceneBuilder {
         const sceneData = renderGraphPool.createSceneData(
             scene || camera.scene,
             camera,
@@ -407,6 +388,14 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         }
     }
     addDraw2D (camera: Camera): void {
+        const layoutName = this.getParentLayout();
+        setCameraUBOValues(
+            this,
+            camera,
+            this._pipeline,
+            camera.scene,
+            layoutName,
+        );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit,
             renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_2D),
@@ -419,15 +408,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
     addProfiler (camera: Camera): void {
         const passOrSubpassId = this._renderGraph.getParent(this._vertID);
-        this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit,
-            renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_PROFILE),
-            'DrawProfiler',
-            '',
-            emptyRenderData,
-            !DEBUG,
-            this._vertID,
-        );
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
             RenderGraphValue.Queue,
             this._queue,
@@ -557,6 +537,12 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     set showStatistics (enable: boolean) {
         this._subpass.showStatistics = enable;
     }
+    get subpassID (): number {
+        return this._vertID;
+    }
+    get subpassLayoutID (): number {
+        return this._layoutID;
+    }
     private _renderGraph: RenderGraph;
     private _layoutID: number;
     private _subpass: RasterSubpass;
@@ -569,6 +555,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._renderGraph = renderGraph;
         this._resourceGraph = resourceGraph;
         this._vertID = vertID;
+        this._subpassID = -1;
         this._pass = pass;
         this._pipeline = pipeline;
         const layoutName = this._renderGraph.getLayout(this._vertID);
@@ -602,6 +589,12 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
+    get passID (): number {
+        return this._vertID;
+    }
+    get passLayoutID (): number {
+        return this._layoutID;
+    }
     addRenderTarget (name: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()): void {
         let clearFlag = ClearFlagBit.COLOR;
         if (loadOp === LoadOp.LOAD) {
@@ -633,7 +626,15 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._pass.rasterViews.set(name, view);
     }
     resolveRenderTarget (source: string, target: string): void {
-        // TODO
+        assert(this._subpassID !== -1);
+        const nodeId = this._vertID;
+        const rasterPass = this._renderGraph.object(nodeId) as RasterPass;
+        const subpass = this._renderGraph.object(this._subpassID) as RasterSubpass;
+        const subpassData = rasterPass.subpassGraph.getSubpass(subpass.subpassID);
+        const resolve = pipelinePool.resolvePair.add();
+        resolve.reset(source, target, ResolveFlags.COLOR, ResolveMode.AVERAGE, ResolveMode.NONE);
+        subpass.resolvePairs.push(resolve);
+        subpassData.resolvePairs.push(resolve);
     }
     resolveDepthStencil (
         source: string,
@@ -641,7 +642,21 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         depthMode?: ResolveMode,
         stencilMode?: ResolveMode,
     ): void {
-        // TODO
+        assert(this._subpassID !== -1);
+        const subpass = this._renderGraph.object(this._subpassID) as RasterSubpass;
+        let flags = ResolveFlags.NONE;
+        if (depthMode !== ResolveMode.NONE) {
+            flags |= ResolveFlags.DEPTH;
+        }
+        if (stencilMode !== ResolveMode.NONE) {
+            flags |= ResolveFlags.STENCIL;
+        }
+        const pass = this._renderGraph.object(this._vertID) as RasterPass;
+        const subpassData = pass.subpassGraph.getSubpass(subpass.subpassID);
+        const resolve = pipelinePool.resolvePair.add();
+        resolve.reset(source, target, flags, depthMode!, stencilMode!);
+        subpass.resolvePairs.push(resolve);
+        subpassData.resolvePairs.push(resolve);
     }
     private _addComputeResource (name: string, accessType: AccessType, slotName: string): void {
         const view = renderGraphPool.createComputeView(slotName);
@@ -672,6 +687,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         const subpass = renderGraphPool.createRasterSubpass(subpassID, 1, 0);
         const data = renderGraphPool.createRenderData();
         const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, !DEBUG);
+        this._subpassID = vertID;
         const result = pipelinePool.renderSubpassBuilder.add();
         result.update(data, this._renderGraph, this._lg, vertID, subpass, this._pipeline);
         return result;
@@ -740,6 +756,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
     }
     private _renderGraph: RenderGraph;
     private _layoutID: number;
+    private _subpassID: number;
     private _pass: RasterPass;
     private _pipeline: PipelineSceneData;
     private _resourceGraph: ResourceGraph;
@@ -1730,7 +1747,9 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         return this.addRenderPassImpl(width, height, layoutName);
     }
     addMultisampleRenderPass (width: number, height: number, count: number, quality: number, layoutName = 'default'): BasicMultisampleRenderPassBuilder {
-        return this.addRenderPassImpl(width, height, layoutName, count, quality);
+        const rasterPassBuilder = this.addRenderPassImpl(width, height, layoutName, count, quality) as WebRenderPassBuilder;
+        rasterPassBuilder.addRenderSubpass();
+        return rasterPassBuilder;
     }
     public getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout {
         const lg = this._lg;

@@ -25,9 +25,9 @@ THE SOFTWARE.
 
 #define COCOS_MAJOR_VERSION     3
 #define COCOS_MINJOR_VERSION    8
-#define COCOS_PATCH_VERSION     7
-#define COCOS_VERSION_STRING    "3.8.7"
+#define COCOS_PATCH_VERSION     8
+#define COCOS_VERSION_STRING    "3.8.8"
 #define COCOS_VERSION_DEFINED   1
-#define COCOS_VERSION           30807
+#define COCOS_VERSION           30808
 
 // #define COCOS_PRE_RELEASE       "release"

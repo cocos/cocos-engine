@@ -24,7 +24,7 @@
 */
 
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
-import { cclegacy, errorID, warn, editorExtrasTag } from '../../core';
+import { cclegacy, errorID, warn, editorExtrasTag, CCClass } from '../../core';
 import { Node } from '../node';
 import { Component } from '../component';
 import {
@@ -359,6 +359,14 @@ export function applyTargetOverrides (node: Node): void {
                     return;
                 }
 
+                // Check whether the class of the script declares this property. If not,
+                // skip assignment to avoid leaving invalid references when the script structure changes.
+                const attr = CCClass.Attr.getClassAttrs(targetPropOwner.constructor);
+                const attrKey = `${targetPropName + CCClass.Attr.DELIMETER}ctor`;
+                if (attr && !attr[attrKey]) {
+                    continue;
+                }
+
                 for (let i = 0; i < propertyPath.length; i++) {
                     const propName = propertyPath[i];
                     targetPropOwner = targetPropOwner[propName];
@@ -413,6 +421,7 @@ export function expandNestedPrefabInstanceNode (node: Node): void {
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
+            applyTargetOverrides(instanceNode);
             // when expanding the prefab,it's children will be change,so need to apply after expanded
             // if (!EDITOR) {
             //     applyNodeAndComponentId(instanceNode, (instanceNode as any)._prefab?.instance?.fileId ?? '');

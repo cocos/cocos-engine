@@ -218,7 +218,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 3933, "Each curve that has common target should be numeric curve and targets string property." },
 { 3934, "Misconfigured legacy curve: the first keyframe value is number but others aren't." },
 { 3935, "We don't currently support conversion of `CubicSplineQuatValue`." },
-{ 3936, "Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this." },
+{ 3936, "Instancing/Batching enabled for non-baked skinning model or used AnimationController '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this." },
 { 3937, "Previous error occurred when instantiating animation clip %s on node %s." },
 { 3938, "'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'." },
 { 3940, "Error when animation attempted to bind material uniform target: target %s is not a material." },

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -69,12 +69,22 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get devicePixelRatio (): number {
+        if (WECHAT) {
+            const sysInfo = minigame.getWindowInfo();
+            return sysInfo.pixelRatio;
+        }
         const sysInfo = minigame.getSystemInfoSync();
         return sysInfo.pixelRatio;
     }
 
     public get windowSize (): Size {
-        const sysInfo = minigame.getSystemInfoSync();
+        let sysInfo;
+        if (WECHAT) {
+            sysInfo = minigame.getWindowInfo();
+        } else {
+            sysInfo = minigame.getSystemInfoSync();
+        }
+
         const dpr = this.devicePixelRatio;
         let screenWidth = sysInfo.windowWidth;
         let screenHeight = sysInfo.windowHeight;

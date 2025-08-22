@@ -22,14 +22,16 @@ export interface OHOSParam {
 
 export class OHOSPackTool extends NativePackTool {
     params!: CocosParams<OHOSParam>;
-
+    get projectDistPath() {
+        return this.paths.platformTemplateDirInPrj;
+    }
     async create() {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
-        await this.excuteCocosTemplateTask();
+        await this.executeCocosTemplateTask();
 
-        const ohosProjDir = this.paths.platformTemplateDirInPrj;
+        const ohosProjDir = this.projectDistPath;
         const cocosXRoot = ps.normalize(Paths.nativeRoot);
         const platformParams = this.params.platformParams;
         // check directories
@@ -104,7 +106,7 @@ export class OHOSPackTool extends NativePackTool {
             console.error(e);
         }
 
-        await this.encrypteScripts();
+        await this.encryptScripts();
         return true;
     }
 

@@ -1339,6 +1339,7 @@ module.exports = link(mixin({
 require('./modules/physics'),
 require('./modules/rendering'),
 require('./modules/ui.js'),
+require('./modules/terrain.js'),
 require('./animation'),
 
 ));

@@ -61,6 +61,7 @@ export class UIPhase {
             for (let j = 0; j < count; j++) {
                 const pass = batch.passes[j];
                 if (pass.phase !== this._phaseID) continue;
+                if (pass.passID !== 0xFFFFFFFF) continue;
                 const shader = batch.shaders[j];
                 const inputAssembler = batch.inputAssembler!;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);

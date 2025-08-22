@@ -25,7 +25,7 @@
 import {
     assert, cclegacy, clamp, geometry, gfx, Layers, Material, pipeline,
     PipelineEventProcessor, PipelineEventType, ReflectionProbeManager, renderer,
-    rendering, sys, Vec2, Vec3, Vec4, warn,
+    rendering, sys, Vec2, Vec3, Vec4, warn, macro,
 } from 'cc';
 
 import { DEBUG, EDITOR } from 'cc/env';
@@ -77,6 +77,7 @@ function getCsmMainLightViewport(
 export class PipelineConfigs {
     isWeb = false;
     isWebGL1 = false;
+    isWebGL2 = false;
     isWebGPU = false;
     isMobile = false;
     isHDR = false;
@@ -102,6 +103,7 @@ function setupPipelineConfigs(
     // Platform
     configs.isWeb = !sys.isNative;
     configs.isWebGL1 = device.gfxAPI === gfx.API.WEBGL;
+    configs.isWebGL2 = device.gfxAPI === gfx.API.WEBGL2;
     configs.isWebGPU = device.gfxAPI === gfx.API.WEBGPU;
     configs.isMobile = sys.isMobile;
 
@@ -436,8 +438,8 @@ export class BuiltinForwardPassBuilder implements rendering.PipelinePassBuilder 
 
         // MSAA
         cameraConfigs.enableMSAA = cameraConfigs.settings.msaa.enabled
+            && (!pipelineConfigs.isWebGL2 || (cameraConfigs.remainingPasses > 0 || (!macro.ENABLE_WEBGL_ANTIALIAS && macro.ENABLE_TRANSPARENT_CANVAS)))
             && !cameraConfigs.enableStoreSceneDepth // Cannot store MS depth, resolve depth is also not cross-platform
-            && !pipelineConfigs.isWeb // TODO(zhouzhenglong): remove this constraint
             && !pipelineConfigs.isWebGL1;
 
         // Forward rendering (Depend on MSAA and TBR)

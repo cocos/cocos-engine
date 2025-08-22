@@ -44,7 +44,6 @@ cloneObject(minigame, my);
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 systemInfo.language = languageMap[systemInfo.language] || systemInfo.language;
-minigame.getSystemInfoSync = (): SystemInfo => systemInfo;
 
 minigame.isDevTool = my.isIDE;
 
