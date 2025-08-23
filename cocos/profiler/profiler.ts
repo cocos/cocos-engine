@@ -120,7 +120,7 @@ export class Profiler extends System {
     private _totalLines = 0; // total lines to display
 
     private lastTime = 0;   // update use time
-    private _backgroundColor = new Color(150, 150, 150, 100);
+    private _backgroundColor = new Color(128, 128, 128, 100);
     private _fontColor = Color.WHITE.clone();
 
     constructor () {
