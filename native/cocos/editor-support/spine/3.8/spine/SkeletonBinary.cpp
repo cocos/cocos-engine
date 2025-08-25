@@ -281,16 +281,8 @@ SkeletonData *SkeletonBinary::readSkeletonData(const unsigned char *binary, cons
     }
 
     /* Skins. */
-    for (size_t i = 0, n = (size_t)readVarint(input, true); i < n; ++i) {
-        Skin *skin = readSkin(input, false, skeletonData, nonessential);
-        if (skin)
-            skeletonData->_skins.add(skin);
-        else {
-            delete input;
-            delete skeletonData;
-            return NULL;
-        }
-    }
+    for (size_t i = 0, n = (size_t)readVarint(input, true); i < n; ++i)
+        skeletonData->_skins.add(readSkin(input, false, skeletonData, nonessential));
 
     /* Linked meshes. */
     for (int i = 0, n = _linkedMeshes.size(); i < n; ++i) {
@@ -387,7 +379,7 @@ char *SkeletonBinary::readString(DataInput *input) {
 
 char *SkeletonBinary::readStringRef(DataInput *input, SkeletonData *skeletonData) {
     int index = readVarint(input, true);
-    return index == 0 ? NULL : skeletonData->_strings[index - 1];
+    return index == 0 ? nullptr : skeletonData->_strings[index - 1];
 }
 
 float SkeletonBinary::readFloat(DataInput *input) {
@@ -477,12 +469,7 @@ Skin *SkeletonBinary::readSkin(DataInput *input, bool defaultSkin, SkeletonData 
         for (int ii = 0, nn = readVarint(input, true); ii < nn; ++ii) {
             String name(readStringRef(input, skeletonData));
             Attachment *attachment = readAttachment(input, skin, slotIndex, name, skeletonData, nonessential);
-            if (attachment)
-                skin->setAttachment(slotIndex, String(name), attachment);
-            else {
-                delete skin;
-                return nullptr;
-            }
+            if (attachment) skin->setAttachment(slotIndex, String(name), attachment);
         }
     }
     return skin;
