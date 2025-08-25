@@ -164,11 +164,11 @@ function realTimeTraverse (comp: Skeleton): void {
         comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, comp._vLength);
         comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
-        comp._iBuffer = new Uint8Array(rd.indices.buffer);
     }
     if (!rd.indices || rd.indices.length < ic) {
         //rd.indexCount maybe equal to ic, but rd.indices.length may be less than ic, so we need to reallocate indices
         rd.indices = new Uint16Array(ic);
+        comp._iBuffer = new Uint8Array(rd.indices.buffer);
     }
 
     const vbuf = rd.chunk.vb;
