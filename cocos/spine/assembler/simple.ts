@@ -161,17 +161,20 @@ function realTimeTraverse (comp: Skeleton): void {
         if (rd.vertexCount < vc || rd.indexCount < ic) {
             rd.resize(Math.ceil(vc * ADJUST_SIZE_RATE), Math.ceil(ic * ADJUST_SIZE_RATE));
         }
-        rd.indices = new Uint16Array(ic);
         comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, comp._vLength);
         comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         comp._iBuffer = new Uint8Array(rd.indices.buffer);
     }
+    if (!rd.indices || rd.indices.length < ic) {
+        //rd.indexCount maybe equal to ic, but rd.indices.length may be less than ic, so we need to reallocate indices
+        rd.indices = new Uint16Array(ic);
+    }
 
     const vbuf = rd.chunk.vb;
     const vPtr: number = model.vPtr;
     const iPtr: number = model.iPtr;
-    const ibuf = rd.indices!;
+    const ibuf = rd.indices;
     const HEAPU8: Uint8Array = spine.wasmUtil.wasm.HEAPU8;
 
     comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
