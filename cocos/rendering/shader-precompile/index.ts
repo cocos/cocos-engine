@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,19 +22,6 @@
  THE SOFTWARE.
 */
 
-import * as pipeline from './define';
+import { ShaderPrecompile } from './shader-precompile';
 
-export { pipeline };
-
-export * from './pass-phase';
-export * from './render-types';
-
-export { PipelineSceneData } from './pipeline-scene-data';
-
-export { InstancedBuffer } from './instanced-buffer';
-export { PipelineStateManager } from './pipeline-state-manager';
-
-export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
-export { DebugView } from './debug-view';
-
-export { shaderPrecompile } from './shader-precompile';
+export const shaderPrecompile = new ShaderPrecompile();

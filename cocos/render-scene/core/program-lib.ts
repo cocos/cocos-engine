@@ -40,6 +40,10 @@ import { debug, cclegacy, errorID, warnID } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
+export interface IShaderCollector {
+    collect(name: string, defines: MacroRecord, key: string): void;
+}
+
 export interface IDefineRecord extends EffectAsset.IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
@@ -191,12 +195,12 @@ function replaceVertexMutableLocation (
                                     if (eleAndTestStr.includes('==')) {
                                         const opVars = eleAndTestStr.split('==');
                                         if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
-                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') === v!.value;
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') === v.value;
                                         }
                                     } else if (eleAndTestStr.includes('!=')) {
                                         const opVars = eleAndTestStr.split('!=');
                                         if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
-                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') !== v!.value;
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') !== v.value;
                                         }
                                     } else {
                                         // no compare just define or not
@@ -322,6 +326,11 @@ export class ProgramLib {
     protected _templates: Record<string, IProgramInfo> = {}; // per shader
     protected _cache: Record<string, Shader> = {};
     protected _templateInfos: Record<number, ITemplateInfo> = {};
+    private _shaderCollector: IShaderCollector = null!;
+
+    setShaderCollector (shaderCollector: IShaderCollector): void {
+        this._shaderCollector = shaderCollector;
+    }
 
     public register (effect: EffectAsset): void {
         for (let i = 0; i < effect.shaders.length; i++) {
@@ -545,9 +554,16 @@ export class ProgramLib {
      */
     public getGFXShader (device: Device, name: string, defines: MacroRecord, pipeline: PipelineRuntime, key?: string): Shader {
         Object.assign(defines, pipeline.macros);
-        if (!key) key = this.getKey(name, defines);
+        key ??= this.getKey(name, defines);
+        this._shaderCollector?.collect(name, defines, key);
+        return this.compile(device, name, defines, pipeline, key);
+    }
+
+    compile (device: Device, name: string, defines: MacroRecord, pipeline: PipelineRuntime, key?: string): Shader {
+        key ??= this.getKey(name, defines);
+
         const res = this._cache[key];
-        if (res) { return res; }
+        if (res) return res;
 
         const tmpl = this._templates[name];
         const tmplInfo = this._templateInfos[tmpl.hash];
@@ -586,6 +602,10 @@ export class ProgramLib {
         }
 
         return this._cache[key] = device.createShader(shaderInfo);
+    }
+
+    getShadersCount (): number {
+        return Object.keys(this._cache).length;
     }
 }
 

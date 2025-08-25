@@ -45,6 +45,10 @@ import { ProgramGroup, ProgramInfo } from './web-types';
 
 const _setIndex = [2, 1, 3, 0];
 
+export interface IWebShaderCollector {
+    collect(name: string, defines: MacroRecord, phaseID: number, key: string): void;
+}
+
 // make IProgramInfo from IShaderInfo
 export function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): IProgramInfo {
     const programInfo = { ...shader } as IProgramInfo;
@@ -904,6 +908,12 @@ export class WebProgramLibrary implements ProgramLibrary {
             }
         }
     }
+
+    private _shaderCollector: IWebShaderCollector = null!;
+    setShaderCollector (shaderCollector: IWebShaderCollector): void {
+        this._shaderCollector = shaderCollector;
+    }
+
     init (deviceIn: Device): void {
         if (this.device === deviceIn) {
             return;
@@ -1098,6 +1108,12 @@ export class WebProgramLibrary implements ProgramLibrary {
     // get program variant
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null = null): ProgramProxy | null {
         Object.assign(defines, this.pipeline?.macros);
+        key ??= this.getKey(phaseID, name, defines);
+        this._shaderCollector?.collect(name, defines, phaseID, key);
+        return this.compile(device, phaseID, name, defines, key);
+    }
+
+    compile (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null = null): ProgramProxy | null {
         assert(phaseID !== INVALID_ID);
         // get phase
         const group = this.phases.get(phaseID);
@@ -1111,6 +1127,7 @@ export class WebProgramLibrary implements ProgramLibrary {
             error(`Invalid program, program: ${name}`);
             return null;
         }
+
         const programInfo = info.programInfo;
         if (key === null) {
             key = getVariantKey(programInfo, defines);
@@ -1159,6 +1176,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         // create
         return host;
     }
+
     // get material descriptor set layout
     getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
         if (this.mergeHighFrequency) {
@@ -1313,4 +1331,12 @@ export class WebProgramLibrary implements ProgramLibrary {
     public localDescriptorSetLayout: DescriptorSetLayout | null = null;
     public pipeline: PipelineRuntime | null = null;
     public device: Device | null = null;
+
+    getShadersCount (): number {
+        let count = 0;
+        for (const group of this.phases.values()) {
+            count += group.programProxies.size;
+        }
+        return count;
+    }
 }

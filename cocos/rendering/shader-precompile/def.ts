@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2025 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,19 +22,23 @@
  THE SOFTWARE.
 */
 
-import * as pipeline from './define';
+import { MacroRecord } from '../../render-scene/core/pass-utils';
 
-export { pipeline };
+export interface IShaderCompileInfo {
+    name: string;
+    defines: MacroRecord;
+    key?: string;
+    timestamp?: number;
+}
 
-export * from './pass-phase';
-export * from './render-types';
+export interface IOldShaderCompileInfo extends IShaderCompileInfo {}
 
-export { PipelineSceneData } from './pipeline-scene-data';
+export interface INewShaderCompileInfo extends IOldShaderCompileInfo {
+    phaseID: number;
+}
 
-export { InstancedBuffer } from './instanced-buffer';
-export { PipelineStateManager } from './pipeline-state-manager';
-
-export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
-export { DebugView } from './debug-view';
-
-export { shaderPrecompile } from './shader-precompile';
+export interface ShaderCollectExportOptions {
+    compress?: boolean,
+    containTime?: boolean,
+    containKey?: boolean
+}

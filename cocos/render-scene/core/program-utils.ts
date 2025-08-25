@@ -92,7 +92,7 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord):
         for (let i = 0; i < tmplDefs.length; i++) {
             const tmplDef = tmplDefs[i];
             const value = defines[tmplDef.name];
-            if (!value || !tmplDef._map) {
+            if (value === undefined || !tmplDef._map) {
                 continue;
             }
             const mapped = tmplDef._map(value);

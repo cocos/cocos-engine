@@ -1455,7 +1455,18 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
             defines[it.first] = it.second;
         }
     }
+    ccstd::pmr::string key(&unsycPool);
+    if (key0 == nullptr) {
+        key = getKey(phaseID, name, defines);
+    } else {
+        key = *key0;
+    }
+    return compile(device, phaseID, name, defines, &key);
+}
 
+ProgramProxy *NativeProgramLibrary::compile(
+    gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
+    MacroRecord &defines, const ccstd::pmr::string *key0) {
     auto iter = phases.find(phaseID);
     if (iter == phases.end()) {
         CC_LOG_ERROR("phase not found");
@@ -1607,6 +1618,14 @@ uint32_t NativeProgramLibrary::getDescriptorNameID(const ccstd::pmr::string &nam
 
 const ccstd::pmr::string &NativeProgramLibrary::getDescriptorName(uint32_t nameID) {
     return layoutGraph.valueNames.at(static_cast<size_t>(nameID));
+}
+
+uint32_t NativeProgramLibrary::getShadersCount() const {
+    uint32_t count = 0;
+    for (const auto &group : phases) {
+        count += group.second.programProxies.size();
+    }
+    return count;
 }
 
 } // namespace render

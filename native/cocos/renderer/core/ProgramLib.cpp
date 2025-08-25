@@ -438,7 +438,17 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     for (const auto &it : pipeline->getMacros()) {
         defines[it.first] = it.second;
     }
+    ccstd::string key;
+    if (!keyOut) {
+        key = getKey(name, defines);
+    } else {
+        key = *keyOut;
+    }
+    return compile(device, name, defines, pipeline, &key);
+}
 
+gfx::Shader *ProgramLib::compile(gfx::Device *device, const ccstd::string &name, MacroRecord &defines,
+                                      render::PipelineRuntime *pipeline, ccstd::string *keyOut) {
     ccstd::string key;
     if (!keyOut) {
         key = getKey(name, defines);
@@ -493,6 +503,10 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     _cache[key] = shader;
     //    CC_LOG_DEBUG("ProgramLib::_cache[%s]=%p, defines: %d", key.c_str(), shader, defines.size());
     return shader;
+}
+
+uint32_t ProgramLib::getShadersCount() const {
+    return static_cast<uint32_t>(_cache.size());
 }
 
 } // namespace cc

@@ -33,11 +33,11 @@ import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID, getCustomSubpassID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
 import { forceResizeAllWindows } from './framework';
+import { programLib, defaultLayoutGraph } from './program-lib';
 
 let _pipeline: WebPipeline | null = null;
 
 export const INVALID_ID = 0xFFFFFFFF;
-const defaultLayoutGraph = new LayoutGraphData();
 
 const LAYOUT_HEADER_SIZE = 8;
 
@@ -47,7 +47,7 @@ export * from './archive';
 export * from './framework';
 
 export const enableEffectImport = true;
-export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
+export { programLib };
 
 export function createCustomPipeline (): BasicPipeline {
     const layoutGraph = defaultLayoutGraph;
