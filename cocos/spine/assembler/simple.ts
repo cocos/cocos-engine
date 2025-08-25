@@ -284,6 +284,9 @@ function cacheTraverse (comp: Skeleton): void {
         if (rd.vertexCount < vc || rd.indexCount < ic) {
             rd.resize(Math.ceil(vc * ADJUST_SIZE_RATE), Math.ceil(ic * ADJUST_SIZE_RATE));
         }
+    }
+    if (!rd.indices || rd.indices.length < ic) {
+        //rd.indexCount maybe equal to ic, but rd.indices.length may be less than ic, so we need to reallocate indices
         rd.indices = new Uint16Array(ic);
     }
 
@@ -318,7 +321,7 @@ function cacheTraverse (comp: Skeleton): void {
         }
     }
 
-    const iUint16Buf = rd.indices!;
+    const iUint16Buf = rd.indices;
     iUint16Buf.set(model.iData as TypedArray);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) {
