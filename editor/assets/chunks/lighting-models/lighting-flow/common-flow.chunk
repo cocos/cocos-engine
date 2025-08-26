@@ -78,7 +78,7 @@
 
         float angleAtt = 1.0;
         if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
-          angleAtt = CCSurfacesLightingCalculateAngleAttenuation(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz);
+          angleAtt = CCSurfacesLightingCalculateAngleAttenuationWithStrength(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz, cc_lightBoundingSizeVS[i].w);
         }
 
         float multiplier = distAtt * angleAtt;

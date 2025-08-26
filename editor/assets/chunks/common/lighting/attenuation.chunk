@@ -58,3 +58,11 @@ float CalculateAngleAttenuation(vec3 spotLightDir, vec3 L, float cosAngleOuter)
   float litAngleOffset = -cosAngleOuter * litAngleScale;
   return GetAngleAtt(L, spotLightDir, litAngleScale, litAngleOffset);
 }
+
+float CalculateAngleAttenuationWithStrength(vec3 spotLightDir, vec3 L, float cosAngleOuter, float strength)
+{
+  float cosInner = max(dot(spotLightDir, L), 0.01);
+  float litAngleScale = 1.0 / max(0.001, mix(cosInner, 1.0, strength) - cosAngleOuter);
+  float litAngleOffset = -cosAngleOuter * litAngleScale;
+  return GetAngleAtt(L, spotLightDir, litAngleScale, litAngleOffset);
+}
