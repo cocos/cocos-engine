@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2025 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -31,6 +31,21 @@ import { PipelineRuntime } from '../custom';
 import { WebProgramLibrary } from '../custom/web-program-library';
 import { ShaderDataSerializerFactory } from './serializer';
 import { INewShaderCompileInfo, IOldShaderCompileInfo, IShaderCompileInfo } from './def';
+
+const PLATFORM_SPECIFIC_MACROS_FOR_NEW_PIPELINE = [
+    'CC_SHADOWMAP_FORMAT',
+    'CC_SHADOWMAP_USE_LINEAR_DEPTH',
+    'CC_SUPPORT_CASCADED_SHADOW_MAP',
+    'CC_USE_DEBUG_VIEW',
+    'CC_PIPELINE_TYPE',
+    'CC_SUPPORT_FLOAT_TEXTURE',
+];
+
+const PLATFORM_SPECIFIC_MACROS_FOR_OLD_PIPELINE = [
+    'CC_SHADOWMAP_FORMAT',
+    'CC_SHADOWMAP_USE_LINEAR_DEPTH',
+    'CC_SUPPORT_CASCADED_SHADOW_MAP',
+];
 
 export abstract class ShaderCompiler<T extends IShaderCompileInfo = IShaderCompileInfo> {
     private records: T[] = [];
@@ -69,9 +84,8 @@ class OldShaderCompiler extends ShaderCompiler<IOldShaderCompileInfo> {
     protected compile (info: IOldShaderCompileInfo): void {
         const { device, pipeline } = cclegacy.director.root as { device: Device, pipeline: PipelineRuntime };
         const { name, defines } = info;
-        const list = ['CC_SHADOWMAP_FORMAT', 'CC_SHADOWMAP_USE_LINEAR_DEPTH', 'CC_SUPPORT_CASCADED_SHADOW_MAP',
-            'CC_USE_DEBUG_VIEW', 'CC_PIPELINE_TYPE', 'CC_SUPPORT_FLOAT_TEXTURE'];
-        this.assignPlatformMacro(defines, pipeline.macros, list);
+
+        this.assignPlatformMacro(defines, pipeline.macros, PLATFORM_SPECIFIC_MACROS_FOR_OLD_PIPELINE);
         oldProgramLib.compile(device, name, defines, pipeline);
     }
 
@@ -84,8 +98,8 @@ class NewShaderCompiler extends ShaderCompiler<INewShaderCompileInfo> {
     protected compile (info: INewShaderCompileInfo): void {
         const { device, pipeline } = cclegacy.director.root as { device: Device, pipeline: PipelineRuntime };
         const { phaseID, name, defines, key } = info;
-        const list = ['CC_SHADOWMAP_FORMAT', 'CC_SHADOWMAP_USE_LINEAR_DEPTH', 'CC_SUPPORT_CASCADED_SHADOW_MAP'];
-        this.assignPlatformMacro(defines, pipeline.macros, list);
+
+        this.assignPlatformMacro(defines, pipeline.macros, PLATFORM_SPECIFIC_MACROS_FOR_NEW_PIPELINE);
         NewShaderCompiler.programLib.compile(device, phaseID, name, defines, key);
     }
 
@@ -93,6 +107,7 @@ class NewShaderCompiler extends ShaderCompiler<INewShaderCompileInfo> {
         return NewShaderCompiler.programLib.getShadersCount();
     }
 
+    // TODO: 正龙，这里需要修改
     private static get programLib (): WebProgramLibrary {
         return newProgramLib as WebProgramLibrary;
     }

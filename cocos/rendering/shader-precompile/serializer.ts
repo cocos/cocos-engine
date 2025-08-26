@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2025 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -53,7 +53,7 @@ class GzipJsonSerializer implements ShaderDataSerializer {
     }
 
     deserialize (content: Uint8Array): any[] {
-        // TODO: 这里需要解压缩
+        // TODO: implement gzip compression/decompression
         const json = (new TextDecoder()).decode(content);
         return JSON.parse(json) as any[];
     }

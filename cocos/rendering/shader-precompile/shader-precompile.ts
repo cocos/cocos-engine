@@ -27,6 +27,10 @@ import { ShaderCollector, ShaderCollectorFactory } from './collector';
 import { ShaderCompiler, ShaderCompilerFactory } from './compiler';
 import { ShaderCollectExportOptions } from './def';
 
+/**
+ * @en Shader precompilation manager. Provides functionality for collecting shader compilation info during runtime and precompiling shaders for optimization.
+ * @zh 着色器预编译管理器。提供运行时收集着色器编译信息和预编译着色器优化功能。
+ */
 export class ShaderPrecompile {
     private get isNewPipeline (): boolean {
         return !!cclegacy.rendering;
@@ -40,26 +44,50 @@ export class ShaderPrecompile {
         return ShaderCompilerFactory.getShaderCompiler(this.isNewPipeline);
     }
 
+    /**
+     * @en Start collecting shader compilation information
+     * @zh 开始收集着色器编译信息
+     */
     startCollect (): void {
         this.collector.start();
     }
 
+    /**
+     * @en Export collected shader data
+     * @zh 导出收集的着色器数据
+     */
     export (options?: ShaderCollectExportOptions): string | Uint8Array {
         return this.collector.export(options);
     }
 
+    /**
+     * @en Import shader data for precompilation
+     * @zh 导入用于预编译的着色器数据
+     */
     import (content: string | Uint8Array, compress = false): void {
         this.compiler.import(content, compress);
     }
 
+    /**
+     * @en Compile all imported shaders
+     * @zh 编译所有导入的着色器
+     */
     compileAll (): void {
         this.compiler.compileAll();
     }
 
+    /**
+     * @en Import and compile shaders in one step
+     * @zh 一步完成导入和编译着色器
+     */
     precompile (content: string | Uint8Array, compress = false): void {
         this.compiler.precompile(content, compress);
     }
 
+    /**
+     * @en Get the count of compiled shaders
+     * @zh 获取已编译着色器的数量
+     */
     getShadersCount (): number {
         return this.compiler.getShadersCount();
     }

@@ -24,4 +24,8 @@
 
 import { ShaderPrecompile } from './shader-precompile';
 
+/**
+ * @en Global shader precompilation instance
+ * @zh 全局着色器预编译实例
+ */
 export const shaderPrecompile = new ShaderPrecompile();
