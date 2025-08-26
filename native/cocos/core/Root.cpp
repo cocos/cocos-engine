@@ -277,8 +277,8 @@ public:
     void onGlobalPipelineStateChanged() override {
         pipeline->onGlobalPipelineStateChanged();
     }
-    void compileProgram(const ccstd::string &name, const MacroRecord &defines, const ccstd::string &passName, const ccstd::string &phaseName) {
-        // TODO(zhouzhenglong): Add precompile implementation
+    void compileProgram(const ccstd::string &name, const MacroRecord &defines, const ccstd::string &passName, const ccstd::string &phaseName) override {
+        // TODO(zhouzhenglong): Add compile implementation
     }
     void setValue(const ccstd::string &name, int32_t value) override {
         pipeline->setValue(name, value);
