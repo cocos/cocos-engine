@@ -719,6 +719,15 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         // do nothing
     }
 
+    public compileProgram (
+        name: string,
+        defines: MacroRecord,
+        passName = 'default',
+        phaseName = 'default',
+    ): void {
+        // TODO(zhouzhenglong): Add precompile logic
+    }
+
     protected _generateConstantMacros (): void {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.getFormatFeatures(Format.RGBA32F)

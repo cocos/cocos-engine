@@ -233,11 +233,18 @@ public:
      * @zh 触发管线状态更新事件
      */
     virtual void onGlobalPipelineStateChanged() = 0;
+    virtual void compileProgram(const ccstd::string &name, const MacroRecord &defines, const ccstd::string &passName, const ccstd::string &phaseName) = 0;
     virtual void setValue(const ccstd::string &name, int32_t value) = 0;
     virtual void setValue(const ccstd::string &name, bool value) = 0;
     virtual bool isOcclusionQueryEnabled() const = 0;
     virtual void resetRenderQueue(bool reset) = 0;
     virtual bool isRenderQueueReset() const = 0;
+    void compileProgram(const ccstd::string &name, const MacroRecord &defines) {
+        compileProgram(name, defines, "default", "default");
+    }
+    void compileProgram(const ccstd::string &name, const MacroRecord &defines, const ccstd::string &passName) {
+        compileProgram(name, defines, passName, "default");
+    }
 };
 
 /**

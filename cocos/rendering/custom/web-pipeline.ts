@@ -1441,6 +1441,16 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
             cclegacy.rendering.forceResizeAllWindows();
         }
     }
+
+    public compileProgram (
+        name: string,
+        defines: MacroRecord,
+        passName = 'default',
+        phaseName = 'default',
+    ): void {
+        // TODO(zhouzhenglong): Add compile logic
+    }
+
     beginSetup (): void {
         if (!this._renderGraph) {
             this._renderGraph = new RenderGraph();

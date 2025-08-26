@@ -1608,6 +1608,7 @@ public:
     void setMacroInt(const ccstd::string &name, int32_t value) override;
     void setMacroBool(const ccstd::string &name, bool value) override;
     void onGlobalPipelineStateChanged() override;
+    void compileProgram(const ccstd::string &name, const MacroRecord &defines, const ccstd::string &passName, const ccstd::string &phaseName) override;
     void setValue(const ccstd::string &name, int32_t value) override;
     void setValue(const ccstd::string &name, bool value) override;
     bool isOcclusionQueryEnabled() const override;

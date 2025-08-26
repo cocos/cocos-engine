@@ -22,6 +22,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "bindings/jswrapper/SeApi.h" // IWYU pragma: keep
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
@@ -30,19 +31,18 @@
 #include "cocos/renderer/pipeline/custom/NativeBuiltinUtils.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
+#include "cocos/renderer/pipeline/custom/NativeUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/details/Range.h"
+#include "cocos/scene/DirectionalLight.h"
 #include "cocos/scene/ReflectionProbe.h"
 #include "cocos/scene/ReflectionProbeManager.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
 #include "cocos/scene/SpotLight.h"
-#include "cocos/scene/DirectionalLight.h"
-#include "bindings/jswrapper/SeApi.h" // IWYU pragma: keep
-#include "cocos/renderer/pipeline/custom/NativeUtils.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -1319,7 +1319,7 @@ void buildRenderPipeline() {
     if (buildRPVal.isUndefined()) {
         auto *global = se::ScriptEngine::getInstance()->getGlobalObject();
         se::Value jsbVal;
-        if(global->getProperty("jsb", &jsbVal) && jsbVal.isObject()) {
+        if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject()) {
             jsbVal.toObject()->getProperty("buildRenderPipeline", &buildRPVal);
         }
         se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
@@ -1597,6 +1597,12 @@ void NativePipeline::onGlobalPipelineStateChanged() {
     pipelineSceneData->updatePipelineSceneData();
 }
 
+void NativePipeline::compileProgram(
+    const ccstd::string &name, const MacroRecord &defines,
+    const ccstd::string &passName, const ccstd::string &phaseName) {
+    // TODO(zhouzhenglong): Add compile implementation
+}
+
 void NativePipeline::setValue(const ccstd::string &name, int32_t value) {
     macros[name] = value;
 }
@@ -1693,7 +1699,7 @@ void NativePipeline::setSampler(const ccstd::string &name, gfx::Sampler *sampler
 }
 
 void NativePipeline::setBuiltinCameraConstants(const scene::Camera *camera) {
-    const auto* scene = camera->getScene();
+    const auto *scene = camera->getScene();
     setCameraUBOValues(
         *camera,
         programLibrary->layoutGraph,

@@ -187,6 +187,11 @@ export interface PipelineRuntime {
      * @zh 触发管线状态更新事件
      */
     onGlobalPipelineStateChanged (): void;
+    compileProgram (
+        name: string,
+        defines: MacroRecord,
+        passName?: string,
+        phaseName?: string): void;
 }
 
 /**
