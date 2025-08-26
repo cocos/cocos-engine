@@ -793,7 +793,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
 
     internal::seToJsArgs(__isolate, args, pArgv);
 
-    v8::Local<v8::Object> thiz = v8::Local<v8::Object>::Cast(v8::Undefined(__isolate));
+    v8::Local<v8::Value> thiz = v8::Undefined(__isolate);
     if (thisObject != nullptr) {
         if (thisObject->_obj.persistent().IsEmpty()) {
             SE_LOGD("This object is released!\n");

@@ -48,6 +48,32 @@ struct RenderGraphVisitorContext {
     RenderGraphVisitorContext(RenderGraphVisitorContext const&) = delete;
     RenderGraphVisitorContext& operator=(RenderGraphVisitorContext&&) = delete;
     RenderGraphVisitorContext& operator=(RenderGraphVisitorContext const&) = delete;
+    RenderGraphVisitorContext(
+        NativeRenderContext& context_,
+        LayoutGraphData& lg_,
+        const RenderGraph& g_,
+        ResourceGraph& resourceGraph_,
+        const FrameGraphDispatcher& fgd_,
+        const ccstd::pmr::vector<bool>& validPasses_,
+        gfx::Device* device_,
+        gfx::CommandBuffer* cmdBuff_,
+        NativePipeline* ppl_,
+        ProgramLibrary* programLib_,
+        ccstd::pmr::vector<ccstd::optional<gfx::Viewport>>& viewportStack_,
+        CustomRenderGraphContext customContext_,
+        boost::container::pmr::memory_resource* scratch_) : context(context_),
+                                                            lg(lg_),
+                                                            g(g_),
+                                                            resourceGraph(resourceGraph_),
+                                                            fgd(fgd_),
+                                                            validPasses(validPasses_),
+                                                            device(device_),
+                                                            cmdBuff(cmdBuff_),
+                                                            ppl(ppl_),
+                                                            programLib(programLib_),
+                                                            viewportStack(viewportStack_),
+                                                            customContext(std::move(customContext_)),
+                                                            scratch(scratch_) {}
 
     NativeRenderContext& context;
     LayoutGraphData& lg;

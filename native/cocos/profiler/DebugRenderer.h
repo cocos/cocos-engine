@@ -54,7 +54,14 @@ struct DebugRendererInfo {
 };
 
 struct DebugTextInfo {
-    DebugTextInfo() = default;
+    DebugTextInfo(
+        const gfx::Color &c = {1, 1, 1, 1},
+        bool b = false,
+        bool i = false,
+        bool s = false,
+        uint32_t st = 1,
+        const gfx::Color &sc = {0, 0, 0, 1},
+        float sca = 1.0F) : color(c), bold(b), italic(i), shadow(s), shadowThickness(st), shadowColor(sc), scale(sca) {}
 
     gfx::Color color{1.0F, 1.0F, 1.0F, 1.0F};
     bool bold{false};
