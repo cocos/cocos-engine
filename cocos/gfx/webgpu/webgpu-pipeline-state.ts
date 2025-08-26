@@ -271,6 +271,7 @@ export class WebGPUPipelineState extends PipelineState {
         }
 
         pipelineState.vertex.buffers = vertexAttrs;
+        pipelineState.multisample = { count: ia.samples };
         const webgpuDevice = (WebGPUDeviceManager.instance);
         const nativeDevice = webgpuDevice.nativeDevice;
         const nativePipeline = nativeDevice?.createRenderPipeline(pipelineState);

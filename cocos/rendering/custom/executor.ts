@@ -756,6 +756,7 @@ class DeviceRenderPass implements RecordingInterface {
     protected _framebuffer!: Framebuffer;
     protected _clearColor: Color[] = [];
     protected _deviceQueues: Map<number, DeviceRenderQueue> = new Map();
+    protected _resolveTextures: Map<string, DeviceTexture> = new Map();
     protected _clearDepth = 1;
     protected _clearStencil = 0;
     protected _passID: number;
@@ -798,16 +799,29 @@ class DeviceRenderPass implements RecordingInterface {
         return resTex;
     }
 
+    private _applyResolve (srcName: string, srcTex: Texture | null): void {
+        if (!srcTex) {
+            return;
+        }
+        const resolvedTexes = this._resolveTextures;
+        // resolve msaa
+        this._traversalResolves((resolvePair: ResolvePair) => {
+            const resolvedTex = this._getOrCreateDeviceTex(resolvePair.target);
+            resolvedTexes.set(resolvePair.source, resolvedTex);
+        });
+        const currResolved = resolvedTexes.get(srcName);
+        if (currResolved) {
+            const gpuTex = (srcTex as any).gpuTexture;
+            gpuTex.resolveTex = (currResolved.getGPUTexture() as any).gpuTexture;
+        }
+    }
+
     constructor (rasterID: number, rasterPass: RasterPass) {
         this._rasterID = rasterID;
         this._rasterPass = rasterPass;
         const device = context.device;
         this._layoutName = context.renderGraph.getLayout(rasterID);
         this._passID = cclegacy.rendering.getPassID(this._layoutName);
-        // resolve msaa
-        this._traversalResolves((resolvePair: ResolvePair) => {
-            this._getOrCreateDeviceTex(resolvePair.target);
-        });
         const depAtt = new DepthStencilAttachment();
         depAtt.format = Format.DEPTH_STENCIL;
         const colors: ColorAttachment[] = [];
@@ -852,6 +866,7 @@ class DeviceRenderPass implements RecordingInterface {
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
             }
+            this._applyResolve(resName, resTex.texture);
         }
         if (colors.length === 0) {
             const colorAttachment = new ColorAttachment();
@@ -973,18 +988,7 @@ class DeviceRenderPass implements RecordingInterface {
         this.endPass();
     }
 
-    postRecord (): void {
-        this._traversalResolves((resolve) => {
-            const cmdBuff = context.commandBuffer;
-            const sourceTex = this._getOrCreateDeviceTex(resolve.source).getGPUTexture();
-            const targetTex = this._getOrCreateDeviceTex(resolve.target).getGPUTexture();
-            textureBlit.srcExtent.width = sourceTex.width;
-            textureBlit.srcExtent.height = sourceTex.height;
-            textureBlit.dstExtent.width = targetTex.width;
-            textureBlit.dstExtent.height = targetTex.height;
-            cmdBuff.blitTexture(sourceTex, targetTex, [textureBlit], Filter.LINEAR);
-        });
-    }
+    postRecord (): void {}
 
     private _processRenderLayout (pass: RasterPass): void {
         for (const cv of pass.computeViews) {
@@ -1059,6 +1063,7 @@ class DeviceRenderPass implements RecordingInterface {
                     depTexture = gfxTex;
                 }
             }
+            this._applyResolve(resName, deviceTex.texture);
         }
         this._createFramebuffer(framebuffer, colTextures, depTexture);
     }

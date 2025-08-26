@@ -110,6 +110,7 @@ export class WebGPUTexture extends Texture {
                 samples: texInfo.samples,
                 flags: texInfo.flags,
                 isPowerOf2: this._isPowerOf2,
+                resolveTex: null,
 
                 // default value, filled in when texture is created.
                 gpuTarget: '2d',

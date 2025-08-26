@@ -146,6 +146,7 @@ export interface IWebGL2GPUTexture {
     samples: SampleCount;
     flags: TextureFlags;
     isPowerOf2: boolean;
+    resolveTex: IWebGL2GPUTexture | null;
 
     glTarget: GLenum;
     glInternalFmt: GLenum;

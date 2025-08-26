@@ -88,6 +88,7 @@ export interface IWebGPUTexture {
     samples: SampleCount;
     flags: TextureFlags;
     isPowerOf2: boolean;
+    resolveTex: IWebGPUTexture | null;
 
     gpuTarget: GPUTextureViewDimension;  // 1d, 2d, 3d
     gpuInternalFmt: GPUTextureFormat;// rgba8unorm
@@ -279,6 +280,7 @@ export interface IWebGPUGPUInputAssembler {
 
     gpuAttribs: IWebGPUAttrib[];
     gpuIndexType: GPUIndexFormat;
+    samples: number;
 }
 
 export interface IWebGPUBindingMapping {
