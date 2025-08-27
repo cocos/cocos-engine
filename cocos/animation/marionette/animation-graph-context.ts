@@ -492,23 +492,27 @@ export class AnimationGraphPoseLayoutMaintainer {
             auxiliaryCurves,
         } = pose;
 
-        const nTransforms = this._transformRecords.length;
+        const transformRecords = this._transformRecords;
+        const nTransforms = transformRecords.length;
         assertIsTrue(transforms.length === nTransforms);
         for (let iTransform = 0; iTransform < nTransforms; ++iTransform) {
             const transform = transforms.getTransform(iTransform, cacheTransform);
-            const { node } = this._transformRecords[iTransform];
-            node.setRTS(
+            const record = transformRecords[iTransform];
+            record.node.setRTS(
                 transform.rotation,
                 transform.position,
                 transform.scale,
             );
         }
 
-        const nAuxiliaryCurves = this._auxiliaryCurveRecords.length;
+        const auxiliaryCurveRecords = this._auxiliaryCurveRecords;
+        const auxiliaryCurveRegistry = this._auxiliaryCurveRegistry;
+        const nAuxiliaryCurves = auxiliaryCurveRecords.length;
+        
         for (let iAuxiliaryCurve = 0; iAuxiliaryCurve < nAuxiliaryCurves; ++iAuxiliaryCurve) {
-            const { name: curveName } = this._auxiliaryCurveRecords[iAuxiliaryCurve];
+            const record = auxiliaryCurveRecords[iAuxiliaryCurve];
             const curveValue = auxiliaryCurves[iAuxiliaryCurve];
-            this._auxiliaryCurveRegistry.set(curveName, curveValue);
+            auxiliaryCurveRegistry.set(record.name, curveValue);
         }
     }
 
