@@ -162,7 +162,7 @@ export function loadFont (url: string, options: Record<string, any>, onComplete:
         const labelCanvas = ccdocument.createElement('canvas');
         labelCanvas.width = 100;
         labelCanvas.height = 100;
-        _canvasContext = labelCanvas.getContext('2d');
+        _canvasContext = labelCanvas.getContext('2d', { willReadFrequently: true });
     }
 
     // Default width reference to test whether new font is loaded correctly

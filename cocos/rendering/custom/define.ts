@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 
-import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
+import {
+    BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit,
     UniformBlock,
     Device,
@@ -539,6 +540,8 @@ class ConstantBlockInfo {
     offset: number = -1;
     buffer: number[] = [];
     blockId: number = -1;
+    // Cache descriptor-set specific binding to avoid repeated lookups
+    bindingCache: WeakMap<DescriptorSetData, number> = new WeakMap();
 }
 const constantBlockMap: Map<number, ConstantBlockInfo> = new Map();
 function copyToConstantBuffer (target: number[], val: number[], offset: number): boolean {
@@ -596,7 +599,11 @@ function updateConstantBlock (
     const blockId = constantBuff.blockId;
     const buffer = constantBuff.buffer;
     const isImparity = copyToConstantBuffer(buffer, data, constantBuff.offset);
-    const bindId = getDescBinding(blockId, descriptorSetData);
+    let bindId = constantBuff.bindingCache.get(descriptorSetData);
+    if (bindId === undefined) {
+        bindId = getDescBinding(blockId, descriptorSetData);
+        constantBuff.bindingCache.set(descriptorSetData, bindId);
+    }
     const desc = descriptorSetData.descriptorSet!;
     if (isImparity || !desc.getBuffer(bindId) && bindId !== -1) {
         const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
@@ -622,7 +629,11 @@ export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number
     for (const [key, data] of constants) {
         let constantBlock = constantBlockMap.get(key);
         if (!constantBlock) {
-            const currMemKey = Array.from(lg.constantIndex).find(([_, v]) => v === key)![0];
+            // Find the uniform name by id without creating intermediate arrays
+            let currMemKey = '' as string;
+            for (const [name, id] of lg.constantIndex) {
+                if (id === key) { currMemKey = name; break; }
+            }
             for (const [block, blockId] of lg.attributeIndex) {
                 const constantBuff = addConstantBuffer(block, layout);
                 if (!constantBuff) continue;

@@ -301,7 +301,7 @@ class Parser {
     public enumerateCCClass (codeArray, obj, klass): void {
         const props = klass.__values__;
         const attrs = CCClass.Attr.getClassAttrs(klass);
-        for (let p = 0; p < props.length; p++) {
+        for (let p = 0, len = props.length; p < len; p++) {
             const key = props[p];
             const val = obj[key];
             let defaultValue = attrs[key + DEFAULT];
@@ -423,13 +423,13 @@ class Parser {
             this.enumerateCCClass(codeArray, obj, klass);
         } else {
             // primitive javascript object
-            for (const key in obj) {
-                if (!Object.prototype.hasOwnProperty.call(obj, key)
-                    || (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95   // starts with "__"
-                    && key !== '__type__')
-                ) {
+            const keys = Object.keys(obj);
+            for (let i = 0, len = keys.length; i < len; i++) {
+                const key = keys[i];
+                if (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 && key !== '__type__') { // starts with "__" but not "__type__"
                     continue;
                 }
+
                 const value = obj[key];
                 if (typeof value === 'object' && value && value === obj._iN$t) {
                     continue;

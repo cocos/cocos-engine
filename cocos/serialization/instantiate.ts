@@ -197,16 +197,15 @@ function doInstantiate (obj, parent?): any {
 function enumerateCCClass (klass, obj, clone, parent): void {
     const props = klass.__values__;
 
-    for (let p = 0; p < props.length; p++) {
-        const key = props[p];
+    for (let i = 0, len = props.length; i < len; i++) {
+        const key = props[i];
         const value = obj[key];
         if (typeof value === 'object' && value) {
             const initValue = clone[key];
-            if (initValue instanceof ValueType
-                && initValue.constructor === value.constructor) {
+            if (initValue instanceof ValueType && initValue.constructor === value.constructor) {
                 initValue.set(value as ValueType);
             } else {
-                clone[key] = value._iN$t || instantiateObj(value as any[], parent);
+                clone[key] = value._iN$t || instantiateObj(value, parent);
             }
         } else {
             clone[key] = value;
@@ -224,21 +223,21 @@ function enumerateObject (obj, clone, parent): void {
         enumerateCCClass(klass, obj, clone, parent);
     } else {
         // primitive javascript object
-        for (const key in obj) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (!obj.hasOwnProperty(key)
-                || (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95   // starts with "__"
-                 && key !== '__type__'
-                 && key !== '__prefab')
-            ) {
-                continue;
+        const keys = Object.keys(obj);
+        for (let i = 0, len = keys.length; i < len; i++) {
+            const key = keys[i];
+            if (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95) { // starts with "__"
+                if (key !== '__type__' && key !== '__prefab') {
+                    continue;
+                }
             }
+
             const value = obj[key];
             if (typeof value === 'object' && value) {
                 if (value === clone) {
                     continue;   // value is obj._iN$t
                 }
-                clone[key] = value._iN$t || instantiateObj(value as any[], parent);
+                clone[key] = value._iN$t || instantiateObj(value, parent);
             } else {
                 clone[key] = value;
             }

@@ -295,34 +295,43 @@ export class Batcher2D implements IBatcher {
         }
 
         const screens = this._screens;
+        const screensLen = screens.length;
+        const batches = this._batches;
+        const batchesArray = batches.array;
+        const useSorting = USE_SORTING_2D && sorting2DCount > 0;
+
         let offset = 0;
-        for (let i = 0; i < screens.length; ++i) {
+        let batchPriority = 0;
+
+        for (let i = 0; i < screensLen; ++i) {
             const screen = screens[i];
             const scene = screen._getRenderScene();
             if (!screen.enabledInHierarchy || !scene) {
                 continue;
             }
+
             // Reset state and walk
             this._opacityDirty = 0;
             this._pOpacity = 1;
 
             this.walk(screen.node);
 
-            if (USE_SORTING_2D && sorting2DCount > 0) {
+            if (useSorting) {
                 this._flushRecordedUIRenderers();
             }
 
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
 
-            let batchPriority = 0;
-            if (this._batches.length > offset) {
-                for (; offset < this._batches.length; ++offset) {
-                    const batch = this._batches.array[offset];
+            const batchesLen = batches.length;
+            if (batchesLen > offset) {
+                for (let batchOffset = offset; batchOffset < batchesLen; ++batchOffset) {
+                    const batch = batchesArray[batchOffset];
 
                     if (batch.model) {
                         const subModels = batch.model.subModels;
-                        for (let j = 0; j < subModels.length; j++) {
+                        const subModelsLen = subModels.length;
+                        for (let j = 0; j < subModelsLen; j++) {
                             subModels[j].priority = batchPriority++;
                         }
                     } else {
@@ -330,10 +339,11 @@ export class Batcher2D implements IBatcher {
                     }
                     scene.addBatch(batch);
                 }
+                offset = batchesLen;
             }
         }
 
-        if (USE_SORTING_2D && sorting2DCount > 0) {
+        if (useSorting) {
             recordedRendererInfoPool.reset();
         }
     }

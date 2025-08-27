@@ -26,7 +26,7 @@ import { DEBUG, JSB } from 'internal:constants';
 import { director } from '../../game/director';
 import { Material } from '../../asset/assets/material';
 import { TextureBase } from '../../asset/assets/texture-base';
-import { Color, Pool, RecyclePool, murmurhash2_32_gc, assert, assertIsTrue } from '../../core';
+import { Color, RecyclePool, murmurhash2_32_gc, assert, assertIsTrue } from '../../core';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
@@ -731,8 +731,6 @@ export class MeshRenderData extends BaseRenderData {
             this._vertexBuffers = [];
         }
         this._iaInfo = null!;
-        this.vData = new Float32Array(256 * this.stride);
-        this.iData = new Uint16Array(256 * 6);
     }
 
     protected _initIAInfo (device: Device): void {

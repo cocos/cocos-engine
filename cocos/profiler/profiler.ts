@@ -232,7 +232,7 @@ export class Profiler extends System {
         const game: Game = cclegacy.game;
         if (!this._showFPS) {
             this._canvas = ccwindow.document.createElement('canvas');
-            this._ctx = this._canvas.getContext('2d')!;
+            this._ctx = this._canvas.getContext('2d', { willReadFrequently: true })!;
             this._canvasArr.push(this._canvas);
 
             if (!this._device) {

@@ -257,7 +257,7 @@ export class TextureCube extends SimpleTexture {
         const ctx = Object.assign(ccwindow.document.createElement('canvas'), {
             width: imageAtlasAsset.width,
             height: imageAtlasAsset.height,
-        }).getContext('2d')!;
+        }).getContext('2d', { willReadFrequently: true })!;
 
         this.reset({
             width: mip0Layout.width,

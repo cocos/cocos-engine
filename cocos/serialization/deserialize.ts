@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
+import { EDITOR, TEST, PREVIEW, DEBUG, DEV } from 'internal:constants';
 import { cclegacy, errorID, getError, js, assertIsTrue } from '../core';
 
 import { deserializeDynamic, DeserializeDynamicOptions, parseUuidDependenciesDynamic } from './deserialize-dynamic';
@@ -619,10 +619,11 @@ function deserializeCCObject (data: IRuntimeFileData, objectData: IClassObjectDa
     }
 
     // parse advanced type
-    for (; i < objectData.length; ++i) {
-        const key = keys[mask[i]];
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        const type = clazz[mask[i] + classTypeOffset];
+    const objectDataLen = objectData.length;
+    for (; i < objectDataLen; ++i) {
+        const maskIndex = mask[i];
+        const key = keys[maskIndex];
+        const type = clazz[maskIndex + classTypeOffset];
         const op = ASSIGNMENTS[type];
         op(data, obj, key, objectData[i]);
     }

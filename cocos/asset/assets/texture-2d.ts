@@ -101,9 +101,15 @@ export class Texture2D extends SimpleTexture {
 
         const mipmaps: ImageAsset[] = [];
         if (value.length === 1) {
-            // might contain auto generated mipmaps
             const image = value[0];
-            mipmaps.push(...image.extractMipmaps());
+            // If the image is not compressed, it cannot have pre-baked mipmaps.
+            // Only compressed texture assets can have pre-baked mipmaps.
+            if (image.isCompressed) {
+                // might contain auto generated mipmaps
+                mipmaps.push(...image.extractMipmaps());
+            } else {
+                mipmaps.push(image);
+            }
         } else if (value.length > 1) {
             // image asset mip0 as mipmaps
             for (let i = 0; i < value.length; ++i) {

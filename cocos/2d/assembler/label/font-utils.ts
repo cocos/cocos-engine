@@ -56,7 +56,9 @@ export class CanvasPool {
 
         if (!data) {
             const canvas = ccwindow.document.createElement('canvas');
-            const context = canvas.getContext('2d');
+            const context = canvas.getContext('2d', {
+                willReadFrequently: true,
+            });
             data = {
                 canvas,
                 context,
