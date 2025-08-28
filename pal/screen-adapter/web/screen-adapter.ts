@@ -99,7 +99,7 @@ class ScreenAdapter extends EventTarget {
 
     public get devicePixelRatio (): number {
         // TODO: remove the down sampling operation in DPR after supporting resolutionScale
-        return Math.min(window.devicePixelRatio ?? 1, 2);
+        return Math.min(window.devicePixelRatio ?? 1, 3);
     }
 
     public get windowSize (): Size {
