@@ -42,7 +42,7 @@ function formatValue(value) {
 }
 
 const imageExt = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
-// scale不是page中的合法字段, 但是图集为了能放更多的图片, 添加scale字段设置缩放比
+// The 'scale' parameter is not defined in the page specifications. The image collection uses 'scale' to resize images
 const pageAttr = ['name', 'size', 'format', 'filter', 'repeat', 'pma', 'scale'];
 
 class ParseAtlasFile {
