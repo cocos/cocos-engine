@@ -170,6 +170,7 @@ export class StaticVBAccessor extends BufferAccessor {
         let bid = 0;
         let eid = -1;
         let entry: IFreeEntry | null = null;
+        let vertexOffset: number = 0;
         // Loop buffers
         for (let i = 0; i < this._buffers.length; ++i) {
             buf = this._buffers[i];
@@ -177,8 +178,11 @@ export class StaticVBAccessor extends BufferAccessor {
             // Loop entries
             for (let e = 0; e < freeList.length; ++e) {
                 // Found suitable free entry
-                if (freeList[e].length >= byteLength) {
-                    entry = freeList[e];
+                const freeEntry = freeList[e];
+                vertexOffset = freeEntry.offset / this.vertexFormatBytes;
+                const free = freeEntry.length - byteLength;
+                if (free >= 0 && vertexOffset + vertexCount <= 65535) {
+                    entry = freeEntry;
                     bid = i;
                     eid = e;
                     break;
@@ -193,11 +197,11 @@ export class StaticVBAccessor extends BufferAccessor {
             if (buf) {
                 eid = 0;
                 entry = this._freeLists[bid][eid];
+                vertexOffset = entry.offset / this.vertexFormatBytes;
             }
         }
         // Allocation succeed
         if (entry) {
-            const vertexOffset = entry.offset / this.vertexFormatBytes;
             assertIsTrue(Number.isInteger(vertexOffset));
             const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength >> 2).fill(0);
             this._allocateChunkFromEntry(bid, eid, entry, byteLength);
