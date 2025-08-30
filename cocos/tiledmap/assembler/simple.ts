@@ -36,7 +36,7 @@ import { RenderDrawInfoType } from '../../2d/renderer/render-draw-info';
 import type { Texture2D } from '../../asset/assets';
 import type { Node } from '../../scene-graph';
 
-const MaxGridsLimit = Math.ceil(65535 / 6);
+const MaxGridsLimit = 65536 / 4;
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
