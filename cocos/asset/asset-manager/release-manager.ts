@@ -259,6 +259,7 @@ export class ReleaseManager {
         }
         dependUtil.remove(uuid);
         files.remove(asset.uuid + "@import");
+        files.remove(asset.uuid + "@native");
         if (EDITOR) {
             const dependant = references!.get(uuid);
             if (dependant && dependant.length === 0) {
