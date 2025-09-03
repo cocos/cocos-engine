@@ -150,6 +150,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return this._name;
     }
     set name (value) {
+        value = value ?? '';
         if (DEV && value.indexOf('/') !== -1) {
             errorID(1632);
             return;
