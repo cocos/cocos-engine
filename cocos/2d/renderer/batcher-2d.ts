@@ -501,7 +501,7 @@ export class Batcher2D implements IBatcher {
                 this._currTexture = frame.getGFXTexture();
                 this._currSampler = frame.getGFXSampler();
                 this._currTextureHash = frame.getHash();
-                this._currSamplerHash = this._currSampler.hash;
+                this._currSamplerHash = this._currSampler?.hash;
             } else {
                 this._currTexture = null;
                 this._currSampler = null;
