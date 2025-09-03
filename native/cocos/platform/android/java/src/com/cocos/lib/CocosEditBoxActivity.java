@@ -70,6 +70,7 @@ public class CocosEditBoxActivity extends Activity {
     private boolean mConfirmHold = true;
     private int mEditTextID = 1;
     private int mButtonLayoutID = 2;
+    private int mInitialSystemWindowInsetBottom = -1;
 
     /***************************************************************************************
      Inner class.
@@ -208,13 +209,13 @@ public class CocosEditBoxActivity extends Activity {
             this.removeTextChangedListener(mTextWatcher);
         }
 
-        private boolean isSystemAdjustUIWhenPopKeyboard(int bottom) {
+        private boolean isSystemAdjustUIWhenPopKeyboard() {
             int bottomOffset = 0;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 bottomOffset = getWindow().getDecorView().getRootWindowInsets().getSystemWindowInsetBottom();
             }
             // view will be scrolled to the target position by system,
-            if (Math.abs(bottom - bottomOffset) < 10) {
+            if (Math.abs(mInitialSystemWindowInsetBottom - bottomOffset) > 100) {
                 return true;
             }
             return false;
@@ -232,7 +233,7 @@ public class CocosEditBoxActivity extends Activity {
                         if (!keyboardVisible) {
                             keyboardVisible = true;
                         }
-                        if (!isSystemAdjustUIWhenPopKeyboard(heightDiff)) {
+                        if (!isSystemAdjustUIWhenPopKeyboard()) {
                             getRootView().scrollTo(0, heightDiff);
                         }
                     } else {
@@ -293,6 +294,14 @@ public class CocosEditBoxActivity extends Activity {
                 extras.getBoolean("confirmHold"),
                 extras.getString("confirmType"),
                 extras.getString("inputType"));
+        }
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        View decorView = getWindow().getDecorView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mInitialSystemWindowInsetBottom = decorView.getRootWindowInsets().getSystemWindowInsetBottom();
         }
     }
 
