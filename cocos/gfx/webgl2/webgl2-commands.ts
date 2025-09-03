@@ -2663,6 +2663,7 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
 
     gl.pixelStorei(WebGLConstants.UNPACK_FLIP_Y_WEBGL, false);
     gl.pixelStorei(WebGLConstants.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.pixelStorei(WebGLConstants.UNPACK_COLORSPACE_CONVERSION_WEBGL, WebGLConstants.NONE);
 
     const cache = device.getStateCache();
     const glTexUnit = cache.glTexUnits[cache.texUnit];
