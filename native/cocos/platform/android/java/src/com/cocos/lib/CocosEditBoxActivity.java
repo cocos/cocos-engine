@@ -62,6 +62,7 @@ public class CocosEditBoxActivity extends Activity {
     // a color of dark green, was used for confirm button background
     private static final int DARK_GREEN = Color.parseColor("#1fa014");
     private static final int DARK_GREEN_PRESS = Color.parseColor("#008e26");
+    private static final String ORIENTATION = "orientation";
 
     private static CocosEditBoxActivity sThis = null;
     private Cocos2dxEditText mEditText = null;
@@ -288,6 +289,8 @@ public class CocosEditBoxActivity extends Activity {
                 "text"
                 );
         } else {
+            int orientation = extras.getInt(ORIENTATION);
+            setRequestedOrientation(orientation);
             show(extras.getString("defaultValue"),
                 extras.getInt("maxLength"),
                 extras.getBoolean("isMultiline"),
@@ -443,6 +446,7 @@ public class CocosEditBoxActivity extends Activity {
                 i.putExtra("confirmHold", confirmHold);
                 i.putExtra("confirmType", confirmType);
                 i.putExtra("inputType", inputType);
+                i.putExtra(ORIENTATION, GlobalObject.getActivity().getRequestedOrientation());
                 GlobalObject.getActivity().startActivity(i);
             }
         });
