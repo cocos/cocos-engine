@@ -158,10 +158,12 @@ function realTimeTraverse (comp: Skeleton): void {
     if (!rd || vc < 1 || ic < 1) return;
 
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
-        if (rd.vertexCount < vc || rd.indexCount < ic) {
-            rd.resize(Math.ceil(vc * ADJUST_SIZE_RATE), Math.ceil(ic * ADJUST_SIZE_RATE));
-        }
         comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
+        if (!rd.chunk || rd.chunk.vb.byteLength < comp._vLength || rd.chunk.indexCount < ic)  {
+            rd.resize(Math.ceil(vc * ADJUST_SIZE_RATE), Math.ceil(ic * ADJUST_SIZE_RATE));
+        } else if (rd.chunk) {
+            rd.updateSize(vc, ic);
+        }
         comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, comp._vLength);
         comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
     }
@@ -284,8 +286,10 @@ function cacheTraverse (comp: Skeleton): void {
     const rd = comp.renderData;
     if (!rd || vc < 1 || ic < 1) return;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
-        if (rd.vertexCount < vc || rd.indexCount < ic) {
+        if (!rd.chunk || rd.chunk.vb.byteLength < vc * Float32Array.BYTES_PER_ELEMENT * _byteStrideTwoColor || rd.chunk.indexCount < ic) {
             rd.resize(Math.ceil(vc * ADJUST_SIZE_RATE), Math.ceil(ic * ADJUST_SIZE_RATE));
+        } else if (rd.chunk) {
+            rd.updateSize(vc, ic);
         }
     }
     if (!rd.indices || rd.indices.length < ic) {

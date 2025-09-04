@@ -360,6 +360,11 @@ export class RenderData extends BaseRenderData {
         }
     }
 
+    public updateSize (vertexCount: number, indexCount: number): void {
+        this._vc = vertexCount;
+        this._ic = indexCount;
+    }
+
     /** @mangle */
     protected override setRenderDrawInfoAttributes (): void {
         if (JSB) {
