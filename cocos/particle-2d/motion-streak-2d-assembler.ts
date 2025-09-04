@@ -155,7 +155,7 @@ class MotionStreakAssembler implements IAssembler {
 
         renderData.resize(vertexCount, indexCount); // resize
 
-        if (JSB) {
+        if (JSB && comp.texture) {
             const indexCount = renderData.indexCount;
             this.createQuadIndices(comp, indexCount);
             renderData.chunk.setIndexBuffer(QUAD_INDICES!);
@@ -163,7 +163,7 @@ class MotionStreakAssembler implements IAssembler {
             //  Fill all dataList to vData
             this.updateWorldVertexAllData(comp);
 
-            renderData.updateRenderData(comp, comp.texture!);
+            renderData.updateRenderData(comp, comp.texture);
             comp._markForUpdateRenderData();
         }
     }
