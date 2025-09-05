@@ -572,6 +572,7 @@ struct ImageInfo *createImageInfo(Image *img) {
 
         if (dst != imgInfo->data) free(imgInfo->data);
         imgInfo->data = dst;
+        imgInfo->format = cc::gfx::Format::RGBA8;
         imgInfo->hasAlpha = true;
     }
 
