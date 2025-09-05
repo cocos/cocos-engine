@@ -29,17 +29,19 @@
 
 #include <ace/xcomponent/native_interface_xcomponent.h>
 
+#include <napi/native_api.h>
 #include <uv.h>
 #include <string>
 #include <unordered_map>
-#include <napi/native_api.h>
 
 #include "platform/openharmony/WorkerMessageQueue.h"
 
 namespace cc {
+class OpenHarmonyGamePad;
 class OpenHarmonyPlatform : public UniversalPlatform {
 public:
     OpenHarmonyPlatform();
+    ~OpenHarmonyPlatform() override;
     int32_t init() override;
     static OpenHarmonyPlatform* getInstance();
 
@@ -65,7 +67,10 @@ public:
     bool dequeue(WorkerMessageData* data);
 
     void triggerMessageSignal();
-    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
+    ISystemWindow* createNativeWindow(uint32_t windowId, void* externalHandle) override;
+    static void sendMsgToWorker(const cc::MessageType& type, void* data, void* window);
+    static void sendMsgToWorkerAndWait(const cc::MessageType& type, void* data, void* window);
+
 public:
     // Callback, called by ACE XComponent
     void onSurfaceCreated(OH_NativeXComponent* component, void* window);
@@ -86,7 +91,8 @@ public:
     uv_async_t _messageSignal{};
     bool _timerInited{false};
     WorkerMessageQueue _messageQueue;
-    //game started
+    std::unique_ptr<OpenHarmonyGamePad> _gamePad;
+    // game started
     bool g_started{false};
     bool isMouseLeftActive{false};
     float scrollDistance{0};

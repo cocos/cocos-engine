@@ -30,6 +30,7 @@
 
 #include "application/ApplicationManager.h"
 #include "application/CocosApplication.h"
+#include "openharmony/OpenHarmonyGamepad.h"
 #include "platform/UniversalPlatform.h"
 
 #include "platform/openharmony/modules/SystemWindow.h"
@@ -41,6 +42,9 @@
 #include "platform/empty/modules/Screen.h"
 #include "platform/empty/modules/Vibrator.h"
 #include "platform/openharmony/modules/System.h"
+#include "platform/openharmony/OpenHarmonyGamepad.h"
+
+#include "cocos/engine/EngineEvents.h"
 
 #include <chrono>
 #include <sstream>
@@ -53,29 +57,29 @@ private:
     uv_cond_t _cond{};
     uv_mutex_t _mutex{};
     bool _completed{false};
+
 public:
-    
     enum class WAIT_RET_CODE {
         SUCCEED = 0,
         TIMEOUT,
     };
-    
+
     SyncContext() {
         CC_LOG_INFO("Create SyncContext: %p", this);
         uv_mutex_init(&_mutex);
         uv_cond_init(&_cond);
     }
-    
+
     ~SyncContext() {
         CC_LOG_INFO("Destroy SyncContext: %p", this);
         uv_mutex_destroy(&_mutex);
         uv_cond_destroy(&_cond);
     }
-    
+
     WAIT_RET_CODE wait_for(uint64_t nanoSeconds) {
         WAIT_RET_CODE ret = WAIT_RET_CODE::SUCCEED;
         uv_mutex_lock(&_mutex);
-    
+
         // Use a while loop to check the completed flag to avoid spurious wakeup.
         while (!_completed) {
             int r = uv_cond_timedwait(&_cond, &_mutex, nanoSeconds);
@@ -87,18 +91,18 @@ public:
         uv_mutex_unlock(&_mutex);
         return ret;
     }
-    
+
     void notify() {
         uv_mutex_lock(&_mutex);
         _completed = true;
         uv_cond_signal(&_cond);
         uv_mutex_unlock(&_mutex);
     }
-    
+
     void addRef() {
         ++_refCount;
     }
-    
+
     void release() {
         --_refCount;
         int ref = _refCount;
@@ -106,27 +110,12 @@ public:
             delete this;
         }
     }
-    
 };
-
-void sendMsgToWorker(const cc::MessageType& type, void* data, void* window) {
-    cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
-    CC_ASSERT(platform != nullptr);
-    cc::WorkerMessageData msg{type, static_cast<void*>(data), window};
-    platform->enqueue(msg);
-}
-
-void sendMsgToWorkerAndWait(const cc::MessageType& type, void* data, void* window) {
-    cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
-    CC_ASSERT(platform != nullptr);
-    cc::WorkerMessageData msg{type, static_cast<void*>(data), window};
-    platform->enqueueAndWait(msg);
-}
 
 void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
     CC_LOG_INFO("onSurfaceCreatedCB, component: %p, window: %p");
     // It is possible that when the message is sent, the worker thread has not yet started.
-    //sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CREATED, component, window);
+    // sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CREATED, component, window);
     cc::ISystemWindowInfo info;
     info.title = "";
     info.x = 0;
@@ -146,12 +135,12 @@ void onSurfaceHideCB(OH_NativeXComponent* component, void* window) {
     char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
     ret = OH_NativeXComponent_GetXComponentId(component, idStr, &idSize);
-    if(ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
         CC_LOG_ERROR("onSurfaceHideCB, OH_NativeXComponent_GetXComponentId failed: %d", ret);
         return;
     }
-    sendMsgToWorkerAndWait(cc::MessageType::WM_XCOMPONENT_SURFACE_HIDE, component, window);
-    
+    cc::OpenHarmonyPlatform::sendMsgToWorkerAndWait(cc::MessageType::WM_XCOMPONENT_SURFACE_HIDE, component, window);
+
     CC_LOG_INFO("onSurfaceHideCB end, component: %p, window: %p");
 }
 
@@ -161,13 +150,13 @@ void onSurfaceShowCB(OH_NativeXComponent* component, void* window) {
     char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
     ret = OH_NativeXComponent_GetXComponentId(component, idStr, &idSize);
-    if(ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
         return;
     }
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_SHOW, component, window);
+    cc::OpenHarmonyPlatform::sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_SHOW, component, window);
 }
 
-int ohKeyCodeToCocosKeyCode(OH_NativeXComponent_KeyCode ohKeyCode){
+int ohKeyCodeToCocosKeyCode(OH_NativeXComponent_KeyCode ohKeyCode) {
     static const int keyZeroInCocos = 48;
     static const int keyF1InCocos = 112;
     static const int keyAInCocos = 65;
@@ -201,18 +190,18 @@ int ohKeyCodeToCocosKeyCode(OH_NativeXComponent_KeyCode ohKeyCode){
         {KEY_DPAD_UP, cc::KeyCode::ARROW_UP},
         {KEY_INSERT, cc::KeyCode::INSERT},
     };
-    if(keyCodeMap.find(ohKeyCode) != keyCodeMap.end()){
+    if (keyCodeMap.find(ohKeyCode) != keyCodeMap.end()) {
         return int(keyCodeMap[ohKeyCode]);
     }
-    if(ohKeyCode >= KEY_0 && ohKeyCode <= KEY_9){
+    if (ohKeyCode >= KEY_0 && ohKeyCode <= KEY_9) {
         return keyZeroInCocos + ohKeyCode - KEY_0;
     }
-    if(ohKeyCode >= KEY_A && ohKeyCode <= KEY_Z){
+    if (ohKeyCode >= KEY_A && ohKeyCode <= KEY_Z) {
         return keyAInCocos + ohKeyCode - KEY_A;
-    }  
-    if(ohKeyCode >= KEY_F1 && ohKeyCode <= KEY_F12){
+    }
+    if (ohKeyCode >= KEY_F1 && ohKeyCode <= KEY_F12) {
         return keyF1InCocos + ohKeyCode - KEY_F1;
-    }  
+    }
     return ohKeyCode;
 }
 
@@ -234,12 +223,11 @@ void dispatchKeyEventCB(OH_NativeXComponent* component, void* window) {
         ev->action = 0 == action ? cc::KeyboardEvent::Action::PRESS : cc::KeyboardEvent::Action::RELEASE;
 
         ev->key = ohKeyCodeToCocosKeyCode(code);
-        sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_KEY_EVENT, reinterpret_cast<void*>(ev), window);
+        cc::OpenHarmonyPlatform::sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_KEY_EVENT, reinterpret_cast<void*>(ev), window);
     } else {
         CC_LOG_ERROR("OpenHarmonyPlatform::getKeyEventError");
     }
 }
-
 
 void dispatchMouseEventCB(OH_NativeXComponent* component, void* window) {
     OH_NativeXComponent_MouseEvent mouseEvent;
@@ -260,7 +248,7 @@ void dispatchMouseEventCB(OH_NativeXComponent* component, void* window) {
                 break;
             case OH_NativeXComponent_MouseEventAction::OH_NATIVEXCOMPONENT_MOUSE_MOVE:
                 ev->type = cc::MouseEvent::Type::MOVE;
-                break;          
+                break;
             default:
                 ev->type = cc::MouseEvent::Type::UNKNOWN;
                 break;
@@ -285,13 +273,13 @@ void dispatchMouseEventCB(OH_NativeXComponent* component, void* window) {
                 ev->button = -1;
                 break;
         }
-        if(mouseEvent.action == 1 && mouseEvent.button == 1) {
+        if (mouseEvent.action == 1 && mouseEvent.button == 1) {
             cc::OpenHarmonyPlatform::getInstance()->isMouseLeftActive = true;
         }
-        if(mouseEvent.action == 2 && mouseEvent.button == 1) {
+        if (mouseEvent.action == 2 && mouseEvent.button == 1) {
             cc::OpenHarmonyPlatform::getInstance()->isMouseLeftActive = false;
         }
-        sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_MOUSE_EVENT, reinterpret_cast<void*>(ev), window);
+        cc::OpenHarmonyPlatform::sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_MOUSE_EVENT, reinterpret_cast<void*>(ev), window);
     } else {
         CC_LOG_ERROR("OpenHarmonyPlatform::getMouseEventError");
     }
@@ -343,20 +331,37 @@ void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
             ev->touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, id);
         }
     }
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_TOUCH_EVENT, reinterpret_cast<void*>(ev), window);
+    cc::OpenHarmonyPlatform::sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_TOUCH_EVENT, reinterpret_cast<void*>(ev), window);
 }
 
 void onSurfaceChangedCB(OH_NativeXComponent* component, void* window) {
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CHANGED, reinterpret_cast<void*>(component), window);
+    cc::OpenHarmonyPlatform::sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CHANGED, reinterpret_cast<void*>(component), window);
 }
 
 void onSurfaceDestroyedCB(OH_NativeXComponent* component, void* window) {
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_DESTROY, reinterpret_cast<void*>(component), window);
+    cc::OpenHarmonyPlatform::sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_DESTROY, reinterpret_cast<void*>(component), window);
 }
 
 } // namespace
 
 namespace cc {
+
+// struct ControllerKeyRemap {
+//     ButtonCode ohButtonCode;
+//     StickKeyCode actionCode{StickKeyCode::UNDEFINE};
+//     const char *name;
+// };
+//
+// #def ine REMAP_WITH_NAME(btn, key) \
+//    { btn, key, #btn }
+//
+// static const ControllerKeyRemap PADDLEBOAT_MAPKEY[] = {
+//     REMAP_WITH_NAME(ButtonCode::OH_LeftShoulder, StickKeyCode::L1),
+//     REMAP_WITH_NAME(ButtonCode::OH_RightShoulder, StickKeyCode::R1),
+// };
+// #undef REMAP_WITH_NAME
+
+// cc::KeyboardEvent keyboardEvent;
 
 OpenHarmonyPlatform::OpenHarmonyPlatform() {
     registerInterface(std::make_shared<System>());
@@ -371,6 +376,11 @@ OpenHarmonyPlatform::OpenHarmonyPlatform() {
     _callback.OnSurfaceChanged = onSurfaceChangedCB;
     _callback.OnSurfaceDestroyed = onSurfaceDestroyedCB;
     _callback.DispatchTouchEvent = dispatchTouchEventCB;
+    _gamePad = std::make_unique<OpenHarmonyGamePad>();
+}
+
+OpenHarmonyPlatform::~OpenHarmonyPlatform() {
+    
 }
 
 int32_t OpenHarmonyPlatform::init() {
@@ -400,7 +410,7 @@ void OpenHarmonyPlatform::setNativeXComponent(OH_NativeXComponent* component) {
     OH_NativeXComponent_RegisterCallback(_component, &_callback);
     OH_NativeXComponent_RegisterSurfaceHideCallback(_component, onSurfaceHideCB);
     OH_NativeXComponent_RegisterSurfaceShowCallback(_component, onSurfaceShowCB);
-    // register KeyEvent                                     
+    // register KeyEvent
     OH_NativeXComponent_RegisterKeyEventCallback(_component, dispatchKeyEventCB);
     // register mouseEvent
     _mouseCallback.DispatchMouseEvent = dispatchMouseEventCB;
@@ -415,10 +425,10 @@ void OpenHarmonyPlatform::enqueue(const WorkerMessageData& msg) {
 
 void OpenHarmonyPlatform::enqueueAndWait(WorkerMessageData& msg) {
     SyncContext* syncContext = new SyncContext(); // ref -> 1
-    syncContext->addRef(); // ref -> 2
+    syncContext->addRef();                        // ref -> 2
     msg.syncContext = syncContext;
     _messageQueue.enqueue(msg);
-    auto *oldWorkerLoop = _workerLoop;
+    auto* oldWorkerLoop = _workerLoop;
     triggerMessageSignal();
 
     auto oldTime = std::chrono::steady_clock::now();
@@ -464,7 +474,7 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
     WorkerMessageData msgData;
     OpenHarmonyPlatform* platform = OpenHarmonyPlatform::getInstance();
     while (true) {
-        //loop until all msg dispatch
+        // loop until all msg dispatch
         if (!platform->dequeue(reinterpret_cast<WorkerMessageData*>(&msgData))) {
             // Queue has no data
             break;
@@ -483,7 +493,7 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
                 events::Keyboard::broadcast(*ev);
                 delete ev;
                 ev = nullptr;
-            } else if (msgData.type == MessageType::WM_XCOMPONENT_MOUSE_EVENT || msgData.type == MessageType::WM_XCOMPONENT_MOUSE_WHEEL_EVENT ) {
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_MOUSE_EVENT || msgData.type == MessageType::WM_XCOMPONENT_MOUSE_WHEEL_EVENT) {
                 MouseEvent* ev = reinterpret_cast<MouseEvent*>(msgData.data);
                 CC_ASSERT(ev != nullptr);
                 events::Mouse::broadcast(*ev);
@@ -501,14 +511,14 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
                 platform->onSurfaceChanged(nativexcomponet, msgData.window);
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_SHOW) {
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
-                CC_ASSERT(nativexcomponet != nullptr);        
+                CC_ASSERT(nativexcomponet != nullptr);
                 platform->onSurfaceShow(msgData.window);
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_HIDE) {
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
-                CC_ASSERT(nativexcomponet != nullptr);        
+                CC_ASSERT(nativexcomponet != nullptr);
                 platform->onSurfaceHide();
-                
-                auto *ctx = reinterpret_cast<SyncContext*>(msgData.syncContext);
+
+                auto* ctx = reinterpret_cast<SyncContext*>(msgData.syncContext);
                 if (ctx) {
                     ctx->notify();
                     ctx->release();
@@ -522,6 +532,20 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
                 CC_ASSERT(false);
             }
             continue;
+        } else if (msgData.type == MessageType::WM_GAMEPAD_CONTROLLER_INPUT) {
+            CC_LOG_INFO("onMessageCallback GamePad ...");
+            ControllerEvent* ev = reinterpret_cast<ControllerEvent*>(msgData.data);
+            CC_ASSERT(ev != nullptr);
+            events::Controller::broadcast(*ev);
+            delete ev;
+            ev = nullptr;
+        } else if (msgData.type == MessageType::WM_GAMEPAD_CONTROLLER_CHANGE) {
+            CC_LOG_INFO("onMessageCallback GamePad ...");
+            ControllerChangeEvent* ev = reinterpret_cast<ControllerChangeEvent*>(msgData.data);
+            CC_ASSERT(ev != nullptr);
+            events::ControllerChange::broadcast(*ev);
+            delete ev;
+            ev = nullptr;
         }
 
         if (msgData.type == MessageType::WM_APP_SHOW) {
@@ -567,7 +591,7 @@ void OpenHarmonyPlatform::onHideNative() {
 void OpenHarmonyPlatform::onDestroyNative() {
     CC_LOG_INFO("OpenHarmonyPlatform::onDestroyNative");
     onDestroy();
-     if (_timerInited) {
+    if (_timerInited) {
         uv_timer_stop(&_timerHandle);
     }
 }
@@ -586,13 +610,13 @@ void OpenHarmonyPlatform::workerInit(uv_loop_t* loop) {
     if (_workerLoop) {
         uv_timer_init(_workerLoop, &_timerHandle);
         _timerInited = true;
-        
+
         uv_async_init(_workerLoop, &_messageSignal, reinterpret_cast<uv_async_cb>(OpenHarmonyPlatform::onMessageCallback));
-        
+
         if (!_messageQueue.empty()) {
             triggerMessageSignal(); // trigger the signal to handle the pending message
         }
-	}
+    }
 }
 
 void OpenHarmonyPlatform::requestVSync() {
@@ -635,10 +659,10 @@ void OpenHarmonyPlatform::onSurfaceShow(void* window) {
 }
 
 void OpenHarmonyPlatform::dispatchMouseWheelCB(std::string eventType, float offsetY) {
-    if(isMouseLeftActive) {
+    if (isMouseLeftActive) {
         return;
     }
-    if(eventType == "actionUpdate") {
+    if (eventType == "actionUpdate") {
         float moveScrollY = offsetY - scrollDistance;
         scrollDistance = offsetY;
         cc::MouseEvent* ev = new cc::MouseEvent;
@@ -661,6 +685,20 @@ ISystemWindow* OpenHarmonyPlatform::createNativeWindow(uint32_t windowId, void* 
     CC_ASSERT(ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS);
     window->setViewSize(width, height);
     return window;
+}
+
+void OpenHarmonyPlatform::sendMsgToWorker(const cc::MessageType& type, void* data, void* window) {
+    cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
+    CC_ASSERT(platform != nullptr);
+    cc::WorkerMessageData msg{type, static_cast<void*>(data), window};
+    platform->enqueue(msg);
+}
+
+void OpenHarmonyPlatform::sendMsgToWorkerAndWait(const cc::MessageType& type, void* data, void* window) {
+    cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
+    CC_ASSERT(platform != nullptr);
+    cc::WorkerMessageData msg{type, static_cast<void*>(data), window};
+    platform->enqueueAndWait(msg);
 }
 
 }; // namespace cc
