@@ -294,6 +294,7 @@ jobs:
 
       - name: Install libgl1
         run: |
+          sudo apt-get update
           sudo apt-get install -y libgl1
 
       - name: Checking libGL.so.1
