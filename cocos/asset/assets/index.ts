@@ -39,3 +39,4 @@ export { EffectAsset } from './effect-asset';
 export type { IMaterialInfo } from './material';
 export { Material } from './material';
 export { RenderTexture } from './render-texture';
+export { PixelFormat, TextureFilter, Filter, WrapMode } from './asset-enum';
