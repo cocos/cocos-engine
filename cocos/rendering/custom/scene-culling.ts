@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
-import { Vec3, RecyclePool, assert } from '../../core';
+import { Vec3, RecyclePool, assert, cclegacy } from '../../core';
 import { Frustum, intersect, AABB } from '../../core/geometry';
-import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageBit, BufferUsageBit } from '../../gfx';
+import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageBit, BufferUsageBit, deviceManager } from '../../gfx';
 import { BatchingSchemes, RenderScene } from '../../render-scene';
 import { CSMLevel, Camera, DirectionalLight, Light, LightType, Model, PointLight, ProbeType,
     RangedDirectionalLight,
@@ -811,6 +811,7 @@ export class LightResource {
     }
 
     clear (): void {
+        if (!this.lightBuffer) return;
         this.cpuBuffer.fill(0);
         this.lights.length = 0;
         this.lightIndex.clear();
@@ -821,6 +822,11 @@ export class LightResource {
         const existingLightID = this.lightIndex.get(light);
         if (existingLightID !== undefined) {
             return existingLightID;
+        }
+
+        if (!this.lightBuffer) {
+            const programLib: WebProgramLibrary = cclegacy.rendering.programLib;
+            this.init(programLib, deviceManager.gfxDevice, 16);
         }
 
         // Resize buffer if needed
@@ -852,8 +858,9 @@ export class LightResource {
     }
 
     buildLightBuffer (cmdBuffer: CommandBuffer): void {
+        if (!this.lightBuffer) return;
         cmdBuffer.updateBuffer(
-            this.lightBuffer!,
+            this.lightBuffer,
             this.cpuBuffer,
             (this.lights.length * this.elementSize) / Float32Array.BYTES_PER_ELEMENT,
         );

@@ -1616,7 +1616,6 @@ class ExecutorContext {
         this.width = width;
         this.height = height;
         this.pools = new ExecutorPools();
-        this.blit = new BlitInfo(this);
         this.culling = new SceneCulling();
         this.passDescriptorSet = descriptorSet;
         this.profilerDescriptorSet = getDescriptorSetDataFromLayout('default')!.descriptorSet!;
@@ -1631,7 +1630,7 @@ class ExecutorContext {
     resize (width: number, height: number): void {
         this.width = width;
         this.height = height;
-        this.blit.resize(width, height);
+        if (this._blit) this._blit.resize(width, height);
     }
     readonly device: Device;
     readonly pipeline: BasicPipeline;
@@ -1644,8 +1643,12 @@ class ExecutorContext {
     readonly layoutGraph: LayoutGraphData;
     readonly root: Root;
     readonly pools: ExecutorPools;
-    readonly blit: BlitInfo;
     readonly culling: SceneCulling;
+    private _blit: BlitInfo | null = null;
+    get blit (): BlitInfo {
+        if (!this._blit) this._blit = new BlitInfo(this);
+        return this._blit;
+    }
     lightResource: LightResource = new LightResource();
     renderGraph: RenderGraph;
     width: number;
@@ -1674,8 +1677,6 @@ export class Executor {
             width,
             height,
         );
-        const programLib: WebProgramLibrary = cclegacy.rendering.programLib;
-        context.lightResource.init(programLib, device, 16);
     }
 
     resize (width: number, height: number): void {
