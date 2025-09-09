@@ -112,7 +112,12 @@ public:
     inline void setNeedFreeData(bool v) { _needFreeData = v; }
     inline void setUrl(const ccstd::string &url) { _url = url; }
     inline void setMipmapLevelDataSize(const ccstd::vector<uint32_t> &mipmapLevelDataSize) { _mipmapLevelDataSize = mipmapLevelDataSize; }
-
+    inline void setFixedFormat(PixelFormat format) {
+        setFormat(format);
+        _isFormatFixed = true;
+    }
+    inline bool isFormatFixed() const {  return _isFormatFixed; }
+    
     // Functions for Utils.
     IntrusivePtr<ImageAsset> extractMipmap0();
     std::vector<IntrusivePtr<ImageAsset>> extractMipmaps();
@@ -123,7 +128,12 @@ private:
     PixelFormat _format{PixelFormat::RGBA8888};
     uint32_t _width{0};
     uint32_t _height{0};
-
+    /*
+     * A fixed image format will not be altered by the parsed data format. In iOS, the declared format may not necessarily reflect the true format of the data. 
+     * For example, the format might be labeled as RGB_A_PVRTC_4BPPV1, but the actual data format is RGB_PVRTC_4BPPV1. RGB_A_PVRTC_4BPPV1 is a custom format, 
+     * and in such cases, it must be explicitly set as a fixed format. Otherwise, it will be replaced by the true format of the data.
+     */
+    bool _isFormatFixed{false};
     bool _needFreeData{false}; // Should free data if the data is assigned in C++.
 
     ArrayBuffer::Ptr _arrayBuffer; //minggo: hold the data from ImageSource.
