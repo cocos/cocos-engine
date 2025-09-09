@@ -3,6 +3,6 @@
         "type": "github",
         "owner": "cocos",
         "name": "cocos-engine-external",
-        "checkout": "v3.8.7-18"
+        "checkout": "v3.8.8-1"
     }
 }
