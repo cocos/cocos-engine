@@ -125,7 +125,7 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
 imageAssetProto.reset = function (data: any) {
     this._nativeData = data;
 
-    if (data.format !== undefined && !this.isFixedFormat()) {
+    if (data.format !== undefined && !this.isFormatFixed()) {
         this.format = (data as any).format;
     }
     this._syncDataToNative();
