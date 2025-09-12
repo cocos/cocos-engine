@@ -27,6 +27,11 @@ import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, 
 import { getAttributeStride } from './vertex-format';
 import { sys, getError, warnID, assertIsTrue } from '../../core';
 import { NativeUIMeshBuffer } from './native-2d';
+import { Feature } from '../../gfx/base/define';
+import { director } from '../../game';
+import { WebGLDevice } from '../../gfx/webgl/webgl-device';
+import { WebGL2Device } from '../../gfx/webgl2/webgl2-device';
+import { WebGPUDevice } from '../../gfx/webgpu/webgpu-device';
 
 interface IIARef {
     ia: InputAssembler;
@@ -251,7 +256,14 @@ export class MeshBuffer {
 
         this.floatsPerVertex = getAttributeStride(attrs) >> 2;
 
-        assertIsTrue(this._initVDataCount / this._floatsPerVertex < 65536, getError(9005));
+        var vDataCountLimit = 65536; // 2^16 - 1
+        if (director.root) {
+            if ( director.root.device instanceof WebGPUDevice || director.root.device instanceof WebGL2Device 
+                || director.root.device instanceof WebGLDevice && director.root.device.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
+                    vDataCountLimit = 4294967295; // 2^32 - 1
+            }
+        }
+        assertIsTrue(this._initVDataCount / this._floatsPerVertex < vDataCountLimit, getError(9005));
 
         if (!this.vData || !this.iData) {
             this.vData = new Float32Array(this._initVDataCount);
