@@ -395,6 +395,7 @@ export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Rea
 }
 
 function bindDescValue (desc: DescriptorSet, binding: number, value): void {
+    desc.gpuDescriptorSet.isChanged = true;
     if (value instanceof Buffer) {
         desc.bindBuffer(binding, value);
     } else if (value instanceof Texture) {
@@ -602,6 +603,7 @@ function updateConstantBlock (
     if (isImparity || !desc.getBuffer(bindId) && bindId !== -1) {
         const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
         currBindBuffs.set(descKey, bindId);
+        desc.gpuDescriptorSet.isChanged = true;
         updateGlobalDescBuffer(descKey, buffer);
     }
 }
@@ -611,6 +613,7 @@ function updateDefaultConstantBlock (blockId: number, sceneId: number, idxRD: nu
     if (bindId === -1) { return; }
     const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
     currBindBuffs.set(descKey, bindId);
+    setData.descriptorSet!.gpuDescriptorSet.isChanged = true;
     updateGlobalDescBuffer(descKey, vals);
 }
 
@@ -620,6 +623,7 @@ export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number
     const lg = webPip.layoutGraph;
     const descriptorSetData = getDescriptorSetDataFromLayout(layout)!;
     currBindBuffs.clear();
+    const descriptorSet = descriptorSetData.descriptorSet!;
     for (const [key, data] of constants) {
         let constantBlock = constantBlockMap.get(key);
         if (!constantBlock) {
@@ -647,7 +651,6 @@ export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number
         }
     }
 
-    const descriptorSet = descriptorSetData.descriptorSet!;
     for (const [key, value] of textures) {
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }

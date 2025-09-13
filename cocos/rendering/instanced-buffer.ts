@@ -31,6 +31,7 @@ import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMA
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
 import { RecyclePool } from '../core/memop';
+import { cclegacy } from '../core';
 
 export function instancingCompareFn (l: InstancedBuffer, r: InstancedBuffer): number {
     const ls = l.sortRender;
@@ -101,8 +102,14 @@ export class InstancedBuffer {
             shader = subModel.shaders[passIdx];
         }
         const descriptorSet = subModel.descriptorSet;
-        const hash = (subModel.passes[passIdx].priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
-
+        const pass = subModel.passes[passIdx];
+        let hash = (pass.priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const hash1 = pass.hash;
+            const hash2 = subModel.inputAssembler.attributesHash;
+            const hash3 = shader.typedID;
+            hash = hash1 ^ hash2 ^ hash3;
+        }
         this.sortRender.hash = hash;
         this.sortRender.shaderId = shader.typedID;
         this.sortRender.passIdx = passIdx;
@@ -147,11 +154,12 @@ export class InstancedBuffer {
             this.hasPendingModels = true;
             return;
         }
-
+        const enabledDeviceMem = (cclegacy.rendering && cclegacy.rendering.enableEffectImport)
+            ? MemoryUsageBit.DEVICE : MemoryUsageBit.HOST | MemoryUsageBit.DEVICE;
         // Create a new instance
         const vb = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            enabledDeviceMem,
             stride * INITIAL_CAPACITY,
             stride,
         ));

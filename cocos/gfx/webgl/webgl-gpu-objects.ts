@@ -322,6 +322,7 @@ export interface IWebGLGPUDescriptor {
 export interface IWebGLGPUDescriptorSet {
     gpuDescriptors: IWebGLGPUDescriptor[];
     descriptorIndices: number[];
+    isChanged: boolean;
 }
 
 /** @mangle */
@@ -346,7 +347,9 @@ export interface IWebGLGPUInputAssembler {
     gpuIndirectBuffer: IWebGLGPUBuffer | null;
 
     glAttribs: IWebGLAttrib[];
+    hash: number;
     glIndexType: GLenum;
+    isChanged: boolean;
     glVAOs: Map<WebGLProgram, WebGLVertexArrayObjectOES>;
 }
 

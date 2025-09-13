@@ -622,7 +622,25 @@ const WebGLBlendFactors: GLenum[] = [
 export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer): void {
     const { gl } = device;
     const cache = device.getStateCache();
-    const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? WebGLConstants.DYNAMIC_DRAW : WebGLConstants.STATIC_DRAW;
+    const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST
+        ? WebGLConstants.DYNAMIC_DRAW
+        : WebGLConstants.STATIC_DRAW;
+    const handleBuffer = (target: GLenum, cacheKey): void => {
+        if (cache[cacheKey] !== gpuBuffer.glBuffer) {
+            gl.bindBuffer(target, gpuBuffer.glBuffer);
+            cache[cacheKey] = gpuBuffer.glBuffer;
+        }
+        gl.bufferData(target, gpuBuffer.size, glUsage);
+        gl.bindBuffer(target, null);
+        cache[cacheKey] = null;
+    };
+    const handleVAOState = (): void => {
+        if (device.extensions.useVAO && cache.glVAO) {
+            gl.bindVertexArray(null);
+            cache.glVAO = null;
+        }
+        gfxStateCache.gpuInputAssembler = null;
+    };
 
     if (gpuBuffer.usage & BufferUsageBit.VERTEX) {
         gpuBuffer.glTarget = WebGLConstants.ARRAY_BUFFER;
@@ -631,70 +649,34 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
             if (gpuBuffer.size > 0) {
-                if (device.extensions.useVAO) {
-                    if (cache.glVAO) {
-                        gl.bindVertexArray(null);
-                        cache.glVAO = null;
-                    }
-                }
-                gfxStateCache.gpuInputAssembler = null;
-
-                if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                    gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, gpuBuffer.glBuffer);
-                    cache.glArrayBuffer = gpuBuffer.glBuffer;
-                }
-
-                gl.bufferData(WebGLConstants.ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
-                gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
-                cache.glArrayBuffer = null;
+                handleVAOState();
+                handleBuffer(WebGLConstants.ARRAY_BUFFER, 'glArrayBuffer');
             }
         }
     } else if (gpuBuffer.usage & BufferUsageBit.INDEX) {
         gpuBuffer.glTarget = WebGLConstants.ELEMENT_ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
+
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
             if (gpuBuffer.size > 0) {
-                if (device.extensions.useVAO) {
-                    if (cache.glVAO) {
-                        gl.bindVertexArray(null);
-                        cache.glVAO = null;
-                    }
-                }
-                gfxStateCache.gpuInputAssembler = null;
-
-                if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                    gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
-                    cache.glElementArrayBuffer = gpuBuffer.glBuffer;
-                }
-
-                gl.bufferData(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
-                gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, null);
-                cache.glElementArrayBuffer = null;
+                handleVAOState();
+                handleBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, 'glElementArrayBuffer');
             }
         }
     } else if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
         gpuBuffer.glTarget = WebGLConstants.UNIFORM_BUFFER;
         const glBuffer = gl.createBuffer();
+
         if (glBuffer && gpuBuffer.size > 0) {
             gpuBuffer.glBuffer = glBuffer;
-            if (cache.glUniformBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.glBuffer);
-                cache.glUniformBuffer = gpuBuffer.glBuffer;
-            }
-
-            gl.bufferData(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
-
-            gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, null);
-            cache.glUniformBuffer = null;
+            handleBuffer(WebGLConstants.UNIFORM_BUFFER, 'glUniformBuffer');
         }
-    } else if (gpuBuffer.usage & BufferUsageBit.INDIRECT) {
-        gpuBuffer.glTarget = WebGLConstants.NONE;
-    } else if (gpuBuffer.usage & BufferUsageBit.TRANSFER_DST) {
-        gpuBuffer.glTarget = WebGLConstants.NONE;
-    } else if (gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC) {
+    } else if ([
+        BufferUsageBit.INDIRECT,
+        BufferUsageBit.TRANSFER_DST,
+        BufferUsageBit.TRANSFER_SRC,
+    ].some((usage) => gpuBuffer.usage & usage)) {
         gpuBuffer.glTarget = WebGLConstants.NONE;
     } else {
         errorID(16315);
@@ -707,102 +689,82 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWe
     const cache = device.getStateCache();
     const useVAO = device.extensions.useVAO;
 
-    if (gpuBuffer.glBuffer) {
-        // Firefox 75+ implicitly unbind whatever buffer there was on the slot sometimes
-        // can be reproduced in the static batching scene at https://github.com/cocos-creator/test-cases-3d
-        switch (gpuBuffer.glTarget) {
-        case WebGLConstants.ARRAY_BUFFER:
-            if (useVAO) {
-                if (cache.glVAO) {
-                    gl.bindVertexArray(null);
-                    cache.glVAO = null;
-                }
-            }
-            gfxStateCache.gpuInputAssembler = null;
+    if (!gpuBuffer.glBuffer) return;
 
+    const handleVAO = (): void => {
+        if (useVAO && cache.glVAO) {
+            gl.bindVertexArray(null);
+            cache.glVAO = null;
+        }
+    };
+
+    const bufferHandlers = {
+        [WebGLConstants.ARRAY_BUFFER]: (): void => {
+            handleVAO();
+            gfxStateCache.gpuInputAssembler = null;
             gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
             cache.glArrayBuffer = null;
-            break;
-        case WebGLConstants.ELEMENT_ARRAY_BUFFER:
-            if (useVAO) {
-                if (cache.glVAO) {
-                    gl.bindVertexArray(null);
-                    cache.glVAO = null;
-                }
-            }
+        },
+        [WebGLConstants.ELEMENT_ARRAY_BUFFER]: (): void => {
+            handleVAO();
             gfxStateCache.gpuInputAssembler = null;
-
             gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, null);
             cache.glElementArrayBuffer = null;
-            break;
-        case WebGLConstants.UNIFORM_BUFFER:
+        },
+        [WebGLConstants.UNIFORM_BUFFER]: (): void => {
             gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, null);
             cache.glUniformBuffer = null;
-            break;
-        default:
-        }
+        },
+    };
 
-        gl.deleteBuffer(gpuBuffer.glBuffer);
-        gpuBuffer.glBuffer = null;
+    const handler = bufferHandlers[gpuBuffer.glTarget];
+    if (handler) {
+        handler();
     }
+    gl.deleteBuffer(gpuBuffer.glBuffer);
+    gpuBuffer.glBuffer = null;
 }
 
 export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer): void {
     const { gl } = device;
     const cache = device.getStateCache();
-    const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? WebGLConstants.DYNAMIC_DRAW : WebGLConstants.STATIC_DRAW;
+    const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST
+        ? WebGLConstants.DYNAMIC_DRAW
+        : WebGLConstants.STATIC_DRAW;
+    const handleVAOState = (): void => {
+        if (device.extensions.useVAO && cache.glVAO) {
+            gl.bindVertexArray(null);
+            cache.glVAO = null;
+        }
+        gfxStateCache.gpuInputAssembler = null;
+    };
+
+    const resizeBuffer = (target: GLenum, cacheKey): void => {
+        if (cache[cacheKey] !== gpuBuffer.glBuffer) {
+            gl.bindBuffer(target, gpuBuffer.glBuffer);
+        }
+        if (gpuBuffer.buffer) {
+            gl.bufferData(target, gpuBuffer.buffer, glUsage);
+        } else {
+            gl.bufferData(target, gpuBuffer.size, glUsage);
+        }
+        gl.bindBuffer(target, null);
+        cache[cacheKey] = null;
+    };
 
     if (gpuBuffer.usage & BufferUsageBit.VERTEX) {
-        if (device.extensions.useVAO) {
-            if (cache.glVAO) {
-                gl.bindVertexArray(null);
-                cache.glVAO = null;
-            }
-        }
-        gfxStateCache.gpuInputAssembler = null;
-
-        if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
-            gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, gpuBuffer.glBuffer);
-        }
-
-        if (gpuBuffer.buffer) {
-            gl.bufferData(WebGLConstants.ARRAY_BUFFER, gpuBuffer.buffer, glUsage);
-        } else {
-            gl.bufferData(WebGLConstants.ARRAY_BUFFER, gpuBuffer.size, glUsage);
-        }
-        gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
-        cache.glArrayBuffer = null;
+        handleVAOState();
+        resizeBuffer(WebGLConstants.ARRAY_BUFFER, 'glArrayBuffer');
     } else if (gpuBuffer.usage & BufferUsageBit.INDEX) {
-        if (device.extensions.useVAO) {
-            if (cache.glVAO) {
-                gl.bindVertexArray(null);
-                cache.glVAO = null;
-            }
-        }
-        gfxStateCache.gpuInputAssembler = null;
-
-        if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-            gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
-        }
-
-        if (gpuBuffer.buffer) {
-            gl.bufferData(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.buffer, glUsage);
-        } else {
-            gl.bufferData(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
-        }
-        gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, null);
-        cache.glElementArrayBuffer = null;
+        handleVAOState();
+        resizeBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, 'glElementArrayBuffer');
     } else if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
-        if (cache.glUniformBuffer !== gpuBuffer.glBuffer) {
-            gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.glBuffer);
-        }
-
-        gl.bufferData(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
-        gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, null);
-        cache.glUniformBuffer = null;
-    } else if ((gpuBuffer.usage & BufferUsageBit.INDIRECT)
-            || (gpuBuffer.usage & BufferUsageBit.TRANSFER_DST)
-            || (gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC)) {
+        resizeBuffer(WebGLConstants.UNIFORM_BUFFER, 'glUniformBuffer');
+    } else if (
+        gpuBuffer.usage & BufferUsageBit.INDIRECT
+        || gpuBuffer.usage & BufferUsageBit.TRANSFER_DST
+        || gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC
+    ) {
         gpuBuffer.glTarget = WebGLConstants.NONE;
     } else {
         errorID(16315);
@@ -817,95 +779,68 @@ export function WebGL2CmdFuncUpdateBuffer (
     offset: number,
     size: number,
 ): void {
+    const renderingEnabled = cclegacy.rendering && cclegacy.rendering.enableEffectImport;
+    const { gl } = device;
+    const cache = device.getStateCache();
     if (gpuBuffer.usage & BufferUsageBit.INDIRECT) {
         gpuBuffer.indirects.clearDraws();
         const drawInfos = (buffer as IndirectBuffer).drawInfos;
-        for (let i = 0; i < drawInfos.length; ++i) {
-            gpuBuffer.indirects.setDrawInfo(offset + i, drawInfos[i]);
+        drawInfos.forEach((info, i) => gpuBuffer.indirects.setDrawInfo(offset + i, info));
+        return;
+    }
+    const buff = buffer as ArrayBuffer;
+    const handleVAOState = (): void => {
+        if (device.extensions.useVAO && cache.glVAO) {
+            gl.bindVertexArray(null);
+            cache.glVAO = null;
         }
-    } else {
-        const buff = buffer as ArrayBuffer;
-        const { gl } = device;
-        const cache = device.getStateCache();
+        gfxStateCache.gpuInputAssembler = null;
+    };
 
-        switch (gpuBuffer.glTarget) {
-        case WebGLConstants.ARRAY_BUFFER: {
-            if (device.extensions.useVAO) {
-                if (cache.glVAO) {
-                    gl.bindVertexArray(null);
-                    cache.glVAO = null;
-                }
-            }
-            gfxStateCache.gpuInputAssembler = null;
-
-            if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, gpuBuffer.glBuffer);
-                cache.glArrayBuffer = gpuBuffer.glBuffer;
-            }
-
-            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
-                // Fix performance issue on iOS.
-                // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
-                // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
-                // Before that, we will use glBufferData instead of glBufferSubData.
-                gl.bufferData(gpuBuffer.glTarget, buff, gl.DYNAMIC_DRAW);
-            } else if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-            }
-            break;
+    const bindBufferIfNeeded = (target: GLenum, cacheKey): void => {
+        if (cache[cacheKey] !== gpuBuffer.glBuffer) {
+            gl.bindBuffer(target, gpuBuffer.glBuffer);
+            cache[cacheKey] = gpuBuffer.glBuffer;
         }
-        case WebGLConstants.ELEMENT_ARRAY_BUFFER: {
-            if (device.extensions.useVAO) {
-                if (cache.glVAO) {
-                    gl.bindVertexArray(null);
-                    cache.glVAO = null;
-                }
-            }
-            gfxStateCache.gpuInputAssembler = null;
+    };
 
-            if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
-                cache.glElementArrayBuffer = gpuBuffer.glBuffer;
-            }
+    const updateBufferData = (target: GLenum, isUniformBuffer: boolean): void => {
+        const isIOSOptimizationCase = systemInfo.os === OS.IOS
+            && (gpuBuffer.memUsage & MemoryUsageBit.HOST)
+            && offset === 0
+            && size === buff.byteLength;
 
-            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
-                // Fix performance issue on iOS.
-                // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
-                // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
-                // Before that, we will use glBufferData instead of glBufferSubData.
-                gl.bufferData(gpuBuffer.glTarget, buff, gl.DYNAMIC_DRAW);
-            } else if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-            }
-            break;
+        if (isIOSOptimizationCase) {
+            gl.bufferData(target, buff, gl.DYNAMIC_DRAW);
+        } else if (size === buff.byteLength) {
+            gl.bufferSubData(target, offset, buff);
+        } else {
+            const data = isUniformBuffer
+                ? new Float32Array(buff, 0, size / 4)
+                : buff.slice(0, size);
+            gl.bufferSubData(target, offset, data);
         }
-        case WebGLConstants.UNIFORM_BUFFER: {
-            if (cache.glUniformBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.glBuffer);
-                cache.glUniformBuffer = gpuBuffer.glBuffer;
-            }
+    };
+    switch (gpuBuffer.glTarget) {
+    case WebGLConstants.ARRAY_BUFFER:
+        handleVAOState();
+        bindBufferIfNeeded(WebGLConstants.ARRAY_BUFFER, 'glArrayBuffer');
+        updateBufferData(WebGLConstants.ARRAY_BUFFER, false);
+        break;
 
-            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
-                // Fix performance issue on iOS.
-                // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
-                // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
-                // Before that, we will use glBufferData instead of glBufferSubData.
-                gl.bufferData(gpuBuffer.glTarget, buff, gl.DYNAMIC_DRAW);
-            } else if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
-            }
-            break;
-        }
-        default: {
-            errorID(16316);
-        }
-        }
+    case WebGLConstants.ELEMENT_ARRAY_BUFFER:
+        handleVAOState();
+        bindBufferIfNeeded(WebGLConstants.ELEMENT_ARRAY_BUFFER, 'glElementArrayBuffer');
+        updateBufferData(WebGLConstants.ELEMENT_ARRAY_BUFFER, false);
+        break;
+
+    case WebGLConstants.UNIFORM_BUFFER:
+        bindBufferIfNeeded(WebGLConstants.UNIFORM_BUFFER, 'glUniformBuffer');
+        updateBufferData(WebGLConstants.UNIFORM_BUFFER, true);
+        break;
+
+    default:
+        errorID(16316);
     }
 }
 
@@ -2259,6 +2194,9 @@ export function WebGL2CmdFuncBindStates (
         for (let j = 0; j < blockLen; j++) {
             const glBlock = gpuShader.glBlocks[j];
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
+            if (gpuDescriptorSet.isChanged === false && !isShaderChanged) {
+                continue;
+            }
             const descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glBlock.binding];
             const gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
@@ -2294,6 +2232,9 @@ export function WebGL2CmdFuncBindStates (
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplerTextures[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
+            if (gpuDescriptorSet.isChanged === false && !isShaderChanged) {
+                continue;
+            }
             let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding];
             let gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
@@ -2337,6 +2278,9 @@ export function WebGL2CmdFuncBindStates (
                 gpuDescriptor = gpuDescriptorSet.gpuDescriptors[++descriptorIndex];
             }
         }
+        gpuDescriptorSets.forEach((desc) => {
+            if (desc.isChanged === true) desc.isChanged = false;
+        });
     } // bind descriptor sets
 
     // bind vertex/index buffer
