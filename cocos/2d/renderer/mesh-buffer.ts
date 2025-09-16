@@ -258,7 +258,7 @@ export class MeshBuffer {
 
         var vDataCountLimit = 65536; // 2^16 - 1
         if (director.root) {
-            if ( director.root.device instanceof WebGPUDevice || director.root.device instanceof WebGL2Device 
+            if (director.root.device instanceof WebGPUDevice || director.root.device instanceof WebGL2Device 
                 || director.root.device instanceof WebGLDevice && director.root.device.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
                     vDataCountLimit = 4294967295; // 2^32 - 1
             }
