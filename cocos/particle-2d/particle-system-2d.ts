@@ -27,7 +27,7 @@ import {
     ccclass, editable, type, displayOrder, menu,
     executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override,
 } from 'cc.decorator';
-import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Color, Vec2, warnID, errorID, error, path } from '../core';
 import { Simulator } from './particle-simulator-2d';
@@ -140,6 +140,55 @@ function getParticleComponents (node): ParticleSystem2D[] {
 
 const wrapParseInt: (str: string | number) => number = parseInt as any;
 const wrapParseFloat: (str: string | number) => number = parseFloat as any;
+
+class MeshBatchData {
+    public startVertexIndex = 0;
+    public startIndexIndex = 0;
+    public vertexCount = 0;
+    public indexCount = 0;
+    public renderData: MeshRenderData | null = null;
+    public lastVertexCount = 0;
+    public lastIndexCount = 0;
+    public isRendering = false;
+
+    private _p2d: ParticleSystem2D | null = null;
+    public init (p2d: ParticleSystem2D): void {
+        this._p2d = p2d;
+    }
+
+    public reset (): void {
+        this.isRendering = false;
+
+        this.lastVertexCount = this.vertexCount;
+        this.lastIndexCount = this.indexCount;
+
+        this.startVertexIndex = 0;
+        this.startIndexIndex = 0;
+        this.vertexCount = 0;
+        this.indexCount = 0;
+    }
+
+    request (renderData: MeshRenderData, oldVextexCount: number, oldIndiceCount: number): void {
+        this.renderData = renderData;
+
+        if (!this._p2d) {
+            // eslint-disable-next-line no-console
+            console.error('MeshBatchData: _p2d is null');
+            return;
+        }
+
+        const rd = this._p2d.meshRenderData;
+        if (renderData === rd) {
+            this.vertexCount = rd.vertexCount;
+            this.indexCount = rd.indexCount;
+        } else {
+            this.startIndexIndex = oldIndiceCount;
+            this.startVertexIndex = oldVextexCount;
+            this.vertexCount = renderData.vertexCount - oldVextexCount;
+            this.indexCount = renderData.indexCount - oldIndiceCount;
+        }
+    }
+}
 
 /**
  * @en Particle System base class.
@@ -748,6 +797,16 @@ export class ParticleSystem2D extends UIRenderer {
     private declare _plistFile: string;
     private _useFile: boolean;
 
+    public batchData: MeshBatchData = new MeshBatchData();
+    private _swapMeshRenderDatas: MeshRenderData[] = [];
+    private _swapMeshRenderDataIndex = 0;
+    public get meshRenderData (): MeshRenderData {
+        return this._swapMeshRenderDatas[this._swapMeshRenderDataIndex];
+    }
+    private get realRenderData (): MeshRenderData {
+        return this._swapMeshRenderDatas[1 - this._swapMeshRenderDataIndex];
+    }
+
     constructor () {
         super();
         this.initProperties();
@@ -768,7 +827,7 @@ export class ParticleSystem2D extends UIRenderer {
         }
 
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
-        this._simulator.uvFilled = 0;
+        // this._simulator.uvFilled = 0;
 
         this.destroyRenderData();
     }
@@ -815,6 +874,8 @@ export class ParticleSystem2D extends UIRenderer {
     public __preload (): void {
         super.__preload();
 
+        this.batchData.init(this);
+
         if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
             this._applySpriteFrame();
         } else if (this._file) {
@@ -837,13 +898,14 @@ export class ParticleSystem2D extends UIRenderer {
     }
 
     public override destroyRenderData (): void {
-        if (this._simulator.renderData) {
-            const assembler = this._assembler;
-            if (assembler && assembler.removeData) {
-                assembler.removeData(this._simulator.renderData);
+        if (this._assembler && this._assembler.removeData) {
+            for (let i = 0; i < this._swapMeshRenderDatas.length; i++) {
+                this._assembler.removeData(this._swapMeshRenderDatas[i]);
             }
-            this._simulator.renderData = null;
         }
+        this._swapMeshRenderDatas.length = 0;
+        this._swapMeshRenderDataIndex = 0;
+
         super.destroyRenderData();
     }
 
@@ -853,15 +915,64 @@ export class ParticleSystem2D extends UIRenderer {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._assembler && this._assembler.createData) {
-            const simulator = this._simulator;
-            let renderData = simulator.renderData;
-            if (!renderData) {
-                renderData = simulator.renderData = this._assembler.createData(this) as MeshRenderData;
-                simulator.uvFilled = 0;
-                renderData.particleInitRenderDrawInfo(this.renderEntity); // Make sure renderEntity and renderData are both from simulator.
-                simulator.initDrawInfo();
+        // if (this._assembler && this._assembler.createData) {
+        //     const simulator = this._simulator;
+        //     let renderData = simulator.renderData;
+        //     if (!renderData) {
+        //         renderData = simulator.renderData = this._assembler.createData(this) as MeshRenderData;
+        //         simulator.uvFilled = 0;
+        //         renderData.particleInitRenderDrawInfo(this.renderEntity); // Make sure renderEntity and renderData are both from simulator.
+        //         simulator.initDrawInfo();
+        //     }
+        // }
+        this._createRenderData();
+    }
+
+    private _createRenderData (): MeshRenderData {
+        if (this._swapMeshRenderDatas.length >= 2) {
+            return this.meshRenderData;
+        }
+
+        if (!this._assembler || !this._assembler.createData) {
+            return this.meshRenderData;
+        }
+
+        const renderData = this._assembler.createData(this) as MeshRenderData;
+        renderData.reset();
+
+        renderData.particleInitRenderDrawInfo(this.renderEntity);
+        renderData.setRenderDrawInfoAttributes();
+
+        this._swapMeshRenderDatas.push(renderData);
+
+        return renderData;
+    }
+
+    public swapBuffer (): void {
+        if (this._swapMeshRenderDatas.length === 0) {
+            return;
+        }
+
+        let first = false;
+        if (this._swapMeshRenderDatas.length < 2) {
+            first = true;
+            this._createRenderData();
+        }
+
+        if (!first) {
+            const target = this.realRenderData;
+            const source = this.meshRenderData;
+
+            target.reset();
+            target.request(source.vertexCount, source.indexCount);
+
+            target.vData = new Float32Array(source.vData.buffer);
+            target.iData = new Uint16Array(source.iData.buffer);
+
+            if (JSB) {
+                source.renderDrawInfo.clear();
             }
+            this._swapMeshRenderDataIndex = 1 - this._swapMeshRenderDataIndex;
         }
     }
 
@@ -892,6 +1003,12 @@ export class ParticleSystem2D extends UIRenderer {
     public stopSystem (): void {
         this._stopped = true;
         this._simulator.stop();
+    }
+
+    public stopSystemAndClearAllParticles (): void {
+        this._stopped = true;
+        this._simulator.stop();
+        this._simulator.clearAllParticles();
     }
 
     /**
@@ -955,7 +1072,6 @@ export class ParticleSystem2D extends UIRenderer {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid: string = dict.spriteFrameUuid;
             assetManager.loadAny(spriteFrameUuid, (err: Error, spriteFrame: SpriteFrame): void => {
-                if (!this.isValid) return;
                 if (err) {
                     dict.spriteFrameUuid = undefined;
                     this._initTextureWithDictionary(dict);
@@ -970,7 +1086,6 @@ export class ParticleSystem2D extends UIRenderer {
             if (dict.textureFileName) {
                 // Try to get the texture from the cache
                 assetManager.loadRemote<ImageAsset>(imgPath, (err: Error | null, imageAsset: ImageAsset): void => {
-                    if (!this.isValid) return;
                     if (err) {
                         dict.textureFileName = undefined;
                         this._initTextureWithDictionary(dict);
@@ -1170,7 +1285,8 @@ export class ParticleSystem2D extends UIRenderer {
         if (this._renderSpriteFrame) {
             if (this._renderSpriteFrame.texture) {
                 if (this._simulator) {
-                    this._simulator.updateUVs(true);
+                    //? auto update uv when run step
+                    // this._simulator.updateUVs(true);
                 }
                 this._syncAspect();
                 this._updateMaterial();
@@ -1193,17 +1309,32 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateMaterial (): void {
+        //? why remove this? because we have compile world position so use_local is not needed.
+        //? Moreover, use getMaterialInstance break batch rendering.
+        // if (this._customMaterial) {
+        //     this.setSharedMaterial(this._customMaterial, 0);
+        //     const target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
+        //     this._dstBlendFactor = target.blendDst;
+        //     this._srcBlendFactor = target.blendSrc;
+        // }
+        // const mat = this.getMaterialInstance(0);
+        // if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
+        // if (mat && mat.passes.length > 0) {
+        //     this._updateBlendFunc();
+        // }
+
         if (this._customMaterial) {
-            this.setSharedMaterial(this._customMaterial, 0);
-            const target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
-            this._dstBlendFactor = target.blendDst;
-            this._srcBlendFactor = target.blendSrc;
+            if (this.getSharedMaterial(0) !== this._customMaterial) {
+                this.setSharedMaterial(this._customMaterial, 0);
+            }
+            return;
         }
-        const mat = this.getMaterialInstance(0);
-        if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
-        if (mat && mat.passes.length > 0) {
-            this._updateBlendFunc();
-        }
+        const mat = this._updateBuiltinMaterial();
+        this.setSharedMaterial(mat, 0);
+        // if (this.stencilStage === Stage.ENTER_LEVEL || this.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
+        //     this.getMaterialInstance(0)!.recompileShaders({ USE_ALPHA_TEST: true });
+        // }
+        this._updateBlendFunc();
     }
 
     /**
@@ -1225,29 +1356,46 @@ export class ParticleSystem2D extends UIRenderer {
     }
 
     protected _canRender (): boolean {
-        return super._canRender() && !this._stopped && this._renderSpriteFrame !== null && this._renderSpriteFrame !== undefined;
+        const canRender = super._canRender() && !(this._stopped && this._simulator.finished) && this._renderSpriteFrame !== null && this._renderSpriteFrame !== undefined;
+        return canRender;
     }
 
     protected _render (render: IBatcher): void {
-        if (this._positionType === PositionType.RELATIVE) {
-            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node.parent);
-        } else if (this.positionType === PositionType.GROUPED) {
-            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node);
-        } else {
-            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, null);
+        if (this.particleCount === 0) {
+            return;
         }
+
+        this._simulator.stepBeforeDraw();
+        const canRender = super._canRender() && !(this._stopped && this._simulator.finished) && this._renderSpriteFrame !== null && this._renderSpriteFrame !== undefined && this.batchData.vertexCount > 0 && (this.batchData.renderData === this.meshRenderData || this.batchData.renderData === this.realRenderData);
+        if (!canRender) {
+            return;
+        }
+
+        render.commitComp(this, this.meshRenderData, this._renderSpriteFrame, this._assembler, null);
+
+        // if (this._positionType === PositionType.RELATIVE) {
+        //     render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node.parent);
+        // } else if (this.positionType === PositionType.GROUPED) {
+        //     render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node);
+        // } else {
+        //     render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, null);
+        // }
     }
 
     protected _updatePositionType (): void {
-        if (this._positionType === PositionType.RELATIVE) {
-            this._renderEntity.setRenderTransform(this.node.parent);
-            this._renderEntity.setUseLocal(true);
-        } else if (this.positionType === PositionType.GROUPED) {
-            this._renderEntity.setRenderTransform(this.node);
-            this._renderEntity.setUseLocal(true);
-        } else {
-            this._renderEntity.setRenderTransform(null);
-            this._renderEntity.setUseLocal(false);
-        }
+        //? maybe it only use in native mode, need to check on native
+        this._renderEntity.setRenderTransform(null);
+        this._renderEntity.setUseLocal(false);
+
+        // if (this._positionType === PositionType.RELATIVE) {
+        //     this._renderEntity.setRenderTransform(this.node.parent);
+        //     this._renderEntity.setUseLocal(true);
+        // } else if (this.positionType === PositionType.GROUPED) {
+        //     this._renderEntity.setRenderTransform(this.node);
+        //     this._renderEntity.setUseLocal(true);
+        // } else {
+        //     this._renderEntity.setRenderTransform(null);
+        //     this._renderEntity.setUseLocal(false);
+        // }
     }
 }
