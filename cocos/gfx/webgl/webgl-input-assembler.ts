@@ -101,7 +101,6 @@ export class WebGLInputAssembler extends InputAssembler {
             gpuVertexBuffers,
             gpuIndexBuffer,
             gpuIndirectBuffer,
-            hash: this._attributesHash,
             isChanged: false,
 
             glAttribs: [],

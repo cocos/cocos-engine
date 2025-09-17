@@ -796,6 +796,15 @@ export class WebSetter implements Setter {
         throw new Error('Method not implemented.');
     }
 
+    get data (): RenderData {
+        return this._data;
+    }
+
+    /** @engineInternal */
+    set data (data: RenderData) {
+        this._data = data;
+    }
+
     // protected
     protected _data: RenderData;
     protected _lg: LayoutGraphData;
@@ -939,101 +948,86 @@ export class RenderDrawQueue {
 }
 
 export class RenderInstancingQueue {
-    passInstances: Map<Pass, number> = new Map<Pass, number>();
-    instanceBuffers: Array<InstancedBuffer> = new Array<InstancedBuffer>();
+    public queue = new Set<InstancedBuffer>();
+    private _renderQueue: InstancedBuffer[] = [];
     beforeDraw: DrawCallback | null = null;
     empty (): boolean {
-        return this.passInstances.size === 0;
+        return this.queue.size === 0;
     }
 
     add (pass: Pass, subModel: SubModel, passID: number): void {
-        const iter = this.passInstances.get(pass);
-        if (iter === undefined) {
-            const instanceBufferID = this.passInstances.size;
-            if (instanceBufferID >= this.instanceBuffers.length) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                this.instanceBuffers.push(new InstancedBuffer(pass));
-            }
-            this.passInstances.set(pass, instanceBufferID);
-
-            const instanceBuffer = this.instanceBuffers[instanceBufferID];
-            instanceBuffer.pass = pass;
-            const instances = instanceBuffer.instances;
-        }
-
-        const instancedBuffer = this.instanceBuffers[this.passInstances.get(pass)!];
+        const instancedBuffer = pass.getInstancedBuffer();
         instancedBuffer.merge(subModel, passID);
+        this.queue.add(instancedBuffer);
     }
 
     clear (): void {
-        this.passInstances.clear();
-        const instanceBuffers = this.instanceBuffers;
-        instanceBuffers.forEach((instance) => {
-            instance.clear();
-        });
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
+        this._renderQueue.length = 0;
+        this.queue.clear();
     }
 
     sort (): void {
-        this.instanceBuffers = this.instanceBuffers.sort(instancingCompareFn);
+        const sortedArray = Array.from(this.queue).sort(instancingCompareFn);
+        sortedArray.forEach((item) => {
+            if (!item.pass.blendState.targets[0]?.blend) {
+                this._renderQueue.push(item);
+            }
+        });
+        sortedArray.forEach((item) => {
+            if (item.pass.blendState.targets[0]?.blend) {
+                this._renderQueue.push(item);
+            }
+        });
     }
 
-    uploadBuffers (cmdBuffer: CommandBuffer): void {
-        for (const [pass, bufferID] of this.passInstances.entries()) {
-            const instanceBuffer = this.instanceBuffers[bufferID];
-            if (instanceBuffer.hasPendingModels) {
-                instanceBuffer.uploadBuffers(cmdBuffer);
-            }
+    uploadBuffers (cmdBuff: CommandBuffer): void {
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuff);
+            res = it.next();
         }
     }
 
     recordCommandBuffer (
         renderPass: RenderPass,
-        cmdBuffer: CommandBuffer,
+        cmdBuff: CommandBuffer,
         ds: DescriptorSet | null = null,
         offset = 0,
         dynamicOffsets: number[] | null = null,
     ): void {
-        const renderQueue = this.instanceBuffers;
-        for (const instanceBuffer of renderQueue) {
-            if (!instanceBuffer.hasPendingModels) {
-                continue;
+        const it = this._renderQueue.length === 0 ? this.queue.values() : this._renderQueue[Symbol.iterator]();
+        let res = it.next();
+
+        while (!res.done) {
+            const { instances, pass, hasPendingModels } = res.value;
+            if (hasPendingModels) {
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                let lastPSO: PipelineState | null = null;
+                for (let b = 0; b < instances.length; ++b) {
+                    const instance = instances[b];
+                    if (!instance.count) { continue; }
+                    const shader = instance.shader;
+                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass, shader!, renderPass, instance.ia);
+                    if (lastPSO !== pso) {
+                        cmdBuff.bindPipelineState(pso);
+                        lastPSO = pso;
+                    }
+                    if (ds) cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, ds, [offset]);
+                    if (dynamicOffsets) {
+                        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, dynamicOffsets);
+                    } else {
+                        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
+                    }
+                    cmdBuff.bindInputAssembler(instance.ia);
+                    cmdBuff.draw(instance.ia);
+                }
             }
-            const instances = instanceBuffer.instances;
-            const drawPass = instanceBuffer.pass;
-            bindDescriptorSet(cmdBuffer, SetIndex.MATERIAL, drawPass.descriptorSet);
-            let lastPSO: PipelineState | null = null;
-            for (const instance of instances) {
-                if (!instance.count) {
-                    continue;
-                }
-                if (this.beforeDraw) this.beforeDraw();
-                const pso = PipelineStateManager.getOrCreatePipelineState(
-                    deviceManager.gfxDevice,
-                    drawPass,
-                    instance.shader!,
-                    renderPass,
-                    instance.ia,
-                );
-                if (lastPSO !== pso) {
-                    cmdBuffer.bindPipelineState(pso);
-                    lastPSO = pso;
-                }
-                if (ds) {
-                    bindDescriptorSet(cmdBuffer, SetIndex.GLOBAL, ds, [offset]);
-                }
-                if (dynamicOffsets) {
-                    bindDescriptorSet(cmdBuffer, SetIndex.LOCAL, instance.descriptorSet, dynamicOffsets);
-                } else {
-                    bindDescriptorSet(
-                        cmdBuffer,
-                        SetIndex.LOCAL,
-                        instance.descriptorSet,
-                        instanceBuffer.dynamicOffsets,
-                    );
-                }
-                bindInputAssembler(cmdBuffer, instance.ia);
-                cmdBuffer.draw(instance.ia);
-            }
+            res = it.next();
         }
     }
 }

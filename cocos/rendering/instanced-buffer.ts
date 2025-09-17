@@ -113,31 +113,25 @@ export class InstancedBuffer {
         this.sortRender.hash = hash;
         this.sortRender.shaderId = shader.typedID;
         this.sortRender.passIdx = passIdx;
+
+        const sourceIndexBufferId = sourceIA.indexBuffer?.objectID;
+        const lightingMapId = lightingMap.objectID;
+        const reflectionProbeCubemapId = reflectionProbeCubemap.objectID;
+        const reflectionProbePlanarMapId = reflectionProbePlanarMap.objectID;
+        const reflectionProbeBlendCubemapId = ENABLE_PROBE_BLEND ? reflectionProbeBlendCubemap!.objectID : 0;
+
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
-            if (instance.ia.indexBuffer?.objectID !== sourceIA.indexBuffer?.objectID || instance.count >= MAX_CAPACITY) { continue; }
+            if (instance.stride !== stride
+                || instance.ia.indexBuffer?.objectID !== sourceIndexBufferId
+                || instance.count >= MAX_CAPACITY) { continue; }
 
             // check same binding
-            if (instance.lightingMap.objectID !== lightingMap.objectID) {
-                continue;
-            }
-
-            if (instance.useReflectionProbeType !== useReflectionProbeType) {
-                continue;
-            }
-            if (instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemap.objectID) {
-                continue;
-            }
-            if (instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
-                continue;
-            }
-            if (ENABLE_PROBE_BLEND && instance.reflectionProbeBlendCubemap!.objectID !== reflectionProbeBlendCubemap!.objectID) {
-                continue;
-            }
-
-            if (instance.stride !== stride) {
-                // we allow this considering both baked and non-baked
-                // skinning models may be present in the same buffer
+            if (instance.lightingMap.objectID !== lightingMapId
+                || instance.useReflectionProbeType !== useReflectionProbeType
+                || instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemapId
+                || instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMapId
+                || (ENABLE_PROBE_BLEND && instance.reflectionProbeBlendCubemap!.objectID !== reflectionProbeBlendCubemapId)) {
                 continue;
             }
             if (instance.count >= instance.capacity) { // resize buffers

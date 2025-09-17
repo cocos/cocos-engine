@@ -891,7 +891,7 @@ export function resetPassMGState (): void {
     rpCombineMap.clear();
     passOrders.length = 0;
 }
-export function processPassMG (pass: RasterPass): void {
+export function processPassMG (pass: RasterPass, rg: RenderGraph, verId: number): void {
     const currCHash = rpCombineMap.get(pass)!;
     const currRPInfo = rpMergeInfoPool.add();
     if (!rpMergeInfos.has(pass)) {
@@ -916,8 +916,10 @@ export function processPassMG (pass: RasterPass): void {
     }
     passOrders.push(pass);
 }
-
-export function genHashValue (pass: RasterPass): void {
+export function genHashValue (pass: RasterPass, rg: RenderGraph, verId: number): void {
+    if (!rg.getValid(verId)) {
+        return;
+    }
     const hashCodeParts: string[] = [];
     const combineHashParts: string[] = [];
     for (const [name, raster] of pass.rasterViews) {
@@ -926,13 +928,13 @@ export function genHashValue (pass: RasterPass): void {
             hashCombineKey(raster.slotName),
             hashCombineKey(raster.accessType),
             hashCombineKey(raster.attachmentType),
-            hashCombineKey(raster.storeOp),
-            hashCombineKey(raster.clearFlags),
             hashCombineKey(raster.slotID),
             hashCombineKey(raster.shaderStageFlags),
         ];
 
         const extraParts = [
+            hashCombineKey(raster.storeOp),
+            hashCombineKey(raster.clearFlags),
             hashCombineKey(raster.loadOp),
             hashCombineKey(raster.clearColor.x),
             hashCombineKey(raster.clearColor.y),
@@ -963,5 +965,5 @@ export function genHashValue (pass: RasterPass): void {
 
     pass.hashValue = hashCombineStr(hashCodeParts.join(''));
     rpCombineMap.set(pass, hashCombineStr(combineHashParts.join('')));
-    processPassMG(pass);
+    processPassMG(pass, rg, verId);
 }
