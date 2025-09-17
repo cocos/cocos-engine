@@ -25,10 +25,9 @@
 import { JSB } from 'internal:constants';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../gfx';
 import { getAttributeStride } from './vertex-format';
-import { sys, getError, warnID, assertIsTrue } from '../../core';
+import { cclegacy, sys, getError, warnID, assertIsTrue } from '../../core';
 import { NativeUIMeshBuffer } from './native-2d';
 import { Feature } from '../../gfx/base/define';
-import { director } from '../../game';
 
 interface IIARef {
     ia: InputAssembler;
@@ -254,9 +253,9 @@ export class MeshBuffer {
         this.floatsPerVertex = getAttributeStride(attrs) >> 2;
 
         var vDataCountLimit = 65536; // 2^16 - 1
-        if (director.root) {
-            if (director.root.device.gfxAPI === gfx.API.WEBGPU || director.root.device.gfxAPI ===  gfx.API.WEBGL2 
-                || director.root.device.gfxAPI === gfx.API.WEBGL && director.root.device.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
+        if (cclegacy.director.root) {
+            if (cclegacy.director.root.device.gfxAPI === cclegacy.gfx.API.WEBGPU || cclegacy.director.root.device.gfxAPI ===  cclegacy.gfx.API.WEBGL2 
+                || cclegacy.director.root.device.gfxAPI === cclegacy.gfx.API.WEBGL && cclegacy.director.root.device.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
                     vDataCountLimit = 4294967295; // 2^32 - 1
                 }
         }
