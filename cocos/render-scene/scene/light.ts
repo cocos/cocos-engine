@@ -70,6 +70,8 @@ export enum LightType {
 
 export const nt2lm = (size: number): number => 4 * Math.PI * Math.PI * size * size;
 
+let _lightCount = 0;
+
 /**
  * @en The abstract light class of the render scene
  * @zh 渲染场景中的光源基类
@@ -194,6 +196,11 @@ export class Light {
         return this._scene;
     }
 
+    /** @engineInternal */
+    get lightId (): number {
+        return this._lightId;
+    }
+
     protected _baked = false;
 
     protected _color: Vec3 = v3(1, 1, 1);
@@ -203,6 +210,8 @@ export class Light {
     protected _colorTempRGB: Vec3 = v3(1, 1, 1);
 
     private _finalColor: Vec3 = v3(1, 1, 1);
+
+    protected _lightId = _lightCount++;
 
     protected _scene: RenderScene | null = null;
 

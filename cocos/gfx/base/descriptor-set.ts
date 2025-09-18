@@ -48,6 +48,9 @@ export abstract class DescriptorSet extends GFXObject {
     /** @mangle */
     protected _isDirty = false;
 
+    get gpuDescriptorSet (): any {
+        return {};
+    }
     constructor () {
         super(ObjectType.DESCRIPTOR_SET);
     }
