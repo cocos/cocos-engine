@@ -393,7 +393,7 @@ export class PipelineStatistics {
 }
 
 function createPool<T> (Constructor: new() => T): RecyclePool<T> {
-    return new RecyclePool<T>(() => new Constructor(), 16);
+    return new RecyclePool<T>(() => new Constructor(), 4);
 }
 
 export class RenderCommonObjectPool {
