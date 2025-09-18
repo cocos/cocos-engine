@@ -200,7 +200,7 @@ export class DrawInstance {
     }
 }
 
-export const instancePool = new RecyclePool(() => new DrawInstance(), 8);
+export const instancePool = new RecyclePool(() => new DrawInstance(), 4);
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 function getLayoutId (passLayout: string, phaseLayout: string): number {

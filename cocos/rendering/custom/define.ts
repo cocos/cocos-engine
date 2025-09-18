@@ -880,7 +880,7 @@ export class RenderPassMergeInfo {
 const passOrders: RasterPass[] = [];
 const rpCombineMap: Map<RasterPass, number> = new Map();
 export const rpMergeInfos: Map<RasterPass, RenderPassMergeInfo> = new Map();
-const rpMergeInfoPool = new RecyclePool<RenderPassMergeInfo>((): RenderPassMergeInfo => new RenderPassMergeInfo(), 16);
+const rpMergeInfoPool = new RecyclePool<RenderPassMergeInfo>((): RenderPassMergeInfo => new RenderPassMergeInfo(), 4);
 export function resetPassMGState (): void {
     rpMergeInfoPool.reset();
     rpMergeInfos.clear();

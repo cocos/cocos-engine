@@ -17,13 +17,13 @@ import { getUniformBlockSize } from './layout-graph-utils';
 import { WebProgramLibrary } from './web-program-library';
 
 class CullingPools {
-    frustumCullingKeyRecycle = new RecyclePool(() => new FrustumCullingKey(), 8);
-    frustumCullingsRecycle = new RecyclePool(() => new FrustumCulling(), 8);
-    lightBoundsCullingRecycle = new RecyclePool(() => new LightBoundsCulling(), 8);
-    lightBoundsCullingResultRecycle = new RecyclePool(() => new LightBoundsCullingResult(), 8);
-    lightBoundsCullingKeyRecycle = new RecyclePool(() => new LightBoundsCullingKey(), 8);
-    renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 8);
-    renderQueueQueryRecycle = new RecyclePool(() => new RenderQueueQuery(), 8);
+    frustumCullingKeyRecycle = new RecyclePool(() => new FrustumCullingKey(), 4);
+    frustumCullingsRecycle = new RecyclePool(() => new FrustumCulling(), 4);
+    lightBoundsCullingRecycle = new RecyclePool(() => new LightBoundsCulling(), 4);
+    lightBoundsCullingResultRecycle = new RecyclePool(() => new LightBoundsCullingResult(), 4);
+    lightBoundsCullingKeyRecycle = new RecyclePool(() => new LightBoundsCullingKey(), 4);
+    renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 4);
+    renderQueueQueryRecycle = new RecyclePool(() => new RenderQueueQuery(), 4);
 }
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D,
     Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
@@ -178,10 +178,8 @@ function sceneCulling (
     }
 
     for (const model of scene.models) {
-        if (!model.enabled || !model.node || (castShadow && !model.castShadow) || (!probe && !isVisible(model, visibility))) {
-            continue;
-        }
-        if (scene.isCulledByLod(camera, model)) {
+        if (!model.enabled || !model.node || (castShadow && !model.castShadow)
+        || ((!probe || probe.probeType === ProbeType.CUBE) && !isVisible(model, visibility)) || scene.isCulledByLod(camera, model)) {
             continue;
         }
         const wBounds = model.worldBounds;
@@ -192,9 +190,6 @@ function sceneCulling (
             }
             models.push(model);
         } else if (probe.probeType === ProbeType.CUBE) {
-            if (!isVisible(model, visibility)) {
-                continue;
-            }
             if (wBounds && isIntersectAABB(wBounds, probe.boundingBox!)) {
                 continue;
             }

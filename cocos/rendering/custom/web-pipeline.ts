@@ -63,7 +63,8 @@ const _samplerPointInfo = new SamplerInfo(
     Address.CLAMP,
     Address.CLAMP,
 );
-
+const ccGlobalRD = new RenderData();
+let currCCGlobalKey;
 class PipelinePool {
     renderData = new RenderData();
     layoutGraph = new LayoutGraphData();
@@ -75,17 +76,17 @@ class PipelinePool {
     rasterPass = new RasterPass();
     rasterSubpass = new RasterSubpass();
     renderQueue = new RenderQueue();
-    sceneBuilder = new RecyclePool<WebSceneBuilder>(() => new WebSceneBuilder(this.renderData, this.layoutGraph, this.rg, this.vertId, this.sceneData), 16);
-    renderPassBuilder = new RecyclePool<WebRenderPassBuilder>(() => new WebRenderPassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.rasterPass, this.getPipelineSceneData()), 16);
-    computeQueueBuilder = new RecyclePool<WebComputeQueueBuilder>(() => new WebComputeQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 16);
-    renderQueueBuilder = new RecyclePool<WebRenderQueueBuilder>(() => new WebRenderQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 16);
-    renderSubpassBuilder = new RecyclePool<WebRenderSubpassBuilder>(() => new WebRenderSubpassBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.rasterSubpass, this.getPipelineSceneData()), 16);
-    computePassBuilder = new RecyclePool<WebComputePassBuilder>(() => new WebComputePassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.computePass, this.getPipelineSceneData()), 16);
-    samplerInfo = new RecyclePool<SamplerInfo>(() => new SamplerInfo(), 16);
-    color = new RecyclePool<Color>(() => new Color(), 16);
+    sceneBuilder = new RecyclePool<WebSceneBuilder>(() => new WebSceneBuilder(this.renderData, this.layoutGraph, this.rg, this.vertId, this.sceneData), 4);
+    renderPassBuilder = new RecyclePool<WebRenderPassBuilder>(() => new WebRenderPassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.rasterPass, this.getPipelineSceneData()), 4);
+    computeQueueBuilder = new RecyclePool<WebComputeQueueBuilder>(() => new WebComputeQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 4);
+    renderQueueBuilder = new RecyclePool<WebRenderQueueBuilder>(() => new WebRenderQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 4);
+    renderSubpassBuilder = new RecyclePool<WebRenderSubpassBuilder>(() => new WebRenderSubpassBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.rasterSubpass, this.getPipelineSceneData()), 4);
+    computePassBuilder = new RecyclePool<WebComputePassBuilder>(() => new WebComputePassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.computePass, this.getPipelineSceneData()), 4);
+    samplerInfo = new RecyclePool<SamplerInfo>(() => new SamplerInfo(), 4);
+    color = new RecyclePool<Color>(() => new Color(), 4);
     renderCommonObjectPool = new RenderCommonObjectPool();
     renderGraphPool = new RenderGraphObjectPool(this.renderCommonObjectPool);
-    viewport = new RecyclePool(() => new Viewport(), 16);
+    viewport = new RecyclePool(() => new Viewport(), 4);
 
     getPipelineSceneData (): PipelineSceneData {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData;
@@ -904,11 +905,6 @@ export class WebCopyPassBuilder {
     private readonly _pass: CopyPass;
 }
 
-function isManaged (residency: ResourceResidency): boolean {
-    return residency === ResourceResidency.MANAGED
-        || residency === ResourceResidency.MEMORYLESS;
-}
-
 export class WebPipeline extends WebSetter implements BasicPipeline {
     constructor (layoutGraph: LayoutGraphData) {
         super(new RenderData(), layoutGraph);
@@ -1713,17 +1709,14 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         pass.viewport.height = height;
         pass.count = count;
         pass.quality = quality;
-        const data = renderGraphPool.createRenderData();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, data, !DEBUG);
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, ccGlobalRD, !DEBUG);
         const result = pipelinePool.renderPassBuilder.add();
-        result.update(data, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
+        result.update(ccGlobalRD, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         const key = `${layoutName}${width}${height}`;
-        if (!renderDataMap.has(key)) {
-            renderDataMap.set(key, data);
+        if (currCCGlobalKey !== key) {
+            currCCGlobalKey = key;
             this._updateRasterPassConstants(result, width, height, layoutName);
             setTextureUBOView(result, this._pipelineSceneData);
-        } else {
-            result.data = renderDataMap.get(key)!;
         }
         return result;
     }

@@ -1356,17 +1356,9 @@ class DeviceRenderScene implements RecordingInterface {
 
 class ExecutorPools {
     constructor () {
-        this.deviceQueuePool = new RecyclePool<DeviceRenderQueue>((): DeviceRenderQueue => new DeviceRenderQueue(), 16);
-        this.deviceScenePool = new RecyclePool<DeviceRenderScene>((): DeviceRenderScene => new DeviceRenderScene(), 16);
-        this.computeQueuePool = new RecyclePool<DeviceComputeQueue>((): DeviceComputeQueue => new DeviceComputeQueue(), 16);
-        this.passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
-            priority: 0,
-            hash: 0,
-            depth: 0,
-            shaderId: 0,
-            subModel: null!,
-            passIdx: 0,
-        }), 64);
+        this.deviceQueuePool = new RecyclePool<DeviceRenderQueue>((): DeviceRenderQueue => new DeviceRenderQueue(), 4);
+        this.deviceScenePool = new RecyclePool<DeviceRenderScene>((): DeviceRenderScene => new DeviceRenderScene(), 4);
+        this.computeQueuePool = new RecyclePool<DeviceComputeQueue>((): DeviceComputeQueue => new DeviceComputeQueue(), 4);
     }
     addDeviceQueue (): DeviceRenderQueue {
         return this.deviceQueuePool.add();
@@ -1384,7 +1376,6 @@ class ExecutorPools {
     }
     readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
     readonly computeQueuePool: RecyclePool<DeviceComputeQueue>;
-    readonly passPool: RecyclePool<IRenderPass>;
     readonly deviceScenePool: RecyclePool<DeviceRenderScene>;
 }
 
