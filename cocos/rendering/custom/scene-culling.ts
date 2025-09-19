@@ -1,4 +1,4 @@
-import { DEBUG } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { Vec3, RecyclePool, assert, cclegacy } from '../../core';
 import { Frustum, intersect, AABB } from '../../core/geometry';
 import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageBit, BufferUsageBit, deviceManager } from '../../gfx';
@@ -306,7 +306,30 @@ export class SceneCulling {
         cullingPools.renderQueueQueryRecycle.reset();
         instancePool.reset();
     }
+
+    get needChanged (): boolean {
+        if (EDITOR || !this.frustumCullings.size) {
+            return true;
+        }
+        const rScenes = this.frustumCullings.keys();
+        for (const scene of rScenes) {
+            if (scene.isChanged) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    set needChanged (value: boolean) {
+        for (const scene of this.frustumCullings.keys()) {
+            scene.isChanged = value;
+        }
+    }
+
     clear (): void {
+        if (!this.needChanged) {
+            return;
+        }
         this.resetPool();
         this.frustumCullings.clear();
         this.frustumCullingResults.length = 0;
@@ -321,6 +344,9 @@ export class SceneCulling {
     }
 
     buildRenderQueues (rg: RenderGraph, lg: LayoutGraphData, pplSceneData: PipelineSceneData): void {
+        if (!this.needChanged) {
+            return;
+        }
         this.layoutGraph = lg;
         this.renderGraph = rg;
         pSceneData = pplSceneData;
@@ -479,6 +505,9 @@ export class SceneCulling {
     }
 
     uploadInstancing (cmdBuffer: CommandBuffer): void {
+        if (!this.needChanged) {
+            return;
+        }
         for (let queueID = 0; queueID !== this.numRenderQueues; ++queueID) {
             const queue = this.renderQueues[queueID];
             queue.opaqueInstancingQueue.uploadBuffers(cmdBuffer);

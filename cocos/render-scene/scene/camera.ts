@@ -806,6 +806,15 @@ export class Camera {
         return this._cameraId;
     }
 
+    /** @engineInternal */
+    get isChanged (): boolean {
+        return this._isChanged;
+    }
+    /** @engineInternal */
+    set isChanged (val) {
+        this._isChanged = val;
+    }
+
     /**
      * @en Whether the camera is fixed size or matching the window size.
      * @zh 相机是固定尺寸还是跟随屏幕尺寸
@@ -841,6 +850,7 @@ export class Camera {
     private _orientedViewport: Rect = rect(0, 0, 1, 1);
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
+    private _isChanged = false;
     private _matView: Mat4 = mat4();
     private _matProj: Mat4 = mat4();
     private _matProjInv: Mat4 = mat4();
@@ -1082,6 +1092,7 @@ export class Camera {
             Mat4.invert(this._matProjInv, matProj);
             viewProjDirty = true;
             this._isProjDirty = false;
+            this._isChanged = true;
         }
 
         // view-projection

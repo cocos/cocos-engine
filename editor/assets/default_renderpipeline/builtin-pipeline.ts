@@ -1907,6 +1907,10 @@ if (rendering) {
                 return;
             }
 
+            if (!ppl.needChanged) {
+                return;
+            }
+
             // Render cameras
             // log(`==================== One Frame ====================`);
             for (const camera of cameras) {

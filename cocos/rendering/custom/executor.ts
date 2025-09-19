@@ -1637,6 +1637,9 @@ export class Executor {
     private _removeDeviceResource (): void {
         const pipeline: any = context.pipeline;
         const resourceUses = pipeline.resourceUses;
+        if (resourceUses.length === 0) {
+            return;
+        }
         const deletes: string[] = [];
         const deviceTexs = context.deviceTextures;
         for (const [name, dTex] of deviceTexs) {
@@ -1691,6 +1694,7 @@ export class Executor {
         depthFirstSearch(this._visitor.graphView, this._visitor, this._visitor.colorMap);
         cmdBuff.end();
         context.device.queue.submit([cmdBuff]);
+        culling.needChanged = false;
     }
 
     release (): void {
@@ -1704,6 +1708,9 @@ export class Executor {
             v.release();
         }
         context.deviceBuffers.clear();
+    }
+    get context (): ExecutorContext {
+        return context;
     }
     readonly _context: ExecutorContext;
     private _visitor: RenderVisitor | undefined;

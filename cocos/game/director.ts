@@ -349,7 +349,7 @@ export class Director extends EventTarget {
 
         if (!EDITOR) {
             if (isValid(this._scene)) {
-                this._scene!.destroy();
+                this._scene.destroy();
             }
             this._scene = null;
         }
@@ -443,7 +443,7 @@ export class Director extends EventTarget {
             console.time('Destroy');
         }
         if (isValid(oldScene)) {
-            oldScene!.destroy();
+            oldScene.destroy();
         }
         if (!EDITOR) {
             // auto release assets

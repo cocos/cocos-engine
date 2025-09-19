@@ -1063,7 +1063,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (EDITOR && (this._objFlags & Destroying)) {
             throw Error('isDestroying');
         }
-
+        this.changed();
         // get component
 
         let constructor: Constructor<T> | null | undefined;
@@ -1185,7 +1185,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             errorID(3813);
             return;
         }
-
+        this.changed();
         let componentInstance: Component | null = null;
         if (component instanceof Component) {
             componentInstance = component;
@@ -1365,6 +1365,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     public destroy (): boolean {
+        this.changed();
         if (super.destroy()) {
             this.active = false;
             return true;
@@ -1397,7 +1398,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             errorID(3814);
             return;
         }
-
+        this.changed();
         if (!(this._objFlags & Destroying)) {
             const i = this._components.indexOf(component);
             if (i !== -1) {
@@ -1543,7 +1544,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             // TO DO
             comps[i]._destroyImmediate();
         }
-
+        this.changed();
         return destroyByParent;
     }
 
@@ -1665,6 +1666,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public static isNode (obj: unknown): obj is Node {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cclegacy.Scene));
+    }
+
+    protected changed (): void {
+        if (this.scene && this.scene.renderScene) this.scene.renderScene.isChanged = true;
     }
 
     protected _onPreDestroy (): boolean {
@@ -2327,7 +2332,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         let rotationScaleSkewDirty = 0;
         let uiSkewComp: UISkew | null = null;
         let foundSkewInAncestor = false;
-
+        this.changed();
         while (i) {
             child = dirtyNodes[--i];
             childMat = child._mat;

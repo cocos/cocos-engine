@@ -63,7 +63,8 @@ const _samplerPointInfo = new SamplerInfo(
     Address.CLAMP,
     Address.CLAMP,
 );
-const ccGlobalRD = new RenderData();
+const renderPassRD = new RenderData();
+const queueRD = new Map<string, RenderData>();
 let currCCGlobalKey;
 class PipelinePool {
     renderData = new RenderData();
@@ -1411,7 +1412,7 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
             this._renderGraph = new RenderGraph();
             this._data = this._renderGraph.globalRenderData;
         }
-        pipelinePool.reset();
+        if (this.needChanged) pipelinePool.reset();
     }
     endSetup (): void {
         this.compile();
@@ -1594,7 +1595,16 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
             new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
         );
     }
+
+    get needChanged (): boolean {
+        return !!this._executor?.context.culling.needChanged;
+    }
+
     beginFrame (): void {
+        if (this.needChanged) {
+            renderDataMap.clear();
+            this.renderGraph?.clear();
+        }
         const director: Director = cclegacy.director;
         director.buildRenderPipeline();
     }
@@ -1602,8 +1612,6 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         // noop
     }
     endFrame (): void {
-        renderDataMap.clear();
-        this.renderGraph?.clear();
     }
 
     private _generateHashAndMerge (): void {
@@ -1709,9 +1717,9 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         pass.viewport.height = height;
         pass.count = count;
         pass.quality = quality;
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, ccGlobalRD, !DEBUG);
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, renderPassRD, !DEBUG);
         const result = pipelinePool.renderPassBuilder.add();
-        result.update(ccGlobalRD, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
+        result.update(renderPassRD, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         const key = `${layoutName}${width}${height}`;
         if (currCCGlobalKey !== key) {
             currCCGlobalKey = key;
