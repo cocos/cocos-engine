@@ -71,6 +71,7 @@ const fsUtils = {
             },
             fail (res) {
                 if (fsUtils.isOutOfStorage(res.error)) {
+                    cc.assetManager.cacheManager.outOfStorage = true;
                     cc.assetManager.cacheManager.clearLRU();
                 }
                 console.warn(`Download file failed: path: ${remoteUrl} message: ${res.errorMessage}`);
@@ -95,6 +96,10 @@ const fsUtils = {
                 onComplete && onComplete(null);
             },
             fail (res) {
+                if (fsUtils.isOutOfStorage(res.error)) {
+                    cc.assetManager.cacheManager.outOfStorage = true;
+                    cc.assetManager.cacheManager.clearLRU();
+                }
                 console.warn(`Copy file failed: path: ${srcPath} message: ${res.errorMessage}`);
                 onComplete && onComplete(new Error(res.error));
             },
@@ -111,6 +116,7 @@ const fsUtils = {
             },
             fail (res) {
                 if (fsUtils.isOutOfStorage(res.error)) {
+                    cc.assetManager.cacheManager.outOfStorage = true;
                     cc.assetManager.cacheManager.clearLRU();
                 }
                 console.warn(`Write file failed: path: ${path} message: ${res.errorMessage}`);
