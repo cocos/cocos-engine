@@ -80,7 +80,8 @@ class ParticlePool extends js.Pool<Particle> {
 const pool = new ParticlePool((par: Particle): void => {
     par.pos.set(Vec2.ZERO);
     par.startPos.set(Vec2.ZERO);
-    par.color.set(0, 0, 0, 255);
+    par.color.r = par.color.g = par.color.b = 0;
+    par.color.a = 255;
     par.deltaColor.r = par.deltaColor.g = par.deltaColor.b = 0;
     par.deltaColor.a = 255;
     par.size = 0;
