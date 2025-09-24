@@ -51,7 +51,7 @@ function getWorldRotation (node): number {
 class Particle {
     public pos = new Vec2(0, 0);
     public startPos = new Vec2(0, 0);
-    public color = new Color(0, 0, 0, 255);
+    public color = { r: 0, g: 0, b: 0, a: 255 };
     public deltaColor = { r: 0, g: 0, b: 0, a: 255 };
     public size = 0;
     public deltaSize = 0;
