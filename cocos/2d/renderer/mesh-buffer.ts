@@ -25,7 +25,7 @@
 import { JSB } from 'internal:constants';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo, Feature, API } from '../../gfx';
 import { getAttributeStride } from './vertex-format';
-import { cclegacy, sys, getError, warnID, assertIsTrue } from '../../core';
+import { sys, getError, warnID, assertIsTrue } from '../../core';
 import { NativeUIMeshBuffer } from './native-2d';
 
 interface IIARef {
