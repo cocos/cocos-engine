@@ -252,11 +252,9 @@ export class MeshBuffer {
         this.floatsPerVertex = getAttributeStride(attrs) >> 2;
 
         var vDataCountLimit = 65536; // 2^16 - 1
-        if (device) {
-            const glApi = device.gfxAPI;
-            if (glApi === API.WEBGPU || glApi === API.WEBGL2 || glApi === API.WEBGL && device.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
-                    vDataCountLimit = 4294967295; // 2^32 - 1
-                }
+        const glApi = device.gfxAPI;
+        if (glApi === API.WEBGPU || glApi === API.WEBGL2 || glApi === API.WEBGL && device.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
+            vDataCountLimit = 4294967295; // 2^32 - 1
         }
         assertIsTrue(this._initVDataCount / this._floatsPerVertex < vDataCountLimit, getError(9005));
 
