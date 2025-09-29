@@ -557,7 +557,7 @@ class _Deserializer {
             return obj;
         };
 
-        if (!(EDITOR && NODEJS && js.isChildClassOf(klass, cclegacy.Component))) {
+        if (!((EDITOR || NODEJS) && js.isChildClassOf(klass, cclegacy.Component))) {
             const obj = createObject(klass);
             this._deserializeInto(value, obj, klass);
             return obj;
