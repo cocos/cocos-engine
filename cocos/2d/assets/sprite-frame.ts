@@ -576,13 +576,13 @@ export class SpriteFrame extends Asset {
     public vertices: IVertices | null = null;
 
     /**
-     * @en UV for quad vertices.
-     * @zh 矩形的顶点 UV。
+     * @en The uv of the sprite frame in the original texture.
+     * @zh SpriteFrame 在原始贴图中的 UV 坐标。
      */
-    public uv: number[] = [];
-
+    public uv: Float32Array = new Float32Array(8);
     /**
-     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     * @en The packed uv of the sprite frame in the original texture.
+     * @zh SpriteFrame 在原始贴图中的打包 UV 坐标。
      */
     public unbiasUV: number[] = [];
 
@@ -1023,7 +1023,6 @@ export class SpriteFrame extends Asset {
      * @mangle
      */
     public _calculateUV (): void {
-        const arrayFill = js.array.fillItems;
         const self = this;
         const rect = self._rect;
         const uv = self.uv;
@@ -1044,28 +1043,40 @@ export class SpriteFrame extends Asset {
                 |   |
                 2 - 0
                 */
-                arrayFill(uv, r, b, r, t, l, b, l, t);
+                uv[0] = r; uv[1] = b;
+                uv[2] = r; uv[3] = t;
+                uv[4] = l; uv[5] = b;
+                uv[6] = l; uv[7] = t;
             } else if (self._isFlipUVX) {
                 /*
                 2 - 0
                 |   |
                 3 - 1
                 */
-                arrayFill(uv, r, t, r, b, l, t, l, b);
+                uv[0] = r; uv[1] = t;
+                uv[2] = r; uv[3] = b;
+                uv[4] = l; uv[5] = t;
+                uv[6] = l; uv[7] = b;
             } else if (self._isFlipUVY) {
                 /*
                 1 - 3
                 |   |
                 0 - 2
                 */
-                arrayFill(uv, l, b, l, t, r, b, r, t);
+                uv[0] = l; uv[1] = b;
+                uv[2] = l; uv[3] = t;
+                uv[4] = r; uv[5] = b;
+                uv[6] = r; uv[7] = t;
             } else {
                 /*
                 0 - 2
                 |   |
                 1 - 3
                 */
-                arrayFill(uv, l, t, l, b, r, t, r, b);
+                uv[0] = l; uv[1] = t;
+                uv[2] = l; uv[3] = b;
+                uv[4] = r; uv[5] = t;
+                uv[6] = r; uv[7] = b;
             }
 
             const ul = texw === 0 ? 0 : rect.x / texw;
@@ -1073,13 +1084,13 @@ export class SpriteFrame extends Asset {
             const ut = texh === 0 ? 0 : rect.y / texh;
             const ub = texh === 0 ? 1 : (rect.y + rect.width) / texh;
             if (self._isFlipUVX && self._isFlipUVY) {
-                arrayFill(unbiasUV, ur, ub, ur, ut, ul, ub, ul, ut);
+                js.array.fillItems(unbiasUV, ur, ub, ur, ut, ul, ub, ul, ut);
             } else if (self._isFlipUVX) {
-                arrayFill(unbiasUV, ur, ut, ur, ub, ul, ut, ul, ub);
+                js.array.fillItems(unbiasUV, ur, ut, ur, ub, ul, ut, ul, ub);
             } else if (self._isFlipUVY) {
-                arrayFill(unbiasUV, ul, ub, ul, ut, ur, ub, ur, ut);
+                js.array.fillItems(unbiasUV, ul, ub, ul, ut, ur, ub, ur, ut);
             } else {
-                arrayFill(unbiasUV, ul, ut, ul, ub, ur, ut, ur, ub);
+                js.array.fillItems(unbiasUV, ul, ut, ul, ub, ur, ut, ur, ub);
             }
         } else {
             const l = texw === 0 ? 0 : rect.x / texw;
@@ -1092,41 +1103,53 @@ export class SpriteFrame extends Asset {
                 |   |
                 3 - 2
                 */
-                arrayFill(uv, r, t, l, t, r, b, l, b);
+                uv[0] = r; uv[1] = t;
+                uv[2] = l; uv[3] = t;
+                uv[4] = r; uv[5] = b;
+                uv[6] = l; uv[7] = b;
             } else if (self._isFlipUVX) {
                 /*
                 3 - 2
                 |   |
                 1 - 0
                 */
-                arrayFill(uv, r, b, l, b, r, t, l, t);
+                uv[0] = r; uv[1] = b;
+                uv[2] = l; uv[3] = b;
+                uv[4] = r; uv[5] = t;
+                uv[6] = l; uv[7] = t;
             } else if (self._isFlipUVY) {
                 /*
                 0 - 1
                 |   |
                 2 - 3
                 */
-                arrayFill(uv, l, t, r, t, l, b, r, b);
+                uv[0] = l; uv[1] = t;
+                uv[2] = r; uv[3] = t;
+                uv[4] = l; uv[5] = b;
+                uv[6] = r; uv[7] = b;
             } else {
                 /*
                 2 - 3
                 |   |
                 0 - 1
                 */
-                arrayFill(uv, l, b, r, b, l, t, r, t);
+                uv[0] = l; uv[1] = b;
+                uv[2] = r; uv[3] = b;
+                uv[4] = l; uv[5] = t;
+                uv[6] = r; uv[7] = t;
             }
             const ul = texw === 0 ? 0 : rect.x / texw;
             const ur = texw === 0 ? 1 : (rect.x + rect.width) / texw;
             const ub = texh === 0 ? 1 : (rect.y + rect.height) / texh;
             const ut = texh === 0 ? 0 : rect.y / texh;
             if (self._isFlipUVX && self._isFlipUVY) {
-                arrayFill(unbiasUV, ur, ut, ul, ut, ur, ub, ul, ub);
+                js.array.fillItems(unbiasUV, ur, ut, ul, ut, ur, ub, ul, ub);
             } else if (self._isFlipUVX) {
-                arrayFill(unbiasUV, ur, ub, ul, ub, ur, ut, ul, ut);
+                js.array.fillItems(unbiasUV, ur, ub, ul, ub, ur, ut, ul, ut);
             } else if (self._isFlipUVY) {
-                arrayFill(unbiasUV, ul, ut, ur, ut, ul, ub, ur, ub);
+                js.array.fillItems(unbiasUV, ul, ut, ur, ut, ul, ub, ur, ub);
             } else {
-                arrayFill(unbiasUV, ul, ub, ur, ub, ul, ut, ur, ut);
+                js.array.fillItems(unbiasUV, ul, ub, ur, ub, ul, ut, ur, ut);
             }
         }
 
@@ -1341,7 +1364,7 @@ export class SpriteFrame extends Asset {
             minPos: v.minPos.clone(),
             maxPos: v.maxPos.clone(),
         } : null as any;
-        sp.uv.splice(0, sp.uv.length, ...self.uv);
+        sp.uv.set(self.uv);
         sp.unbiasUV.splice(0, sp.unbiasUV.length, ...self.unbiasUV);
         sp.uvSliced.splice(0, sp.uvSliced.length, ...self.uvSliced);
         sp._rect.set(self._rect);

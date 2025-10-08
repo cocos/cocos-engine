@@ -75,11 +75,13 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
 
     // validate methods
     if (DEV) {
-        const propNames = Object.getOwnPropertyNames(constructor.prototype);
-        for (let i = 0; i < propNames.length; ++i) {
+        const CtorProto = constructor.prototype;
+        const propNames = Object.getOwnPropertyNames(CtorProto);
+        const propNamesLen = propNames.length;
+        for (let i = 0; i < propNamesLen; ++i) {
             const prop = propNames[i];
             if (prop !== 'constructor') {
-                const desc = Object.getOwnPropertyDescriptor(constructor.prototype, prop);
+                const desc = Object.getOwnPropertyDescriptor(CtorProto, prop);
                 const func = desc && desc.value;
                 if (typeof func === 'function') {
                     doValidateMethodWithProps_DEV(func, prop, getClassName(constructor), constructor, base);

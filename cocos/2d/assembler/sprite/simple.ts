@@ -68,30 +68,43 @@ class Simple implements IAssembler {
     private updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk): void {
         const renderData = sprite.renderData;
         if (!renderData) return;
+
         const vData = chunk.vb;
-
-        const dataList: IRenderData[] = renderData.data;
-        const node = sprite.node;
+        const dataList = renderData.data;
+        const { node } = sprite;
         const m = node.worldMatrix;
-
-        const m00 = m.m00; const m01 = m.m01; const m02 = m.m02; const m03 = m.m03;
-        const m04 = m.m04; const m05 = m.m05; const m06 = m.m06; const m07 = m.m07;
-        const m12 = m.m12; const m13 = m.m13; const m14 = m.m14; const m15 = m.m15;
+        const { m00, m01, m02, m03, m04, m05, m06, m07, m12, m13, m14, m15 } = m;
 
         const stride = renderData.floatStride;
-        let offset = 0;
         const length = dataList.length;
-        for (let i = 0; i < length; ++i) {
-            const curData = dataList[i];
-            const x = curData.x;
-            const y = curData.y;
-            let rhw = m03 * x + m07 * y + m15;
-            rhw = rhw ? 1 / rhw : 1;
+        let offset = 0;
 
-            offset = i * stride;
-            vData[offset + 0] = (m00 * x + m04 * y + m12) * rhw;
-            vData[offset + 1] = (m01 * x + m05 * y + m13) * rhw;
-            vData[offset + 2] = (m02 * x + m06 * y + m14) * rhw;
+        // Fast path for affine matrices
+        if (m03 === 0 && m07 === 0 && m15 === 1) {
+            for (let i = 0; i < length; ++i) {
+                const curData = dataList[i];
+                const x = curData.x;
+                const y = curData.y;
+
+                vData[offset + 0] = m00 * x + m04 * y + m12;
+                vData[offset + 1] = m01 * x + m05 * y + m13;
+                vData[offset + 2] = m02 * x + m06 * y + m14;
+                offset += stride;
+            }
+        } else {
+            // Fallback for non-affine matrices
+            for (let i = 0; i < length; ++i) {
+                const curData = dataList[i];
+                const x = curData.x;
+                const y = curData.y;
+                let rhw = m03 * x + m07 * y + m15;
+                rhw = rhw ? 1 / rhw : 1;
+
+                vData[offset + 0] = (m00 * x + m04 * y + m12) * rhw;
+                vData[offset + 1] = (m01 * x + m05 * y + m13) * rhw;
+                vData[offset + 2] = (m02 * x + m06 * y + m14) * rhw;
+                offset += stride;
+            }
         }
     }
 
@@ -190,16 +203,21 @@ class Simple implements IAssembler {
 
     updateUVs (sprite: Sprite): void {
         const renderData = sprite.renderData;
-        if (!sprite.spriteFrame || !renderData) return;
+        if (!sprite.spriteFrame || !renderData) return
         const vData = renderData.chunk.vb;
         const uv = sprite.spriteFrame.uv;
         const stride = renderData.floatStride;
+        const dataLength = renderData.dataLength;
+
         let uvOffset = 3;
-        for (let i = 0; i < renderData.dataLength; ++i) {
-            const index = i * 2;
-            vData[uvOffset] = uv[index];
-            vData[uvOffset + 1] = uv[index + 1];
+        let uvIndex = 0;
+
+        for (let i = 0; i < dataLength; ++i) {  
+            vData[uvOffset] = uv[uvIndex];
+            vData[uvOffset + 1] = uv[uvIndex + 1];
+
             uvOffset += stride;
+            uvIndex += 2;
         }
     }
 

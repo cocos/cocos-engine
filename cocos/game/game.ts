@@ -438,7 +438,7 @@ export class Game extends EventTarget {
      * @zh 获取从游戏开始到现在总共经过的时间，以毫秒为单位
      */
     public get totalTime (): number {
-        return performance.now() - this._initTime;
+        return this._lastTime - this._initTime;
     }
 
     /**
@@ -470,6 +470,7 @@ export class Game extends EventTarget {
     private _pacer: Pacer | null = null;
     private _initTime = 0;
     private _startTime = 0;
+    private _lastTime = 0;
     private _deltaTime = 0.0;
     private _useFixedDeltaTime = false;
     private _shouldLoadLaunchScene = true;
@@ -1044,13 +1045,14 @@ export class Game extends EventTarget {
      */
     public _calculateDT (useFixedDeltaTime: boolean): number {
         this._useFixedDeltaTime = useFixedDeltaTime;
+        
+        const now = this._lastTime
 
         if (useFixedDeltaTime) {
-            this._startTime = performance.now();
+            this._startTime = now;
             return this.frameTime / 1000;
         }
-
-        const now = performance.now();
+        
         this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
         if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
             this._deltaTime = this.frameTime / 1000;
@@ -1059,8 +1061,11 @@ export class Game extends EventTarget {
         return this._deltaTime;
     }
 
-    private _updateCallback (): void {
+    private _updateCallback (stamp: number): void {
         if (!this._inited) return;
+
+        this._lastTime = stamp;
+            
         if (!WECHAT && SplashScreen.instance && !SplashScreen.instance.isFinished) {
             SplashScreen.instance.update(this._calculateDT(false));
         } else if (this._shouldLoadLaunchScene) {
@@ -1073,12 +1078,12 @@ export class Game extends EventTarget {
                 // load scene
                 director.loadScene(launchScene, (): void => {
                     logID(1103, launchScene);
-                    this._initTime = performance.now();
+                    this._initTime = this._lastTime;
                     director.startAnimation();
                     this.onStart?.();
                 });
             } else {
-                this._initTime = performance.now();
+                this._initTime = this._lastTime;
                 director.startAnimation();
                 this.onStart?.();
             }

@@ -30,13 +30,13 @@ const FRAME_RESET_TIME = 2000;
 
 export class Pacer {
     private _stHandle = 0;
-    private _onTick: (() => void) | null = null;
+    private _onTick: ((stamp: number) => void) | null = null;
     private _targetFrameRate = 60;
     private _frameTime = 0;
     private _startTime = 0;
     private _isPlaying = false;
     private _frameCount = 0;
-    private _callback: (() => void) | null = null;
+    private _callback: ((stamp: number) => void) | null = null;
     private _rAF: typeof requestAnimationFrame;
     private _cAF: typeof cancelAnimationFrame;
 
@@ -75,28 +75,29 @@ export class Pacer {
         }
     }
 
-    set onTick (val: (() => void) | null) {
+    set onTick (val: ((stamp: number) => void) | null) {
         this._onTick = val;
     }
 
-    get onTick (): (() => void) | null {
+    get onTick (): ((stamp: number) => void) | null {
         return this._onTick;
     }
 
     start (): void {
         if (this._isPlaying) return;
         const recordStartTime = EDITOR || this._rAF === undefined || (USE_XR && globalThis.__globalXR?.isWebXR);
-        const updateCallback = (): void => {
-            if (recordStartTime) this._startTime = performance.now();
+        const updateCallback = (stamp: number): void => {
+            if (recordStartTime) this._startTime = stamp
             if (this._isPlaying) {
-                this._stHandle = this._stTime(updateCallback);
+                this._stHandle = this._stTime();
             }
             if (this._onTick) {
-                this._onTick();
+                this._onTick(stamp);
             }
         };
         this._startTime = performance.now();
-        this._stHandle = this._stTime(updateCallback);
+        this._callback = updateCallback;
+        this._stHandle = this._stTime();
 
         this._isPlaying = true;
         this._frameCount = 0;
@@ -111,7 +112,7 @@ export class Pacer {
     }
 
     _handleRAF = (stamp: number): void => {
-        const currTime = performance.now();
+        /* const currTime = stamp;
         const elapseTime = currTime - this._startTime;
         const elapseFrame = Math.floor(elapseTime / this._frameTime);
         if (elapseFrame < 0) {
@@ -123,19 +124,23 @@ export class Pacer {
         } else {
             this._frameCount = elapseFrame + 1;
             if (this._callback) {
-                this._callback();
+                this._callback(stamp);
             }
+        } */
+
+        this._frameCount +=  1;
+        if (this._callback) {
+            this._callback(stamp);
         }
     };
 
-    private _stTime (callback: () => void): number {
+    private _stTime (): number {
         if (EDITOR || this._rAF === undefined || (USE_XR && globalThis.__globalXR?.isWebXR)) {
             const currTime = performance.now();
             const elapseTime = Math.max(0, currTime - this._startTime);
             const timeToCall = Math.max(0, this._frameTime - elapseTime);
-            return setTimeout(callback, timeToCall);
+            return setTimeout(this._callback!, timeToCall);
         }
-        this._callback = callback;
         return this._rAF.call(window, this._handleRAF);
     }
 

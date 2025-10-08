@@ -45,6 +45,11 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
     // convert to 0 ~ 1
     _col.set(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
 
+    const colorR = _col.x;
+    const colorG = _col.y;
+    const colorB = _col.z;
+    const colorA = _col.w;
+
     let vertexOffset = 0;
     for (let i = 0; i < vertexCount; ++i) {
         const vert = dataList[i];
@@ -55,7 +60,12 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
         vData[vertexOffset + 0] = (m00 * x + m04 * y + m12) * rhw;
         vData[vertexOffset + 1] = (m01 * x + m05 * y + m13) * rhw;
         vData[vertexOffset + 2] = (m02 * x + m06 * y + m14) * rhw;
-        Vec4.toArray(vData, _col, vertexOffset + 5);
+
+        vData[vertexOffset + 5] = colorR;
+        vData[vertexOffset + 6] = colorG;
+        vData[vertexOffset + 7] = colorB;
+        vData[vertexOffset + 8] = colorA;
+
         vertexOffset += renderData.floatStride;
     }
 

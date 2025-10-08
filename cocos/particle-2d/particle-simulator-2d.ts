@@ -22,11 +22,10 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Color, js, random, IColorLike, Vec4, clamp, toRadian, toDegree } from '../core';
+import { Vec2, Color, js, random, IColorLike, Vec4, clamp, toRadian, toDegree, Mat4, Vec3 } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
-import type { ParticleSystem2D } from './particle-system-2d';
-import type { MeshRenderData } from '../2d/renderer/render-data';
+import { ParticleSystem2D } from './particle-system-2d';
 import type { Particle2DAssembler } from './particle-system-2d-assembler';
 
 const _pos = new Vec2();
@@ -34,6 +33,8 @@ const _tpa = new Vec2();
 const _tpb = new Vec2();
 const _tpc = new Vec2();
 const _col = new Vec4();
+
+const _vec3 = new Vec3();
 
 const formatBytes = getComponentPerVertex(vfmtPosUvColor);
 
@@ -69,6 +70,10 @@ class Particle {
     public degreesPerSecond = 0;
     public radius = 0;
     public deltaRadius = 0;
+    
+    // 3D Rotation properties
+    public rotation3D = new Vec3(0, 0, 0);
+    public deltaRotation3D = new Vec3(0, 0, 0);
 }
 
 class ParticlePool extends js.Pool<Particle> {
@@ -99,14 +104,19 @@ const pool = new ParticlePool((par: Particle): void => {
     par.degreesPerSecond = 0;
     par.radius = 0;
     par.deltaRadius = 0;
+    // Reset 3D rotation propeties
+    par.rotation3D.set(Vec3.ZERO);
+    par.deltaRotation3D.set(Vec3.ZERO);
+
 }, 1024);
 
 export class Simulator {
     public particles: Particle[] = [];
     public active = false;
-    public uvFilled = 0;
+    // public uvFilled = 0;
     public finished = false;
-    public renderData: MeshRenderData | null = null;
+    // public renderData: MeshRenderData | null = null;
+    public is3DMode = false;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
@@ -118,10 +128,10 @@ export class Simulator {
         this.particles = [];
         this.active = false;
         this.readyToPlay = true;
-        this.finished = false;
+        this.finished = true;
         this.elapsed = 0;
         this.emitCounter = 0;
-        this.uvFilled = 0;
+        // this.uvFilled = 0;
         this._worldRotation = 0;
     }
 
@@ -141,7 +151,7 @@ export class Simulator {
         const particles = this.particles;
         for (let id = 0; id < particles.length; ++id) pool.put(particles[id]);
         particles.length = 0;
-        if (this.renderData) this.renderData.resize(0, 0);
+        // if (this.renderData) this.renderData.resize(0, 0);
     }
 
     public emitParticle (pos): void {
@@ -232,32 +242,52 @@ export class Simulator {
         }
     }
 
-    public updateUVs (force?: boolean): void {
-        const renderData = this.renderData;
-        if (renderData && this.sys._renderSpriteFrame) {
-            const vbuf = renderData.vData;
-            const uv = this.sys._renderSpriteFrame.uv;
+    // public updateUVs (force?: boolean): void {
+    //     const renderData = this.renderData;
+    //     if (renderData && this.sys._renderSpriteFrame) {
+    //         const vbuf = renderData.vData;
+    //         const uv = this.sys._renderSpriteFrame.uv;
 
-            const start = force ? 0 : this.uvFilled;
-            const particleCount = this.particles.length;
-            for (let i = start; i < particleCount; i++) {
-                const offset = i * formatBytes * 4;
-                vbuf[offset + 3] = uv[0];
-                vbuf[offset + 4] = uv[1];
-                vbuf[offset + 12] = uv[2];
-                vbuf[offset + 13] = uv[3];
-                vbuf[offset + 21] = uv[4];
-                vbuf[offset + 22] = uv[5];
-                vbuf[offset + 30] = uv[6];
-                vbuf[offset + 31] = uv[7];
-            }
-            this.uvFilled = particleCount;
+    //         const start = force ? 0 : this.uvFilled;
+    //         const particleCount = this.particles.length;
+    //         for (let i = start; i < particleCount; i++) {
+    //             const offset = i * formatBytes * 4;
+    //             vbuf[offset + 3] = uv[0];
+    //             vbuf[offset + 4] = uv[1];
+    //             vbuf[offset + 12] = uv[2];
+    //             vbuf[offset + 13] = uv[3];
+    //             vbuf[offset + 21] = uv[4];
+    //             vbuf[offset + 22] = uv[5];
+    //             vbuf[offset + 30] = uv[6];
+    //             vbuf[offset + 31] = uv[7];
+    //         }
+    //         this.uvFilled = particleCount;
+    //     }
+    // }
+
+    public updateParticleBuffer (particle, pos, p2d: ParticleSystem2D, offset: number): void {
+        const buffer = p2d.batchData.renderData;
+        if (!buffer) {
+            return;
         }
-    }
 
-    public updateParticleBuffer (particle, pos, buffer, offset: number): void {
+        offset += p2d.batchData.startVertexIndex * formatBytes;
+
         const vbuf = buffer.vData;
         // const uintbuf = buffer._uintVData;
+
+        //? update uv
+        if (p2d._renderSpriteFrame) {
+            const uv = p2d._renderSpriteFrame.uv;
+            vbuf[offset + 3] = uv[0];
+            vbuf[offset + 4] = uv[1];
+            vbuf[offset + 12] = uv[2];
+            vbuf[offset + 13] = uv[3];
+            vbuf[offset + 21] = uv[4];
+            vbuf[offset + 22] = uv[5];
+            vbuf[offset + 30] = uv[6];
+            vbuf[offset + 31] = uv[7];
+        }
 
         const x: number = pos.x;
         const y: number = pos.y;
@@ -271,31 +301,128 @@ export class Simulator {
         }
         const halfWidth = width / 2;
         const halfHeight = height / 2;
-        // pos
-        if (particle.rotation) {
-            const x1 = -halfWidth;
-            const y1 = -halfHeight;
-            const x2 = halfWidth;
-            const y2 = halfHeight;
-            const rad = -toRadian(particle.rotation as number);
-            const cr = Math.cos(rad);
-            const sr = Math.sin(rad);
-            // bl
-            vbuf[offset] = x1 * cr - y1 * sr + x;
-            vbuf[offset + 1] = x1 * sr + y1 * cr + y;
-            vbuf[offset + 2] = 0;
-            // br
-            vbuf[offset + 9] = x2 * cr - y1 * sr + x;
-            vbuf[offset + 10] = x2 * sr + y1 * cr + y;
-            vbuf[offset + 11] = 0;
-            // tl
-            vbuf[offset + 18] = x1 * cr - y2 * sr + x;
-            vbuf[offset + 19] = x1 * sr + y2 * cr + y;
-            vbuf[offset + 20] = 0;
-            // tr
-            vbuf[offset + 27] = x2 * cr - y2 * sr + x;
-            vbuf[offset + 28] = x2 * sr + y2 * cr + y;
-            vbuf[offset + 29] = 0;
+
+        const hasRotation = this.is3DMode ? 
+            (particle.rotation3D.x !== 0 || particle.rotation3D.y !== 0 || particle.rotation3D.z !== 0) 
+            : (particle.rotation !== 0);
+        // // pos
+        // if (particle.rotation) {
+        //     const x1 = -halfWidth;
+        //     const y1 = -halfHeight;
+        //     const x2 = halfWidth;
+        //     const y2 = halfHeight;
+        //     const rad = -toRadian(particle.rotation as number);
+        //     const cr = Math.cos(rad);
+        //     const sr = Math.sin(rad);
+        //     // bl
+        //     vbuf[offset] = x1 * cr - y1 * sr + x;
+        //     vbuf[offset + 1] = x1 * sr + y1 * cr + y;
+        //     vbuf[offset + 2] = 0;
+        //     // br
+        //     vbuf[offset + 9] = x2 * cr - y1 * sr + x;
+        //     vbuf[offset + 10] = x2 * sr + y1 * cr + y;
+        //     vbuf[offset + 11] = 0;
+        //     // tl
+        //     vbuf[offset + 18] = x1 * cr - y2 * sr + x;
+        //     vbuf[offset + 19] = x1 * sr + y2 * cr + y;
+        //     vbuf[offset + 20] = 0;
+        //     // tr
+        //     vbuf[offset + 27] = x2 * cr - y2 * sr + x;
+        //     vbuf[offset + 28] = x2 * sr + y2 * cr + y;
+        //     vbuf[offset + 29] = 0;
+        // } else {
+        //     // bl
+        //     vbuf[offset] = x - halfWidth;
+        //     vbuf[offset + 1] = y - halfHeight;
+        //     vbuf[offset + 2] = 0;
+        //     // br
+        //     vbuf[offset + 9] = x + halfWidth;
+        //     vbuf[offset + 10] = y - halfHeight;
+        //     vbuf[offset + 11] = 0;
+        //     // tl
+        //     vbuf[offset + 18] = x - halfWidth;
+        //     vbuf[offset + 19] = y + halfHeight;
+        //     vbuf[offset + 20] = 0;
+        //     // tr
+        //     vbuf[offset + 27] = x + halfWidth;
+        //     vbuf[offset + 28] = y + halfHeight;
+        //     vbuf[offset + 29] = 0;
+        // }
+
+        if (hasRotation) {
+            if (this.is3DMode) {
+                const radX = -toRadian(particle.rotation3D.x);
+                const radY = -toRadian(particle.rotation3D.y);
+                const radZ = -toRadian(particle.rotation3D.z);
+
+                const cosX = Math.cos(radX)
+                const sinX = Math.sin(radX)
+                const cosY = Math.cos(radY)
+                const sinY = Math.sin(radY)
+                const cosZ = Math.cos(radZ)
+                const sinZ = Math.sin(radZ)
+
+                function rotatePoint(px: number, py: number, pz: number): Vec3 {
+                    const y1 = py * cosX - pz * sinX;
+                    const z1 = py * sinX + pz * cosX;
+
+                    const x2 = px * cosY + z1 * sinY;
+                    const z2 = z1 * cosY - px * sinY;
+
+                    const x3 = x2 * cosZ - y1 * sinZ;
+                    const y3 = x2 * sinZ + y1 * cosZ;
+
+                    return new Vec3(x3, y3, z2);
+                };
+                    
+                const positions = [
+                    rotatePoint(-halfWidth, -halfHeight, 0), // bottom-left
+                    rotatePoint(halfWidth, -halfHeight, 0), // bottom-right
+                    rotatePoint(-halfWidth, halfHeight, 0), // top-left
+                    rotatePoint(halfWidth, halfHeight, 0), // top-right
+                ]
+
+                vbuf[offset] = positions[0].x + x
+                vbuf[offset + 1] = positions[0].y + y
+                vbuf[offset + 2] = 0
+
+                vbuf[offset + 9] = positions[1].x + x
+                vbuf[offset + 10] = positions[1].y + y
+                vbuf[offset + 11] = 0
+
+                vbuf[offset + 18] = positions[2].x + x
+                vbuf[offset + 19] = positions[2].y + y
+                vbuf[offset + 20] = 0
+
+                vbuf[offset + 27] = positions[3].x + x
+                vbuf[offset + 28] = positions[3].y + y
+                vbuf[offset + 29] = 0
+            } else {
+                const x1 = -halfWidth;
+                const y1 = -halfHeight;
+                const x2 = halfWidth;
+                const y2 = halfHeight;
+                const rad = -toRadian(particle.rotation as number);
+                const cr = Math.cos(rad);
+                const sr = Math.sin(rad);
+                
+                // bl
+                vbuf[offset] = x1 * cr - y1 * sr + x;
+                vbuf[offset + 1] = x1 * sr + y1 * cr + y;
+                vbuf[offset + 2] = 0;
+                // br
+                vbuf[offset + 9] = x2 * cr - y1 * sr + x;
+                vbuf[offset + 10] = x2 * sr + y1 * cr + y;
+                vbuf[offset + 11] = 0;
+                // tl
+                vbuf[offset + 18] = x1 * cr - y2 * sr + x;
+                vbuf[offset + 19] = x1 * sr + y2 * cr + y;
+                vbuf[offset + 20] = 0;
+                // tr
+                vbuf[offset + 27] = x2 * cr - y2 * sr + x;
+                vbuf[offset + 28] = x2 * sr + y2 * cr + y;
+                vbuf[offset + 29] = 0;
+            }
         } else {
             // bl
             vbuf[offset] = x - halfWidth;
@@ -327,6 +454,33 @@ export class Simulator {
         Vec4.toArray(vbuf, _col, offset + 14);
         Vec4.toArray(vbuf, _col, offset + 23);
         Vec4.toArray(vbuf, _col, offset + 32);
+
+        //? update world transform, scale, rotation
+        const psys = this.sys;
+        const node = psys.node;
+        let mat: Mat4|undefined;
+        if (psys.positionType === PositionType.RELATIVE && node.parent) {
+            mat =  node.parent.worldMatrix;
+        } else if (psys.positionType === PositionType.GROUPED) {
+            mat = node.worldMatrix;
+        }
+        if (mat) {
+            this.transformPos(psys, vbuf, offset, mat);
+            this.transformPos(psys, vbuf, offset + 9, mat);
+            this.transformPos(psys, vbuf, offset + 18, mat);
+            this.transformPos(psys, vbuf, offset + 27, mat);
+        }
+    }
+
+    private transformPos (p2d: ParticleSystem2D, vbuf: Float32Array, offset: number, mat: Mat4): void {
+        _vec3.x = vbuf[offset];
+        _vec3.y = vbuf[offset + 1];
+        _vec3.z = vbuf[offset + 2];
+        Vec3.transformMat4(_vec3, _vec3, mat);
+
+        vbuf[offset] = _vec3.x;
+        vbuf[offset + 1] = _vec3.y;
+        vbuf[offset + 2] = this.is3DMode ? _vec3.z : 0;
     }
 
     public step (dt: number): void {
@@ -368,16 +522,16 @@ export class Simulator {
         }
 
         // Request buffer for particles
-        const renderData = this.renderData;
-        if (!renderData) return;
-        const particleCount = particles.length;
-        renderData.reset();
-        this.requestData(particleCount * 4, particleCount * 6);
+        // const renderData = this.renderData;
+        // const particleCount = particles.length;
+        // renderData.reset();
+        // this.requestData(particleCount * 4, particleCount * 6);
 
+        //? Now update updateParticleBuffer also updates UVs
         // Fill up uvs
-        if (particleCount > this.uvFilled) {
-            this.updateUVs();
-        }
+        // if (particleCount > this.uvFilled) {
+        //     this.updateUVs();
+        // }
 
         // Used to reduce memory allocation / creation within the loop
         let particleIdx = 0;
@@ -443,17 +597,24 @@ export class Simulator {
                 }
 
                 // angle
-                particle.rotation += particle.deltaRotation * dt;
-
-                // update values in quad buffer
-                const newPos = _tpa;
-                newPos.set(particle.pos);
-                if (psys.positionType !== PositionType.GROUPED) {
-                    newPos.add(particle.startPos);
+                if(this.is3DMode) {
+                    particle.rotation3D.x += particle.deltaRotation3D.x * dt;
+                    particle.rotation3D.y += particle.deltaRotation3D.y * dt;
+                    particle.rotation3D.z += particle.deltaRotation3D.z * dt;
+                }
+                else{
+                    particle.rotation += particle.deltaRotation * dt;
                 }
 
-                const offset = formatBytes * particleIdx * 4;
-                this.updateParticleBuffer(particle, newPos, renderData, offset);
+                // update values in quad buffer
+                // const newPos = _tpa;
+                // newPos.set(particle.pos);
+                // if (psys.positionType !== PositionType.GROUPED) {
+                //     newPos.add(particle.startPos);
+                // }
+
+                // const offset = formatBytes * particleIdx * 4;
+                // this.updateParticleBuffer(particle, newPos, renderData, offset);
 
                 // update particle counter
                 ++particleIdx;
@@ -465,38 +626,90 @@ export class Simulator {
                 }
                 pool.put(deadParticle);
                 particles.length--;
-                renderData.resize(renderData.vertexCount - 4, renderData.indexCount - 6);
+                // renderData.resize(renderData.vertexCount - 4, renderData.indexCount - 6);
             }
         }
 
-        renderData.material = this.sys.getRenderMaterial(0); // hack
-        renderData.frame = this.sys._renderSpriteFrame; // hack
-        renderData.setRenderDrawInfoAttributes();
+        // this.renderData.material = this.sys.getRenderMaterial(0); // hack
+        // this.renderData.frame = this.sys._renderSpriteFrame; // hack
+        // renderData.setRenderDrawInfoAttributes();
 
         if (particles.length === 0 && !this.active && !this.readyToPlay) {
-            this.finished = true;
             psys._finishedSimulation();
+            this.finished = true; //? fix bug never run out of loop step
         }
+
+        //? markForRenderData: chủ yếu để trigger hàm canRender, k ảnh hưởng performance vì hàm updateRender của Assembler là hàm rỗng
+        this.sys.markForUpdateRenderData();
     }
 
-    requestData (vertexCount: number, indexCount: number): void {
-        if (!this.renderData) return;
-        let offset = this.renderData.indexCount;
-        this.renderData.request(vertexCount, indexCount);
-        const count = this.renderData.indexCount / 6;
-        const buffer = this.renderData.iData;
-        for (let i = offset; i < count; i++) {
-            const vId = i * 4;
-            buffer[offset++] = vId;
-            buffer[offset++] = vId + 1;
-            buffer[offset++] = vId + 2;
-            buffer[offset++] = vId + 1;
-            buffer[offset++] = vId + 3;
-            buffer[offset++] = vId + 2;
-        }
+    // requestData (vertexCount: number, indexCount: number): void {
+    //     if (!this.renderData) return;
+    //     let offset = this.renderData.indexCount;
+    //     this.renderData.request(vertexCount, indexCount);
+    //     const count = this.renderData.indexCount / 6;
+    //     const buffer = this.renderData.iData;
+    //     for (let i = offset; i < count; i++) {
+    //         const vId = i * 4;
+    //         buffer[offset++] = vId;
+    //         buffer[offset++] = vId + 1;
+    //         buffer[offset++] = vId + 2;
+    //         buffer[offset++] = vId + 1;
+    //         buffer[offset++] = vId + 3;
+    //         buffer[offset++] = vId + 2;
+    //     }
+    // }
+
+    // public initDrawInfo (): void {
+    //     this.renderData?.setRenderDrawInfoAttributes();
+    // }
+
+    public clearAllParticles (): void {
+        const particles = this.particles;
+        for (let id = 0; id < particles.length; ++id) pool.put(particles[id]);
+        particles.length = 0;
     }
 
-    public initDrawInfo (): void {
-        this.renderData?.setRenderDrawInfoAttributes();
+    /**
+     * This function is called before commitComp for batch rendering.
+     * Because when we call `requestData` in `step`, we do not know if 2 particle is inserted a sprite between them or not.
+     * CommitComp will be called by order of the node tree.
+     */
+    public stepBeforeDraw (): void {
+        const psys = this.sys;
+        const node = psys.node;
+        const particles = this.particles;
+
+        //? while move remove particle to top: because renderData will resize when a particle is dead
+        //? if request first, batchBuffer will register a wrong size
+        this.sys.assembler!.requestData(psys);
+
+        let particleIdx = 0;
+        while (particleIdx < particles.length) {
+            _tpa.x = _tpa.y = _tpb.x = _tpb.y = _tpc.x = _tpc.y = 0;
+
+            const particle = particles[particleIdx];
+
+            // update values in quad buffer
+            const newPos = _tpa;
+            newPos.set(particle.pos);
+            if (psys.positionType !== PositionType.GROUPED) {
+                newPos.add(particle.startPos);
+            }
+
+            const offset = formatBytes * particleIdx * 4;
+            this.updateParticleBuffer(particle, newPos, this.sys, offset);
+
+            // update particle counter
+            ++particleIdx;
+        }
+
+        //? updateBlendFunc create materialInstance
+        //? so getRenderMaterial return materialInstance instead of sharedMaterial
+        //? => break batch rendering. But not sure custom blend config will work or not
+        // this.sys.meshRenderData.material = this.sys.getRenderMaterial(0); // hack
+        this.sys.meshRenderData.material = this.sys.getSharedMaterial(0); // hack
+        this.sys.meshRenderData.frame = this.sys._renderSpriteFrame; // hack
+        this.sys.meshRenderData.setRenderDrawInfoAttributes();
     }
 }

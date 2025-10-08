@@ -97,16 +97,17 @@ export class UITransform extends Component {
     }
 
     set width (value) {
-        if (this._contentSize.width === value) {
+        const contentSize = this._contentSize;
+        if (contentSize.width === value) {
             return;
         }
 
         if (EDITOR) {
-            const clone = new Size(this._contentSize);
-            this._contentSize.width = value;
+            const clone = new Size(contentSize);
+            contentSize.width = value;
             this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
-            this._contentSize.width = value;
+            contentSize.width = value;
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
         this._markRenderDataDirty();
@@ -123,16 +124,17 @@ export class UITransform extends Component {
     }
 
     set height (value) {
-        if (this.contentSize.height === value) {
+        const contentSize = this._contentSize;
+        if (contentSize.height === value) {
             return;
         }
 
         if (EDITOR) {
-            const clone = new Size(this._contentSize);
-            this._contentSize.height = value;
+            const clone = new Size(contentSize);
+            contentSize.height = value;
             this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
-            this._contentSize.height = value;
+            contentSize.height = value;
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
         this._markRenderDataDirty();

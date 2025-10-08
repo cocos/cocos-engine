@@ -59,6 +59,9 @@ const REAL_KEYFRAME_VALUE_DEFAULT_FLAGS = (RealInterpolationMode.LINEAR << REAL_
     | (TangentWeightMode.NONE << REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START)
     | (EasingMethod.LINEAR << REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_START);
 
+// Reusable buffer to avoid per-call allocations in cubic interpolation solving
+const _CUBIC_SOLUTIONS_REUSABLE: [number, number, number] = [0.0, 0.0, 0.0];
+
 /**
  * @en View to a real frame value.
  * Note, the view may be invalidated due to keyframe change/add/remove.
@@ -859,7 +862,8 @@ function evalBetweenTwoKeyFrames (
             const coeff2 = 3.0 * u1x - 6.0 * u0x; // -1
             const coeff3 = 3.0 * (u0x - u1x) + 1.0; // 1
             // Solves the param t from equation X(t) = ratio.
-            const solutions = [0.0, 0.0, 0.0] as [number, number, number];
+            const solutions = _CUBIC_SOLUTIONS_REUSABLE;
+            solutions[0] = 0.0; solutions[1] = 0.0; solutions[2] = 0.0;
             const nSolutions = solveCubic(coeff0 - ratio, coeff1, coeff2, coeff3, solutions);
             const param = getParamFromCubicSolution(solutions, nSolutions, ratio);
             // Solves Y.
