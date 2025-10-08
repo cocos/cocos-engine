@@ -26,7 +26,6 @@ import { Vec2, Color, js, random, IColorLike, Vec4, clamp, toRadian, toDegree, M
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
-import { MeshRenderData } from '../2d/renderer/render-data';
 import type { Particle2DAssembler } from './particle-system-2d-assembler';
 
 const _pos = new Vec2();
@@ -71,6 +70,10 @@ class Particle {
     public degreesPerSecond = 0;
     public radius = 0;
     public deltaRadius = 0;
+    
+    // 3D Rotation properties
+    public rotation3D = new Vec3(0, 0, 0);
+    public deltaRotation3D = new Vec3(0, 0, 0);
 }
 
 class ParticlePool extends js.Pool<Particle> {
@@ -101,6 +104,10 @@ const pool = new ParticlePool((par: Particle): void => {
     par.degreesPerSecond = 0;
     par.radius = 0;
     par.deltaRadius = 0;
+    // Reset 3D rotation propeties
+    par.rotation3D.set(Vec3.ZERO);
+    par.deltaRotation3D.set(Vec3.ZERO);
+
 }, 1024);
 
 export class Simulator {
@@ -109,6 +116,7 @@ export class Simulator {
     // public uvFilled = 0;
     public finished = false;
     // public renderData: MeshRenderData | null = null;
+    public is3DMode = false;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
@@ -293,31 +301,128 @@ export class Simulator {
         }
         const halfWidth = width / 2;
         const halfHeight = height / 2;
-        // pos
-        if (particle.rotation) {
-            const x1 = -halfWidth;
-            const y1 = -halfHeight;
-            const x2 = halfWidth;
-            const y2 = halfHeight;
-            const rad = -toRadian(particle.rotation as number);
-            const cr = Math.cos(rad);
-            const sr = Math.sin(rad);
-            // bl
-            vbuf[offset] = x1 * cr - y1 * sr + x;
-            vbuf[offset + 1] = x1 * sr + y1 * cr + y;
-            vbuf[offset + 2] = 0;
-            // br
-            vbuf[offset + 9] = x2 * cr - y1 * sr + x;
-            vbuf[offset + 10] = x2 * sr + y1 * cr + y;
-            vbuf[offset + 11] = 0;
-            // tl
-            vbuf[offset + 18] = x1 * cr - y2 * sr + x;
-            vbuf[offset + 19] = x1 * sr + y2 * cr + y;
-            vbuf[offset + 20] = 0;
-            // tr
-            vbuf[offset + 27] = x2 * cr - y2 * sr + x;
-            vbuf[offset + 28] = x2 * sr + y2 * cr + y;
-            vbuf[offset + 29] = 0;
+
+        const hasRotation = this.is3DMode ? 
+            (particle.rotation3D.x !== 0 || particle.rotation3D.y !== 0 || particle.rotation3D.z !== 0) 
+            : (particle.rotation !== 0);
+        // // pos
+        // if (particle.rotation) {
+        //     const x1 = -halfWidth;
+        //     const y1 = -halfHeight;
+        //     const x2 = halfWidth;
+        //     const y2 = halfHeight;
+        //     const rad = -toRadian(particle.rotation as number);
+        //     const cr = Math.cos(rad);
+        //     const sr = Math.sin(rad);
+        //     // bl
+        //     vbuf[offset] = x1 * cr - y1 * sr + x;
+        //     vbuf[offset + 1] = x1 * sr + y1 * cr + y;
+        //     vbuf[offset + 2] = 0;
+        //     // br
+        //     vbuf[offset + 9] = x2 * cr - y1 * sr + x;
+        //     vbuf[offset + 10] = x2 * sr + y1 * cr + y;
+        //     vbuf[offset + 11] = 0;
+        //     // tl
+        //     vbuf[offset + 18] = x1 * cr - y2 * sr + x;
+        //     vbuf[offset + 19] = x1 * sr + y2 * cr + y;
+        //     vbuf[offset + 20] = 0;
+        //     // tr
+        //     vbuf[offset + 27] = x2 * cr - y2 * sr + x;
+        //     vbuf[offset + 28] = x2 * sr + y2 * cr + y;
+        //     vbuf[offset + 29] = 0;
+        // } else {
+        //     // bl
+        //     vbuf[offset] = x - halfWidth;
+        //     vbuf[offset + 1] = y - halfHeight;
+        //     vbuf[offset + 2] = 0;
+        //     // br
+        //     vbuf[offset + 9] = x + halfWidth;
+        //     vbuf[offset + 10] = y - halfHeight;
+        //     vbuf[offset + 11] = 0;
+        //     // tl
+        //     vbuf[offset + 18] = x - halfWidth;
+        //     vbuf[offset + 19] = y + halfHeight;
+        //     vbuf[offset + 20] = 0;
+        //     // tr
+        //     vbuf[offset + 27] = x + halfWidth;
+        //     vbuf[offset + 28] = y + halfHeight;
+        //     vbuf[offset + 29] = 0;
+        // }
+
+        if (hasRotation) {
+            if (this.is3DMode) {
+                const radX = -toRadian(particle.rotation3D.x);
+                const radY = -toRadian(particle.rotation3D.y);
+                const radZ = -toRadian(particle.rotation3D.z);
+
+                const cosX = Math.cos(radX)
+                const sinX = Math.sin(radX)
+                const cosY = Math.cos(radY)
+                const sinY = Math.sin(radY)
+                const cosZ = Math.cos(radZ)
+                const sinZ = Math.sin(radZ)
+
+                function rotatePoint(px: number, py: number, pz: number): Vec3 {
+                    const y1 = py * cosX - pz * sinX;
+                    const z1 = py * sinX + pz * cosX;
+
+                    const x2 = px * cosY + z1 * sinY;
+                    const z2 = z1 * cosY - px * sinY;
+
+                    const x3 = x2 * cosZ - y1 * sinZ;
+                    const y3 = x2 * sinZ + y1 * cosZ;
+
+                    return new Vec3(x3, y3, z2);
+                };
+                    
+                const positions = [
+                    rotatePoint(-halfWidth, -halfHeight, 0), // bottom-left
+                    rotatePoint(halfWidth, -halfHeight, 0), // bottom-right
+                    rotatePoint(-halfWidth, halfHeight, 0), // top-left
+                    rotatePoint(halfWidth, halfHeight, 0), // top-right
+                ]
+
+                vbuf[offset] = positions[0].x + x
+                vbuf[offset + 1] = positions[0].y + y
+                vbuf[offset + 2] = 0
+
+                vbuf[offset + 9] = positions[1].x + x
+                vbuf[offset + 10] = positions[1].y + y
+                vbuf[offset + 11] = 0
+
+                vbuf[offset + 18] = positions[2].x + x
+                vbuf[offset + 19] = positions[2].y + y
+                vbuf[offset + 20] = 0
+
+                vbuf[offset + 27] = positions[3].x + x
+                vbuf[offset + 28] = positions[3].y + y
+                vbuf[offset + 29] = 0
+            } else {
+                const x1 = -halfWidth;
+                const y1 = -halfHeight;
+                const x2 = halfWidth;
+                const y2 = halfHeight;
+                const rad = -toRadian(particle.rotation as number);
+                const cr = Math.cos(rad);
+                const sr = Math.sin(rad);
+                
+                // bl
+                vbuf[offset] = x1 * cr - y1 * sr + x;
+                vbuf[offset + 1] = x1 * sr + y1 * cr + y;
+                vbuf[offset + 2] = 0;
+                // br
+                vbuf[offset + 9] = x2 * cr - y1 * sr + x;
+                vbuf[offset + 10] = x2 * sr + y1 * cr + y;
+                vbuf[offset + 11] = 0;
+                // tl
+                vbuf[offset + 18] = x1 * cr - y2 * sr + x;
+                vbuf[offset + 19] = x1 * sr + y2 * cr + y;
+                vbuf[offset + 20] = 0;
+                // tr
+                vbuf[offset + 27] = x2 * cr - y2 * sr + x;
+                vbuf[offset + 28] = x2 * sr + y2 * cr + y;
+                vbuf[offset + 29] = 0;
+            }
         } else {
             // bl
             vbuf[offset] = x - halfWidth;
@@ -375,7 +480,7 @@ export class Simulator {
 
         vbuf[offset] = _vec3.x;
         vbuf[offset + 1] = _vec3.y;
-        vbuf[offset + 2] = 0;
+        vbuf[offset + 2] = this.is3DMode ? _vec3.z : 0;
     }
 
     public step (dt: number): void {
@@ -492,7 +597,14 @@ export class Simulator {
                 }
 
                 // angle
-                particle.rotation += particle.deltaRotation * dt;
+                if(this.is3DMode) {
+                    particle.rotation3D.x += particle.deltaRotation3D.x * dt;
+                    particle.rotation3D.y += particle.deltaRotation3D.y * dt;
+                    particle.rotation3D.z += particle.deltaRotation3D.z * dt;
+                }
+                else{
+                    particle.rotation += particle.deltaRotation * dt;
+                }
 
                 // update values in quad buffer
                 // const newPos = _tpa;
