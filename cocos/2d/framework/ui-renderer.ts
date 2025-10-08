@@ -400,7 +400,7 @@ export class UIRenderer extends Renderer {
         this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         // When disabling, it is necessary to free up idle space to fully utilize chunks
         // and avoid breaking batch processing.
-        this._destroyData();
+        this.destroyRenderData();
         uiRendererManager.removeRenderer(this);
         this._renderFlag = false;
         this._renderEntity.enabled = false;
