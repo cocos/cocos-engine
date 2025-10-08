@@ -566,6 +566,11 @@ export class PhysicsSystem extends System implements IWorldInitData {
             Vec3.subtract(direction, toPoint, fromPoint);
             const stepLength = Vec3.len(direction);
             distance += stepLength;
+            const EPSILON = 1e-6;
+            // The stepLength may be 0, making the subsequent calculations meaningless, so return here.
+            if (Math.abs(stepLength) < EPSILON) {
+                continue;
+            }
             Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
             worldRay.d = direction;
             worldRay.o = fromPoint;

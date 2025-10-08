@@ -38,11 +38,7 @@ minigame.tt.getAudioContext = tt.getAudioContext?.bind(tt);
 // #endregion platform related
 
 // #region SystemInfo
-let systemInfo = minigame.getSystemInfoSync();
-minigame.getSystemInfoSync = (): SystemInfo => systemInfo;
-minigame.onWindowResize?.(() => {
-    systemInfo = tt.getSystemInfoSync();
-});
+const systemInfo = minigame.getSystemInfoSync();
 
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 

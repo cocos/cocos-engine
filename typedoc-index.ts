@@ -25,6 +25,7 @@ export * from './exports/profiler';
 export * from './exports/rich-text';
 export * from './exports/skeletal-animation';
 export * from './exports/sorting';
+export * from './exports/sorting-2d';
 export * from './exports/spine';
 export * from './exports/terrain';
 export * from './exports/tiled-map';

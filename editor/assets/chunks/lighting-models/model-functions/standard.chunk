@@ -27,6 +27,11 @@ float CCSurfacesLightingCalculateAngleAttenuation(in LightingIntermediateData li
   return CalculateAngleAttenuation(spotLightDir, lightingData.L, lightSizeRangeAngle.z);
 }
 
+float CCSurfacesLightingCalculateAngleAttenuationWithStrength(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in vec3 spotLightDir, in float strength)
+{
+  return CalculateAngleAttenuationWithStrength(spotLightDir, lightingData.L, lightSizeRangeAngle.z, strength);
+}
+
 void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
 {
 #if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE

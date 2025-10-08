@@ -80,6 +80,9 @@ void SimpleTexture::uploadData(const uint8_t *source, uint32_t level /* = 0 */, 
     gfx::BufferTextureCopy region;
     region.texExtent.width = _textureWidth >> level;
     region.texExtent.height = _textureHeight >> level;
+    if(region.texExtent.width < 1 ||region.texExtent.height < 1) {
+        return;
+    }
     region.texSubres.mipLevel = level;
     region.texSubres.baseArrayLayer = arrayIndex;
 

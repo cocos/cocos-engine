@@ -49,13 +49,6 @@ BufferValidator::~BufferValidator() {
     }
 
     CC_SAFE_DELETE(_actor);
-
-    uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
-    // skip those that have never been updated
-    if (!_isBufferView && hasFlag(_memUsage, MemoryUsageBit::HOST) && _totalUpdateTimes && _totalUpdateTimes < lifeTime / 3) {
-        CC_LOG_WARNING("Triple buffer enabled for infrequently-updated buffer, consider using MemoryUsageBit::DEVICE instead");
-        CC_LOG_DEBUG("Init Stacktrace: %s", _initStack.c_str());
-    }
 }
 
 void BufferValidator::doInit(const BufferInfo &info) {

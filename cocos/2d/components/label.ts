@@ -1027,7 +1027,7 @@ export class Label extends UIRenderer {
         if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this) as RenderData;
-                this.renderData!.material = this.material;
+                this.renderData!.material = this.getRenderMaterial(0);
                 this._updateColor();
             }
         }

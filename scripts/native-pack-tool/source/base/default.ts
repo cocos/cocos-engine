@@ -368,12 +368,12 @@ export abstract class NativePackTool {
         return /^[0-9a-zA-Z_-]+$/.test(this.params.projectName) ? this.params.projectName : 'CocosGame';
     }
 
-    protected getExcutableNameOrDefault(): string {
+    protected getExecutableNameOrDefault(): string {
         const en = this.params.executableName;
         return en ? en : this.projectNameASCII();
     }
 
-    protected async excuteTemplateTask(tasks: CocosProjectTasks) {
+    protected async executeTemplateTask(tasks: CocosProjectTasks) {
         if (tasks.appendFile) {
             await Promise.all(tasks.appendFile.map((task) => {
                 const dest = cchelper.replaceEnvVariables(task.to);
@@ -478,7 +478,7 @@ export abstract class NativePackTool {
      * 加密脚本，加密后，会修改 cmake 参数，因而需要再次执行 cmake 配置文件的生成
      * @returns 
      */
-    protected async encrypteScripts() {
+    protected async encryptScripts() {
         if (!this.params.encrypted) {
             return;
         }
@@ -522,23 +522,27 @@ export abstract class NativePackTool {
             fs.removeSync(scriptDest);
         }
         await this.generateCMakeConfig();
-        console.debug('Encrypte scriptes success');
+        console.debug('Encrypt scripts success');
     }
 
     /**
      * 解析、执行 cocos-template.json 模板任务
      */
-    protected async excuteCocosTemplateTask() {
-        const templatTaskMap: Record<string, CocosProjectTasks> = await fs.readJSON(ps.join(this.paths.nativeTemplateDirInCocos, PackageNewConfig));
-        for (const templatTask of Object.values(templatTaskMap)) {
-            await this.excuteTemplateTask(templatTask);
+    protected async executeCocosTemplateTask() {
+        const templateTaskMap: Record<string, CocosProjectTasks> = await fs.readJSON(ps.join(this.paths.nativeTemplateDirInCocos, PackageNewConfig));
+        for (const templateTask of Object.values(templateTaskMap)) {
+            await this.executeTemplateTask(templateTask);
         }
     }
 
     abstract create(): Promise<boolean>;
+    get projectDistPath() {
+        return this.paths.nativePrjDir;
+    };
     generate?(): Promise<boolean>;
     make?(): Promise<boolean>;
     run?(): Promise<boolean>;
+    static openWithIDE?(projPath: string, IDE?: string): Promise<boolean>;
 }
 
 // cocos.compile.json 
@@ -550,6 +554,7 @@ export class CocosParams<T> {
     public platform: string;
     public platformName: string;
     public executableName: string;
+
     /**
      * engine root
      */

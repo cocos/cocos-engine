@@ -97,6 +97,7 @@ export class WebGPUInputAssembler extends InputAssembler {
             gpuVertexBuffers,
             gpuIndexBuffer,
             gpuIndirectBuffer,
+            samples: 1,
 
             gpuAttribs: [],
             gpuIndexType,

@@ -103,6 +103,7 @@ let currPipelineState: WebGPUPipelineState | null = null;
 const descriptorSets: WebGPUDescriptorSet[] = [];
 const groupSets: number[] = [0, 1, 2];
 const renderAreas: Rect[] = [];
+let samples: number = 1;
 export class WebGPUCommandBuffer extends CommandBuffer {
     public pipelineBarrier (
         barrier: Readonly<GeneralBarrier> | null,
@@ -114,7 +115,42 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         throw new Error('Method not implemented.');
     }
     public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: readonly TextureBlit[], filter: Filter): void {
-        throw new Error('Method not implemented.');
+        // The blit operation for MSAA is moved to the rendering phase of the render pass to perform the resolve operation.
+        if (srcTexture.samples > 1) {
+            return;
+        }
+        const device = WebGPUDeviceManager.instance;
+        const gpuDevice = device.nativeDevice!;
+        const encoder: GPUCommandEncoder =  gpuDevice.createCommandEncoder();
+        const actualSrcTexture: GPUTexture = srcTexture.getTextureHandle() as GPUTexture;
+
+        for (const region of regions) {
+            encoder.copyTextureToTexture(
+                {
+                    texture: actualSrcTexture,
+                    origin: {
+                        x: region.srcOffset.x,
+                        y: region.srcOffset.y,
+                        z: region.srcSubres.baseArrayLayer,
+                    },
+                },
+                {
+                    texture: dstTexture.getTextureHandle() as GPUTexture,
+                    origin: {
+                        x: region.dstOffset.x,
+                        y: region.dstOffset.y,
+                        z: region.dstSubres.baseArrayLayer,
+                    },
+                },
+                {
+                    width: region.dstExtent.width,
+                    height: region.dstExtent.height,
+                    depthOrArrayLayers: region.dstExtent.depth,
+                },
+            );
+        }
+        const commandBuffer = encoder.finish();
+        gpuDevice.queue.submit([commandBuffer]);
     }
 
     public cmdPackage: WebGPUCmdPackage = new WebGPUCmdPackage();
@@ -206,11 +242,12 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         const device = WebGPUDeviceManager.instance;
         const gpuDevice = device;
         this._wgpuRenderPass = renderPass as WebGPURenderPass;
-        this._nativePassDesc = this._wgpuRenderPass.gpuRenderPass.nativeRenderPass!;
+        const nativePassDesc = this._nativePassDesc = this._wgpuRenderPass.gpuRenderPass.nativeRenderPass!;
         const originalRP = this._wgpuRenderPass.gpuRenderPass.originalRP!;
         const gpuFramebuffer = (framebuffer as WebGPUFramebuffer).gpuFramebuffer;
         renderAreas.push(renderArea);
         let needPartialClear = false;
+        samples = 1;
         const renderingFullScreen = gpuFramebuffer.gpuColorTextures.every((val) => {
             if (renderArea.x !== 0 || renderArea.y !== 0 || renderArea.width !== val.width || renderArea.height !== val.height) {
                 return false;
@@ -220,23 +257,31 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         const swapchain = gpuDevice.getSwapchains()[0] as WebGPUSwapchain;
         const clearColorSize = clearColors.length;
         for (let i = 0; i < clearColorSize; i++) {
-            const colorTex = gpuFramebuffer.isOffscreen ? gpuFramebuffer.gpuColorTextures[i].getTextureView()
-                : swapchain.colorGPUTextureView;
-            colorTex!.label = gpuFramebuffer.isOffscreen ? 'offscreen' : 'swapchain';
+            let colorTex = swapchain.colorGPUTextureView;
+            let currGPUTex;
+            if (gpuFramebuffer.isOffscreen) {
+                currGPUTex = gpuFramebuffer.gpuColorTextures[i];
+                colorTex = currGPUTex.getTextureView();
+            }
+            colorTex.label = gpuFramebuffer.isOffscreen ? 'offscreen' : 'swapchain';
             if (!renderingFullScreen) {
                 needPartialClear = originalRP.colorAttachments[i].loadOp === 'clear';
                 if (renderAreas.length > 1) {
-                    this._nativePassDesc.colorAttachments[i].loadOp = 'load';
+                    nativePassDesc.colorAttachments[i].loadOp = 'load';
                 }
             }
-            this._nativePassDesc.colorAttachments[i].view = colorTex;
-            this._nativePassDesc.colorAttachments[i].clearValue = [clearColors[i].x, clearColors[i].y, clearColors[i].z, clearColors[i].w];
+            nativePassDesc.colorAttachments[i].view = colorTex;
+            if (currGPUTex && currGPUTex.resolveTex) {
+                samples = currGPUTex.samples;
+                nativePassDesc.colorAttachments[i].resolveTarget = currGPUTex.resolveTex.gpuTexture.createView();
+            }
+            nativePassDesc.colorAttachments[i].clearValue = [clearColors[i].x, clearColors[i].y, clearColors[i].z, clearColors[i].w];
         }
 
         if (this._wgpuRenderPass.depthStencilAttachment?.format !== Format.UNKNOWN) {
             const tex = gpuFramebuffer.gpuDepthStencilTexture?.gpuTexture;
             const depthTex = tex ? tex.createView() : swapchain.gpuDepthStencilTextureView;
-            const depthStencilAttachment = this._nativePassDesc.depthStencilAttachment!;
+            const depthStencilAttachment = nativePassDesc.depthStencilAttachment!;
             depthStencilAttachment.view = depthTex;
             depthStencilAttachment.depthClearValue = clearDepth;
             depthStencilAttachment.stencilClearValue = clearStencil;
@@ -630,7 +675,10 @@ export class WebGPUCommandBuffer extends CommandBuffer {
                 newDescSet.prepare(true);
             }
         }
-        this._curWebGPUPipelineState!.prepare(this._curGPUInputAssembler!);
+        const gpuIA = this._curGPUInputAssembler!;
+        // only 4x MSAA is supported
+        gpuIA.samples = samples > 1 ? 4 : 1;
+        this._curWebGPUPipelineState!.prepare(gpuIA);
         // ----------------------------wgpu pipline state-----------------------------
         const wgpuPipeline = this._curGPUPipelineState.nativePipeline as GPURenderPipeline;
         const pplFunc = (passEncoder: GPURenderPassEncoder): void => {
@@ -686,7 +734,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         this._renderPassFuncQueue.push(bgfunc);
 
         // ---------------------------- wgpu input assembly  -----------------------------
-        const ia = this._curGPUInputAssembler!;
+        const ia = gpuIA;
         const wgpuVertexBuffers = new Array<{ slot: number, buffer: GPUBuffer, offset: number }>(ia.gpuVertexBuffers.length);
         const gpuVertBuffSize = ia.gpuVertexBuffers.length;
         for (let i = 0; i < gpuVertBuffSize; i++) {

@@ -62,6 +62,7 @@ public class CocosEditBoxActivity extends Activity {
     // a color of dark green, was used for confirm button background
     private static final int DARK_GREEN = Color.parseColor("#1fa014");
     private static final int DARK_GREEN_PRESS = Color.parseColor("#008e26");
+    private static final String ORIENTATION = "orientation";
 
     private static CocosEditBoxActivity sThis = null;
     private Cocos2dxEditText mEditText = null;
@@ -70,6 +71,7 @@ public class CocosEditBoxActivity extends Activity {
     private boolean mConfirmHold = true;
     private int mEditTextID = 1;
     private int mButtonLayoutID = 2;
+    private int mInitialSystemWindowInsetBottom = -1;
 
     /***************************************************************************************
      Inner class.
@@ -208,13 +210,13 @@ public class CocosEditBoxActivity extends Activity {
             this.removeTextChangedListener(mTextWatcher);
         }
 
-        private boolean isSystemAdjustUIWhenPopKeyboard(int bottom) {
+        private boolean isSystemAdjustUIWhenPopKeyboard() {
             int bottomOffset = 0;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 bottomOffset = getWindow().getDecorView().getRootWindowInsets().getSystemWindowInsetBottom();
             }
             // view will be scrolled to the target position by system,
-            if (Math.abs(bottom - bottomOffset) < 10) {
+            if (Math.abs(mInitialSystemWindowInsetBottom - bottomOffset) > 100) {
                 return true;
             }
             return false;
@@ -232,7 +234,7 @@ public class CocosEditBoxActivity extends Activity {
                         if (!keyboardVisible) {
                             keyboardVisible = true;
                         }
-                        if (!isSystemAdjustUIWhenPopKeyboard(heightDiff)) {
+                        if (!isSystemAdjustUIWhenPopKeyboard()) {
                             getRootView().scrollTo(0, heightDiff);
                         }
                     } else {
@@ -287,12 +289,22 @@ public class CocosEditBoxActivity extends Activity {
                 "text"
                 );
         } else {
+            int orientation = extras.getInt(ORIENTATION);
+            setRequestedOrientation(orientation);
             show(extras.getString("defaultValue"),
                 extras.getInt("maxLength"),
                 extras.getBoolean("isMultiline"),
                 extras.getBoolean("confirmHold"),
                 extras.getString("confirmType"),
                 extras.getString("inputType"));
+        }
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        View decorView = getWindow().getDecorView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mInitialSystemWindowInsetBottom = decorView.getRootWindowInsets().getSystemWindowInsetBottom();
         }
     }
 
@@ -434,6 +446,7 @@ public class CocosEditBoxActivity extends Activity {
                 i.putExtra("confirmHold", confirmHold);
                 i.putExtra("confirmType", confirmType);
                 i.putExtra("inputType", inputType);
+                i.putExtra(ORIENTATION, GlobalObject.getActivity().getRequestedOrientation());
                 GlobalObject.getActivity().startActivity(i);
             }
         });

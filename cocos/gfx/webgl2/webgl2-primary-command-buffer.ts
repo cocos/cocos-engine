@@ -39,7 +39,10 @@ import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2DeviceManager } from './webgl2-define';
 import { errorID } from '../../core/platform/debug';
+import { IWebGL2GPUFramebuffer } from './webgl2-gpu-objects';
 
+let currGPUFBO: IWebGL2GPUFramebuffer;
+const textureBlit = new TextureBlit();
 /** @mangle */
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     constructor () {
@@ -54,16 +57,39 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         clearDepth: number,
         clearStencil: number,
     ): void {
+        currGPUFBO = (framebuffer as WebGL2Framebuffer).getGpuFramebuffer();
         WebGL2CmdFuncBeginRenderPass(
             WebGL2DeviceManager.instance,
             (renderPass as WebGL2RenderPass).getGpuRenderPass(),
-            (framebuffer as WebGL2Framebuffer).getGpuFramebuffer(),
+            currGPUFBO,
             renderArea,
             clearColors,
             clearDepth,
             clearStencil,
         );
         this._isInRenderPass = true;
+    }
+
+    public endRenderPass (): void {
+        super.endRenderPass();
+        if (currGPUFBO) {
+            const colorViews = currGPUFBO.gpuColorViews;
+            for (const colorView of colorViews) {
+                if (colorView.gpuTexture.resolveTex) {
+                    textureBlit.srcExtent.width = currGPUFBO.width;
+                    textureBlit.srcExtent.height = currGPUFBO.height;
+                    textureBlit.dstExtent.width = currGPUFBO.width;
+                    textureBlit.dstExtent.height = currGPUFBO.height;
+                    WebGL2CmdFuncBlitTexture(
+                        WebGL2DeviceManager.instance,
+                        colorView.gpuTexture,
+                        colorView.gpuTexture.resolveTex,
+                        [textureBlit],
+                        Filter.LINEAR,
+                    );
+                }
+            }
+        }
     }
 
     public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>): void {
