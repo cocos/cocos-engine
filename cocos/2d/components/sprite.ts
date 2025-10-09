@@ -703,6 +703,7 @@ export class Sprite extends UIRenderer {
             }
             if (textureChanged) {
                 if (self.renderData) self.renderData.textureDirty = true;
+                this._colorDirty();
                 // texture type changed, set this._instanceMaterialType to default value
                 const oldIsRT = oldFrame ? oldFrame.texture instanceof RenderTexture : false;
                 const newIsRT = spriteFrame.texture instanceof RenderTexture;
