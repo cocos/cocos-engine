@@ -542,10 +542,8 @@ export class UIRenderer extends Renderer {
     }
 
     protected _updateColor (): void {
-        this.node._uiProps.colorDirty = true;
-        this.setEntityColorDirty(true);
+        this._colorDirty();
         this.setEntityColor(this._color);
-
         const assembler = this._assembler;
         if (assembler) {
             if (assembler.updateColor) {
