@@ -41,6 +41,7 @@ import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import { ccwindow } from '../../core/global-exports';
+import { uiRendererManager } from '../../2d/framework/ui-renderer-manager';
 
 const ccdocument = ccwindow.document;
 
@@ -129,6 +130,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._addDomToGameContainer();
         View.instance.on('canvas-resize', this._resize, this);
         screenAdapter.on('window-resize', this._resize, this);
+        uiRendererManager.dirty = true;
     }
 
     public clear (): void {
@@ -146,10 +148,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         this._delegate = null;
+        uiRendererManager.dirty = true;
     }
 
     private _resize (): void {
         this._forceUpdate = true;
+        uiRendererManager.dirty = true;
     }
 
     // The beforeDraw function should be used here.
@@ -169,6 +173,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (!HTML5) return;
         this._edTxt!.tabIndex = index;
         tabIndexUtil.resort();
+        uiRendererManager.dirty = true;
     }
 
     public setSize (width: number, height: number): void {
@@ -178,6 +183,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             elem.style.width = `${width}px`;
             elem.style.height = `${height}px`;
         }
+        uiRendererManager.dirty = true;
     }
 
     public beginEditing (): void {
@@ -192,11 +198,13 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._delegate!._editBoxEditingDidBegan();
         this._showDom();
         this._edTxt!.focus();
+        uiRendererManager.dirty = true;
     }
 
     public endEditing (): void {
         if (!HTML5) return;
         this._edTxt!.blur();
+        uiRendererManager.dirty = true;
     }
 
     private _createInput (): void {
@@ -246,6 +254,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (sys.isMobile) {
             this._showDomOnMobile();
         }
+        uiRendererManager.dirty = true;
     }
 
     private _hideDom (): void {
@@ -258,6 +267,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (sys.isMobile) {
             this._hideDomOnMobile();
         }
+        uiRendererManager.dirty = true;
     }
 
     private _showDomOnMobile (): void {
@@ -299,6 +309,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             if (ccwindow.scrollY < SCROLLY && !this._isElementInViewport()) {
                 this._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
             }
+            uiRendererManager.dirty = true;
         }, DELAY_TIME);
     }
 
@@ -314,6 +325,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             }
 
             ccwindow.scrollTo(0, 0);
+            uiRendererManager.dirty = true;
         }, DELAY_TIME);
     }
 
@@ -380,6 +392,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._edTxt.style['-webkit-transform'] = matrix;
         this._edTxt.style['transform-origin'] = '0px 100% 0px';
         this._edTxt.style['-webkit-transform-origin'] = '0px 100% 0px';
+        uiRendererManager.dirty = true;
     }
 
     private _updateInputType (): void {
@@ -452,6 +465,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             textTransform = 'capitalize';
         }
         elem.style.textTransform = textTransform;
+        uiRendererManager.dirty = true;
     }
 
     private _updateMaxLength (): void {
@@ -560,6 +574,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         default:
             break;
         }
+        uiRendererManager.dirty = true;
     }
 
     private _updatePlaceholderLabel (placeholderLabel): void {
@@ -618,6 +633,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (sys.browserType === BrowserType.EDGE) {
             styleEl!.innerHTML += `#${this._domId}::-ms-clear{display: none;}`;
         }
+        uiRendererManager.dirty = true;
     }
 
     private _registerEventListeners (): void {
@@ -674,6 +690,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
                 tabIndexUtil.next(this);
             }
+            uiRendererManager.dirty = true;
         };
 
         cbs.onBlur = (): void => {

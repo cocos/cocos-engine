@@ -41,6 +41,7 @@ import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
 import { director, DirectorEvent } from '../../game/director';
+import { uiRendererManager } from '../../2d/framework/ui-renderer-manager';
 
 const LEFT_PADDING = 2;
 
@@ -509,6 +510,7 @@ export class EditBox extends Component {
     public _editBoxEditingDidEnded (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit(EditBoxEventType.EDITING_DID_ENDED, this, text);
+        uiRendererManager.dirty = true;
     }
 
     /**
@@ -519,6 +521,7 @@ export class EditBox extends Component {
         this.string = text;
         ComponentEventHandler.emitEvents(this.textChanged, text, this);
         this.node.emit(EditBoxEventType.TEXT_CHANGED, this);
+        uiRendererManager.dirty = true;
     }
 
     /**
@@ -622,6 +625,7 @@ export class EditBox extends Component {
             textLabel.enableWrapText = false;
         }
         textLabel.string = this._updateLabelStringStyle(this._string);
+        uiRendererManager.dirty = true;
     }
 
     protected _updatePlaceholderLabel (): void {
@@ -648,6 +652,7 @@ export class EditBox extends Component {
             placeholderLabel.enableWrapText = false;
         }
         placeholderLabel.string = this.placeholder;
+        uiRendererManager.dirty = true;
     }
 
     protected _syncSize (): void {
@@ -664,6 +669,7 @@ export class EditBox extends Component {
         if (this._impl) {
             this._impl.setSize(size.width, size.height);
         }
+        uiRendererManager.dirty = true;
     }
 
     protected _updateLabels (): void {
@@ -676,6 +682,7 @@ export class EditBox extends Component {
                 this._placeholderLabel.node.active = (content === '');
             }
         }
+        uiRendererManager.dirty = true;
     }
 
     protected _updateString (text: string): void {

@@ -40,6 +40,7 @@ import { TransformBit } from '../scene-graph/node-enum';
 import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEventType } from '../xr/event/xr-event-handle';
 import { warn } from '../core';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 const _tempColor = new Color();
 
@@ -883,6 +884,7 @@ export class Button extends Component {
         if (event) {
             event.propagationStopped = true;
         }
+        uiRendererManager.dirty = true;
     }
 
     protected _onTouchEnded (event?: EventTouch): void {
@@ -1012,6 +1014,7 @@ export class Button extends Component {
         } else if (transition === Transition.SCALE) {
             this._updateScaleTransition(state);
         }
+        uiRendererManager.dirty = true;
     }
 
     private _getSpriteFrameByState (state: State): SpriteFrame | null {

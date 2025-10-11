@@ -307,27 +307,27 @@ export class SceneCulling {
         instancePool.reset();
     }
 
-    get needChanged (): boolean {
+    get dirty (): boolean {
         if (EDITOR || !this.frustumCullings.size) {
             return true;
         }
         const rScenes = this.frustumCullings.keys();
         for (const scene of rScenes) {
-            if (scene.isChanged) {
+            if (scene.dirty) {
                 return true;
             }
         }
         return false;
     }
 
-    set needChanged (value: boolean) {
+    set dirty (value: boolean) {
         for (const scene of this.frustumCullings.keys()) {
-            scene.isChanged = value;
+            scene.dirty = value;
         }
     }
 
     clear (): void {
-        if (!this.needChanged) {
+        if (!this.dirty) {
             return;
         }
         this.resetPool();
@@ -344,7 +344,7 @@ export class SceneCulling {
     }
 
     buildRenderQueues (rg: RenderGraph, lg: LayoutGraphData, pplSceneData: PipelineSceneData): void {
-        if (!this.needChanged) {
+        if (!this.dirty) {
             return;
         }
         this.layoutGraph = lg;
@@ -505,7 +505,7 @@ export class SceneCulling {
     }
 
     uploadInstancing (cmdBuffer: CommandBuffer): void {
-        if (!this.needChanged) {
+        if (!this.dirty) {
             return;
         }
         for (let queueID = 0; queueID !== this.numRenderQueues; ++queueID) {
@@ -771,6 +771,15 @@ export class LightResource {
     }
 
     buildLights (sceneCulling: SceneCulling, bHDR: boolean, shadowInfo: Shadows | null): void {
+        if (sceneCulling.lightBoundsCullings.size === 0) {
+            if (this.lightBuffer) {
+                this.lightBuffer.destroy();
+                this.firstLightBufferView!.destroy();
+                this.lightBuffer = undefined;
+                this.firstLightBufferView = null;
+            }
+            return;
+        }
         // Build light buffer
         for (const [scene, lightBoundsCullings] of sceneCulling.lightBoundsCullings) {
             for (const [key, lightBoundsCullingID] of lightBoundsCullings.resultIndex) {

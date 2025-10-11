@@ -25,13 +25,13 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG, EDITOR } from 'internal:constants';
-import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, ResolveMode, SampleCount, Color, ComparisonFunc, Buffer } from '../../gfx';
-import { Vec4, macro, cclegacy, RecyclePool, Mat4, Quat, Vec2 } from '../../core';
+import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, SamplerInfo, Filter, Address, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, ResolveMode, SampleCount, Color, ComparisonFunc } from '../../gfx';
+import { Vec4, macro, cclegacy, RecyclePool } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RenderCommonObjectPool, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
-import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer, RenderGraphObjectPool, CullingFlags, ManagedResource, ManagedBuffer, BlitType } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter, SceneBuilder } from './pipeline';
+import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, PersistentBuffer, RenderGraphObjectPool, CullingFlags, ManagedResource, ManagedBuffer, BlitType } from './render-graph';
+import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, SceneBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, PCFType, ProbeType, DirectionalLight, PointLight, RangedDirectionalLight, SphereLight, SpotLight } from '../../render-scene/scene';
+import { Model, Camera, PCFType, ProbeType } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { DescriptorSetData, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
@@ -52,7 +52,7 @@ import { Scene } from '../../scene-graph';
 import { Director } from '../../game';
 import { ReflectionProbeManager } from '../../3d';
 import { legacyCC } from '../../core/global-exports';
-import { WebSetter, setCameraUBOValues, setShadowUBOLightView, setShadowUBOView, setTextureUBOView } from './web-pipeline-types';
+import { PIPELINE_GLOBAL_DATA_NAME, WebSetter, setCameraUBOValues, setShadowUBOLightView, setShadowUBOView, setTextureUBOView } from './web-pipeline-types';
 
 const _uboVec = new Vec4();
 const _samplerPointInfo = new SamplerInfo(
@@ -64,7 +64,6 @@ const _samplerPointInfo = new SamplerInfo(
     Address.CLAMP,
 );
 const renderPassRD = new RenderData();
-const queueRD = new Map<string, RenderData>();
 let currCCGlobalKey;
 class PipelinePool {
     renderData = new RenderData();
@@ -77,17 +76,17 @@ class PipelinePool {
     rasterPass = new RasterPass();
     rasterSubpass = new RasterSubpass();
     renderQueue = new RenderQueue();
-    sceneBuilder = new RecyclePool<WebSceneBuilder>(() => new WebSceneBuilder(this.renderData, this.layoutGraph, this.rg, this.vertId, this.sceneData), 4);
-    renderPassBuilder = new RecyclePool<WebRenderPassBuilder>(() => new WebRenderPassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.rasterPass, this.getPipelineSceneData()), 4);
-    computeQueueBuilder = new RecyclePool<WebComputeQueueBuilder>(() => new WebComputeQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 4);
-    renderQueueBuilder = new RecyclePool<WebRenderQueueBuilder>(() => new WebRenderQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 4);
-    renderSubpassBuilder = new RecyclePool<WebRenderSubpassBuilder>(() => new WebRenderSubpassBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.rasterSubpass, this.getPipelineSceneData()), 4);
-    computePassBuilder = new RecyclePool<WebComputePassBuilder>(() => new WebComputePassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.computePass, this.getPipelineSceneData()), 4);
-    samplerInfo = new RecyclePool<SamplerInfo>(() => new SamplerInfo(), 4);
-    color = new RecyclePool<Color>(() => new Color(), 4);
+    sceneBuilder = new RecyclePool<WebSceneBuilder>(() => new WebSceneBuilder(this.renderData, this.layoutGraph, this.rg, this.vertId, this.sceneData), 1);
+    renderPassBuilder = new RecyclePool<WebRenderPassBuilder>(() => new WebRenderPassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.rasterPass, this.getPipelineSceneData()), 1);
+    computeQueueBuilder = new RecyclePool<WebComputeQueueBuilder>(() => new WebComputeQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 1);
+    renderQueueBuilder = new RecyclePool<WebRenderQueueBuilder>(() => new WebRenderQueueBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.renderQueue, this.getPipelineSceneData()), 1);
+    renderSubpassBuilder = new RecyclePool<WebRenderSubpassBuilder>(() => new WebRenderSubpassBuilder(this.renderData, this.rg, this.layoutGraph, this.vertId, this.rasterSubpass, this.getPipelineSceneData()), 1);
+    computePassBuilder = new RecyclePool<WebComputePassBuilder>(() => new WebComputePassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.computePass, this.getPipelineSceneData()), 1);
+    samplerInfo = new RecyclePool<SamplerInfo>(() => new SamplerInfo(), 1);
+    color = new RecyclePool<Color>(() => new Color(), 1);
     renderCommonObjectPool = new RenderCommonObjectPool();
     renderGraphPool = new RenderGraphObjectPool(this.renderCommonObjectPool);
-    viewport = new RecyclePool(() => new Viewport(), 4);
+    viewport = new RecyclePool(() => new Viewport(), 1);
 
     getPipelineSceneData (): PipelineSceneData {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData;
@@ -274,8 +273,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         if (!(sceneFlags & SceneFlags.NON_BUILTIN)) {
             const layoutName = this.getParentLayout();
             const isNotDir = light  && light.type !== LightType.DIRECTIONAL;
-            const key =  `${camera.cameraId}_${layoutName}${isNotDir ? `_${light.lightId}` : ''}`;
-            if (!renderDataMap.has(key)) {
+            const key =  `${camera.cameraId}-${layoutName}-${isNotDir ? `${light.lightId}` : ''}-${!(sceneFlags & SceneFlags.SHADOW_CASTER)}`;
+            const data = renderDataMap.get(key);
+            if (!data) {
                 renderDataMap.set(key, this.data);
                 setCameraUBOValues(
                     this,
@@ -287,8 +287,11 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
                 if (isNotDir) setShadowUBOLightView(this, camera, light, 0, layoutName);
                 else if (!(sceneFlags & SceneFlags.SHADOW_CASTER)) setShadowUBOView(this, camera, layoutName);
             } else {
-                this._data = renderDataMap.get(key)!;
+                for (const [k, v] of data.constants) {
+                    this._data.constants.set(k, v);
+                }
             }
+            this._data.custom = key;
         }
         const passOrSubpassId = this._renderGraph.getParent(this._vertID);
         if (sceneFlags & SceneFlags.UI) {
@@ -1079,7 +1082,6 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
             ResourceGraphValue.Managed,
             new ManagedResource(),
             name,
-
             desc,
             new ResourceTraits(residency),
             new ResourceStates(),
@@ -1412,7 +1414,8 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
             this._renderGraph = new RenderGraph();
             this._data = this._renderGraph.globalRenderData;
         }
-        if (this.needChanged) pipelinePool.reset();
+        this._data.custom = PIPELINE_GLOBAL_DATA_NAME;
+        if (this.dirty) pipelinePool.reset();
     }
     endSetup (): void {
         this.compile();
@@ -1596,17 +1599,24 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         );
     }
 
-    get needChanged (): boolean {
-        return !!this._executor?.context.culling.needChanged;
+    get dirty (): boolean {
+        const camList = cclegacy.director.root.cameraList;
+        // TODO: Using camera for checking is not rigorous enough. More factors should be considered in the future
+        for (const cam of camList) {
+            if (cam.dirty) {
+                return true;
+            }
+        }
+        return EDITOR || false;
     }
 
     beginFrame (): void {
-        if (this.needChanged) {
-            renderDataMap.clear();
+        renderDataMap.clear();
+        if (this.dirty) {
             this.renderGraph?.clear();
+            const director: Director = cclegacy.director;
+            director.buildRenderPipeline();
         }
-        const director: Director = cclegacy.director;
-        director.buildRenderPipeline();
     }
     update (camera: Camera): void {
         // noop
@@ -1625,8 +1635,8 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
     }
 
     compile (): void {
-        if (!this._renderGraph) {
-            throw new Error('RenderGraph cannot be built without being created');
+        if (!this._renderGraph || !this.dirty) {
+            return;
         }
         resetPassMGState();
         if (DEBUG) {
@@ -1642,7 +1652,7 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
 
     execute (): void {
         if (!this._renderGraph) {
-            throw new Error('Cannot run without creating rendergraph');
+            return;
         }
         if (!this._executor) {
             this._executor = new Executor(
@@ -1710,6 +1720,14 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
             }
         }
     }
+
+    private _globalKey (layoutName: string, width: number, height: number): string {
+        const director: Director = cclegacy.director;
+        const root: Root = director.root!;
+        const debugView = !!root.debugView;
+        return `${layoutName}-${width}-${height}-${debugView}-${director.getTotalFrames()}`;
+    }
+
     addRenderPassImpl (width: number, height: number, layoutName: string, count = 1, quality = 0): BasicMultisampleRenderPassBuilder {
         const name = 'Raster';
         const pass = renderGraphPool.createRasterPass();
@@ -1717,15 +1735,28 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         pass.viewport.height = height;
         pass.count = count;
         pass.quality = quality;
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, renderPassRD, !DEBUG);
+        const data = renderGraphPool.createRenderData();
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, data, !DEBUG);
         const result = pipelinePool.renderPassBuilder.add();
-        result.update(renderPassRD, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
-        const key = `${layoutName}${width}${height}`;
-        if (currCCGlobalKey !== key) {
-            currCCGlobalKey = key;
+        result.update(data, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
+        const key = this._globalKey(layoutName, width, height);
+        const tarData = renderDataMap.get(key);
+        if (!tarData) {
+            renderDataMap.set(key, data);
             this._updateRasterPassConstants(result, width, height, layoutName);
             setTextureUBOView(result, this._pipelineSceneData);
+        } else {
+            for (const [k, v] of tarData.constants) {
+                data.constants.set(k, v);
+            }
+            for (const [k, v] of tarData.samplers) {
+                data.samplers.set(k, v);
+            }
+            for (const [k, v] of tarData.textures) {
+                data.textures.set(k, v);
+            }
         }
+        data.custom = key;
         return result;
     }
     addRenderPass (width: number, height: number, layoutName = 'default'): BasicRenderPassBuilder {

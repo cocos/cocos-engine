@@ -1,5 +1,5 @@
-import { Mat4, RecyclePool, IVec4Like, IMat4Like, IVec2Like,
-    Color as CoreColor, assert, cclegacy, Quat, Vec4, Vec2, Vec3, toRadian } from '../../core';
+import { Mat4, RecyclePool,
+    Color as CoreColor, cclegacy, Quat, Vec4, Vec2, Vec3, toRadian } from '../../core';
 import { Color, CommandBuffer, DescriptorSet, Buffer, Device, PipelineState, RenderPass,
     Sampler, Texture, deviceManager, Shader, InputAssembler } from '../../gfx';
 import { IMacroPatch, Pass, RenderScene } from '../../render-scene';
@@ -23,6 +23,7 @@ const _uboVec3 = new Vec3();
 const _uboCol = new Color();
 const _matView = new Mat4();
 const _mulMatView = new Mat4();
+export const PIPELINE_GLOBAL_DATA_NAME = 'cc_pipeline_global';
 export function setTextureUBOView (setter: WebSetter, cfg: Readonly<PipelineSceneData>, layout = 'default'): void {
     const skybox = cfg.skybox;
     const director = cclegacy.director;

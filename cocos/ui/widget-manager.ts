@@ -32,6 +32,7 @@ import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -244,6 +245,7 @@ function refreshScene (): void {
             if (widget._dirty) {
                 align(widget.node, widget);
                 widget._dirty = false;
+                uiRendererManager.dirty = true;
             }
         }
         widgetManager.isAligning = false;

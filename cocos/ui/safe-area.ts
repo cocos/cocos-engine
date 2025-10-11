@@ -32,6 +32,7 @@ import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
 import { legacyCC } from '../core/global-exports';
 import { view } from './view';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 /**
  * @en
@@ -130,6 +131,7 @@ export class SafeArea extends Component {
         uiTransComp.setAnchorPoint(anchorX, anchorY);
         // IMPORTANT: restore to lastPos even if widget is not ALWAYS
         widgetManager.add(widget);
+        uiRendererManager.dirty = true;
     }
 }
 

@@ -807,12 +807,12 @@ export class Camera {
     }
 
     /** @engineInternal */
-    get isChanged (): boolean {
-        return this._isChanged;
+    get dirty (): boolean {
+        return this._dirty;
     }
     /** @engineInternal */
-    set isChanged (val) {
-        this._isChanged = val;
+    set dirty (val) {
+        this._dirty = val;
     }
 
     /**
@@ -850,7 +850,7 @@ export class Camera {
     private _orientedViewport: Rect = rect(0, 0, 1, 1);
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
-    private _isChanged = false;
+    private _dirty = false;
     private _matView: Mat4 = mat4();
     private _matProj: Mat4 = mat4();
     private _matProjInv: Mat4 = mat4();
@@ -1092,7 +1092,6 @@ export class Camera {
             Mat4.invert(this._matProjInv, matProj);
             viewProjDirty = true;
             this._isProjDirty = false;
-            this._isChanged = true;
         }
 
         // view-projection
@@ -1100,6 +1099,7 @@ export class Camera {
             Mat4.multiply(this._matViewProj, matProj, matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
+            this._dirty = true;
         }
     }
 

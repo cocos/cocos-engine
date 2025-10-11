@@ -53,9 +53,11 @@ const DontDestroy = CCObjectFlags.DontDestroy;
 const Deactivating = CCObjectFlags.Deactivating;
 const TRANSFORM_CHANGED = NodeEventType.TRANSFORM_CHANGED;
 const ACTIVE_CHANGED = NodeEventType.ACTIVE_CHANGED;
+const NODE_DIRTY = NodeEventType.NODE_DIRTY;
 
 export const TRANSFORM_ON = 1 << 0;
 const ACTIVE_ON = 1 << 1;
+const NODE_DIRTY_ON = 1 << 2;
 
 const idGenerator = new js.IDGenerator('Node');
 
@@ -511,6 +513,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         if (this.emit) {
             this.emit(NodeEventType.PARENT_CHANGED, oldParent);
+            this.dirty();
         }
 
         if (oldParent) {
@@ -524,6 +527,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 oldParent._updateSiblingIndex();
                 if (oldParent.emit) {
                     oldParent.emit(NodeEventType.CHILD_REMOVED, this);
+                    oldParent.dirty();
                 }
             }
         }
@@ -536,6 +540,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             this._siblingIndex = newParent._children.length - 1;
             if (newParent.emit) {
                 newParent.emit(NodeEventType.CHILD_ADDED, this);
+                newParent.dirty();
             }
         }
 
@@ -1063,7 +1068,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (EDITOR && (this._objFlags & Destroying)) {
             throw Error('isDestroying');
         }
-        this.changed();
+        this.dirty();
         // get component
 
         let constructor: Constructor<T> | null | undefined;
@@ -1185,7 +1190,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             errorID(3813);
             return;
         }
-        this.changed();
+        this.dirty();
         let componentInstance: Component | null = null;
         if (component instanceof Component) {
             componentInstance = component;
@@ -1239,6 +1244,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: boolean = false): void {
         switch (type) {
+        case NODE_DIRTY:
+            this._eventMask |= NODE_DIRTY_ON;
+            break;
         case TRANSFORM_CHANGED:
             this._eventMask |= TRANSFORM_ON;
             break;
@@ -1274,6 +1282,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         // All listener removed
         if (!hasListeners) {
             switch (type) {
+            case NODE_DIRTY:
+                this._eventMask &= ~NODE_DIRTY_ON;
+                break;
             case TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
                 break;
@@ -1362,10 +1373,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if ((this._eventMask & ACTIVE_ON) && !this._eventProcessor.hasEventListener(ACTIVE_CHANGED)) {
             this._eventMask &= ~ACTIVE_ON;
         }
+
+        if ((this._eventMask & NODE_DIRTY_ON) && !this._eventProcessor.hasEventListener(NODE_DIRTY)) {
+            this._eventMask &= ~NODE_DIRTY_ON;
+        }
     }
 
     public destroy (): boolean {
-        this.changed();
+        this.dirty();
         if (super.destroy()) {
             this.active = false;
             return true;
@@ -1398,7 +1413,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             errorID(3814);
             return;
         }
-        this.changed();
+        this.dirty();
         if (!(this._objFlags & Destroying)) {
             const i = this._components.indexOf(component);
             if (i !== -1) {
@@ -1420,7 +1435,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;
         }
-
+        this.dirty();
         this.emit(NodeEventType.CHILDREN_ORDER_CHANGED);
     }
 
@@ -1513,6 +1528,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             // remove from parent
             if (parent) {
                 this.emit(NodeEventType.PARENT_CHANGED, this);
+                this.dirty();
                 // During destroy process, sibling index is not reliable
                 const childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
@@ -1520,6 +1536,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 parent._updateSiblingIndex();
                 if (parent.emit) {
                     parent.emit(NodeEventType.CHILD_REMOVED, this);
+                    parent.dirty();
                 }
             }
         }
@@ -1544,7 +1561,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             // TO DO
             comps[i]._destroyImmediate();
         }
-        this.changed();
+        this.dirty();
         return destroyByParent;
     }
 
@@ -1668,8 +1685,16 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cclegacy.Scene));
     }
 
-    protected changed (): void {
-        if (this.scene && this.scene.renderScene) this.scene.renderScene.isChanged = true;
+    /**
+     * @en Mark this node as changed.
+     * @zh 标记节点为已改变。
+     * @engineInternal
+     */
+    dirty (): void {
+        if (this.scene && this.scene.renderScene) this.scene.renderScene.dirty = true;
+        if (this._eventMask & NODE_DIRTY_ON) {
+            this.emit(NODE_DIRTY);
+        }
     }
 
     protected _onPreDestroy (): boolean {
@@ -1850,6 +1875,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
+        this.dirty();
     }
 
     /**
@@ -1904,6 +1930,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.TRS);
         }
+        this.dirty();
     }
 
     /**
@@ -1956,6 +1983,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         this._mobility = m;
         this.emit(NodeEventType.MOBILITY_CHANGED);
+        this.dirty();
     }
 
     get mobility (): number {
@@ -1981,6 +2009,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             uiComp._markForUpdateRenderData();
         }
         self.emit(NodeEventType.LAYER_CHANGED, self._layer);
+        self.dirty();
     }
 
     get layer (): number {
@@ -2142,6 +2171,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 this.emit(ACTIVE_CHANGED, this, false);
             }
         }
+        this.dirty();
 
         this.hasChangedFlags = TransformBit.TRS;
         this._children.forEach((child: Node, i: number) => {
@@ -2166,6 +2196,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (self._eventMask & ACTIVE_ON) {
             self.emit(ACTIVE_CHANGED, self, active);
         }
+        self.dirty();
 
         const eventProcessor = this._eventProcessor;
         // If the 'enable' state of event processor is equal to the node's active state, we should mark the list dirty for the global callback invoker
@@ -2233,6 +2264,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.POSITION);
         }
+        this.dirty();
     }
 
     /**
@@ -2259,6 +2291,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
+        this.dirty();
     }
 
     /**
@@ -2332,7 +2365,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         let rotationScaleSkewDirty = 0;
         let uiSkewComp: UISkew | null = null;
         let foundSkewInAncestor = false;
-        this.changed();
         while (i) {
             child = dirtyNodes[--i];
             childMat = child._mat;
@@ -2441,6 +2473,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.POSITION);
         }
+        this.dirty();
     }
 
     /**
@@ -2487,6 +2520,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
+        this.dirty();
     }
 
     /**
@@ -2521,6 +2555,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
+        this.dirty();
     }
 
     /**
@@ -2569,6 +2604,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.SCALE);
         }
+        this.dirty();
     }
 
     /**
@@ -2650,6 +2686,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.POSITION);
         }
+        this.dirty();
     }
 
     /**
@@ -2703,6 +2740,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
+        this.dirty();
     }
 
     /**
@@ -2816,6 +2854,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (self._eventMask & TRANSFORM_ON) {
             self.emit(TRANSFORM_CHANGED, TransformBit.SCALE | rotationFlag);
         }
+        self.dirty();
     }
 
     /**
@@ -2903,6 +2942,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (this._eventMask & TRANSFORM_ON) {
                 this.emit(TRANSFORM_CHANGED, dirtyBit);
             }
+            this.dirty();
         }
     }
 

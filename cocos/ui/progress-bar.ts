@@ -32,6 +32,7 @@ import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { warnID } from '../core/platform/debug';
 import { legacyCC } from '../core/global-exports';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 /**
  * @en
@@ -346,6 +347,7 @@ export class ProgressBar extends Component {
             } else {
                 warnID(16398);
             }
+            uiRendererManager.dirty = true;
         }
     }
 }

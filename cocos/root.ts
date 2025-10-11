@@ -43,6 +43,7 @@ import { localDescriptorSetLayout_ResizeMaxJoints, UBOCameraEnum, UBOGlobalEnum,
 import { XREye, XRPoseType } from './xr/xr-enums';
 import { ICustomJointTextureLayout } from './3d/skeletal-animation/skeletal-animation-utils';
 import { getPipelineSceneData } from './rendering/pipeline-scene-data-utils';
+import { uiRendererManager } from './2d/framework/ui-renderer-manager';
 
 /**
  * @en Initialization information for the Root
@@ -754,11 +755,20 @@ export class Root {
     }
 
     private _frameMoveBegin (): void {
-        for (let i = 0; i < this._scenes.length; ++i) {
-            this._scenes[i].removeBatches();
+        if (this._batcher && this._is2DDirty()) {
+            this._batcher.reset();
+            for (let i = 0; i < this._scenes.length; ++i) {
+                this._scenes[i].removeBatches();
+            }
         }
-
         this._cameraList.length = 0;
+    }
+
+    private _is2DDirty (): boolean {
+        if (!(cclegacy.rendering && cclegacy.rendering.enableEffectImport)) {
+            return true;
+        }
+        return uiRendererManager.dirty;
     }
 
     private _frameMoveProcess (): void {
@@ -776,7 +786,8 @@ export class Root {
             const scenes = this._scenes;
             const stamp = director.getTotalFrames() as number;
 
-            if (this._batcher) {
+            if (this._batcher && this._is2DDirty()) {
+                uiRendererManager.dirty = false;
                 this._batcher.update();
                 this._batcher.uploadBuffers();
             }
@@ -802,8 +813,6 @@ export class Root {
             director.emit(Director.EVENT_AFTER_RENDER);
             this._device.present();
         }
-
-        if (this._batcher) this._batcher.reset();
     }
 
     private _resizeMaxJointForDS (): void {
