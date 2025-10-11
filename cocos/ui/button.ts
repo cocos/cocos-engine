@@ -668,6 +668,7 @@ export class Button extends Component {
         if (ratio === 1) {
             this._transitionFinished = true;
         }
+        uiRendererManager.dirty = true;
     }
 
     protected _resizeNodeToTargetNode (): void {
