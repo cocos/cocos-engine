@@ -885,6 +885,9 @@ float AnimationState::applyMixingFrom(TrackEntry *to, Skeleton &skeleton, MixBle
     from->_nextAnimationLast = animationTime;
     from->_nextTrackLast = from->_trackTime;
 
+    from->_animationLast = from->_nextAnimationLast;
+	from->_trackLast = from->_nextTrackLast;
+
     return mix;
 }
 
