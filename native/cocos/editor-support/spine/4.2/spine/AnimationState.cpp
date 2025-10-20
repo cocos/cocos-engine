@@ -501,6 +501,9 @@ bool AnimationState::apply(Skeleton &skeleton) {
 		_events.clear();
 		current._nextAnimationLast = animationTime;
 		current._nextTrackLast = current._trackTime;
+
+        current._animationLast = current._nextAnimationLast;
+        current._trackLast = current._nextTrackLast;
 	}
 
 	int setupState = _unkeyedState + Setup;
