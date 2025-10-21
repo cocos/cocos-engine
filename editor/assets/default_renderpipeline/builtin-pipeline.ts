@@ -25,14 +25,13 @@
 import {
     assert, cclegacy, clamp, geometry, gfx, Layers, Material, pipeline,
     PipelineEventProcessor, PipelineEventType, ReflectionProbeManager, renderer,
-    rendering, sys, Vec2, Vec3, Vec4, warn, RenderScene,
+    rendering, sys, Vec2, Vec3, Vec4, warn, RenderScene, Texture2D,
 } from 'cc';
 
 import { DEBUG, EDITOR } from 'cc/env';
 
 import {
     BloomType,
-    getPipelineSettingHash,
     makePipelineSettings,
     PipelineSettings,
 } from './builtin-pipeline-types';
@@ -1710,6 +1709,67 @@ export class BuiltinUiPassBuilder implements rendering.PipelinePassBuilder {
 let pipelineHash: number = 0;
 const pipelineHashArray: string[] = [];
 let currScene: RenderScene | null = null;
+
+const pipeHashes: any[] = [];
+let currColorGradingMap: Texture2D;
+function getPipelineSettingHash(pipeSetting: PipelineSettings): any[] {
+    pipeHashes.length = 0;
+    const toneMapMat = pipeSetting.toneMapping.material;
+    pipeHashes.push(
+        pipeSetting.msaa.enabled,
+        pipeSetting.enableShadingScale,
+        pipeSetting.bloom.enabled,
+        toneMapMat ? toneMapMat.effectName : '',
+        pipeSetting.colorGrading.enabled,
+        pipeSetting.fsr.enabled,
+        pipeSetting.fxaa.enabled,
+    );
+    if (pipeSetting.msaa.enabled) {
+        pipeHashes.push(
+            pipeSetting.msaa.sampleCount
+        );
+    }
+    if (pipeSetting.enableShadingScale) {
+        pipeHashes.push(
+            pipeSetting.shadingScale
+        );
+    }
+    const bloom = pipeSetting.bloom;
+    if (bloom.enabled) {
+        pipeHashes.push(
+            bloom.kawaseFilterMaterial ? bloom.kawaseFilterMaterial.effectName : '',
+            bloom.mipmapFilterMaterial ? bloom.mipmapFilterMaterial.effectName : '',
+            bloom.enableAlphaMask,
+            bloom.iterations,
+            bloom.threshold,
+            bloom.intensity,
+        );
+    }
+    const colorGrading = pipeSetting.colorGrading;
+    if (colorGrading.enabled) {
+        pipeHashes.push(
+            colorGrading.material ? colorGrading.material.effectName : '',
+            colorGrading.contribute,
+            colorGrading.colorGradingMap !== currColorGradingMap ? true : false,
+        );
+        currColorGradingMap = colorGrading.colorGradingMap;
+    }
+    const fsr = pipeSetting.fsr;
+    if (fsr.enabled) {
+        pipeHashes.push(
+            fsr.material ? fsr.material.effectName : '',
+            fsr.sharpness,
+        );
+    }
+    const fxaa = pipeSetting.fxaa;
+    if (fxaa.enabled) {
+        pipeHashes.push(
+            fxaa.material ? fxaa.material.effectName : '',
+        );
+    }
+    return pipeHashes;
+}
+
 function isPipelineDirty(cameras: renderer.scene.Camera[], ppl: rendering.BasicPipeline): boolean {
     const hashCombineStr = rendering.hashCombineStr;
     const scene = cclegacy.director.getScene();
