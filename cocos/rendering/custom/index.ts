@@ -45,7 +45,7 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 export * from './framework';
-export * from './define';
+export { hashCombineStr } from './define';
 
 export const enableEffectImport = true;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
