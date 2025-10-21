@@ -25,13 +25,14 @@
 import {
     assert, cclegacy, clamp, geometry, gfx, Layers, Material, pipeline,
     PipelineEventProcessor, PipelineEventType, ReflectionProbeManager, renderer,
-    rendering, sys, Vec2, Vec3, Vec4, warn,
+    rendering, sys, Vec2, Vec3, Vec4, warn, RenderScene,
 } from 'cc';
 
 import { DEBUG, EDITOR } from 'cc/env';
 
 import {
     BloomType,
+    getPipelineSettingHash,
     makePipelineSettings,
     PipelineSettings,
 } from './builtin-pipeline-types';
@@ -1706,6 +1707,51 @@ export class BuiltinUiPassBuilder implements rendering.PipelinePassBuilder {
     }
 }
 
+let pipelineHash: number = 0;
+const pipelineHashArray: string[] = [];
+let currScene: RenderScene | null = null;
+function isPipelineDirty(cameras: renderer.scene.Camera[], ppl: rendering.BasicPipeline): boolean {
+    const hashCombineStr = rendering.hashCombineStr;
+    const scene = cclegacy.director.getScene();
+    if (currScene !== scene) {
+        currScene = scene;
+        return ppl.dirty = true;
+    }
+    pipelineHashArray.length = 0;
+    for (const cam of cameras) {
+        const pipeSetting = cam.pipelineSettings;
+        pipelineHashArray.push(
+            cam.cameraId,
+            cam.width,
+            cam.height,
+        );
+        if (pipeSetting) {
+            pipelineHashArray.push(...getPipelineSettingHash(pipeSetting));
+        }
+        const scene = cam.scene;
+        if (scene) {
+            scene.processLights((light: any) => {
+                pipelineHashArray.push(light.lightId);
+                if (light.type === LightType.SPOT) {
+                    pipelineHashArray.push(light.shadowEnabled);
+                } else if (light.type === LightType.DIRECTIONAL) {
+                    pipelineHashArray.push(
+                        light.shadowEnabled,
+                        light.csmNeedUpdate,
+                        light.shadowFixedArea,
+                    );
+                }
+            });
+        }
+    }
+    const currPipelineHash = hashCombineStr(pipelineHashArray.join('-'));
+    if (currPipelineHash !== pipelineHash) {
+        pipelineHash = currPipelineHash;
+        return ppl.dirty = true;
+    }
+    return ppl.dirty = false;
+}
+
 if (rendering) {
 
     const { QueueHint, SceneFlags } = rendering;
@@ -1903,10 +1949,10 @@ if (rendering) {
         }
         setup(cameras: renderer.scene.Camera[], ppl: rendering.BasicPipeline): void {
             // TODO(zhouzhenglong): Make default effect asset loading earlier and remove _initMaterials
-            if (this._initMaterials(ppl)) {
+            // Currently, only the custom pipeline for the web end has been optimized, so we need to make additional judgments for the web end.
+            if (this._initMaterials(ppl) || (this._configs.isWeb && !isPipelineDirty(cameras, ppl))) {
                 return;
             }
-
 
             // Render cameras
             // log(`==================== One Frame ====================`);

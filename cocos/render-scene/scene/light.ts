@@ -201,6 +201,18 @@ export class Light {
         return this._lightId;
     }
 
+    /** @engineInternal */
+    get dirty (): boolean {
+        return this._dirty;
+    }
+
+    /** @engineInternal */
+    set dirty (val: boolean) {
+        this._dirty = val;
+    }
+
+    protected _dirty = false;
+
     protected _baked = false;
 
     protected _color: Vec3 = v3(1, 1, 1);
@@ -211,7 +223,7 @@ export class Light {
 
     private _finalColor: Vec3 = v3(1, 1, 1);
 
-    protected _lightId = _lightCount++;
+    protected _lightId = ++_lightCount;
 
     protected _scene: RenderScene | null = null;
 

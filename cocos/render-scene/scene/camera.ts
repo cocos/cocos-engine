@@ -879,7 +879,7 @@ export class Camera {
     private _cameraType: CameraType = CameraType.DEFAULT;
     private _trackingType: TrackingType = TrackingType.NO_TRACKING;
     private _usage: CameraUsage = CameraUsage.GAME;
-    private _cameraId = _cameraCount++;
+    private _cameraId = ++_cameraCount;
 
     constructor (device: Device) {
         this._device = device;

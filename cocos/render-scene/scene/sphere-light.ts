@@ -147,6 +147,7 @@ export class SphereLight extends Light {
             const range = this._range;
             geometry.AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, range, range, range);
             this._needUpdate = false;
+            this._dirty = true;
         }
     }
 }

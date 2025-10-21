@@ -105,6 +105,9 @@ export class DirectionalLight extends Light {
         return this._illuminanceHDR;
     }
     set illuminanceHDR (value: number) {
+        if (this._illuminanceHDR !== value) {
+            this.dirty = true;
+        }
         this._illuminanceHDR = value;
     }
 
@@ -116,6 +119,9 @@ export class DirectionalLight extends Light {
         return this._illuminanceLDR;
     }
     set illuminanceLDR (value: number) {
+        if (this._illuminanceLDR !== value) {
+            this.dirty = true;
+        }
         this._illuminanceLDR = value;
     }
 
@@ -139,6 +145,9 @@ export class DirectionalLight extends Light {
         return this._shadowPcf;
     }
     set shadowPcf (val) {
+        if (this._shadowPcf !== val) {
+            this.dirty = true;
+        }
         this._shadowPcf = val;
         this.activate();
     }
@@ -151,6 +160,9 @@ export class DirectionalLight extends Light {
         return this._shadowBias;
     }
     set shadowBias (val) {
+        if (this._shadowBias !== val) {
+            this.dirty = true;
+        }
         this._shadowBias = val;
     }
 
@@ -162,6 +174,9 @@ export class DirectionalLight extends Light {
         return this._shadowNormalBias;
     }
     set shadowNormalBias (val: number) {
+        if (this._shadowNormalBias !== val) {
+            this.dirty = true;
+        }
         this._shadowNormalBias = val;
     }
 
@@ -173,6 +188,9 @@ export class DirectionalLight extends Light {
         return this._shadowSaturation;
     }
     set shadowSaturation (val: number) {
+        if (this._shadowSaturation !== val) {
+            this.dirty = true;
+        }
         this._shadowSaturation = val;
     }
 
@@ -184,7 +202,11 @@ export class DirectionalLight extends Light {
         return this._shadowDistance;
     }
     set shadowDistance (val) {
-        this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
+        val = Math.min(val, Shadows.MAX_FAR);
+        if (this._shadowDistance !== val) {
+            this.dirty = true;
+        }
+        this._shadowDistance = val;
     }
 
     /**
@@ -195,7 +217,11 @@ export class DirectionalLight extends Light {
         return this._shadowInvisibleOcclusionRange;
     }
     set shadowInvisibleOcclusionRange (val) {
-        this._shadowInvisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
+        val = Math.min(val, Shadows.MAX_FAR);
+        if (this._shadowInvisibleOcclusionRange !== val) {
+            this.dirty = true;
+        }
+        this._shadowInvisibleOcclusionRange = val;
     }
 
     /**
@@ -240,6 +266,9 @@ export class DirectionalLight extends Light {
         return this._csmOptimizationMode;
     }
     set csmOptimizationMode (val) {
+        if (this._csmOptimizationMode !== val) {
+            this.dirty = true;
+        }
         this._csmOptimizationMode = val;
     }
 
@@ -263,6 +292,9 @@ export class DirectionalLight extends Light {
         return this._shadowNear;
     }
     set shadowNear (val) {
+        if (this._shadowNear !== val) {
+            this.dirty = true;
+        }
         this._shadowNear = val;
     }
 
@@ -274,7 +306,11 @@ export class DirectionalLight extends Light {
         return this._shadowFar;
     }
     set shadowFar (val) {
-        this._shadowFar = Math.min(val, Shadows.MAX_FAR);
+        val = Math.min(val, Shadows.MAX_FAR);
+        if (this._shadowFar !== val) {
+            this.dirty = true;
+        }
+        this._shadowFar = val;
     }
 
     /**
@@ -285,6 +321,9 @@ export class DirectionalLight extends Light {
         return this._shadowOrthoSize;
     }
     set shadowOrthoSize (val) {
+        if (this._shadowOrthoSize !== val) {
+            this.dirty = true;
+        }
         this._shadowOrthoSize = val;
     }
 
@@ -296,6 +335,9 @@ export class DirectionalLight extends Light {
         return this._csmLayersTransition;
     }
     set csmLayersTransition (val) {
+        if (this._csmLayersTransition !== val) {
+            this.dirty = true;
+        }
         this._csmLayersTransition = val;
         this.activate();
     }
@@ -308,6 +350,9 @@ export class DirectionalLight extends Light {
         return this._csmTransitionRange;
     }
     set csmTransitionRange (val) {
+        if (this._csmTransitionRange !== val) {
+            this.dirty = true;
+        }
         this._csmTransitionRange = val;
     }
 
@@ -330,6 +375,7 @@ export class DirectionalLight extends Light {
     public update (): void {
         if (this._node && this._node.hasChangedFlags) {
             this.direction = Vec3.transformQuat(_v3, _forward, this._node.worldRotation);
+            this._dirty = true;
         }
     }
 

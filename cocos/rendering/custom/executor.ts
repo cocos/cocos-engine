@@ -1276,7 +1276,7 @@ class DeviceRenderScene implements RecordingInterface {
         const passRenderData = context.renderGraph.getData(rasterId);
         const sceneId = this.sceneID;
         // global
-        this._updateGlobal(context.renderGraph.globalRenderData, sceneId);
+        this._updateGlobal(context.globalRenderData, sceneId);
         // pass
         this._updateGlobal(passRenderData, sceneId);
         // queue
@@ -1592,7 +1592,14 @@ class ExecutorContext {
     }
     present (): void {
         this.device.queue.submit(this.cmdBuffs);
+        const culling = context.culling;
+        culling.dirty = false;
     }
+
+    get globalRenderData (): RenderData {
+        return (this.pipeline as any).data as RenderData;
+    }
+
     readonly device: Device;
     readonly pipeline: BasicPipeline;
     readonly commandBuffer: CommandBuffer;
@@ -1705,8 +1712,9 @@ export class Executor {
         this._removeDeviceResource();
         cmdBuff.begin();
         culling.uploadInstancing(cmdBuff);
+        const pipeline = (context.pipeline as any);
         if (!this._visitor) this._visitor = new RenderVisitor();
-        if ((context.pipeline as any).dirty) {
+        if (pipeline.dirty) {
             context.passesOrder.length = 0;
             depthFirstSearch(this._visitor.graphView, this._visitor, this._visitor.colorMap);
         } else {
@@ -1728,7 +1736,6 @@ export class Executor {
         }
         cmdBuff.end();
         context.present();
-        culling.dirty = false;
     }
 
     release (): void {

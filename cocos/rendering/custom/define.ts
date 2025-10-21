@@ -574,9 +574,10 @@ class ConstantBlockInfo {
     offset: number = -1;
     buffer: number[] = [];
     blockId: number = -1;
+    layout: string = '';
 }
 const constantBlockMap: Map<number, ConstantBlockInfo> = new Map();
-function copyToConstantBuffer (target: number[], val: number[], offset: number): boolean {
+function copyToConstantBuffer (target: number[] | Float32Array, val: number[], offset: number): boolean {
     let isImparity = false;
     if (offset < 0 || offset > target.length) {
         return isImparity;
@@ -625,33 +626,24 @@ function updateConstantBlock (
     constantBuff: ConstantBlockInfo,
     data: number[],
     descriptorSetData: DescriptorSetData,
-    sceneId: number,
-    idxRD: number,
 ): void {
     const blockId = constantBuff.blockId;
     const buffer = constantBuff.buffer;
     const isImparity = copyToConstantBuffer(buffer, data, constantBuff.offset);
     const bindId = getDescBinding(blockId, descriptorSetData);
     const desc = descriptorSetData.descriptorSet!;
-    if (isImparity || !desc.getBuffer(bindId) && bindId !== -1) {
-        const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
+    if (isImparity || bindId !== -1 && !desc.getBuffer(bindId)) {
+        const descKey: string = `${constantBuff.layout}-${blockId}`;
         currBindBuffs.set(descKey, bindId);
         updateGlobalDescBuffer(descKey, buffer);
     }
 }
 
-function updateDefaultConstantBlock (blockId: number, sceneId: number, idxRD: number, vals: number[], setData: DescriptorSetData): void {
+function updateDefaultConstantBlock (layout: string, blockId: number, vals: number[], setData: DescriptorSetData): void {
     const bindId = getDescBinding(blockId, setData);
     const descriptor = setData.descriptorSet!;
-    let hasVal = false;
-    for (const [_, bid] of currBindBuffs) {
-        if (bid === bindId) {
-            hasVal = true;
-            break;
-        }
-    }
-    if (bindId === -1 || descriptor.getBuffer(bindId) || !descriptor.getBuffer(bindId) && hasVal) { return; }
-    const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
+    const descKey = `${layout}-${blockId}`;
+    if (bindId === -1 || descriptor.getBuffer(bindId) || !descriptor.getBuffer(bindId) && currBindBuffs.has(descKey)) { return; }
     currBindBuffs.set(descKey, bindId);
     updateGlobalDescBuffer(descKey, vals);
 }
@@ -660,8 +652,6 @@ function createAndUpdateConstantBlock (
     lg: LayoutGraphData,
     key: number,
     layout: string,
-    sceneId: number,
-    idxRD: number,
     descriptorSetData: DescriptorSetData,
     data: number[],
 ): void {
@@ -673,17 +663,19 @@ function createAndUpdateConstantBlock (
         const offset = getUniformOffset(currMemKey, block, layout);
         // not found
         if (offset === -1) {
+            const descKey = `${layout}-${blockId}`;
             // Although the current uniformMem does not belong to the current uniform block,
             // it does not mean that it should not be bound to the corresponding descriptor.
-            updateDefaultConstantBlock(blockId, sceneId, idxRD, constantBuff, descriptorSetData);
+            if (!buffsMap.has(descKey)) updateDefaultConstantBlock(layout, blockId, constantBuff, descriptorSetData);
             continue;
         }
-        constantBlockMap.set(key, new ConstantBlockInfo());
+        if (!constantBlockMap.has(key)) constantBlockMap.set(key, new ConstantBlockInfo());
         const constantBlock = constantBlockMap.get(key)!;
         constantBlock.buffer = constantBuff;
         constantBlock.blockId = blockId;
         constantBlock.offset = offset;
-        updateConstantBlock(constantBlock, data, descriptorSetData, sceneId, idxRD);
+        constantBlock.layout = layout;
+        updateConstantBlock(constantBlock, data, descriptorSetData);
     }
 }
 
@@ -697,9 +689,9 @@ export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number
     for (const [key, data] of constants) {
         const constantBlock = constantBlockMap.get(key);
         if (!constantBlock) {
-            createAndUpdateConstantBlock(lg, key, layout, sceneId, idxRD, descriptorSetData, data);
+            createAndUpdateConstantBlock(lg, key, layout, descriptorSetData, data);
         } else {
-            updateConstantBlock(constantBlock, data, descriptorSetData, sceneId, idxRD);
+            updateConstantBlock(constantBlock, data, descriptorSetData);
         }
     }
     for (const [key, value] of currBindBuffs) {
@@ -976,26 +968,26 @@ export function genHashValue (pass: RasterPass, rg: RenderGraph, verId: number):
     const combineHashParts: string[] = [];
     for (const [name, raster] of pass.rasterViews) {
         const commonParts = [
-            hashCombineKey(name),
-            hashCombineKey(raster.slotName),
-            hashCombineKey(raster.accessType),
-            hashCombineKey(raster.attachmentType),
-            hashCombineKey(raster.slotID),
-            hashCombineKey(raster.shaderStageFlags),
+            name,
+            raster.slotName,
+            raster.accessType,
+            raster.attachmentType,
+            raster.slotID,
+            raster.shaderStageFlags,
         ];
 
         const extraParts = [
-            hashCombineKey(raster.storeOp),
-            hashCombineKey(raster.clearFlags),
-            hashCombineKey(raster.loadOp),
-            hashCombineKey(raster.clearColor.x),
-            hashCombineKey(raster.clearColor.y),
-            hashCombineKey(raster.clearColor.z),
-            hashCombineKey(raster.clearColor.w),
+            raster.storeOp,
+            raster.clearFlags,
+            raster.loadOp,
+            raster.clearColor.x,
+            raster.clearColor.y,
+            raster.clearColor.z,
+            raster.clearColor.w,
         ];
 
-        const fullHash = commonParts.concat(extraParts).join('');
-        const combineHash = commonParts.join('');
+        const fullHash = commonParts.concat(extraParts).join('-');
+        const combineHash = commonParts.join('-');
 
         hashCodeParts.push(fullHash);
         combineHashParts.push(combineHash);
@@ -1007,15 +999,15 @@ export function genHashValue (pass: RasterPass, rg: RenderGraph, verId: number):
         const resolvePairs = subpass.resolvePairs;
         for (const resolve of resolvePairs) {
             const commonParts = [
-                hashCombineKey(resolve.source),
-                hashCombineKey(resolve.target),
+                resolve.source,
+                resolve.target,
             ];
-            const combineHash = commonParts.join('');
+            const combineHash = commonParts.join('-');
             combineHashParts.push(combineHash);
         }
     }
 
-    pass.hashValue = hashCombineStr(hashCodeParts.join(''));
-    rpCombineMap.set(pass, hashCombineStr(combineHashParts.join('')));
+    pass.hashValue = hashCombineStr(hashCodeParts.join('-'));
+    rpCombineMap.set(pass, hashCombineStr(combineHashParts.join('-')));
     processPassMG(pass);
 }

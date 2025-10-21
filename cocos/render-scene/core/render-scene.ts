@@ -33,6 +33,7 @@ import { RangedDirectionalLight } from '../scene/ranged-directional-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
 import { LODGroup } from '../scene/lod-group';
+import { Light } from '../scene/light';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -167,9 +168,11 @@ export class RenderScene {
     private _modelId = 0;
     private _lodStateCache: LodStateCache = null!;
     private _dirty = false;
+
     /** @engineInternal */
     get dirty (): boolean {
         for (const camera of this.cameras) { if (camera.dirty) return true; }
+        if (this.getLightsDirty()) return true;
         return this._dirty;
     }
     /** @engineInternal */
@@ -178,6 +181,7 @@ export class RenderScene {
             this.cameras.forEach((camera) => {
                 camera.dirty = false;
             });
+            this._setLightDirty(false);
         }
         this._dirty = val;
     }
@@ -211,34 +215,7 @@ export class RenderScene {
      * @returns void
      */
     public update (stamp: number): void {
-        const mainLight = this._mainLight;
-        if (mainLight) {
-            mainLight.update();
-        }
-
-        const sphereLights = this._sphereLights;
-        for (let i = 0; i < sphereLights.length; i++) {
-            const light = sphereLights[i];
-            light.update();
-        }
-
-        const spotLights = this._spotLights;
-        for (let i = 0; i < spotLights.length; i++) {
-            const light = spotLights[i];
-            light.update();
-        }
-
-        const pointLights = this._pointLights;
-        for (let i = 0; i < pointLights.length; i++) {
-            const light = pointLights[i];
-            light.update();
-        }
-
-        const rangedDirLights = this._rangedDirLights;
-        for (let i = 0; i < rangedDirLights.length; i++) {
-            const light = rangedDirLights[i];
-            light.update();
-        }
+        this.processLights((light: Light) => light.update());
 
         const models = this._models;
         for (let i = 0; i < models.length; i++) {
@@ -250,6 +227,77 @@ export class RenderScene {
             }
         }
         this._lodStateCache.updateLodState();
+    }
+
+    private _setLightDirty (val: boolean): void {
+        this.processLights((light) => light.dirty = val);
+    }
+
+    /** @engineInternal */
+    public getLightsDirty (): boolean {
+        return this._checkLights((light: Light): boolean => light.dirty);
+    }
+
+    /** @engineInternal */
+    public processLights (callback: (light: any) => void): void {
+        const mainLight = this._mainLight;
+        if (mainLight) {
+            callback(mainLight);
+        }
+        const sphereLights = this._sphereLights;
+        for (let i = 0; i < sphereLights.length; i++) {
+            callback(sphereLights[i]);
+        }
+
+        const spotLights = this._spotLights;
+        for (let i = 0; i < spotLights.length; i++) {
+            callback(spotLights[i]);
+        }
+
+        const pointLights = this._pointLights;
+        for (let i = 0; i < pointLights.length; i++) {
+            callback(pointLights[i]);
+        }
+
+        const rangedDirLights = this._rangedDirLights;
+        for (let i = 0; i < rangedDirLights.length; i++) {
+            callback(rangedDirLights[i]);
+        }
+    }
+
+    private _checkLights (predicate: (light: any) => boolean): boolean {
+        if (this._mainLight && predicate(this._mainLight)) {
+            return true;
+        }
+        const sphereLights = this._sphereLights;
+        for (let i = 0; i < sphereLights.length; i++) {
+            if (predicate(sphereLights[i])) {
+                return true;
+            }
+        }
+
+        const spotLights = this._spotLights;
+        for (let i = 0; i < spotLights.length; i++) {
+            if (predicate(spotLights[i])) {
+                return true;
+            }
+        }
+
+        const pointLights = this._pointLights;
+        for (let i = 0; i < pointLights.length; i++) {
+            if (predicate(pointLights[i])) {
+                return true;
+            }
+        }
+
+        const rangedDirLights = this._rangedDirLights;
+        for (let i = 0; i < rangedDirLights.length; i++) {
+            if (predicate(rangedDirLights[i])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

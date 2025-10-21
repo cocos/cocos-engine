@@ -136,6 +136,7 @@ export class RangedDirectionalLight extends Light {
             this._node.getWorldScale(this._scale);
             Vec3.transformQuat(this._dir, _forward, this._node.worldRotation);
             Vec3.transformQuat(this._right, Vec3.RIGHT, this._node.worldRotation);
+            this._dirty = true;
         }
     }
 }

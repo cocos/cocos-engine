@@ -566,6 +566,7 @@ export class UIRenderer extends Renderer {
                 }
             }
         }
+        uiRendererManager.dirty = true;
     }
 
     private setEntityColorDirty (dirty: boolean): void {

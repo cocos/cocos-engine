@@ -17,6 +17,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { CSMLayers, CSMShadowLayer } from '../shadow/csm-layers';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { TextureCube } from '../../asset/assets';
+import { DebugViewCompositeType } from '../debug-view';
 
 const _uboVec = new Vec4();
 const _uboVec3 = new Vec3();
@@ -62,6 +63,36 @@ export function setTextureUBOView (setter: WebSetter, cfg: Readonly<PipelineScen
     if (!setter.hasTexture('cc_spotShadowMap')) {
         setter.setTexture('cc_spotShadowMap', pipeline.defaultShadowTexture as Texture);
     }
+}
+
+export function updateRasterPassConstants (setter: WebSetter, width: number, height: number, layoutName = 'default'): void {
+    const director = cclegacy.director;
+    const root: Root = director.root!;
+    const shadingWidth = width;
+    const shadingHeight = height;
+    const pipeline = root.pipeline as any;
+    const layoutGraph = pipeline.layoutGraph;
+    // Global
+    _uboVec.set(root.cumulativeTime, root.frameTime, director.getTotalFrames() as number);
+    setter.setVec4('cc_time', _uboVec);
+    _uboVec.set(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight);
+    setter.setVec4('cc_screenSize', _uboVec);
+    _uboVec.set(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight);
+    setter.setVec4('cc_nativeSize', _uboVec);
+    const debugView = root.debugView;
+    _uboVec.set(0.0, 0.0, 0.0, 0.0);
+    if (debugView) {
+        const debugPackVec: number[] = [debugView.singleMode as number, 0.0, 0.0, 0.0];
+        for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < (DebugViewCompositeType.MAX_BIT_COUNT as number); i++) {
+            const idx = i >> 3;
+            const bit = i % 8;
+            debugPackVec[idx + 1] += (debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0) * (10.0 ** bit);
+        }
+        debugPackVec[3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
+        debugPackVec[3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
+        _uboVec.set(debugPackVec[0], debugPackVec[1], debugPackVec[2], debugPackVec[3]);
+    }
+    setter.setVec4('cc_debug_view_mode', _uboVec);
 }
 
 export function setCameraUBOValues (
@@ -504,6 +535,7 @@ export function setShadowUBOView (setter: WebSetter, camera: Camera | null, layo
     }
 }
 
+export const setterBuilderMap: Map<number, WebSetter> = new Map<number, WebSetter>();
 export class WebSetter implements Setter {
     constructor (data: RenderData, lg: LayoutGraphData) {
         this._data = data;
@@ -804,6 +836,10 @@ export class WebSetter implements Setter {
     /** @engineInternal */
     set data (data: RenderData) {
         this._data = data;
+    }
+
+    updateRenderData (): void {
+        if (!setterBuilderMap.has(this._vertID)) setterBuilderMap.set(this._vertID, this);
     }
 
     // protected
