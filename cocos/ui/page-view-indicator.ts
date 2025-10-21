@@ -34,6 +34,7 @@ import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { legacyCC } from '../core/global-exports';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 const _color = new Color();
 
@@ -244,6 +245,7 @@ export class PageViewIndicator extends Component {
             _color.a = 255;
             comp.color = _color;
         }
+        uiRendererManager.dirty = true;
     }
 
     /**

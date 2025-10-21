@@ -32,6 +32,7 @@ import { ToggleContainer } from './toggle-container';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { ButtonEventType, Button } from './button';
 import { legacyCC } from '../core/global-exports';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 enum ToggleEventType {
     TOGGLE = 'toggle',
@@ -142,7 +143,7 @@ export class Toggle extends Button {
     }
 
     protected _set (value: boolean, emitEvent = true): void {
-        if (this._isChecked == value) return;
+        if (this._isChecked === value) return;
 
         this._isChecked = value;
 
@@ -158,6 +159,7 @@ export class Toggle extends Button {
         if (emitEvent) {
             this._emitToggleEvents();
         }
+        uiRendererManager.dirty = true;
     }
 
     /**

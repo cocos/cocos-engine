@@ -35,6 +35,7 @@ import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 const _tempPos = new Vec3();
 /**
@@ -287,6 +288,7 @@ export class Slider extends Component {
     protected _handleSliderLogic (touch: Touch | null): void {
         this._updateProgress(touch);
         this._emitSlideEvent();
+        uiRendererManager.dirty = true;
     }
 
     protected _emitSlideEvent (): void {
@@ -323,6 +325,7 @@ export class Slider extends Component {
         }
 
         this._handle.node.setPosition(this._handleLocalPos);
+        uiRendererManager.dirty = true;
     }
 
     private _changeLayout (): void {
@@ -352,6 +355,7 @@ export class Slider extends Component {
                 this.progress = clamp01(0.5 + (_tempPos.y - this.node.position.y) / uiTrans.height);
             }
         }
+        uiRendererManager.dirty = true;
     }
 
     protected _xrClick (event: XrUIPressEvent): void {

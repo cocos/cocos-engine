@@ -41,6 +41,7 @@ import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
 import { InputEventType } from '../input/types/event-enum';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -1265,6 +1266,7 @@ export class ScrollView extends ViewGroup {
         if (!currentOutOfBoundary.equals(Vec3.ZERO, EPSILON)) {
             this._autoScrollCurrentlyOutOfBoundary = true;
         }
+        uiRendererManager.dirty = true;
     }
 
     protected _calculateTouchMoveVelocity (): Vec3 {

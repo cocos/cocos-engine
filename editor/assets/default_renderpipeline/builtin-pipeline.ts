@@ -25,7 +25,7 @@
 import {
     assert, cclegacy, clamp, geometry, gfx, Layers, Material, pipeline,
     PipelineEventProcessor, PipelineEventType, ReflectionProbeManager, renderer,
-    rendering, sys, Vec2, Vec3, Vec4, warn,
+    rendering, sys, Vec2, Vec3, Vec4, warn, RenderScene, Texture2D,
 } from 'cc';
 
 import { DEBUG, EDITOR } from 'cc/env';
@@ -1706,6 +1706,112 @@ export class BuiltinUiPassBuilder implements rendering.PipelinePassBuilder {
     }
 }
 
+let pipelineHash: number = 0;
+const pipelineHashArray: string[] = [];
+let currScene: RenderScene | null = null;
+
+const pipeHashes: any[] = [];
+let currColorGradingMap: Texture2D;
+function getPipelineSettingHash(pipeSetting: PipelineSettings): any[] {
+    pipeHashes.length = 0;
+    const toneMapMat = pipeSetting.toneMapping.material;
+    pipeHashes.push(
+        pipeSetting.msaa.enabled,
+        pipeSetting.enableShadingScale,
+        pipeSetting.bloom.enabled,
+        toneMapMat ? toneMapMat.effectName : '',
+        pipeSetting.colorGrading.enabled,
+        pipeSetting.fsr.enabled,
+        pipeSetting.fxaa.enabled,
+    );
+    if (pipeSetting.msaa.enabled) {
+        pipeHashes.push(
+            pipeSetting.msaa.sampleCount
+        );
+    }
+    if (pipeSetting.enableShadingScale) {
+        pipeHashes.push(
+            pipeSetting.shadingScale
+        );
+    }
+    const bloom = pipeSetting.bloom;
+    if (bloom.enabled) {
+        pipeHashes.push(
+            bloom.kawaseFilterMaterial ? bloom.kawaseFilterMaterial.effectName : '',
+            bloom.mipmapFilterMaterial ? bloom.mipmapFilterMaterial.effectName : '',
+            bloom.enableAlphaMask,
+            bloom.iterations,
+            bloom.threshold,
+            bloom.intensity,
+        );
+    }
+    const colorGrading = pipeSetting.colorGrading;
+    if (colorGrading.enabled) {
+        pipeHashes.push(
+            colorGrading.material ? colorGrading.material.effectName : '',
+            colorGrading.contribute,
+            colorGrading.colorGradingMap !== currColorGradingMap ? true : false,
+        );
+        currColorGradingMap = colorGrading.colorGradingMap;
+    }
+    const fsr = pipeSetting.fsr;
+    if (fsr.enabled) {
+        pipeHashes.push(
+            fsr.material ? fsr.material.effectName : '',
+            fsr.sharpness,
+        );
+    }
+    const fxaa = pipeSetting.fxaa;
+    if (fxaa.enabled) {
+        pipeHashes.push(
+            fxaa.material ? fxaa.material.effectName : '',
+        );
+    }
+    return pipeHashes;
+}
+
+function isPipelineDirty(cameras: renderer.scene.Camera[], ppl: rendering.BasicPipeline): boolean {
+    const hashCombineStr = rendering.hashCombineStr;
+    const scene = cclegacy.director.getScene();
+    if (currScene !== scene) {
+        currScene = scene;
+        return ppl.dirty = true;
+    }
+    pipelineHashArray.length = 0;
+    for (const cam of cameras) {
+        const pipeSetting = cam.pipelineSettings;
+        pipelineHashArray.push(
+            cam.cameraId,
+            cam.width,
+            cam.height,
+        );
+        if (pipeSetting) {
+            pipelineHashArray.push(...getPipelineSettingHash(pipeSetting));
+        }
+        const scene = cam.scene;
+        if (scene) {
+            scene.processLights((light: any) => {
+                pipelineHashArray.push(light.lightId);
+                if (light.type === LightType.SPOT) {
+                    pipelineHashArray.push(light.shadowEnabled);
+                } else if (light.type === LightType.DIRECTIONAL) {
+                    pipelineHashArray.push(
+                        light.shadowEnabled,
+                        light.csmNeedUpdate,
+                        light.shadowFixedArea,
+                    );
+                }
+            });
+        }
+    }
+    const currPipelineHash = hashCombineStr(pipelineHashArray.join('-'));
+    if (currPipelineHash !== pipelineHash) {
+        pipelineHash = currPipelineHash;
+        return ppl.dirty = true;
+    }
+    return ppl.dirty = false;
+}
+
 if (rendering) {
 
     const { QueueHint, SceneFlags } = rendering;
@@ -1903,7 +2009,8 @@ if (rendering) {
         }
         setup(cameras: renderer.scene.Camera[], ppl: rendering.BasicPipeline): void {
             // TODO(zhouzhenglong): Make default effect asset loading earlier and remove _initMaterials
-            if (this._initMaterials(ppl)) {
+            // Currently, only the custom pipeline for the web end has been optimized, so we need to make additional judgments for the web end.
+            if (this._initMaterials(ppl) || (this._configs.isWeb && !isPipelineDirty(cameras, ppl))) {
                 return;
             }
 

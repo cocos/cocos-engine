@@ -1,5 +1,5 @@
-import { Mat4, RecyclePool, IVec4Like, IMat4Like, IVec2Like,
-    Color as CoreColor, assert, cclegacy, Quat, Vec4, Vec2, Vec3, toRadian } from '../../core';
+import { Mat4, RecyclePool,
+    Color as CoreColor, cclegacy, Quat, Vec4, Vec2, Vec3, toRadian } from '../../core';
 import { Color, CommandBuffer, DescriptorSet, Buffer, Device, PipelineState, RenderPass,
     Sampler, Texture, deviceManager, Shader, InputAssembler } from '../../gfx';
 import { IMacroPatch, Pass, RenderScene } from '../../render-scene';
@@ -17,12 +17,14 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { CSMLayers, CSMShadowLayer } from '../shadow/csm-layers';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { TextureCube } from '../../asset/assets';
+import { DebugViewCompositeType } from '../debug-view';
 
 const _uboVec = new Vec4();
 const _uboVec3 = new Vec3();
 const _uboCol = new Color();
 const _matView = new Mat4();
 const _mulMatView = new Mat4();
+export const PIPELINE_GLOBAL_DATA_NAME = 'cc_pipeline_global';
 export function setTextureUBOView (setter: WebSetter, cfg: Readonly<PipelineSceneData>, layout = 'default'): void {
     const skybox = cfg.skybox;
     const director = cclegacy.director;
@@ -61,6 +63,36 @@ export function setTextureUBOView (setter: WebSetter, cfg: Readonly<PipelineScen
     if (!setter.hasTexture('cc_spotShadowMap')) {
         setter.setTexture('cc_spotShadowMap', pipeline.defaultShadowTexture as Texture);
     }
+}
+
+export function updateRasterPassConstants (setter: WebSetter, width: number, height: number, layoutName = 'default'): void {
+    const director = cclegacy.director;
+    const root: Root = director.root!;
+    const shadingWidth = width;
+    const shadingHeight = height;
+    const pipeline = root.pipeline as any;
+    const layoutGraph = pipeline.layoutGraph;
+    // Global
+    _uboVec.set(root.cumulativeTime, root.frameTime, director.getTotalFrames() as number);
+    setter.setVec4('cc_time', _uboVec);
+    _uboVec.set(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight);
+    setter.setVec4('cc_screenSize', _uboVec);
+    _uboVec.set(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight);
+    setter.setVec4('cc_nativeSize', _uboVec);
+    const debugView = root.debugView;
+    _uboVec.set(0.0, 0.0, 0.0, 0.0);
+    if (debugView) {
+        const debugPackVec: number[] = [debugView.singleMode as number, 0.0, 0.0, 0.0];
+        for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < (DebugViewCompositeType.MAX_BIT_COUNT as number); i++) {
+            const idx = i >> 3;
+            const bit = i % 8;
+            debugPackVec[idx + 1] += (debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0) * (10.0 ** bit);
+        }
+        debugPackVec[3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
+        debugPackVec[3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
+        _uboVec.set(debugPackVec[0], debugPackVec[1], debugPackVec[2], debugPackVec[3]);
+    }
+    setter.setVec4('cc_debug_view_mode', _uboVec);
 }
 
 export function setCameraUBOValues (
@@ -200,7 +232,7 @@ export class DrawInstance {
     }
 }
 
-export const instancePool = new RecyclePool(() => new DrawInstance(), 8);
+export const instancePool = new RecyclePool(() => new DrawInstance(), 4);
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 function getLayoutId (passLayout: string, phaseLayout: string): number {
@@ -503,6 +535,7 @@ export function setShadowUBOView (setter: WebSetter, camera: Camera | null, layo
     }
 }
 
+export const setterBuilderMap: Map<number, WebSetter> = new Map<number, WebSetter>();
 export class WebSetter implements Setter {
     constructor (data: RenderData, lg: LayoutGraphData) {
         this._data = data;
@@ -796,6 +829,19 @@ export class WebSetter implements Setter {
         throw new Error('Method not implemented.');
     }
 
+    get data (): RenderData {
+        return this._data;
+    }
+
+    /** @engineInternal */
+    set data (data: RenderData) {
+        this._data = data;
+    }
+
+    updateRenderData (): void {
+        if (!setterBuilderMap.has(this._vertID)) setterBuilderMap.set(this._vertID, this);
+    }
+
     // protected
     protected _data: RenderData;
     protected _lg: LayoutGraphData;
@@ -807,9 +853,18 @@ export class WebSetter implements Setter {
     protected _currConstant: number[] = [];
 }
 
+export function bindDescriptorSet (
+    cmdBuffer: CommandBuffer,
+    set: number,
+    descriptorSet: DescriptorSet,
+    dynamicOffsets?: Readonly<number[]>,
+): void {
+    cmdBuffer.bindDescriptorSet(set, descriptorSet, dynamicOffsets);
+}
+
+type DrawCallback = () => void;
 export class RenderDrawQueue {
     instances: Array<DrawInstance> = new Array<DrawInstance>();
-
     empty (): boolean {
         return this.instances.length === 0;
     }
@@ -824,7 +879,14 @@ export class RenderDrawQueue {
         const passPriority = pass.priority;
         const modelPriority = subModel.priority;
         const shaderId = subModel.shaders[passIdx].typedID;
-        const hash = (0 << 30) | (passPriority as number << 16) | (modelPriority as number << 8) | passIdx;
+        let hash = (0 << 30) | (passPriority as number << 16) | (modelPriority as number << 8) | passIdx;
+        const is_blend = pass.blendState.targets[0].blend;
+        if (!is_blend) {
+            const hash1 = pass.hash;
+            const hash2 = subModel.inputAssembler.attributesHash;
+            const hash3 = shaderId;
+            hash = hash1 ^ hash2 ^ hash3;
+        }
         const priority = model.priority;
         const instance = instancePool.add();
         instance.update(subModel, priority, hash, depth, shaderId, passIdx);
@@ -874,7 +936,6 @@ export class RenderDrawQueue {
     ): void {
         for (const instance of this.instances) {
             const subModel = instance.subModel!;
-
             const passIdx = instance.passIndex;
             const inputAssembler = subModel.inputAssembler;
             const pass = subModel.passes[passIdx];
@@ -882,14 +943,15 @@ export class RenderDrawQueue {
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
 
             cmdBuffer.bindPipelineState(pso);
-            cmdBuffer.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+            bindDescriptorSet(cmdBuffer, SetIndex.MATERIAL, pass.descriptorSet);
             if (ds) {
-                cmdBuffer.bindDescriptorSet(SetIndex.GLOBAL, ds, [offset]);
+                bindDescriptorSet(cmdBuffer, SetIndex.GLOBAL, ds, [offset]);
             }
             if (dynamicOffsets) {
-                cmdBuffer.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet, dynamicOffsets);
+                bindDescriptorSet(cmdBuffer, SetIndex.LOCAL, subModel.descriptorSet, dynamicOffsets);
             } else {
-                cmdBuffer.bindDescriptorSet(
+                bindDescriptorSet(
+                    cmdBuffer,
                     SetIndex.LOCAL,
                     subModel.descriptorSet,
                 );
@@ -901,98 +963,86 @@ export class RenderDrawQueue {
 }
 
 export class RenderInstancingQueue {
-    passInstances: Map<Pass, number> = new Map<Pass, number>();
-    instanceBuffers: Array<InstancedBuffer> = new Array<InstancedBuffer>();
+    public queue = new Set<InstancedBuffer>();
+    private _renderQueue: InstancedBuffer[] = [];
+    beforeDraw: DrawCallback | null = null;
     empty (): boolean {
-        return this.passInstances.size === 0;
+        return this.queue.size === 0;
     }
 
     add (pass: Pass, subModel: SubModel, passID: number): void {
-        const iter = this.passInstances.get(pass);
-        if (iter === undefined) {
-            const instanceBufferID = this.passInstances.size;
-            if (instanceBufferID >= this.instanceBuffers.length) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                this.instanceBuffers.push(new InstancedBuffer(pass));
-            }
-            this.passInstances.set(pass, instanceBufferID);
-
-            const instanceBuffer = this.instanceBuffers[instanceBufferID];
-            instanceBuffer.pass = pass;
-            const instances = instanceBuffer.instances;
-        }
-
-        const instancedBuffer = this.instanceBuffers[this.passInstances.get(pass)!];
+        const instancedBuffer = pass.getInstancedBuffer();
         instancedBuffer.merge(subModel, passID);
+        this.queue.add(instancedBuffer);
     }
 
     clear (): void {
-        this.passInstances.clear();
-        const instanceBuffers = this.instanceBuffers;
-        instanceBuffers.forEach((instance) => {
-            instance.clear();
-        });
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
+        this._renderQueue.length = 0;
+        this.queue.clear();
     }
 
     sort (): void {
-        this.instanceBuffers = this.instanceBuffers.sort(instancingCompareFn);
+        const sortedArray = Array.from(this.queue).sort(instancingCompareFn);
+        sortedArray.forEach((item) => {
+            if (!item.pass.blendState.targets[0]?.blend) {
+                this._renderQueue.push(item);
+            }
+        });
+        sortedArray.forEach((item) => {
+            if (item.pass.blendState.targets[0]?.blend) {
+                this._renderQueue.push(item);
+            }
+        });
     }
 
-    uploadBuffers (cmdBuffer: CommandBuffer): void {
-        for (const [pass, bufferID] of this.passInstances.entries()) {
-            const instanceBuffer = this.instanceBuffers[bufferID];
-            if (instanceBuffer.hasPendingModels) {
-                instanceBuffer.uploadBuffers(cmdBuffer);
-            }
+    uploadBuffers (cmdBuff: CommandBuffer): void {
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuff);
+            res = it.next();
         }
     }
 
     recordCommandBuffer (
         renderPass: RenderPass,
-        cmdBuffer: CommandBuffer,
+        cmdBuff: CommandBuffer,
         ds: DescriptorSet | null = null,
         offset = 0,
         dynamicOffsets: number[] | null = null,
     ): void {
-        const renderQueue = this.instanceBuffers;
-        for (const instanceBuffer of renderQueue) {
-            if (!instanceBuffer.hasPendingModels) {
-                continue;
+        const it = this._renderQueue.length === 0 ? this.queue.values() : this._renderQueue[Symbol.iterator]();
+        let res = it.next();
+
+        while (!res.done) {
+            const { instances, pass, hasPendingModels } = res.value;
+            if (hasPendingModels) {
+                bindDescriptorSet(cmdBuff, SetIndex.MATERIAL, pass.descriptorSet);
+                let lastPSO: PipelineState | null = null;
+                for (let b = 0; b < instances.length; ++b) {
+                    const instance = instances[b];
+                    if (!instance.count) { continue; }
+                    const shader = instance.shader;
+                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass, shader!, renderPass, instance.ia);
+                    if (lastPSO !== pso) {
+                        cmdBuff.bindPipelineState(pso);
+                        lastPSO = pso;
+                    }
+                    if (ds) bindDescriptorSet(cmdBuff, SetIndex.GLOBAL, ds, [offset]);
+                    if (dynamicOffsets) {
+                        bindDescriptorSet(cmdBuff, SetIndex.LOCAL, instance.descriptorSet, dynamicOffsets);
+                    } else {
+                        bindDescriptorSet(cmdBuff, SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
+                    }
+                    cmdBuff.bindInputAssembler(instance.ia);
+                    cmdBuff.draw(instance.ia);
+                }
             }
-            const instances = instanceBuffer.instances;
-            const drawPass = instanceBuffer.pass;
-            cmdBuffer.bindDescriptorSet(SetIndex.MATERIAL, drawPass.descriptorSet);
-            let lastPSO: PipelineState | null = null;
-            for (const instance of instances) {
-                if (!instance.count) {
-                    continue;
-                }
-                const pso = PipelineStateManager.getOrCreatePipelineState(
-                    deviceManager.gfxDevice,
-                    drawPass,
-                    instance.shader!,
-                    renderPass,
-                    instance.ia,
-                );
-                if (lastPSO !== pso) {
-                    cmdBuffer.bindPipelineState(pso);
-                    lastPSO = pso;
-                }
-                if (ds) {
-                    cmdBuffer.bindDescriptorSet(SetIndex.GLOBAL, ds, [offset]);
-                }
-                if (dynamicOffsets) {
-                    cmdBuffer.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, dynamicOffsets);
-                } else {
-                    cmdBuffer.bindDescriptorSet(
-                        SetIndex.LOCAL,
-                        instance.descriptorSet,
-                        instanceBuffer.dynamicOffsets,
-                    );
-                }
-                cmdBuffer.bindInputAssembler(instance.ia);
-                cmdBuffer.draw(instance.ia);
-            }
+            res = it.next();
         }
     }
 }
@@ -1043,8 +1093,8 @@ export function recordCommand (
     if (pso) {
         const _ia = ia!;
         cmdBuffer.bindPipelineState(pso);
-        cmdBuffer.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-        cmdBuffer.bindDescriptorSet(SetIndex.LOCAL, localDesc);
+        bindDescriptorSet(cmdBuffer, SetIndex.MATERIAL, pass.descriptorSet);
+        bindDescriptorSet(cmdBuffer, SetIndex.LOCAL, localDesc);
         cmdBuffer.bindInputAssembler(_ia);
         cmdBuffer.draw(_ia);
     }

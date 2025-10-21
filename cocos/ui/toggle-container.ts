@@ -28,6 +28,7 @@ import { Component, EventHandler as ComponentEventHandler } from '../scene-graph
 import { Toggle } from './toggle';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../scene-graph/node-event';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 /**
  * @en
@@ -171,6 +172,7 @@ export class ToggleContainer extends Component {
                 toggle.isChecked = false;
             }
         }
+        uiRendererManager.dirty = true;
     }
 }
 

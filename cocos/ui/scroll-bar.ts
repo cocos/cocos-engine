@@ -33,6 +33,7 @@ import { ScrollView } from './scroll-view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../core/global-exports';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 const GETTING_SHORTER_FACTOR = 20;
 const _tempPos_1 = new Vec3();
@@ -390,6 +391,7 @@ export class ScrollBar extends Component {
             this._fixupHandlerPosition(oldPosition);
 
             this._handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y, oldPosition.z);
+            uiRendererManager.dirty = true;
         }
     }
 
@@ -495,6 +497,7 @@ export class ScrollBar extends Component {
             this._autoHideRemainingTime = Math.max(0, this._autoHideRemainingTime);
             const opacity = this._opacity * (this._autoHideRemainingTime / this._autoHideTime);
             this._setOpacity(opacity);
+            uiRendererManager.dirty = true;
         }
     }
 }

@@ -306,4 +306,11 @@ export enum NodeEventType {
      * 当激活状态改变时将触发的事件。
      */
     ACTIVE_CHANGED = 'active-changed',
+    /**
+     * @en
+     * The event is fired if the node is marked as dirty.
+     * @zh
+     * 当节点发生改变时将触发的事件。
+     */
+    NODE_DIRTY = 'node-dirty',
 }

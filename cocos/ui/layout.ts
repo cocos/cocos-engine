@@ -34,6 +34,7 @@ import { warnID } from '../core';
 import { NodeEventType } from '../scene-graph/node-event';
 import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph/node';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 /**
  * @en Layout type.
@@ -703,6 +704,7 @@ export class Layout extends Component {
         if (this._layoutDirty || force) {
             this._doLayout();
             this._layoutDirty = false;
+            uiRendererManager.dirty = true;
         }
     }
 

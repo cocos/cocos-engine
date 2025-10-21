@@ -105,6 +105,7 @@ export class Renderer extends Component {
         if (this._materials.length === 1 && !this._materialInstances[0] && this._materials[0] === val) {
             return;
         }
+        this.node.dirty();
         this.setMaterialInstance(val, 0);
     }
 
@@ -131,6 +132,7 @@ export class Renderer extends Component {
             // they could be either undefined or null
             // eslint-disable-next-line eqeqeq
             if (this._materialInstances[i] != val[i]) {
+                this.node.dirty();
                 this.setMaterialInstance(val[i], i);
             }
         }
@@ -185,6 +187,7 @@ export class Renderer extends Component {
             inst.destroy();
             this._materialInstances[index] = null;
         }
+        this.node.dirty();
         this._onMaterialModified(index, this._materials[index]);
     }
 
@@ -229,6 +232,7 @@ export class Renderer extends Component {
         if (matInst && matInst.parent) {
             if (matInst !== curInst) {
                 this._materialInstances[index] = matInst as MaterialInstance;
+                this.node.dirty();
                 this._onMaterialModified(index, matInst);
             }
             return;

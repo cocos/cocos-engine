@@ -25,7 +25,7 @@
 import { JSB } from 'internal:constants';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../gfx';
 import { getAttributeStride } from './vertex-format';
-import { sys, getError, warnID, assertIsTrue } from '../../core';
+import { sys, getError, warnID, assertIsTrue, cclegacy } from '../../core';
 import { NativeUIMeshBuffer } from './native-2d';
 
 interface IIARef {
@@ -420,15 +420,17 @@ export class MeshBuffer {
         if (sys.__isWebIOS14OrIPadOS14Env || !this._iaPool[0]) {
             const vbStride = this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
             const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+            const enabledDeviceMem = (cclegacy.rendering && cclegacy.rendering.enableEffectImport)
+                ? MemoryUsageBit.DEVICE : MemoryUsageBit.HOST | MemoryUsageBit.DEVICE;
             const vertexBuffer = device.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                enabledDeviceMem,
                 vbStride,
                 vbStride,
             ));
             indexBuffer = device.createBuffer(new BufferInfo(
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                enabledDeviceMem,
                 ibStride,
                 ibStride,
             ));

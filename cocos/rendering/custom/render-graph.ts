@@ -1129,13 +1129,13 @@ export class RenderData {
         this.buffers.clear();
         this.textures.clear();
         this.samplers.clear();
-        this.custom = '';
+        this.custom = {};
     }
     readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
     readonly samplers: Map<number, Sampler> = new Map<number, Sampler>();
-    custom = '';
+    custom: any = {};
 }
 
 //=================================================================
@@ -1528,7 +1528,7 @@ export class RenderGraph implements BidirectionalGraph
 }
 
 function createPool<T> (Constructor: new() => T): RecyclePool<T> {
-    return new RecyclePool<T>(() => new Constructor(), 16);
+    return new RecyclePool<T>(() => new Constructor(), 1);
 }
 
 export class RenderGraphObjectPool {

@@ -39,6 +39,7 @@ import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../scene-graph/node-event';
 import { CCObjectFlags } from '../core';
 import { Texture2D } from '../asset/assets';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -228,6 +229,7 @@ export class SubContextView extends Component {
             width,
             height,
         });
+        uiRendererManager.dirty = true;
     }
 
     private _updateSubContextTexture (): void {
@@ -247,6 +249,7 @@ export class SubContextView extends Component {
         }
 
         this._texture.uploadData(sharedCanvas);
+        uiRendererManager.dirty = true;
     }
 
     private _registerNodeEvent (): void {
@@ -263,6 +266,7 @@ export class SubContextView extends Component {
 
     private _updateContentLayer (): void {
         this._content.layer = this.node.layer;
+        uiRendererManager.dirty = true;
     }
 
     public update (dt?: number): void {
