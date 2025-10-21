@@ -204,7 +204,7 @@ function align (node: Node, widget: Widget): void {
 
 // TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
 function visitNode (node: any): void {
-    const widget = node.getComponent(Widget);
+    const widget: Widget = node.getComponent(Widget);
     if (widget && widget.enabled) {
         if (DEV) {
             widget._validateTargetInDEV();
@@ -297,6 +297,7 @@ export const widgetManager = cclegacy._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             screenAdapter.on('window-resize', thisOnResized);
         }
     },
