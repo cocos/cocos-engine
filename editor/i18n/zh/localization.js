@@ -537,6 +537,7 @@ module.exports = link(mixin({
         handle: '滑块按钮部件',
         direction: '滑动方向',
         progress: '当前进度值，该数值的区间是 0-1 之间。',
+        parentStopScroll: '拖动滑动器滑块时是否停止节点上层的滚动视图。默认为 false。',
         slideEvents: '滑动器组件事件回调函数',
     },
     trailSegment: {

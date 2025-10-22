@@ -550,6 +550,7 @@ module.exports = link(mixin({
         handle: 'The "handle" part of the slider',
         direction: 'The slider direction',
         progress: 'The current progress of the slider. The valid value is between 0-1',
+        parentStopScroll: 'Whether to stop the scroll view of the upper layer of the node when dragging the slider thumb. The default value is false.',
         slideEvents: 'The slider events callback',
     },
     trailSegment: {
