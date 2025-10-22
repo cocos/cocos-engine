@@ -151,7 +151,7 @@ export class Slider extends Component {
     /**
      * @en
      * Whether to stop the scroll view of the upper layer of the node when dragging the slider thumb. The default value is false.
-     * 
+     *
      * @zh
      * 拖动滑动器滑块时是否停止节点上层的滚动视图。默认为 false。
      */
@@ -187,7 +187,7 @@ export class Slider extends Component {
     @serializable
     private _stopParentScroll: boolean = false;
 
-    private _scrollview : ScrollView | null = null;
+    private _scrollview: ScrollView | null = null;
     private _scrollviewContentCache: Node | null = null;
     private _offset: Vec3 = new Vec3();
     private _dragging = false;
@@ -278,7 +278,7 @@ export class Slider extends Component {
             this._handleSliderLogic(event.touch);
         }
         this.findParentScrollView(this.node);
-        this._stopParentScroll && this.stopParentScroll();
+        if (this._stopParentScroll) this.stopParentScroll();
 
         event.propagationStopped = true;
     }
@@ -290,7 +290,7 @@ export class Slider extends Component {
 
         this._handleSliderLogic(event.touch);
         this.findParentScrollView(this.node);
-        this._stopParentScroll && this.stopParentScroll();
+        if (this._stopParentScroll) this.stopParentScroll();
         event.propagationStopped = true;
     }
 
