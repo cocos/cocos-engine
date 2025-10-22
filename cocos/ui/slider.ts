@@ -149,9 +149,11 @@ export class Slider extends Component {
     }
 
     /**
-     * @en Whether to stop the scroll view of the upper layer of the node when dragging the slider thumb. The default value is false.
+     * @en
+     * Whether to stop the scroll view of the upper layer of the node when dragging the slider thumb. The default value is false.
      * 
-     * @zh 拖动滑动器滑块时是否停止节点上层的滚动视图。默认为 false。
+     * @zh
+     * 拖动滑动器滑块时是否停止节点上层的滚动视图。默认为 false。
      */
     @editable
     @tooltip('i18n:slider.parentStopScroll')
@@ -183,7 +185,7 @@ export class Slider extends Component {
     @serializable
     private _progress = 0.1;
     @serializable
-    private _stopParentScroll = false;
+    private _stopParentScroll: boolean = false;
 
     private _scrollview : ScrollView | null = null;
     private _scrollviewContentCache: Node | null = null;
@@ -408,19 +410,19 @@ export class Slider extends Component {
         this._emitSlideEvent();
     }
 
-    public stopParentScroll () {
+    public stopParentScroll (): void {
         if (this._scrollview) {
             this._scrollview.content = null;
         }
     }
 
-    public resumeParentScroll () {
+    public resumeParentScroll (): void {
         if (this._scrollview) {
             this._scrollview.content = this._scrollviewContentCache;
         }
     }
 
-    protected findParentScrollView (node: Node) {
+    protected findParentScrollView (node: Node): void {
         const p = node.parent;
         if (p && !this._scrollview) {
             this._scrollview = p.getComponent(ScrollView);
