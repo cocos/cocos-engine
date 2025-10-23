@@ -1004,7 +1004,7 @@ export class LayoutGraphData implements BidirectionalGraph
 }
 
 function createPool<T> (Constructor: new() => T): RecyclePool<T> {
-    return new RecyclePool<T>(() => new Constructor(), 4);
+    return new RecyclePool<T>(() => new Constructor(), 1);
 }
 
 export class LayoutGraphObjectPool {

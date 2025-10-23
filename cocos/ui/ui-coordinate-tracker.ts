@@ -29,6 +29,7 @@ import { EventHandler } from '../scene-graph/component-event-handler';
 import { Node } from '../scene-graph/node';
 import { Camera } from '../misc/camera-component';
 import { v3, Vec3 } from '../core/math';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 /**
  * @en The component that converts 3D node coordinates to UI node coordinates.
@@ -182,6 +183,7 @@ export class UICoordinateTracker extends Component {
             const data = this._distance / Math.abs(this._viewPos.z);
             EventHandler.emitEvents(this.syncEvents, this._transformPos, data);
         }
+        uiRendererManager.dirty = true;
     }
 
     protected _checkCanMove (): void {

@@ -368,6 +368,7 @@ export class UIRenderer extends Renderer {
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.node.on(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
+        this.node.on(NodeEventType.NODE_DIRTY, this._nodeStateChange, this);
         // If the renderData is invalid, it needs to be rebuilt to recalculate the batch processing.
         if (!this._renderData && this._flushAssembler) {
             this._flushAssembler();
@@ -398,6 +399,7 @@ export class UIRenderer extends Renderer {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
+        this.node.off(NodeEventType.NODE_DIRTY, this._nodeStateChange, this);
         // When disabling, it is necessary to free up idle space to fully utilize chunks
         // and avoid breaking batch processing.
         this._destroyData();
@@ -564,6 +566,7 @@ export class UIRenderer extends Renderer {
                 }
             }
         }
+        uiRendererManager.dirty = true;
     }
 
     private setEntityColorDirty (dirty: boolean): void {

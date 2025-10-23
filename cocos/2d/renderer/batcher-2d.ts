@@ -52,6 +52,7 @@ import { RenderingSubMesh } from '../../asset/assets';
 import { IAssembler } from './base';
 import { RenderEntityFillColorType } from './render-entity';
 import type { Director } from '../../game/director';
+import { uiRendererManager } from '../framework/ui-renderer-manager';
 
 let sorting2DCount = 0;
 
@@ -202,6 +203,7 @@ export class Batcher2D implements IBatcher {
         if (this._maskClearMtl) {
             this._maskClearMtl.destroy();
         }
+        uiRendererManager.dirty = true;
     }
 
     private syncRootNodesToNative (): void {
@@ -230,6 +232,7 @@ export class Batcher2D implements IBatcher {
         if (JSB) {
             this.syncRootNodesToNative();
         }
+        uiRendererManager.dirty = true;
     }
 
     /**
@@ -248,6 +251,7 @@ export class Batcher2D implements IBatcher {
         if (JSB) {
             this.syncRootNodesToNative();
         }
+        uiRendererManager.dirty = true;
     }
 
     public sortScreens (): void {

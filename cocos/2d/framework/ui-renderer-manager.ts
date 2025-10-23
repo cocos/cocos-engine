@@ -32,6 +32,21 @@ export class UIRendererManager {
     private _allRenderers: (UIRenderer | UIMeshRenderer)[] = [];
     private _dirtyRenderers: (UIRenderer | UIMeshRenderer)[] = [];
     private _dirtyVersion = 0;
+    private _dirty = false;
+
+    /**
+     * @engineInternal
+     */
+    get dirty (): boolean {
+        return this._dirty;
+    }
+    /**
+     * @engineInternal
+     */
+    set dirty (value: boolean) {
+        this._dirty = value;
+    }
+
     public addRenderer (uiRenderer: UIRenderer | UIMeshRenderer): void {
         if (uiRenderer._internalId === -1) {
             uiRenderer._internalId = this._allRenderers.length;
@@ -57,6 +72,7 @@ export class UIRendererManager {
 
     public markDirtyRenderer (uiRenderer: UIRenderer | UIMeshRenderer): void {
         if (uiRenderer._dirtyVersion !== this._dirtyVersion && uiRenderer._internalId !== -1) {
+            this._dirty = true;
             this._dirtyRenderers.push(uiRenderer);
             uiRenderer._dirtyVersion = this._dirtyVersion;
         }

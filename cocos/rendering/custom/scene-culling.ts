@@ -1,4 +1,4 @@
-import { DEBUG } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { Vec3, RecyclePool, assert, cclegacy } from '../../core';
 import { Frustum, intersect, AABB } from '../../core/geometry';
 import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageBit, BufferUsageBit, deviceManager } from '../../gfx';
@@ -17,13 +17,13 @@ import { getUniformBlockSize } from './layout-graph-utils';
 import { WebProgramLibrary } from './web-program-library';
 
 class CullingPools {
-    frustumCullingKeyRecycle = new RecyclePool(() => new FrustumCullingKey(), 8);
-    frustumCullingsRecycle = new RecyclePool(() => new FrustumCulling(), 8);
-    lightBoundsCullingRecycle = new RecyclePool(() => new LightBoundsCulling(), 8);
-    lightBoundsCullingResultRecycle = new RecyclePool(() => new LightBoundsCullingResult(), 8);
-    lightBoundsCullingKeyRecycle = new RecyclePool(() => new LightBoundsCullingKey(), 8);
-    renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 8);
-    renderQueueQueryRecycle = new RecyclePool(() => new RenderQueueQuery(), 8);
+    frustumCullingKeyRecycle = new RecyclePool(() => new FrustumCullingKey(), 4);
+    frustumCullingsRecycle = new RecyclePool(() => new FrustumCulling(), 4);
+    lightBoundsCullingRecycle = new RecyclePool(() => new LightBoundsCulling(), 4);
+    lightBoundsCullingResultRecycle = new RecyclePool(() => new LightBoundsCullingResult(), 4);
+    lightBoundsCullingKeyRecycle = new RecyclePool(() => new LightBoundsCullingKey(), 4);
+    renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 4);
+    renderQueueQueryRecycle = new RecyclePool(() => new RenderQueueQuery(), 4);
 }
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D,
     Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
@@ -178,10 +178,8 @@ function sceneCulling (
     }
 
     for (const model of scene.models) {
-        if (!model.enabled || !model.node || (castShadow && !model.castShadow) || (!probe && !isVisible(model, visibility))) {
-            continue;
-        }
-        if (scene.isCulledByLod(camera, model)) {
+        if (!model.enabled || !model.node || (castShadow && !model.castShadow)
+        || ((!probe || probe.probeType === ProbeType.CUBE) && !isVisible(model, visibility)) || scene.isCulledByLod(camera, model)) {
             continue;
         }
         const wBounds = model.worldBounds;
@@ -192,9 +190,6 @@ function sceneCulling (
             }
             models.push(model);
         } else if (probe.probeType === ProbeType.CUBE) {
-            if (!isVisible(model, visibility)) {
-                continue;
-            }
             if (wBounds && isIntersectAABB(wBounds, probe.boundingBox!)) {
                 continue;
             }
@@ -311,7 +306,30 @@ export class SceneCulling {
         cullingPools.renderQueueQueryRecycle.reset();
         instancePool.reset();
     }
+
+    get dirty (): boolean {
+        if (EDITOR || !this.frustumCullings.size) {
+            return true;
+        }
+        const rScenes = this.frustumCullings.keys();
+        for (const scene of rScenes) {
+            if (scene.dirty) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    set dirty (value: boolean) {
+        for (const scene of this.frustumCullings.keys()) {
+            scene.dirty = value;
+        }
+    }
+
     clear (): void {
+        if (!this.dirty) {
+            return;
+        }
         this.resetPool();
         this.frustumCullings.clear();
         this.frustumCullingResults.length = 0;
@@ -326,6 +344,9 @@ export class SceneCulling {
     }
 
     buildRenderQueues (rg: RenderGraph, lg: LayoutGraphData, pplSceneData: PipelineSceneData): void {
+        if (!this.dirty) {
+            return;
+        }
         this.layoutGraph = lg;
         this.renderGraph = rg;
         pSceneData = pplSceneData;
@@ -484,6 +505,9 @@ export class SceneCulling {
     }
 
     uploadInstancing (cmdBuffer: CommandBuffer): void {
+        if (!this.dirty) {
+            return;
+        }
         for (let queueID = 0; queueID !== this.numRenderQueues; ++queueID) {
             const queue = this.renderQueues[queueID];
             queue.opaqueInstancingQueue.uploadBuffers(cmdBuffer);
@@ -747,6 +771,15 @@ export class LightResource {
     }
 
     buildLights (sceneCulling: SceneCulling, bHDR: boolean, shadowInfo: Shadows | null): void {
+        if (sceneCulling.lightBoundsCullings.size === 0) {
+            if (this.lightBuffer) {
+                this.lightBuffer.destroy();
+                this.firstLightBufferView!.destroy();
+                this.lightBuffer = undefined;
+                this.firstLightBufferView = null;
+            }
+            return;
+        }
         // Build light buffer
         for (const [scene, lightBoundsCullings] of sceneCulling.lightBoundsCullings) {
             for (const [key, lightBoundsCullingID] of lightBoundsCullings.resultIndex) {

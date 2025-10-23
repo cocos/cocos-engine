@@ -36,6 +36,7 @@ import { director } from '../game/director';
 import { settings, SettingsCategory } from '../core/settings';
 import type { Root } from '../root';
 import type { Game } from '../game';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 /**
  * @en View represents the game window.<br/>
@@ -605,6 +606,7 @@ export class View extends Eventify(System) {
 
         this.emit('canvas-resize');
         if (this._resizeCallback) this._resizeCallback();
+        uiRendererManager.dirty = true;
     }
 }
 

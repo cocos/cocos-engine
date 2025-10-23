@@ -32,6 +32,7 @@ import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -203,7 +204,7 @@ function align (node: Node, widget: Widget): void {
 
 // TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
 function visitNode (node: any): void {
-    const widget = node.getComponent(Widget);
+    const widget: Widget = node.getComponent(Widget);
     if (widget && widget.enabled) {
         if (DEV) {
             widget._validateTargetInDEV();
@@ -244,6 +245,7 @@ function refreshScene (): void {
             if (widget._dirty) {
                 align(widget.node, widget);
                 widget._dirty = false;
+                uiRendererManager.dirty = true;
             }
         }
         widgetManager.isAligning = false;
@@ -295,6 +297,7 @@ export const widgetManager = cclegacy._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             screenAdapter.on('window-resize', thisOnResized);
         }
     },

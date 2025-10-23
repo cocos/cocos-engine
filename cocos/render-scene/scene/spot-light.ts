@@ -87,6 +87,9 @@ export class SpotLight extends Light {
      * @zh 聚光灯的光源尺寸
      */
     set size (size: number) {
+        if (this._size !== size) {
+            this.dirty = true;
+        }
         this._size = size;
     }
 
@@ -137,6 +140,9 @@ export class SpotLight extends Light {
         return this._luminanceHDR;
     }
     set luminanceHDR (value: number) {
+        if (this._luminanceHDR !== value) {
+            this.dirty = true;
+        }
         this._luminanceHDR = value;
     }
 
@@ -148,6 +154,9 @@ export class SpotLight extends Light {
         return this._luminanceLDR;
     }
     set luminanceLDR (value: number) {
+        if (this._luminanceLDR !== value) {
+            this.dirty = true;
+        }
         this._luminanceLDR = value;
     }
 
@@ -229,6 +238,9 @@ export class SpotLight extends Light {
         return this._shadowPcf;
     }
     set shadowPcf (val) {
+        if (this._shadowPcf !== val) {
+            this.dirty = true;
+        }
         this._shadowPcf = val;
     }
 
@@ -240,6 +252,9 @@ export class SpotLight extends Light {
         return this._shadowBias;
     }
     set shadowBias (val) {
+        if (this._shadowBias !== val) {
+            this.dirty = true;
+        }
         this._shadowBias = val;
     }
 
@@ -251,6 +266,9 @@ export class SpotLight extends Light {
         return this._shadowNormalBias;
     }
     set shadowNormalBias (val: number) {
+        if (this._shadowNormalBias !== val) {
+            this.dirty = true;
+        }
         this._shadowNormalBias = val;
     }
 
@@ -291,6 +309,7 @@ export class SpotLight extends Light {
             this._frustum.update(_matViewProj, _matViewProjInv);
 
             this._needUpdate = false;
+            this._dirty = true;
         }
     }
 }
