@@ -617,8 +617,9 @@ export class RichText extends Component {
                 if (_tempSize.x < 2048) {
                     partStringArr.push(multilineTexts[i]);
                 } else {
-                    const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
-                    partStringArr.push(...thisPartSplitResultArr);
+                    // _updateRichTextWithMaxWidth function will correct the text again.
+                    partStringArr.push(text);
+                    return partStringArr;
                 }
             }
         }
