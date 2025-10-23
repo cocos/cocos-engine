@@ -226,7 +226,7 @@ export class Profiler extends System {
             director.root!.pipeline.profiler = null;
             cclegacy.game.config.showFPS = false;
 
-            cclegacy.game.off(Game.EVENT_RESTART, this.generateNode, self);
+            cclegacy.game.off(Game.EVENT_RESTART, self.generateNode, self);
         }
     }
 
