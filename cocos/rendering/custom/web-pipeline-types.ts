@@ -882,10 +882,12 @@ export class RenderDrawQueue {
         let hash = (0 << 30) | (passPriority as number << 16) | (modelPriority as number << 8) | passIdx;
         const is_blend = pass.blendState.targets[0].blend;
         if (!is_blend) {
+            const priorityHash = (passPriority as number << 8) | (modelPriority & 0xFF);
             const hash1 = pass.hash;
             const hash2 = subModel.inputAssembler.attributesHash;
             const hash3 = shaderId;
-            hash = hash1 ^ hash2 ^ hash3;
+            const bigEndHash = ((hash1 ^ hash2 ^ hash3) >>> 16) & 0xFFFF;
+            hash = (bigEndHash << 16) | (priorityHash & 0xFFFF);
         }
         const priority = model.priority;
         const instance = instancePool.add();

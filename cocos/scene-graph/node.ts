@@ -87,7 +87,8 @@ const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSync
 let globalFlagChangeVersion = 0;
 
 let skewCompCount = 0;
-
+const equalVec3 = new Vec3();
+const equalQuat = new Quat();
 /**
  * @zh
  * 场景树中的基本节点，基本特性有：
@@ -2460,13 +2461,19 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const localPosition = this._lpos;
 
         if (y === undefined) {
+            if (localPosition.equals(val as Vec3)) {
+                return;
+            }
             Vec3.copy(localPosition, val as Vec3);
         } else {
             if (z === undefined) {
                 z = localPosition.z;
             }
-
-            Vec3.set(localPosition, val as number, y, z);
+            equalVec3.set(val as number, y, z);
+            if (localPosition.equals(equalVec3)) {
+                return;
+            }
+            Vec3.copy(localPosition, equalVec3);
         }
 
         this.invalidateChildren(TransformBit.POSITION);
@@ -2510,9 +2517,17 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
         if (y === undefined) {
-            Quat.copy(this._lrot, val as Quat);
+            val = val as Quat;
+            if (this._lrot.equals(val)) {
+                return;
+            }
+            Quat.copy(this._lrot, val);
         } else {
-            Quat.set(this._lrot, val as number, y, z!, w!);
+            equalQuat.set(val as number, y, z, w);
+            if (this._lrot.equals(equalQuat)) {
+                return;
+            }
+            Quat.copy(this._lrot, equalQuat);
         }
 
         this._eulerDirty = true;
@@ -2591,12 +2606,20 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const localScale = this._lscale;
 
         if (y === undefined) {
-            Vec3.copy(localScale, val as Vec3);
+            val = val as Vec3;
+            if (Vec3.equals(localScale, val)) {
+                return;
+            }
+            Vec3.copy(localScale, val);
         } else {
             if (z === undefined) {
                 z = localScale.z;
             }
-            Vec3.set(localScale, val as number, y, z);
+            equalVec3.set(val as number, y, z);
+            if (Vec3.equals(localScale, equalVec3)) {
+                return;
+            }
+            Vec3.copy(localScale, equalVec3);
         }
 
         this.invalidateChildren(TransformBit.SCALE);

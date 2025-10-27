@@ -1909,7 +1909,7 @@ if (rendering) {
 
             // Pipeline
             cameraConfigs.enableFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
-            cameraConfigs.enableProfiler = ppl.profiler && isGameView;
+            cameraConfigs.enableProfiler = ppl.profiler && DEBUG && isGameView;
             cameraConfigs.remainingPasses = 0;
 
             // Shading scale
