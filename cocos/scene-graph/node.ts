@@ -87,7 +87,6 @@ const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSync
 let globalFlagChangeVersion = 0;
 
 let skewCompCount = 0;
-const equalVec3 = new Vec3();
 const equalQuat = new Quat();
 /**
  * @zh
@@ -2469,11 +2468,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (z === undefined) {
                 z = localPosition.z;
             }
-            equalVec3.set(val as number, y, z);
-            if (localPosition.equals(equalVec3)) {
+            val = val as number;
+            if (localPosition.equals3f(val, y, z)) {
                 return;
             }
-            Vec3.copy(localPosition, equalVec3);
+            localPosition.set(val, y, z);
         }
 
         this.invalidateChildren(TransformBit.POSITION);
@@ -2607,7 +2606,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         if (y === undefined) {
             val = val as Vec3;
-            if (Vec3.equals(localScale, val)) {
+            if (localScale.equals(val)) {
                 return;
             }
             Vec3.copy(localScale, val);
@@ -2615,11 +2614,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (z === undefined) {
                 z = localScale.z;
             }
-            equalVec3.set(val as number, y, z);
-            if (Vec3.equals(localScale, equalVec3)) {
+            val = val as number;
+            if (localScale.equals3f(val, y, z)) {
                 return;
             }
-            Vec3.copy(localScale, equalVec3);
+            localScale.set(val, y, z);
         }
 
         this.invalidateChildren(TransformBit.SCALE);
