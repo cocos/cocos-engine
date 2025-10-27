@@ -1443,7 +1443,8 @@ export class ParticleSystem extends ModelRenderer {
         // emit particles.
         const startDelay = self.startDelay.evaluate(0, 1)!;
         if (self._time > startDelay) {
-            if (self._time - (self.duration + startDelay) > dt) {
+            const timeLeft = self._time - (self.duration + startDelay);
+            if (timeLeft > dt) {
                 // self._time = startDelay; // delay will not be applied from the second loop.(Unity)
                 // self._emitRateTimeCounter = 0.0;
                 // self._emitRateDistanceCounter = 0.0;
@@ -1478,8 +1479,10 @@ export class ParticleSystem extends ModelRenderer {
             }
 
             // bursts
-            for (const burst of self.bursts) {
-                burst.update(self, dt);
+            if (timeLeft <= 0) {
+                for (const burst of self.bursts) {
+                    burst.update(self, dt);
+                }
             }
         }
     }
