@@ -1479,7 +1479,7 @@ export class ParticleSystem extends ModelRenderer {
             }
 
             // bursts
-            if (timeLeft <= 0) {
+            if (timeLeft <= 0 || self.loop) {
                 for (const burst of self.bursts) {
                     burst.update(self, dt);
                 }
