@@ -2460,7 +2460,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const localPosition = this._lpos;
 
         if (y === undefined) {
-            if (localPosition.equals(val as Vec3)) {
+            if (localPosition.strictEquals(val as Vec3)) {
                 return;
             }
             Vec3.copy(localPosition, val as Vec3);
@@ -2469,7 +2469,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 z = localPosition.z;
             }
             val = val as number;
-            if (localPosition.equals3f(val, y, z)) {
+            if (localPosition.strictEquals3f(val, y, z)) {
                 return;
             }
             localPosition.set(val, y, z);
@@ -2517,13 +2517,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
         if (y === undefined) {
             val = val as Quat;
-            if (this._lrot.equals(val)) {
+            if (this._lrot.strictEquals(val)) {
                 return;
             }
             Quat.copy(this._lrot, val);
         } else {
             equalQuat.set(val as number, y, z, w);
-            if (this._lrot.equals(equalQuat)) {
+            if (this._lrot.strictEquals(equalQuat)) {
                 return;
             }
             Quat.copy(this._lrot, equalQuat);
@@ -2606,7 +2606,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         if (y === undefined) {
             val = val as Vec3;
-            if (localScale.equals(val)) {
+            if (localScale.strictEquals(val)) {
                 return;
             }
             Vec3.copy(localScale, val);
@@ -2615,7 +2615,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 z = localScale.z;
             }
             val = val as number;
-            if (localScale.equals3f(val, y, z)) {
+            if (localScale.strictEquals3f(val, y, z)) {
                 return;
             }
             localScale.set(val, y, z);
