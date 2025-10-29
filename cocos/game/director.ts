@@ -796,7 +796,6 @@ export class Director extends EventTarget {
             }
 
             this.emit(DirectorEvent.BEFORE_DRAW);
-            uiRendererManager.updateAllDirtyRenderers();
             this._root!.frameMove(dt);
             this.emit(DirectorEvent.AFTER_DRAW);
 

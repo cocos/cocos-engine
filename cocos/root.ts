@@ -785,9 +785,8 @@ export class Root {
             this._device.acquire([deviceManager.swapchain]);
             const scenes = this._scenes;
             const stamp = director.getTotalFrames() as number;
-
             if (this._batcher && this._is2DDirty()) {
-                uiRendererManager.dirty = false;
+                uiRendererManager.updateAllDirtyRenderers();
                 this._batcher.update();
                 this._batcher.uploadBuffers();
             }

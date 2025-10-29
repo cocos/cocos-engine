@@ -88,6 +88,7 @@ export class UIRendererManager {
         }
         this._dirtyRenderers.length = 0;
         this._dirtyVersion++;
+        this._dirty = false;
     }
 }
 
