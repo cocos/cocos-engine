@@ -67,7 +67,6 @@ import {
     SurfaceTransform,
     Swapchain,
     Texture,
-    TextureBlit,
     TextureInfo,
     TextureType,
     TextureUsageBit,
@@ -79,7 +78,7 @@ import { Vec4 } from '../../core/math/vec4';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
-import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal, UBOLocalEnum } from '../define';
+import { SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal, UBOLocalEnum } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-types';
 import { DescriptorSetData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
@@ -131,7 +130,6 @@ import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import {
     bool,
-    currBindBuffs,
     getDescriptorSetDataFromLayout,
     getRenderArea,
     RenderPassMergeInfo,
@@ -142,7 +140,6 @@ import { LightResource, SceneCulling } from './scene-culling';
 import { Pass, RenderScene } from '../../render-scene';
 import { bindDescriptorSet, recordCommand, RenderQueue as RenderExeQueue } from './web-pipeline-types';
 import { SpotLight, SphereLight } from '../../render-scene/scene';
-import { WebProgramLibrary } from './web-program-library';
 
 class ResourceVisitor implements ResourceGraphVisitor {
     name: string;
@@ -225,6 +222,7 @@ interface RecordingInterface {
     preRecord(): void;
     record(): void;
     postRecord(): void;
+    updateRD(): void;
   }
 
 let context: ExecutorContext;
@@ -488,6 +486,8 @@ class BlitDesc {
 }
 
 class DeviceComputeQueue implements RecordingInterface {
+    updateRD (): void {
+    }
     preRecord (): void {
         // nothing to do
     }
@@ -500,7 +500,6 @@ class DeviceComputeQueue implements RecordingInterface {
     private _renderPhase: RenderPhaseData | null = null;
     private _descSetData: DescriptorSetData | null = null;
     private _layoutID = -1;
-    private _isUpdateUBO = false;
     private _isUploadInstance = false;
     private _isUploadBatched = false;
     private _queueId = -1;
@@ -526,15 +525,12 @@ class DeviceComputeQueue implements RecordingInterface {
     get renderPhase (): RenderPhaseData | null { return this._renderPhase; }
     set queueId (val) { this._queueId = val; }
     get queueId (): number { return this._queueId; }
-    set isUpdateUBO (update: boolean) { this._isUpdateUBO = update; }
-    get isUpdateUBO (): boolean { return this._isUpdateUBO; }
     set isUploadInstance (value: boolean) { this._isUploadInstance = value; }
     get isUploadInstance (): boolean { return this._isUploadInstance; }
     set isUploadBatched (value: boolean) { this._isUploadBatched = value; }
     get isUploadBatched (): boolean { return this._isUploadBatched; }
 
     reset (): void {
-        this._isUpdateUBO = false;
         this._isUploadInstance = false;
         this._isUploadBatched = false;
     }
@@ -550,6 +546,12 @@ class DeviceComputeQueue implements RecordingInterface {
 }
 
 class DeviceRenderQueue implements RecordingInterface {
+    updateRD (): void {
+        // queue
+        const queueId = this.queueId;
+        const queueRenderData = context.renderGraph.getData(queueId)!;
+        updateGlobalDescBinding(queueRenderData, this.devicePass.layoutName);
+    }
     private _renderScenes: DeviceRenderScene[] = [];
     private _devicePass?: DeviceRenderPass;
     private _hint: QueueHint = QueueHint.NONE;
@@ -560,7 +562,6 @@ class DeviceRenderQueue implements RecordingInterface {
     private _viewport: Viewport | null = null;
     private _scissor: Rect | null = null;
     private _layoutID = -1;
-    private _isUpdateUBO = false;
     private _isUploadInstance = false;
     private _isUploadBatched = false;
     get phaseID (): number { return this._phaseID; }
@@ -582,8 +583,6 @@ class DeviceRenderQueue implements RecordingInterface {
     private _queueId = -1;
     set queueId (val) { this._queueId = val; }
     get queueId (): number { return this._queueId; }
-    set isUpdateUBO (update: boolean) { this._isUpdateUBO = update; }
-    get isUpdateUBO (): boolean { return this._isUpdateUBO; }
     set isUploadInstance (value: boolean) { this._isUploadInstance = value; }
     get isUploadInstance (): boolean { return this._isUploadInstance; }
     set isUploadBatched (value: boolean) { this._isUploadBatched = value; }
@@ -616,7 +615,6 @@ class DeviceRenderQueue implements RecordingInterface {
     }
     reset (): void {
         this._renderScenes.length = 0;
-        this._isUpdateUBO = false;
         this._isUploadInstance = false;
         this._isUploadBatched = false;
         this._blitDesc?.reset();
@@ -628,7 +626,6 @@ class DeviceRenderQueue implements RecordingInterface {
     get queueHint (): QueueHint { return this._hint; }
     get devicePass (): DeviceRenderPass { return this._devicePass!; }
     preRecord (): void {
-        // nothing to do
     }
 
     record (): void {
@@ -636,6 +633,7 @@ class DeviceRenderQueue implements RecordingInterface {
             bindDescriptorSet(context.commandBuffer, SetIndex.COUNT, this._descSetData.descriptorSet);
         }
         this._renderScenes.forEach((scene) => {
+            scene.updateRD();
             scene.record();
         });
     }
@@ -749,7 +747,6 @@ class DeviceRenderPass implements RecordingInterface {
     protected _layoutName: string;
     protected _viewport: Viewport | null = null;
     private _layout: RenderPassLayoutInfo | null = null;
-    private _idxOfRenderData: number = 0;
     constructor (rasterID: number, rasterPass: RasterPass) {
         this._rasterID = rasterID;
         this._rasterPass = rasterPass;
@@ -837,11 +834,14 @@ class DeviceRenderPass implements RecordingInterface {
             swapchain ? swapchain.depthStencilTexture : depthTex,
         );
     }
-    private _isUpdateUBO = false;
-    set isUpdateUBO (update: boolean) { this._isUpdateUBO = update; }
-    get isUpdateUBO (): boolean { return this._isUpdateUBO; }
+    updateRD (): void {
+        const passRenderData = context.renderGraph.getData(this.rasterID);
+        // global
+        updateGlobalDescBinding(context.globalRenderData, this.layoutName);
+        // pass
+        updateGlobalDescBinding(passRenderData, this.layoutName);
+    }
     get passMergeInfo (): RenderPassMergeInfo { return rpMergeInfos.get(this._rasterPass)!; }
-    get indexOfRD (): number { return this._idxOfRenderData; }
     get rasterID (): number { return this._rasterID; }
     get layoutName (): string { return this._layoutName; }
     get passID (): number { return this._passID; }
@@ -853,13 +853,6 @@ class DeviceRenderPass implements RecordingInterface {
     get clearStencil (): number { return this._clearStencil; }
     get deviceQueues (): Map<number, DeviceRenderQueue> { return this._deviceQueues; }
     get viewport (): Viewport | null { return this._viewport; }
-    addIdxOfRD (): void {
-        this._idxOfRenderData++;
-    }
-    reset (): void {
-        this._isUpdateUBO = false;
-        this._idxOfRenderData = 0;
-    }
     visitResource (resName: string): void {
         const resourceGraph = context.resourceGraph;
         const vertId = resourceGraph.vertex(resName);
@@ -947,8 +940,10 @@ class DeviceRenderPass implements RecordingInterface {
     }
     // record common buffer
     record (): void {
+        this.updateRD();
         this.beginPass();
         for (const queue of this._deviceQueues.values()) {
+            queue.updateRD();
             queue.record();
         }
         this.endPass();
@@ -988,7 +983,6 @@ class DeviceRenderPass implements RecordingInterface {
         this._layoutName = context.renderGraph.getLayout(id);
         this._passID = cclegacy.rendering.getPassID(this._layoutName);
         this._deviceQueues.clear();
-        this.reset();
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];
         const currFramebuffer = this._framebuffer;
@@ -1072,6 +1066,8 @@ class DeviceComputePass implements RecordingInterface {
             this.renderLayout.descriptorSet.update();
         }
     }
+    updateRD (): void {
+    }
     preRecord (): void {
         context.passDescriptorSet = getDescriptorSetDataFromLayout(this.layoutName)!.descriptorSet;
     }
@@ -1123,7 +1119,7 @@ class DeviceComputePass implements RecordingInterface {
             queue.record();
         }
         const renderData = context.renderGraph.getData(this._computeInfo.id);
-        updateGlobalDescBinding(renderData, -1, 0, context.renderGraph.getLayout(this._computeInfo.id));
+        updateGlobalDescBinding(renderData, context.renderGraph.getLayout(this._computeInfo.id));
     }
 
     resetResource (id: number, pass: ComputePass): void {
@@ -1143,6 +1139,15 @@ class DeviceComputePass implements RecordingInterface {
 
 const sceneViewport = new Viewport();
 class DeviceRenderScene implements RecordingInterface {
+    updateRD (): void {
+        const devicePass = this._currentQueue.devicePass;
+        const sceneId = this.sceneID;
+        // scene
+        const sceneRenderData = context.renderGraph.getData(sceneId)!;
+        if (sceneRenderData) this._updateGlobal(sceneRenderData);
+        devicePass.processRenderLayout();
+        context.passDescriptorSet?.update();
+    }
     protected _currentQueue!: DeviceRenderQueue;
     protected _renderPass!: RenderPass;
     protected _scene: RenderScene | null = null;
@@ -1155,7 +1160,6 @@ class DeviceRenderScene implements RecordingInterface {
     get sceneID (): number { return this._sceneID; }
     get camera (): Camera | null { return this._camera; }
     preRecord (): void {
-        // this._updateRenderData();
         if (this._blit && this._blit.blitType === BlitType.FULLSCREEN_QUAD) {
             this._currentQueue.createBlitDesc(this._blit);
             this._currentQueue.blitDesc!.update();
@@ -1183,7 +1187,6 @@ class DeviceRenderScene implements RecordingInterface {
         const cmdBuff = context.commandBuffer;
         for (const model of blit.models) {
             for (const subModel of model.subModels) {
-                this._updateRenderData();
                 const inputAssembler = subModel.inputAssembler;
                 const passCount = subModel.passes.length;
                 for (let passId = 0; passId < passCount; ++passId) {
@@ -1221,7 +1224,6 @@ class DeviceRenderScene implements RecordingInterface {
             for (let j = 0; j < count; j++) {
                 const pass = batch.passes[j];
                 if (pass.phaseID !== this._currentQueue.phaseID) continue;
-                this._updateRenderData();
                 const shader = batch.shaders[j];
                 const ia: InputAssembler = batch.inputAssembler!;
                 const ds = batch.descriptorSet!;
@@ -1236,7 +1238,6 @@ class DeviceRenderScene implements RecordingInterface {
         if (!profiler || !profiler.enabled || !context.passShowStatistics) {
             return;
         }
-        this._updateRenderData();
         const profilerDesc = context.profilerDescriptorSet;
         const renderPass = this._renderPass;
         const cmdBuff = context.commandBuffer;
@@ -1252,7 +1253,6 @@ class DeviceRenderScene implements RecordingInterface {
     }
     private _recordBlit (): void {
         if (!this.blit) { return; }
-        this._updateRenderData();
         const blit = this.blit;
         const currMat = blit.material!;
         const pass = currMat.passes[blit.passID];
@@ -1263,32 +1263,9 @@ class DeviceRenderScene implements RecordingInterface {
         recordCommand(context.commandBuffer, this._renderPass, pass, blitDesc.stageDesc!, shader, screenIa);
     }
 
-    protected _updateGlobal (data: RenderData, sceneId: number): void {
+    protected _updateGlobal (data: RenderData): void {
         const devicePass = this._currentQueue.devicePass;
-        devicePass.addIdxOfRD();
-        updateGlobalDescBinding(data, sceneId, devicePass.indexOfRD, context.renderGraph.getLayout(devicePass.rasterID));
-    }
-
-    protected _updateRenderData (): void {
-        const devicePass = this._currentQueue.devicePass;
-        if (this._currentQueue.isUpdateUBO) return;
-        const rasterId = devicePass.rasterID;
-        const passRenderData = context.renderGraph.getData(rasterId);
-        const sceneId = this.sceneID;
-        // global
-        this._updateGlobal(context.globalRenderData, sceneId);
-        // pass
-        this._updateGlobal(passRenderData, sceneId);
-        // queue
-        const queueId = this._currentQueue.queueId;
-        const queueRenderData = context.renderGraph.getData(queueId)!;
-        this._updateGlobal(queueRenderData, sceneId);
-        // scene
-        const sceneRenderData = context.renderGraph.getData(sceneId)!;
-        if (sceneRenderData) this._updateGlobal(sceneRenderData, sceneId);
-        devicePass.processRenderLayout();
-        context.passDescriptorSet?.update();
-        this._currentQueue.isUpdateUBO = true;
+        updateGlobalDescBinding(data, context.renderGraph.getLayout(devicePass.rasterID));
     }
 
     private _applyViewport (): void {
@@ -1339,9 +1316,6 @@ class DeviceRenderScene implements RecordingInterface {
         const rq = sceneCulling.renderQueues[rqQuery.renderQueueTarget];
         const graphSceneData = this.sceneData!;
         const hasGeometryFlag = !!(graphSceneData.flags & SceneFlags.GEOMETRY);
-        if (!rq.empty() || hasGeometryFlag) {
-            this._updateRenderData();
-        }
         const isProbe = bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE);
         if (isProbe) rq.probeQueue.applyMacro();
         rq.recordCommands(context.commandBuffer, this._renderPass, graphSceneData.flags);
@@ -1721,9 +1695,7 @@ export class Executor {
             for (const pass of context.passesOrder) {
                 pass.preRecord();
                 if (pass instanceof DeviceRenderPass) {
-                    pass.reset();
                     pass.deviceQueues.forEach((q) => {
-                        q.isUpdateUBO = false;
                         q.preRecord();
                         q.renderScenes.forEach((s) => {
                             s.preRecord();

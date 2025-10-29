@@ -407,7 +407,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             this._vertID,
         );
         const scene: Scene = cclegacy.director.getScene();
-        this.updateRenderData(camera, sceneFlags, null, scene.renderScene);
+        this.updateRenderData(camera, sceneFlags, null, scene ? scene.renderScene : null);
     }
     addDraw3D (camera: Camera, models: Model[], sceneFlags = SceneFlags.NON_BUILTIN): void {
         const blit = renderGraphPool.createBlit(emptyMaterial, this._renderGraph.N, SceneFlags.NONE, camera, BlitType.DRAW_3D);

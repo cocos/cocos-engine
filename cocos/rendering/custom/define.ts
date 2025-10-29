@@ -519,8 +519,8 @@ export function getDescriptorSetDataFromLayoutId (id: number): DescriptorSetData
     return layoutData as DescriptorSetData;
 }
 
-export function updateGlobalDescBinding (data: RenderData, sceneId: number, idxRD: number, layoutName = 'default'): void {
-    updatePerPassUBO(layoutName, sceneId, idxRD, data);
+export function updateGlobalDescBinding (data: RenderData, layoutName = 'default'): void {
+    updatePerPassUBO(layoutName, data);
 }
 
 function getUniformBlock (block: string, layoutName: string): UniformBlock | undefined {
@@ -679,7 +679,7 @@ function createAndUpdateConstantBlock (
     }
 }
 
-export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number, user: RenderData): void {
+export function updatePerPassUBO (layout: string, user: RenderData): void {
     const { constants, samplers, textures, buffers } = user;
     const webPip = cclegacy.director.root.pipeline;
     const lg = webPip.layoutGraph as LayoutGraphData;
