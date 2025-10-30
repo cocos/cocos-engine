@@ -503,7 +503,6 @@ bool AnimationState::apply(Skeleton &skeleton) {
 		current._nextTrackLast = current._trackTime;
 
         current._animationLast = current._nextAnimationLast;
-        current._trackLast = current._nextTrackLast;
 	}
 
 	int setupState = _unkeyedState + Setup;
@@ -913,7 +912,6 @@ float AnimationState::applyMixingFrom(TrackEntry *to, Skeleton &skeleton, MixBle
 	from->_nextTrackLast = from->_trackTime;
 
     from->_animationLast = from->_nextAnimationLast;
-	from->_trackLast = from->_nextTrackLast;
 
 	return mix;
 }
