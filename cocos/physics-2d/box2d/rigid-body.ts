@@ -234,7 +234,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         if (!this._body!.m_world.IsLocked()) {
             this._body!.SetActive(v);
         } else if (DEBUG) {
-            warn('Can not active RigidBody in contract listener.');
+            warn('Can not active RigidBody in contact listener.');
         }
     }
     wakeUp (): void {
