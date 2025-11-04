@@ -1538,6 +1538,9 @@ nodeProto._setFinalOpacity = function (v: number): void {
     this._sharedFloat32Arr[3] = v;
 }
 
+// TODO
+nodeProto.dirty = function(): void{}
+
 //
 nodeProto._ctor = function (name?: string) {
     this.__nativeRefs = {};
