@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
@@ -825,6 +826,7 @@ export class Layout extends Component {
             newChildWidth = (baseWidth - paddingH - (activeChildCount - 1) * this._spacingX) / activeChildCount;
         }
 
+        let maxRowWidth = baseWidth;
         const children = this._usefulLayoutObj;
         for (let i = 0; i < children.length; ++i) {
             const childTrans = children[i];
@@ -886,10 +888,21 @@ export class Layout extends Component {
             }
 
             nextX += rightBoundaryOfChild;
+            // If the position of the child node is greater than the width of the container,
+            // then the baseWidth plus the difference greater than is the layout width.
+            if (Math.abs(nextX) > baseWidth / 2 && applyChildren) {
+                maxRowWidth = baseWidth / 2 + nextX;
+            }
         }
 
         rowMaxHeight = Math.max(rowMaxHeight, tempMaxHeight);
         const containerResizeBoundary = Math.max(maxHeight, totalHeight + rowMaxHeight) + this._getPaddingV();
+        // if width changes, adjust the container again
+        if (this._resizeMode === LayoutResizeMode.CONTAINER && maxRowWidth != baseWidth && this._layoutType === LayoutType.GRID) {
+            this.node._uiProps.uiTransformComp!.setContentSize(maxRowWidth, containerResizeBoundary);
+            // Because the container width changes, the position of the child will also change, and it needs to be adjusted.
+            return this._doLayoutHorizontally(maxRowWidth, true, fnPositionY, true);
+        }
         return containerResizeBoundary;
     }
 
@@ -1016,10 +1029,6 @@ export class Layout extends Component {
         }
 
         this._doLayoutHorizontally(baseWidth, true, fnPositionY, true);
-
-        if (this._resizeMode === LayoutResizeMode.CONTAINER) {
-            this.node._getUITransformComp()!.setContentSize(baseWidth, newHeight);
-        }
     }
 
     protected _doLayoutGridAxisVertical (layoutAnchor: Vec2 | Readonly<Vec2>, layoutSize: Size): void {
