@@ -164,7 +164,8 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
 
     const auto &segments = frameData->getSegments();
     const auto &colors = frameData->getColors();
-    if (segments.empty() || colors.empty()) return;
+    const auto isEmpty = segments.empty() || colors.empty();
+    if (isEmpty && !_useAttach) return;
 
     auto *mgr = MiddlewareManager::getInstance();
 
@@ -178,196 +179,198 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     // store attach info offset
     _sharedBufferOffset->writeUint32(static_cast<uint32_t>(attachInfo->getCurPos()) / sizeof(uint32_t));
 
-    auto vertexFormat = _useTint ? VF_XYZUVCC : VF_XYZUVC;
-    middleware::MeshBuffer *mb = mgr->getMeshBuffer(vertexFormat);
-    middleware::IOBuffer &vb = mb->getVB();
-    middleware::IOBuffer &ib = mb->getIB();
-    const auto &srcVB = frameData->vb;
-    const auto &srcIB = frameData->ib;
+    if (!isEmpty) {
+        auto vertexFormat = _useTint ? VF_XYZUVCC : VF_XYZUVC;
+        middleware::MeshBuffer *mb = mgr->getMeshBuffer(vertexFormat);
+        middleware::IOBuffer &vb = mb->getVB();
+        middleware::IOBuffer &ib = mb->getIB();
+        const auto &srcVB = frameData->vb;
+        const auto &srcIB = frameData->ib;
 
-    // vertex size int bytes with one color
-    int vbs1 = sizeof(V3F_T2F_C4B);
-    // vertex size in floats with one color
-    int vs1 = static_cast<int32_t>(vbs1 / sizeof(float));
-    // vertex size int bytes with two color
-    int vbs2 = sizeof(V3F_T2F_C4B_C4B);
-    // vertex size in floats with two color
-    int vs2 = static_cast<int32_t>(vbs2 / sizeof(float));
+        // vertex size int bytes with one color
+        int vbs1 = sizeof(V3F_T2F_C4B);
+        // vertex size in floats with one color
+        int vs1 = static_cast<int32_t>(vbs1 / sizeof(float));
+        // vertex size int bytes with two color
+        int vbs2 = sizeof(V3F_T2F_C4B_C4B);
+        // vertex size in floats with two color
+        int vs2 = static_cast<int32_t>(vbs2 / sizeof(float));
 
-    int vs = _useTint ? vs2 : vs1;
-    int vbs = _useTint ? vbs2 : vbs1;
+        int vs = _useTint ? vs2 : vs1;
+        int vbs = _useTint ? vbs2 : vbs1;
 
-    auto &nodeWorldMat = _entity->getNode()->getWorldMatrix();
+        auto &nodeWorldMat = _entity->getNode()->getWorldMatrix();
 
-    int colorOffset = 0;
-    SkeletonCache::ColorData *nowColor = colors[colorOffset++];
-    auto maxVFOffset = nowColor->vertexFloatOffset;
+        int colorOffset = 0;
+        SkeletonCache::ColorData *nowColor = colors[colorOffset++];
+        auto maxVFOffset = nowColor->vertexFloatOffset;
 
-    Color4B finalColor;
-    Color4B darkColor;
-    float tempR = 0.0F;
-    float tempG = 0.0F;
-    float tempB = 0.0F;
-    float tempA = 0.0F;
-    float multiplier = 1.0F;
-    int srcVertexBytesOffset = 0;
-    int srcVertexBytes = 0;
-    int vertexBytes = 0;
-    int vertexFloats = 0;
-    int tintBytes = 0;
-    int srcIndexBytesOffset = 0;
-    int indexBytes = 0;
-    double effectHash = 0;
-    int blendMode = 0;
-    int dstVertexOffset = 0;
-    int dstIndexOffset = 0;
-    float *dstVertexBuffer = nullptr;
-    unsigned int *dstColorBuffer = nullptr;
-    uint16_t *dstIndexBuffer = nullptr;
-    bool needColor = false;
-    int curBlendSrc = -1;
-    int curBlendDst = -1;
-    cc::Texture2D *curTexture = nullptr;
-    RenderDrawInfo *curDrawInfo = nullptr;
+        Color4B finalColor;
+        Color4B darkColor;
+        float tempR = 0.0F;
+        float tempG = 0.0F;
+        float tempB = 0.0F;
+        float tempA = 0.0F;
+        float multiplier = 1.0F;
+        int srcVertexBytesOffset = 0;
+        int srcVertexBytes = 0;
+        int vertexBytes = 0;
+        int vertexFloats = 0;
+        int tintBytes = 0;
+        int srcIndexBytesOffset = 0;
+        int indexBytes = 0;
+        double effectHash = 0;
+        int blendMode = 0;
+        int dstVertexOffset = 0;
+        int dstIndexOffset = 0;
+        float *dstVertexBuffer = nullptr;
+        unsigned int *dstColorBuffer = nullptr;
+        uint16_t *dstIndexBuffer = nullptr;
+        bool needColor = false;
+        int curBlendSrc = -1;
+        int curBlendDst = -1;
+        cc::Texture2D *curTexture = nullptr;
+        RenderDrawInfo *curDrawInfo = nullptr;
 
-    if (abs(_nodeColor.r - 1.0F) > 0.0001F ||
-        abs(_nodeColor.g - 1.0F) > 0.0001F ||
-        abs(_nodeColor.b - 1.0F) > 0.0001F ||
-        abs(_nodeColor.a - 1.0F) > 0.0001F ||
-        _premultipliedAlpha) {
-        needColor = true;
-    }
-
-    auto handleColor = [&](SkeletonCache::ColorData *colorData) {
-        tempA = colorData->finalColor.a * _entity->getOpacity();
-        multiplier = _premultipliedAlpha ? tempA / 255 : 1;
-        tempR = _nodeColor.r * multiplier;
-        tempG = _nodeColor.g * multiplier;
-        tempB = _nodeColor.b * multiplier;
-
-        finalColor.r = static_cast<uint8_t>(std::round(colorData->finalColor.r * tempR));
-        finalColor.g = static_cast<uint8_t>(std::round(colorData->finalColor.g * tempG));
-        finalColor.b = static_cast<uint8_t>(std::round(colorData->finalColor.b * tempB));
-        finalColor.a = static_cast<uint8_t>(std::round(tempA));
-
-        darkColor.r = static_cast<uint8_t>(std::round(colorData->darkColor.r * tempR));
-        darkColor.g = static_cast<uint8_t>(std::round(colorData->darkColor.g * tempG));
-        darkColor.b = static_cast<uint8_t>(std::round(colorData->darkColor.b * tempB));
-        darkColor.a = _premultipliedAlpha ? 255 : 0;
-    };
-
-    handleColor(nowColor);
-    int segmentCount = 0;
-    for (auto *segment : segments) {
-        srcVertexBytes = static_cast<int32_t>(segment->vertexFloatCount * sizeof(float));
-        if (!_useTint) {
-            tintBytes = static_cast<int32_t>(segment->vertexFloatCount / vs2 * sizeof(float));
-            vertexBytes = srcVertexBytes - tintBytes;
-            vertexFloats = static_cast<int32_t>(vertexBytes / sizeof(float));
-        } else {
-            vertexBytes = srcVertexBytes;
-            vertexFloats = segment->vertexFloatCount;
+        if (abs(_nodeColor.r - 1.0F) > 0.0001F ||
+            abs(_nodeColor.g - 1.0F) > 0.0001F ||
+            abs(_nodeColor.b - 1.0F) > 0.0001F ||
+            abs(_nodeColor.a - 1.0F) > 0.0001F ||
+            _premultipliedAlpha) {
+            needColor = true;
         }
-        curDrawInfo = requestDrawInfo(segmentCount++);
-        _entity->addDynamicRenderDrawInfo(curDrawInfo);
-        // fill new texture index
-        curTexture = static_cast<cc::Texture2D *>(segment->getTexture()->getRealTexture());
-        gfx::Texture *texture = curTexture->getGFXTexture();
-        gfx::Sampler *sampler = curTexture->getGFXSampler();
-        curDrawInfo->setTexture(texture);
-        curDrawInfo->setSampler(sampler);
 
-        blendMode = segment->blendMode;
-        switch (blendMode) {
-            case BlendMode_Additive:
-                curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
-                curBlendDst = static_cast<int>(BlendFactor::ONE);
-                break;
-            case BlendMode_Multiply:
-                curBlendSrc = static_cast<int>(BlendFactor::DST_COLOR);
-                curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
-                break;
-            case BlendMode_Screen:
-                curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
-                curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_COLOR);
-                break;
-            default:
-                curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
-                curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
-        }
-        // fill new blend src and dst
-        auto *material = requestMaterial(curBlendSrc, curBlendDst);
-        curDrawInfo->setMaterial(material);
+        auto handleColor = [&](SkeletonCache::ColorData *colorData) {
+            tempA = colorData->finalColor.a * _entity->getOpacity();
+            multiplier = _premultipliedAlpha ? tempA / 255 : 1;
+            tempR = _nodeColor.r * multiplier;
+            tempG = _nodeColor.g * multiplier;
+            tempB = _nodeColor.b * multiplier;
 
-        // fill vertex buffer
-        vb.checkSpace(vertexBytes, true);
-        dstVertexOffset = static_cast<int>(vb.getCurPos()) / vbs;
-        dstVertexBuffer = reinterpret_cast<float *>(vb.getCurBuffer());
-        dstColorBuffer = reinterpret_cast<unsigned int *>(vb.getCurBuffer());
-        if (!_useTint) {
-            char *srcBuffer = reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset;
-            for (std::size_t srcBufferIdx = 0; srcBufferIdx < srcVertexBytes; srcBufferIdx += vbs2) {
-                vb.writeBytes(srcBuffer + srcBufferIdx, vbs);
+            finalColor.r = static_cast<uint8_t>(std::round(colorData->finalColor.r * tempR));
+            finalColor.g = static_cast<uint8_t>(std::round(colorData->finalColor.g * tempG));
+            finalColor.b = static_cast<uint8_t>(std::round(colorData->finalColor.b * tempB));
+            finalColor.a = static_cast<uint8_t>(std::round(tempA));
+
+            darkColor.r = static_cast<uint8_t>(std::round(colorData->darkColor.r * tempR));
+            darkColor.g = static_cast<uint8_t>(std::round(colorData->darkColor.g * tempG));
+            darkColor.b = static_cast<uint8_t>(std::round(colorData->darkColor.b * tempB));
+            darkColor.a = _premultipliedAlpha ? 255 : 0;
+        };
+
+        handleColor(nowColor);
+        int segmentCount = 0;
+        for (auto *segment : segments) {
+            srcVertexBytes = static_cast<int32_t>(segment->vertexFloatCount * sizeof(float));
+            if (!_useTint) {
+                tintBytes = static_cast<int32_t>(segment->vertexFloatCount / vs2 * sizeof(float));
+                vertexBytes = srcVertexBytes - tintBytes;
+                vertexFloats = static_cast<int32_t>(vertexBytes / sizeof(float));
+            } else {
+                vertexBytes = srcVertexBytes;
+                vertexFloats = segment->vertexFloatCount;
             }
-        } else {
-            vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);
-        }
-        // batch handle
-        if (_enableBatch) {
-            cc::Vec3 *point = nullptr;
-            for (auto posIndex = 0; posIndex < vertexFloats; posIndex += vs) {
-                point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
-                point->z = 0;
-                point->transformMat4(*point, nodeWorldMat);
+            curDrawInfo = requestDrawInfo(segmentCount++);
+            _entity->addDynamicRenderDrawInfo(curDrawInfo);
+            // fill new texture index
+            curTexture = static_cast<cc::Texture2D *>(segment->getTexture()->getRealTexture());
+            gfx::Texture *texture = curTexture->getGFXTexture();
+            gfx::Sampler *sampler = curTexture->getGFXSampler();
+            curDrawInfo->setTexture(texture);
+            curDrawInfo->setSampler(sampler);
+
+            blendMode = segment->blendMode;
+            switch (blendMode) {
+                case BlendMode_Additive:
+                    curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
+                    curBlendDst = static_cast<int>(BlendFactor::ONE);
+                    break;
+                case BlendMode_Multiply:
+                    curBlendSrc = static_cast<int>(BlendFactor::DST_COLOR);
+                    curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
+                    break;
+                case BlendMode_Screen:
+                    curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
+                    curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_COLOR);
+                    break;
+                default:
+                    curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
+                    curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
             }
-        }
-        // handle vertex color
-        if (needColor) {
-            int srcVertexFloatOffset = static_cast<int16_t>(srcVertexBytesOffset / sizeof(float));
-            if (_useTint) {
-                for (auto colorIndex = 0; colorIndex < vertexFloats; colorIndex += vs, srcVertexFloatOffset += vs2) {
-                    if (srcVertexFloatOffset >= maxVFOffset) {
-                        nowColor = colors[colorOffset++];
-                        handleColor(nowColor);
-                        maxVFOffset = nowColor->vertexFloatOffset;
-                    }
-                    memcpy(dstColorBuffer + colorIndex + 5, &finalColor, sizeof(finalColor));
-                    memcpy(dstColorBuffer + colorIndex + 6, &darkColor, sizeof(darkColor));
+            // fill new blend src and dst
+            auto *material = requestMaterial(curBlendSrc, curBlendDst);
+            curDrawInfo->setMaterial(material);
+
+            // fill vertex buffer
+            vb.checkSpace(vertexBytes, true);
+            dstVertexOffset = static_cast<int>(vb.getCurPos()) / vbs;
+            dstVertexBuffer = reinterpret_cast<float *>(vb.getCurBuffer());
+            dstColorBuffer = reinterpret_cast<unsigned int *>(vb.getCurBuffer());
+            if (!_useTint) {
+                char *srcBuffer = reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset;
+                for (std::size_t srcBufferIdx = 0; srcBufferIdx < srcVertexBytes; srcBufferIdx += vbs2) {
+                    vb.writeBytes(srcBuffer + srcBufferIdx, vbs);
                 }
             } else {
-                for (auto colorIndex = 0; colorIndex < vertexFloats; colorIndex += vs, srcVertexFloatOffset += vs2) {
-                    if (srcVertexFloatOffset >= maxVFOffset) {
-                        nowColor = colors[colorOffset++];
-                        handleColor(nowColor);
-                        maxVFOffset = nowColor->vertexFloatOffset;
-                    }
-                    memcpy(dstColorBuffer + colorIndex + 5, &finalColor, sizeof(finalColor));
+                vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);
+            }
+            // batch handle
+            if (_enableBatch) {
+                cc::Vec3 *point = nullptr;
+                for (auto posIndex = 0; posIndex < vertexFloats; posIndex += vs) {
+                    point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
+                    point->z = 0;
+                    point->transformMat4(*point, nodeWorldMat);
                 }
             }
+            // handle vertex color
+            if (needColor) {
+                int srcVertexFloatOffset = static_cast<int16_t>(srcVertexBytesOffset / sizeof(float));
+                if (_useTint) {
+                    for (auto colorIndex = 0; colorIndex < vertexFloats; colorIndex += vs, srcVertexFloatOffset += vs2) {
+                        if (srcVertexFloatOffset >= maxVFOffset) {
+                            nowColor = colors[colorOffset++];
+                            handleColor(nowColor);
+                            maxVFOffset = nowColor->vertexFloatOffset;
+                        }
+                        memcpy(dstColorBuffer + colorIndex + 5, &finalColor, sizeof(finalColor));
+                        memcpy(dstColorBuffer + colorIndex + 6, &darkColor, sizeof(darkColor));
+                    }
+                } else {
+                    for (auto colorIndex = 0; colorIndex < vertexFloats; colorIndex += vs, srcVertexFloatOffset += vs2) {
+                        if (srcVertexFloatOffset >= maxVFOffset) {
+                            nowColor = colors[colorOffset++];
+                            handleColor(nowColor);
+                            maxVFOffset = nowColor->vertexFloatOffset;
+                        }
+                        memcpy(dstColorBuffer + colorIndex + 5, &finalColor, sizeof(finalColor));
+                    }
+                }
+            }
+
+            // move src vertex buffer offset
+            srcVertexBytesOffset += srcVertexBytes;
+
+            // fill index buffer
+            indexBytes = static_cast<int32_t>(segment->indexCount * sizeof(uint16_t));
+            ib.checkSpace(indexBytes, true);
+            dstIndexOffset = static_cast<int32_t>(ib.getCurPos() / sizeof(uint16_t));
+            dstIndexBuffer = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
+            ib.writeBytes(reinterpret_cast<char *>(srcIB.getBuffer()) + srcIndexBytesOffset, indexBytes);
+            for (auto indexPos = 0; indexPos < segment->indexCount; indexPos++) {
+                dstIndexBuffer[indexPos] += dstVertexOffset;
+            }
+            srcIndexBytesOffset += indexBytes;
+
+            // fill new index and vertex buffer id
+            UIMeshBuffer *uiMeshBuffer = mb->getUIMeshBuffer();
+            curDrawInfo->setMeshBuffer(uiMeshBuffer);
+
+            // fill new index offset
+            curDrawInfo->setIndexOffset(dstIndexOffset);
+            // fill new indice segamentation count
+            curDrawInfo->setIbCount(segment->indexCount);
         }
-
-        // move src vertex buffer offset
-        srcVertexBytesOffset += srcVertexBytes;
-
-        // fill index buffer
-        indexBytes = static_cast<int32_t>(segment->indexCount * sizeof(uint16_t));
-        ib.checkSpace(indexBytes, true);
-        dstIndexOffset = static_cast<int32_t>(ib.getCurPos() / sizeof(uint16_t));
-        dstIndexBuffer = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
-        ib.writeBytes(reinterpret_cast<char *>(srcIB.getBuffer()) + srcIndexBytesOffset, indexBytes);
-        for (auto indexPos = 0; indexPos < segment->indexCount; indexPos++) {
-            dstIndexBuffer[indexPos] += dstVertexOffset;
-        }
-        srcIndexBytesOffset += indexBytes;
-
-        // fill new index and vertex buffer id
-        UIMeshBuffer *uiMeshBuffer = mb->getUIMeshBuffer();
-        curDrawInfo->setMeshBuffer(uiMeshBuffer);
-
-        // fill new index offset
-        curDrawInfo->setIndexOffset(dstIndexOffset);
-        // fill new indice segamentation count
-        curDrawInfo->setIbCount(segment->indexCount);
     }
 
     if (_useAttach) {
