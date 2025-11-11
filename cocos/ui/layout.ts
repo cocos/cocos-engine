@@ -682,6 +682,7 @@ export class Layout extends Component {
     protected _childrenDirty = false;
     protected _usefulLayoutObj: UITransform[] = [];
     protected _init = false;
+    protected bottomBoundaryOfLayout = 0;
 
     /**
      * @en
@@ -891,14 +892,22 @@ export class Layout extends Component {
             // If the position of the child node is greater than the width of the container,
             // then the baseWidth plus the difference greater than is the layout width.
             if (Math.abs(nextX) > baseWidth / 2 && applyChildren) {
-                maxRowWidth = baseWidth / 2 + nextX;
+                maxRowWidth = Math.abs(sign * baseWidth / 2 + nextX);
             }
         }
 
         rowMaxHeight = Math.max(rowMaxHeight, tempMaxHeight);
         const containerResizeBoundary = Math.max(maxHeight, totalHeight + rowMaxHeight) + this._getPaddingV();
         // if width changes, adjust the container again
-        if (this._resizeMode === LayoutResizeMode.CONTAINER && maxRowWidth != baseWidth && this._layoutType === LayoutType.GRID) {
+        if (this._resizeMode === LayoutResizeMode.CONTAINER && this._layoutType === LayoutType.GRID
+            // eslint-disable-next-line eqeqeq
+            && (maxRowWidth != baseWidth || (containerResizeBoundary != trans.height && applyChildren))
+        ) {
+            let ySign = 1;
+            if (this._verticalDirection === LayoutVerticalDirection.TOP_TO_BOTTOM) {
+                ySign = -1;
+            }
+            this.bottomBoundaryOfLayout = (Math.abs(ySign - 1) / 2 - layoutAnchor.y) * containerResizeBoundary;
             this.node._uiProps.uiTransformComp!.setContentSize(maxRowWidth, containerResizeBoundary);
             // Because the container width changes, the position of the child will also change, and it needs to be adjusted.
             return this._doLayoutHorizontally(maxRowWidth, true, fnPositionY, true);
@@ -1006,26 +1015,21 @@ export class Layout extends Component {
         const baseWidth = layoutSize.width;
 
         let sign = 1;
-        let bottomBoundaryOfLayout = -layoutAnchor.y * layoutSize.height;
+        this.bottomBoundaryOfLayout = -layoutAnchor.y * layoutSize.height;
         let paddingY = this._paddingBottom;
         if (this._verticalDirection === LayoutVerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
-            bottomBoundaryOfLayout = (1 - layoutAnchor.y) * layoutSize.height;
+            this.bottomBoundaryOfLayout = (1 - layoutAnchor.y) * layoutSize.height;
             paddingY = this._paddingTop;
         }
 
-        const fnPositionY = (child: Node, childTrans: UITransform, topOffset: number): number => bottomBoundaryOfLayout + sign * (topOffset + (1 - childTrans.anchorY) * childTrans.height * this._getUsedScaleValue(child.scale.y) + paddingY);
+        const fnPositionY = (child: Node, childTrans: UITransform, topOffset: number): number => this.bottomBoundaryOfLayout + sign * (topOffset + (1 - childTrans.anchorY) * childTrans.height * this._getUsedScaleValue(child.scale.y) + paddingY);
 
         let newHeight = 0;
         if (this._resizeMode === LayoutResizeMode.CONTAINER) {
             // calculate the new height of container, it won't change the position of it's children
             newHeight = this._doLayoutHorizontally(baseWidth, true, fnPositionY, false);
-            bottomBoundaryOfLayout = -layoutAnchor.y * newHeight;
-
-            if (this._verticalDirection === LayoutVerticalDirection.TOP_TO_BOTTOM) {
-                sign = -1;
-                bottomBoundaryOfLayout = (1 - layoutAnchor.y) * newHeight;
-            }
+            this.bottomBoundaryOfLayout = (Math.abs(sign - 1) / 2 - layoutAnchor.y) * newHeight;
         }
 
         this._doLayoutHorizontally(baseWidth, true, fnPositionY, true);
