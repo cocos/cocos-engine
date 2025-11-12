@@ -28,6 +28,7 @@ import { Device, deviceManager } from './gfx';
 import { settings, Settings, warnID, Pool, macro, log } from './core';
 import { PipelineEventProcessor } from './rendering/pipeline-event';
 import type { Root as JsbRoot } from './root';
+import { uiRendererManager } from './2d/framework/ui-renderer-manager';
 
 declare const nr: any;
 declare const jsb: any;
@@ -233,6 +234,7 @@ rootProto.onGlobalPipelineStateChanged = function() {
 
 const oldFrameMove = rootProto.frameMove;
 rootProto.frameMove = function (deltaTime: number) {
+    uiRendererManager.updateAllDirtyRenderers();
     oldFrameMove.call(this, deltaTime, cclegacy.director.getTotalFrames());
 };
 
