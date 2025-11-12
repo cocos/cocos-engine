@@ -589,8 +589,8 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/WorkerMessageQueue.h
         cocos/platform/openharmony/OpenHarmonyPlatform.cpp
         cocos/platform/openharmony/OpenHarmonyPlatform.h
-        cocos/platform/openharmony/OpenHarmonyGamePad.cpp
-        cocos/platform/openharmony/OpenHarmonyGamePad.h
+        cocos/platform/openharmony/OpenHarmonyGamepad.cpp
+        cocos/platform/openharmony/OpenHarmonyGamepad.h
     )
 elseif(OHOS)
     cocos_source_files(
