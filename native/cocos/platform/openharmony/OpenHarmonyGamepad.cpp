@@ -188,6 +188,19 @@ void OnDeviceChanged(const struct GameDevice_DeviceEvent* deviceEvent) {
     GameDevice_DeviceType type;
     CALL_OH_GAMEPAD(OH_GameDevice_DeviceInfo_GetDeviceType(deviceInfo, &type));
 
+    // TODO: This is a hack because some system components in HarmonyOS also receive this message, making it impossible 
+    // to distinguish between a game controller and system components. This could cause the game to misinterpret 
+    // the presence of multiple controllers, leading to anomalies. Therefore, a filter condition has been added here.
+    // Theoretically, the distinction should be made using the "type" field, but in the system, game controllers are also identified as "unknown".
+    // product == 480 && version == 256 : hid-over-i2c 27C6:01E0 Touchpad
+    // product == 5120 && version == 256 : uart_hid 14F3:1400 System Control
+    if((product == 480 && version == 256) || (product == 5120 && version == 256)) {
+        return;
+    }
+//    if(type != GameDevice_DeviceType::GAME_PAD) {
+//        return;
+//    }
+    
     do {
         if (status == GameDevice_StatusChangedType::ONLINE) {
             int id = 0;
