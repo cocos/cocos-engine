@@ -640,6 +640,13 @@ void OpenHarmonyPlatform::onSurfaceChanged(OH_NativeXComponent* component, void*
     ev.width = width;
     ev.height = height;
     events::WindowEvent::broadcast(ev);
+    // Hack:On the PC platform, a resize message is sent, but this message occurs before initialization is complete, resulting in unprocessed messages.
+    // Therefore, an additional handling of the resize message is required here.
+    cc::SystemWindowManager* windowMgr = this->getInterface<cc::SystemWindowManager>();
+    CC_ASSERT_NOT_NULL(windowMgr);
+    auto systemWindow = windowMgr->getWindow(cc::ISystemWindow::mainWindowId);
+    CC_ASSERT_NOT_NULL(systemWindow);
+    systemWindow->setViewSize(width, height);
 }
 
 void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, void* window) {
