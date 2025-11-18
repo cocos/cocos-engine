@@ -700,7 +700,6 @@ const cacheManager = require('./jsb-cache-manager');
 
             this._indexBoneSockets();
             this._updateSocketBindings();
-            this.attachUtil.init(this);
             this._preCacheMode = this._cacheMode;
 
             if (this.defaultSkin && this.defaultSkin !== '') {

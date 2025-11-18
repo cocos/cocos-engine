@@ -264,7 +264,7 @@ export class Skeleton extends UIRenderer {
     public paused = false;
     protected _enumSkins: EnumType = Enum({});
     protected _enumAnimations: EnumType = Enum({});
-    protected attachUtil: AttachUtil;
+    protected attachUtil: AttachUtil | null = null;
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
 
@@ -339,8 +339,8 @@ export class Skeleton extends UIRenderer {
             this._instance = new spine.SkeletonInstance();
             this._instance.dtRate = this._timeScale * timeScale;
             this._instance.isCache = this.isAnimationCached();
+            this.attachUtil = new AttachUtil();
         }
-        this.attachUtil = new AttachUtil();
     }
 
     /**
@@ -569,7 +569,9 @@ export class Skeleton extends UIRenderer {
         }
         this._sockets = val;
         this._updateSocketBindings();
-        this.attachUtil.init(this);
+        if (!JSB && this.attachUtil) {
+            this.attachUtil.init(this);
+        }
     }
 
     /**
@@ -726,7 +728,10 @@ export class Skeleton extends UIRenderer {
         this._cleanMaterialCache();
         this._vBuffer = null;
         this._iBuffer = null;
-        this.attachUtil.reset();
+        if (!JSB) {
+            this.attachUtil?.reset();
+            this.attachUtil = null;
+        }
         this._slotTextures?.clear();
         this._slotTextures = null;
         this._cachedSockets.clear();
@@ -811,7 +816,7 @@ export class Skeleton extends UIRenderer {
         this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();
-        this.attachUtil.init(this);
+        this.attachUtil!.init(this);
         this._preCacheMode = this._cacheMode;
     }
 
@@ -1130,7 +1135,7 @@ export class Skeleton extends UIRenderer {
         }
         this._curFrame = frames[frameIdx];
         if (this._curFrame !== undefined) {
-            this.attachUtil.updateSkeletonBones(this._curFrame.boneInfos);
+            this.attachUtil!.updateSkeletonBones(this._curFrame.boneInfos);
         }
         if (frameCache.isCompleted && frameIdx >= frames.length) {
             this._playCount++;
@@ -1367,7 +1372,7 @@ export class Skeleton extends UIRenderer {
      */
     public syncAttachedNode (): void {
         // sync attached node matrix
-        this.attachUtil._syncAttachedNode();
+        this.attachUtil?._syncAttachedNode();
     }
 
     /**
