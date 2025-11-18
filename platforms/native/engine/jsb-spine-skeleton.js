@@ -698,11 +698,6 @@ const cacheManager = require('./jsb-cache-manager');
             this.skeletonData.init();
             this.setSkeletonData(this.skeletonData);
 
-            this._indexBoneSockets();
-            this._updateSocketBindings();
-            this.attachUtil.init(this);
-            this._preCacheMode = this._cacheMode;
-
             if (this.defaultSkin && this.defaultSkin !== '') {
                 this.setSkin(this.defaultSkin);
             } else if (this._skinName && this._skinName !== '') {
@@ -720,6 +715,11 @@ const cacheManager = require('./jsb-cache-manager');
             this._nativeSkeleton._comp = null;
             this._nativeSkeleton = null;
         }
+
+        this._indexBoneSockets();
+        this._updateSocketBindings();
+        this.attachUtil.init(this);
+        this._preCacheMode = this._cacheMode;
     };
 
     const _onDestroy = skeleton.onDestroy;
