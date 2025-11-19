@@ -373,6 +373,8 @@ export class Skeleton extends UIRenderer {
             this.defaultAnimation = '';
             this._animationName = '';
             this._skinName = '';
+            this._animCache = null;
+            this._destroySkeletonInfo(this._skeletonCache);
             this._updateSkeletonData();
             this._updateUITransform();
         }
