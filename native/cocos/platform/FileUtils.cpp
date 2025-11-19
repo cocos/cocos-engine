@@ -1083,7 +1083,7 @@ bool FileUtils::removeDirectory(const ccstd::string &path) {
 
         if (entry->d_type == DT_DIR) {
             // remove sub directory
-            removeDirectory(fullPath);
+            removeDirectory(fullPath);// NOLINT(misc-no-recursion)
         } else {
             // remove file
             unlink(fullPath.c_str());
