@@ -1064,7 +1064,7 @@ int unlinkCb(const char *fpath, const struct stat * /*sb*/, int /*typeflag*/, st
     #endif
 } // namespace
 
-bool FileUtils::removeDirectory(const ccstd::string &path) {
+bool FileUtils::removeDirectory(const ccstd::string &path) { // NOLINT(misc-no-recursion)
     #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     return nftw(path.c_str(), unlinkCb, 64, FTW_DEPTH | FTW_PHYS) != -1;
     #else
@@ -1083,7 +1083,7 @@ bool FileUtils::removeDirectory(const ccstd::string &path) {
 
         if (entry->d_type == DT_DIR) {
             // remove sub directory
-            removeDirectory(fullPath);// NOLINT(misc-no-recursion)
+            removeDirectory(fullPath);
         } else {
             // remove file
             unlink(fullPath.c_str());
