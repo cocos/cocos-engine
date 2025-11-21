@@ -549,17 +549,9 @@ void runJsvmTasks(JSVM_Env env) {
 
     for (bool runTasks = true; runTasks;) {
         // Execute one foreground task (if one exists), then microtasks.
-        if (env->terminatedOrTerminating()) {
-            return;
-        }
-
         NODE_API_CALL(status, env, OH_JSVM_PumpMessageLoop(vm, &runTasks));
-
-        if (env->terminatedOrTerminating()) {
-            return;
-        }
         if (runTasks) {
-            NODE_API_CALL(status, env, OH_JSVM_PerformMicrotaskCheckpoint(env));
+            NODE_API_CALL(status, env, OH_JSVM_PerformMicrotaskCheckpoint(vm));
         }
     }
 }
