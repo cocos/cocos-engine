@@ -44,6 +44,7 @@ import {
     getEnglishWordPartAtLast,
     getSymbolAt,
 } from '../utils/text-utils';
+import { Sorting2D } from '../../sorting/sorting-2d';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -504,10 +505,21 @@ export class RichText extends Component {
     protected _lineOffsetX = 0;
     protected declare _updateRichTextStatus: () => void;
     protected _labelChildrenNum = 0; // only ISegment
+    protected _currentSortingLayer = 0;
+    protected _currentSortingOrder = 0;
+    protected _sorting2d: Sorting2D | null = null;
 
     constructor () {
         super();
         this._updateRichTextStatus = this._updateRichText;
+    }
+
+    protected override __preload (): void {
+        this._sorting2d = this.getComponent(Sorting2D);
+        if (this._sorting2d != null) {
+            this._currentSortingOrder = this._sorting2d.sortingOrder;
+            this._currentSortingLayer = this._sorting2d.sortingLayer;
+        }
     }
 
     public onLoad (): void {
@@ -864,7 +876,11 @@ export class RichText extends Component {
         this.node.insertChild(labelSegment.node, this._labelChildrenNum++);
         this._applyTextAttribute(labelSegment);
         this._segments.push(labelSegment);
-
+        if (this._sorting2d != null) {
+            const childSorting = labelSegment.node.addComponent(Sorting2D);
+            childSorting.sortingOrder = this._sorting2d.sortingOrder;
+            childSorting.sortingLayer = this._sorting2d.sortingLayer;
+        }
         return labelSegment;
     }
 
@@ -1046,6 +1062,11 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
             if (event) {
                 segment.clickHandler = event.click;
                 segment.clickParam = event.param;
+            }
+            if (this._sorting2d != null) {
+                const childSorting = segment.node.addComponent(Sorting2D);
+                childSorting.sortingOrder = this._sorting2d.sortingOrder;
+                childSorting.sortingLayer = this._sorting2d.sortingLayer;
             }
         }
     }
@@ -1343,6 +1364,26 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
         label.isBold = false;
         label.isItalic = false;
         label.isUnderline = false;
+    }
+
+    protected update (dt: number): void {
+        if (this._sorting2d == null) {
+            return;
+        }
+
+        if (this._sorting2d.sortingOrder !== this._currentSortingOrder
+            || this._sorting2d.sortingLayer !== this._currentSortingLayer
+        ) {
+            this._currentSortingOrder = this._sorting2d.sortingOrder;
+            this._currentSortingLayer = this._sorting2d.sortingLayer;
+            this._segments.forEach((seg) => {
+                const sortingChild = seg.node.getComponent(Sorting2D);
+                if (sortingChild) {
+                    sortingChild.sortingOrder = this._currentSortingOrder;
+                    sortingChild.sortingLayer = this._currentSortingLayer;
+                }
+            });
+        }
     }
 }
 
