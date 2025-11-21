@@ -542,11 +542,8 @@ void ScriptEngine::handlePromiseExceptions() {
 
 namespace {
 
-void runJsvmTasks(JSVM_Env env) {
+void runJsvmTasks(JSVM_Env env, JSVM_VM vm) {
     JSVM_Status status{};
-    JSVM_VM vm{};
-    NODE_API_CALL(status, env, OH_JSVM_GetVM(env, &vm));
-
     for (bool runTasks = true; runTasks;) {
         // Execute one foreground task (if one exists), then microtasks.
         NODE_API_CALL(status, env, OH_JSVM_PumpMessageLoop(vm, &runTasks));
@@ -559,7 +556,7 @@ void runJsvmTasks(JSVM_Env env) {
 } // namespace
 
 void ScriptEngine::mainLoopUpdate() {
-    runJsvmTasks(getEnv());
+    runJsvmTasks(_env, _vm);
 }
 
 void ScriptEngine::throwException(const std::string &errorMessage) {
