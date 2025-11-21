@@ -540,8 +540,34 @@ void ScriptEngine::handlePromiseExceptions() {
     return;
 }
 
+namespace {
+
+void runJsvmTasks(JSVM_Env env) {
+    JSVM_Status status{};
+    JSVM_VM vm{};
+    NODE_API_CALL(status, env, OH_JSVM_GetVM(env, &vm));
+
+    for (bool runTasks = true; runTasks;) {
+        // Execute one foreground task (if one exists), then microtasks.
+        if (env->terminatedOrTerminating()) {
+            return;
+        }
+
+        NODE_API_CALL(status, env, OH_JSVM_PumpMessageLoop(vm, &runTasks));
+
+        if (env->terminatedOrTerminating()) {
+            return;
+        }
+        if (runTasks) {
+            NODE_API_CALL(status, env, OH_JSVM_PerformMicrotaskCheckpoint(env));
+        }
+    }
+}
+
+} // namespace
+
 void ScriptEngine::mainLoopUpdate() {
-    // empty implementation
+    runJsvmTasks(getEnv());
 }
 
 void ScriptEngine::throwException(const std::string &errorMessage) {
