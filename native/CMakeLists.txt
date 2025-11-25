@@ -3678,6 +3678,7 @@ if(OPENHARMONY)
         libohgame_controller.z.so
         libz.so
         librawfile.z.so
+        libdeviceinfo_ndk.z.so
         libohsensor.so
         ${CC_EXTERNAL_LIBS}
     )
