@@ -30,7 +30,6 @@
 
 #include "application/ApplicationManager.h"
 #include "application/CocosApplication.h"
-#include "openharmony/OpenHarmonyGamepad.h"
 #include "platform/UniversalPlatform.h"
 
 #include "platform/openharmony/modules/SystemWindow.h"
@@ -42,7 +41,10 @@
 #include "platform/empty/modules/Screen.h"
 #include "platform/empty/modules/Vibrator.h"
 #include "platform/openharmony/modules/System.h"
-#include "platform/openharmony/OpenHarmonyGamepad.h"
+
+#if CC_USE_GAMEPAD
+    #include "platform/openharmony/OpenHarmonyGamepad.h"
+#endif
 
 #include "cocos/engine/EngineEvents.h"
 
@@ -346,23 +348,6 @@ void onSurfaceDestroyedCB(OH_NativeXComponent* component, void* window) {
 
 namespace cc {
 
-// struct ControllerKeyRemap {
-//     ButtonCode ohButtonCode;
-//     StickKeyCode actionCode{StickKeyCode::UNDEFINE};
-//     const char *name;
-// };
-//
-// #def ine REMAP_WITH_NAME(btn, key) \
-//    { btn, key, #btn }
-//
-// static const ControllerKeyRemap PADDLEBOAT_MAPKEY[] = {
-//     REMAP_WITH_NAME(ButtonCode::OH_LeftShoulder, StickKeyCode::L1),
-//     REMAP_WITH_NAME(ButtonCode::OH_RightShoulder, StickKeyCode::R1),
-// };
-// #undef REMAP_WITH_NAME
-
-// cc::KeyboardEvent keyboardEvent;
-
 OpenHarmonyPlatform::OpenHarmonyPlatform() {
     registerInterface(std::make_shared<System>());
     registerInterface(std::make_shared<Screen>());
@@ -376,7 +361,9 @@ OpenHarmonyPlatform::OpenHarmonyPlatform() {
     _callback.OnSurfaceChanged = onSurfaceChangedCB;
     _callback.OnSurfaceDestroyed = onSurfaceDestroyedCB;
     _callback.DispatchTouchEvent = dispatchTouchEventCB;
-    _gamePad = std::make_unique<OpenHarmonyGamePad>();
+    #if CC_USE_GAMEPAD
+        _gamePad = std::make_unique<OpenHarmonyGamePad>();
+    #endif
 }
 
 OpenHarmonyPlatform::~OpenHarmonyPlatform() {

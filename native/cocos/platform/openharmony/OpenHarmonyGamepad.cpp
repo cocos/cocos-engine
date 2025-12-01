@@ -284,9 +284,6 @@ OpenHarmonyGamePad::OpenHarmonyGamePad() {
     CALL_OH_GAMEPAD(OH_GamePad_LeftShoulder_RegisterButtonInputMonitor(OnButtonEvent));
     CALL_OH_GAMEPAD(OH_GamePad_RightShoulder_RegisterButtonInputMonitor(OnButtonEvent));
 
-    //        CALL_OH_GAMEPAD(OH_GamePad_LeftTrigger_RegisterButtonInputMonitor(OnButtonEvent));
-    //        CALL_OH_GAMEPAD(OH_GamePad_RightTrigger_RegisterButtonInputMonitor(OnButtonEvent));
-
     CALL_OH_GAMEPAD(OH_GamePad_ButtonMenu_RegisterButtonInputMonitor(OnButtonEvent));
     CALL_OH_GAMEPAD(OH_GamePad_ButtonHome_RegisterButtonInputMonitor(OnButtonEvent));
     CALL_OH_GAMEPAD(OH_GamePad_ButtonC_RegisterButtonInputMonitor(OnButtonEvent));
@@ -295,11 +292,6 @@ OpenHarmonyGamePad::OpenHarmonyGamePad() {
     CALL_OH_GAMEPAD(OH_GamePad_ButtonB_RegisterButtonInputMonitor(OnButtonEvent));
     CALL_OH_GAMEPAD(OH_GamePad_ButtonX_RegisterButtonInputMonitor(OnButtonEvent));
     CALL_OH_GAMEPAD(OH_GamePad_ButtonY_RegisterButtonInputMonitor(OnButtonEvent));
-
-    //        CALL_OH_GAMEPAD(OH_GamePad_Dpad_LeftButton_RegisterButtonInputMonitor(OnButtonEvent));
-    //        CALL_OH_GAMEPAD(OH_GamePad_Dpad_RightButton_RegisterButtonInputMonitor(OnButtonEvent));
-    //        CALL_OH_GAMEPAD(OH_GamePad_Dpad_UpButton_RegisterButtonInputMonitor(OnButtonEvent));
-    //        CALL_OH_GAMEPAD(OH_GamePad_Dpad_DownButton_RegisterButtonInputMonitor(OnButtonEvent));
 
     CALL_OH_GAMEPAD(OH_GamePad_LeftThumbstick_RegisterButtonInputMonitor(OnButtonEvent));
     CALL_OH_GAMEPAD(OH_GamePad_RightThumbstick_RegisterButtonInputMonitor(OnButtonEvent));
@@ -317,9 +309,6 @@ OpenHarmonyGamePad::~OpenHarmonyGamePad() {
     CALL_OH_GAMEPAD(OH_GamePad_LeftShoulder_UnregisterButtonInputMonitor());
     CALL_OH_GAMEPAD(OH_GamePad_RightShoulder_UnregisterButtonInputMonitor());
 
-    //        CALL_OH_GAMEPAD(OH_GamePad_LeftTrigger_UnregisterButtonInputMonitor());
-    //        CALL_OH_GAMEPAD(OH_GamePad_RightTrigger_UnregisterButtonInputMonitor());
-
     CALL_OH_GAMEPAD(OH_GamePad_ButtonMenu_UnregisterButtonInputMonitor());
     CALL_OH_GAMEPAD(OH_GamePad_ButtonHome_UnregisterButtonInputMonitor());
     CALL_OH_GAMEPAD(OH_GamePad_ButtonC_UnregisterButtonInputMonitor());
@@ -328,11 +317,6 @@ OpenHarmonyGamePad::~OpenHarmonyGamePad() {
     CALL_OH_GAMEPAD(OH_GamePad_ButtonB_UnregisterButtonInputMonitor());
     CALL_OH_GAMEPAD(OH_GamePad_ButtonX_UnregisterButtonInputMonitor());
     CALL_OH_GAMEPAD(OH_GamePad_ButtonY_UnregisterButtonInputMonitor());
-
-    //        CALL_OH_GAMEPAD(OH_GamePad_Dpad_LeftButton_UnregisterButtonInputMonitor());
-    //        CALL_OH_GAMEPAD(OH_GamePad_Dpad_RightButton_UnregisterButtonInputMonitor());
-    //        CALL_OH_GAMEPAD(OH_GamePad_Dpad_UpButton_UnregisterButtonInputMonitor());
-    //        CALL_OH_GAMEPAD(OH_GamePad_Dpad_DownButton_UnregisterButtonInputMonitor());
 
     CALL_OH_GAMEPAD(OH_GamePad_LeftThumbstick_UnregisterButtonInputMonitor());
     CALL_OH_GAMEPAD(OH_GamePad_RightThumbstick_UnregisterButtonInputMonitor());

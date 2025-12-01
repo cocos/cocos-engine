@@ -37,7 +37,10 @@
 #include "platform/openharmony/WorkerMessageQueue.h"
 
 namespace cc {
+#if CC_USE_GAMEPAD
 class OpenHarmonyGamePad;
+#endif
+
 class OpenHarmonyPlatform : public UniversalPlatform {
 public:
     OpenHarmonyPlatform();
@@ -91,7 +94,9 @@ public:
     uv_async_t _messageSignal{};
     bool _timerInited{false};
     WorkerMessageQueue _messageQueue;
+    #if CC_USE_GAMEPAD
     std::unique_ptr<OpenHarmonyGamePad> _gamePad;
+    #endif
     // game started
     bool g_started{false};
     bool isMouseLeftActive{false};

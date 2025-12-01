@@ -55,6 +55,7 @@ cc_set_if_undefined(USE_REMOTE_LOG           OFF)
 cc_set_if_undefined(USE_ADPF                 OFF)
 cc_set_if_undefined(USE_GOOGLE_BILLING       OFF)
 cc_set_if_undefined(USE_GOOGLE_PLAY_GAMES    OFF)
+cc_set_if_undefined(USE_GAMEPAD              ON)
 
 if(ANDROID AND NOT DEFINED USE_CCACHE)
     if("$ENV{COCOS_USE_CCACHE}" STREQUAL "1")
@@ -589,9 +590,14 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/WorkerMessageQueue.h
         cocos/platform/openharmony/OpenHarmonyPlatform.cpp
         cocos/platform/openharmony/OpenHarmonyPlatform.h
-        cocos/platform/openharmony/OpenHarmonyGamepad.cpp
-        cocos/platform/openharmony/OpenHarmonyGamepad.h
     )
+    if(USE_GAMEPAD) 
+        cocos_source_files(
+            cocos/platform/openharmony/OpenHarmonyGamepad.cpp
+            cocos/platform/openharmony/OpenHarmonyGamepad.h
+        )
+    endif()
+
 elseif(OHOS)
     cocos_source_files(
         cocos/platform/ohos/OhosPlatform.cpp
@@ -3443,7 +3449,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_GOOGLE_BILLING}>,CC_USE_GOOGLE_BILLING=1,CC_USE_GOOGLE_BILLING=0>
         $<IF:$<BOOL:${USE_GOOGLE_PLAY_GAMES}>,CC_USE_GOOGLE_PLAY_GAMES=1,CC_USE_GOOGLE_PLAY_GAMES=0>
         $<IF:$<BOOL:${USE_BOX2D_JSB}>,CC_USE_BOX2D_JSB=1,CC_USE_BOX2D_JSB=0>
-
+        $<IF:$<BOOL:${USE_GAMEPAD}>,CC_USE_GAMEPAD=1,CC_USE_GAMEPAD=0>
     )
 endfunction()
 
@@ -3675,13 +3681,17 @@ if(OPENHARMONY)
         libbundle_ndk.z.so
         libace_napi.z.so
         libace_ndk.z.so
-        libohgame_controller.z.so
         libz.so
         librawfile.z.so
         libdeviceinfo_ndk.z.so
         libohsensor.so
         ${CC_EXTERNAL_LIBS}
     )
+
+    if(USE_GAMEPAD)
+        list(APPEND LIBS libohgame_controller.z.so)
+    endif()
+    
     if(USE_SE_JSVM)
         list(APPEND LIBS libjsvm.so)
     endif()
