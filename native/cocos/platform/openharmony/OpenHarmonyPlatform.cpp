@@ -209,10 +209,9 @@ int ohKeyCodeToCocosKeyCode(OH_NativeXComponent_KeyCode ohKeyCode) {
         {KEY_NUMPAD_ADD, cc::KeyCode::NUMPAD_PLUS},
         {KEY_NUMPAD_ENTER, cc::KeyCode::NUMPAD_ENTER},
         {KEY_NUMPAD_DOT, cc::KeyCode::NUMPAD_DECIMAL},
-    
         {KEY_NUMPAD_COMMA, cc::KeyCode::COMMA},
         {KEY_NUMPAD_EQUALS, cc::KeyCode::EQUAL},
-
+    
         {KEY_NUMPAD_0, cc::KeyCode::NUMPAD_0},
         {KEY_NUMPAD_1, cc::KeyCode::NUMPAD_1},
         {KEY_NUMPAD_2, cc::KeyCode::NUMPAD_2},
@@ -223,8 +222,6 @@ int ohKeyCodeToCocosKeyCode(OH_NativeXComponent_KeyCode ohKeyCode) {
         {KEY_NUMPAD_7, cc::KeyCode::NUMPAD_7},
         {KEY_NUMPAD_8, cc::KeyCode::NUMPAD_8},
         {KEY_NUMPAD_9, cc::KeyCode::NUMPAD_9},
-        
-        
     };
     if (keyCodeMap.find(ohKeyCode) != keyCodeMap.end()) {
         return int(keyCodeMap[ohKeyCode]);
