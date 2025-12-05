@@ -200,8 +200,8 @@ int ohKeyCodeToCocosKeyCode(OH_NativeXComponent_KeyCode ohKeyCode) {
         {KEY_PAGE_UP, cc::KeyCode::PAGE_UP},
         {KEY_PAGE_DOWN, cc::KeyCode::PAGE_DOWN},
         {KEY_SCROLL_LOCK, cc::KeyCode::SCROLLLOCK},
-        // numpad
         {KEY_BREAK, cc::KeyCode::PAUSE},
+        // numpad
         {KEY_NUM_LOCK, cc::KeyCode::NUM_LOCK},
         {KEY_NUMPAD_DIVIDE, cc::KeyCode::NUMPAD_DIVIDE},
         {KEY_NUMPAD_MULTIPLY, cc::KeyCode::NUMPAD_MULTIPLY},
