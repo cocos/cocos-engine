@@ -186,11 +186,45 @@ int ohKeyCodeToCocosKeyCode(OH_NativeXComponent_KeyCode ohKeyCode) {
         {KEY_SPACE, cc::KeyCode::SPACE},
         {KEY_ALT_RIGHT, cc::KeyCode::ALT_RIGHT},
         {KEY_CTRL_RIGHT, cc::KeyCode::CONTROL_RIGHT},
+    
         {KEY_DPAD_LEFT, cc::KeyCode::ARROW_LEFT},
         {KEY_DPAD_RIGHT, cc::KeyCode::ARROW_RIGHT},
         {KEY_DPAD_DOWN, cc::KeyCode::ARROW_DOWN},
         {KEY_DPAD_UP, cc::KeyCode::ARROW_UP},
+        {KEY_DPAD_CENTER, cc::KeyCode::DPAD_CENTER},
+    
+        {KEY_MOVE_HOME, cc::KeyCode::HOME},
+        {KEY_MOVE_END, cc::KeyCode::END},
+        {KEY_FORWARD_DEL, cc::KeyCode::DELETE_KEY},
         {KEY_INSERT, cc::KeyCode::INSERT},
+        {KEY_PAGE_UP, cc::KeyCode::PAGE_UP},
+        {KEY_PAGE_DOWN, cc::KeyCode::PAGE_DOWN},
+        {KEY_SCROLL_LOCK, cc::KeyCode::SCROLLLOCK},
+        // numpad
+        {KEY_BREAK, cc::KeyCode::PAUSE},
+        {KEY_NUM_LOCK, cc::KeyCode::NUM_LOCK},
+        {KEY_NUMPAD_DIVIDE, cc::KeyCode::NUMPAD_DIVIDE},
+        {KEY_NUMPAD_MULTIPLY, cc::KeyCode::NUMPAD_MULTIPLY},
+        {KEY_NUMPAD_SUBTRACT, cc::KeyCode::NUMPAD_MINUS},
+        {KEY_NUMPAD_ADD, cc::KeyCode::NUMPAD_PLUS},
+        {KEY_NUMPAD_ENTER, cc::KeyCode::NUMPAD_ENTER},
+        {KEY_NUMPAD_DOT, cc::KeyCode::NUMPAD_DECIMAL},
+    
+        {KEY_NUMPAD_COMMA, cc::KeyCode::COMMA},
+        {KEY_NUMPAD_EQUALS, cc::KeyCode::EQUAL},
+
+        {KEY_NUMPAD_0, cc::KeyCode::NUMPAD_0},
+        {KEY_NUMPAD_1, cc::KeyCode::NUMPAD_1},
+        {KEY_NUMPAD_2, cc::KeyCode::NUMPAD_2},
+        {KEY_NUMPAD_3, cc::KeyCode::NUMPAD_3},
+        {KEY_NUMPAD_4, cc::KeyCode::NUMPAD_4},
+        {KEY_NUMPAD_5, cc::KeyCode::NUMPAD_5},
+        {KEY_NUMPAD_6, cc::KeyCode::NUMPAD_6},
+        {KEY_NUMPAD_7, cc::KeyCode::NUMPAD_7},
+        {KEY_NUMPAD_8, cc::KeyCode::NUMPAD_8},
+        {KEY_NUMPAD_9, cc::KeyCode::NUMPAD_9},
+        
+        
     };
     if (keyCodeMap.find(ohKeyCode) != keyCodeMap.end()) {
         return int(keyCodeMap[ohKeyCode]);
