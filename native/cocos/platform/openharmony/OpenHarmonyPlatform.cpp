@@ -225,8 +225,8 @@ int ohKeyCodeToCocosKeyCode(OH_NativeXComponent_KeyCode ohKeyCode) {
 
         {KEY_MENU, cc::KeyCode::CONTEXT_MENU},
         {KEY_SYSRQ, cc::KeyCode::PRINT_SCREEN},
-        {KEY_META_LEFT, cc::KeyCode::LGUI},
-        {KEY_META_RIGHT, cc::KeyCode::RGUI},
+        {KEY_META_LEFT, cc::KeyCode::META_LEFT},
+        {KEY_META_RIGHT, cc::KeyCode::META_RIGHT},
     };
     if (keyCodeMap.find(ohKeyCode) != keyCodeMap.end()) {
         return int(keyCodeMap[ohKeyCode]);

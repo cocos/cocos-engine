@@ -35,8 +35,8 @@
 
 namespace {
 std::unordered_map<int, cc::KeyCode> gKeyMap = {
-    {SDLK_LGUI, cc::KeyCode::LGUI},
-    {SDLK_RGUI, cc::KeyCode::RGUI},
+    {SDLK_LGUI, cc::KeyCode::META_LEFT},
+    {SDLK_RGUI, cc::KeyCode::META_RIGHT},
     {SDLK_APPLICATION, cc::KeyCode::CONTEXT_MENU},
     {SDLK_SCROLLLOCK, cc::KeyCode::SCROLLLOCK},
     {SDLK_PAUSE, cc::KeyCode::PAUSE},
