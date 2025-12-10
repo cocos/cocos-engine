@@ -188,15 +188,6 @@ long FileUtilsOpenHarmony::getFileSize(const std::string &filepath) {
         return 0;
     }
 
-    if (fullPath[0] == '/') {
-        struct stat info;
-        int result = stat(fullPath.c_str(), &info);
-        if (result != 0) {
-            return -1;
-        }
-        return static_cast<long>(info.st_size);
-    }
-
     long filesize = 0;
     RawFile64 *rawFile = OH_ResourceManager_OpenRawFile64(_nativeResourceManager, fullPath.c_str());
     if (rawFile) {
