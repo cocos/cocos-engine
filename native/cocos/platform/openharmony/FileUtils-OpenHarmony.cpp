@@ -178,6 +178,11 @@ long FileUtilsOpenHarmony::getFileSize(const std::string &filepath) {
     if (fullPath.empty()) {
         return 0;
     }
+
+    if(fullPath[0] == '/') {
+        return FileUtils::getFileSize(fullPath);
+    }
+
     if (nullptr == _nativeResourceManager) {
         CC_LOG_ERROR("nativeResourceManager is nullptr");
         return 0;
@@ -201,11 +206,11 @@ bool FileUtilsOpenHarmony::isFileExistInternal(const std::string &strFilePath) c
         return false;
     }
 
-    if (strFilePath[0] != '/') { 
+    if (strFilePath[0] != '/') {
         const char *s = strFilePath.c_str();
         // Found "@assets/" at the beginning of the path and we don't want it
         if (strFilePath.find(ASSETS_FOLDER_NAME) == 0) s += strlen(ASSETS_FOLDER_NAME);
-        
+
         if (nullptr == _nativeResourceManager) {
             CC_LOG_ERROR("nativeResourceManager is nullptr");
             return false;
@@ -217,7 +222,7 @@ bool FileUtilsOpenHarmony::isFileExistInternal(const std::string &strFilePath) c
             return true;
         }
         return false;
-    } 
+    }
     FILE *fp = fopen(strFilePath.c_str(), "r");
     if (fp) {
         fclose(fp);
