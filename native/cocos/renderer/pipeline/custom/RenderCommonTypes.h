@@ -308,7 +308,8 @@ struct ResolvePair {
 
     ResolvePair(ResolvePair&& rhs) noexcept = default;
     ResolvePair(ResolvePair const& rhs) = delete;
-    ResolvePair& operator=(ResolvePair&& rhs) noexcept = default;
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
+    ResolvePair& operator=(ResolvePair&& rhs) = default;
     ResolvePair& operator=(ResolvePair const& rhs) = default;
 
     ccstd::pmr::string source;
@@ -340,7 +341,8 @@ struct CopyPair {
 
     CopyPair(CopyPair&& rhs) noexcept = default;
     CopyPair(CopyPair const& rhs) = delete;
-    CopyPair& operator=(CopyPair&& rhs) noexcept = default;
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
+    CopyPair& operator=(CopyPair&& rhs) = default;
     CopyPair& operator=(CopyPair const& rhs) = default;
 
     ccstd::pmr::string source;
@@ -367,7 +369,8 @@ struct UploadPair {
 
     UploadPair(UploadPair&& rhs) noexcept = default;
     UploadPair(UploadPair const& rhs) = delete;
-    UploadPair& operator=(UploadPair&& rhs) noexcept = default;
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
+    UploadPair& operator=(UploadPair&& rhs) = default;
     UploadPair& operator=(UploadPair const& rhs) = delete;
 
     ccstd::vector<uint8_t> source;
@@ -392,7 +395,8 @@ struct MovePair {
 
     MovePair(MovePair&& rhs) noexcept = default;
     MovePair(MovePair const& rhs) = delete;
-    MovePair& operator=(MovePair&& rhs) noexcept = default;
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
+    MovePair& operator=(MovePair&& rhs) = default;
     MovePair& operator=(MovePair const& rhs) = default;
 
     ccstd::pmr::string source;
