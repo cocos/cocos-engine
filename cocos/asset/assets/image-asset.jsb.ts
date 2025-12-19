@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, XIAOMI, JSB, TEST, EDITOR } from 'internal:constants';
+import { ALIPAY, XIAOMI, JSB, TEST, EDITOR, NODEJS } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy } from '../../core';
@@ -190,7 +190,7 @@ imageAssetProto._syncDataToNative = function () {
 };
 
 imageAssetProto._serialize = function () {
-    if (EDITOR || TEST) {
+    if (EDITOR || NODEJS || TEST) {
         let targetExtensions;
         if (this._native) {
             targetExtensions = [this._native];

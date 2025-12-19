@@ -24,7 +24,7 @@
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
-import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM, BYTEDANCE } from 'internal:constants';
+import { EDITOR, NODEJS, ALIPAY, XIAOMI, JSB, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM, BYTEDANCE } from 'internal:constants';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
@@ -653,7 +653,7 @@ export class ImageAsset extends Asset {
             mipmapLevelDataSize: [],
         };
 
-        if (EDITOR) {
+        if (EDITOR || NODEJS) {
             this._exportedExts = null;
         }
 
@@ -705,7 +705,7 @@ export class ImageAsset extends Asset {
         w: number;
         h: number;
     } | undefined {
-        if (EDITOR || TEST) {
+        if (EDITOR || NODEJS || TEST) {
             let targetExtensions = this._exportedExts;
             if (!targetExtensions && this._native) {
                 targetExtensions = [this._native];

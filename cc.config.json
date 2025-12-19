@@ -435,6 +435,20 @@
             }
         },
         {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.NODEJS",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/non-minigame.ts",
+                "pal/audio": "pal/audio/nodejs/player.ts",
+                "pal/system-info": "pal/system-info/nodejs/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/nodejs/screen-adapter.ts",
+                "pal/input": "pal/input/nodejs/index.ts",
+                "pal/env": "pal/env/nodejs/env.ts",
+                "pal/pacer": "pal/pacer/pacer-nodejs.ts",
+                "pal/wasm": "pal/wasm/wasm-nodejs.ts"
+            }
+        },
+        {
             "test": "context.buildTimeConstants && context.buildTimeConstants.NOT_PACK_PHYSX_LIBS",
             "isVirtualModule": false,
             "overrides": {
@@ -633,6 +647,13 @@
         },
         "COCOS_RUNTIME": {
             "comment": "Running in the cocos runtime.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "NODEJS": {
+            "comment": "Running in the Node.js environment.",
             "type": "boolean",
             "value": false,
             "ccGlobal": true,

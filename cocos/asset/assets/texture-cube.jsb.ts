@@ -24,7 +24,7 @@
 import { TextureFilter, PixelFormat, WrapMode } from './asset-enum';
 import { js, cclegacy } from '../../core';
 import './simple-texture';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, NODEJS, TEST } from 'internal:constants';
 import { patch_cc_TextureCube } from '../../native-binding/decorators';
 import type { TextureCube as JsbTextureCube } from './texture-cube';
 
@@ -113,7 +113,7 @@ textureCubeProto.onLoaded = function () {
 }
 
 textureCubeProto._serialize = function (ctxForExporting: any): Record<string, unknown> | null {
-    if (EDITOR || TEST) {
+    if (EDITOR || TEST || NODEJS) {
         if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
             const atlas = this._mipmapAtlas!.atlas;
             let uuids = {};

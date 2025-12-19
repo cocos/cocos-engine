@@ -20,6 +20,7 @@ const engineRoot = ps.join(__dirname, '..');
         await bundleNativeAdapter();
         await bundleMinigameAdapter();
         await bundleRuntimeAdapter();
+        await bundleNodejsAdapter();
         console.timeEnd('Bundle Adapter');
         process.exit(0);
     } catch (e) {
@@ -83,6 +84,19 @@ async function bundleRuntimeAdapter () {
         const engineOutput = normalizePath(ps.join(engineRoot, `bin/adapter/runtime/${platform}/engine-adapter.js`));
         await bundle(engineEntry, engineOutput, true);
     }
+}
+
+async function bundleNodejsAdapter () {
+    console.log(green('\nBundling nodejs adapter'));
+    // bundle engine-adapter.js
+    const engineAdapterEntry = normalizePath(ps.join(engineRoot, 'platforms/nodejs/engine/index.js'));
+    const engineAdapterOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/nodejs/engine-adapter.js'));
+    await bundle(engineAdapterEntry, engineAdapterOutput, true);
+    // bundle engine-adapter.js
+    const webAdapterEntry = normalizePath(ps.join(engineRoot, 'platforms/nodejs/builtin/index.js'));
+    const webAdapterOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/nodejs/web-adapter.js'));
+    await bundle(webAdapterEntry, webAdapterOutput, true);
+
 }
 
 function normalizePath (path) {

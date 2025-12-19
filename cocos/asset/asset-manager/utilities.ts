@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, NODEJS } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { cclegacy, error, errorID, js, misc } from '../../core';
 import Config from './config';
@@ -135,7 +135,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             const depend = depends[i];
             const dependAsset = assetsMap[`${depend.uuid}@import`];
             if (!dependAsset) {
-                if (EDITOR) {
+                if (EDITOR || NODEJS) {
                     if (!missingAssetReporter) {
                         // eslint-disable-next-line new-cap
                         missingAssetReporter = new EditorExtends.MissingReporter.object(asset);
@@ -154,7 +154,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 missingAsset = true;
             } else {
                 depend.owner[depend.prop] = dependAsset.addRef();
-                if (EDITOR) {
+                if (EDITOR || NODEJS) {
                     let reference = references!.get(dependAsset as string);
                     if (!reference || isScene(asset)) {
                         reference = [];

@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW, WECHAT, USE_XR } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW, WECHAT, USE_XR, NODEJS } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -993,10 +993,10 @@ export class Game extends EventTarget {
     private _loadCCEScripts (): Promise<void> {
         return new Promise<void>((resolve, reject): void => {
             // Since there is no script in the bundle during preview, we need to load the user's script in the following way
-            if (PREVIEW && !TEST && !EDITOR && !NATIVE) {
+            if (PREVIEW && !TEST && !EDITOR && !NATIVE && !NODEJS) {
                 const bundleName = 'cce:/internal/x/prerequisite-imports';
                 import(bundleName).then((): void => resolve(), (reason): void => reject(reason));
-            } else if (EDITOR && globalThis.cce && globalThis.cce.Script) {
+            } else if ((EDITOR || NODEJS) && globalThis.cce && globalThis.cce.Script) {
                 globalThis.cce.Script.init().then(() => resolve());
             } else {
                 resolve();

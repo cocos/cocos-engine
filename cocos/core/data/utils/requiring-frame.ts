@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, NODEJS } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 
 /**
@@ -71,7 +71,7 @@ legacyCC._RF = {
     peek,
 };
 
-if (EDITOR) {
+if (EDITOR || NODEJS) {
     legacyCC._RF.reset = (): void => {
         requiringFrames = [];
     };

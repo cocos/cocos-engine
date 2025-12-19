@@ -55,7 +55,7 @@ if (DEV) {
     cclegacy._Test = {};
 }
 
-const engineVersion = '3.8.8';
+const engineVersion = '4.0.0';
 
 /**
  * @en

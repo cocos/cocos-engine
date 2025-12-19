@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, NODEJS, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
 import { PixelFormat } from './asset-enum';
@@ -291,7 +291,7 @@ export class Texture2D extends SimpleTexture {
         base: any;
         mipmaps: (string | null)[];
     } | null {
-        if (EDITOR || TEST) {
+        if (EDITOR || NODEJS || TEST) {
             return {
                 base: super._serialize(ctxForExporting),
                 mipmaps: this._mipmaps.map((mipmap) => {

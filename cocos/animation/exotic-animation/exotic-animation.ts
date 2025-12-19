@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, NODEJS, TEST } from 'internal:constants';
 import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, _decorator } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { AnimationClipGraphBindingContext } from '../marionette/animation-graph-animation-clip-binding';
@@ -31,7 +31,7 @@ import { Pose } from '../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { Binder, RuntimeBinding, TrackBinding, TrackPath } from '../tracks/track';
 
-const SPLIT_METHOD_ENABLED = TEST || EDITOR;
+const SPLIT_METHOD_ENABLED = TEST || EDITOR || NODEJS;
 
 const { ccclass, serializable } = _decorator;
 

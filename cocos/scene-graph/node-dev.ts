@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, DEV, TEST } from 'internal:constants';
+import { EDITOR, DEV, TEST, NODEJS } from 'internal:constants';
 import { CCObjectFlags } from '../core/data/object';
 import * as js from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
@@ -45,7 +45,7 @@ export function nodePolyfill (Node): void {
         };
     }
 
-    if (EDITOR || TEST) {
+    if (EDITOR || TEST || NODEJS) {
         Node.prototype._checkMultipleComp = function (ctor): boolean {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {

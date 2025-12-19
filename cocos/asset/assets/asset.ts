@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, PREVIEW } from 'internal:constants';
+import { EDITOR, NODEJS, PREVIEW } from 'internal:constants';
 import { _decorator, Eventify, path, debug, getError, CCObject, cclegacy } from '../../core';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Node } from '../../scene-graph';
@@ -196,7 +196,7 @@ export class Asset extends Eventify(CCObject) {
             // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
         });
 
-        if (EDITOR || PREVIEW) {
+        if (EDITOR || NODEJS || PREVIEW) {
             Object.defineProperty(this, 'isDefault', {
                 value: false,
                 writable: true,

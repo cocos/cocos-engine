@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, OPPO, TEST, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { EDITOR, NODEJS, OPPO, TEST, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../../gfx';
 import { ImageAsset } from './image-asset';
@@ -437,7 +437,7 @@ export class TextureCube extends SimpleTexture {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): Record<string, unknown> | null {
-        if (EDITOR || TEST) {
+        if (EDITOR || TEST || NODEJS) {
             if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
                 const atlas = this._mipmapAtlas!.atlas;
                 let uuids = {};

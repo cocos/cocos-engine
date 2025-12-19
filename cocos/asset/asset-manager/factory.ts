@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, NODEJS } from 'internal:constants';
 import { ImageAsset } from '../assets/image-asset';
 import JsonAsset from '../assets/json-asset';
 import { TextAsset } from '../assets/text-asset';
@@ -86,7 +86,7 @@ function createBundle (id: string, data: IConfigOption, options: Record<string, 
         bundle.init(data);
     }
     //HACK: Can not import scripts in GameView due to the difference of Scripting System between the GameView and Preview
-    if (!EDITOR) {
+    if (!EDITOR && !NODEJS) {
         import(`virtual:///prerequisite-imports/${bundle.name}`).then((): void => {
             onComplete(null, bundle);
         }).catch(onComplete);

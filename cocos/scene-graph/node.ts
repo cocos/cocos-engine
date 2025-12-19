@@ -23,7 +23,7 @@
 */
 
 import { ccclass, editable, serializable, type } from 'cc.decorator';
-import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW, USE_UI_SKEW } from 'internal:constants';
+import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW, USE_UI_SKEW, NODEJS } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { cclegacy } from '../core/global-exports';
@@ -1091,7 +1091,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             throw TypeError(getError(3810));
         }
 
-        if (EDITOR && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
+        if ((EDITOR || NODEJS) && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
             this._checkMultipleComp!(constructor);
         }
 
@@ -1126,7 +1126,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const component = new constructor();
         component.node = (this as unknown as Node); // TODO: HACK here
         this._components.push(component);
-        if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
+        if ((EDITOR || NODEJS) && EditorExtends.Node && EditorExtends.Component) {
             const node = EditorExtends.Node.getNode(this._id);
             if (node) {
                 EditorExtends.Component.add(component._id, component);
@@ -1402,7 +1402,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             const i = this._components.indexOf(component);
             if (i !== -1) {
                 this._components.splice(i, 1);
-                if (EDITOR && EditorExtends.Component) {
+                if ((EDITOR || NODEJS) && EditorExtends.Component) {
                     EditorExtends.Component.remove(component._id);
                 }
                 this.emit(NodeEventType.COMPONENT_REMOVED, component);
@@ -1437,7 +1437,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
 
         const newPrefabInfo = cloned._prefab;
-        if (EDITOR && newPrefabInfo) {
+        if ((EDITOR || NODEJS) && newPrefabInfo) {
             if (cloned === newPrefabInfo.root) {
                 // when instantiate prefab in Editor,should add prefab instance info for root node
                 EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
@@ -1464,7 +1464,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             }
         }
 
-        if (EDITOR) {
+        if (EDITOR || NODEJS) {
             const scene = (cclegacy.director as Director).getScene() as this | null;
             const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
@@ -1497,7 +1497,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         // detach self and children from editor
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
-        if (!destroyByParent && EDITOR) {
+        if (!destroyByParent && (EDITOR || NODEJS)) {
             // TODO: `_registerIfAttached` is injected property
             // issue: https://github.com/cocos/cocos-engine/issues/14643
             (this as any)._registerIfAttached!(false);

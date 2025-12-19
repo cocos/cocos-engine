@@ -1,6 +1,6 @@
 {
   "name": "cocos-creator",
-  "version": "3.8.8",
+  "version": "4.0.0",
   "description": "Cocos Creator is a cross-platform 2D & 3D game engine written in C++ and TypeScript, licensed under MIT.",
   "homepage": "http://www.cocos.com",
   "license": "MIT",
@@ -14,6 +14,7 @@
   "scripts": {
     "postinstall": "npm run build:debug-infos && npm run build:declaration && npm run build:adapter && npm run build:native-pack-tool",
     "build": "npm run build:min && npm run build:declaration",
+    "build:cli": "npm run build:cli-min && npm run build:declaration",
     "build:adapter": "node ./scripts/build-adapter.js",
     "build:const": "node ./scripts/build-const.js",
     "build:dev": "npm run build:debug-infos && node ./scripts/build-h5-source",
@@ -21,6 +22,7 @@
     "build:declaration": "npm run build:const && node ./scripts/build-declarations",
     "build:min": "npm run build:debug-infos && node ./scripts/build-h5-minified",
     "build:native-pack-tool": "cd ./scripts/native-pack-tool && npm install && npm run build",
+    "build:cli-min": "npm run build:debug-infos && node ./scripts/build-cli-minified",
     "clear": "node ./scripts/clear-cache.js",
     "clear:platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "test": "tsc --noEmit && jest",

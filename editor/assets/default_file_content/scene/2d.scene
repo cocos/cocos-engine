@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.SceneAsset",
-    "_name": "scene-2d",
+    "_name": "2d",
     "_objFlags": 0,
     "_native": "",
     "scene": {

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { TEST, EDITOR } from 'internal:constants';
+import { TEST, EDITOR, NODEJS } from 'internal:constants';
 import { deviceManager } from '../../gfx';
 import { cclegacy } from '../../core';
 import { TextureFilter, PixelFormat, WrapMode } from './asset-enum';
@@ -36,7 +36,7 @@ declare const jsb: any;
 const textureBaseProto: any = jsb.TextureBase.prototype;
 
 textureBaseProto._serialize = function (ctxForExporting: any): any {
-    if (EDITOR || TEST) {
+    if (EDITOR || NODEJS || TEST) {
         return `${this._minFilter},${this._magFilter},${this._wrapS},${this._wrapT},${this._mipFilter},${this._anisotropy}`;
     }
     return '';

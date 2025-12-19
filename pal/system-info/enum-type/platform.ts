@@ -27,6 +27,7 @@ export enum Platform {
     // Web Based
     EDITOR_PAGE = 'EDITOR_PAGE',
     EDITOR_CORE = 'EDITOR_CORE',
+    NODEJS_PAGE = 'NODEJS_PAGE',
     MOBILE_BROWSER = 'MOBILE_BROWSER',
     DESKTOP_BROWSER = 'DESKTOP_BROWSER',
     // Native

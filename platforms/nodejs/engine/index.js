@@ -1,0 +1,1 @@
+require('./asset-manager.js');

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
+import { EDITOR, TEST, PREVIEW, DEBUG, JSB, NODEJS, DEV } from 'internal:constants';
 import { cclegacy, errorID, getError, js, assertIsTrue } from '../core';
 
 import { deserializeDynamic, DeserializeDynamicOptions, parseUuidDependenciesDynamic } from './deserialize-dynamic';
@@ -543,7 +543,7 @@ export class Details {
 Details.pool.get = function (): Details {
     return this._get() || new Details();
 };
-if (EDITOR || TEST) {
+if (EDITOR || NODEJS || TEST) {
     Details.prototype.assignAssetsBy = function (getter: (uuid: string, options: {
         type: Constructor<Asset>;
         owner: Record<string, unknown>;
@@ -1067,7 +1067,7 @@ if (PREVIEW) {
     deserialize.isCompiledJson = isCompiledJson;
 }
 
-if (EDITOR || TEST) {
+if (EDITOR || TEST || NODEJS) {
     deserialize._macros = {
         EMPTY_PLACEHOLDER,
         CUSTOM_OBJ_DATA_CLASS,

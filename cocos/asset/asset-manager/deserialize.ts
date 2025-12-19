@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, NODEJS } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { MissingScript } from '../../misc/missing-script';
 import { deserialize, Details } from '../../serialization/deserialize';
@@ -30,7 +30,7 @@ import { error, js } from '../../core';
 import { dependMap, nativeDependMap } from './depend-maps';
 import { decodeUuid } from './helper';
 
-const missingClass: any = EDITOR && EditorExtends.MissingReporter.classInstance;
+const missingClass: any = (EDITOR || NODEJS) && EditorExtends.MissingReporter.classInstance;
 
 export interface IDependProp {
     uuid: string;
@@ -43,7 +43,7 @@ export default function deserializeAsset (json: Record<string, any>, options: Re
     __uuid__?: string;
 }): Asset {
     let classFinder: deserialize.ClassFinder;
-    if (EDITOR) {
+    if (EDITOR || NODEJS) {
         classFinder = (type, data, owner, propName): Constructor<unknown> => {
             const res = missingClass.classFinder(type, data, owner, propName);
             if (res) {

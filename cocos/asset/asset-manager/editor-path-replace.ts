@@ -21,16 +21,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
-import { assert, settings, SettingsCategory } from '../../core';
+import { EDITOR, NATIVE, NODEJS, PREVIEW, TEST } from 'internal:constants';
+import { assert, settings, SettingsCategory, cclegacy } from '../../core';
 import { fetchPipeline, pipeline } from './shared';
 import Task from './task';
 
 declare const Editor: any;
-if ((EDITOR || PREVIEW) && !TEST) {
-    const cache: {[uuid: string]: string | null} = {};
+if ((EDITOR || PREVIEW || NODEJS) && !TEST) {
+    const cache: { [uuid: string]: string | null } = {};
     const resolveMap: { [uuid: string]: Function[] } = {};
-    const replaceExtension  = (task: Task, done): void => {
+    const replaceExtension = (task: Task, done): void => {
         task.output = task.input;
         (async (): Promise<void> => {
             for (let i = 0; i < task.input.length; i++) {
@@ -80,12 +80,34 @@ if ((EDITOR || PREVIEW) && !TEST) {
         try {
             let text = '';
             if (EDITOR) {
-                const info: {library: {['.bin']: any}} = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
+                const info: { library: { ['.bin']: any } } = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
                 // Current rule: If an asset has only one .bin file, then it is in CCON format.
                 if (info && info.library['.bin'] && Object.keys(info.library).length === 1) {
                     text = '.cconb';
                 }
-            } else {
+            } else if(NODEJS) {
+                const importBase = cclegacy.assetManager.generalImportBase;
+                let useAssetDB = true;
+                if(importBase && (importBase.startsWith('http://') || importBase.startsWith('https://'))) {
+                    // cli：场景使用的是网络路径
+                    const requestUrl = `${importBase}/query-extname/${uuid}`;
+                    try {
+                        text = await fetchText(requestUrl) as string;
+                        useAssetDB = false;
+                    } catch (e) {
+                        console.warn(`Failed to get file type from URL: ${requestUrl}. Error: ${e}`);
+                        text = '';
+                    }
+                } 
+                // 如果网络路径没有配置，或者不是网络路径，或者请求异常，使用AssetDB
+                if(useAssetDB && globalThis.AssetDB) {
+                    const meta: { files: string[] } = await globalThis.AssetDB.queryAsset(uuid)?.meta;
+                    // Current rule: If an asset has only one .bin file, then it is in CCON format.
+                    if (meta && meta.files.length === 1 && meta.files[0] === '.bin') {
+                        text = '.cconb';
+                    }
+                }
+            } else {  
                 let previewServer = '';
                 if (NATIVE) {
                     previewServer = settings.querySettings<string>(SettingsCategory.PATH, 'previewServer') || '';
