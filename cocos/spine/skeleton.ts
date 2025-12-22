@@ -1589,7 +1589,7 @@ export class Skeleton extends UIRenderer {
             const socket = this._sockets[i];
             if (socket.path && socket.target) {
                 const boneIdx = this._cachedSockets.get(socket.path);
-                if (!boneIdx) {
+                if (boneIdx == null) {
                     error(`Skeleton data does not contain path ${socket.path}`);
                     continue;
                 }
