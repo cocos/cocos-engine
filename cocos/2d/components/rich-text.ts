@@ -613,13 +613,8 @@ export class RichText extends Component {
         } else {
             const multilineTexts = text.split('\n');
             for (let i = 0; i < multilineTexts.length; i++) {
-                this._calculateSize(_tempSize, styleIndex, multilineTexts[i]);
-                if (_tempSize.x < 2048) {
-                    partStringArr.push(multilineTexts[i]);
-                } else {
-                    const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
-                    partStringArr.push(...thisPartSplitResultArr);
-                }
+                // _updateRichTextWithMaxWidth function will correct the text again.
+                partStringArr.push(multilineTexts[i]);
             }
         }
         return partStringArr;
