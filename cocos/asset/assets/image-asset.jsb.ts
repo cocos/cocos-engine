@@ -125,8 +125,10 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
 imageAssetProto.reset = function (data: any) {
     this._nativeData = data;
 
-    if (data.format !== undefined && !this.isFormatFixed()) {
-        this.format = (data as any).format;
+    if (!(data instanceof jsbWindow.HTMLElement)) {
+        if(data.format !== undefined) {
+            this.format = (data as any).format;
+        }
     }
     this._syncDataToNative();
 };
@@ -265,7 +267,8 @@ imageAssetProto._deserialize = function (data: any) {
 
     if (ext) {
         this._setRawAsset(ext);
-        this.setFixedFormat(format);
+        this.format = format;
+        // this._format = format;
     } else {
         warnID(3121);
     }

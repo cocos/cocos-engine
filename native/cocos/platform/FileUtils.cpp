@@ -47,11 +47,6 @@
 #include "tinydir/tinydir.h"
 #include "tinyxml2/tinyxml2.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include <dirent.h>
-    #include <unistd.h>
-#endif
-
 namespace cc {
 
 // Implement DictMaker
@@ -1064,35 +1059,15 @@ int unlinkCb(const char *fpath, const struct stat * /*sb*/, int /*typeflag*/, st
     #endif
 } // namespace
 
-bool FileUtils::removeDirectory(const ccstd::string &path) { // NOLINT(misc-no-recursion)
+bool FileUtils::removeDirectory(const ccstd::string &path) {
     #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     return nftw(path.c_str(), unlinkCb, 64, FTW_DEPTH | FTW_PHYS) != -1;
     #else
-    DIR* dir = opendir(path.c_str());
-    if (!dir) return false;
+    ccstd::string command = "rm -r ";
+    // Path may include space.
+    command += "\"" + path + "\"";
 
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != nullptr) {
-        // 跳过 . 和 ..
-        if (strcmp(entry->d_name, ".") == 0 ||
-            strcmp(entry->d_name, "..") == 0) {
-            continue;
-        }
-
-        const std::string fullPath = path + "/" + entry->d_name;
-
-        if (entry->d_type == DT_DIR) {
-            // remove sub directory
-            removeDirectory(fullPath);
-        } else {
-            // remove file
-            unlink(fullPath.c_str());
-        }
-    }
-    closedir(dir);
-
-    // remove empty directory
-    return rmdir(path.c_str()) == 0;
+    return (system(command.c_str()) >= 0);
     #endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
 }
 

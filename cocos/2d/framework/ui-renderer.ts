@@ -398,7 +398,9 @@ export class UIRenderer extends Renderer {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
-        this.destroyRenderData();
+        // When disabling, it is necessary to free up idle space to fully utilize chunks
+        // and avoid breaking batch processing.
+        this._destroyData();
         uiRendererManager.removeRenderer(this);
         this._renderFlag = false;
         this._renderEntity.enabled = false;
@@ -542,8 +544,10 @@ export class UIRenderer extends Renderer {
     }
 
     protected _updateColor (): void {
-        this._colorDirty();
+        this.node._uiProps.colorDirty = true;
+        this.setEntityColorDirty(true);
         this.setEntityColor(this._color);
+
         const assembler = this._assembler;
         if (assembler) {
             if (assembler.updateColor) {

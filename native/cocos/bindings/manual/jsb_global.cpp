@@ -572,7 +572,6 @@ struct ImageInfo *createImageInfo(Image *img) {
 
         if (dst != imgInfo->data) free(imgInfo->data);
         imgInfo->data = dst;
-        imgInfo->format = cc::gfx::Format::RGBA8;
         imgInfo->hasAlpha = true;
     }
 
@@ -630,7 +629,6 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                     retObj->setProperty("data", se::Value(obj));
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
-                    retObj->setProperty("format", se::Value(static_cast<int>(imgInfo->format)));
 
                     se::Value mipmapLevelDataSizeArr;
                     nativevalue_to_se(imgInfo->mipmapLevelDataSize, mipmapLevelDataSizeArr, nullptr);

@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible } from 'cc.decorator';
-import { BUILD, JSB, EDITOR } from 'internal:constants';
+import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame, SpriteFrameEvent } from '../assets/sprite-frame';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
@@ -703,7 +703,6 @@ export class Sprite extends UIRenderer {
             }
             if (textureChanged) {
                 if (self.renderData) self.renderData.textureDirty = true;
-                if (JSB) this._colorDirty();
                 // texture type changed, set this._instanceMaterialType to default value
                 const oldIsRT = oldFrame ? oldFrame.texture instanceof RenderTexture : false;
                 const newIsRT = spriteFrame.texture instanceof RenderTexture;

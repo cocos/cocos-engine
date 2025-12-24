@@ -55,7 +55,6 @@ cc_set_if_undefined(USE_REMOTE_LOG           OFF)
 cc_set_if_undefined(USE_ADPF                 OFF)
 cc_set_if_undefined(USE_GOOGLE_BILLING       OFF)
 cc_set_if_undefined(USE_GOOGLE_PLAY_GAMES    OFF)
-cc_set_if_undefined(USE_GAMEPAD              ON)
 
 if(ANDROID AND NOT DEFINED USE_CCACHE)
     if("$ENV{COCOS_USE_CCACHE}" STREQUAL "1")
@@ -369,7 +368,7 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
             cocos/audio/android/utils/Utils.cpp
             cocos/audio/android/utils/Utils.h
         )
-        if(ANDROID)
+        if(ANDROID) 
             cocos_source_files(
                 cocos/audio/android/PcmAudioService.cpp
                 cocos/audio/android/PcmAudioService.h
@@ -377,7 +376,7 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
                 cocos/audio/android/UrlAudioPlayer.h
             )
         elseif(OPENHARMONY)
-            cocos_source_files(
+            cocos_source_files(                
                 cocos/audio/openharmony/PcmAudioService.cpp
                 cocos/audio/openharmony/PcmAudioService.h
                 cocos/audio/openharmony/UrlAudioPlayer.cpp
@@ -591,13 +590,6 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/OpenHarmonyPlatform.cpp
         cocos/platform/openharmony/OpenHarmonyPlatform.h
     )
-    if(USE_GAMEPAD) 
-        cocos_source_files(
-            cocos/platform/openharmony/OpenHarmonyGamepad.cpp
-            cocos/platform/openharmony/OpenHarmonyGamepad.h
-        )
-    endif()
-
 elseif(OHOS)
     cocos_source_files(
         cocos/platform/ohos/OhosPlatform.cpp
@@ -619,7 +611,7 @@ elseif(IOS)
     )
 endif()
 
-if(USE_ADPF)
+if(USE_ADPF) 
     cocos_source_files(
         cocos/platform/android/adpf_manager.h
         cocos/platform/android/adpf_manager.cpp
@@ -809,7 +801,7 @@ if(USE_GOOGLE_BILLING)
         vendor/google/billing/build-params/PendingPurchasesParams.h
         vendor/google/billing/build-params/QueryProductDetailsParams.h
         vendor/google/billing/build-params/QueryPurchasesParams.h
-
+        
         vendor/google/billing/result-values/AccountIdentifiers.h
         vendor/google/billing/result-values/AlternativeBillingOnlyReportingDetails.h
         vendor/google/billing/result-values/BillingConfig.h
@@ -1148,7 +1140,7 @@ set(SWIG_OUTPUT_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(SWIG_OUTPUT ${SWIG_OUTPUT_ROOT}/cocos/bindings/auto)
 cc_gen_swig_files(${CMAKE_CURRENT_LIST_DIR}/tools/swig-config ${SWIG_OUTPUT})
 
-if(USE_GOOGLE_BILLING)
+if(USE_GOOGLE_BILLING) 
     cc_gen_swig_files(${CMAKE_CURRENT_LIST_DIR}/tools/swig-config/android/google/billing ${SWIG_OUTPUT})
 endif()
 
@@ -3048,7 +3040,7 @@ if(USE_SE_JSVM)
 
     if (NOT OPENHARMONY)
         include_directories(${CWD}/cocos/bindings/jswrapper/jsvm-v8-backend)
-        cocos_source_files(MODULE ccbindings
+        cocos_source_files(MODULE ccbindings 
             cocos/bindings/jswrapper/jsvm-v8-backend/js_native_api_v8.cc
             cocos/bindings/jswrapper/jsvm-v8-backend/js_native_api_v8.h
             cocos/bindings/jswrapper/jsvm-v8-backend/js_native_api_v8_internals.h
@@ -3449,7 +3441,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_GOOGLE_BILLING}>,CC_USE_GOOGLE_BILLING=1,CC_USE_GOOGLE_BILLING=0>
         $<IF:$<BOOL:${USE_GOOGLE_PLAY_GAMES}>,CC_USE_GOOGLE_PLAY_GAMES=1,CC_USE_GOOGLE_PLAY_GAMES=0>
         $<IF:$<BOOL:${USE_BOX2D_JSB}>,CC_USE_BOX2D_JSB=1,CC_USE_BOX2D_JSB=0>
-        $<IF:$<BOOL:${USE_GAMEPAD}>,CC_USE_GAMEPAD=1,CC_USE_GAMEPAD=0>
+        
     )
 endfunction()
 
@@ -3642,7 +3634,7 @@ if(OPENHARMONY)
 
     find_library( hilog-lib
                 hilog_ndk.z )
-
+    
     find_library( # Sets the name of the path variable.
                 libace-lib
                 # Specifies the name of the NDK library that
@@ -3679,19 +3671,13 @@ if(OPENHARMONY)
         libnative_window.so
         libnative_buffer.so
         libbundle_ndk.z.so
-        libace_napi.z.so
-        libace_ndk.z.so
-        libz.so
+        libace_napi.z.so 
+        libace_ndk.z.so 
+        libz.so 
         librawfile.z.so
-        libdeviceinfo_ndk.z.so
         libohsensor.so
         ${CC_EXTERNAL_LIBS}
     )
-
-    if(USE_GAMEPAD)
-        list(APPEND LIBS libohgame_controller.z.so)
-    endif()
-    
     if(USE_SE_JSVM)
         list(APPEND LIBS libjsvm.so)
     endif()
@@ -3782,7 +3768,7 @@ set(COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${COCOS_SOURCE_LIST})
 set(COCOS_GENERATED_LIST)
 foreach(src IN LISTS COCOS_SOURCE_LIST_EXCLUDE_GENRATED)
     get_source_file_property(IS_GENERATED ${src} GENERATED)
-    if(IS_GENERATED)
+    if(IS_GENERATED) 
         list(REMOVE_ITEM COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${src})
         list(APPEND COCOS_GENERATED_LIST ${src})
     endif()

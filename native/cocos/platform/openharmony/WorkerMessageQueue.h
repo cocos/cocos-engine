@@ -47,8 +47,6 @@ enum class MessageType {
     WM_APP_HIDE,
     WM_APP_DESTROY,
     WM_VSYNC,
-    WM_GAMEPAD_CONTROLLER_INPUT,
-    WM_GAMEPAD_CONTROLLER_CHANGE,
 };
 
 struct WorkerMessageData {

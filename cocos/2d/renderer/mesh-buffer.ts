@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo, Feature, API } from '../../gfx';
+import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../gfx';
 import { getAttributeStride } from './vertex-format';
 import { sys, getError, warnID, assertIsTrue } from '../../core';
 import { NativeUIMeshBuffer } from './native-2d';
@@ -251,12 +251,7 @@ export class MeshBuffer {
 
         this.floatsPerVertex = getAttributeStride(attrs) >> 2;
 
-        var vDataCountLimit = 65536; // 2^16 - 1
-        const glApi = device.gfxAPI;
-        if (glApi === API.WEBGPU || glApi === API.WEBGL2 || glApi === API.WEBGL && device.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
-            vDataCountLimit = 4294967295; // 2^32 - 1
-        }
-        assertIsTrue(this._initVDataCount / this._floatsPerVertex < vDataCountLimit, getError(9005));
+        assertIsTrue(this._initVDataCount / this._floatsPerVertex < 65536, getError(9005));
 
         if (!this.vData || !this.iData) {
             this.vData = new Float32Array(this._initVDataCount);

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { OPEN_HARMONY, IOS } from 'internal:constants';
+import { OPEN_HARMONY } from 'internal:constants';
 import { EventTarget } from '../../../cocos/core/event';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
@@ -134,8 +134,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
             [Feature.EVENT_HANDHELD]: (typeof xr !== 'undefined' && typeof xr.ARModule !== 'undefined'),
-            // Although the iOS OS supports WASM, the engine does not yet support loading WASM on this platform.
-            [Feature.WASM]: !OPEN_HARMONY && !IOS,
+            [Feature.WASM]: !OPEN_HARMONY,
         };
 
         this._registerEvent();
