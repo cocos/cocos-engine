@@ -51,7 +51,7 @@ function getWorldRotation (node): number {
 class Particle {
     public pos = new Vec2(0, 0);
     public startPos = new Vec2(0, 0);
-    public color = new Color(0, 0, 0, 255);
+    public color = { r: 0, g: 0, b: 0, a: 255 };
     public deltaColor = { r: 0, g: 0, b: 0, a: 255 };
     public size = 0;
     public deltaSize = 0;
@@ -80,7 +80,8 @@ class ParticlePool extends js.Pool<Particle> {
 const pool = new ParticlePool((par: Particle): void => {
     par.pos.set(Vec2.ZERO);
     par.startPos.set(Vec2.ZERO);
-    par.color.set(0, 0, 0, 255);
+    par.color.r = par.color.g = par.color.b = 0;
+    par.color.a = 255;
     par.deltaColor.r = par.deltaColor.g = par.deltaColor.b = 0;
     par.deltaColor.a = 255;
     par.size = 0;
