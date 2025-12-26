@@ -562,7 +562,7 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    private setEntityColorDirty (dirty: boolean): void {
+    protected setEntityColorDirty (dirty: boolean): void {
         if (JSB) {
             this._renderEntity.colorDirty = dirty;
         }
