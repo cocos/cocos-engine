@@ -105,7 +105,6 @@ export class WebGLInputAssembler extends InputAssembler {
             glAttribs: [],
             glIndexType,
             glVAOs: new Map<WebGLProgram, WebGLVertexArrayObjectOES>(),
-            vaoVersions: new Map<WebGLProgram, number>(), // iOS fix
         };
 
         WebGLCmdFuncCreateInputAssember(WebGLDeviceManager.instance, this._gpuInputAssembler);
