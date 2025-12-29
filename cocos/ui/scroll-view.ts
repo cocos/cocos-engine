@@ -1020,12 +1020,13 @@ export class ScrollView extends ViewGroup {
 
         const wheelPrecision = -0.1;
         const scrollY = event.getScrollY();
+        const displacement = Math.abs(scrollY) > 0 ? scrollY : event.getScrollX();
 
         const deltaMove = _tempVec3;
         if (self.vertical) {
-            deltaMove.set(0, scrollY * wheelPrecision, 0);
+            deltaMove.set(0, displacement * wheelPrecision, 0);
         } else if (self.horizontal) {
-            deltaMove.set(scrollY * wheelPrecision, 0, 0);
+            deltaMove.set(displacement * wheelPrecision, 0, 0);
         }
 
         self._mouseWheelEventElapsedTime = 0;
