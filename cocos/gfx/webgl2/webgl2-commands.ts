@@ -624,6 +624,11 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
     const cache = device.getStateCache();
     const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? WebGLConstants.DYNAMIC_DRAW : WebGLConstants.STATIC_DRAW;
 
+    // iOS fix: Initialize buffer version tracking
+    if (systemInfo.os === OS.IOS) {
+        gpuBuffer.updateVersion = 0;
+    }
+
     if (gpuBuffer.usage & BufferUsageBit.VERTEX) {
         gpuBuffer.glTarget = WebGLConstants.ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
@@ -830,12 +835,20 @@ export function WebGL2CmdFuncUpdateBuffer (
 
         switch (gpuBuffer.glTarget) {
         case WebGLConstants.ARRAY_BUFFER: {
+            // iOS fix: Increment buffer version to invalidate VAOs that reference this buffer
+            if (systemInfo.os === OS.IOS && gpuBuffer.updateVersion !== undefined) {
+                gpuBuffer.updateVersion++;
+            }
+
             if (device.extensions.useVAO) {
+                // When updating vertex buffer data, unbind VAO to force rebind on next draw
+                // This is critical because VAO caches vertex attribute pointers to buffers
                 if (cache.glVAO) {
                     gl.bindVertexArray(null);
                     cache.glVAO = null;
                 }
             }
+            // Invalidate input assembler cache to force VAO rebind/recreation
             gfxStateCache.gpuInputAssembler = null;
 
             if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
@@ -857,6 +870,11 @@ export function WebGL2CmdFuncUpdateBuffer (
             break;
         }
         case WebGLConstants.ELEMENT_ARRAY_BUFFER: {
+            // iOS fix: Increment buffer version to invalidate VAOs that reference this buffer
+            if (systemInfo.os === OS.IOS && gpuBuffer.updateVersion !== undefined) {
+                gpuBuffer.updateVersion++;
+            }
+
             if (device.extensions.useVAO) {
                 if (cache.glVAO) {
                     gl.bindVertexArray(null);
@@ -2345,11 +2363,60 @@ export function WebGL2CmdFuncBindStates (
         gfxStateCache.gpuInputAssembler = gpuInputAssembler;
 
         if (device.extensions.useVAO) {
+            // iOS Safari WebGL-to-Metal: Check if buffers were updated since VAO creation
+            const isIOS = systemInfo.os === OS.IOS;
+            let needRecreateVAO = false;
+
+            if (isIOS) {
+                // Compute current buffer version hash
+                let currentVersion = 0;
+                for (let i = 0; i < gpuInputAssembler.gpuVertexBuffers.length; i++) {
+                    const buf = gpuInputAssembler.gpuVertexBuffers[i];
+                    if (buf.updateVersion !== undefined) {
+                        currentVersion += buf.updateVersion * (i + 1);
+                    }
+                }
+                if (gpuInputAssembler.gpuIndexBuffer && gpuInputAssembler.gpuIndexBuffer.updateVersion !== undefined) {
+                    currentVersion += gpuInputAssembler.gpuIndexBuffer.updateVersion * 1000;
+                }
+
+                // Check if VAO was created with different buffer versions
+                const cachedVersion = gpuInputAssembler.vaoVersions?.get(gpuShader.glProgram!);
+                if (cachedVersion !== undefined && cachedVersion !== currentVersion) {
+                    needRecreateVAO = true;
+                }
+            }
+
             // check vao
             let glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);
-            if (!glVAO) {
+            if (!glVAO || needRecreateVAO) {
+                // Delete old VAO if recreating
+                if (needRecreateVAO && glVAO) {
+                    gl.deleteVertexArray(glVAO);
+                    if (cache.glVAO === glVAO) {
+                        cache.glVAO = null;
+                    }
+                }
                 glVAO = gl.createVertexArray()!;
                 gpuInputAssembler.glVAOs.set(gpuShader.glProgram!, glVAO);
+
+                // iOS fix: Store buffer versions when VAO is created
+                if (isIOS) {
+                    let vaoVersion = 0;
+                    for (let i = 0; i < gpuInputAssembler.gpuVertexBuffers.length; i++) {
+                        const buf = gpuInputAssembler.gpuVertexBuffers[i];
+                        if (buf.updateVersion !== undefined) {
+                            vaoVersion += buf.updateVersion * (i + 1);
+                        }
+                    }
+                    if (gpuInputAssembler.gpuIndexBuffer && gpuInputAssembler.gpuIndexBuffer.updateVersion !== undefined) {
+                        vaoVersion += gpuInputAssembler.gpuIndexBuffer.updateVersion * 1000;
+                    }
+                    if (!gpuInputAssembler.vaoVersions) {
+                        gpuInputAssembler.vaoVersions = new Map();
+                    }
+                    gpuInputAssembler.vaoVersions.set(gpuShader.glProgram!, vaoVersion);
+                }
 
                 gl.bindVertexArray(glVAO);
                 gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
@@ -2401,7 +2468,8 @@ export function WebGL2CmdFuncBindStates (
                 cache.glElementArrayBuffer = null;
             }
 
-            if (cache.glVAO !== glVAO) {
+            // iOS Safari: Force VAO rebinding on iOS, or when cache doesn't match
+            if (isIOS || cache.glVAO !== glVAO) {
                 gl.bindVertexArray(glVAO);
                 cache.glVAO = glVAO;
             }
