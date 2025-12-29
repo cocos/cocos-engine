@@ -132,7 +132,7 @@ export interface IWebGL2GPUBuffer {
     indirects: WebGL2IndirectDrawInfos;
 
     /** @mangle */
-    updateVersion: number; // iOS fix: track buffer updates to invalidate VAOs
+    updateVersion?: number; // iOS fix: track buffer updates to invalidate VAOs
 }
 
 /** @mangle */
