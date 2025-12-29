@@ -150,6 +150,9 @@ export interface IWebGLGPUBuffer {
     vf32: Float32Array | null;
     /** @mangle */
     indirects: WebGLIndirectDrawInfos;
+    /** @mangle */
+    // iOS fix: Track buffer updates to invalidate VAOs
+    updateVersion?: number;
 }
 
 /** @mangle */
@@ -348,6 +351,9 @@ export interface IWebGLGPUInputAssembler {
     glAttribs: IWebGLAttrib[];
     glIndexType: GLenum;
     glVAOs: Map<WebGLProgram, WebGLVertexArrayObjectOES>;
+    /** @mangle */
+    // iOS fix: Track buffer versions when VAOs were created
+    vaoVersions?: Map<WebGLProgram, number>;
 }
 
 /** @mangle */

@@ -130,6 +130,9 @@ export interface IWebGL2GPUBuffer {
 
     buffer: ArrayBufferView | null;
     indirects: WebGL2IndirectDrawInfos;
+
+    /** @mangle */
+    updateVersion?: number; // iOS fix: track buffer updates to invalidate VAOs
 }
 
 /** @mangle */
@@ -349,6 +352,9 @@ export interface IWebGL2GPUInputAssembler {
     glAttribs: IWebGL2Attrib[];
     glIndexType: GLenum;
     glVAOs: Map<WebGLProgram, WebGLVertexArrayObject>;
+
+    /** @mangle */
+    vaoVersions: Map<WebGLProgram, number>; // iOS fix: track buffer versions when VAO was created
 }
 
 /** @mangle */
