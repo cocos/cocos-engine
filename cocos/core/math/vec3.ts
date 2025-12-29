@@ -346,6 +346,25 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Normalizes the vector and returns the length of the vector before normalization.
+     * @zh 归一化向量并返回归一化前的长度。
+     * @param out 向量。
+     * @param epsilon 用于判定向量长度是否为 0 的阈值。
+     * @returns 归一化前的长度。
+     */
+    public static normalizeAndExtractLength<Out extends IVec3Like> (out: Out, epsilon = 1e-8): number {
+        const length = Vec3.len(out);
+        if (length > epsilon) {
+            const lengthInv = 1 / length;
+            Vec3.multiplyScalar(out, out, lengthInv);
+            return length;
+        } else {
+            Vec3.zero(out);
+        }
+        return length;
+    }
+
+    /**
      * @en Calculates the dot product of the vector
      * @zh 向量点积（数量积）
      */
@@ -1223,21 +1242,20 @@ export class Vec3 extends ValueType {
      * @en Normalize the current vector.
      * @zh 将当前向量归一化
      */
-    public normalize (): Vec3 {
-        const self = this;
-        const x = self.x;
-        const y = self.y;
-        const z = self.z;
+    public normalize (epsilon = 0): Vec3 {
+        // eslint-disable-next-line no-void
+        void this.normalizeSelfAndExtractLength(epsilon);
+        return this;
+    }
 
-        let len = x * x + y * y + z * z;
-        if (len > 0) {
-            len = 1 / sqrt(len);
-            self.x = x * len;
-            self.y = y * len;
-            self.z = z * len;
-        }
-
-        return self;
+    /**
+     * @en Normalize the current vector and return its length.
+     * @zh 将当前向量归一化并返回其长度。
+     * @param epsilon 用于判断向量是否为零的阈值。
+     * @returns 向量归一化前的长度（模）。
+     */
+    public normalizeSelfAndExtractLength (epsilon = 1e-8): number {
+        return Vec3.normalizeAndExtractLength(this, epsilon);
     }
 
     /**
