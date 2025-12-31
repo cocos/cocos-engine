@@ -27,6 +27,7 @@ export enum Platform {
     // Web Based
     EDITOR_PAGE = 'EDITOR_PAGE',
     EDITOR_CORE = 'EDITOR_CORE',
+    NODEJS_PAGE = 'NODEJS_PAGE',
     MOBILE_BROWSER = 'MOBILE_BROWSER',
     DESKTOP_BROWSER = 'DESKTOP_BROWSER',
     // Native
@@ -50,4 +51,5 @@ export enum Platform {
     HUAWEI_QUICK_GAME = 'HUAWEI_QUICK_GAME',
     MIGU_MINI_GAME = 'MIGU_MINI_GAME',
     HONOR_MINI_GAME = 'HONOR_MINI_GAME',
+    SUD_MINI_GAME = 'SUD_MINI_GAME',
 }

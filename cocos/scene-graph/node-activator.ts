@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, DEV, SUPPORT_JIT, DEBUG } from 'internal:constants';
+import { EDITOR, DEV, SUPPORT_JIT, DEBUG, NODEJS } from 'internal:constants';
 import { CCObjectFlags, isValid } from '../core/data/object';
 import { array, Pool } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
@@ -327,7 +327,7 @@ export default class NodeActivator {
     }
 }
 
-if (EDITOR) {
+if (EDITOR || NODEJS) {
     const callPreloadInTryCatch = tryCatchFunctor_EDITOR('__preload');
     const callOnLoadInTryCatch = function (c: Component): void {
         try {
@@ -344,7 +344,7 @@ if (EDITOR) {
 
     const _onLoadInEditor = (comp: Component): void => {
         if (comp.internalOnLoad && !legacyCC.GAME_VIEW) {
-            const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
+            const focused = !NODEJS && Editor.Selection.getLastSelected('node') === comp.node.uuid;
             if (focused) {
                 if (comp.onFocusInEditor && callOnFocusInTryCatch) {
                     callOnFocusInTryCatch(comp);

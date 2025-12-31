@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { SUPPORT_JIT, EDITOR, TEST, JSB, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST, JSB, EDITOR_NOT_IN_PREVIEW, NODEJS } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
@@ -215,7 +215,7 @@ class CCObject implements EditorExtendableObject {
          */
         this._name = name;
 
-        if (EDITOR) {
+        if (EDITOR || NODEJS) {
             // See cocos/cocos-engine#15392
             this[editorExtrasTag] = {};
         }
@@ -393,7 +393,7 @@ class CCObject implements EditorExtendableObject {
 }
 
 const prototype = CCObject.prototype;
-if (EDITOR || TEST) {
+if (EDITOR || TEST || NODEJS) {
     js.get(prototype, 'isRealValid', function (this: CCObject) {
         return !(this._objFlags & CCObjectFlags.RealDestroyed);
     });
@@ -471,7 +471,7 @@ if (EDITOR) {
 (prototype as any)._deserialize = null;
 
 // See cocos/cocos-engine#15392
-if (EDITOR) {
+if (EDITOR || NODEJS) {
     CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
     CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
 } else {
@@ -657,7 +657,7 @@ export function isValid<T> (value: T | null | undefined, strictMode?: boolean): 
 }
 legacyCC.isValid = isValid;
 
-if (EDITOR || TEST) {
+if (EDITOR || TEST || NODEJS) {
     js.value(CCObject, '_willDestroy', (obj) => !(obj._objFlags & CCObjectFlags.Destroyed) && (obj._objFlags & CCObjectFlags.ToDestroy) > 0);
     js.value(CCObject, '_cancelDestroy', (obj) => {
         obj._objFlags &= ~CCObjectFlags.ToDestroy;

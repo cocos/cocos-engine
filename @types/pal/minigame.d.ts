@@ -69,6 +69,19 @@ declare module 'pal/minigame' {
         getDeviceInfo(): DeviceInfo;
         getWindowInfo(): WindowInfo;
         getAppBaseInfo(): AppBaseInfo;
+
+        // interace for douyin live play feature
+        checkFeedSubscribeStatus(opt: subscribeOptions): void;
+        requestFeedSubscribe(opt: reqSubscribeOptions): void;
+        getLaunchOptionsSync(): LaunchOptions;
+        reportScene(opt: reportOption): void;
+        onFeedStatusChange(cb: (type: string) => void): void;
+        offFeedStatusChange(cb?: (type: string) => void): void;
+        storeFeedData(opt: storeFeedDataOptions): void;
+        getFeedData(opt: getFeedDataOptions): void;
+
+        setEnableDebug? (parm: DebugParameter): void;
+        notifyMiniProgramPlayableStatus? (parm: notiOptions): void;
     }
 
     interface WeChatAPI {
@@ -344,4 +357,93 @@ interface LoadSubpackageTaskOnProgressUpdateListenerResult {
     progress: number;
     totalBytesExpectedToWrite: number;
     totalBytesWritten: number;
+}
+
+interface subscribeOptions {
+    scene: number;
+    allScene: boolean;
+    type: string;
+    success?: (successObj: commonSuccessObj) => void,
+    fail?: (failObj: commonFailObj) => void,
+    complete?: () => void,
+}
+interface reqSubscribeOptions {
+    scene: number;
+    contentIDs: string[];
+    allScene: boolean;
+    type: string;
+    success?: (successObj: commonSuccessObj) => void,
+    fail?: (failObj: commonFailObj) => void,
+    complete?: () => void,
+}
+
+interface LaunchOptions {
+    query: LaunchOptionQuery;
+    scene: string;
+    extra: LaunchOptionExtra;
+}
+
+interface LaunchOptionExtra {
+    aid: object;
+    appId: string;
+    mpVersion: string;
+    launch_from: string;
+}
+
+interface LaunchOptionQuery {
+    ad_params: any;
+    feed_game_scene: any;
+    feed_game_channel: any;
+    feed_game_content_id: any;
+    feed_game_extra: any;
+}
+ interface reportOption {
+    costTime: number; //ms
+    sceneId: number;
+    dimension: object;
+    metric: object;
+    success?: (successObj: commonSuccessObj) => void,
+    fail?: (failObj: commonFailObj) => void,
+    complete?: () => void,
+}
+interface commonSuccessObj {
+    errMsg: string,
+    data: object,
+}
+interface commonFailObj {
+    errMsg: string,
+}
+
+interface storeFeedDataOptions {
+    scene: string;
+    extra: string;
+    status: number;
+    contentID: string;
+    leftValue: number;//ms
+    operator: string;
+    rightValue: number;//ms
+    success?: (successObj: {errMsg: string}) => void,
+    fail?: (failObj: commonFailObj) => void,
+    complete?: () => void,
+}
+
+interface getFeedDataOptions {
+    scene: string;
+    contentID: string;
+    success?: (successObj: {errMsg: string, extra: string, status: number}) => void,
+    fail?: (failObj: commonFailObj) => void,
+    complete?: () => void,
+}
+
+interface DebugParameter {
+    enableDebug: boolean,
+    success?: () => void,
+    fail?: (err: any) => void,
+    complete?: () => void,
+}
+
+interface notiOptions {
+    success?: () => void,
+    fail?: (err: any) => void,
+    complete?: () => void,
 }

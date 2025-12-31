@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, PREVIEW } from 'internal:constants';
+import { EDITOR, NODEJS, PREVIEW } from 'internal:constants';
 import { warnID, js, path, cclegacy } from '../../core';
 import Config, { IAddressableInfo, IAssetInfo } from './config';
 import { decodeUuid } from './helper';
@@ -161,7 +161,7 @@ export function replaceOverrideAsset (task: Task): void {
         const item = input[i] as RequestItem;
         if (assetsOverrideMap.has(item.uuid)) {
             const uuid = assetsOverrideMap.get(item.uuid)!;
-            if (EDITOR || PREVIEW) {
+            if (EDITOR || PREVIEW || NODEJS) {
                 // In EDITOR, there is no bundle, so just change uuid.
                 item.overrideUuid = uuid;
                 item.ext = item.isNative ? item.ext : '.json';

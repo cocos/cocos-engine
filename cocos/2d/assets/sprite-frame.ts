@@ -26,7 +26,7 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { EDITOR, TEST, BUILD } from 'internal:constants';
+import { EDITOR, NODEJS, TEST, BUILD } from 'internal:constants';
 import { Rect, Size, Vec2, Vec3, Vec4, cclegacy, errorID, warnID, js, v3, mat4, rect, v4, v2, size } from '../../core';
 import { Asset } from '../../asset/assets/asset';
 import { TextureBase } from '../../asset/assets/texture-base';
@@ -649,7 +649,7 @@ export class SpriteFrame extends Asset {
     constructor (name?: string) {
         super(name);
 
-        if (EDITOR) {
+        if (EDITOR || NODEJS) {
             // Atlas asset uuid
             this._atlasUuid = '';
         }
@@ -1200,7 +1200,7 @@ export class SpriteFrame extends Asset {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
-        if (EDITOR || TEST) {
+        if (EDITOR || TEST || NODEJS) {
             const rect = { x: this._rect.x, y: this._rect.y, width: this._rect.width, height: this._rect.height };
             const offset = { x: this._offset.x, y: this._offset.y };
             const originalSize = this._originalSize;
@@ -1298,7 +1298,7 @@ export class SpriteFrame extends Asset {
             }
         }
 
-        if (EDITOR) {
+        if (EDITOR || NODEJS) {
             self._atlasUuid = data.atlas ? data.atlas : '';
         }
 

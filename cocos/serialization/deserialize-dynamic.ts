@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
+import { EDITOR, NODEJS, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { cclegacy, js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, error, assertIsTrue, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput, errorID } from '../core';
 import { MissingScript } from '../misc/missing-script';
 import { Details } from './deserialize';
@@ -105,7 +105,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
     for (let p = 0; p < props.length; p++) {
         const propName = props[p];
-        if ((PREVIEW || (EDITOR && self.ignoreEditorOnly)) && attrs[propName + POSTFIX_EDITOR_ONLY]) {
+        if ((PREVIEW || ((EDITOR || NODEJS) && self.ignoreEditorOnly)) && attrs[propName + POSTFIX_EDITOR_ONLY]) {
             continue;   // skip editor only if in preview
         }
 
@@ -152,7 +152,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         sources.push('}');
     }
     if (js.isChildClassOf(klass, cclegacy.Node) || js.isChildClassOf(klass, cclegacy.Component)) {
-        if (PREVIEW || (EDITOR && self.ignoreEditorOnly)) {
+        if (PREVIEW || ((EDITOR || NODEJS) && self.ignoreEditorOnly)) {
             const mayUsedInPersistRoot = js.isChildClassOf(klass, cclegacy.Node);
             if (mayUsedInPersistRoot) {
                 sources.push('d._id&&(o._id=d._id);');
@@ -450,7 +450,7 @@ class _Deserializer {
 
         const serializedRootObject = Array.isArray(jsonObj) ? jsonObj[0] : jsonObj;
 
-        if (EDITOR || TEST) {
+        if (EDITOR || NODEJS || TEST) {
             this.deserializedData = this._deserializeObject(serializedRootObject, 0, this.deserializedList, `${0}`);
         } else {
             this.deserializedData = this._deserializeObject(serializedRootObject, 0);
@@ -557,7 +557,7 @@ class _Deserializer {
             return obj;
         };
 
-        if (!(EDITOR && js.isChildClassOf(klass, cclegacy.Component))) {
+        if (!((EDITOR || NODEJS) && js.isChildClassOf(klass, cclegacy.Component))) {
             const obj = createObject(klass);
             this._deserializeInto(value, obj, klass);
             return obj;
@@ -692,7 +692,7 @@ class _Deserializer {
             } else {
                 // TODO: assertion
                 const source = (this._serializedData as SerializedObject[])[id];
-                if (EDITOR || TEST) {
+                if (EDITOR || NODEJS || TEST) {
                     obj[propName] = this._deserializeObject(source, id, obj, propName);
                 } else {
                     obj[propName] = this._deserializeObject(source, id, undefined, propName);
@@ -704,7 +704,7 @@ class _Deserializer {
             if (uuid) {
                 const expectedType = (serializedField as SerializedUUIDReference).__expectedType__;
                 this.result.push(obj, propName, uuid, expectedType);
-            } else if (EDITOR || TEST) {
+            } else if (EDITOR || NODEJS || TEST) {
                 obj[propName] = this._deserializeObject(serializedField as SerializedObject, -1, obj, propName);
             } else {
                 obj[propName] = this._deserializeObject(serializedField as SerializedObject, -1);

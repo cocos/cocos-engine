@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW, NODEJS, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { ImageAsset, ImageSource } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
@@ -284,7 +284,7 @@ export class BuiltinResMgr {
             resources[spriteFrame._uuid] = spriteFrame;
         }
 
-        if (EDITOR) {
+        if (EDITOR || NODEJS) {
             const builtinAssets = settings.querySettings<string[]>(SettingsCategory.ENGINE, 'builtinAssets');
             const builtinBundle = new Bundle();
             builtinBundle.init({

@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, NODEJS, TEST } from 'internal:constants';
 import { cclegacy } from '../../core';
 import { TextureFilter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
@@ -42,7 +42,7 @@ RenderTexture.PixelFormat = PixelFormat;
 RenderTexture.WrapMode = WrapMode;
 
 renderTextureProto._serialize = function (ctxForExporting: any): any {
-    if (EDITOR || TEST) {
+    if (EDITOR || NODEJS || TEST) {
         return { base: textureBaseProto._serialize(ctxForExporting), w: this._width, h: this._height, n: this._name };
     }
     return {};

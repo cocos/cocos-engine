@@ -300,6 +300,11 @@ void AudioPlayer::rotateBufferThread(int offsetFrame) {
                      */
                     ALuint bid;
                     alSourceUnqueueBuffers(_alSource, 1, &bid);
+                    // check if the buffer is valid in case of crash in IOS
+                    if(!alIsBuffer(bid)){
+                        needToExitThread = true;
+                        break;
+                    }
                     alBufferData(bid, _audioCache->_format, tmpBuffer, framesRead * decoder.getBytesPerFrame(), decoder.getSampleRate());
                     alSourceQueueBuffers(_alSource, 1, &bid);
                 }

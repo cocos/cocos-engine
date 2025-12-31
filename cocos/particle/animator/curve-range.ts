@@ -23,7 +23,7 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, NODEJS } from 'internal:constants';
 import { lerp, RealCurve, CCClass, geometry, Enum, approx, EPSILON } from '../../core';
 import { PixelFormat, TextureFilter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
@@ -197,7 +197,7 @@ export default class CurveRange  {
     constructor () {
         /* Only create RealCurves in Editor, in order to show the Splines in Editor,
         in RunTime the RealCurves will only be created when it is in Curve mode*/
-        if (EDITOR) {
+        if (EDITOR || NODEJS) {
             this.spline = geometry.constructLegacyCurveAndConvert();
             this.splineMin = geometry.constructLegacyCurveAndConvert();
             this.splineMax = geometry.constructLegacyCurveAndConvert();

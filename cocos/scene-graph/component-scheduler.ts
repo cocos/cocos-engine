@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
+import { EDITOR, SUPPORT_JIT, DEV, TEST, NODEJS } from 'internal:constants';
 import { CCObjectFlags } from '../core/data/object';
 import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
@@ -36,9 +36,9 @@ const IsStartCalled = CCObjectFlags.IsStartCalled;
 const IsOnEnableCalled = CCObjectFlags.IsOnEnableCalled;
 const IsEditorOnEnableCalled = CCObjectFlags.IsEditorOnEnableCalled;
 
-const callerFunctor: any = EDITOR && tryCatchFunctor_EDITOR;
-const callOnEnableInTryCatch: any = EDITOR && callerFunctor('onEnable');
-const callOnDisableInTryCatch: any = EDITOR && callerFunctor('onDisable');
+const callerFunctor: any = (EDITOR || NODEJS) && tryCatchFunctor_EDITOR;
+const callOnEnableInTryCatch: any = (EDITOR || NODEJS) && callerFunctor('onEnable');
+const callOnDisableInTryCatch: any = (EDITOR || NODEJS) && callerFunctor('onDisable');
 
 function sortedIndex (array, comp): number {
     const order = comp.constructor._executionOrder;
@@ -550,7 +550,7 @@ export class ComponentScheduler {
     }
 }
 
-if (EDITOR) {
+if (EDITOR || NODEJS) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker): void {
         // NOTE: _executeInEditMode is dynamically injected on Editor environment
         if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {

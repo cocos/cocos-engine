@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://www.cocos.com/">
-        <img src="https://user-images.githubusercontent.com/1503156/112012067-d5cdf580-8b63-11eb-819a-1c32cf253b25.png"
+        <img src="./ui.png"
              alt="Cocos Creator Logo">
     </a>
 </p>
@@ -13,11 +13,7 @@
         <img src="https://img.shields.io/github/forks/cocos/cocos-engine.svg?style=flat-square&colorB=4183c4"
              alt="forks">
     </a>
-    <a href="https://github.com/cocos-creator/engine/releases">
-        <img src="https://img.shields.io/github/tag/cocos/cocos-engine.svg?label=version&style=flat-square&colorB=4183c4"
-             alt="version">
-    </a>
-    <a href="./licenses/LICENSE">
+    <a href="./LICENSE">
         <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&colorB=4183c4"
              alt="license">
     </a>
@@ -27,19 +23,26 @@
     </a>
 </p>
 
-# Cocos Creator 引擎
+# COCOS 4
 
-![image](https://user-images.githubusercontent.com/1503156/111035862-53548000-8457-11eb-8e8b-52d854caf627.png)
+COCOS 4 是一个开源的、高性能的、跨平台的游戏和交互式内容开发引擎。基于成熟的 C++ 架构，它提供强大的渲染能力和灵活的脚本绑定，支持"一次编写，随处运行"的哲学。
 
-Cocos Engine 是 Cocos Creator 编辑器的运行时框架。Cocos Creator 是 Cocos 家族的下一代游戏开发工具，为开发者集成了完整的 3D 能力，并且提供了直观、高效、便于协作的工作流。
+以前，_Cocos Creator_ 指的是结合了引擎和编辑器的产品，跨越 1.x、2.x 和 3.x 版本。为了采纳纯开源模式并充分整合 AI，我们正在将引擎与编辑器分离。这是一个重大且必要的演进。往后：
 
-Cocos Creator 继承了其以前版本的许多优良品质和酷炫功能，如强大的跨平台支持、资产管理、强大的动画编辑等。此外，Cocos Creator 还将我们的技术推到了一个全新的水平。我们的 GFX 实现是为了适应最新的图形后端 API，支持 WebGL 2 并且可以无缝 fallback 到 WebGL 1，在原生构建中支持 Vulkan 和 Metal。材质系统建立在我们自己基于 GLSL 300 的 Effect 格式，可以很容易地适应低端设备的低版本。使开发人员可以制作高性能、极富表现力的着色器，并具有良好的兼容性。伴随着基于物理的相机和光照，高水平的游戏图形可以很容易地实现。我们的纯 GPU 驱动的骨骼动画也能确保你的游戏运行尽可能的流畅。除了所有这些令人兴奋的功能，Cocos Creator 还有内置的物理支持、地形编辑支持、特效编辑、UI 系统、TypeScript 支持、即时预览等功能。
+**COCOS** 将专指引擎，主版本号升级到 **COCOS 4**。跨平台框架和编辑器的核心组件将被转换为 CLI 工具并整合到引擎的核心功能中。这代表着这个开源版本的一个重要新增功能。
+
+## 引擎特性
+
+1. **现代图形技术**：GFX 实现设计用于适配现代图形 API，在 Windows 和 Android 上使用 Vulkan，在 Mac OS 和 iOS 上使用 Metal，在 Web 平台上使用 WebGL。
+2. **高性能**：运行时引擎由 C++ 和 TypeScript 各占一半构成，低层基础设施、原生平台适配、渲染器和场景管理都用 C++ 编写以保证高运行时性能。我们不断将更多的繁重工作转移到原生代码中。
+3. **可定制化渲染管线**：渲染管线被设计为完全可定制的，已在所有平台上支持内置的正向和延迟渲染管线。开发者可以按照相同的方法自定义他们的渲染管线。
+4. **可扩展的表面着色器**：材质系统建立在 Cocos 的 effect 格式之上，使用 GLSL 300，着色器程序将自动转换为合适的运行时格式。表面着色器允许充分定制表面材质，同时确保通用的光照模型。
+5. **基于物理的渲染（PBR）**：标准效果采用基于物理的渲染，结合基于物理的摄像机和基于物理参数的光照，开发者可以轻松在不同环境中实现逼真、无缝的渲染效果。
+6. **易用的 TypeScript API**：用户级 API 集由 TypeScript 提供，加上强大的 VSCode 编辑器，使用 Cocos Creator 开发效率极高。
 
 ![image](https://user-images.githubusercontent.com/1503156/111037166-f27c7600-845d-11eb-988f-4c2c8b5c7321.png)
 
 引擎部分主要由 TypeScript 实现，支持用户使用 TypeScript 来编写游戏逻辑。另外在 `native` 目录中则提供了引擎在原生平台上的底层实现。引擎本身大部分是独立的，有成熟的运行时，包括光照、材质、粒子、动画、物理、UI、地形、声音、资源和场景节点管理等模块。同时支持原生和 Web 浏览器，包括 Windows、Mac、iOS、Android、HarmonyOS、Web。更令人兴奋的是，它支持各类小游戏平台，如微信小游戏和 Facebook Instant Games。
-
-此引擎作为关键的运行时库默认集成在 Cocos Creator 中，并不是被设计为独立使用。
 
 ## 开发
 

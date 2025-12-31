@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
+import { DEV, EDITOR, SUPPORT_JIT, TEST, NODEJS } from 'internal:constants';
 import { errorID, warnID, error } from '../platform/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
@@ -179,7 +179,7 @@ function define (className, baseClass, options): any {
 
     const cls = doDefine(className, baseClass, options);
 
-    if (EDITOR) {
+    if (EDITOR || NODEJS) {
         // for RenderPipeline, RenderFlow, RenderStage
         const isRenderPipeline = js.isChildClassOf(baseClass, legacyCC.RenderPipeline);
         const isRenderFlow = js.isChildClassOf(baseClass, legacyCC.RenderFlow);

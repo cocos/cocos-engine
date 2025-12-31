@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, NODEJS, TEST } from 'internal:constants';
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Asset } from '../../asset/assets';
 import { SpriteFrame } from './sprite-frame';
@@ -112,7 +112,7 @@ export class SpriteAtlas extends Asset {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
-        if (EDITOR || TEST) {
+        if (EDITOR || NODEJS || TEST) {
             const frames: string[] = [];
             for (const key in this.spriteFrames) {
                 const spriteFrame = this.spriteFrames[key];

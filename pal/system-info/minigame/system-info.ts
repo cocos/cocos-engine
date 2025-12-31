@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 /*
  Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -22,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, HUAWEI, OPPO, RUNTIME_BASED, VIVO, MIGU, HONOR, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, HUAWEI, OPPO, RUNTIME_BASED, SUD, VIVO, MIGU, HONOR, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame, SystemInfo as MinigameSystemInfo } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -57,6 +58,8 @@ if (WECHAT) {
     currentPlatform = Platform.MIGU_MINI_GAME;
 } else if (HONOR) {
     currentPlatform = Platform.HONOR_MINI_GAME;
+} else if (SUD) {
+    currentPlatform = Platform.SUD_MINI_GAME;
 }
 
 let isVersionGreaterOrEqualTo;

@@ -23,7 +23,7 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, NODEJS, TEST } from 'internal:constants';
 import { clamp, cclegacy, errorID } from '../../core';
 import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager,
     BufferTextureCopy, TextureFlags, TextureFlagBit } from '../../gfx';
@@ -127,7 +127,7 @@ export class RenderTexture extends TextureBase {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
-        if (EDITOR || TEST) {
+        if (EDITOR || NODEJS || TEST) {
             return { base: super._serialize(ctxForExporting), w: this._width, h: this._height, n: this._name };
         }
         return {};

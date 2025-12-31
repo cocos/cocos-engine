@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, NODEJS, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from './asset';
 import { TextureFilter, PixelFormat, WrapMode } from './asset-enum';
@@ -321,7 +321,7 @@ export class TextureBase extends Asset {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
-        if (EDITOR || TEST) {
+        if (EDITOR || NODEJS || TEST) {
             return `${this._minFilter},${this._magFilter},${
                 this._wrapS},${this._wrapT},${
                 this._mipFilter},${this._anisotropy}`;

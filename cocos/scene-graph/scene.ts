@@ -23,7 +23,7 @@
 */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, NODEJS, TEST } from 'internal:constants';
 import { CCObject } from '../core/data/object';
 import { assert, getError } from '../core/platform/debug';
 import { RenderScene } from '../render-scene/core/render-scene';
@@ -192,7 +192,7 @@ export class Scene extends Node {
      * @mangle
      */
     public _activate (active = true): void {
-        if (EDITOR) {
+        if (EDITOR || NODEJS) {
             // register all nodes to editor
             // TODO: `_registerIfAttached` is injected property
             // issue: https://github.com/cocos/cocos-engine/issues/14643

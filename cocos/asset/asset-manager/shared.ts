@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, NODEJS } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import Bundle from './bundle';
 import Cache from './cache';
@@ -36,7 +36,7 @@ export const bundles = new Cache<Bundle>();
 export const pipeline = new Pipeline('normal load', []);
 export const fetchPipeline = new Pipeline('fetch', []);
 export const transformPipeline = new Pipeline('transform url', []);
-export const references = EDITOR ? new Cache<any[]>() : null;
+export const references = (EDITOR || NODEJS) ? new Cache<any[]>() : null;
 export const assetsOverrideMap = new Map<string, string>();
 
 export enum RequestType {
