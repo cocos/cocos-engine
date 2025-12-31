@@ -53,7 +53,9 @@
 namespace cc {
 
 namespace {
+
 Root *instance = nullptr;
+
 }
 
 Root *Root::getInstance() {
