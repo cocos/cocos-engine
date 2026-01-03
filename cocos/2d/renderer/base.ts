@@ -31,6 +31,14 @@ import type { UIRenderer } from '../framework/ui-renderer';
 import type { IBatcher } from './i-batcher';
 import type { BaseRenderData } from './render-data';
 
+export type { IBatcher } from './i-batcher';
+export type { Batcher2D } from './batcher-2d';
+export { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
+export { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
+export { RenderEntity, RenderEntityType, RenderEntityFillColorType } from './render-entity';
+export { Stage, StencilManager } from './stencil-manager';
+
+
 /**
  * @internal
  */
