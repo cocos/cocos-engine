@@ -36,6 +36,8 @@ export type { Batcher2D } from './batcher-2d';
 export { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 export { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
 export { RenderEntity, RenderEntityType, RenderEntityFillColorType } from './render-entity';
+export { Stage, StencilManager } from './stencil-manager';
+
 
 /**
  * @internal
