@@ -38,6 +38,7 @@ jobs:
               echo "Ninja is already installed."
           fi
           which ninja
+          ninja --version
 
       - name: Apply emscripten patches
         run: |
