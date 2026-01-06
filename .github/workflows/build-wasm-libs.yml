@@ -37,7 +37,7 @@ jobs:
           else
               echo "Ninja is already installed."
           fi
-          ninja --version
+          /usr/local/bin/ninja --version
           which ninja
 
       - name: Apply emscripten patches
