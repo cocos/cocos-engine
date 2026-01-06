@@ -223,11 +223,6 @@ export class BaseRenderData {
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor: StaticVBAccessor | null = null): RenderData {
         const rd = new RenderData(vertexFormat, accessor);
-        if (!accessor) {
-            const batcher = director.root!.batcher2D;
-            accessor = batcher.switchBufferAccessor(rd._vertexFormat);
-        }
-        rd._accessor = accessor;
         return rd;
     }
 
