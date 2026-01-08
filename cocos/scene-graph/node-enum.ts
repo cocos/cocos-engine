@@ -72,6 +72,7 @@ export enum TransformBit {
 
     /**
      * @en Rotation, scale or skew changed
+     * @zh 节点旋转, 缩放及倾斜
      */
     RSS = TransformBit.ROTATION | TransformBit.SCALE | TransformBit.SKEW,
     /**
@@ -80,10 +81,21 @@ export enum TransformBit {
      */
     TRS = TransformBit.POSITION | TransformBit.ROTATION | TransformBit.SCALE,
     /**
+     * @en Translation, rotation, scale or skew changed
+     * @zh 节点平移，旋转, 缩放及倾斜
+     */
+    TRSS = TransformBit.TRS | TransformBit.SKEW,
+
+    /**
      * @en Invert mask of [[TRS]]
      * @zh [[TRS]] 的反向掩码
      */
     TRS_MASK = ~TransformBit.TRS,
+    /**
+     * @en Invert mask of [[TRSS]]
+     * @zh [[TRSS]] 的反向掩码
+     */
+    TRSS_MASK = ~TransformBit.TRSS,
 }
 
 legacyCC.internal.TransformBit = TransformBit;
