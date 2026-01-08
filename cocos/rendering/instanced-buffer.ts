@@ -31,6 +31,7 @@ import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMA
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
 import { RecyclePool } from '../core/memop';
+import { cclegacy } from '../core';
 
 export function instancingCompareFn (l: InstancedBuffer, r: InstancedBuffer): number {
     const ls = l.sortRender;
@@ -101,36 +102,36 @@ export class InstancedBuffer {
             shader = subModel.shaders[passIdx];
         }
         const descriptorSet = subModel.descriptorSet;
-        const hash = (subModel.passes[passIdx].priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
-
+        const pass = subModel.passes[passIdx];
+        let hash = (pass.priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const hash1 = pass.hash;
+            const hash2 = subModel.inputAssembler.attributesHash;
+            const hash3 = shader.typedID;
+            hash = hash1 ^ hash2 ^ hash3;
+        }
         this.sortRender.hash = hash;
         this.sortRender.shaderId = shader.typedID;
         this.sortRender.passIdx = passIdx;
+
+        const sourceIndexBufferId = sourceIA.indexBuffer?.objectID;
+        const lightingMapId = lightingMap.objectID;
+        const reflectionProbeCubemapId = reflectionProbeCubemap.objectID;
+        const reflectionProbePlanarMapId = reflectionProbePlanarMap.objectID;
+        const reflectionProbeBlendCubemapId = ENABLE_PROBE_BLEND ? reflectionProbeBlendCubemap!.objectID : 0;
+
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
-            if (instance.ia.indexBuffer?.objectID !== sourceIA.indexBuffer?.objectID || instance.count >= MAX_CAPACITY) { continue; }
+            if (instance.stride !== stride
+                || instance.ia.indexBuffer?.objectID !== sourceIndexBufferId
+                || instance.count >= MAX_CAPACITY) { continue; }
 
             // check same binding
-            if (instance.lightingMap.objectID !== lightingMap.objectID) {
-                continue;
-            }
-
-            if (instance.useReflectionProbeType !== useReflectionProbeType) {
-                continue;
-            }
-            if (instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemap.objectID) {
-                continue;
-            }
-            if (instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
-                continue;
-            }
-            if (ENABLE_PROBE_BLEND && instance.reflectionProbeBlendCubemap!.objectID !== reflectionProbeBlendCubemap!.objectID) {
-                continue;
-            }
-
-            if (instance.stride !== stride) {
-                // we allow this considering both baked and non-baked
-                // skinning models may be present in the same buffer
+            if (instance.lightingMap.objectID !== lightingMapId
+                || instance.useReflectionProbeType !== useReflectionProbeType
+                || instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemapId
+                || instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMapId
+                || (ENABLE_PROBE_BLEND && instance.reflectionProbeBlendCubemap!.objectID !== reflectionProbeBlendCubemapId)) {
                 continue;
             }
             if (instance.count >= instance.capacity) { // resize buffers
@@ -147,11 +148,12 @@ export class InstancedBuffer {
             this.hasPendingModels = true;
             return;
         }
-
+        const enabledDeviceMem = (cclegacy.rendering && cclegacy.rendering.enableEffectImport)
+            ? MemoryUsageBit.DEVICE : MemoryUsageBit.HOST | MemoryUsageBit.DEVICE;
         // Create a new instance
         const vb = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            enabledDeviceMem,
             stride * INITIAL_CAPACITY,
             stride,
         ));

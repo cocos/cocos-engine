@@ -39,6 +39,10 @@ export abstract class InputAssembler extends GFXObject {
         return this._attributes;
     }
 
+    get gpuInputAssembler (): any {
+        return {};
+    }
+
     /**
      * @en Get current vertex buffers.
      * @zh 顶点缓冲数组。

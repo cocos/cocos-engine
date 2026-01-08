@@ -101,6 +101,7 @@ export class WebGLInputAssembler extends InputAssembler {
             gpuVertexBuffers,
             gpuIndexBuffer,
             gpuIndirectBuffer,
+            isChanged: false,
 
             glAttribs: [],
             glIndexType,

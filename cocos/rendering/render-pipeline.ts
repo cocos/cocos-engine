@@ -624,7 +624,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
 
         const quadVB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+            MemoryUsageBit.DEVICE,
             vbSize,
             vbStride,
         ));
