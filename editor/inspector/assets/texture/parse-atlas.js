@@ -42,7 +42,8 @@ function formatValue(value) {
 }
 
 const imageExt = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
-const pageAttr = ['name', 'size', 'format', 'filter', 'repeat', 'pma'];
+// The 'scale' parameter is not defined in the page specifications. The image collection uses 'scale' to resize images
+const pageAttr = ['name', 'size', 'format', 'filter', 'repeat', 'pma', 'scale'];
 
 class ParseAtlasFile {
     constructor() { }
@@ -91,7 +92,7 @@ class ParseAtlasFile {
                     this.#json[this.#currentPage][this.#currentRegin][key] = value;
                 } else {
                     if (!pageAttr.includes(key)) {
-                        console.error(`${key} is not a valid attribute, Please check!`);
+                        console.warn(`${key} is not a valid attribute, Please check!`);
                     }
                     this.#json[this.#currentPage][key] = value;
                 }
