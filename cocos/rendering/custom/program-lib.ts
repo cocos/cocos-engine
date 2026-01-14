@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,19 +22,11 @@
  THE SOFTWARE.
 */
 
-import * as pipeline from './define';
+import { LayoutGraphData } from './layout-graph';
+import { WebProgramLibrary } from './web-program-library';
+import { ProgramLibrary } from './private';
 
-export { pipeline };
+const defaultLayoutGraph = new LayoutGraphData();
 
-export * from './pass-phase';
-export * from './render-types';
-
-export { PipelineSceneData } from './pipeline-scene-data';
-
-export { InstancedBuffer } from './instanced-buffer';
-export { PipelineStateManager } from './pipeline-state-manager';
-
-export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
-export { DebugView } from './debug-view';
-
-export { shaderPrecompile } from './shader-precompile';
+export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
+export { defaultLayoutGraph };

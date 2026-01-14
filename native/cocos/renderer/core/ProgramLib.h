@@ -156,6 +156,11 @@ public:
     gfx::Shader *getGFXShader(gfx::Device *device, const ccstd::string &name, MacroRecord &defines,
                               render::PipelineRuntime *pipeline, ccstd::string *key = nullptr);
 
+    gfx::Shader *compile(gfx::Device *device, const ccstd::string &name, MacroRecord &defines,
+                              render::PipelineRuntime *pipeline, ccstd::string *key = nullptr);
+
+    uint32_t getShadersCount() const;
+
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
 
