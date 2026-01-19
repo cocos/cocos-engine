@@ -311,7 +311,7 @@ export class UIRenderer extends Renderer {
      * @en UI rendering component fill color type, COLOR means using color property value to fill, VERTEX means using vertex color value to fill.
      * @zh UI 渲染组件填充颜色类型，COLOR 表示使用 color 属性值填充，VERTEX 表示使用顶点颜色值填充。
      */
-    private _fillColorType = RenderEntityFillColorType.COLOR;
+    protected _fillColorType: RenderEntityFillColorType = RenderEntityFillColorType.COLOR;
 
     /**
      * @engineInternal
@@ -355,6 +355,7 @@ export class UIRenderer extends Renderer {
 
     public onLoad (): void {
         this._renderEntity.setNode(this.node);
+        this._renderEntity.setFillColorType(this._fillColorType);
     }
 
     public __preload (): void {

@@ -73,10 +73,7 @@ export class Point {
 export class MotionStreak extends UIRenderer {
     public static Point = Point;
 
-    constructor () {
-        super();
-        this.setFillColorType(RenderEntityFillColorType.VERTEX);
-    }
+    protected _fillColorType = RenderEntityFillColorType.VERTEX;
 
     /**
      * @en Preview the trailing effect in editor mode.
