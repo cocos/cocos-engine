@@ -355,6 +355,7 @@ export class UIRenderer extends Renderer {
 
     public onLoad (): void {
         this._renderEntity.setNode(this.node);
+        this._renderEntity.setFillColorType(this._fillColorType);
     }
 
     public __preload (): void {
