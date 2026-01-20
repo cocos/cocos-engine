@@ -23,9 +23,9 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable, editable } from 'cc.decorator';
 import { EDITOR, USE_XR } from 'internal:constants';
-import { Component, EventHandler } from '../scene-graph';
+import { Component, EventHandler, Node } from '../scene-graph';
 import { UITransform } from '../2d/framework';
 import { EventTouch, Touch } from '../input/types';
 import { Vec3 } from '../core/math';
@@ -35,6 +35,7 @@ import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
+import { ScrollView } from './scroll-view';
 
 const _tempPos = new Vec3();
 /**
@@ -147,6 +148,23 @@ export class Slider extends Component {
         this._updateHandlePosition();
     }
 
+    /**
+     * @en
+     * Whether to stop the scroll view of the upper layer of the node when dragging the slider thumb. The default value is false.
+     *
+     * @zh
+     * 拖动滑动器滑块时是否停止节点上层的滚动视图。默认为 false。
+     */
+    @editable
+    @tooltip('i18n:slider.parentStopScroll')
+    get parentStopScroll (): boolean {
+        return this._stopParentScroll;
+    }
+
+    set parentStopScroll (value: boolean) {
+        this._stopParentScroll = value;
+    }
+
     public static Direction = Direction;
 
     /**
@@ -166,7 +184,11 @@ export class Slider extends Component {
     private _direction = Direction.Horizontal;
     @serializable
     private _progress = 0.1;
+    @serializable
+    private _stopParentScroll: boolean = false;
 
+    private _scrollview: ScrollView | null = null;
+    private _scrollviewContentCache: Node | null = null;
     private _offset: Vec3 = new Vec3();
     private _dragging = false;
     private _touchHandle = false;
@@ -229,6 +251,7 @@ export class Slider extends Component {
             handleNode.off(NodeEventType.TOUCH_MOVE, self._onTouchMoved, self);
             handleNode.off(NodeEventType.TOUCH_END, self._onTouchEnded, self);
         }
+        this._scrollview = null;
     }
 
     protected _onHandleDragStart (event?: EventTouch): void {
@@ -254,6 +277,8 @@ export class Slider extends Component {
         if (!this._touchHandle) {
             this._handleSliderLogic(event.touch);
         }
+        this.findParentScrollView(this.node);
+        if (this._stopParentScroll) this.stopParentScroll();
 
         event.propagationStopped = true;
     }
@@ -264,6 +289,8 @@ export class Slider extends Component {
         }
 
         this._handleSliderLogic(event.touch);
+        this.findParentScrollView(this.node);
+        if (this._stopParentScroll) this.stopParentScroll();
         event.propagationStopped = true;
     }
 
@@ -271,7 +298,8 @@ export class Slider extends Component {
         this._dragging = false;
         this._touchHandle = false;
         this._offset = new Vec3();
-
+        this.resumeParentScroll();
+        this._scrollview = null;
         if (event) {
             event.propagationStopped = true;
         }
@@ -279,6 +307,8 @@ export class Slider extends Component {
 
     protected _onTouchCancelled (event?: EventTouch): void {
         this._dragging = false;
+        this.resumeParentScroll();
+        this._scrollview = null;
         if (event) {
             event.propagationStopped = true;
         }
@@ -378,6 +408,30 @@ export class Slider extends Component {
 
         this._xrHandleProgress(event.hitPoint);
         this._emitSlideEvent();
+    }
+
+    public stopParentScroll (): void {
+        if (this._scrollview) {
+            this._scrollview.content = null;
+        }
+    }
+
+    public resumeParentScroll (): void {
+        if (this._scrollview) {
+            this._scrollview.content = this._scrollviewContentCache;
+        }
+    }
+
+    protected findParentScrollView (node: Node): void {
+        const p = node.parent;
+        if (p && !this._scrollview) {
+            this._scrollview = p.getComponent(ScrollView);
+            if (!this._scrollview) {
+                this.findParentScrollView(p);
+            } else {
+                this._scrollviewContentCache = this._scrollview.content;
+            }
+        }
     }
 }
 
