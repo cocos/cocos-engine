@@ -713,6 +713,17 @@ export class RichText extends Component {
             curEnd += partStep;
 
             curString = longStr.substring(curStart, curEnd);
+            // consider there is a part of a word at the end of this line, it should be moved to the next line
+            if (curString.length >= 2) {
+                const lastWordExec = getEnglishWordPartAtLast(curString);
+                if (lastWordExec && lastWordExec.length > 0
+                    // to avoid endless loop when there is only one word in this line
+                    && curString !== lastWordExec[0]) {
+                    curEnd -= lastWordExec[0].length;
+                    curString = longStr.substring(curStart, curEnd);
+                }
+            }
+
             leftString = longStr.substring(curEnd);
             this._calculateSize(leftStringSize, styleIndex, leftString);
             this._calculateSize(curStringSize, styleIndex, curString);
