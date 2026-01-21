@@ -240,10 +240,8 @@ void Batcher2d::walk(Node* node, float parentOpacity, bool parentColorDirty) { /
         if (!visible) {
             breakWalk = true;
         } else if (entity->isEnabled()) {
-            if (isCurrentColorDirty) {
-                entity->setOpacity(finalOpacity);
-                entity->setVBColorDirty(true);
-            }
+            entity->setOpacity(finalOpacity);
+            entity->setVBColorDirty(true);
             
             if (ENABLE_SORTING_2D && sorting2DCount > 0) {
                 if (entity->getIsMask()) {
