@@ -75,6 +75,7 @@ struct CC_DLL RenderPass {
     uint32_t shaderID = 0;
     uint32_t passIndex = 0;
     const scene::SubModel *subModel = nullptr;
+    uint32_t subModelID = 0; 
 };
 using RenderPassList = ccstd::vector<RenderPass>;
 
@@ -185,7 +186,11 @@ inline bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
         return a.depth < b.depth;
     }
 
-    return a.shaderID < b.shaderID;
+    if(a.shaderID != b.shaderID) {
+        return a.shaderID < b.shaderID;
+    }
+ 
+    return a.subModelID < b.subModelID;
 }
 
 inline bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
@@ -203,7 +208,11 @@ inline bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
         return b.depth < a.depth;
     }
 
-    return a.shaderID < b.shaderID;
+    if(a.shaderID != b.shaderID) {
+        return a.shaderID < b.shaderID;
+    }
+ 
+    return a.subModelID < b.subModelID;
 }
 
 inline uint32_t convertPhase(const ccstd::vector<ccstd::string> &stages) {
