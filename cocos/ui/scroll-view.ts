@@ -1428,7 +1428,7 @@ export class ScrollView extends ViewGroup {
             }
         }
 
-        ComponentEventHandler.emitEvents(this.scrollEvents, this, eventMap[event]);
+        ComponentEventHandler.emitEvents(this.scrollEvents, this, event);
         this.node.emit(event, this);
     }
 
