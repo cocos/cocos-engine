@@ -127,7 +127,7 @@ class Component extends CCObject {
      * ```
      */
     get enabled (): boolean {
-        return this._enabled;
+        return this._enabled && (!this.node || this.node.activeInHierarchy);
     }
     set enabled (value) {
         if (this._enabled !== value) {
