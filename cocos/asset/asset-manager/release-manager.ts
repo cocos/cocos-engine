@@ -28,7 +28,7 @@ import { isValid, js, misc } from '../../core';
 import { Node, Scene } from '../../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
-import { assets, references } from './shared';
+import { assets, files, references } from './shared';
 
 function visitAsset (asset: Asset, deps: string[]): void {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -258,6 +258,8 @@ export class ReleaseManager {
             asset.destroy();
         }
         dependUtil.remove(uuid);
+        files.remove(asset.uuid + "@import");
+        files.remove(asset.uuid + "@native");
         if (EDITOR) {
             const dependant = references!.get(uuid);
             if (dependant && dependant.length === 0) {

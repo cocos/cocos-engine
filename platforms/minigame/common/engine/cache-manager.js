@@ -190,8 +190,7 @@ const cacheManager = {
             caches.length = Math.floor(caches.length / 3);
         }
         for (let i = 0, l = caches.length; i < l; i++) {
-            const cacheKey = `${cc.assetManager.utils.getUuidFromURL(caches[i].originUrl)}@native`;
-            cc.assetManager.files.remove(cacheKey);
+            this.removeAssetManagerFileCahce(caches[i].originUrl);
             this.cachedFiles.remove(caches[i].originUrl);
         }
 
@@ -231,7 +230,17 @@ const cacheManager = {
         }
     },
 
-    _deleteFileCB (err) {
+    removeAssetManagerFileCahce(url) {
+        if (url.indexOf(".json") > -1) {
+            const cacheImportKey = cc.assetManager.utils.getUuidFromURL(url) + "@import";
+            cc.assetManager._files.remove(cacheImportKey);
+        } else {
+            const cacheNativeKey = cc.assetManager.utils.getUuidFromURL(url) + "@native";
+            cc.assetManager._files.remove(cacheNativeKey);
+        }
+    },
+
+    _deleteFileCB(err) {
         if (!err) this.outOfStorage = false;
     },
 
