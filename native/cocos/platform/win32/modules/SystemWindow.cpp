@@ -29,6 +29,7 @@
 #include "engine/EngineEvents.h"
 #include "platform/SDLHelper.h"
 #include "platform/win32/WindowsPlatform.h"
+#include "platform/interfaces/modules/IScreen.h"
 
 namespace cc {
 SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
@@ -45,13 +46,14 @@ SystemWindow::~SystemWindow() {
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    _window = SDLHelper::createWindow(title, w, h, flags);
+    float dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
+    _width = w * dpr;
+    _height = h * dpr;
+    _window = SDLHelper::createWindow(title, _width, _height, flags);
     if (!_window) {
         return false;
     }
 
-    _width = w;
-    _height = h;
     _windowHandle = SDLHelper::getWindowHandle(_window);
     return true;
 }
@@ -59,13 +61,15 @@ bool SystemWindow::createWindow(const char *title,
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    _window = SDLHelper::createWindow(title, x, y, w, h, flags);
+    float dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
+    _width = w * dpr;
+    _height = h * dpr;
+
+    _window = SDLHelper::createWindow(title, x, y, _width, _height, flags);
     if (!_window) {
         return false;
     }
 
-    _width = w;
-    _height = h;
     _windowHandle = SDLHelper::getWindowHandle(_window);
 
     return true;

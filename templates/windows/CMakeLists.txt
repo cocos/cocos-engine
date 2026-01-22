@@ -14,4 +14,5 @@ cc_windows_before_target(${EXECUTABLE_NAME})
 add_executable(${EXECUTABLE_NAME}
     ${CC_ALL_SOURCES}
 )
+set_property(TARGET ${EXECUTABLE_NAME} PROPERTY VS_DPI_AWARE "PerMonitor")
 cc_windows_after_target(${EXECUTABLE_NAME})

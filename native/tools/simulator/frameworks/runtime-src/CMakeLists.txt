@@ -152,6 +152,10 @@ else()
     add_executable(${LIB_NAME} ${PROJ_SOURCES} ${PROJ_EXTRA_SOURCE})
 endif()
 
+if(WINDOWS AND MSVC)
+    set_property(TARGET ${LIB_NAME} PROPERTY VS_DPI_AWARE "PerMonitor")
+endif()
+
 target_link_libraries(${LIB_NAME} ${ENGINE_NAME} simulator)
 target_include_directories(${LIB_NAME} PRIVATE
     Classes

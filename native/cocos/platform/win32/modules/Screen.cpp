@@ -31,19 +31,27 @@
 namespace cc {
 
 int Screen::getDPI() const {
+    // 参考：https://learn.microsoft.com/zh-cn/windows/win32/api/wingdi/nf-wingdi-getdevicecaps
     static int dpi = -1;
     if (dpi == -1) {
+
+        dpi = 96;
         HDC hScreenDC = GetDC(nullptr);
-        int PixelsX = GetDeviceCaps(hScreenDC, HORZRES);
-        int MMX = GetDeviceCaps(hScreenDC, HORZSIZE);
-        ReleaseDC(nullptr, hScreenDC);
-        dpi = static_cast<int>(254.0f * PixelsX / MMX / 10);
+        if (hScreenDC) {
+            // LOGPIXELSX 对应水平方向每逻辑英寸的像素点数
+            dpi = GetDeviceCaps(hScreenDC, LOGPIXELSX);
+            ReleaseDC(nullptr, hScreenDC);
+        }
+        // win10 1607 以上
+        // HWND hDesktop = GetDesktopWindow();
+        // dpi = GetDpiForWindow(hDesktop);
     }
     return dpi;
 }
 
 float Screen::getDevicePixelRatio() const {
-    return 1;
+    // return 1;
+    return Screen::getDPI() / 96.0f;
 }
 
 void Screen::setKeepScreenOn(bool value) {

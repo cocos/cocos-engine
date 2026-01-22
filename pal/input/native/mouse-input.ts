@@ -116,7 +116,10 @@ export class MouseInputSource {
     private _getLocation (event: jsb.MouseEvent): Vec2 {
         const window = this._windowManager.getWindow(event.windowId);
         const windowSize = window.getViewSize();
-        const dpr = screenAdapter.devicePixelRatio;
+        let dpr = screenAdapter.devicePixelRatio;
+        if (systemInfo.os === OS.WINDOWS) { // 在windows下DPI变化时下发的是实际坐标
+            dpr = 1;
+        }        
         const x = event.x * dpr;
         const y = windowSize.height - event.y * dpr;
         return new Vec2(x, y);
@@ -187,7 +190,10 @@ export class MouseInputSource {
         const eventMouse = new EventMouse(eventType, false, this._preMousePos, mouseEvent.windowId);
         eventMouse.setLocation(location.x, location.y);
         eventMouse.setButton(button);
-        const dpr = screenAdapter.devicePixelRatio;
+        let dpr = screenAdapter.devicePixelRatio;
+        if (systemInfo.os === OS.WINDOWS) { // 在windows下DPI变化时下发的是实际坐标
+            dpr = 1;
+        }
         eventMouse.movementX = typeof mouseEvent.xDelta === 'undefined' ? 0 : mouseEvent.xDelta * dpr;
         eventMouse.movementY = typeof mouseEvent.yDelta === 'undefined' ? 0 : mouseEvent.yDelta * dpr;
         // update previous mouse position.
