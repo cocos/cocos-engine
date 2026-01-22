@@ -119,7 +119,7 @@ export class MouseInputSource {
         let dpr = screenAdapter.devicePixelRatio;
         if (systemInfo.os === OS.WINDOWS) { // 在windows下DPI变化时下发的是实际坐标
             dpr = 1;
-        }        
+        }
         const x = event.x * dpr;
         const y = windowSize.height - event.y * dpr;
         return new Vec2(x, y);
