@@ -50,8 +50,7 @@ int Screen::getDPI() const {
 }
 
 float Screen::getDevicePixelRatio() const {
-    // return 1;
-    return Screen::getDPI() / 96.0f;
+    return getDPI() / 96.0f;
 }
 
 void Screen::setKeepScreenOn(bool value) {
