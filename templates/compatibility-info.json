@@ -1,5 +1,5 @@
 {
     "native": {
-        "default": ">=3.6.0"
+        "default": ">=3.8.0"
     }
 }
