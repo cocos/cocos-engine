@@ -254,6 +254,8 @@ export class TextProcessing {
             // nop
         }
         }
+        canvasSize.width = Math.ceil(canvasSize.width);
+        canvasSize.height = Math.ceil(canvasSize.height);
     }
 
     // can cache
