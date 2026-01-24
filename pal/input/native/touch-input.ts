@@ -23,12 +23,12 @@
 */
 
 import { screenAdapter } from 'pal/screen-adapter';
+import { systemInfo } from 'pal/system-info';
 import { Size, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { EventTouch, Touch as CCTouch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { systemInfo } from 'pal/system-info';
 import { OS } from '../../system-info/enum-type';
 
 export type TouchCallback = (res: EventTouch) => void;
@@ -120,8 +120,7 @@ export class TouchInputSource {
         if (window === null) {
             return;
         }
-        const windowSize = window.getViewSize();        
-        // const windowSize = this._windowManager.getWindow(windowId).getViewSize() as Size;
+        const windowSize = window.getViewSize() as Size;
         for (let i = 0; i < length; ++i) {
             const changedTouch = changedTouches[i];
             const touchID = changedTouch.identifier;
