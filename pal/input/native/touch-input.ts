@@ -154,7 +154,7 @@ export class TouchInputSource {
         let dpr = screenAdapter.devicePixelRatio;
         if (systemInfo.os === OS.WINDOWS) { // 在windows下DPI变化时下发的是实际坐标
             dpr = 1;
-        }        
+        }
         const x = touch.clientX * dpr;
         const y = windowSize.height - touch.clientY * dpr;
         return new Vec2(x, y);
