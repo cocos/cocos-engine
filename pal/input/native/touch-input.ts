@@ -23,11 +23,13 @@
 */
 
 import { screenAdapter } from 'pal/screen-adapter';
+import { systemInfo } from 'pal/system-info';
 import { Size, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { EventTouch, Touch as CCTouch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { OS } from '../../system-info/enum-type';
 
 export type TouchCallback = (res: EventTouch) => void;
 
@@ -114,7 +116,11 @@ export class TouchInputSource {
     private _dispatchEvent (eventType: InputEventType, changedTouches: Touch[], windowId: number): void {
         const handleTouches: CCTouch[] = [];
         const length = changedTouches.length;
-        const windowSize = this._windowManager.getWindow(windowId).getViewSize() as Size;
+        const window = this._windowManager.getWindow(windowId);
+        if (window === null) {
+            return;
+        }
+        const windowSize = window.getViewSize() as Size;
         for (let i = 0; i < length; ++i) {
             const changedTouch = changedTouches[i];
             const touchID = changedTouch.identifier;
@@ -144,7 +150,10 @@ export class TouchInputSource {
     }
 
     private _getLocation (touch: globalThis.Touch, windowSize: Size): Vec2 {
-        const dpr = screenAdapter.devicePixelRatio;
+        let dpr = screenAdapter.devicePixelRatio;
+        if (systemInfo.os === OS.WINDOWS) { // 在windows下DPI变化时下发的是实际坐标
+            dpr = 1;
+        }
         const x = touch.clientX * dpr;
         const y = windowSize.height - touch.clientY * dpr;
         return new Vec2(x, y);
