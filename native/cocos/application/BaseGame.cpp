@@ -58,7 +58,8 @@ int BaseGame::init() {
     _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
     _windowInfo.flags = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
                                                       cc::ISystemWindow::CC_WINDOW_RESIZABLE |
-                                                      cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
+                                                      cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS |
+                                                      cc::ISystemWindow::CC_WINDOW_ALLOW_HIGHDPI
                                                 : _windowInfo.flags;
     std::call_once(_windowCreateFlag, [&]() {
         ISystemWindowInfo info;

@@ -28,6 +28,7 @@
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
 #include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/IScreen.h"
 
 #include <stdlib.h>
 #include <windows.h>
@@ -214,16 +215,17 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
         g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWLP_WNDPROC, (LONG_PTR)mainWindowProc);
         g_prevEditWindowProc = (WNDPROC)SetWindowLongPtr(g_hwndEditBox, GWLP_WNDPROC, (LONG_PTR)editWindowProc);
     }
-
+    auto *screen = BasePlatform::getPlatform()->getInterface<IScreen>();
+    float dpr = screen->getDevicePixelRatio();
     ::SendMessageW(g_hwndEditBox, EM_LIMITTEXT, showInfo.maxLength, 0);
 
     // SendMessage(g_hwndEditBox, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&cf);
     SetWindowPos(g_hwndEditBox,
                  HWND_NOTOPMOST,
-                 showInfo.x,
-                 windowHeight - showInfo.y - showInfo.height,
-                 showInfo.width,
-                 showInfo.height,
+                 showInfo.x * dpr,
+                 windowHeight - showInfo.y * dpr - showInfo.height * dpr,
+                 showInfo.width * dpr,
+                 showInfo.height * dpr,
                  SWP_NOZORDER);
 
     ::SetWindowTextW(g_hwndEditBox, str2ws(showInfo.defaultValue).c_str());
@@ -243,7 +245,7 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     RECT rect;
 
     GetWindowRect(getCurrentWindowHwnd(), &rect);
-    float WindowRatio = (float)(rect.bottom - rect.top) / (float)CC_GET_MAIN_SYSTEM_WINDOW()->getViewSize().height;
+    float WindowRatio = (float)(rect.bottom - rect.top) / (float)CC_GET_MAIN_SYSTEM_WINDOW()->getViewSize().height * dpr;
     float JsFontRatio = float(showInfo.fontSize) / 5;
     /** A probale way to calculate the increase of font size
      * OriginalSize + Increase = OriginalSize * Ratio_of_js_fontSize * Ratio_of_window

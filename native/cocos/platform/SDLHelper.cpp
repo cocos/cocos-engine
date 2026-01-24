@@ -155,6 +155,9 @@ SDLHelper::~SDLHelper() {
 }
 
 int SDLHelper::init() {
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
+#endif
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         // Display error message
         CC_LOG_ERROR("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -195,20 +198,30 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
             break;
         }
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
-            auto *screen = BasePlatform::getPlatform()->getInterface<IScreen>();
-            CC_ASSERT(screen != nullptr);
             ev.type = WindowEvent::Type::SIZE_CHANGED;
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+            ev.width = wevent.data1;
+            ev.height = wevent.data2;
+#else
+            auto *screen = BasePlatform::getPlatform()->getInterface<IScreen>();
+            CC_ASSERT(screen != nullptr);            
             ev.width = wevent.data1 * screen->getDevicePixelRatio();
             ev.height = wevent.data2 * screen->getDevicePixelRatio();
+#endif
             events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESIZED: {
+            ev.type = WindowEvent::Type::RESIZED;
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+            ev.width = wevent.data1;
+            ev.height = wevent.data2;
+#else
             auto *screen = BasePlatform::getPlatform()->getInterface<IScreen>();
             CC_ASSERT(screen != nullptr);
-            ev.type = WindowEvent::Type::RESIZED;
             ev.width = wevent.data1 * screen->getDevicePixelRatio();
             ev.height = wevent.data2 * screen->getDevicePixelRatio();
+#endif
             events::WindowEvent::broadcast(ev);
             break;
         }
