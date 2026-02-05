@@ -47,12 +47,32 @@ function getWorldRotation (node): number {
     }
     return rotation;
 }
+class ColorNumber {
+    public r = 0;
+    public g = 0;
+    public b = 0;
+    public a = 0;
+
+    constructor (r: number, g: number, b: number, a: number) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+
+    set (r: number, g: number, b: number, a: number): void {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+}
 
 class Particle {
     public pos = new Vec2(0, 0);
     public startPos = new Vec2(0, 0);
-    public color = new Color(0, 0, 0, 255);
-    public deltaColor = { r: 0, g: 0, b: 0, a: 255 };
+    public color = new ColorNumber(0, 0, 0, 255);
+    public deltaColor = new ColorNumber(0, 0, 0, 255);
     public size = 0;
     public deltaSize = 0;
     public rotation = 0;
@@ -81,8 +101,7 @@ const pool = new ParticlePool((par: Particle): void => {
     par.pos.set(Vec2.ZERO);
     par.startPos.set(Vec2.ZERO);
     par.color.set(0, 0, 0, 255);
-    par.deltaColor.r = par.deltaColor.g = par.deltaColor.b = 0;
-    par.deltaColor.a = 255;
+    par.deltaColor.set(0, 0, 0, 255);
     par.size = 0;
     par.deltaSize = 0;
     par.rotation = 0;
