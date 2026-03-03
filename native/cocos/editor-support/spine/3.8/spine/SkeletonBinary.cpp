@@ -511,6 +511,7 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 
             RegionAttachment *region = _attachmentLoader->newRegionAttachment(*skin, String(name), String(path));
             if (region == NULL) {
+                setError("Error reading attachment: ", name.buffer());
                 return NULL;
             }
             region->_path = path;
