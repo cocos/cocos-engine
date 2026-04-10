@@ -619,6 +619,7 @@ class DeviceRenderQueue implements RecordingInterface {
         if (!this._blitDesc) {
             this._blitDesc = new BlitDesc(blit);
         }
+        this._blitDesc.blit = blit;
         this._blitDesc.createScreenQuad();
         this._blitDesc.createStageDescriptor();
     }
