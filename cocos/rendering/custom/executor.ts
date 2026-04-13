@@ -137,8 +137,7 @@ import {
     bool,
     getDescriptorSetDataFromLayout,
     getRenderArea,
-    RenderPassMergeInfo,
-    rpMergeInfos,
+    rpCombineMap,
     updateGlobalDescBinding,
 } from './define';
 import { LightResource, SceneCulling } from './scene-culling';
@@ -462,7 +461,7 @@ class BlitDesc {
 
         // Set the count of lights in cc_lightDir[0].w
         const offset = fieldLen * 3 + 3;
-        this._lightBufferData.set([idx], offset);
+        this._lightBufferData[offset] = idx;
         cmdBuff.updateBuffer(this._lightVolumeBuffer!, this._lightBufferData);
     }
 
@@ -609,7 +608,15 @@ class DeviceRenderQueue implements RecordingInterface {
         this.queueHint = renderQueue.hint;
         const viewport = this._viewport = renderQueue.viewport;
         if (viewport) {
-            this._scissor = new Rect(viewport.left, viewport.top, viewport.width, viewport.height);
+            if (!this._scissor) {
+                this._scissor = new Rect();
+            }
+            this._scissor.x = viewport.left;
+            this._scissor.y = viewport.top;
+            this._scissor.width = viewport.width;
+            this._scissor.height = viewport.height;
+        } else {
+            this._scissor = null;
         }
         this.queueId = id;
         this._devicePass = devicePass;
@@ -635,6 +642,8 @@ class DeviceRenderQueue implements RecordingInterface {
         this._isUpdateUBO = false;
         this._isUploadInstance = false;
         this._isUploadBatched = false;
+        this._viewport = null;
+        this._scissor = null;
         this._blitDesc?.reset();
     }
     get graphQueue (): RenderQueue { return this._graphQueue; }
@@ -754,6 +763,7 @@ const profilerViewport = new Viewport();
 const renderPassArea = new Rect();
 const resourceVisitor = new ResourceVisitor();
 const textureBlit = new TextureBlit();
+const dispatchInfo = new DispatchInfo();
 class DeviceRenderPass implements RecordingInterface {
     protected _renderPass: RenderPass;
     protected _framebuffer!: Framebuffer;
@@ -893,7 +903,8 @@ class DeviceRenderPass implements RecordingInterface {
             swapchain ? swapchain.depthStencilTexture : depthTex,
         );
     }
-    get passMergeInfo (): RenderPassMergeInfo { return rpMergeInfos.get(this._rasterPass)!; }
+    _needBeginRP = true;
+    _needEndRP = true;
     get indexOfRD (): number { return this._idxOfRenderData; }
     get rasterID (): number { return this._rasterID; }
     get layoutName (): string { return this._layoutName; }
@@ -959,7 +970,7 @@ class DeviceRenderPass implements RecordingInterface {
         }
     }
     beginPass (): void {
-        if (!this.passMergeInfo.needBeginRP) {
+        if (!this._needBeginRP) {
             this.bindGlobalDesc();
             return;
         }
@@ -988,7 +999,7 @@ class DeviceRenderPass implements RecordingInterface {
     }
 
     endPass (): void {
-        if (!this.passMergeInfo.needEndRP) return;
+        if (!this._needEndRP) return;
         const cmdBuff = context.commandBuffer;
         cmdBuff.endRenderPass();
     }
@@ -1467,7 +1478,11 @@ class BlitInfo {
         this._width = context.width;
         this._height = context.height;
         this._pipelineIAData = this._createQuadInputAssembler();
-        const vb = this._genQuadVertexData(SurfaceTransform.IDENTITY, new Rect(0, 0, context.width, context.height));
+        quadRect.x = 0;
+        quadRect.y = 0;
+        quadRect.width = context.width;
+        quadRect.height = context.height;
+        const vb = this._genQuadVertexData(SurfaceTransform.IDENTITY, quadRect);
         this._pipelineIAData.quadVB!.update(vb);
         this._createLightVolumes();
         const size: number = UBOLocalEnum.SIZE;
@@ -1515,9 +1530,23 @@ class BlitInfo {
         if (this._context.root.device.capabilities.screenSpaceSignY > 0) {
             [minY, maxY] = [maxY, minY];
         }
-        const vbData = new Float32Array(16);
         const fillVertices = (x1, y1, u1, v1, x2, y2, u2, v2, x3, y3, u3, v3, x4, y4, u4, v4): void => {
-            vbData.set([x1, y1, u1, v1, x2, y2, u2, v2, x3, y3, u3, v3, x4, y4, u4, v4]);
+            vbData[0] = x1;
+            vbData[1] = y1;
+            vbData[2] = u1;
+            vbData[3] = v1;
+            vbData[4] = x2;
+            vbData[5] = y2;
+            vbData[6] = u2;
+            vbData[7] = v2;
+            vbData[8] = x3;
+            vbData[9] = y3;
+            vbData[10] = u3;
+            vbData[11] = v3;
+            vbData[12] = x4;
+            vbData[13] = y4;
+            vbData[14] = u4;
+            vbData[15] = v4;
         };
         switch (surfaceTransform) {
         case SurfaceTransform.IDENTITY:
@@ -1661,6 +1690,9 @@ class ExecutorContext {
 }
 
 export class Executor {
+    private _resourceUseSet: Set<string> = new Set<string>();
+    private _deletes: string[] = [];
+    private _deletesBuff: string[] = [];
     constructor (
         pipeline: BasicPipeline,
         device: Device,
@@ -1687,12 +1719,19 @@ export class Executor {
     private _removeDeviceResource (): void {
         const pipeline: any = context.pipeline;
         const resourceUses = pipeline.resourceUses;
-        const deletes: string[] = [];
+        const resourceUseSet = this._resourceUseSet;
+        resourceUseSet.clear();
+        for (const name of resourceUses) {
+            resourceUseSet.add(name);
+        }
+
+        const deletes = this._deletes;
+        deletes.length = 0;
         const deviceTexs = context.deviceTextures;
-        for (const [name, dTex] of deviceTexs) {
+        for (const [name] of deviceTexs) {
             const resId = context.resourceGraph.vertex(name);
             const trait = context.resourceGraph.getTraits(resId);
-            if (!resourceUses.includes(name)) {
+            if (!resourceUseSet.has(name)) {
                 switch (trait.residency) {
                 case ResourceResidency.MANAGED:
                     deletes.push(name);
@@ -1706,12 +1745,13 @@ export class Executor {
             deviceTexs.delete(name);
         }
 
-        const deletesBuff: string[] = [];
+        const deletesBuff = this._deletesBuff;
+        deletesBuff.length = 0;
         const deviceBuffs = context.deviceBuffers;
-        for (const [name, dBuff] of deviceBuffs) {
+        for (const [name] of deviceBuffs) {
             const resId = context.resourceGraph.vertex(name);
             const trait = context.resourceGraph.getTraits(resId);
-            if (!resourceUses.includes(name)) {
+            if (!resourceUseSet.has(name)) {
                 switch (trait.residency) {
                 case ResourceResidency.MANAGED:
                     deletesBuff.push(name);
@@ -1740,7 +1780,9 @@ export class Executor {
         context.lightResource.tryUpdateRenderSceneLocalDescriptorSet(context.culling);
         culling.uploadInstancing(cmdBuff);
         if (!this._visitor) this._visitor = new RenderVisitor();
+        this._visitor.reset();
         depthFirstSearch(this._visitor.graphView, this._visitor, this._visitor.colorMap);
+        this._visitor.flush();
         cmdBuff.end();
         context.device.queue.submit([cmdBuff]);
     }
@@ -1929,13 +1971,32 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         const gx = value.threadGroupCountX;
         const gy = value.threadGroupCountY;
         const gz = value.threadGroupCountZ;
-        (cmdBuff as any).dispatch(new DispatchInfo(gx, gy, gz));
+        dispatchInfo.groupCountX = gx;
+        dispatchInfo.groupCountY = gy;
+        dispatchInfo.groupCountZ = gz;
+        dispatchInfo.indirectBuffer = null;
+        dispatchInfo.indirectOffset = 0;
+        (cmdBuff as any).dispatch(dispatchInfo);
     }
 }
 
 class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
+    private _pendingEndPass: DeviceRenderPass | null = null;
+    private _lastCombineHash: number = 0;
     constructor () {
         super();
+    }
+    reset (): void {
+        this._pendingEndPass = null;
+        this._lastCombineHash = 0;
+    }
+    flush (): void {
+        if (this._pendingEndPass) {
+            this._pendingEndPass._needEndRP = true;
+            this._pendingEndPass.endPass();
+            this._pendingEndPass.postRecord();
+            this._pendingEndPass = null;
+        }
     }
     clear (value: ClearView[]): void {
         // do nothing
@@ -1950,8 +2011,43 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
         if (!currPass) return;
         this.currPass = currPass;
         context.passShowStatistics = pass.showStatistics;
-        this.currPass.record();
-        this.currPass.postRecord();
+
+        const currCHash = rpCombineMap.get(pass) ?? 0;
+        let canMerge = false;
+        if (this._pendingEndPass && currCHash === this._lastCombineHash) {
+            for (const [_, raster] of pass.rasterViews) {
+                if (raster.loadOp === LoadOp.LOAD) {
+                    canMerge = true;
+                    break;
+                }
+            }
+        }
+
+        if (this._pendingEndPass) {
+            if (canMerge) {
+                // Skip endRenderPass for previous pass (merge)
+                this._pendingEndPass._needEndRP = false;
+                this._pendingEndPass.endPass();
+                this._pendingEndPass.postRecord();
+            } else {
+                // End previous pass normally
+                this._pendingEndPass._needEndRP = true;
+                this._pendingEndPass.endPass();
+                this._pendingEndPass.postRecord();
+            }
+        }
+
+        // Begin and record queues for current pass
+        currPass._needBeginRP = !canMerge;
+        currPass._needEndRP = true;
+        currPass.beginPass();
+        for (const queue of currPass.deviceQueues.values()) {
+            queue.record();
+        }
+
+        // Defer endPass to see if next pass can merge
+        this._pendingEndPass = currPass;
+        this._lastCombineHash = currCHash;
     }
     rasterSubpass (value: RasterSubpass): void {
         // do nothing
@@ -1999,6 +2095,14 @@ export class RenderVisitor extends DefaultVisitor {
         this._postVisitor = new PostRenderVisitor();
         this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
         this._colorMap = new VectorGraphColorMap(context.renderGraph.nv());
+    }
+
+    reset (): void {
+        this._postVisitor.reset();
+    }
+
+    flush (): void {
+        this._postVisitor.flush();
     }
 
     get graphView (): ReferenceGraphView<RenderGraph> { return this._graphView; }

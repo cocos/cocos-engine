@@ -702,6 +702,7 @@ export function AlignUp (value: number, alignment: number): number {
     return (value + (alignment - 1)) & ~(alignment - 1);
 }
 const kLightMeterScale = 10000;
+const _lightUboVec4 = new Float32Array(4);
 export function SetLightUBO (
     light: Light | null,
     bHDR: boolean,
@@ -711,7 +712,7 @@ export function SetLightUBO (
     offset: number,
     elemSize: number,
 ): void {
-    const vec4Array = new Float32Array(4);
+    const vec4Array = _lightUboVec4;
     let size = 0.0;
     let range = 0.0;
     let luminanceHDR = 0.0;
@@ -763,20 +764,28 @@ export function SetLightUBO (
     buffer.set(vec4Array, index);
 
     index = offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET;
-    vec4Array.set([size, range, 0, 0]);
+    vec4Array[0] = size;
+    vec4Array[1] = range;
+    vec4Array[2] = 0;
+    vec4Array[3] = 0;
     buffer.set(vec4Array, index);
 
     index = offset + UBOForwardLightEnum.LIGHT_COLOR_OFFSET;
-    const color = light ? light.color : new Color();
     if (light && light.useColorTemperature) {
+        const color = light.color;
         const tempRGB = light.colorTemperatureRGB;
         buffer[index++] = color.x * tempRGB.x;
         buffer[index++] = color.y * tempRGB.y;
         buffer[index++] = color.z * tempRGB.z;
-    } else {
+    } else if (light) {
+        const color = light.color;
         buffer[index++] = color.x;
         buffer[index++] = color.y;
         buffer[index++] = color.z;
+    } else {
+        buffer[index++] = 0;
+        buffer[index++] = 0;
+        buffer[index++] = 0;
     }
 
     if (bHDR) {
@@ -879,7 +888,7 @@ export class RenderPassMergeInfo {
 }
 
 const passOrders: RasterPass[] = [];
-const rpCombineMap: Map<RasterPass, number> = new Map();
+export const rpCombineMap: Map<RasterPass, number> = new Map();
 export const rpMergeInfos: Map<RasterPass, RenderPassMergeInfo> = new Map();
 const rpMergeInfoPool = new RecyclePool<RenderPassMergeInfo>((): RenderPassMergeInfo => new RenderPassMergeInfo(), 16);
 export function resetPassMGState (): void {
@@ -887,6 +896,14 @@ export function resetPassMGState (): void {
     rpMergeInfos.clear();
     rpCombineMap.clear();
     passOrders.length = 0;
+}
+export function rebuildPassMGInfo (orderedPasses: Readonly<RasterPass[]>): void {
+    rpMergeInfoPool.reset();
+    rpMergeInfos.clear();
+    passOrders.length = 0;
+    for (const pass of orderedPasses) {
+        processPassMG(pass);
+    }
 }
 export function processPassMG (pass: RasterPass): void {
     const currCHash = rpCombineMap.get(pass)!;
@@ -960,5 +977,4 @@ export function genHashValue (pass: RasterPass): void {
 
     pass.hashValue = hashCombineStr(hashCodeParts.join(''));
     rpCombineMap.set(pass, hashCombineStr(combineHashParts.join('')));
-    processPassMG(pass);
 }

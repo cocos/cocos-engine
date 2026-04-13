@@ -1645,18 +1645,18 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
             throw new Error('RenderGraph cannot be built without being created');
         }
         resetPassMGState();
-        if (DEBUG) {
+        // if (DEBUG) {
             if (!this._compiler) {
                 this._compiler = new Compiler(this, this._renderGraph, this._resourceGraph, this._lg);
             }
             this._compiler.compile(this._renderGraph);
-        } else {
-            this._renderGraph.x.forEach((vert) => {
-                if (vert.t === RenderGraphValue.RasterPass) {
-                    genHashValue(vert.j as RasterPass);
-                }
-            });
-        }
+        // } else {
+        //     this._renderGraph.x.forEach((vert, vertID) => {
+        //         if (vert.t === RenderGraphValue.RasterPass && this._renderGraph!.getValid(vertID)) {
+        //             genHashValue(vert.j as RasterPass);
+        //         }
+        //     });
+        // }
     }
 
     execute (): void {
