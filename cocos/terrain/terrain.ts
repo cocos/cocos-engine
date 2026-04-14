@@ -1303,9 +1303,7 @@ export class Terrain extends Component {
     protected _lod: TerrainLod|null = null;
     protected _sharedIndexBuffer: Buffer|null = null;
     protected _sharedLodIndexBuffer: Buffer|null = null;
-    // Per-camera position cache for LOD update threshold; WeakMap avoids retention of
-    // destroyed camera objects and correctly handles multi-camera scenes.
-    private _lastCamPosMap: WeakMap<Camera, Vec3> = new WeakMap();
+    private _lastCamPosMap: Map<number, Vec3> = new Map();
 
     constructor () {
         super();
@@ -1815,7 +1813,8 @@ export class Terrain extends Component {
         // Per-camera threshold: skip if this camera has not moved appreciably since
         // its last update. Each camera maintains its own cached position so that
         // multi-camera setups (e.g. editor + game view) don't interfere with each other.
-        let lastPos = this._lastCamPosMap.get(cam);
+        const cameraId = cam.cameraId;
+        let lastPos = this._lastCamPosMap.get(cameraId);
         if (lastPos !== undefined) {
             const dx = camPos.x - lastPos.x;
             const dy = camPos.y - lastPos.y;
@@ -1827,9 +1826,9 @@ export class Terrain extends Component {
         } else {
             // First call for this camera: register and fall through to force an update.
             lastPos = v3();
-            // this._lastCamPosMap.set(cam, lastPos);
+            this._lastCamPosMap.set(cameraId, lastPos);
         }
-        for (let [cam, pos] of Object.entries(this._lastCamPosMap)) {
+        for (const [, pos] of this._lastCamPosMap) {
             pos.set(camPos.x, camPos.y, camPos.z);
         }
 
@@ -1864,8 +1863,13 @@ export class Terrain extends Component {
         }
 
         // Phase 2: apply stitching/index updates after all block levels are finalized.
-        for (let i = 0; i < this._blocks.length; ++i) {
-            this._blocks[i]._updateLod();
+        for (let j = 0; j < this._blockCount[1]; ++j) {
+            for (let i = 0; i < this._blockCount[0]; ++i) {
+                if (i >= minBX && i <= maxBX && j >= minBZ && j <= maxBZ) {
+                    const block = this._blocks[j * this._blockCount[0] + i];
+                    block._updateLod();
+                }
+            }
         }
     }
 
