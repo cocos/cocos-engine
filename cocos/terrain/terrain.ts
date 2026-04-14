@@ -1806,7 +1806,7 @@ export class Terrain extends Component {
         if (!this.lodEnable || this._sharedLodIndexBuffer == null) {
             return;
         }
-        if (cam.scene !== this._getRenderScene()) {
+        if (cam.scene !== this._getRenderScene() || !(cam.visibility & this.node.layer)) {
             return;
         }
 
