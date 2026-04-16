@@ -6,7 +6,7 @@ import {
 } from '../animation-graph';
 import { MotionEval, MotionPort } from '../motion';
 import { createEval } from '../create-eval';
-import { BindContext, validateVariableExistence, validateVariableType, VariableType } from '../parametric';
+import { validateVariableExistence, validateVariableType, VariableType } from '../parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { MotionState } from './motion-state';
 import { warnID, assertIsTrue, assertIsNonNullable, Pool, approx, clamp01 } from '../../../core';
@@ -21,10 +21,8 @@ import {
     TriggerResetter,
 } from '../animation-graph-context';
 import { blendPoseInto, Pose } from '../../core/pose';
-import { PoseNode } from '../pose-graph/pose-node';
 import { instantiatePoseGraph, InstantiatedPoseGraph } from '../pose-graph/instantiation';
 import { ConditionEvaluationContext } from './condition/condition-base';
-import { ReadonlyClipOverrideMap } from '../clip-overriding';
 import { AnimationGraphEventBinding } from '../event/event-binding';
 
 /**
@@ -256,6 +254,11 @@ class TopLevelStateMachineEvaluation {
         for (let iMotionState = 0; iMotionState < nMotionStates; ++iMotionState) {
             const node = motionStates[iMotionState];
             node.overrideClips(context);
+        }
+        const { _proceduralPoseStates: proceduralPoseStates } = this;
+        const nProcedural = proceduralPoseStates.length;
+        for (let iProcedural = 0; iProcedural < nProcedural; ++iProcedural) {
+            proceduralPoseStates[iProcedural].overrideClips(context);
         }
     }
 
@@ -1449,6 +1452,10 @@ class ProceduralPoseStateEval extends EventifiedStateEval {
 
     public countMotionTime (): number {
         return this._instantiatedPoseGraph.countMotionTime();
+    }
+
+    public overrideClips (context: AnimationGraphBindingContext): void {
+        this._instantiatedPoseGraph.overrideClips(context);
     }
 
     private _instantiatedPoseGraph: InstantiatedPoseGraph;

@@ -52,6 +52,12 @@ export abstract class PoseNode extends PoseGraphNode {
     public abstract settle (context: AnimationGraphSettleContext): void;
 
     /**
+     * Rebinds motions when clip overrides on the binding context change.
+     * Pose nodes that own motion evaluations or nested graphs override this.
+     */
+    public overrideClips (_context: AnimationGraphBindingContext): void {}
+
+    /**
      * Reenter this pose nodes.
      *
      * @note Subclasses shall implement this method to perform some state resetting works.
@@ -94,12 +100,16 @@ export abstract class PoseNode extends PoseGraphNode {
 
         if (POSE_NODE_EVALUATION_STACK_ORDER_DEBUG_ENABLED) {
             // The stack should certainly increase 1.
-            assertIsTrue(context._stackSize_debugging === stackSizeBefore + 1,
-                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`);
+            assertIsTrue(
+                context._stackSize_debugging === stackSizeBefore + 1,
+                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`
+            );
             // The returned pose should be the increased pose, that's,
             // can not return a already-popped pose.
-            assertIsTrue(context._isStackTopPose_debugging(pose),
-                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`);
+            assertIsTrue(
+                context._isStackTopPose_debugging(pose),
+                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`
+            );
         }
 
         const currentSpace = pose._poseTransformSpace;

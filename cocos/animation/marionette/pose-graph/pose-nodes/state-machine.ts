@@ -45,6 +45,10 @@ export class PoseNodeStateMachine extends PoseNode {
         );
     }
 
+    public overrideClips (context: AnimationGraphBindingContext): void {
+        this._stateMachineEval?.overrideClips(context);
+    }
+
     public settle (context: AnimationGraphSettleContext): void {
         this._stateMachineEval?.settle(context);
     }

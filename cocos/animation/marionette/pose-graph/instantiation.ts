@@ -25,12 +25,21 @@ class InstantiatedPoseGraph {
     constructor (
         private _rootPoseNode: PoseNode | undefined,
         private _countingPlayMotionNodes: readonly PoseNodePlayMotion[] | undefined,
+        private _allPoseNodes: readonly PoseNode[],
     ) {
 
     }
 
     public bind (context: AnimationGraphBindingContext): void {
         this._rootPoseNode?.bind(context);
+    }
+
+    public overrideClips (context: AnimationGraphBindingContext): void {
+        const { _allPoseNodes: allPoseNodes } = this;
+        const nNodes = allPoseNodes.length;
+        for (let iNode = 0; iNode < nNodes; ++iNode) {
+            allPoseNodes[iNode].overrideClips(context);
+        }
     }
 
     public settle (context: AnimationGraphSettleContext): void {
@@ -97,6 +106,7 @@ export function instantiatePoseGraph (
         return new InstantiatedPoseGraph(
             undefined,
             mayCountMotionTime ? [] : undefined,
+            [],
         );
     }
     // If the output node has a binding, it must be pose node.
@@ -113,11 +123,13 @@ export function instantiatePoseGraph (
     );
     assertIsTrue(mainRecord instanceof PoseNode);
 
+    const allPoseNodes = Array.from(instantiationMap.values()).filter((node): node is PoseNode => node instanceof PoseNode);
     return new InstantiatedPoseGraph(
         mainRecord,
         mayCountMotionTime
             ? Array.from(instantiationMap.values()).filter((node): node is PoseNodePlayMotion => node instanceof PoseNodePlayMotion)
             : undefined,
+        allPoseNodes,
     );
 }
 
@@ -287,6 +299,7 @@ function linkPoseNode (
 
     if (producerOutputIndex !== 0) {
         // Rule: pose nodes have and only have one output.
+        // eslint-disable-next-line no-implicit-coercion
         warn(`Node ${producerNode.toString()} does not have specified output ${producerOutputIndex}.`);
         return;
     }
