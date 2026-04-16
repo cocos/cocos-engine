@@ -51,6 +51,10 @@ export class PoseNodeSampleMotion extends PoseNode {
         this._workspace = workspace;
     }
 
+    public overrideClips (context: AnimationGraphBindingContext): void {
+        this._workspace?.motionEval.overrideClips(context);
+    }
+
     public settle (context: AnimationGraphSettleContext): void {
         // Do nothing.
     }

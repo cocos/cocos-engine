@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { ccclass, displayName, editable, serializable, unit } from '../../../../core/data/decorators';
+import { ccclass, editable, serializable, unit } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { ClipMotion } from '../../motion/clip-motion';
 import { createEval } from '../../create-eval';
@@ -77,6 +77,10 @@ export class PoseNodePlayMotion extends PoseNode {
         if (this.syncInfo.group) {
             this._runtimeSyncRecord = context.motionSyncManager.register(this.syncInfo);
         }
+    }
+
+    public overrideClips (context: AnimationGraphBindingContext): void {
+        this._workspace?.motionEval.overrideClips(context);
     }
 
     public settle (context: AnimationGraphSettleContext): void {
