@@ -102,13 +102,13 @@ export abstract class PoseNode extends PoseGraphNode {
             // The stack should certainly increase 1.
             assertIsTrue(
                 context._stackSize_debugging === stackSizeBefore + 1,
-                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`
+                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`,
             );
             // The returned pose should be the increased pose, that's,
             // can not return a already-popped pose.
             assertIsTrue(
                 context._isStackTopPose_debugging(pose),
-                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`
+                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`,
             );
         }
 

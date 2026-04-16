@@ -299,7 +299,7 @@ function linkPoseNode (
 
     if (producerOutputIndex !== 0) {
         // Rule: pose nodes have and only have one output.
-        // eslint-disable-next-line no-implicit-coercion
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         warn(`Node ${producerNode.toString()} does not have specified output ${producerOutputIndex}.`);
         return;
     }
