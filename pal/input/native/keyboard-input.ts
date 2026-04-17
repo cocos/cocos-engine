@@ -45,6 +45,8 @@ const nativeKeyCode2KeyCode: Record<number, KeyCode> = {
     20016: KeyCode.SHIFT_RIGHT,
     20017: KeyCode.CTRL_RIGHT,
     20018: KeyCode.ALT_RIGHT,
+    91: KeyCode.META_LEFT,
+    93: KeyCode.META_RIGHT,
 };
 
 function getKeyCode (event: jsb.KeyboardEvent): KeyCode {
