@@ -376,6 +376,18 @@ export enum KeyCode {
     KEY_Z = 90,
 
     /**
+    * @en The left meta key (CMD on macOS, Windows key on Windows)
+    * @zh 左 Meta 键（macOS 上的 CMD 键，Windows 上的 Windows 键）
+    */
+    META_LEFT = 91,
+
+    /**
+    * @en The right meta key (CMD on macOS, Windows key on Windows)
+    * @zh 右 Meta 键（macOS 上的 CMD 键，Windows 上的 Windows 键）
+    */
+    META_RIGHT = 93,
+
+    /**
     * @en The numeric keypad 0
     * @zh 数字键盘 0
     */

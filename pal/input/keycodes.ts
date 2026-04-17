@@ -10,6 +10,8 @@ export const code2KeyCode: Record<string, KeyCode> = {
     ShiftRight: KeyCode.SHIFT_RIGHT,
     ControlRight: KeyCode.CTRL_RIGHT,
     AltRight: KeyCode.ALT_RIGHT,
+    MetaLeft: KeyCode.META_LEFT,
+    MetaRight: KeyCode.META_RIGHT,
     Pause: KeyCode.PAUSE,
     CapsLock: KeyCode.CAPS_LOCK,
     Escape: KeyCode.ESCAPE,
