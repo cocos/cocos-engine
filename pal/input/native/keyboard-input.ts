@@ -54,6 +54,7 @@ function getKeyCode (event: jsb.KeyboardEvent): KeyCode {
         if (event.code in code2KeyCode) {
             return code2KeyCode[event.code];
         } else {
+            // eslint-disable-next-line no-console
             console.error(`Can not find keyCode for code: ${event.code}`);
         }
     }
