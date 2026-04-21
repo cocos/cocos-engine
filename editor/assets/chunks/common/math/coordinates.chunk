@@ -82,8 +82,8 @@ vec3 CalculateNormal(vec3 tangent, vec3 binormal)
 vec3 CalculateNormalFromTangentSpace(vec3 normalFromTangentSpace, float normalStrength, vec3 normal, vec3 tangent, float mirrorNormal)
 {
     vec3 binormal = CalculateBinormal(normal, tangent, mirrorNormal);
-    return (normalFromTangentSpace.x * normalStrength) * normalize(tangent) +
-           (normalFromTangentSpace.y * normalStrength) * normalize(binormal) +
+    return (normalFromTangentSpace.x * normalStrength) * tangent +
+           (normalFromTangentSpace.y * normalStrength) * binormal +
             normalFromTangentSpace.z * normalize(normal);
 }
 
