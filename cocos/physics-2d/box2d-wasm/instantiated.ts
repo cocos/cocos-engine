@@ -28,14 +28,19 @@ import { BUILD, LOAD_BOX2D_MANUALLY, NATIVE_CODE_BUNDLE_MODE } from 'internal:co
 import { game } from '../../game';
 import { error, sys, IVec2Like, log } from '../../core';
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
-
+import {wrapper} from './liquid/wrapper';
 // eslint-disable-next-line import/no-mutable-exports
 export let B2 = {} as any;
+
+// box2d 使用的是 "box2d-wasm": "npm:liquidfun-wasm@^6.0.4-lf.1"
+// https://github.com/Birch-san/box2d-wasm/releases/tag/liquidfun-v6.0.4-lf.1
+export let Box2DWasm = {} as any;
 
 export function getImplPtr (wasmObject: any): number {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     if (!wasmObject) return 0;
-    return (wasmObject).$$.ptr as number;
+    // return (wasmObject).$$.ptr as number;
+    return Box2DWasm.getPointer(wasmObject._obj);
 }
 
 // type : Fixture, Body, Contact, Joint, ...
@@ -149,7 +154,9 @@ function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
             },
         }).then((Instance: any) => {
             log('[box2d]:box2d wasm lib loaded.');
-            B2 = Instance;
+            globalThis.Box2DWasm = Instance;
+            Box2DWasm = Instance;
+            B2 = wrapper(Instance);
         }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
 }

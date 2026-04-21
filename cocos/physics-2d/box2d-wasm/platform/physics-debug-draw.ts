@@ -57,6 +57,9 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         DrawPoint (center: B2.Vec2, size: number, color: B2.Color): void {
             PhysicsDebugDraw.DrawPoint(center, size, color);
         },
+        DrawParticles (centers: number, radius: number, colors: number, count: number): void {
+            PhysicsDebugDraw.DrawParticles(centers, radius, colors, count);
+        },
     };
 
     static _drawer: Graphics | null = null;
@@ -168,8 +171,30 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         // TODO
     }
 
-    static DrawParticles (): void {
+    static DrawParticles (centers: number, radius: number, colors: number, count: number): void {
         // TODO
+        const positionArray = (B2.HEAPF32 as Float32Array).subarray(centers / 4, centers / 4 + count * 2);
+        let colorArray: Uint8Array | null = null;
+        if (colors !== 0) {
+            colorArray = (B2.HEAPU8 as Uint8Array).subarray(colors, colors + count * 4);
+        }
+        const center: B2.Vec2 = { x: 0, y: 0 };
+        const color: B2.Color = { r: 0, g: 0, b: 0, a: 0 };
+
+        for (let i = 0; i < count; i++) {
+            center.x = positionArray[i * 2];
+            center.y = positionArray[i * 2 + 1];
+
+            if (colorArray) {
+                color.r = colorArray[i * 4] / 255;
+                color.g = colorArray[i * 4 + 1] / 255;
+                color.b = colorArray[i * 4 + 2] / 255;
+                color.a = colorArray[i * 4 + 3] / 255;
+            }
+            PhysicsDebugDraw._applyFillColor(color);
+            PhysicsDebugDraw._DrawCircle(center, radius);
+            PhysicsDebugDraw._drawer!.fill();
+        }
     }
 
     static _applyStrokeColor (color: B2.Color): void {
