@@ -112,4 +112,11 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
 
         return shapes;
     }
+
+    destroy(): void {
+        for (let i = 0; i < this._shapes.length; i++) {
+            B2.PolygonShapeDelete(this._shapes[i]);
+        }
+        super.destroy();
+    }
 }
