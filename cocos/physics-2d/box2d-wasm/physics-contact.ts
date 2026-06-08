@@ -97,9 +97,10 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     init (b2contact: number): void {
-        const ab = B2.ContactGetFixture(b2contact) as Vec2;
-        this.colliderA = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, ab.x)).collider;
-        this.colliderB = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, ab.y)).collider;
+        const fixtureA = B2.ContactGetFixtureA(b2contact) as number;
+        const fixtureB = B2.ContactGetFixtureB(b2contact) as number;
+        this.colliderA = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, fixtureA)).collider;
+        this.colliderB = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, fixtureB)).collider;
         this.disabled = false;
         this.disabledOnce = false;
         this._impulsePtr = 0;

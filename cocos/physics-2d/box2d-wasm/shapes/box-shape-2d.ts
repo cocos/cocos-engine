@@ -70,4 +70,11 @@ export class B2BoxShape extends B2Shape2D implements IBoxShape {
         B2.PolygonShapeSetAsBoxWithCenterAndAngle(shape, width, height, offsetX, offsetY, 0);
         return [shape];
     }
+
+    destroy (): void {
+        for (let i = 0; i < this._shapes.length; i++) {
+            B2.PolygonShapeDelete(this._shapes[i]);
+        }
+        super.destroy();
+    }
 }

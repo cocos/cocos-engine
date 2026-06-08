@@ -56,4 +56,11 @@ export class B2CircleShape extends B2Shape2D implements ICircleShape {
 
         return [shape];
     }
+
+    destroy (): void {
+        for (let i = 0; i < this._shapes.length; i++) {
+            B2.CircleShapeDelete(this._shapes[i]);
+        }
+        super.destroy();
+    }
 }
