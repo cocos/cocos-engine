@@ -71,9 +71,9 @@ export class B2BoxShape extends B2Shape2D implements IBoxShape {
         return [shape];
     }
 
-    destroy(): void {
+    destroy (): void {
         for (let i = 0; i < this._shapes.length; i++) {
-            B2.PolygonShapeDelete(this._shapes[i])
+            B2.PolygonShapeDelete(this._shapes[i]);
         }
         super.destroy();
     }
