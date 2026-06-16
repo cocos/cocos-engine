@@ -22,7 +22,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 import { Buffer, Framebuffer, Texture, Viewport } from '../../gfx';
-import { genHashValue } from './define';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
@@ -199,7 +198,6 @@ class PassVisitor implements RenderGraphVisitor {
                     resourceGraph.visitVertex(this._resVisitor, vertID);
                 }
             }
-            genHashValue(pass);
         }
     }
     applyID (id: number, resId: number): void {
