@@ -1650,13 +1650,16 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
                 this._compiler = new Compiler(this, this._renderGraph, this._resourceGraph, this._lg);
             }
             this._compiler.compile(this._renderGraph);
-        } else {
-            this._renderGraph.x.forEach((vert) => {
-                if (vert.t === RenderGraphValue.RasterPass) {
-                    genHashValue(vert.j as RasterPass);
-                }
-            });
         }
+        this._renderGraph.x.forEach((vert, v) => {
+            if (vert.t !== RenderGraphValue.RasterPass) {
+                return;
+            }
+            if (DEBUG && !this._renderGraph!.getValid(v)) {
+                return;
+            }
+            genHashValue(vert.j as RasterPass);
+        });
     }
 
     execute (): void {
