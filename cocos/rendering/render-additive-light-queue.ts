@@ -243,6 +243,7 @@ export class RenderAdditiveLightQueue {
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer): void {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         for (let j = 0; j < this._instancedQueues.length; ++j) {
+            if (!this._instancedQueues[j]) { continue; }
             const light = this._instancedLightPassPool.lights[j];
             _dynamicOffsets[0] = this._instancedLightPassPool.dynamicOffsets[j];
             const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
@@ -318,11 +319,11 @@ export class RenderAdditiveLightQueue {
             if (((visibility & model.node.layer) === model.node.layer)) {
                 switch (batchingScheme) {
                 case BatchingSchemes.INSTANCING: {
-                    const buffer = pass.getInstancedBuffer(l);
+                    const buffer = pass.getInstancedBuffer(lightIdx);
                     buffer.merge(subModel, lightPassIdx);
-                    buffer.dynamicOffsets[0] = this._lightBufferStride;
-                    if (!this._instancedQueues[l]) { this._instancedQueues[l] = new RenderInstancedQueue(); }
-                    this._instancedQueues[l].queue.add(buffer);
+                    buffer.dynamicOffsets[0] = this._lightBufferStride * lightIdx;
+                    if (!this._instancedQueues[lightIdx]) { this._instancedQueues[lightIdx] = new RenderInstancedQueue(); }
+                    this._instancedQueues[lightIdx].queue.add(buffer);
                 } break;
                 default:
                     lp!.lights.push(light);
