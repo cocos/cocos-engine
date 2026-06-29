@@ -187,6 +187,7 @@ class ScreenAdapter extends EventTarget {
     private _onFullscreenError?: () => void;
     // We need to set timeout to handle screen event.
     private _orientationChangeTimeoutId = -1;
+    private _resizeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
     private _exactFitScreen = false;
     private _isHeadlessMode = false;
@@ -383,10 +384,16 @@ class ScreenAdapter extends EventTarget {
         });
 
         window.addEventListener('resize', (): void => {
-            // if (!this.handleResizeEvent) {
-            //     return;
-            // }
-            this._updateFrame();
+            if (!this.handleResizeEvent) {
+                return;
+            }
+            if (this._resizeTimeoutId !== -1) {
+                clearTimeout(this._resizeTimeoutId);
+            }
+            this._resizeTimeoutId = setTimeout((): void => {
+                this._updateFrame();
+                this._resizeTimeoutId = -1;
+            }, EVENT_TIMEOUT);
         });
 
         const notifyOrientationChange = (orientation): void => {
@@ -439,11 +446,17 @@ class ScreenAdapter extends EventTarget {
                 const mediaQueryResolution = window.matchMedia(`(resolution: ${dpr}dppx)`);
                 if (mediaQueryResolution.addEventListener) {
                     mediaQueryResolution.addEventListener('change', (): void => {
+                        if (!this.handleResizeEvent) {
+                            return;
+                        }
                         this.emit('window-resize', this.windowSize.width, this.windowSize.height);
                         updateDPRChangeListener();
                     }, { once: true });
                 } else if (mediaQueryResolution.addListener) {
                     mediaQueryResolution.addListener((): void => {
+                        if (!this.handleResizeEvent) {
+                            return;
+                        }
                         this.emit('window-resize', this.windowSize.width, this.windowSize.height);
                     });
                 }
