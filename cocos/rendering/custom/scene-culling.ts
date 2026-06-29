@@ -300,7 +300,7 @@ export class SceneCulling {
     enableLightCulling = true;
 
     readonly kFilterMask = SceneFlags.SHADOW_CASTER | SceneFlags.REFLECTION_PROBE;
-    readonly kDrawMask = SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.BLEND;
+    readonly kDrawMask = SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.BLEND | SceneFlags.PLANAR_SHADOW;
     readonly kAllMask = this.kFilterMask | this.kDrawMask;
 
     resetPool (): void {
