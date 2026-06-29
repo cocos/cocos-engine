@@ -81,12 +81,12 @@ export class ForwardPass extends BasePass {
         passContext.addSceneLights(forwardAddQueue, camera);
         const shadowInfo = ppl.pipelineSceneData.shadows;
         if (camera.scene?.mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.Planar) {
-            pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'planar-shadow')
+            pass.addQueue(QueueHint.RENDER_OPAQUE, 'planar-shadow')
                 .addSceneOfCamera(
                     camera,
                     new LightInfo(camera.scene?.mainLight),
-                    SceneFlags.TRANSPARENT_OBJECT | SceneFlags.SHADOW_CASTER
-                    | SceneFlags.GEOMETRY,
+                    SceneFlags.SHADOW_CASTER | SceneFlags.PLANAR_SHADOW
+                    | SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT,
                 );
         }
         passContext.forwardPass = this;
