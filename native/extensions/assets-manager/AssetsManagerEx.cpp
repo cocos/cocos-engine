@@ -114,7 +114,11 @@ AssetsManagerEx::~AssetsManagerEx() {
         CC_SAFE_RELEASE(_tempManifest);
     }
     CC_SAFE_RELEASE(_remoteManifest);
-    assetsManager = nullptr;
+	if(assetsManager == this){
+		//avoid race conditon to current static variable
+		assetsManager = nullptr;
+	}
+    
 }
 
 AssetsManagerEx *AssetsManagerEx::create(const std::string &manifestUrl, const std::string &storagePath) {
