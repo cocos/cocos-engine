@@ -165,7 +165,7 @@ class PassVisitor implements RenderGraphVisitor {
             }
         }
         if (validPass) return;
-        if (rg.getValid(this.sceneID)) {
+        if (rg.getValid(this.passID)) {
             for (const [readName, raster] of pass.rasterViews) {
                 context.pipeline.resourceUses.push(readName);
             }

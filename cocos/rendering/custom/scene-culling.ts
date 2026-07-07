@@ -821,7 +821,8 @@ export class LightResource {
         // Already added
         const existingLightID = this.lightIndex.get(light);
         if (existingLightID !== undefined) {
-            return existingLightID;
+            return existingLightID * this.elementSize;
+            // return existingLightID;
         }
 
         if (!this.lightBuffer) {

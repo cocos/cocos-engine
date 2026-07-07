@@ -411,6 +411,13 @@ export class TerrainBlock {
     private _LevelDistances: number[] = [TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE];
     private _bbMin = v3();
     private _bbMax = v3();
+    private _propsDirty = true;
+    private _uvScale: Vec4 = new Vec4(1, 1, 1, 1);
+    private _roughness: Vec4 = new Vec4(1, 1, 1, 1);
+    private _metallic: Vec4 = new Vec4(0, 0, 0, 0);
+    private _bbMinWorld = v3();
+    private _bbMaxWorld = v3();
+    private _tempLodKey: TerrainLodKey = new TerrainLodKey();
 
     constructor (t: Terrain, i: number, j: number) {
         this._terrain = t;
@@ -507,6 +514,11 @@ export class TerrainBlock {
             this._renderable._updateLightingmap(this.lightmap, this.lightmapUVParam);
         }
 
+        if (!this._propsDirty) {
+            return;
+        }
+        this._propsDirty = false;
+
         const useNormalMap = this._terrain.useNormalMap;
         const usePBR = this._terrain.usePBR;
 
@@ -526,14 +538,18 @@ export class TerrainBlock {
 
         const mtl = this._renderable._currentMaterial;
         if (mtl !== null) {
+            const layers = this.layers;
             const nLayers = this.getMaxLayer();
-            const uvScale = new Vec4(1, 1, 1, 1);
-            const roughness = new Vec4(1, 1, 1, 1);
-            const metallic = new Vec4(0, 0, 0, 0);
+            const uvScale = this._uvScale;
+            const roughness = this._roughness;
+            const metallic = this._metallic;
+            uvScale.set(1, 1, 1, 1);
+            roughness.set(1, 1, 1, 1);
+            metallic.set(0, 0, 0, 0);
 
             if (nLayers === 0) {
-                if (this.layers[0] !== -1) {
-                    const l0 = this._terrain.getLayer(this.layers[0]);
+                if (layers[0] !== -1) {
+                    const l0 = this._terrain.getLayer(layers[0]);
 
                     if (l0 !== null) {
                         uvScale.x = 1.0 / l0.tileSize;
@@ -552,8 +568,8 @@ export class TerrainBlock {
                     }
                 }
             } else if (nLayers === 1) {
-                const l0 = this._terrain.getLayer(this.layers[0]);
-                const l1 = this._terrain.getLayer(this.layers[1]);
+                const l0 = this._terrain.getLayer(layers[0]);
+                const l1 = this._terrain.getLayer(layers[1]);
 
                 if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
@@ -574,9 +590,9 @@ export class TerrainBlock {
                     mtl.setProperty('normalMap1', getNormalTex(l1));
                 }
             } else if (nLayers === 2) {
-                const l0 = this._terrain.getLayer(this.layers[0]);
-                const l1 = this._terrain.getLayer(this.layers[1]);
-                const l2 = this._terrain.getLayer(this.layers[2]);
+                const l0 = this._terrain.getLayer(layers[0]);
+                const l1 = this._terrain.getLayer(layers[1]);
+                const l2 = this._terrain.getLayer(layers[2]);
 
                 if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
@@ -604,10 +620,10 @@ export class TerrainBlock {
                     mtl.setProperty('normalMap2', getNormalTex(l2));
                 }
             } else if (nLayers === 3) {
-                const l0 = this._terrain.getLayer(this.layers[0]);
-                const l1 = this._terrain.getLayer(this.layers[1]);
-                const l2 = this._terrain.getLayer(this.layers[2]);
-                const l3 = this._terrain.getLayer(this.layers[3]);
+                const l0 = this._terrain.getLayer(layers[0]);
+                const l1 = this._terrain.getLayer(layers[1]);
+                const l2 = this._terrain.getLayer(layers[2]);
+                const l3 = this._terrain.getLayer(layers[3]);
 
                 if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
@@ -667,13 +683,13 @@ export class TerrainBlock {
      * @engineInternal
      * @mangle
      */
-    public _updateLevel (camPos: Vec3): void {
+    public _updateLevel (camPos: Vec3, farClip = TERRAIN_LOD_MAX_DISTANCE): void {
         const terrain = this._terrain;
         const terrainNode = terrain.node;
 
         const maxLevel = TERRAIN_LOD_LEVELS - 1;
-        const bbMin = v3();
-        const bbMax = v3();
+        const bbMin = this._bbMinWorld;
+        const bbMax = this._bbMaxWorld;
 
         Vec3.add(bbMin, this._bbMin, terrainNode.worldPosition);
         Vec3.add(bbMax, this._bbMax, terrainNode.worldPosition);
@@ -681,6 +697,13 @@ export class TerrainBlock {
         const d1 = Vec3.distance(bbMin, camPos);
         const d2 = Vec3.distance(bbMax, camPos);
         let d = Math.min(d1, d2);
+
+        // Block's closest sampled corner is beyond the camera far clip;
+        // it won't be visible so pin it to the coarsest LOD and skip further work.
+        if (d > farClip) {
+            this._lodLevel = maxLevel;
+            return;
+        }
 
         d -= terrain.LodBias;
 
@@ -855,13 +878,15 @@ export class TerrainBlock {
      * @zh 获得最大纹理索引
      */
     public getMaxLayer (): number {
-        if (this.layers[3] >= 0) {
+        const i = this._index[0];
+        const j = this._index[1];
+        if (this._terrain.getBlockLayer(i, j, 3) >= 0) {
             return 3;
         }
-        if (this.layers[2] >= 0) {
+        if (this._terrain.getBlockLayer(i, j, 2) >= 0) {
             return 2;
         }
-        if (this.layers[1] >= 0) {
+        if (this._terrain.getBlockLayer(i, j, 1) >= 0) {
             return 1;
         }
 
@@ -885,11 +910,13 @@ export class TerrainBlock {
     }
 
     public _invalidMaterial (): void {
+        this._propsDirty = true;
         this._renderable._invalidMaterial();
     }
 
     public _updateMaterial (init: boolean): void {
         if (this._renderable._updateMaterial(this, init)) {
+            this._propsDirty = true;
             // Need set wrap mode clamp to border
             if (this.lightmap !== null) {
                 this.lightmap.setWrapMode(WrapMode.CLAMP_TO_BORDER, WrapMode.CLAMP_TO_BORDER);
@@ -967,12 +994,15 @@ export class TerrainBlock {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLod (): void {
-        const key = new TerrainLodKey();
+        const key = this._tempLodKey;
         key.level = this._lodLevel;
         key.north = this._lodLevel;
         key.south = this._lodLevel;
         key.west = this._lodLevel;
         key.east = this._lodLevel;
+
+        const blockCountX = this._terrain.blockCount[0];
+        const blockCountY = this._terrain.blockCount[1];
 
         if (this._index[0] > 0) {
             const n = this.getTerrain().getBlock(this._index[0] - 1, this._index[1]);
@@ -982,7 +1012,7 @@ export class TerrainBlock {
             }
         }
 
-        if (this._index[0] < this._terrain.info.blockCount[0] - 1) {
+        if (this._index[0] < blockCountX - 1) {
             const n = this.getTerrain().getBlock(this._index[0] + 1, this._index[1]);
             key.east = n._lodLevel;
             if (key.east < this._lodLevel) {
@@ -998,7 +1028,7 @@ export class TerrainBlock {
             }
         }
 
-        if (this._index[1] < this._terrain.info.blockCount[1] - 1) {
+        if (this._index[1] < blockCountY - 1) {
             const n = this.getTerrain().getBlock(this._index[0], this._index[1] + 1);
             key.south = n._lodLevel;
             if (key.south < this._lodLevel) {
@@ -1010,26 +1040,38 @@ export class TerrainBlock {
             return;
         }
 
-        this._lodKey = key;
+        this._lodKey.level = key.level;
+        this._lodKey.north = key.north;
+        this._lodKey.south = key.south;
+        this._lodKey.west = key.west;
+        this._lodKey.east = key.east;
         this._updateIndexBuffer();
+    }
+
+    /**
+     * @engineInternal
+     * Pin this block to the coarsest LOD level.
+     * Neighbour seam stitching is handled by the later _updateLod pass.
+     */
+    public _pinToMaxLod (): void {
+        const maxLevel = TERRAIN_LOD_LEVELS - 1;
+        this._lodLevel = maxLevel;
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetLod (): void {
-        const key = new TerrainLodKey();
-        key.level = 0;
-        key.north = 0;
-        key.south = 0;
-        key.west = 0;
-        key.east = 0;
-
-        if (this._lodKey.equals(key)) {
+        if (this._lodKey.level === 0 && this._lodKey.north === 0 && this._lodKey.south === 0
+            && this._lodKey.west === 0 && this._lodKey.east === 0) {
             return;
         }
 
-        this._lodKey = key;
+        this._lodKey.level = 0;
+        this._lodKey.north = 0;
+        this._lodKey.south = 0;
+        this._lodKey.west = 0;
+        this._lodKey.east = 0;
         this._updateIndexBuffer();
     }
 
@@ -1064,7 +1106,11 @@ export class TerrainBlock {
 
     private _updateLodBuffer (vertices: Float32Array): void  {
         this._lodLevel = 0;
-        this._lodKey = new TerrainLodKey();
+        this._lodKey.level = 0;
+        this._lodKey.north = 0;
+        this._lodKey.south = 0;
+        this._lodKey.west = 0;
+        this._lodKey.east = 0;
         this._calcErrorMetrics(vertices);
         this._calcLevelDistances(vertices);
     }
@@ -1257,6 +1303,7 @@ export class Terrain extends Component {
     protected _lod: TerrainLod|null = null;
     protected _sharedIndexBuffer: Buffer|null = null;
     protected _sharedLodIndexBuffer: Buffer|null = null;
+    private _lastCamPosMap: Map<number, Vec3> = new Map();
 
     constructor () {
         super();
@@ -1757,16 +1804,72 @@ export class Terrain extends Component {
         if (!this.lodEnable || this._sharedLodIndexBuffer == null) {
             return;
         }
-        if (cam.scene !== this._getRenderScene()) {
+        if (cam.scene !== this._getRenderScene() || !(cam.visibility & this.node.layer)) {
             return;
         }
 
-        for (let i = 0; i < this._blocks.length; ++i) {
-            this._blocks[i]._updateLevel(cam.position);
+        const camPos = cam.position;
+
+        // Per-camera threshold: skip if this camera has not moved appreciably since
+        // its last update. Each camera maintains its own cached position so that
+        // multi-camera setups (e.g. editor + game view) don't interfere with each other.
+        const cameraId = cam.cameraId;
+        let lastPos = this._lastCamPosMap.get(cameraId);
+        if (lastPos !== undefined) {
+            const dx = camPos.x - lastPos.x;
+            const dy = camPos.y - lastPos.y;
+            const dz = camPos.z - lastPos.z;
+            if (dx * dx + dy * dy + dz * dz < 0.01) {
+                return;
+            }
+            // lastPos.set(camPos.x, camPos.y, camPos.z);
+        } else {
+            // First call for this camera: register and fall through to force an update.
+            lastPos = v3();
+            this._lastCamPosMap.set(cameraId, lastPos);
+        }
+        for (const [, pos] of this._lastCamPosMap) {
+            pos.set(camPos.x, camPos.y, camPos.z);
         }
 
-        for (let i = 0; i < this._blocks.length; ++i) {
-            this._blocks[i]._updateLod();
+        const farClip = cam.farClip;
+
+        // Convert camera world position to terrain local space so we can compute
+        // which block grid cells are potentially within farClip range.
+        const terrainPos = this.node.worldPosition;
+        const localX = camPos.x - terrainPos.x;
+        const localZ = camPos.z - terrainPos.z;
+        const blockSize = TERRAIN_BLOCK_TILE_COMPLEXITY * this._tileSize;
+        // +1 block margin to ensure border blocks are included for seam stitching.
+        const blockRadius = Math.ceil(farClip / blockSize) + 1;
+        const centerBX = Math.floor(localX / blockSize);
+        const centerBZ = Math.floor(localZ / blockSize);
+        const minBX = Math.max(0, centerBX - blockRadius);
+        const maxBX = Math.min(this._blockCount[0] - 1, centerBX + blockRadius);
+        const minBZ = Math.max(0, centerBZ - blockRadius);
+        const maxBZ = Math.min(this._blockCount[1] - 1, centerBZ + blockRadius);
+
+        for (let j = 0; j < this._blockCount[1]; ++j) {
+            for (let i = 0; i < this._blockCount[0]; ++i) {
+                const block = this._blocks[j * this._blockCount[0] + i];
+                if (i >= minBX && i <= maxBX && j >= minBZ && j <= maxBZ) {
+                    // Block is potentially visible: full level calculation with farClip.
+                    block._updateLevel(camPos, farClip);
+                } else {
+                    // Block is outside farClip range: pin to coarsest level in phase 1.
+                    block._pinToMaxLod();
+                }
+            }
+        }
+
+        // Phase 2: apply stitching/index updates after all block levels are finalized.
+        for (let j = 0; j < this._blockCount[1]; ++j) {
+            for (let i = 0; i < this._blockCount[0]; ++i) {
+                if (i >= minBX && i <= maxBX && j >= minBZ && j <= maxBZ) {
+                    const block = this._blocks[j * this._blockCount[0] + i];
+                    block._updateLod();
+                }
+            }
         }
     }
 
@@ -2107,14 +2210,15 @@ export class Terrain extends Component {
         const by = Math.floor(y / this.weightMapSize);
         const block = this.getBlock(bx, by);
 
+        const wArr = [w.x, w.y, w.z, w.w];
         let i = 0;
-        if (w.y > w[i] && block.getLayer(1) !== -1) {
+        if (w.y > wArr[i] && block.getLayer(1) !== -1) {
             i = 1;
         }
-        if (w.y > w[i] && block.getLayer(2) !== -1) {
+        if (w.z > wArr[i] && block.getLayer(2) !== -1) {
             i = 2;
         }
-        if (w.z > w[i] && block.getLayer(3) !== -1) {
+        if (w.w > wArr[i] && block.getLayer(3) !== -1) {
             i = 3;
         }
 
