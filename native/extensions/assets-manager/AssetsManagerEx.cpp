@@ -115,7 +115,7 @@ AssetsManagerEx::~AssetsManagerEx() {
     }
     CC_SAFE_RELEASE(_remoteManifest);
 	if(assetsManager == this){
-		//avoid race conditon to current static variable
+		//avoid race conditon to current static variable.
 		assetsManager = nullptr;
 	}
     
