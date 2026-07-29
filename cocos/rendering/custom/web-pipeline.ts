@@ -269,7 +269,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             light,
         );
         const renderData = renderGraphPool.createRenderData();
-        const sceneId = this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Scene', '', renderData, !DEBUG, this._vertID);
+        const sceneId = this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Scene', '', renderData, false, this._vertID);
         if (!(sceneFlags & SceneFlags.NON_BUILTIN)) {
             const layoutName = this.getParentLayout();
             setCameraUBOValues(
@@ -290,7 +290,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
                 'UI Queue',
                 'default',
                 this._data,
-                !DEBUG,
+                false,
                 passOrSubpassId,
             );
 
@@ -300,7 +300,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
                 'UI',
                 '',
                 emptyRenderData,
-                !DEBUG,
+                false,
                 queueId,
             );
         }
@@ -318,7 +318,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             name,
             '',
             renderGraphPool.createRenderData(),
-            !DEBUG,
+            false,
             this._vertID,
         );
         const layoutName = this.getParentLayout();
@@ -343,7 +343,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             'CameraQuad',
             '',
             renderGraphPool.createRenderData(),
-            !DEBUG,
+            false,
             this._vertID,
         );
         const layoutName = this.getParentLayout();
@@ -372,7 +372,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             'Draw3D',
             '',
             renderGraphPool.createRenderData(),
-            !DEBUG,
+            false,
             this._vertID,
         );
         if (!(sceneFlags & SceneFlags.NON_BUILTIN)) {
@@ -402,7 +402,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             'Draw2D',
             '',
             emptyRenderData,
-            !DEBUG,
+            false,
             this._vertID,
         );
     }
@@ -414,7 +414,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             'UI Queue',
             'default',
             this._data,
-            !DEBUG,
+            false,
             passOrSubpassId,
         );
         const blitID = this._renderGraph.addVertex<RenderGraphValue.Blit>(
@@ -423,7 +423,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             'Profiler',
             '',
             emptyRenderData,
-            !DEBUG,
+            false,
             queueId,
         );
 
@@ -439,7 +439,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             'ClearRenderTarget',
             '',
             renderGraphPool.createRenderData(),
-            !DEBUG,
+            false,
             this._vertID,
         );
     }
@@ -526,7 +526,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         const layoutId = this._lg.locateChild(this._layoutID, layoutName);
         const queue = renderGraphPool.createRenderQueue(hint, layoutId);
         const data = renderGraphPool.createRenderData();
-        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, !DEBUG, this._vertID);
+        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         const queueBuilder = pipelinePool.renderQueueBuilder.add();
         queueBuilder.update(data, this._renderGraph, this._lg, queueID, queue, this._pipeline);
         return queueBuilder;
@@ -686,7 +686,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._pass.subpassGraph.addVertex(name, renderGraphPool.createSubpass());
         const subpass = renderGraphPool.createRasterSubpass(subpassID, 1, 0);
         const data = renderGraphPool.createRenderData();
-        const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, !DEBUG);
+        const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, false);
         this._subpassID = vertID;
         const result = pipelinePool.renderSubpassBuilder.add();
         result.update(data, this._renderGraph, this._lg, vertID, subpass, this._pipeline);
@@ -696,7 +696,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         const layoutId = this._lg.locateChild(this._layoutID, layoutName);
         const queue = renderGraphPool.createRenderQueue(hint, layoutId);
         const data = renderGraphPool.createRenderData();
-        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, !DEBUG, this._vertID);
+        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         const result = pipelinePool.renderQueueBuilder.add();
         result.update(data, this._renderGraph, this._lg, queueID, queue, this._pipeline);
         return result;
@@ -710,7 +710,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
             'Queue',
             '',
             renderGraphPool.createRenderData(),
-            !DEBUG,
+            false,
             this._vertID,
         );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
@@ -719,7 +719,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
             name,
             '',
             renderGraphPool.createRenderData(),
-            !DEBUG,
+            false,
             queueId,
         );
     }
@@ -732,7 +732,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
             'Queue',
             '',
             renderGraphPool.createRenderData(),
-            !DEBUG,
+            false,
             this._vertID,
         );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
@@ -741,7 +741,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
             name,
             '',
             renderGraphPool.createRenderData(),
-            !DEBUG,
+            false,
             queueId,
         );
     }
@@ -804,7 +804,7 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
 
             renderGraphPool.createRenderData(),
 
-            !DEBUG,
+            false,
 
             this._vertID,
         );
@@ -866,7 +866,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         const layoutId = this._lg.locateChild(this._layoutID, layoutName);
         const queue = renderGraphPool.createRenderQueue(QueueHint.RENDER_OPAQUE, layoutId);
         const data = renderGraphPool.createRenderData();
-        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, !DEBUG, this._vertID);
+        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         const computeQueueBuilder = pipelinePool.computeQueueBuilder.add();
         computeQueueBuilder.update(data, this._renderGraph, this._lg, queueID, queue, this._pipeline);
         return computeQueueBuilder;
@@ -1202,7 +1202,7 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         const pass = renderGraphPool.createComputePass();
 
         const data = renderGraphPool.createRenderData();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Compute>(RenderGraphValue.Compute, pass, name, passName, data, !DEBUG);
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Compute>(RenderGraphValue.Compute, pass, name, passName, data, false);
         const result = pipelinePool.computePassBuilder.add();
         result.update(data, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         setComputeConstants(result, passName);
@@ -1216,7 +1216,7 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
             pass.uploadPairs.push(up);
         }
 
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', renderGraphPool.createRenderData(), !DEBUG);
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', renderGraphPool.createRenderData(), false);
         // const result = new WebCopyPassBuilder(this._renderGraph!, vertID, pass);
     }
 
@@ -1737,7 +1737,7 @@ export class WebPipeline extends WebSetter implements BasicPipeline {
         pass.count = count;
         pass.quality = quality;
         const data = renderGraphPool.createRenderData();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, data, !DEBUG);
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, data, false);
         const result = pipelinePool.renderPassBuilder.add();
         result.update(data, this._renderGraph!, this._lg, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height, layoutName);
