@@ -1,27 +1,45 @@
-import { Texture2D } from "../../cocos/asset/assets/texture-2d";
-import { Details } from "../../cocos/serialization/deserialize";
+import { ImageAsset } from '../../cocos/asset/assets/image-asset';
+import { Texture2D } from '../../cocos/asset/assets/texture-2d';
+import { dependMap } from '../../cocos/asset/asset-manager/depend-maps';
+import dependUtil from '../../cocos/asset/asset-manager/depend-util';
+import { setProperties } from '../../cocos/asset/asset-manager/utilities';
+import { macro } from '../../cocos/core';
 
-// issue: https://github.com/cocos/cocos-engine/issues/16693
-test('Texture2D serialize', function () {
-    const texture = new Texture2D();
-    texture._mipmaps = [{ _uuid: '09f4f3e7-268b-478c-a7af-bbdf574ec3c6@6c48a' }];
-    const ctxForExporting = {
-        _depends: [] as string[],
-        dependsOn(propName: string, uuid: string) {
-            this._depends.push(propName, uuid);
-        },
-        _compressUuid: this.mustCompresseUuid,
-    };
-    texture._serialize(ctxForExporting);
-    expect(ctxForExporting._depends).toEqual(['_textureSource', '09f4f3e7-268b-478c-a7af-bbdf574ec3c6@6c48a']);
+const textureUuid = 'f41e5c8f-0e9a-4c38-bb1d-texture2d';
+
+afterEach(() => {
+    dependUtil.remove(textureUuid);
 });
 
-test('Texture2D deserialize', function () {
-    const data = { base: '2,2,2,2,0,0', mipmaps: ['09f4f3e7-268b-478c-a7af-bbdf574ec3c6'] };
-    const result = new Details();
-    result.init();
-    const handle = { result };
-    const texture = new Texture2D();
-    texture._deserialize(data, handle);
-    expect(handle.result.uuidList).toEqual(['09f4f3e7-268b-478c-a7af-bbdf574ec3c6']);
+test('releases every Texture2D dependency edge for an uploaded image', () => {
+    const cleanupImageCache = macro.CLEANUP_IMAGE_CACHE;
+    macro.CLEANUP_IMAGE_CACHE = true;
+
+    try {
+        const texture = new Texture2D();
+        texture._uuid = textureUuid;
+        const image = new ImageAsset({
+            _data: new Uint8Array(4),
+            width: 1,
+            height: 1,
+        });
+        image._uuid = '6d35c119-b763-4295-96e7-image';
+        const deps = [
+            { uuid: image._uuid, owner: texture, prop: '_textureSource' },
+            { uuid: image._uuid, owner: texture._mipmaps, prop: '0' },
+        ];
+        const assetsMap = { [`${image._uuid}@import`]: image };
+
+        dependMap.set(texture, deps);
+        dependUtil._depends.add(textureUuid, { deps: deps.map((dep) => dep.uuid) });
+        setProperties(textureUuid, texture, assetsMap);
+        expect(image.refCount).toBe(2);
+
+        texture.onLoaded();
+
+        expect(image.refCount).toBe(0);
+        expect(dependUtil.getDeps(textureUuid)).toEqual([]);
+    } finally {
+        macro.CLEANUP_IMAGE_CACHE = cleanupImageCache;
+    }
 });
