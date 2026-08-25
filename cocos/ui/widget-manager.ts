@@ -204,7 +204,7 @@ function align (node: Node, widget: Widget): void {
 // TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
 function visitNode (node: any): void {
     const widget = node.getComponent(Widget);
-    if (widget && widget.enabled) {
+    if (widget && widget.enabled && cclegacy.isValid(widget, true)) {
         if (DEV) {
             widget._validateTargetInDEV();
         }

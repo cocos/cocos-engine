@@ -852,6 +852,9 @@ export class Widget extends Component {
     }
 
     public onDestroy (): void {
+        // `onDisable` is skipped when the component was never enabled by the scheduler
+        // (`IsOnEnableCalled` unset), so unregister here as well.
+        cclegacy._widgetManager?.remove(this);
         this._removeParentEvent();
     }
 
