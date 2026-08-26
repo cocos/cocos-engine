@@ -144,6 +144,7 @@ export class GooglePlayPackTool extends NativePackTool {
         if (process.platform === 'win32') {
             gradle += '.bat';
         } else {
+            await fs.chmod(ps.join(projDir, 'gradlew'), '755');
             gradle = './' + gradle;
         }
 
