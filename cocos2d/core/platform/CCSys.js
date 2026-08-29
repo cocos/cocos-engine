@@ -36,6 +36,7 @@ const isQttGame = (settingPlatform === 'qtt-game');
 const isLinkSure = (settingPlatform === 'link-sure');
 const isMigu = (settingPlatform === 'migu-runtime');
 const isHonorGame = (settingPlatform === 'honor-minigame');
+const isOpenpaas = (settingPlatform === 'openpaas');
 
 const _global = typeof window === 'undefined' ? global : window;
  
@@ -485,6 +486,13 @@ function initSys () {
      */
      sys.HONOR_MINIGAME = 123;
 
+       /**
+     * @property {Number} OPENPAAS_MINIGAME
+     * @readOnly
+     * @default 124
+     */
+     sys.OPENPAAS_MINIGAME = 124;
+
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
@@ -747,6 +755,8 @@ function initSys () {
             platform = sys.MIGU_MINIGAME;
         } else if (isHonorGame) {
             platform = sys.HONOR_MINIGAME;
+        } else if (isOpenpaas) {
+            platform = sys.OPENPAAS_MINIGAME;
         }
         else {
             platform = __getPlatform();
@@ -766,7 +776,8 @@ function initSys () {
                         isJKWGame ||
                         isQttGame ||
                         isMigu ||
-                        isHonorGame);
+                        isHonorGame ||
+                        isOpenpaas);
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
