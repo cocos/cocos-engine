@@ -1,0 +1,46 @@
+diff --git a/node_modules/@cocos/build-engine/dist/build-time-constants.js b/node_modules/@cocos/build-engine/dist/build-time-constants.js
+index 9d074dc..0880d97 100644
+--- a/node_modules/@cocos/build-engine/dist/build-time-constants.js
++++ b/node_modules/@cocos/build-engine/dist/build-time-constants.js
+@@ -23,7 +23,7 @@ function setupBuildTimeConstants({ mode, platform, flags, }) {
+     Object.assign(result, flags);
+     result.DEV = result.EDITOR || result.PREVIEW || result.TEST;
+     result.DEBUG = result.DEBUG || result.DEV;
+-    result.RUNTIME_BASED = result.OPPO || result.VIVO || result.HUAWEI || result.COCOSPLAY || result.LINKSURE || result.QTT;
++    result.RUNTIME_BASED = result.OPPO || result.VIVO || result.HUAWEI || result.COCOSPLAY || result.LINKSURE || result.QTT || result.SUD || result.SUDV2;
+     result.MINIGAME = result.WECHAT || result.ALIPAY || result.XIAOMI || result.BYTEDANCE || result.BAIDU;
+     result.JSB = result.NATIVE;
+     result.SUPPORT_JIT = !(result.MINIGAME || result.RUNTIME_BASED);
+@@ -31,7 +31,7 @@ function setupBuildTimeConstants({ mode, platform, flags, }) {
+ }
+ exports.setupBuildTimeConstants = setupBuildTimeConstants;
+ function getPlatformConstantNames() {
+-    return ['HTML5', 'WECHAT', 'ALIPAY', 'BAIDU', 'XIAOMI', 'BYTEDANCE', 'OPPO', 'VIVO', 'HUAWEI', 'NATIVE', 'COCOSPLAY', 'LINKSURE', 'QTT'];
++    return ['HTML5', 'WECHAT', 'ALIPAY', 'BAIDU', 'XIAOMI', 'BYTEDANCE', 'OPPO', 'VIVO', 'HUAWEI', 'NATIVE', 'COCOSPLAY', 'LINKSURE', 'QTT', 'SUD', 'SUDV2'];
+ }
+ exports.getPlatformConstantNames = getPlatformConstantNames;
+ function getBuildModeConstantNames() {
+diff --git a/node_modules/@cocos/build-engine/dist/constant-manager.d.ts b/node_modules/@cocos/build-engine/dist/constant-manager.d.ts
+index 68b719a..1c2dc76 100644
+--- a/node_modules/@cocos/build-engine/dist/constant-manager.d.ts
++++ b/node_modules/@cocos/build-engine/dist/constant-manager.d.ts
+@@ -1,5 +1,5 @@
+ export type ModeType = 'EDITOR' | 'PREVIEW' | 'BUILD' | 'TEST';
+-export type PlatformType = 'HTML5' | 'NATIVE' | 'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'TAOBAO' | 'TAOBAO_MINIGAME' | 'BYTEDANCE' | 'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
++export type PlatformType = 'HTML5' | 'NATIVE' | 'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'TAOBAO' | 'TAOBAO_MINIGAME' | 'BYTEDANCE' | 'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE' | 'SUD' | 'SUDV2';
+ export type InternalFlagType = 'SERVER_MODE' | 'NOT_PACK_PHYSX_LIBS' | 'WEBGPU';
+ export type PublicFlagType = 'DEBUG' | 'NET_MODE';
+ export type FlagType = InternalFlagType | PublicFlagType;
+diff --git a/node_modules/@cocos/build-engine/dist/index.js b/node_modules/@cocos/build-engine/dist/index.js
+index a9de2bb..1f2e9d7 100644
+--- a/node_modules/@cocos/build-engine/dist/index.js
++++ b/node_modules/@cocos/build-engine/dist/index.js
+@@ -171,7 +171,7 @@ async function doBuild({ options, }) {
+     const useWebGPU = flags['WEBGPU'];
+     let platform = options.platform;
+     if (!platform) {
+-        ["HTML5", "NATIVE", "WECHAT", "BAIDU", "XIAOMI", "ALIPAY", "BYTEDANCE", "OPPO", "VIVO", "HUAWEI", "COCOSPLAY", "QTT", "LINKSURE"].some(key => {
++        ["HTML5", "NATIVE", "WECHAT", "BAIDU", "XIAOMI", "ALIPAY", "BYTEDANCE", "OPPO", "VIVO", "HUAWEI", "COCOSPLAY", "QTT", "LINKSURE", "SUD", "SUDV2"].some(key => {
+             if (buildTimeConstants[key]) {
+                 platform = key;
+                 return true;

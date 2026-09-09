@@ -1,0 +1,44 @@
+diff --git a/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.d.ts b/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.d.ts
+index 6c342b5..61d2a62 100644
+--- a/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.d.ts
++++ b/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.d.ts
+@@ -25,6 +25,8 @@ export declare enum MinigamePlatform {
+    * @deprecated this platform has been removed.
+    */
+   LINKSURE = 13,
++  SUD = 17,
++  SUDV2 = 18,
+ }
+ export declare enum NativePlatform {
+   NATIVE_EDITOR = 0,
+diff --git a/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.d.ts.map b/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.d.ts.map
+index eb2539c..670e8df 100644
+--- a/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.d.ts.map
++++ b/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"platform-config.d.ts","sourceRoot":"","sources":["../src/platform-config.ts"],"names":[],"mappings":"AAAA,oBAAY,gBAAgB;IACxB,MAAM,IAAA;IACN,mBAAmB,IAAA;IACnB;;OAEG;IACH,KAAK,IAAA;IACL,SAAS,IAAA;IACT,MAAM,IAAA;IACN,MAAM,IAAA;IACN,MAAM,IAAA;IACN,eAAe,IAAA;IACf,IAAI,IAAA;IACJ,IAAI,IAAA;IACJ,MAAM,KAAA;IACN;;OAEG;IACH,SAAS,KAAA;IACT;;OAEG;IACH,GAAG,KAAA;IACH;;OAEG;IACH,QAAQ,KAAA;CACX;AAED,oBAAY,cAAc;IACtB,aAAa,IAAA;IACb,OAAO,IAAA;IACP,OAAO,IAAA;IACP,GAAG,IAAA;IACH,GAAG,IAAA;IACH,IAAI,IAAA;IACJ,YAAY,IAAA;IACZ,KAAK,IAAA;CACR;AAED,oBAAY,WAAW;IACnB,UAAU,IAAA;IACV,UAAU,IAAA;IACV,WAAW,IAAA;CACd"}
+\ No newline at end of file
++{"version":3,"file":"platform-config.d.ts","sourceRoot":"","sources":["../src/platform-config.ts"],"names":[],"mappings":"AAAA,oBAAY,gBAAgB;IACxB,MAAM,IAAA;IACN,mBAAmB,IAAA;IACnB;;OAEG;IACH,KAAK,IAAA;IACL,SAAS,IAAA;IACT,MAAM,IAAA;IACN,MAAM,IAAA;IACN,MAAM,IAAA;IACN,eAAe,IAAA;IACf,IAAI,IAAA;IACJ,IAAI,IAAA;IACJ,MAAM,KAAA;IACN;;OAEG;IACH,SAAS,KAAA;IACT;;OAEG;IACH,GAAG,KAAA;IACH;;OAEG;IACH,QAAQ,KAAA;IACR,GAAG,KAAK;IACR,KAAK,KAAK;CAEb;AAED,oBAAY,cAAc;IACtB,aAAa,IAAA;IACb,OAAO,IAAA;IACP,OAAO,IAAA;IACP,GAAG,IAAA;IACH,GAAG,IAAA;IACH,IAAI,IAAA;IACJ,YAAY,IAAA;IACZ,KAAK,IAAA;CACR;AAED,oBAAY,WAAW;IACnB,UAAU,IAAA;IACV,UAAU,IAAA;IACV,WAAW,IAAA;CACd"}
+\ No newline at end of file
+diff --git a/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.js b/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.js
+index e4c5333..cf6386d 100644
+--- a/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.js
++++ b/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.js
+@@ -32,6 +32,8 @@ var MinigamePlatform;
+    * @deprecated this platform has been removed.
+    */
+   MinigamePlatform[MinigamePlatform["LINKSURE"] = 13] = "LINKSURE";
++  MinigamePlatform[MinigamePlatform["SUD"] = 17] = "SUD";
++  MinigamePlatform[MinigamePlatform["SUDV2"] = 18] = "SUDV2";
+ })(MinigamePlatform = exports.MinigamePlatform || (exports.MinigamePlatform = {}));
+ var NativePlatform;
+ (function (NativePlatform) {
+diff --git a/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.js.map b/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.js.map
+index ed6c67b..4e779a7 100644
+--- a/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.js.map
++++ b/node_modules/@cocos/ccbuild/modules/modularize/lib/platform-config.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"platform-config.js","sourceRoot":"","sources":["../src/platform-config.ts"],"names":[],"mappings":";;;AAAA,IAAY,gBA2BX;AA3BD,WAAY,gBAAgB;IACxB,2DAAM,CAAA;IACN,qFAAmB,CAAA;IACnB;;OAEG;IACH,yDAAK,CAAA;IACL,iEAAS,CAAA;IACT,2DAAM,CAAA;IACN,2DAAM,CAAA;IACN,2DAAM,CAAA;IACN,6EAAe,CAAA;IACf,uDAAI,CAAA;IACJ,uDAAI,CAAA;IACJ,4DAAM,CAAA;IACN;;OAEG;IACH,kEAAS,CAAA;IACT;;OAEG;IACH,sDAAG,CAAA;IACH;;OAEG;IACH,gEAAQ,CAAA;AACZ,CAAC,EA3BW,gBAAgB,GAAhB,wBAAgB,KAAhB,wBAAgB,QA2B3B;AAED,IAAY,cASX;AATD,WAAY,cAAc;IACtB,qEAAa,CAAA;IACb,yDAAO,CAAA;IACP,yDAAO,CAAA;IACP,iDAAG,CAAA;IACH,iDAAG,CAAA;IACH,mDAAI,CAAA;IACJ,mEAAY,CAAA;IACZ,qDAAK,CAAA;AACT,CAAC,EATW,cAAc,GAAd,sBAAc,KAAd,sBAAc,QASzB;AAED,IAAY,WAIX;AAJD,WAAY,WAAW;IACnB,yDAAU,CAAA;IACV,yDAAU,CAAA;IACV,2DAAW,CAAA;AACf,CAAC,EAJW,WAAW,GAAX,mBAAW,KAAX,mBAAW,QAItB"}
+\ No newline at end of file
++{"version":3,"file":"platform-config.js","sourceRoot":"","sources":["../src/platform-config.ts"],"names":[],"mappings":";;;AAAA,IAAY,gBA8BX;AA9BD,WAAY,gBAAgB;IACxB,2DAAM,CAAA;IACN,qFAAmB,CAAA;IACnB;;OAEG;IACH,yDAAK,CAAA;IACL,iEAAS,CAAA;IACT,2DAAM,CAAA;IACN,2DAAM,CAAA;IACN,2DAAM,CAAA;IACN,6EAAe,CAAA;IACf,uDAAI,CAAA;IACJ,uDAAI,CAAA;IACJ,4DAAM,CAAA;IACN;;OAEG;IACH,kEAAS,CAAA;IACT;;OAEG;IACH,sDAAG,CAAA;IACH;;OAEG;IACH,gEAAQ,CAAA;IACR,sDAAQ,CAAA;IACR,0DAAU,CAAA;AAEd,CAAC,EA9BW,gBAAgB,GAAhB,wBAAgB,KAAhB,wBAAgB,QA8B3B;AAED,IAAY,cASX;AATD,WAAY,cAAc;IACtB,qEAAa,CAAA;IACb,yDAAO,CAAA;IACP,yDAAO,CAAA;IACP,iDAAG,CAAA;IACH,iDAAG,CAAA;IACH,mDAAI,CAAA;IACJ,mEAAY,CAAA;IACZ,qDAAK,CAAA;AACT,CAAC,EATW,cAAc,GAAd,sBAAc,KAAd,sBAAc,QASzB;AAED,IAAY,WAIX;AAJD,WAAY,WAAW;IACnB,yDAAU,CAAA;IACV,yDAAU,CAAA;IACV,2DAAW,CAAA;AACf,CAAC,EAJW,WAAW,GAAX,mBAAW,KAAX,mBAAW,QAItB"}
+\ No newline at end of file
