@@ -172,13 +172,18 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
     // Fill index buffer.
     let indexBuffer: ArrayBuffer | null = null;
     let idxCount = 0;
-    const idxStride = 2;
+    let idxStride = 2;
+    let indexFormat = Format.R16UI;
     if (geometry.indices) {
         const { indices } = geometry;
         idxCount = indices.length;
+        if (indices.some((i) => i > 0xFFFF)) {
+            idxStride = 4;
+            indexFormat = Format.R32UI;
+        }
         indexBuffer = new ArrayBuffer(idxStride * idxCount);
         const indexBufferView = new DataView(indexBuffer);
-        writeBuffer(indexBufferView, indices, Format.R16UI);
+        writeBuffer(indexBufferView, indices, indexFormat);
     }
 
     // Create primitive.
