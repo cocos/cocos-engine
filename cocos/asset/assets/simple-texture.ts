@@ -194,10 +194,12 @@ export class SimpleTexture extends TextureBase {
 
         if (macro.CLEANUP_IMAGE_CACHE) {
             const deps = dependUtil.getDeps(this._uuid);
-            const index = deps.indexOf(image._uuid);
-            if (index !== -1) {
+            let index = deps.indexOf(image._uuid);
+            while (index !== -1) {
                 js.array.fastRemoveAt(deps, index);
                 image.decRef();
+                // The same UUID may occur more than once; find the next dependency edge.
+                index = deps.indexOf(image._uuid);
             }
         }
     }

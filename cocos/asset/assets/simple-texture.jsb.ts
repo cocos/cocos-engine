@@ -76,10 +76,11 @@ simpleTextureProto._onGFXTextureUpdated = function (gfxTexture) {
 simpleTextureProto._onAfterAssignImage = function (image) {
     if (macro.CLEANUP_IMAGE_CACHE) {
         const deps = dependUtil.getDeps(this._uuid);
-        const index = deps.indexOf(image._uuid);
-        if (index !== -1) {
+        let index = deps.indexOf(image._uuid);
+        while (index !== -1) {
             js.array.fastRemoveAt(deps, index);
             image.decRef();
+            index = deps.indexOf(image._uuid);
         }
     }
 };
