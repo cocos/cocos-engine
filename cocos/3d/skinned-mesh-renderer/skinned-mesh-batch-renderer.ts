@@ -177,21 +177,21 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     @override
     @visible(false)
     get mesh (): Mesh | null {
-        return super.mesh;
+        return Reflect.get(SkinnedMeshRenderer.prototype, 'mesh', this);
     }
 
     set mesh (val) {
-        super.mesh = val;
+        Reflect.set(SkinnedMeshRenderer.prototype, 'mesh', val, this);
     }
 
     @override
     @visible(false)
     get skeleton (): Skeleton | null {
-        return super.skeleton;
+        return Reflect.get(SkinnedMeshRenderer.prototype, 'skeleton', this);
     }
 
     set skeleton (val) {
-        super.skeleton = val;
+        Reflect.set(SkinnedMeshRenderer.prototype, 'skeleton', val, this);
     }
 
     public onLoad (): void {
