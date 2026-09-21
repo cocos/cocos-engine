@@ -27,21 +27,12 @@ editor/library/
 !templates/**/*
 templates/**/.DS_Store
 
-platforms/runtime/local-commit.json
-platforms/runtime/common/web-adapter.js
-platforms/runtime/common/web-adapter.min.js
-platforms/runtime/platforms/cocos-play/ral.js
-platforms/runtime/platforms/cocos-play/ral.min.js
-platforms/runtime/platforms/huawei-quick-game/ral.js
-platforms/runtime/platforms/huawei-quick-game/ral.min.js
-platforms/runtime/platforms/link-sure/ral.js
-platforms/runtime/platforms/link-sure/ral.min.js
-platforms/runtime/platforms/oppo-mini-game/ral.js
-platforms/runtime/platforms/oppo-mini-game/ral.min.js
-platforms/runtime/platforms/qtt/ral.js
-platforms/runtime/platforms/qtt/ral.min.js
-platforms/runtime/platforms/vivo-mini-game/ral.js
-platforms/runtime/platforms/vivo-mini-game/ral.min.js
+# pal 由 @cocos/engine-pal 在 postinstall 挂载(软链/复制)，不入库
+/pal
+
+# platforms 源码已抽到 @cocos/engine-platforms；其预打包 adapter 由 postinstall 的
+# spread-adapter.cjs 复制到 bin/adapter(/bin 已忽略)。platforms 源码不再入库。
+/platforms
 
 @types/consts.d.ts
 
