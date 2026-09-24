@@ -140,6 +140,33 @@ export async function build (options: {
         );
     }
 
+    // The private PAL package is spread as precompiled declarations. TypeScript's
+    // declaration emit skips .d.ts inputs, so mirror them into the unbundled tree
+    // consumed by the declaration bundler.
+    const palDtsRoot = ps.join(engine, 'pal');
+    if (await fs.pathExists(palDtsRoot)) {
+        const mirrorPalDts = async (dir: string): Promise<void> => {
+            for (const name of await fs.readdir(dir)) {
+                const source = ps.join(dir, name);
+                // eslint-disable-next-line no-await-in-loop
+                if ((await fs.stat(source)).isDirectory()) {
+                    // eslint-disable-next-line no-await-in-loop
+                    await mirrorPalDts(source);
+                    continue;
+                }
+                if (!source.endsWith('.d.ts')) {
+                    continue;
+                }
+                const target = ps.join(unbundledOutDirNormalized, ps.relative(engine, source));
+                // eslint-disable-next-line no-await-in-loop
+                await fs.ensureDir(ps.dirname(target));
+                // eslint-disable-next-line no-await-in-loop
+                await fs.copyFile(source, target);
+            }
+        };
+        await mirrorPalDts(palDtsRoot);
+    }
+
     const types = parsedCommandLine.options.types?.map((typeFile) => `${typeFile}.d.ts`);
     if (types) {
         for (const file of types) {
