@@ -1,0 +1,859 @@
+diff --git a/node_modules/@cocos/engine-pal/dist/audio/nodejs/player.d.ts b/node_modules/@cocos/engine-pal/dist/audio/nodejs/player.d.ts
+deleted file mode 100644
+index 01a36fe..0000000
+--- a/node_modules/@cocos/engine-pal/dist/audio/nodejs/player.d.ts
++++ /dev/null
+@@ -1,55 +0,0 @@
+-import { AudioType, AudioState, AudioPCMDataView, AudioLoadOptions } from '../type';
+-import { EventTarget } from '@cocos/engine/cocos/core/event';
+-import { OperationInfo, OperationQueueable } from '../operation-queue';
+-export declare class OneShotAudio {
+-    private _id;
+-    private _onPlayCb?;
+-    get onPlay(): (() => void) | undefined;
+-    set onPlay(cb: (() => void) | undefined);
+-    private _onEndCb?;
+-    get onEnd(): (() => void) | undefined;
+-    set onEnd(cb: (() => void) | undefined);
+-    private constructor();
+-    play(): void;
+-    stop(): void;
+-}
+-export declare class AudioPlayer implements OperationQueueable {
+-    private _id;
+-    private _state;
+-    /**
+-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+-     */
+-    _eventTarget: EventTarget;
+-    /**
+-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+-     */
+-    _operationQueue: OperationInfo[];
+-    private _cachedState;
+-    constructor(url: string);
+-    destroy(): void;
+-    static load(url: string, opts?: AudioLoadOptions): Promise<AudioPlayer>;
+-    static loadNative(url: string, opts?: AudioLoadOptions): Promise<unknown>;
+-    static loadOneShotAudio(url: string, volume: number, opts?: AudioLoadOptions): Promise<OneShotAudio>;
+-    private get _isValid();
+-    get src(): string;
+-    get type(): AudioType;
+-    get state(): AudioState;
+-    get loop(): boolean;
+-    set loop(val: boolean);
+-    get volume(): number;
+-    set volume(val: number);
+-    get duration(): number;
+-    get currentTime(): number;
+-    get sampleRate(): number;
+-    getPCMData(channelIndex: number): AudioPCMDataView | undefined;
+-    seek(time: number): Promise<void>;
+-    play(): Promise<void>;
+-    pause(): Promise<void>;
+-    stop(): Promise<void>;
+-    onInterruptionBegin(cb: () => void): void;
+-    offInterruptionBegin(cb?: () => void): void;
+-    onInterruptionEnd(cb: () => void): void;
+-    offInterruptionEnd(cb?: () => void): void;
+-    onEnded(cb: () => void): void;
+-    offEnded(cb?: () => void): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/audio/nodejs/player.js b/node_modules/@cocos/engine-pal/dist/audio/nodejs/player.js
+deleted file mode 100644
+index 419ce20..0000000
+--- a/node_modules/@cocos/engine-pal/dist/audio/nodejs/player.js
++++ /dev/null
+@@ -1,9 +0,0 @@
+-import { AudioState, AudioType, AudioEvent } from '../type.js';
+-import { EventTarget } from '@cocos/engine/cocos/core/event';
+-import { legacyCC } from '@cocos/engine/cocos/core/global-exports';
+-import { clamp01 } from '@cocos/engine/cocos/core';
+-import { enqueueOperation } from '../operation-queue.js';
+-
+-const INVALID_AUDIO_ID=-1;var AudioBufferFormat;(function(AudioBufferFormat){AudioBufferFormat[AudioBufferFormat["UNKNOWN"]=0]="UNKNOWN";AudioBufferFormat[AudioBufferFormat["SIGNED_8"]=1]="SIGNED_8";AudioBufferFormat[AudioBufferFormat["UNSIGNED_8"]=2]="UNSIGNED_8";AudioBufferFormat[AudioBufferFormat["SIGNED_16"]=3]="SIGNED_16";AudioBufferFormat[AudioBufferFormat["UNSIGNED_16"]=4]="UNSIGNED_16";AudioBufferFormat[AudioBufferFormat["SIGNED_32"]=5]="SIGNED_32";AudioBufferFormat[AudioBufferFormat["UNSIGNED_32"]=6]="UNSIGNED_32";AudioBufferFormat[AudioBufferFormat["FLOAT_32"]=7]="FLOAT_32";AudioBufferFormat[AudioBufferFormat["FLOAT_64"]=8]="FLOAT_64";})(AudioBufferFormat||(AudioBufferFormat={}));({[AudioBufferFormat.UNKNOWN]:undefined,[AudioBufferFormat.SIGNED_8]:{},[AudioBufferFormat.UNSIGNED_8]:{},[AudioBufferFormat.SIGNED_16]:{},[AudioBufferFormat.UNSIGNED_16]:{},[AudioBufferFormat.SIGNED_32]:{},[AudioBufferFormat.UNSIGNED_32]:{},[AudioBufferFormat.FLOAT_32]:{},[AudioBufferFormat.FLOAT_64]:{}});class OneShotAudio{_ccprivate$_id=INVALID_AUDIO_ID;_ccprivate$_onPlayCb;get onPlay(){return this._ccprivate$_onPlayCb}set onPlay(cb){this._ccprivate$_onPlayCb=cb;}_ccprivate$_onEndCb;get onEnd(){return this._ccprivate$_onEndCb}set onEnd(cb){this._ccprivate$_onEndCb=cb;}constructor(url,volume){}play(){}stop(){if(this._ccprivate$_id===INVALID_AUDIO_ID){return}}}class AudioPlayer{_ccprivate$_id=INVALID_AUDIO_ID;_ccprivate$_state=AudioState.INIT;_ccprivate$_eventTarget=new EventTarget;_ccprivate$_operationQueue=[];_ccprivate$_cachedState={duration:1,loop:false,currentTime:0,volume:1};constructor(url){}destroy(){}static load(url,opts){return new Promise((resolve,reject)=>{AudioPlayer.loadNative(url,opts).then(url=>{resolve(new AudioPlayer(url));}).catch(err=>reject(err));})}static loadNative(url,opts){return new Promise((resolve,reject)=>{console.warn("Audio file parsing is not supported.");resolve(url);})}static loadOneShotAudio(url,volume,opts){return new Promise((resolve,reject)=>{AudioPlayer.loadNative(url,opts).then(url=>{resolve(new OneShotAudio(url,volume));}).catch(reject);})}get _isValid(){return this._ccprivate$_id!==INVALID_AUDIO_ID}get src(){return ""}get type(){return AudioType.NATIVE_AUDIO}get state(){return this._ccprivate$_state}get loop(){if(!this._isValid){return this._ccprivate$_cachedState.loop}return false}set loop(val){if(this._isValid);this._ccprivate$_cachedState.loop=val;}get volume(){if(!this._isValid){return this._ccprivate$_cachedState.volume}return 0}set volume(val){val=clamp01(val);if(this._isValid);this._ccprivate$_cachedState.volume=val;}get duration(){if(!this._isValid){return this._ccprivate$_cachedState.duration}return 0}get currentTime(){if(!this._isValid){return this._ccprivate$_cachedState.currentTime}return 0}get sampleRate(){return 0}getPCMData(channelIndex){return undefined}@enqueueOperation seek(time){return new Promise(resolve=>{if(this._isValid);this._ccprivate$_cachedState.currentTime=time;return resolve()})}@enqueueOperation play(){return new Promise(resolve=>{resolve();})}@enqueueOperation pause(){return new Promise(resolve=>{resolve();})}@enqueueOperation stop(){return new Promise(resolve=>{resolve();})}onInterruptionBegin(cb){this._ccprivate$_eventTarget.on(AudioEvent.INTERRUPTION_BEGIN,cb);}offInterruptionBegin(cb){this._ccprivate$_eventTarget.off(AudioEvent.INTERRUPTION_BEGIN,cb);}onInterruptionEnd(cb){this._ccprivate$_eventTarget.on(AudioEvent.INTERRUPTION_END,cb);}offInterruptionEnd(cb){this._ccprivate$_eventTarget.off(AudioEvent.INTERRUPTION_END,cb);}onEnded(cb){this._ccprivate$_eventTarget.on(AudioEvent.ENDED,cb);}offEnded(cb){this._ccprivate$_eventTarget.off(AudioEvent.ENDED,cb);}}legacyCC.AudioPlayer=AudioPlayer;
+-
+-export { AudioPlayer, OneShotAudio };
+diff --git a/node_modules/@cocos/engine-pal/dist/env/nodejs/env.d.ts b/node_modules/@cocos/engine-pal/dist/env/nodejs/env.d.ts
+deleted file mode 100644
+index 70ec6de..0000000
+--- a/node_modules/@cocos/engine-pal/dist/env/nodejs/env.d.ts
++++ /dev/null
+@@ -1,6 +0,0 @@
+-export declare function findCanvas(): {
+-    frame: HTMLDivElement;
+-    container: HTMLDivElement;
+-    canvas: HTMLCanvasElement;
+-};
+-export declare function loadJsFile(path: string): Promise<void>;
+diff --git a/node_modules/@cocos/engine-pal/dist/env/nodejs/env.js b/node_modules/@cocos/engine-pal/dist/env/nodejs/env.js
+deleted file mode 100644
+index 0eacbd6..0000000
+--- a/node_modules/@cocos/engine-pal/dist/env/nodejs/env.js
++++ /dev/null
+@@ -1,3 +0,0 @@
+-function findCanvas(){const frame=document.querySelector("#GameDiv");const container=document.querySelector("#Cocos3dGameContainer");const canvas=document.querySelector("#GameCanvas");return {frame,container,canvas}}function loadJsFile(path){return globalThis.nodeEnv.require(`${path}`)}
+-
+-export { findCanvas, loadJsFile };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/native/mouse-input.js b/node_modules/@cocos/engine-pal/dist/input/native/mouse-input.js
+index bd8cae3..8256eba 100644
+--- a/node_modules/@cocos/engine-pal/dist/input/native/mouse-input.js
++++ b/node_modules/@cocos/engine-pal/dist/input/native/mouse-input.js
+@@ -1,15 +1,8 @@
+ import { screenAdapter } from 'pal/screen-adapter';
+-import { systemInfo } from 'pal/system-info';
+ import { EventMouse } from '@cocos/engine/cocos/input/types';
+ import { EventTarget } from '@cocos/engine/cocos/core/event';
+ import { Vec2 } from '@cocos/engine/cocos/core/math';
+-import '../../system-info/enum-type/browser-type.js';
+-import '../../system-info/enum-type/language.js';
+-import '../../system-info/enum-type/network-type.js';
+-import { OS } from '../../system-info/enum-type/operating-system.js';
+-import '../../system-info/enum-type/platform.js';
+-import '../../system-info/enum-type/feature.js';
+ 
+-class MouseEventElement{type=null;mouseEvent={x:0,y:0,xDelta:0,yDelta:0,button:0,windowId:0,wheelDeltaX:0,wheelDeltaY:0}}class MouseEventCache{_ccprivate$_events=[];_ccprivate$_length=0;push(eventType,mouseEvent){const events=this._ccprivate$_events;const index=this._ccprivate$_length;if(index>=events.length){events.push(new MouseEventElement);}const e=events[index];e.type=eventType;const cachedEvent=e.mouseEvent;if(mouseEvent){Object.assign(cachedEvent,mouseEvent);}else {cachedEvent.x=cachedEvent.y=cachedEvent.xDelta=cachedEvent.yDelta=0;cachedEvent.button=cachedEvent.windowId=cachedEvent.wheelDeltaX=cachedEvent.wheelDeltaY=0;}++this._ccprivate$_length;}clear(){this._ccprivate$_length=0;}forEach(cb){for(let i=0,len=this._ccprivate$_length;i<len;++i){cb(this._ccprivate$_events[i]);}}}class MouseInputSource{_ccprivate$_eventTarget=new EventTarget;_ccprivate$_preMousePos=new Vec2;_ccprivate$_isPressed=false;_ccprivate$_windowManager;_ccprivate$_pointLocked=false;_ccprivate$_cache=new MouseEventCache;_ccprivate$_handleMouseDown;_ccprivate$_handleMouseMove;_ccprivate$_handleMouseUp;_ccprivate$_handleWindowLeave;_ccprivate$_handleWindowEnter;_ccprivate$_handleMouseWheel;constructor(){this._ccprivate$_handleMouseDown=this._ccprivate$_createEventCacheCallback("mouse-down");this._ccprivate$_handleMouseMove=this._ccprivate$_createEventCacheCallback("mouse-move");this._ccprivate$_handleMouseUp=this._ccprivate$_createEventCacheCallback("mouse-up");this._ccprivate$_handleWindowLeave=this._ccprivate$_createEventCacheCallback("mouse-leave-window");this._ccprivate$_handleWindowEnter=this._ccprivate$_createEventCacheCallback("mouse-enter-window");this._ccprivate$_handleMouseWheel=this._ccprivate$_createEventCacheCallback("mouse-wheel");this._ccprivate$_registerEvent();this._ccprivate$_windowManager=jsb.ISystemWindowManager.getInstance();}dispatchMouseDownEvent(nativeMouseEvent){this._ccprivate$_handleMouseDown(nativeMouseEvent);}dispatchMouseMoveEvent(nativeMouseEvent){this._ccprivate$_handleMouseMove(nativeMouseEvent);}dispatchMouseUpEvent(nativeMouseEvent){this._ccprivate$_handleMouseUp(nativeMouseEvent);}dispatchScrollEvent(nativeMouseEvent){this._ccprivate$_handleMouseWheel(nativeMouseEvent);}_ccprivate$_getLocation(event){const window=this._ccprivate$_windowManager.getWindow(event.windowId);const windowSize=window.getViewSize();const dpr=screenAdapter.devicePixelRatio;const x=event.x*dpr;const y=windowSize.height-event.y*dpr;return new Vec2(x,y)}_ccprivate$_registerEvent(){jsb.onMouseDown=this._ccprivate$_handleMouseDown;jsb.onMouseMove=this._ccprivate$_handleMouseMove;jsb.onMouseUp=this._ccprivate$_handleMouseUp;jsb.onMouseWheel=this._ccprivate$_handleMouseWheel;jsb.onPointerlockChange=value=>{this._ccprivate$_pointLocked=value;};jsb.onWindowLeave=this._ccprivate$_handleWindowLeave;jsb.onWindowEnter=this._ccprivate$_handleWindowEnter;}_ccprivate$_createEventCacheCallback(eventType){return mouseEvent=>{this._ccprivate$_cache.push(eventType,mouseEvent);}}dispatchEventsInCache(){const cache=this._ccprivate$_cache;cache.forEach(e=>{switch(e.type){case "mouse-leave-window":this._ccprivate$_dispatchWindowLeave();break;case "mouse-enter-window":this._ccprivate$_dispatchWindowEnter();break;case "mouse-wheel":this._ccprivate$_dispatchMouseWheel(e.mouseEvent);break;default:this._ccprivate$_dispatchEvent(e.type,e.mouseEvent);break}});cache.clear();}_ccprivate$_dispatchEvent(eventType,mouseEvent){const location=this._ccprivate$_getLocation(mouseEvent);let button=mouseEvent.button;switch(eventType){case "mouse-down":this._ccprivate$_isPressed=true;break;case "mouse-up":this._ccprivate$_isPressed=false;break;case "mouse-move":if(!this._ccprivate$_isPressed){button=EventMouse.BUTTON_MISSING;}break;}const eventMouse=new EventMouse(eventType,false,this._ccprivate$_preMousePos,mouseEvent.windowId);eventMouse.setLocation(location.x,location.y);eventMouse.setButton(button);const dpr=screenAdapter.devicePixelRatio;eventMouse.movementX=typeof mouseEvent.xDelta==="undefined"?0:mouseEvent.xDelta*dpr;eventMouse.movementY=typeof mouseEvent.yDelta==="undefined"?0:mouseEvent.yDelta*dpr;this._ccprivate$_preMousePos.set(location.x,location.y);this._ccprivate$_eventTarget.emit(eventType,eventMouse);}_ccprivate$_dispatchMouseWheel(mouseEvent){const eventType="mouse-wheel";const location=this._ccprivate$_getLocation(mouseEvent);const button=mouseEvent.button;const eventMouse=new EventMouse(eventType,false,this._ccprivate$_preMousePos,mouseEvent.windowId);eventMouse.setLocation(location.x,location.y);eventMouse.setButton(button);eventMouse.movementX=location.x-this._ccprivate$_preMousePos.x;eventMouse.movementY=this._ccprivate$_preMousePos.y-location.y;let matchStandardFactor=0;if(systemInfo.os===OS.OPENHARMONY){matchStandardFactor=5;eventMouse.setScrollData(mouseEvent.wheelDeltaX,mouseEvent.wheelDeltaY*matchStandardFactor);}else {matchStandardFactor=120;eventMouse.setScrollData(mouseEvent.wheelDeltaX*matchStandardFactor,mouseEvent.wheelDeltaY*matchStandardFactor);}this._ccprivate$_preMousePos.set(location.x,location.y);this._ccprivate$_eventTarget.emit(eventType,eventMouse);}on(eventType,callback,target){this._ccprivate$_eventTarget.on(eventType,callback,target);}_ccprivate$_dispatchWindowLeave(){const eventType="mouse-leave-window";const eventMouse=new EventMouse(eventType,false);this._ccprivate$_eventTarget.emit(eventType,eventMouse);}_ccprivate$_dispatchWindowEnter(){const eventType="mouse-enter-window";const eventMouse=new EventMouse(eventType,false);this._ccprivate$_eventTarget.emit(eventType,eventMouse);}}
++class MouseEventElement{type=null;mouseEvent={x:0,y:0,xDelta:0,yDelta:0,button:0,windowId:0,wheelDeltaX:0,wheelDeltaY:0}}class MouseEventCache{_ccprivate$_events=[];_ccprivate$_length=0;push(eventType,mouseEvent){const events=this._ccprivate$_events;const index=this._ccprivate$_length;if(index>=events.length){events.push(new MouseEventElement);}const e=events[index];e.type=eventType;const cachedEvent=e.mouseEvent;if(mouseEvent){Object.assign(cachedEvent,mouseEvent);}else {cachedEvent.x=cachedEvent.y=cachedEvent.xDelta=cachedEvent.yDelta=0;cachedEvent.button=cachedEvent.windowId=cachedEvent.wheelDeltaX=cachedEvent.wheelDeltaY=0;}++this._ccprivate$_length;}clear(){this._ccprivate$_length=0;}forEach(cb){for(let i=0,len=this._ccprivate$_length;i<len;++i){cb(this._ccprivate$_events[i]);}}}class MouseInputSource{_ccprivate$_eventTarget=new EventTarget;_ccprivate$_preMousePos=new Vec2;_ccprivate$_isPressed=false;_ccprivate$_windowManager;_ccprivate$_pointLocked=false;_ccprivate$_cache=new MouseEventCache;_ccprivate$_handleMouseDown;_ccprivate$_handleMouseMove;_ccprivate$_handleMouseUp;_ccprivate$_handleWindowLeave;_ccprivate$_handleWindowEnter;_ccprivate$_handleMouseWheel;constructor(){this._ccprivate$_handleMouseDown=this._ccprivate$_createEventCacheCallback("mouse-down");this._ccprivate$_handleMouseMove=this._ccprivate$_createEventCacheCallback("mouse-move");this._ccprivate$_handleMouseUp=this._ccprivate$_createEventCacheCallback("mouse-up");this._ccprivate$_handleWindowLeave=this._ccprivate$_createEventCacheCallback("mouse-leave-window");this._ccprivate$_handleWindowEnter=this._ccprivate$_createEventCacheCallback("mouse-enter-window");this._ccprivate$_handleMouseWheel=this._ccprivate$_createEventCacheCallback("mouse-wheel");this._ccprivate$_registerEvent();this._ccprivate$_windowManager=jsb.ISystemWindowManager.getInstance();}dispatchMouseDownEvent(nativeMouseEvent){this._ccprivate$_handleMouseDown(nativeMouseEvent);}dispatchMouseMoveEvent(nativeMouseEvent){this._ccprivate$_handleMouseMove(nativeMouseEvent);}dispatchMouseUpEvent(nativeMouseEvent){this._ccprivate$_handleMouseUp(nativeMouseEvent);}dispatchScrollEvent(nativeMouseEvent){this._ccprivate$_handleMouseWheel(nativeMouseEvent);}_ccprivate$_getLocation(event){const window=this._ccprivate$_windowManager.getWindow(event.windowId);const windowSize=window.getViewSize();const dpr=screenAdapter.devicePixelRatio;const x=event.x*dpr;const y=windowSize.height-event.y*dpr;return new Vec2(x,y)}_ccprivate$_registerEvent(){jsb.onMouseDown=this._ccprivate$_handleMouseDown;jsb.onMouseMove=this._ccprivate$_handleMouseMove;jsb.onMouseUp=this._ccprivate$_handleMouseUp;jsb.onMouseWheel=this._ccprivate$_handleMouseWheel;jsb.onPointerlockChange=value=>{this._ccprivate$_pointLocked=value;};jsb.onWindowLeave=this._ccprivate$_handleWindowLeave;jsb.onWindowEnter=this._ccprivate$_handleWindowEnter;}_ccprivate$_createEventCacheCallback(eventType){return mouseEvent=>{this._ccprivate$_cache.push(eventType,mouseEvent);}}dispatchEventsInCache(){const cache=this._ccprivate$_cache;cache.forEach(e=>{switch(e.type){case "mouse-leave-window":this._ccprivate$_dispatchWindowLeave();break;case "mouse-enter-window":this._ccprivate$_dispatchWindowEnter();break;case "mouse-wheel":this._ccprivate$_dispatchMouseWheel(e.mouseEvent);break;default:this._ccprivate$_dispatchEvent(e.type,e.mouseEvent);break}});cache.clear();}_ccprivate$_dispatchEvent(eventType,mouseEvent){const location=this._ccprivate$_getLocation(mouseEvent);let button=mouseEvent.button;switch(eventType){case "mouse-down":this._ccprivate$_isPressed=true;break;case "mouse-up":this._ccprivate$_isPressed=false;break;case "mouse-move":if(!this._ccprivate$_isPressed){button=EventMouse.BUTTON_MISSING;}break;}const eventMouse=new EventMouse(eventType,false,this._ccprivate$_preMousePos,mouseEvent.windowId);eventMouse.setLocation(location.x,location.y);eventMouse.setButton(button);const dpr=screenAdapter.devicePixelRatio;eventMouse.movementX=typeof mouseEvent.xDelta==="undefined"?0:mouseEvent.xDelta*dpr;eventMouse.movementY=typeof mouseEvent.yDelta==="undefined"?0:mouseEvent.yDelta*dpr;this._ccprivate$_preMousePos.set(location.x,location.y);this._ccprivate$_eventTarget.emit(eventType,eventMouse);}_ccprivate$_dispatchMouseWheel(mouseEvent){const eventType="mouse-wheel";const location=this._ccprivate$_getLocation(mouseEvent);const button=mouseEvent.button;const eventMouse=new EventMouse(eventType,false,this._ccprivate$_preMousePos,mouseEvent.windowId);eventMouse.setLocation(location.x,location.y);eventMouse.setButton(button);eventMouse.movementX=location.x-this._ccprivate$_preMousePos.x;eventMouse.movementY=this._ccprivate$_preMousePos.y-location.y;const matchStandardFactor=120;eventMouse.setScrollData(mouseEvent.wheelDeltaX*matchStandardFactor,mouseEvent.wheelDeltaY*matchStandardFactor);this._ccprivate$_preMousePos.set(location.x,location.y);this._ccprivate$_eventTarget.emit(eventType,eventMouse);}on(eventType,callback,target){this._ccprivate$_eventTarget.on(eventType,callback,target);}_ccprivate$_dispatchWindowLeave(){const eventType="mouse-leave-window";const eventMouse=new EventMouse(eventType,false);this._ccprivate$_eventTarget.emit(eventType,eventMouse);}_ccprivate$_dispatchWindowEnter(){const eventType="mouse-enter-window";const eventMouse=new EventMouse(eventType,false);this._ccprivate$_eventTarget.emit(eventType,eventMouse);}}
+ 
+ export { MouseInputSource };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/accelerometer-input.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/accelerometer-input.d.ts
+deleted file mode 100644
+index 99c3c98..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/accelerometer-input.d.ts
++++ /dev/null
+@@ -1,10 +0,0 @@
+-import { EventAcceleration } from '@cocos/engine/cocos/input/types';
+-import { InputEventType } from '@cocos/engine/cocos/input/types/event-enum';
+-export type AccelerometerCallback = (res: EventAcceleration) => void;
+-export declare class AccelerometerInputSource {
+-    constructor();
+-    start(): void;
+-    stop(): void;
+-    setInterval(intervalInMileseconds: number): void;
+-    on(eventType: InputEventType, callback: AccelerometerCallback, target?: any): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/accelerometer-input.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/accelerometer-input.js
+deleted file mode 100644
+index 7c1d57b..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/accelerometer-input.js
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class AccelerometerInputSource{constructor(){}start(){}stop(){}setInterval(intervalInMileseconds){}on(eventType,callback,target){}}
+-
+-export { AccelerometerInputSource };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/gamepad-input.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/gamepad-input.d.ts
+deleted file mode 100644
+index 61e2b0a..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/gamepad-input.d.ts
++++ /dev/null
+@@ -1,72 +0,0 @@
+-import { InputEventType } from '@cocos/engine/cocos/input/types/event-enum';
+-import { EventGamepad } from '@cocos/engine/cocos/input/types';
+-import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
+-export type GamepadCallback = (res: EventGamepad) => void;
+-export declare class GamepadInputDevice {
+-    static all: GamepadInputDevice[];
+-    static xr: (GamepadInputDevice | null);
+-    get buttonNorth(): InputSourceButton;
+-    get buttonEast(): InputSourceButton;
+-    get buttonWest(): InputSourceButton;
+-    get buttonSouth(): InputSourceButton;
+-    get buttonL1(): InputSourceButton;
+-    get buttonL2(): InputSourceButton;
+-    get buttonL3(): InputSourceButton;
+-    get buttonR1(): InputSourceButton;
+-    get buttonR2(): InputSourceButton;
+-    get buttonR3(): InputSourceButton;
+-    get buttonShare(): InputSourceButton;
+-    get buttonOptions(): InputSourceButton;
+-    get dpad(): InputSourceDpad;
+-    get leftStick(): InputSourceStick;
+-    get rightStick(): InputSourceStick;
+-    get buttonStart(): InputSourceButton;
+-    get gripLeft(): InputSourceButton;
+-    get gripRight(): InputSourceButton;
+-    get handLeftPosition(): InputSourcePosition;
+-    get handLeftOrientation(): InputSourceOrientation;
+-    get handRightPosition(): InputSourcePosition;
+-    get handRightOrientation(): InputSourceOrientation;
+-    get aimLeftPosition(): InputSourcePosition;
+-    get aimLeftOrientation(): InputSourceOrientation;
+-    get aimRightPosition(): InputSourcePosition;
+-    get aimRightOrientation(): InputSourceOrientation;
+-    get deviceId(): number;
+-    get connected(): boolean;
+-    private static _eventTarget;
+-    private _buttonNorth;
+-    private _buttonEast;
+-    private _buttonWest;
+-    private _buttonSouth;
+-    private _buttonL1;
+-    private _buttonL2;
+-    private _buttonL3;
+-    private _buttonR1;
+-    private _buttonR2;
+-    private _buttonR3;
+-    private _buttonShare;
+-    private _buttonOptions;
+-    private _dpad;
+-    private _leftStick;
+-    private _rightStick;
+-    private _buttonStart;
+-    private _gripLeft;
+-    private _gripRight;
+-    private _handLeftPosition;
+-    private _handLeftOrientation;
+-    private _handRightPosition;
+-    private _handRightOrientation;
+-    private _aimLeftPosition;
+-    private _aimLeftOrientation;
+-    private _aimRightPosition;
+-    private _aimRightOrientation;
+-    constructor(deviceId: number);
+-    /**
+-     * @engineInternal
+-     */
+-    static _init(): void;
+-    /**
+-     * @engineInternal
+-     */
+-    static _on(eventType: InputEventType, cb: GamepadCallback, target?: any): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/gamepad-input.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/gamepad-input.js
+deleted file mode 100644
+index e829838..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/gamepad-input.js
++++ /dev/null
+@@ -1,12 +0,0 @@
+-import { systemInfo } from 'pal/system-info';
+-import '../../system-info/enum-type/browser-type.js';
+-import '../../system-info/enum-type/language.js';
+-import '../../system-info/enum-type/network-type.js';
+-import '../../system-info/enum-type/operating-system.js';
+-import '../../system-info/enum-type/platform.js';
+-import { Feature } from '../../system-info/enum-type/feature.js';
+-import { EventTarget } from '@cocos/engine/cocos/core/event/event-target';
+-
+-class GamepadInputDevice{static all=[];static xr=null;get buttonNorth(){return this._ccprivate$_buttonNorth}get buttonEast(){return this._ccprivate$_buttonEast}get buttonWest(){return this._ccprivate$_buttonWest}get buttonSouth(){return this._ccprivate$_buttonSouth}get buttonL1(){return this._ccprivate$_buttonL1}get buttonL2(){return this._ccprivate$_buttonL2}get buttonL3(){return this._ccprivate$_buttonL3}get buttonR1(){return this._ccprivate$_buttonR1}get buttonR2(){return this._ccprivate$_buttonR2}get buttonR3(){return this._ccprivate$_buttonR3}get buttonShare(){return this._ccprivate$_buttonShare}get buttonOptions(){return this._ccprivate$_buttonOptions}get dpad(){return this._ccprivate$_dpad}get leftStick(){return this._ccprivate$_leftStick}get rightStick(){return this._ccprivate$_rightStick}get buttonStart(){return this._ccprivate$_buttonStart}get gripLeft(){return this._ccprivate$_gripLeft}get gripRight(){return this._ccprivate$_gripRight}get handLeftPosition(){return this._ccprivate$_handLeftPosition}get handLeftOrientation(){return this._ccprivate$_handLeftOrientation}get handRightPosition(){return this._ccprivate$_handRightPosition}get handRightOrientation(){return this._ccprivate$_handRightOrientation}get aimLeftPosition(){return this._ccprivate$_aimLeftPosition}get aimLeftOrientation(){return this._ccprivate$_aimLeftOrientation}get aimRightPosition(){return this._ccprivate$_aimRightPosition}get aimRightOrientation(){return this._ccprivate$_aimRightOrientation}get deviceId(){return 0}get connected(){return false}static _ccprivate$_eventTarget=new EventTarget;constructor(deviceId){}static _init(){if(!systemInfo.hasFeature(Feature.EVENT_GAMEPAD)){return}}static _on(eventType,cb,target){GamepadInputDevice._ccprivate$_eventTarget.on(eventType,cb,target);}}
+-
+-export { GamepadInputDevice };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/handheld-input.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/handheld-input.d.ts
+deleted file mode 100644
+index dc54f7e..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/handheld-input.d.ts
++++ /dev/null
+@@ -1,16 +0,0 @@
+-import { InputEventType } from '@cocos/engine/cocos/input/types/event-enum';
+-import { EventHandheld } from '@cocos/engine/cocos/input/types';
+-import { InputSourcePosition, InputSourceOrientation } from '../input-source';
+-export type HandheldCallback = (res: EventHandheld) => void;
+-export declare class HandheldInputDevice {
+-    get handheldPosition(): InputSourcePosition;
+-    get handheldOrientation(): InputSourceOrientation;
+-    private _eventTarget;
+-    private _handheldPosition;
+-    private _handheldOrientation;
+-    constructor();
+-    /**
+-     * @engineInternal
+-     */
+-    _on(eventType: InputEventType, callback: HandheldCallback, target?: any): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/handheld-input.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/handheld-input.js
+deleted file mode 100644
+index 9382c69..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/handheld-input.js
++++ /dev/null
+@@ -1,5 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event/event-target';
+-
+-class HandheldInputDevice{get handheldPosition(){return this._ccprivate$_handheldPosition}get handheldOrientation(){return this._ccprivate$_handheldOrientation}_ccprivate$_eventTarget=new EventTarget;constructor(){}_on(eventType,callback,target){this._ccprivate$_eventTarget.on(eventType,callback,target);}}
+-
+-export { HandheldInputDevice };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/handle-input.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/handle-input.d.ts
+deleted file mode 100644
+index 31b5dff..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/handle-input.d.ts
++++ /dev/null
+@@ -1,76 +0,0 @@
+-import { InputEventType } from '@cocos/engine/cocos/input/types/event-enum';
+-import { EventHandle } from '@cocos/engine/cocos/input/types';
+-import { InputSourceButton, InputSourceStick, InputSourcePosition, InputSourceOrientation, InputSourceTouch } from '../input-source';
+-export type HandleCallback = (res: EventHandle) => void;
+-export declare class HandleInputDevice {
+-    get buttonNorth(): InputSourceButton;
+-    get buttonEast(): InputSourceButton;
+-    get buttonWest(): InputSourceButton;
+-    get buttonSouth(): InputSourceButton;
+-    get buttonTriggerLeft(): InputSourceButton;
+-    get buttonTriggerRight(): InputSourceButton;
+-    get triggerLeft(): InputSourceButton;
+-    get triggerRight(): InputSourceButton;
+-    get gripLeft(): InputSourceButton;
+-    get gripRight(): InputSourceButton;
+-    get leftStick(): InputSourceStick;
+-    get rightStick(): InputSourceStick;
+-    get buttonLeftStick(): InputSourceButton;
+-    get buttonRightStick(): InputSourceButton;
+-    get buttonOptions(): InputSourceButton;
+-    get buttonStart(): InputSourceButton;
+-    get handLeftPosition(): InputSourcePosition;
+-    get handLeftOrientation(): InputSourceOrientation;
+-    get handRightPosition(): InputSourcePosition;
+-    get handRightOrientation(): InputSourceOrientation;
+-    get aimLeftPosition(): InputSourcePosition;
+-    get aimLeftOrientation(): InputSourceOrientation;
+-    get aimRightPosition(): InputSourcePosition;
+-    get aimRightOrientation(): InputSourceOrientation;
+-    get touchButtonA(): InputSourceTouch;
+-    get touchButtonB(): InputSourceTouch;
+-    get touchButtonX(): InputSourceTouch;
+-    get touchButtonY(): InputSourceTouch;
+-    get touchButtonTriggerLeft(): InputSourceTouch;
+-    get touchButtonTriggerRight(): InputSourceTouch;
+-    get touchButtonThumbStickLeft(): InputSourceTouch;
+-    get touchButtonThumbStickRight(): InputSourceTouch;
+-    private _eventTarget;
+-    private _buttonNorth;
+-    private _buttonEast;
+-    private _buttonWest;
+-    private _buttonSouth;
+-    private _buttonTriggerLeft;
+-    private _buttonTriggerRight;
+-    private _triggerLeft;
+-    private _triggerRight;
+-    private _gripLeft;
+-    private _gripRight;
+-    private _leftStick;
+-    private _rightStick;
+-    private _buttonLeftStick;
+-    private _buttonRightStick;
+-    private _buttonOptions;
+-    private _buttonStart;
+-    private _handLeftPosition;
+-    private _handLeftOrientation;
+-    private _handRightPosition;
+-    private _handRightOrientation;
+-    private _aimLeftPosition;
+-    private _aimLeftOrientation;
+-    private _aimRightPosition;
+-    private _aimRightOrientation;
+-    private _touchButtonA;
+-    private _touchButtonB;
+-    private _touchButtonX;
+-    private _touchButtonY;
+-    private _touchButtonTriggerLeft;
+-    private _touchButtonTriggerRight;
+-    private _touchButtonThumbStickLeft;
+-    private _touchButtonThumbStickRight;
+-    constructor();
+-    /**
+-     * @engineInternal
+-     */
+-    _on(eventType: InputEventType, callback: HandleCallback, target?: any): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/handle-input.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/handle-input.js
+deleted file mode 100644
+index 11cd03a..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/handle-input.js
++++ /dev/null
+@@ -1,5 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event/event-target';
+-
+-class HandleInputDevice{get buttonNorth(){return this._ccprivate$_buttonNorth}get buttonEast(){return this._ccprivate$_buttonEast}get buttonWest(){return this._ccprivate$_buttonWest}get buttonSouth(){return this._ccprivate$_buttonSouth}get buttonTriggerLeft(){return this._ccprivate$_buttonTriggerLeft}get buttonTriggerRight(){return this._ccprivate$_buttonTriggerRight}get triggerLeft(){return this._ccprivate$_triggerLeft}get triggerRight(){return this._ccprivate$_triggerRight}get gripLeft(){return this._ccprivate$_gripLeft}get gripRight(){return this._ccprivate$_gripRight}get leftStick(){return this._ccprivate$_leftStick}get rightStick(){return this._ccprivate$_rightStick}get buttonLeftStick(){return this._ccprivate$_buttonLeftStick}get buttonRightStick(){return this._ccprivate$_buttonRightStick}get buttonOptions(){return this._ccprivate$_buttonOptions}get buttonStart(){return this._ccprivate$_buttonStart}get handLeftPosition(){return this._ccprivate$_handLeftPosition}get handLeftOrientation(){return this._ccprivate$_handLeftOrientation}get handRightPosition(){return this._ccprivate$_handRightPosition}get handRightOrientation(){return this._ccprivate$_handRightOrientation}get aimLeftPosition(){return this._ccprivate$_aimLeftPosition}get aimLeftOrientation(){return this._ccprivate$_aimLeftOrientation}get aimRightPosition(){return this._ccprivate$_aimRightPosition}get aimRightOrientation(){return this._ccprivate$_aimRightOrientation}get touchButtonA(){return this._ccprivate$_touchButtonA}get touchButtonB(){return this._ccprivate$_touchButtonB}get touchButtonX(){return this._ccprivate$_touchButtonX}get touchButtonY(){return this._ccprivate$_touchButtonY}get touchButtonTriggerLeft(){return this._ccprivate$_touchButtonTriggerLeft}get touchButtonTriggerRight(){return this._ccprivate$_touchButtonTriggerRight}get touchButtonThumbStickLeft(){return this._ccprivate$_touchButtonThumbStickLeft}get touchButtonThumbStickRight(){return this._ccprivate$_touchButtonThumbStickRight}_ccprivate$_eventTarget=new EventTarget;constructor(){}_on(eventType,callback,target){this._ccprivate$_eventTarget.on(eventType,callback,target);}}
+-
+-export { HandleInputDevice };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/hmd-input.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/hmd-input.d.ts
+deleted file mode 100644
+index 820dca6..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/hmd-input.d.ts
++++ /dev/null
+@@ -1,24 +0,0 @@
+-import { InputEventType } from '@cocos/engine/cocos/input/types/event-enum';
+-import { EventHMD } from '@cocos/engine/cocos/input/types';
+-import { InputSourcePosition, InputSourceOrientation } from '../input-source';
+-export type HMDCallback = (res: EventHMD) => void;
+-export declare class HMDInputDevice {
+-    get viewLeftPosition(): InputSourcePosition;
+-    get viewLeftOrientation(): InputSourceOrientation;
+-    get viewRightPosition(): InputSourcePosition;
+-    get viewRightOrientation(): InputSourceOrientation;
+-    get headMiddlePosition(): InputSourcePosition;
+-    get headMiddleOrientation(): InputSourceOrientation;
+-    private _eventTarget;
+-    private _viewLeftPosition;
+-    private _viewLeftOrientation;
+-    private _viewRightPosition;
+-    private _viewRightOrientation;
+-    private _headMiddlePosition;
+-    private _headMiddleOrientation;
+-    constructor();
+-    /**
+-     * @engineInternal
+-     */
+-    _on(eventType: InputEventType, callback: HMDCallback, target?: any): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/hmd-input.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/hmd-input.js
+deleted file mode 100644
+index 130bd3f..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/hmd-input.js
++++ /dev/null
+@@ -1,5 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event/event-target';
+-
+-var Pose;(function(Pose){Pose[Pose["VIEW_LEFT"]=0]="VIEW_LEFT";Pose[Pose["VIEW_RIGHT"]=1]="VIEW_RIGHT";Pose[Pose["HEAD_MIDDLE"]=2]="HEAD_MIDDLE";})(Pose||(Pose={}));class HMDInputDevice{get viewLeftPosition(){return this._ccprivate$_viewLeftPosition}get viewLeftOrientation(){return this._ccprivate$_viewLeftOrientation}get viewRightPosition(){return this._ccprivate$_viewRightPosition}get viewRightOrientation(){return this._ccprivate$_viewRightOrientation}get headMiddlePosition(){return this._ccprivate$_headMiddlePosition}get headMiddleOrientation(){return this._ccprivate$_headMiddleOrientation}_ccprivate$_eventTarget=new EventTarget;constructor(){}_on(eventType,callback,target){this._ccprivate$_eventTarget.on(eventType,callback,target);}}
+-
+-export { HMDInputDevice };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/index.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/index.d.ts
+deleted file mode 100644
+index 61ba7b3..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/index.d.ts
++++ /dev/null
+@@ -1,8 +0,0 @@
+-export * from './accelerometer-input';
+-export * from './gamepad-input';
+-export * from './handle-input';
+-export * from './hmd-input';
+-export * from './handheld-input';
+-export * from './keyboard-input';
+-export * from './mouse-input';
+-export * from './touch-input';
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/index.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/index.js
+deleted file mode 100644
+index 9e91fe5..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/index.js
++++ /dev/null
+@@ -1,8 +0,0 @@
+-export { AccelerometerInputSource } from './accelerometer-input.js';
+-export { GamepadInputDevice } from './gamepad-input.js';
+-export { HandleInputDevice } from './handle-input.js';
+-export { HMDInputDevice } from './hmd-input.js';
+-export { HandheldInputDevice } from './handheld-input.js';
+-export { KeyboardInputSource } from './keyboard-input.js';
+-export { MouseInputSource } from './mouse-input.js';
+-export { TouchInputSource } from './touch-input.js';
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/keyboard-input.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/keyboard-input.d.ts
+deleted file mode 100644
+index 5de42c6..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/keyboard-input.d.ts
++++ /dev/null
+@@ -1,10 +0,0 @@
+-import { EventKeyboard } from '@cocos/engine/cocos/input/types';
+-import { InputEventType } from '@cocos/engine/cocos/input/types/event-enum';
+-export type KeyboardCallback = (res: EventKeyboard) => void;
+-export declare class KeyboardInputSource {
+-    private _eventTarget;
+-    constructor();
+-    dispatchKeyboardDownEvent(nativeKeyboardEvent: jsb.KeyboardEvent): void;
+-    dispatchKeyboardUpEvent(nativeKeyboardEvent: jsb.KeyboardEvent): void;
+-    on(eventType: InputEventType, callback: KeyboardCallback, target?: any): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/keyboard-input.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/keyboard-input.js
+deleted file mode 100644
+index bb5a879..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/keyboard-input.js
++++ /dev/null
+@@ -1,5 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event';
+-
+-class KeyboardInputSource{_ccprivate$_eventTarget=new EventTarget;constructor(){}dispatchKeyboardDownEvent(nativeKeyboardEvent){}dispatchKeyboardUpEvent(nativeKeyboardEvent){}on(eventType,callback,target){this._ccprivate$_eventTarget.on(eventType,callback,target);}}
+-
+-export { KeyboardInputSource };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/mouse-input.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/mouse-input.d.ts
+deleted file mode 100644
+index eb2caa4..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/mouse-input.d.ts
++++ /dev/null
+@@ -1,13 +0,0 @@
+-import { EventMouse } from '@cocos/engine/cocos/input/types';
+-import { InputEventType } from '@cocos/engine/cocos/input/types/event-enum';
+-export type MouseCallback = (res: EventMouse) => void;
+-export declare class MouseInputSource {
+-    private _eventTarget;
+-    constructor();
+-    dispatchMouseDownEvent(nativeMouseEvent: any): void;
+-    dispatchMouseMoveEvent(nativeMouseEvent: any): void;
+-    dispatchMouseUpEvent(nativeMouseEvent: any): void;
+-    dispatchScrollEvent(nativeMouseEvent: any): void;
+-    dispatchEventsInCache(): void;
+-    on(eventType: InputEventType, callback: MouseCallback, target?: any): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/mouse-input.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/mouse-input.js
+deleted file mode 100644
+index b39fa67..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/mouse-input.js
++++ /dev/null
+@@ -1,5 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event';
+-
+-class MouseInputSource{_ccprivate$_eventTarget=new EventTarget;constructor(){}dispatchMouseDownEvent(nativeMouseEvent){}dispatchMouseMoveEvent(nativeMouseEvent){}dispatchMouseUpEvent(nativeMouseEvent){}dispatchScrollEvent(nativeMouseEvent){}dispatchEventsInCache(){}on(eventType,callback,target){this._ccprivate$_eventTarget.on(eventType,callback,target);}}
+-
+-export { MouseInputSource };
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/touch-input.d.ts b/node_modules/@cocos/engine-pal/dist/input/nodejs/touch-input.d.ts
+deleted file mode 100644
+index c4c3c42..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/touch-input.d.ts
++++ /dev/null
+@@ -1,9 +0,0 @@
+-import { EventTouch } from '@cocos/engine/cocos/input/types';
+-import { InputEventType } from '@cocos/engine/cocos/input/types/event-enum';
+-export type TouchCallback = (res: EventTouch) => void;
+-export declare class TouchInputSource {
+-    private _eventTarget;
+-    constructor();
+-    dispatchEventsInCache(): void;
+-    on(eventType: InputEventType, callback: TouchCallback, target?: any): void;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/input/nodejs/touch-input.js b/node_modules/@cocos/engine-pal/dist/input/nodejs/touch-input.js
+deleted file mode 100644
+index 7b2852d..0000000
+--- a/node_modules/@cocos/engine-pal/dist/input/nodejs/touch-input.js
++++ /dev/null
+@@ -1,5 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event';
+-
+-class TouchInputSource{_ccprivate$_eventTarget=new EventTarget;constructor(){}dispatchEventsInCache(){}on(eventType,callback,target){this._ccprivate$_eventTarget.on(eventType,callback,target);}}
+-
+-export { TouchInputSource };
+diff --git a/node_modules/@cocos/engine-pal/dist/minigame/alipay.js b/node_modules/@cocos/engine-pal/dist/minigame/alipay.js
+index 2a076b0..7fd4074 100644
+--- a/node_modules/@cocos/engine-pal/dist/minigame/alipay.js
++++ b/node_modules/@cocos/engine-pal/dist/minigame/alipay.js
+@@ -1,6 +1,6 @@
+ import { Orientation } from '../screen-adapter/enum-type/orientation.js';
+ import { cloneObject, createInnerAudioContextPolyfill } from '../utils.js';
+ 
+-const minigame={};cloneObject(minigame,my);const systemInfo=minigame.getSystemInfoSync();minigame.isDevTool=window.navigator&&/AlipayIDE/.test(window.navigator.userAgent);minigame.isLandscape=systemInfo.screenWidth>systemInfo.screenHeight;const landscapeOrientation=Orientation.LANDSCAPE_RIGHT;Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});minigame.onTouchStart=function(cb){window.canvas.addEventListener("touchstart",res=>{cb&&cb(res);});};minigame.onTouchMove=function(cb){window.canvas.addEventListener("touchmove",res=>{cb&&cb(res);});};minigame.onTouchEnd=function(cb){window.canvas.addEventListener("touchend",res=>{cb&&cb(res);});};minigame.onTouchCancel=function(cb){window.canvas.addEventListener("touchcancel",res=>{cb&&cb(res);});};const polyfilledCreateInnerAudio=createInnerAudioContextPolyfill(my,{onPlay:true,onPause:true,onStop:false,onSeek:false},true);minigame.createInnerAudioContext=function(){const audio=polyfilledCreateInnerAudio();if(audio.onCanPlay){audio.onCanplay=audio.onCanPlay.bind(audio);delete audio.onCanPlay;}if(audio.offCanPlay){audio.offCanplay=audio.offCanPlay.bind(audio);delete audio.offCanPlay;}return audio};let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;const tmp=x;x=-y*orientationFactor;y=tmp*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){my.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){my.onAccelerometerChange(_accelerometerCb);}else {console.error("minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on alipay platform");}};minigame.stopAccelerometer=function(res){minigame.offAccelerometerChange();};minigame.getSafeArea=function(){if(typeof minigame.getWindowInfo==="function"){const windowInfo=minigame.getWindowInfo();return windowInfo.safeArea}console.warn("getSafeArea is not supported on this platform");const systemInfo=minigame.getSystemInfoSync();return {top:0,left:0,bottom:systemInfo.windowHeight,right:systemInfo.windowWidth,width:systemInfo.windowWidth,height:systemInfo.windowHeight}};
++const minigame={};cloneObject(minigame,my);const systemInfo=minigame.getSystemInfoSync();minigame.isDevTool=window.navigator&&/AlipayIDE/.test(window.navigator.userAgent);minigame.isLandscape=systemInfo.screenWidth>systemInfo.screenHeight;const landscapeOrientation=Orientation.LANDSCAPE_RIGHT;Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});minigame.onTouchStart=function(cb){window.canvas.addEventListener("touchstart",res=>{cb&&cb(res);});};minigame.onTouchMove=function(cb){window.canvas.addEventListener("touchmove",res=>{cb&&cb(res);});};minigame.onTouchEnd=function(cb){window.canvas.addEventListener("touchend",res=>{cb&&cb(res);});};minigame.onTouchCancel=function(cb){window.canvas.addEventListener("touchcancel",res=>{cb&&cb(res);});};const polyfilledCreateInnerAudio=createInnerAudioContextPolyfill(my,{onPlay:true,onPause:true,onStop:false,onSeek:false},true);minigame.createInnerAudioContext=function(){const audio=polyfilledCreateInnerAudio();if(audio.onCanPlay){audio.onCanplay=audio.onCanPlay.bind(audio);delete audio.onCanPlay;}if(audio.offCanPlay){audio.offCanplay=audio.offCanPlay.bind(audio);delete audio.offCanPlay;}return audio};let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;const tmp=x;x=-y*orientationFactor;y=tmp*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){my.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){my.onAccelerometerChange(_accelerometerCb);}else {console.error("minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on alipay platform");}};minigame.stopAccelerometer=function(res){minigame.offAccelerometerChange();};minigame.getSafeArea=function(){console.warn("getSafeArea is not supported on this platform");const systemInfo=minigame.getSystemInfoSync();return {top:0,left:0,bottom:systemInfo.windowHeight,right:systemInfo.windowWidth,width:systemInfo.windowWidth,height:systemInfo.windowHeight}};
+ 
+ export { minigame };
+diff --git a/node_modules/@cocos/engine-pal/dist/minigame/bytedance.js b/node_modules/@cocos/engine-pal/dist/minigame/bytedance.js
+index ddd3ec4..46db4df 100644
+--- a/node_modules/@cocos/engine-pal/dist/minigame/bytedance.js
++++ b/node_modules/@cocos/engine-pal/dist/minigame/bytedance.js
+@@ -1,6 +1,6 @@
+ import { Orientation } from '../screen-adapter/enum-type/orientation.js';
+ import { cloneObject, createInnerAudioContextPolyfill } from '../utils.js';
+ 
+-const minigame={};cloneObject(minigame,tt);minigame.tt={};minigame.tt.getAudioContext=tt.getAudioContext?.bind(tt);const systemInfo=minigame.getSystemInfoSync();minigame.isDevTool=systemInfo.platform==="devtools";minigame.isLandscape=systemInfo.screenWidth>systemInfo.screenHeight;let landscapeOrientation=Orientation.LANDSCAPE_RIGHT;tt.onDeviceOrientationChange(res=>{if(res.value==="landscape"){landscapeOrientation=Orientation.LANDSCAPE_RIGHT;}else if(res.value==="landscapeReverse"){landscapeOrientation=Orientation.LANDSCAPE_LEFT;}});Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;const tmp=x;x=-y*orientationFactor;y=tmp*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){tt.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){tt.onAccelerometerChange(_accelerometerCb);}tt.startAccelerometer(res);};minigame.createInnerAudioContext=createInnerAudioContextPolyfill(tt,{onPlay:true,onPause:true,onStop:true,onSeek:true});minigame.getSafeArea=function(){const locSystemInfo=tt.getSystemInfoSync();let{top,left,right}=locSystemInfo.safeArea;const{bottom,width,height}=locSystemInfo.safeArea;if(locSystemInfo.platform==="ios"&&!minigame.isDevTool&&minigame.isLandscape){const tmpTop=top;const tmpLeft=left;const tmpRight=right;top=tmpLeft;left=tmpTop;right=tmpRight-tmpTop;}return {top,left,bottom,right,width,height}};
++const minigame={};cloneObject(minigame,tt);minigame.tt={};minigame.tt.getAudioContext=tt.getAudioContext?.bind(tt);let systemInfo=minigame.getSystemInfoSync();minigame.getSystemInfoSync=()=>systemInfo;minigame.onWindowResize?.(()=>{systemInfo=minigame.getSystemInfoSync();});minigame.isDevTool=systemInfo.platform==="devtools";minigame.isLandscape=systemInfo.screenWidth>systemInfo.screenHeight;let landscapeOrientation=Orientation.LANDSCAPE_RIGHT;tt.onDeviceOrientationChange(res=>{if(res.value==="landscape"){landscapeOrientation=Orientation.LANDSCAPE_RIGHT;}else if(res.value==="landscapeReverse"){landscapeOrientation=Orientation.LANDSCAPE_LEFT;}});Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;const tmp=x;x=-y*orientationFactor;y=tmp*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){tt.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){tt.onAccelerometerChange(_accelerometerCb);}tt.startAccelerometer(res);};minigame.createInnerAudioContext=createInnerAudioContextPolyfill(tt,{onPlay:true,onPause:true,onStop:true,onSeek:true});minigame.getSafeArea=function(){const locSystemInfo=tt.getSystemInfoSync();let{top,left,right}=locSystemInfo.safeArea;const{bottom,width,height}=locSystemInfo.safeArea;if(locSystemInfo.platform==="ios"&&!minigame.isDevTool&&minigame.isLandscape){const tmpTop=top;const tmpLeft=left;const tmpRight=right;top=tmpLeft;left=tmpTop;right=tmpRight-tmpTop;}return {top,left,bottom,right,width,height}};
+ 
+ export { minigame };
+diff --git a/node_modules/@cocos/engine-pal/dist/minigame/taobao.js b/node_modules/@cocos/engine-pal/dist/minigame/taobao.js
+index 31c1b31..4aca07f 100644
+--- a/node_modules/@cocos/engine-pal/dist/minigame/taobao.js
++++ b/node_modules/@cocos/engine-pal/dist/minigame/taobao.js
+@@ -7,6 +7,6 @@ import '../system-info/enum-type/operating-system.js';
+ import '../system-info/enum-type/platform.js';
+ import '../system-info/enum-type/feature.js';
+ 
+-const languageMap={Chinese:Language.CHINESE,cn:Language.CHINESE,zh_CN:Language.CHINESE};const minigame={};cloneObject(minigame,my);const systemInfo=minigame.getSystemInfoSync();systemInfo.language=languageMap[systemInfo.language]||systemInfo.language;minigame.isDevTool=my.isIDE;Object.defineProperty(minigame,"isLandscape",{get(){const locSystemInfo=minigame.getSystemInfoSync();if(typeof locSystemInfo.deviceOrientation==="string"){return locSystemInfo.deviceOrientation.startsWith("landscape")}else {return locSystemInfo.screenWidth>locSystemInfo.screenHeight}}});const landscapeOrientation=Orientation.LANDSCAPE_RIGHT;Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});function detectLandscapeSupport(){const locSysInfo=minigame.getSystemInfoSync();if(typeof locSysInfo.deviceOrientation==="string"&&locSysInfo.deviceOrientation.startsWith("landscape")){if(versionCompare(locSysInfo.version,"10.15.10")<0){console.warn("The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10");}}}detectLandscapeSupport();const polyfilledCreateInnerAudio=createInnerAudioContextPolyfill(my,{onPlay:true,onPause:true,onStop:false,onSeek:false},true);minigame.createInnerAudioContext=function(){const audio=polyfilledCreateInnerAudio();return audio};minigame.loadFont=function(url){return "Arial"};let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;x=-res.y*orientationFactor;y=res.x*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){my.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){my.onAccelerometerChange(_accelerometerCb);}else {console.error("minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform");}};minigame.stopAccelerometer=function(res){minigame.offAccelerometerChange();};minigame.getSafeArea=function(){const systemInfo=minigame.getSystemInfoSync();if(typeof systemInfo.safeArea!=="undefined"){return systemInfo.safeArea}console.warn("getSafeArea is not supported on this platform");return {top:0,left:0,bottom:systemInfo.windowHeight,right:systemInfo.windowWidth,width:systemInfo.windowWidth,height:systemInfo.windowHeight}};if(!my.isIDE){const locCanvas=$global.screencanvas;if(locCanvas){const originalGetContext=locCanvas.getContext.bind(locCanvas);locCanvas.getContext=function(name,param){if(typeof name==="string"&&typeof param==="object"&&name.startsWith("webgl")){Object.assign(param,{enable_flip_y_after_read_pixels:false});const gl=originalGetContext(name,param);adapterGL(gl);return gl}return originalGetContext(name,param)};}}let hasAdapter=false;function adapterGL(gl){if(hasAdapter){return}hasAdapter=true;if(!my.isIDE){gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);if(my.getSystemInfoSync().platform.toLocaleLowerCase()==="ios"){const originalGetUniformLocation=gl.getUniformLocation.bind(gl);gl.getUniformLocation=function(program,name){const glLoc=originalGetUniformLocation(program,name);if(glLoc&&glLoc.ID===-1){return undefined}return originalGetUniformLocation(program,name)};}}}
++const languageMap={Chinese:Language.CHINESE,cn:Language.CHINESE,zh_CN:Language.CHINESE};const minigame={};cloneObject(minigame,my);const systemInfo=minigame.getSystemInfoSync();systemInfo.language=languageMap[systemInfo.language]||systemInfo.language;minigame.getSystemInfoSync=()=>systemInfo;minigame.isDevTool=my.isIDE;Object.defineProperty(minigame,"isLandscape",{get(){const locSystemInfo=minigame.getSystemInfoSync();if(typeof locSystemInfo.deviceOrientation==="string"){return locSystemInfo.deviceOrientation.startsWith("landscape")}else {return locSystemInfo.screenWidth>locSystemInfo.screenHeight}}});const landscapeOrientation=Orientation.LANDSCAPE_RIGHT;Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});function detectLandscapeSupport(){const locSysInfo=minigame.getSystemInfoSync();if(typeof locSysInfo.deviceOrientation==="string"&&locSysInfo.deviceOrientation.startsWith("landscape")){if(versionCompare(locSysInfo.version,"10.15.10")<0){console.warn("The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10");}}}detectLandscapeSupport();const polyfilledCreateInnerAudio=createInnerAudioContextPolyfill(my,{onPlay:true,onPause:true,onStop:false,onSeek:false},true);minigame.createInnerAudioContext=function(){const audio=polyfilledCreateInnerAudio();return audio};minigame.loadFont=function(url){return "Arial"};let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;x=-res.y*orientationFactor;y=res.x*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){my.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){my.onAccelerometerChange(_accelerometerCb);}else {console.error("minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform");}};minigame.stopAccelerometer=function(res){minigame.offAccelerometerChange();};minigame.getSafeArea=function(){const systemInfo=minigame.getSystemInfoSync();if(typeof systemInfo.safeArea!=="undefined"){return systemInfo.safeArea}console.warn("getSafeArea is not supported on this platform");return {top:0,left:0,bottom:systemInfo.windowHeight,right:systemInfo.windowWidth,width:systemInfo.windowWidth,height:systemInfo.windowHeight}};if(!my.isIDE){const locCanvas=$global.screencanvas;if(locCanvas){const originalGetContext=locCanvas.getContext.bind(locCanvas);locCanvas.getContext=function(name,param){if(typeof name==="string"&&typeof param==="object"&&name.startsWith("webgl")){Object.assign(param,{enable_flip_y_after_read_pixels:false});const gl=originalGetContext(name,param);adapterGL(gl);return gl}return originalGetContext(name,param)};}}let hasAdapter=false;function adapterGL(gl){if(hasAdapter){return}hasAdapter=true;if(!my.isIDE){gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);if(my.getSystemInfoSync().platform.toLocaleLowerCase()==="ios"){const originalGetUniformLocation=gl.getUniformLocation.bind(gl);gl.getUniformLocation=function(program,name){const glLoc=originalGetUniformLocation(program,name);if(glLoc&&glLoc.ID===-1){return undefined}return originalGetUniformLocation(program,name)};}}}
+ 
+ export { minigame };
+diff --git a/node_modules/@cocos/engine-pal/dist/minigame/taobao_minigame.js b/node_modules/@cocos/engine-pal/dist/minigame/taobao_minigame.js
+index 7999047..5bfd829 100644
+--- a/node_modules/@cocos/engine-pal/dist/minigame/taobao_minigame.js
++++ b/node_modules/@cocos/engine-pal/dist/minigame/taobao_minigame.js
+@@ -7,6 +7,6 @@ import '../system-info/enum-type/operating-system.js';
+ import '../system-info/enum-type/platform.js';
+ import '../system-info/enum-type/feature.js';
+ 
+-const languageMap={Chinese:Language.CHINESE,cn:Language.CHINESE,zh_CN:Language.CHINESE};const minigame={};cloneObject(minigame,my);const systemInfo=minigame.getSystemInfoSync();systemInfo.language=languageMap[systemInfo.language]||systemInfo.language;minigame.isDevTool=my.isIDE;Object.defineProperty(minigame,"isLandscape",{get(){const windowInfo=my.getWindowInfoSync();return windowInfo.windowWidth>windowInfo.windowHeight}});const landscapeOrientation=Orientation.LANDSCAPE_RIGHT;Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});function detectLandscapeSupport(){const locSysInfo=minigame.getSystemInfoSync();if(typeof locSysInfo.deviceOrientation==="string"&&locSysInfo.deviceOrientation.startsWith("landscape")){if(versionCompare(locSysInfo.version,"10.15.10")<0){console.warn("The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10");}}}detectLandscapeSupport();const polyfilledCreateInnerAudio=createInnerAudioContextPolyfill(my,{onPlay:true,onPause:true,onStop:false,onSeek:false},true);minigame.createInnerAudioContext=function(){const audio=polyfilledCreateInnerAudio();return audio};minigame.loadFont=function(url){return "Arial"};let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;x=-res.y*orientationFactor;y=res.x*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){my.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){my.onAccelerometerChange(_accelerometerCb);}else {console.error("minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform");}};minigame.stopAccelerometer=function(res){minigame.offAccelerometerChange();};minigame.getSafeArea=function(){const systemInfo=my.getWindowInfoSync();if(typeof systemInfo.safeArea!=="undefined"){return systemInfo.safeArea}console.warn("getSafeArea is not supported on this platform");return {top:0,left:0,bottom:systemInfo.windowHeight,right:systemInfo.windowWidth,width:systemInfo.windowWidth,height:systemInfo.windowHeight}};if(!my.isIDE){const locCanvas=$global.screencanvas;if(locCanvas){const originalGetContext=locCanvas.getContext.bind(locCanvas);locCanvas.getContext=function(name,param){if(typeof name==="string"&&typeof param==="object"&&name.startsWith("webgl")){Object.assign(param,{enable_flip_y_after_read_pixels:false});const gl=originalGetContext(name,param);adapterGL(gl);return gl}return originalGetContext(name,param)};}}let hasAdapter=false;function adapterGL(gl){if(hasAdapter){return}hasAdapter=true;if(!my.isIDE){gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);if(my.getSystemInfoSync().platform.toLocaleLowerCase()==="ios"){const originalGetUniformLocation=gl.getUniformLocation.bind(gl);gl.getUniformLocation=function(program,name){const glLoc=originalGetUniformLocation(program,name);if(glLoc&&glLoc.ID===-1){return undefined}return originalGetUniformLocation(program,name)};}}}minigame.loadSubpackage=my.loadSubPackage.bind(my);
++const languageMap={Chinese:Language.CHINESE,cn:Language.CHINESE,zh_CN:Language.CHINESE};const minigame={};cloneObject(minigame,my);const systemInfo=minigame.getSystemInfoSync();systemInfo.language=languageMap[systemInfo.language]||systemInfo.language;minigame.getSystemInfoSync=()=>systemInfo;minigame.isDevTool=my.isIDE;Object.defineProperty(minigame,"isLandscape",{get(){const windowInfo=my.getWindowInfoSync();return windowInfo.windowWidth>windowInfo.windowHeight}});const landscapeOrientation=Orientation.LANDSCAPE_RIGHT;Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});function detectLandscapeSupport(){const locSysInfo=minigame.getSystemInfoSync();if(typeof locSysInfo.deviceOrientation==="string"&&locSysInfo.deviceOrientation.startsWith("landscape")){if(versionCompare(locSysInfo.version,"10.15.10")<0){console.warn("The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10");}}}detectLandscapeSupport();const polyfilledCreateInnerAudio=createInnerAudioContextPolyfill(my,{onPlay:true,onPause:true,onStop:false,onSeek:false},true);minigame.createInnerAudioContext=function(){const audio=polyfilledCreateInnerAudio();return audio};minigame.loadFont=function(url){return "Arial"};let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;x=-res.y*orientationFactor;y=res.x*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){my.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){my.onAccelerometerChange(_accelerometerCb);}else {console.error("minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform");}};minigame.stopAccelerometer=function(res){minigame.offAccelerometerChange();};minigame.getSafeArea=function(){const systemInfo=my.getWindowInfoSync();if(typeof systemInfo.safeArea!=="undefined"){return systemInfo.safeArea}console.warn("getSafeArea is not supported on this platform");return {top:0,left:0,bottom:systemInfo.windowHeight,right:systemInfo.windowWidth,width:systemInfo.windowWidth,height:systemInfo.windowHeight}};if(!my.isIDE){const locCanvas=$global.screencanvas;if(locCanvas){const originalGetContext=locCanvas.getContext.bind(locCanvas);locCanvas.getContext=function(name,param){if(typeof name==="string"&&typeof param==="object"&&name.startsWith("webgl")){Object.assign(param,{enable_flip_y_after_read_pixels:false});const gl=originalGetContext(name,param);adapterGL(gl);return gl}return originalGetContext(name,param)};}}let hasAdapter=false;function adapterGL(gl){if(hasAdapter){return}hasAdapter=true;if(!my.isIDE){gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);if(my.getSystemInfoSync().platform.toLocaleLowerCase()==="ios"){const originalGetUniformLocation=gl.getUniformLocation.bind(gl);gl.getUniformLocation=function(program,name){const glLoc=originalGetUniformLocation(program,name);if(glLoc&&glLoc.ID===-1){return undefined}return originalGetUniformLocation(program,name)};}}}minigame.loadSubpackage=my.loadSubPackage.bind(my);
+ 
+ export { minigame };
+diff --git a/node_modules/@cocos/engine-pal/dist/minigame/wechat.js b/node_modules/@cocos/engine-pal/dist/minigame/wechat.js
+index 4109ce6..c4b93bc 100644
+--- a/node_modules/@cocos/engine-pal/dist/minigame/wechat.js
++++ b/node_modules/@cocos/engine-pal/dist/minigame/wechat.js
+@@ -1,6 +1,6 @@
+ import { Orientation } from '../screen-adapter/enum-type/orientation.js';
+ import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils.js';
+ 
+-const minigame={};cloneObject(minigame,wx);minigame.wx={};minigame.wx.onKeyDown=wx.onKeyDown?.bind(wx);minigame.wx.onKeyUp=wx.onKeyUp?.bind(wx);minigame.wx.onMouseDown=wx.onMouseDown?.bind(wx);minigame.wx.onMouseMove=wx.onMouseMove?.bind(wx);minigame.wx.onMouseUp=wx.onMouseUp?.bind(wx);minigame.wx.onWheel=wx.onWheel?.bind(wx);if(minigame.getSystemSetting===undefined){minigame.getSystemSetting=function(){const systemInfo=minigame.getSystemInfoSync();return {bluetoothEnabled:systemInfo.bluetoothEnabled,locationEnabled:systemInfo.locationEnabled,wifiEnabled:systemInfo.wifiEnabled,deviceOrientation:systemInfo.deviceOrientation}};}if(minigame.getAppAuthorizeSetting===undefined){minigame.getAppAuthorizeSetting=function(){const systemInfo=minigame.getSystemInfoSync();return {albumAuthorized:systemInfo.albumAuthorized===undefined?undefined:systemInfo.albumAuthorized?"authorized":"denied",bluetoothAuthorized:systemInfo.bluetoothAuthorized===undefined?undefined:systemInfo.bluetoothAuthorized?"authorized":"denied",cameraAuthorized:systemInfo.cameraAuthorized===undefined?undefined:systemInfo.cameraAuthorized?"authorized":"denied",locationAuthorized:systemInfo.locationAuthorized===undefined?undefined:systemInfo.locationAuthorized?"authorized":"denied",locationReducedAccuracy:systemInfo.locationReducedAccuracy===undefined?undefined:systemInfo.locationReducedAccuracy,microphoneAuthorized:systemInfo.microphoneAuthorized===undefined?undefined:systemInfo.microphoneAuthorized?"authorized":"denied",notificationAuthorized:systemInfo.notificationAuthorized===undefined?undefined:systemInfo.notificationAuthorized?"authorized":"denied",notificationAlertAuthorized:systemInfo.notificationAlertAuthorized===undefined?undefined:systemInfo.notificationAlertAuthorized?"authorized":"denied",notificationBadgeAuthorized:systemInfo.notificationBadgeAuthorized===undefined?undefined:systemInfo.notificationBadgeAuthorized?"authorized":"denied",notificationSoundAuthorized:systemInfo.notificationSoundAuthorized===undefined?undefined:systemInfo.notificationSoundAuthorized?"authorized":"denied",phoneCalendarAuthorized:systemInfo.phoneCalendarAuthorized===undefined?undefined:systemInfo.phoneCalendarAuthorized?"authorized":"denied"}};}if(minigame.getDeviceInfo===undefined){minigame.getDeviceInfo=function(){const systemInfo=minigame.getSystemInfoSync();return {abi:systemInfo.abi,deviceAbi:systemInfo.deviceAbi,benchmarkLevel:systemInfo.benchmarkLevel,brand:systemInfo.brand,model:systemInfo.model,system:systemInfo.system,platform:systemInfo.platform,cpuType:systemInfo.cpuType,memorySize:systemInfo.memorySize}};}if(minigame.getWindowInfo===undefined){minigame.getWindowInfo=function(){const systemInfo=minigame.getSystemInfoSync();return {pixelRatio:systemInfo.pixelRatio,screenWidth:systemInfo.screenWidth,screenHeight:systemInfo.screenHeight,windowWidth:systemInfo.windowWidth,windowHeight:systemInfo.windowHeight,statusBarHeight:systemInfo.statusBarHeight,safeArea:systemInfo.safeArea,screenTop:systemInfo.screenTop}};}if(minigame.getAppBaseInfo===undefined){minigame.getAppBaseInfo=function(){const systemInfo=minigame.getSystemInfoSync();return {SDKVersion:systemInfo.SDKVersion,enableDebug:systemInfo.enableDebug,host:systemInfo.host,language:systemInfo.language,version:systemInfo.version,theme:systemInfo.theme,mode:systemInfo.mode,fontSizeScaleFactor:systemInfo.fontSizeScaleFactor,fontSizeSetting:systemInfo.fontSizeSetting}};}const devideInfo=minigame.getDeviceInfo();minigame.isDevTool=devideInfo.platform==="devtools";Object.defineProperty(minigame,"isLandscape",{get(){const locSystemInfo=wx.getSystemInfoSync();if(typeof locSystemInfo.deviceOrientation==="string"){return locSystemInfo.deviceOrientation.startsWith("landscape")}else {return locSystemInfo.screenWidth>locSystemInfo.screenHeight}}});let landscapeOrientation=Orientation.LANDSCAPE_RIGHT;if(devideInfo.platform.toLocaleLowerCase()!=="android"){wx.onDeviceOrientationChange(res=>{if(res.value==="landscape"){landscapeOrientation=Orientation.LANDSCAPE_RIGHT;}else if(res.value==="landscapeReverse"){landscapeOrientation=Orientation.LANDSCAPE_LEFT;}});}Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;const tmp=x;x=-y*orientationFactor;y=tmp*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){wx.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){wx.onAccelerometerChange(_accelerometerCb);}wx.startAccelerometer(res);};minigame.createInnerAudioContext=createInnerAudioContextPolyfill(wx,{onPlay:true,onPause:true,onStop:true,onSeek:false},true);minigame.getSafeArea=function(){const windowInfo=minigame.getWindowInfo();let safeArea=windowInfo.safeArea;if(!safeArea){safeArea={left:0,top:0,bottom:windowInfo.screenHeight,right:windowInfo.screenWidth,width:windowInfo.screenWidth,height:windowInfo.screenHeight};}return safeArea};const appBaseInfo=minigame.getAppBaseInfo();if(devideInfo.platform==="windows"&&versionCompare(appBaseInfo.SDKVersion,"2.16.0")<0){const locCanvas=canvas;if(locCanvas){const webglRC=locCanvas.getContext("webgl");const originalUseProgram=webglRC.useProgram.bind(webglRC);webglRC.useProgram=function(program){if(program){originalUseProgram(program);}};}}
++const minigame={};cloneObject(minigame,wx);minigame.wx={};minigame.wx.onKeyDown=wx.onKeyDown?.bind(wx);minigame.wx.onKeyUp=wx.onKeyUp?.bind(wx);minigame.wx.onMouseDown=wx.onMouseDown?.bind(wx);minigame.wx.onMouseMove=wx.onMouseMove?.bind(wx);minigame.wx.onMouseUp=wx.onMouseUp?.bind(wx);minigame.wx.onWheel=wx.onWheel?.bind(wx);let _cachedSystemInfo=wx.getSystemInfoSync();function testAndUpdateSystemInfoCache(testAmount,testInterval){let successfullyTestTimes=0;let intervalTimer=null;function testCachedSystemInfo(){const currentSystemInfo=wx.getSystemInfoSync();if(_cachedSystemInfo.screenWidth===currentSystemInfo.screenWidth&&_cachedSystemInfo.screenHeight===currentSystemInfo.screenHeight){if(++successfullyTestTimes>=testAmount&&intervalTimer!==null){clearInterval(intervalTimer);intervalTimer=null;}}else {successfullyTestTimes=0;}_cachedSystemInfo=currentSystemInfo;}intervalTimer=setInterval(testCachedSystemInfo,testInterval);}testAndUpdateSystemInfoCache(10,500);minigame.onWindowResize?.(()=>{_cachedSystemInfo=wx.getSystemInfoSync();});minigame.getSystemInfoSync=function(){return _cachedSystemInfo};const systemInfo=minigame.getSystemInfoSync();minigame.isDevTool=systemInfo.platform==="devtools";Object.defineProperty(minigame,"isLandscape",{get(){const locSystemInfo=wx.getSystemInfoSync();if(typeof locSystemInfo.deviceOrientation==="string"){return locSystemInfo.deviceOrientation.startsWith("landscape")}else {return locSystemInfo.screenWidth>locSystemInfo.screenHeight}}});let landscapeOrientation=Orientation.LANDSCAPE_RIGHT;if(systemInfo.platform.toLocaleLowerCase()!=="android"){wx.onDeviceOrientationChange(res=>{if(res.value==="landscape"){landscapeOrientation=Orientation.LANDSCAPE_RIGHT;}else if(res.value==="landscapeReverse"){landscapeOrientation=Orientation.LANDSCAPE_LEFT;}});}Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});let _accelerometerCb;minigame.onAccelerometerChange=function(cb){minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;const tmp=x;x=-y*orientationFactor;y=tmp*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=function(cb){if(_accelerometerCb){wx.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=function(res){if(_accelerometerCb){wx.onAccelerometerChange(_accelerometerCb);}wx.startAccelerometer(res);};minigame.createInnerAudioContext=createInnerAudioContextPolyfill(wx,{onPlay:true,onPause:true,onStop:true,onSeek:false},true);minigame.getSafeArea=function(){const locSystemInfo=wx.getSystemInfoSync();let safeArea=locSystemInfo.safeArea;if(!safeArea){safeArea={left:0,top:0,bottom:systemInfo.screenHeight,right:systemInfo.screenWidth,width:systemInfo.screenWidth,height:systemInfo.screenHeight};}return safeArea};if(systemInfo.platform==="windows"&&versionCompare(systemInfo.SDKVersion,"2.16.0")<0){const locCanvas=canvas;if(locCanvas){const webglRC=locCanvas.getContext("webgl");const originalUseProgram=webglRC.useProgram.bind(webglRC);webglRC.useProgram=function(program){if(program){originalUseProgram(program);}};}}
+ 
+ export { minigame };
+diff --git a/node_modules/@cocos/engine-pal/dist/minigame/wechat_mini_program.js b/node_modules/@cocos/engine-pal/dist/minigame/wechat_mini_program.js
+index 3f207a8..4bb85b4 100644
+--- a/node_modules/@cocos/engine-pal/dist/minigame/wechat_mini_program.js
++++ b/node_modules/@cocos/engine-pal/dist/minigame/wechat_mini_program.js
+@@ -1,6 +1,6 @@
+ import { Orientation } from '../screen-adapter/enum-type/orientation.js';
+ import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils.js';
+ 
+-const minigame={};cloneObject(minigame,wx);minigame.wx={};minigame.wx.onKeyDown=wx.onKeyDown?.bind(wx);minigame.wx.onKeyUp=wx.onKeyUp?.bind(wx);minigame.wx.onMouseDown=wx.onMouseDown?.bind(wx);minigame.wx.onMouseMove=wx.onMouseMove?.bind(wx);minigame.wx.onMouseUp=wx.onMouseUp?.bind(wx);minigame.wx.onWheel=wx.onWheel?.bind(wx);const systemInfo=minigame.getSystemInfoSync();minigame.isDevTool=systemInfo.platform==="devtools";Object.defineProperty(minigame,"isLandscape",{get(){const locSystemInfo=wx.getSystemInfoSync();if(typeof locSystemInfo.deviceOrientation==="string"){return locSystemInfo.deviceOrientation.startsWith("landscape")}else {return locSystemInfo.screenWidth>locSystemInfo.screenHeight}}});let landscapeOrientation=Orientation.LANDSCAPE_RIGHT;if(systemInfo.platform.toLocaleLowerCase()!=="android"){wx.onDeviceOrientationChange(res=>{if(res.value==="landscape"){landscapeOrientation=Orientation.LANDSCAPE_RIGHT;}else if(res.value==="landscapeReverse"){landscapeOrientation=Orientation.LANDSCAPE_LEFT;}});}Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});let _accelerometerCb;minigame.onAccelerometerChange=cb=>{minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;const tmp=x;x=-y*orientationFactor;y=tmp*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=cb=>{if(_accelerometerCb){wx.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=res=>{if(_accelerometerCb){wx.onAccelerometerChange(_accelerometerCb);}wx.startAccelerometer(res);};minigame.createInnerAudioContext=createInnerAudioContextPolyfill(wx,{onPlay:true,onPause:true,onStop:true,onSeek:false},true);minigame.getSafeArea=()=>{const locSystemInfo=wx.getSystemInfoSync();let safeArea=locSystemInfo.safeArea;if(!safeArea){safeArea={left:0,top:0,bottom:systemInfo.screenHeight,right:systemInfo.screenWidth,width:systemInfo.screenWidth,height:systemInfo.screenHeight};}return safeArea};if(systemInfo.platform==="windows"&&versionCompare(systemInfo.SDKVersion,"2.16.0")<0){const locCanvas=canvas;if(locCanvas){const webglRC=locCanvas.getContext("webgl");const originalUseProgram=webglRC.useProgram.bind(webglRC);webglRC.useProgram=program=>{if(program){originalUseProgram(program);}};}}const gl=getApp().GameGlobal.canvas.getContext("webgl");const oldTexSubImage2D=gl.texSubImage2D;gl.texSubImage2D=function(){for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}if(args.length===7){const canvas=args[6];if(typeof canvas.type!=="undefined"&&canvas.type==="canvas"){const ctx=canvas.getContext("2d");const texOffsetX=args[2];const texOffsetY=args[3];const imgData=ctx.getImageData(texOffsetX,texOffsetY,canvas.width,canvas.height);oldTexSubImage2D.call(gl,args[0],args[1],texOffsetX,texOffsetY,canvas.width,canvas.height,args[4],args[5],new Uint8Array(imgData.data));}else {oldTexSubImage2D.apply(gl,args);}}else {oldTexSubImage2D.apply(gl,args);}};
++const minigame={};cloneObject(minigame,wx);minigame.wx={};minigame.wx.onKeyDown=wx.onKeyDown?.bind(wx);minigame.wx.onKeyUp=wx.onKeyUp?.bind(wx);minigame.wx.onMouseDown=wx.onMouseDown?.bind(wx);minigame.wx.onMouseMove=wx.onMouseMove?.bind(wx);minigame.wx.onMouseUp=wx.onMouseUp?.bind(wx);minigame.wx.onWheel=wx.onWheel?.bind(wx);let _cachedSystemInfo=wx.getSystemInfoSync();minigame.testAndUpdateSystemInfoCache=(testAmount,testInterval)=>{let successfullyTestTimes=0;let intervalTimer=null;function testCachedSystemInfo(){const currentSystemInfo=wx.getSystemInfoSync();if(_cachedSystemInfo.screenWidth===currentSystemInfo.screenWidth&&_cachedSystemInfo.screenHeight===currentSystemInfo.screenHeight){if(++successfullyTestTimes>=testAmount&&intervalTimer!==null){clearInterval(intervalTimer);intervalTimer=null;}}else {successfullyTestTimes=0;}_cachedSystemInfo=currentSystemInfo;}intervalTimer=setInterval(testCachedSystemInfo,testInterval);};minigame.testAndUpdateSystemInfoCache(10,500);minigame.onWindowResize?.(()=>{_cachedSystemInfo=wx.getSystemInfoSync();});minigame.getSystemInfoSync=()=>_cachedSystemInfo;const systemInfo=minigame.getSystemInfoSync();minigame.isDevTool=systemInfo.platform==="devtools";Object.defineProperty(minigame,"isLandscape",{get(){const locSystemInfo=wx.getSystemInfoSync();if(typeof locSystemInfo.deviceOrientation==="string"){return locSystemInfo.deviceOrientation.startsWith("landscape")}else {return locSystemInfo.screenWidth>locSystemInfo.screenHeight}}});let landscapeOrientation=Orientation.LANDSCAPE_RIGHT;if(systemInfo.platform.toLocaleLowerCase()!=="android"){wx.onDeviceOrientationChange(res=>{if(res.value==="landscape"){landscapeOrientation=Orientation.LANDSCAPE_RIGHT;}else if(res.value==="landscapeReverse"){landscapeOrientation=Orientation.LANDSCAPE_LEFT;}});}Object.defineProperty(minigame,"orientation",{get(){return minigame.isLandscape?landscapeOrientation:Orientation.PORTRAIT}});let _accelerometerCb;minigame.onAccelerometerChange=cb=>{minigame.offAccelerometerChange();_accelerometerCb=res=>{let x=res.x;let y=res.y;if(minigame.isLandscape){const orientationFactor=landscapeOrientation===Orientation.LANDSCAPE_RIGHT?1:-1;const tmp=x;x=-y*orientationFactor;y=tmp*orientationFactor;}const resClone={x,y,z:res.z};cb(resClone);};};minigame.offAccelerometerChange=cb=>{if(_accelerometerCb){wx.offAccelerometerChange(_accelerometerCb);_accelerometerCb=undefined;}};minigame.startAccelerometer=res=>{if(_accelerometerCb){wx.onAccelerometerChange(_accelerometerCb);}wx.startAccelerometer(res);};minigame.createInnerAudioContext=createInnerAudioContextPolyfill(wx,{onPlay:true,onPause:true,onStop:true,onSeek:false},true);minigame.getSafeArea=()=>{const locSystemInfo=wx.getSystemInfoSync();let safeArea=locSystemInfo.safeArea;if(!safeArea){safeArea={left:0,top:0,bottom:systemInfo.screenHeight,right:systemInfo.screenWidth,width:systemInfo.screenWidth,height:systemInfo.screenHeight};}return safeArea};if(systemInfo.platform==="windows"&&versionCompare(systemInfo.SDKVersion,"2.16.0")<0){const locCanvas=canvas;if(locCanvas){const webglRC=locCanvas.getContext("webgl");const originalUseProgram=webglRC.useProgram.bind(webglRC);webglRC.useProgram=program=>{if(program){originalUseProgram(program);}};}}const gl=getApp().GameGlobal.canvas.getContext("webgl");const oldTexSubImage2D=gl.texSubImage2D;gl.texSubImage2D=function(){for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}if(args.length===7){const canvas=args[6];if(typeof canvas.type!=="undefined"&&canvas.type==="canvas"){const ctx=canvas.getContext("2d");const texOffsetX=args[2];const texOffsetY=args[3];const imgData=ctx.getImageData(texOffsetX,texOffsetY,canvas.width,canvas.height);oldTexSubImage2D.call(gl,args[0],args[1],texOffsetX,texOffsetY,canvas.width,canvas.height,args[4],args[5],new Uint8Array(imgData.data));}else {oldTexSubImage2D.apply(gl,args);}}else {oldTexSubImage2D.apply(gl,args);}};
+ 
+ export { minigame };
+diff --git a/node_modules/@cocos/engine-pal/dist/pacer/pacer-nodejs.d.ts b/node_modules/@cocos/engine-pal/dist/pacer/pacer-nodejs.d.ts
+deleted file mode 100644
+index 2e005a8..0000000
+--- a/node_modules/@cocos/engine-pal/dist/pacer/pacer-nodejs.d.ts
++++ /dev/null
+@@ -1,17 +0,0 @@
+-export declare class Pacer {
+-    private _stHandle;
+-    private _onTick;
+-    private _targetFrameRate;
+-    private _frameTime;
+-    private _startTime;
+-    private _isPlaying;
+-    constructor();
+-    get targetFrameRate(): number;
+-    set targetFrameRate(val: number);
+-    set onTick(val: (() => void) | null);
+-    get onTick(): (() => void) | null;
+-    start(): void;
+-    stop(): void;
+-    private _stTime;
+-    private _ctTime;
+-}
+diff --git a/node_modules/@cocos/engine-pal/dist/pacer/pacer-nodejs.js b/node_modules/@cocos/engine-pal/dist/pacer/pacer-nodejs.js
+deleted file mode 100644
+index 8f3ed07..0000000
+--- a/node_modules/@cocos/engine-pal/dist/pacer/pacer-nodejs.js
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class Pacer{_ccprivate$_stHandle=0;_ccprivate$_onTick=null;_ccprivate$_targetFrameRate=60;_ccprivate$_frameTime=0;_ccprivate$_startTime=0;_ccprivate$_isPlaying=false;constructor(){this._ccprivate$_isPlaying=false;}get targetFrameRate(){return this._ccprivate$_targetFrameRate}set targetFrameRate(val){if(this._ccprivate$_targetFrameRate!==val){this._ccprivate$_targetFrameRate=val;this._ccprivate$_frameTime=1000/this._ccprivate$_targetFrameRate;if(this._ccprivate$_isPlaying){this.stop();this.start();}}}set onTick(val){this._ccprivate$_onTick=val;}get onTick(){return this._ccprivate$_onTick}start(){if(this._ccprivate$_isPlaying)return;const updateCallback=()=>{if(this._ccprivate$_isPlaying){this._ccprivate$_stHandle=this._ccprivate$_stTime(updateCallback);}if(this._ccprivate$_onTick){this._ccprivate$_onTick();}};this._ccprivate$_startTime=performance.now();this._ccprivate$_stHandle=this._ccprivate$_stTime(updateCallback);this._ccprivate$_isPlaying=true;}stop(){if(!this._ccprivate$_isPlaying)return;this._ccprivate$_ctTime(this._ccprivate$_stHandle);this._ccprivate$_stHandle=0;this._ccprivate$_isPlaying=false;}_ccprivate$_stTime(callback){const currTime=performance.now();const elapseTime=Math.max(0,currTime-this._ccprivate$_startTime);const timeToCall=Math.max(0,this._ccprivate$_frameTime-elapseTime);return setTimeout(callback,timeToCall)}_ccprivate$_ctTime(id){clearTimeout(id);}}
+-
+-export { Pacer };
+diff --git a/node_modules/@cocos/engine-pal/dist/screen-adapter/minigame/screen-adapter.js b/node_modules/@cocos/engine-pal/dist/screen-adapter/minigame/screen-adapter.js
+index 0e7d9ce..92c4f28 100644
+--- a/node_modules/@cocos/engine-pal/dist/screen-adapter/minigame/screen-adapter.js
++++ b/node_modules/@cocos/engine-pal/dist/screen-adapter/minigame/screen-adapter.js
+@@ -1,4 +1,4 @@
+-import { ALIPAY, WECHAT, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
++import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
+ import { minigame } from 'pal/minigame';
+ import { systemInfo } from 'pal/system-info';
+ import { warnID, getError } from '@cocos/engine/cocos/core/platform/debug';
+@@ -11,6 +11,6 @@ import { OS } from '../../system-info/enum-type/operating-system.js';
+ import '../../system-info/enum-type/platform.js';
+ import '../../system-info/enum-type/feature.js';
+ 
+-let rotateLandscape=false;try{if(ALIPAY){if(systemInfo.os===OS.IOS&&!minigame.isDevTool){const fs=my.getFileSystemManager();const screenOrientation=JSON.parse(fs.readFileSync({filePath:"game.json",encoding:"utf8"}).data).screenOrientation;rotateLandscape=screenOrientation==="landscape";}}}catch(e){console.error(e);}class ScreenAdapter extends EventTarget{isFrameRotated=false;handleResizeEvent=true;get supportFullScreen(){return false}get isFullScreen(){return false}get devicePixelRatio(){if(WECHAT){const sysInfo=minigame.getWindowInfo();return sysInfo.pixelRatio}const sysInfo=minigame.getSystemInfoSync();return sysInfo.pixelRatio}get windowSize(){let sysInfo;if(WECHAT){sysInfo=minigame.getWindowInfo();}else {sysInfo=minigame.getSystemInfoSync();}const dpr=this.devicePixelRatio;let screenWidth=sysInfo.windowWidth;let screenHeight=sysInfo.windowHeight;if(BYTEDANCE){screenWidth=sysInfo.screenWidth;screenHeight=sysInfo.screenHeight;}else if(ALIPAY&&rotateLandscape&&screenWidth<screenHeight){const temp=screenWidth;screenWidth=screenHeight;screenHeight=temp;}else if(TAOBAO_MINIGAME){const windowInfo=my.getWindowInfoSync();if(windowInfo){screenWidth=windowInfo.windowWidth;screenHeight=windowInfo.windowHeight;}}return new Size(screenWidth*dpr,screenHeight*dpr)}set windowSize(size){warnID(1221);}get resolution(){const windowSize=this.windowSize;const resolutionScale=this.resolutionScale;return new Size(windowSize.width*resolutionScale,windowSize.height*resolutionScale)}get resolutionScale(){return this._ccprivate$_resolutionScale}set resolutionScale(value){if(value===this._ccprivate$_resolutionScale){return}this._ccprivate$_resolutionScale=value;this._ccprivate$_cbToUpdateFrameBuffer?.();}get orientation(){return minigame.orientation}set orientation(value){warnID(1221);}get safeAreaEdge(){const minigameSafeArea=minigame.getSafeArea();const windowSize=this.windowSize;const dpr=VIVO?1:this.devicePixelRatio;const topEdge=minigameSafeArea.top*dpr;const bottomEdge=windowSize.height-minigameSafeArea.bottom*dpr;const leftEdge=minigameSafeArea.left*dpr;const rightEdge=windowSize.width-minigameSafeArea.right*dpr;return {top:topEdge,bottom:bottomEdge,left:leftEdge,right:rightEdge}}get isProportionalToFrame(){return this._ccprivate$_isProportionalToFrame}set isProportionalToFrame(v){}_ccprivate$_cbToUpdateFrameBuffer;_ccprivate$_resolutionScale=1;_ccprivate$_isProportionalToFrame=false;constructor(){super();minigame.onWindowResize?.(()=>{this.emit("window-resize",this.windowSize.width,this.windowSize.height);});}init(options,cbToRebuildFrameBuffer){this._ccprivate$_cbToUpdateFrameBuffer=cbToRebuildFrameBuffer;this._ccprivate$_cbToUpdateFrameBuffer();}requestFullScreen(){return Promise.reject(new Error(getError(9008)))}exitFullScreen(){return Promise.reject(new Error(getError(9009)))}}const screenAdapter=new ScreenAdapter;
++let rotateLandscape=false;try{if(ALIPAY){if(systemInfo.os===OS.IOS&&!minigame.isDevTool){const fs=my.getFileSystemManager();const screenOrientation=JSON.parse(fs.readFileSync({filePath:"game.json",encoding:"utf8"}).data).screenOrientation;rotateLandscape=screenOrientation==="landscape";}}}catch(e){console.error(e);}class ScreenAdapter extends EventTarget{isFrameRotated=false;handleResizeEvent=true;get supportFullScreen(){return false}get isFullScreen(){return false}get devicePixelRatio(){const sysInfo=minigame.getSystemInfoSync();return sysInfo.pixelRatio}get windowSize(){const sysInfo=minigame.getSystemInfoSync();const dpr=this.devicePixelRatio;let screenWidth=sysInfo.windowWidth;let screenHeight=sysInfo.windowHeight;if(BYTEDANCE){screenWidth=sysInfo.screenWidth;screenHeight=sysInfo.screenHeight;}else if(ALIPAY&&rotateLandscape&&screenWidth<screenHeight){const temp=screenWidth;screenWidth=screenHeight;screenHeight=temp;}else if(TAOBAO_MINIGAME){const windowInfo=my.getWindowInfoSync();if(windowInfo){screenWidth=windowInfo.windowWidth;screenHeight=windowInfo.windowHeight;}}return new Size(screenWidth*dpr,screenHeight*dpr)}set windowSize(size){warnID(1221);}get resolution(){const windowSize=this.windowSize;const resolutionScale=this.resolutionScale;return new Size(windowSize.width*resolutionScale,windowSize.height*resolutionScale)}get resolutionScale(){return this._ccprivate$_resolutionScale}set resolutionScale(value){if(value===this._ccprivate$_resolutionScale){return}this._ccprivate$_resolutionScale=value;this._ccprivate$_cbToUpdateFrameBuffer?.();}get orientation(){return minigame.orientation}set orientation(value){warnID(1221);}get safeAreaEdge(){const minigameSafeArea=minigame.getSafeArea();const windowSize=this.windowSize;const dpr=VIVO?1:this.devicePixelRatio;const topEdge=minigameSafeArea.top*dpr;const bottomEdge=windowSize.height-minigameSafeArea.bottom*dpr;const leftEdge=minigameSafeArea.left*dpr;const rightEdge=windowSize.width-minigameSafeArea.right*dpr;return {top:topEdge,bottom:bottomEdge,left:leftEdge,right:rightEdge}}get isProportionalToFrame(){return this._ccprivate$_isProportionalToFrame}set isProportionalToFrame(v){}_ccprivate$_cbToUpdateFrameBuffer;_ccprivate$_resolutionScale=1;_ccprivate$_isProportionalToFrame=false;constructor(){super();minigame.onWindowResize?.(()=>{this.emit("window-resize",this.windowSize.width,this.windowSize.height);});}init(options,cbToRebuildFrameBuffer){this._ccprivate$_cbToUpdateFrameBuffer=cbToRebuildFrameBuffer;this._ccprivate$_cbToUpdateFrameBuffer();}requestFullScreen(){return Promise.reject(new Error(getError(9008)))}exitFullScreen(){return Promise.reject(new Error(getError(9009)))}}const screenAdapter=new ScreenAdapter;
+ 
+ export { screenAdapter };
+diff --git a/node_modules/@cocos/engine-pal/dist/screen-adapter/nodejs/screen-adapter.d.ts b/node_modules/@cocos/engine-pal/dist/screen-adapter/nodejs/screen-adapter.d.ts
+deleted file mode 100644
+index b7e883f..0000000
+--- a/node_modules/@cocos/engine-pal/dist/screen-adapter/nodejs/screen-adapter.d.ts
++++ /dev/null
+@@ -1,50 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event/event-target';
+-import { Size } from '@cocos/engine/cocos/core/math';
+-import { Orientation } from '../enum-type';
+-export interface SafeAreaEdge {
+-    top: number;
+-    bottom: number;
+-    left: number;
+-    right: number;
+-}
+-export type ConfigOrientation = 'auto' | 'landscape' | 'portrait';
+-export interface IScreenOptions {
+-    /**
+-     * Orientation options from editor builder.
+-     */
+-    configOrientation: ConfigOrientation;
+-    /**
+-     * Determine whether the game frame exact fits the screen.
+-     * Now it only works on Web platform.
+-     */
+-    exactFitScreen: boolean;
+-    /**
+-     * Determine whether use headless renderer, which means do not support some screen operations.
+-     */
+-    isHeadlessMode: boolean;
+-}
+-declare class ScreenAdapter extends EventTarget {
+-    isFrameRotated: boolean;
+-    handleResizeEvent: boolean;
+-    get supportFullScreen(): boolean;
+-    get isFullScreen(): boolean;
+-    get devicePixelRatio(): number;
+-    get windowSize(): Size;
+-    set windowSize(size: Size);
+-    get resolution(): Size;
+-    get resolutionScale(): number;
+-    set resolutionScale(v: number);
+-    get orientation(): Orientation;
+-    set orientation(value: Orientation);
+-    get safeAreaEdge(): SafeAreaEdge;
+-    get isProportionalToFrame(): boolean;
+-    set isProportionalToFrame(v: boolean);
+-    private _resolutionScale;
+-    private _isProportionalToFrame;
+-    constructor();
+-    init(options: IScreenOptions, cbToRebuildFrameBuffer: () => void): void;
+-    requestFullScreen(): Promise<void>;
+-    exitFullScreen(): Promise<void>;
+-}
+-export declare const screenAdapter: ScreenAdapter;
+-export {};
+diff --git a/node_modules/@cocos/engine-pal/dist/screen-adapter/nodejs/screen-adapter.js b/node_modules/@cocos/engine-pal/dist/screen-adapter/nodejs/screen-adapter.js
+deleted file mode 100644
+index d304255..0000000
+--- a/node_modules/@cocos/engine-pal/dist/screen-adapter/nodejs/screen-adapter.js
++++ /dev/null
+@@ -1,8 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event/event-target';
+-import { Size } from '@cocos/engine/cocos/core/math';
+-import { Orientation } from '../enum-type/orientation.js';
+-import { warn, warnID } from '@cocos/engine/cocos/core/platform/debug';
+-
+-class ScreenAdapter extends EventTarget{isFrameRotated=false;handleResizeEvent=false;get supportFullScreen(){return false}get isFullScreen(){return false}get devicePixelRatio(){return 1}get windowSize(){return new Size(960,640)}set windowSize(size){warn("Setting window size is not supported yet.");}get resolution(){const windowSize=this.windowSize;const resolutionScale=this.resolutionScale;return new Size(windowSize.width*resolutionScale,windowSize.height*resolutionScale)}get resolutionScale(){return this._ccprivate$_resolutionScale}set resolutionScale(v){if(v===this._ccprivate$_resolutionScale){return}this._ccprivate$_resolutionScale=v;}get orientation(){return Orientation.PORTRAIT}set orientation(value){warnID(1221);}get safeAreaEdge(){return {top:0,bottom:0,left:0,right:0}}get isProportionalToFrame(){return this._ccprivate$_isProportionalToFrame}set isProportionalToFrame(v){}_ccprivate$_resolutionScale=1;_ccprivate$_isProportionalToFrame=false;constructor(){super();}init(options,cbToRebuildFrameBuffer){}requestFullScreen(){return Promise.reject(new Error("request fullscreen has not been supported yet on this platform."))}exitFullScreen(){return Promise.reject(new Error("exit fullscreen has not been supported yet on this platform."))}}const screenAdapter=new ScreenAdapter;
+-
+-export { screenAdapter };
+diff --git a/node_modules/@cocos/engine-pal/dist/screen-adapter/web/screen-adapter.js b/node_modules/@cocos/engine-pal/dist/screen-adapter/web/screen-adapter.js
+index eeb2875..5841858 100644
+--- a/node_modules/@cocos/engine-pal/dist/screen-adapter/web/screen-adapter.js
++++ b/node_modules/@cocos/engine-pal/dist/screen-adapter/web/screen-adapter.js
+@@ -12,6 +12,6 @@ import { OS } from '../../system-info/enum-type/operating-system.js';
+ import '../../system-info/enum-type/platform.js';
+ import '../../system-info/enum-type/feature.js';
+ 
+-const EVENT_TIMEOUT=EDITOR?5:200;const orientationMap={auto:Orientation.AUTO,landscape:Orientation.LANDSCAPE,portrait:Orientation.PORTRAIT};var WindowType;(function(WindowType){WindowType[WindowType["Unknown"]=0]="Unknown";WindowType[WindowType["SubFrame"]=1]="SubFrame";WindowType[WindowType["BrowserWindow"]=2]="BrowserWindow";WindowType[WindowType["Fullscreen"]=3]="Fullscreen";})(WindowType||(WindowType={}));class ScreenAdapter extends EventTarget{isFrameRotated=false;handleResizeEvent=true;get supportFullScreen(){return this._ccprivate$_supportFullScreen}get isFullScreen(){if(!this._ccprivate$_supportFullScreen){return false}return !!document[this._ccprivate$_fn.fullscreenElement]}get devicePixelRatio(){return Math.min(window.devicePixelRatio??1,2)}get windowSize(){const result=this._windowSizeInCssPixels;const dpr=this.devicePixelRatio;result.width*=dpr;result.height*=dpr;return result}set windowSize(size){if(this._windowType!==WindowType.SubFrame){warnID(9202);return}this._ccprivate$_resizeFrame(this._ccprivate$_convertToSizeInCssPixels(size));}get resolution(){const windowSize=this.windowSize;const resolutionScale=this.resolutionScale;return new Size(windowSize.width*resolutionScale,windowSize.height*resolutionScale)}get resolutionScale(){return this._ccprivate$_resolutionScale}set resolutionScale(v){if(v===this._ccprivate$_resolutionScale){return}this._ccprivate$_resolutionScale=v;this._ccprivate$_cbToUpdateFrameBuffer?.();}get orientation(){return this._ccprivate$_orientation}set orientation(value){if(this._ccprivate$_orientation===value){return}this._ccprivate$_orientation=value;this._ccprivate$_updateFrame();}_ccprivate$_updateFrame(){this._ccprivate$_updateFrameState();this._ccprivate$_resizeFrame();}get safeAreaEdge(){const dpr=this.devicePixelRatio;const _top=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-top")||"0")*dpr;const _bottom=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-bottom")||"0")*dpr;const _left=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-left")||"0")*dpr;const _right=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-right")||"0")*dpr;return {top:_top,bottom:_bottom,left:_left,right:_right}}get isProportionalToFrame(){return this._ccprivate$_isProportionalToFrame}set isProportionalToFrame(v){if(this._ccprivate$_isProportionalToFrame===v){return}this._ccprivate$_isProportionalToFrame=v;this._ccprivate$_updateContainer();}_ccprivate$_gameFrame;_ccprivate$_gameContainer;_ccprivate$_gameCanvas;_ccprivate$_isProportionalToFrame=false;_ccprivate$_cachedFrameStyle={width:"0px",height:"0px"};_ccprivate$_cachedContainerStyle={width:"0px",height:"0px"};_ccprivate$_cbToUpdateFrameBuffer;_ccprivate$_supportFullScreen=false;_ccprivate$_touchEventName;_ccprivate$_onFullscreenChange;_ccprivate$_onFullscreenError;_ccprivate$_orientationChangeTimeoutId=-1;_ccprivate$_cachedFrameSize=new Size(0,0);_ccprivate$_exactFitScreen=false;_ccprivate$_isHeadlessMode=false;_ccprivate$_fn={};_ccprivate$_fnGroup=[["requestFullscreen","exitFullscreen","fullscreenchange","fullscreenEnabled","fullscreenElement","fullscreenerror"],["requestFullScreen","exitFullScreen","fullScreenchange","fullScreenEnabled","fullScreenElement","fullscreenerror"],["webkitRequestFullScreen","webkitCancelFullScreen","webkitfullscreenchange","webkitIsFullScreen","webkitCurrentFullScreenElement","webkitfullscreenerror"],["mozRequestFullScreen","mozCancelFullScreen","mozfullscreenchange","mozFullScreen","mozFullScreenElement","mozfullscreenerror"],["msRequestFullscreen","msExitFullscreen","MSFullscreenChange","msFullscreenEnabled","msFullscreenElement","msfullscreenerror"]];get _windowSizeInCssPixels(){if(TEST){return new Size(window.innerWidth,window.innerHeight)}if(this.isProportionalToFrame){if(!this._ccprivate$_gameContainer){warnID(9201);return new Size(0,0)}return new Size(this._ccprivate$_gameContainer.clientWidth,this._ccprivate$_gameContainer.clientHeight)}let fullscreenTarget;let width;let height;switch(this._windowType){case WindowType.SubFrame:if(!this._ccprivate$_gameFrame){warnID(9201);return new Size(0,0)}return new Size(this._ccprivate$_gameFrame.clientWidth,this._ccprivate$_gameFrame.clientHeight);case WindowType.Fullscreen:fullscreenTarget=this._ccprivate$_getFullscreenTarget();width=this.isFrameRotated?fullscreenTarget.clientHeight:fullscreenTarget.clientWidth;height=this.isFrameRotated?fullscreenTarget.clientWidth:fullscreenTarget.clientHeight;return new Size(width,height);case WindowType.BrowserWindow:width=this.isFrameRotated?window.innerHeight:window.innerWidth;height=this.isFrameRotated?window.innerWidth:window.innerHeight;return new Size(width,height);case WindowType.Unknown:default:return new Size(1,1)}}get _windowType(){if(this._ccprivate$_isHeadlessMode){return WindowType.Unknown}if(this.isFullScreen){return WindowType.Fullscreen}if(!this._ccprivate$_gameFrame){warnID(9201);return WindowType.Unknown}if(this._ccprivate$_exactFitScreen){return WindowType.BrowserWindow}return WindowType.SubFrame}_ccprivate$_resolutionScale=1;_ccprivate$_orientation=Orientation.AUTO;_ccprivate$_orientationDevice=Orientation.AUTO;constructor(){super();this._ccprivate$_gameFrame=document.getElementById("GameDiv");this._ccprivate$_gameContainer=document.getElementById("Cocos3dGameContainer");this._ccprivate$_gameCanvas=document.getElementById("GameCanvas");if(!TEST&&!EDITOR){if(!this._ccprivate$_gameFrame){this._ccprivate$_gameFrame=document.createElement("div");this._ccprivate$_gameFrame.setAttribute("id","GameDiv");this._ccprivate$_gameCanvas?.parentNode?.insertBefore(this._ccprivate$_gameFrame,this._ccprivate$_gameCanvas);this._ccprivate$_gameFrame.appendChild(this._ccprivate$_gameCanvas);}if(!this._ccprivate$_gameContainer){this._ccprivate$_gameContainer=document.createElement("div");this._ccprivate$_gameContainer.setAttribute("id","Cocos3dGameContainer");this._ccprivate$_gameCanvas?.parentNode?.insertBefore(this._ccprivate$_gameContainer,this._ccprivate$_gameCanvas);this._ccprivate$_gameContainer.appendChild(this._ccprivate$_gameCanvas);}}let fnList;const fnGroup=this._ccprivate$_fnGroup;for(let i=0;i<fnGroup.length;i++){fnList=fnGroup[i];if(typeof document[fnList[1]]!=="undefined"){for(let i=0;i<fnList.length;i++){this._ccprivate$_fn[fnGroup[0][i]]=fnList[i];}break}}this._ccprivate$_supportFullScreen=this._ccprivate$_fn.requestFullscreen!==undefined;this._ccprivate$_touchEventName="ontouchstart"in window?"touchend":"mousedown";this._ccprivate$_registerEvent();}init(options,cbToRebuildFrameBuffer){this._ccprivate$_cbToUpdateFrameBuffer=cbToRebuildFrameBuffer;this.orientation=orientationMap[options.configOrientation];this._ccprivate$_exactFitScreen=options.exactFitScreen;this._ccprivate$_isHeadlessMode=options.isHeadlessMode;this._ccprivate$_resizeFrame();}requestFullScreen(){return new Promise((resolve,reject)=>{if(this.isFullScreen){resolve();return}this._ccprivate$_cachedFrameSize=this.windowSize;this._ccprivate$_doRequestFullScreen().then(()=>{resolve();}).catch(()=>{const fullscreenTarget=this._ccprivate$_getFullscreenTarget();if(!fullscreenTarget){reject(new Error("Cannot access fullscreen target"));return}fullscreenTarget.addEventListener(this._ccprivate$_touchEventName,()=>{this._ccprivate$_doRequestFullScreen().then(()=>{resolve();}).catch(reject);},{once:true,capture:true});});})}exitFullScreen(){return new Promise((resolve,reject)=>{const requestPromise=document[this._ccprivate$_fn.exitFullscreen]();if(window.Promise&&requestPromise instanceof Promise){requestPromise.then(()=>{this.windowSize=this._ccprivate$_cachedFrameSize;resolve();}).catch(reject);return}this.windowSize=this._ccprivate$_cachedFrameSize;resolve();})}_ccprivate$_registerEvent(){document.addEventListener(this._ccprivate$_fn.fullscreenerror,()=>{this._ccprivate$_onFullscreenError?.();});window.addEventListener("resize",()=>{this._ccprivate$_updateFrame();});const notifyOrientationChange=orientation=>{if(orientation===this._ccprivate$_orientationDevice){return}this._ccprivate$_orientationDevice=orientation;this._ccprivate$_updateFrame();this.emit("orientation-change",orientation);};const getOrientation=()=>{let tmpOrientation=Orientation.PORTRAIT;switch(window.orientation){case 0:tmpOrientation=Orientation.PORTRAIT;break;case 90:tmpOrientation=Orientation.LANDSCAPE_RIGHT;break;case  -90:tmpOrientation=Orientation.LANDSCAPE_LEFT;break;case 180:tmpOrientation=Orientation.PORTRAIT_UPSIDE_DOWN;break;default:tmpOrientation=this._ccprivate$_orientationDevice;break}return tmpOrientation};let handleOrientationChange;const orientationChangeCallback=()=>{if(this._ccprivate$_orientationChangeTimeoutId!==-1){clearTimeout(this._ccprivate$_orientationChangeTimeoutId);}this._ccprivate$_orientationChangeTimeoutId=setTimeout(()=>{handleOrientationChange();},EVENT_TIMEOUT);};if(typeof window.matchMedia==="function"){const updateDPRChangeListener=()=>{const dpr=this.devicePixelRatio;const mediaQueryResolution=window.matchMedia(`(resolution: ${dpr}dppx)`);if(mediaQueryResolution.addEventListener){mediaQueryResolution.addEventListener("change",()=>{this.emit("window-resize",this.windowSize.width,this.windowSize.height);updateDPRChangeListener();},{once:true});}else if(mediaQueryResolution.addListener){mediaQueryResolution.addListener(()=>{this.emit("window-resize",this.windowSize.width,this.windowSize.height);});}};updateDPRChangeListener();const mediaQueryPortrait=window.matchMedia("(orientation: portrait)");const mediaQueryLandscape=window.matchMedia("(orientation: landscape)");const hasScreeOrientation=screen.orientation;handleOrientationChange=()=>{let tmpOrientation=this._ccprivate$_orientationDevice;if(mediaQueryPortrait.matches){tmpOrientation=Orientation.PORTRAIT;if(hasScreeOrientation){const orientationType=screen.orientation.type;if(orientationType==="portrait-primary"){tmpOrientation=Orientation.PORTRAIT;}else {tmpOrientation=Orientation.PORTRAIT_UPSIDE_DOWN;}}}else if(mediaQueryLandscape.matches){tmpOrientation=Orientation.LANDSCAPE;if(hasScreeOrientation){const orientationType=screen.orientation.type;if(orientationType==="landscape-primary"){tmpOrientation=Orientation.LANDSCAPE_LEFT;}else {tmpOrientation=Orientation.LANDSCAPE_RIGHT;}}}notifyOrientationChange(tmpOrientation);};if(mediaQueryPortrait.addEventListener){mediaQueryPortrait.addEventListener("change",orientationChangeCallback);mediaQueryLandscape.addEventListener("change",orientationChangeCallback);}else if(mediaQueryPortrait.addListener){mediaQueryPortrait.addListener(orientationChangeCallback);mediaQueryLandscape.addListener(orientationChangeCallback);}}else {handleOrientationChange=()=>{const tmpOrientation=getOrientation();notifyOrientationChange(tmpOrientation);};window.addEventListener("orientationchange",orientationChangeCallback);}document.addEventListener(this._ccprivate$_fn.fullscreenchange,()=>{this._ccprivate$_onFullscreenChange?.();this.emit("fullscreen-change",this.windowSize.width,this.windowSize.height);});}_ccprivate$_convertToSizeInCssPixels(size){const clonedSize=size.clone();const dpr=this.devicePixelRatio;clonedSize.width/=dpr;clonedSize.height/=dpr;return clonedSize}_ccprivate$_resizeFrame(sizeInCssPixels){if(!this._ccprivate$_gameFrame){return}this._ccprivate$_gameFrame.style.display="flex";this._ccprivate$_gameFrame.style["justify-content"]="center";this._ccprivate$_gameFrame.style["align-items"]="center";if(this._windowType===WindowType.SubFrame){if(!sizeInCssPixels){this._ccprivate$_updateContainer();return}this._ccprivate$_gameFrame.style.width=`${sizeInCssPixels.width}px`;this._ccprivate$_gameFrame.style.height=`${sizeInCssPixels.height}px`;}else {const winWidth=window.innerWidth;let winHeight=window.innerHeight;const inputHeight=document.body.scrollHeight-winHeight;if(systemInfo.os===OS.ANDROID&&winHeight<inputHeight){winHeight+=inputHeight;}if(this.isFrameRotated){this._ccprivate$_gameFrame.style["-webkit-transform"]="rotate(90deg)";this._ccprivate$_gameFrame.style.transform="rotate(90deg)";this._ccprivate$_gameFrame.style["-webkit-transform-origin"]="0px 0px 0px";this._ccprivate$_gameFrame.style.transformOrigin="0px 0px 0px";this._ccprivate$_gameFrame.style.margin=`0 0 0 ${winWidth}px`;this._ccprivate$_gameFrame.style.width=`${winHeight}px`;this._ccprivate$_gameFrame.style.height=`${winWidth}px`;}else {this._ccprivate$_gameFrame.style["-webkit-transform"]="rotate(0deg)";this._ccprivate$_gameFrame.style.transform="rotate(0deg)";this._ccprivate$_gameFrame.style.margin="0px auto";this._ccprivate$_gameFrame.style.width=`${winWidth}px`;this._ccprivate$_gameFrame.style.height=`${winHeight}px`;}}this._ccprivate$_updateContainer();}_ccprivate$_getFullscreenTarget(){const windowType=this._windowType;if(windowType===WindowType.Fullscreen){return document[this._ccprivate$_fn.fullscreenElement]}if(windowType===WindowType.SubFrame){return this._ccprivate$_gameFrame}return document.body}_ccprivate$_doRequestFullScreen(){return new Promise((resolve,reject)=>{if(!this._ccprivate$_supportFullScreen){reject(new Error("fullscreen is not supported"));return}const fullscreenTarget=this._ccprivate$_getFullscreenTarget();if(!fullscreenTarget){reject(new Error("Cannot access fullscreen target"));return}this._ccprivate$_onFullscreenChange=undefined;this._ccprivate$_onFullscreenError=undefined;const requestPromise=fullscreenTarget[this._ccprivate$_fn.requestFullscreen]();if(window.Promise&&requestPromise instanceof Promise){requestPromise.then(resolve).catch(reject);}else {this._ccprivate$_onFullscreenChange=resolve;this._ccprivate$_onFullscreenError=reject;}})}_ccprivate$_updateFrameState(){const orientation=this.orientation;const width=window.innerWidth;const height=window.innerHeight;const isBrowserLandscape=width>height;this.isFrameRotated=systemInfo.isMobile&&(isBrowserLandscape&&orientation===Orientation.PORTRAIT||!isBrowserLandscape&&orientation===Orientation.LANDSCAPE);}_ccprivate$_updateContainer(){if(!this._ccprivate$_gameContainer){warnID(9201);return}if(this.isProportionalToFrame){if(!this._ccprivate$_gameFrame){warnID(9201);return}const designedResolution=legacyCC.view.getDesignResolutionSize();const frame=this._ccprivate$_gameFrame;const frameW=frame.clientWidth;const frameH=frame.clientHeight;const designW=designedResolution.width;const designH=designedResolution.height;const scaleX=frameW/designW;const scaleY=frameH/designH;const containerStyle=this._ccprivate$_gameContainer.style;let containerW;let containerH;if(scaleX<scaleY){containerW=frameW;containerH=designH*scaleX;}else {containerW=designW*scaleY;containerH=frameH;}containerStyle.width=`${containerW}px`;containerStyle.height=`${containerH}px`;}else {const containerStyle=this._ccprivate$_gameContainer.style;containerStyle.width="100%";containerStyle.height="100%";}if(this._ccprivate$_gameFrame&&(this._ccprivate$_cachedFrameStyle.width!==this._ccprivate$_gameFrame.style.width||this._ccprivate$_cachedFrameStyle.height!==this._ccprivate$_gameFrame.style.height||this._ccprivate$_cachedContainerStyle.width!==this._ccprivate$_gameContainer.style.width||this._ccprivate$_cachedContainerStyle.height!==this._ccprivate$_gameContainer.style.height)){this.emit("window-resize",this.windowSize.width,this.windowSize.height);this._ccprivate$_cachedFrameStyle.width=this._ccprivate$_gameFrame.style.width;this._ccprivate$_cachedFrameStyle.height=this._ccprivate$_gameFrame.style.height;this._ccprivate$_cachedContainerStyle.width=this._ccprivate$_gameContainer.style.width;this._ccprivate$_cachedContainerStyle.height=this._ccprivate$_gameContainer.style.height;}}}const screenAdapter=new ScreenAdapter;
++const EVENT_TIMEOUT=EDITOR?5:200;const orientationMap={auto:Orientation.AUTO,landscape:Orientation.LANDSCAPE,portrait:Orientation.PORTRAIT};var WindowType;(function(WindowType){WindowType[WindowType["Unknown"]=0]="Unknown";WindowType[WindowType["SubFrame"]=1]="SubFrame";WindowType[WindowType["BrowserWindow"]=2]="BrowserWindow";WindowType[WindowType["Fullscreen"]=3]="Fullscreen";})(WindowType||(WindowType={}));class ScreenAdapter extends EventTarget{isFrameRotated=false;handleResizeEvent=true;get supportFullScreen(){return this._ccprivate$_supportFullScreen}get isFullScreen(){if(!this._ccprivate$_supportFullScreen){return false}return !!document[this._ccprivate$_fn.fullscreenElement]}get devicePixelRatio(){return Math.min(window.devicePixelRatio??1,2)}get windowSize(){const result=this._windowSizeInCssPixels;const dpr=this.devicePixelRatio;result.width*=dpr;result.height*=dpr;return result}set windowSize(size){if(this._windowType!==WindowType.SubFrame){warnID(9202);return}this._ccprivate$_resizeFrame(this._ccprivate$_convertToSizeInCssPixels(size));}get resolution(){const windowSize=this.windowSize;const resolutionScale=this.resolutionScale;return new Size(windowSize.width*resolutionScale,windowSize.height*resolutionScale)}get resolutionScale(){return this._ccprivate$_resolutionScale}set resolutionScale(v){if(v===this._ccprivate$_resolutionScale){return}this._ccprivate$_resolutionScale=v;this._ccprivate$_cbToUpdateFrameBuffer?.();}get orientation(){return this._ccprivate$_orientation}set orientation(value){if(this._ccprivate$_orientation===value){return}this._ccprivate$_orientation=value;this._ccprivate$_updateFrame();}_ccprivate$_updateFrame(){this._ccprivate$_updateFrameState();this._ccprivate$_resizeFrame();}get safeAreaEdge(){const dpr=this.devicePixelRatio;const _top=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-top")||"0")*dpr;const _bottom=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-bottom")||"0")*dpr;const _left=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-left")||"0")*dpr;const _right=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-right")||"0")*dpr;return {top:_top,bottom:_bottom,left:_left,right:_right}}get isProportionalToFrame(){return this._ccprivate$_isProportionalToFrame}set isProportionalToFrame(v){if(this._ccprivate$_isProportionalToFrame===v){return}this._ccprivate$_isProportionalToFrame=v;this._ccprivate$_updateContainer();}_ccprivate$_gameFrame;_ccprivate$_gameContainer;_ccprivate$_gameCanvas;_ccprivate$_isProportionalToFrame=false;_ccprivate$_cachedFrameStyle={width:"0px",height:"0px"};_ccprivate$_cachedContainerStyle={width:"0px",height:"0px"};_ccprivate$_cbToUpdateFrameBuffer;_ccprivate$_supportFullScreen=false;_ccprivate$_touchEventName;_ccprivate$_onFullscreenChange;_ccprivate$_onFullscreenError;_ccprivate$_orientationChangeTimeoutId=-1;_ccprivate$_cachedFrameSize=new Size(0,0);_ccprivate$_exactFitScreen=false;_ccprivate$_isHeadlessMode=false;_ccprivate$_fn={};_ccprivate$_fnGroup=[["requestFullscreen","exitFullscreen","fullscreenchange","fullscreenEnabled","fullscreenElement","fullscreenerror"],["requestFullScreen","exitFullScreen","fullScreenchange","fullScreenEnabled","fullScreenElement","fullscreenerror"],["webkitRequestFullScreen","webkitCancelFullScreen","webkitfullscreenchange","webkitIsFullScreen","webkitCurrentFullScreenElement","webkitfullscreenerror"],["mozRequestFullScreen","mozCancelFullScreen","mozfullscreenchange","mozFullScreen","mozFullScreenElement","mozfullscreenerror"],["msRequestFullscreen","msExitFullscreen","MSFullscreenChange","msFullscreenEnabled","msFullscreenElement","msfullscreenerror"]];get _windowSizeInCssPixels(){if(TEST){return new Size(window.innerWidth,window.innerHeight)}if(this.isProportionalToFrame){if(!this._ccprivate$_gameContainer){warnID(9201);return new Size(0,0)}return new Size(this._ccprivate$_gameContainer.clientWidth,this._ccprivate$_gameContainer.clientHeight)}let fullscreenTarget;let width;let height;switch(this._windowType){case WindowType.SubFrame:if(!this._ccprivate$_gameFrame){warnID(9201);return new Size(0,0)}return new Size(this._ccprivate$_gameFrame.clientWidth,this._ccprivate$_gameFrame.clientHeight);case WindowType.Fullscreen:fullscreenTarget=this._ccprivate$_getFullscreenTarget();width=this.isFrameRotated?fullscreenTarget.clientHeight:fullscreenTarget.clientWidth;height=this.isFrameRotated?fullscreenTarget.clientWidth:fullscreenTarget.clientHeight;return new Size(width,height);case WindowType.BrowserWindow:width=this.isFrameRotated?window.innerHeight:window.innerWidth;height=this.isFrameRotated?window.innerWidth:window.innerHeight;return new Size(width,height);case WindowType.Unknown:default:return new Size(1,1)}}get _windowType(){if(this._ccprivate$_isHeadlessMode){return WindowType.Unknown}if(this.isFullScreen){return WindowType.Fullscreen}if(!this._ccprivate$_gameFrame){warnID(9201);return WindowType.Unknown}if(this._ccprivate$_exactFitScreen){return WindowType.BrowserWindow}return WindowType.SubFrame}_ccprivate$_resolutionScale=1;_ccprivate$_orientation=Orientation.AUTO;_ccprivate$_orientationDevice=Orientation.AUTO;constructor(){super();this._ccprivate$_gameFrame=document.getElementById("GameDiv");this._ccprivate$_gameContainer=document.getElementById("Cocos3dGameContainer");this._ccprivate$_gameCanvas=document.getElementById("GameCanvas");if(!TEST&&!EDITOR){if(!this._ccprivate$_gameFrame){this._ccprivate$_gameFrame=document.createElement("div");this._ccprivate$_gameFrame.setAttribute("id","GameDiv");this._ccprivate$_gameCanvas?.parentNode?.insertBefore(this._ccprivate$_gameFrame,this._ccprivate$_gameCanvas);this._ccprivate$_gameFrame.appendChild(this._ccprivate$_gameCanvas);}if(!this._ccprivate$_gameContainer){this._ccprivate$_gameContainer=document.createElement("div");this._ccprivate$_gameContainer.setAttribute("id","Cocos3dGameContainer");this._ccprivate$_gameCanvas?.parentNode?.insertBefore(this._ccprivate$_gameContainer,this._ccprivate$_gameCanvas);this._ccprivate$_gameContainer.appendChild(this._ccprivate$_gameCanvas);}}let fnList;const fnGroup=this._ccprivate$_fnGroup;for(let i=0;i<fnGroup.length;i++){fnList=fnGroup[i];if(typeof document[fnList[1]]!=="undefined"){for(let i=0;i<fnList.length;i++){this._ccprivate$_fn[fnGroup[0][i]]=fnList[i];}break}}this._ccprivate$_supportFullScreen=this._ccprivate$_fn.requestFullscreen!==undefined;this._ccprivate$_touchEventName="ontouchstart"in window?"touchend":"mousedown";this._ccprivate$_registerEvent();}init(options,cbToRebuildFrameBuffer){this._ccprivate$_cbToUpdateFrameBuffer=cbToRebuildFrameBuffer;this.orientation=orientationMap[options.configOrientation];this._ccprivate$_exactFitScreen=options.exactFitScreen;this._ccprivate$_isHeadlessMode=options.isHeadlessMode;this._ccprivate$_resizeFrame();}requestFullScreen(){return new Promise((resolve,reject)=>{if(this.isFullScreen){resolve();return}this._ccprivate$_cachedFrameSize=this.windowSize;this._ccprivate$_doRequestFullScreen().then(()=>{resolve();}).catch(()=>{const fullscreenTarget=this._ccprivate$_getFullscreenTarget();if(!fullscreenTarget){reject(new Error("Cannot access fullscreen target"));return}fullscreenTarget.addEventListener(this._ccprivate$_touchEventName,()=>{this._ccprivate$_doRequestFullScreen().then(()=>{resolve();}).catch(reject);},{once:true,capture:true});});})}exitFullScreen(){return new Promise((resolve,reject)=>{const requestPromise=document[this._ccprivate$_fn.exitFullscreen]();if(window.Promise&&requestPromise instanceof Promise){requestPromise.then(()=>{this.windowSize=this._ccprivate$_cachedFrameSize;resolve();}).catch(reject);return}this.windowSize=this._ccprivate$_cachedFrameSize;resolve();})}_ccprivate$_registerEvent(){document.addEventListener(this._ccprivate$_fn.fullscreenerror,()=>{this._ccprivate$_onFullscreenError?.();});window.addEventListener("resize",()=>{this._ccprivate$_updateFrame();});const notifyOrientationChange=orientation=>{if(orientation===this._ccprivate$_orientationDevice){return}this._ccprivate$_orientationDevice=orientation;this._ccprivate$_updateFrame();this.emit("orientation-change",orientation);};const getOrientation=()=>{let tmpOrientation=Orientation.PORTRAIT;switch(window.orientation){case 0:tmpOrientation=Orientation.PORTRAIT;break;case 90:tmpOrientation=Orientation.LANDSCAPE_RIGHT;break;case  -90:tmpOrientation=Orientation.LANDSCAPE_LEFT;break;case 180:tmpOrientation=Orientation.PORTRAIT_UPSIDE_DOWN;break;default:tmpOrientation=this._ccprivate$_orientationDevice;break}return tmpOrientation};let handleOrientationChange;const orientationChangeCallback=()=>{if(this._ccprivate$_orientationChangeTimeoutId!==-1){clearTimeout(this._ccprivate$_orientationChangeTimeoutId);}this._ccprivate$_orientationChangeTimeoutId=setTimeout(()=>{handleOrientationChange();},EVENT_TIMEOUT);};if(typeof window.matchMedia==="function"){const updateDPRChangeListener=()=>{const dpr=window.devicePixelRatio;const mediaQueryResolution=window.matchMedia(`(resolution: ${dpr}dppx)`);if(mediaQueryResolution.addEventListener){mediaQueryResolution.addEventListener("change",()=>{this.emit("window-resize",this.windowSize.width,this.windowSize.height);updateDPRChangeListener();},{once:true});}else if(mediaQueryResolution.addListener){mediaQueryResolution.addListener(()=>{this.emit("window-resize",this.windowSize.width,this.windowSize.height);});}};updateDPRChangeListener();const mediaQueryPortrait=window.matchMedia("(orientation: portrait)");const mediaQueryLandscape=window.matchMedia("(orientation: landscape)");const hasScreeOrientation=screen.orientation;handleOrientationChange=()=>{let tmpOrientation=this._ccprivate$_orientationDevice;if(mediaQueryPortrait.matches){tmpOrientation=Orientation.PORTRAIT;if(hasScreeOrientation){const orientationType=screen.orientation.type;if(orientationType==="portrait-primary"){tmpOrientation=Orientation.PORTRAIT;}else {tmpOrientation=Orientation.PORTRAIT_UPSIDE_DOWN;}}}else if(mediaQueryLandscape.matches){tmpOrientation=Orientation.LANDSCAPE;if(hasScreeOrientation){const orientationType=screen.orientation.type;if(orientationType==="landscape-primary"){tmpOrientation=Orientation.LANDSCAPE_LEFT;}else {tmpOrientation=Orientation.LANDSCAPE_RIGHT;}}}notifyOrientationChange(tmpOrientation);};if(mediaQueryPortrait.addEventListener){mediaQueryPortrait.addEventListener("change",orientationChangeCallback);mediaQueryLandscape.addEventListener("change",orientationChangeCallback);}else if(mediaQueryPortrait.addListener){mediaQueryPortrait.addListener(orientationChangeCallback);mediaQueryLandscape.addListener(orientationChangeCallback);}}else {handleOrientationChange=()=>{const tmpOrientation=getOrientation();notifyOrientationChange(tmpOrientation);};window.addEventListener("orientationchange",orientationChangeCallback);}document.addEventListener(this._ccprivate$_fn.fullscreenchange,()=>{this._ccprivate$_onFullscreenChange?.();this.emit("fullscreen-change",this.windowSize.width,this.windowSize.height);});}_ccprivate$_convertToSizeInCssPixels(size){const clonedSize=size.clone();const dpr=this.devicePixelRatio;clonedSize.width/=dpr;clonedSize.height/=dpr;return clonedSize}_ccprivate$_resizeFrame(sizeInCssPixels){if(!this._ccprivate$_gameFrame){return}this._ccprivate$_gameFrame.style.display="flex";this._ccprivate$_gameFrame.style["justify-content"]="center";this._ccprivate$_gameFrame.style["align-items"]="center";if(this._windowType===WindowType.SubFrame){if(!sizeInCssPixels){this._ccprivate$_updateContainer();return}this._ccprivate$_gameFrame.style.width=`${sizeInCssPixels.width}px`;this._ccprivate$_gameFrame.style.height=`${sizeInCssPixels.height}px`;}else {const winWidth=window.innerWidth;let winHeight=window.innerHeight;const inputHeight=document.body.scrollHeight-winHeight;if(systemInfo.os===OS.ANDROID&&winHeight<inputHeight){winHeight+=inputHeight;}if(this.isFrameRotated){this._ccprivate$_gameFrame.style["-webkit-transform"]="rotate(90deg)";this._ccprivate$_gameFrame.style.transform="rotate(90deg)";this._ccprivate$_gameFrame.style["-webkit-transform-origin"]="0px 0px 0px";this._ccprivate$_gameFrame.style.transformOrigin="0px 0px 0px";this._ccprivate$_gameFrame.style.margin=`0 0 0 ${winWidth}px`;this._ccprivate$_gameFrame.style.width=`${winHeight}px`;this._ccprivate$_gameFrame.style.height=`${winWidth}px`;}else {this._ccprivate$_gameFrame.style["-webkit-transform"]="rotate(0deg)";this._ccprivate$_gameFrame.style.transform="rotate(0deg)";this._ccprivate$_gameFrame.style.margin="0px auto";this._ccprivate$_gameFrame.style.width=`${winWidth}px`;this._ccprivate$_gameFrame.style.height=`${winHeight}px`;}}this._ccprivate$_updateContainer();}_ccprivate$_getFullscreenTarget(){const windowType=this._windowType;if(windowType===WindowType.Fullscreen){return document[this._ccprivate$_fn.fullscreenElement]}if(windowType===WindowType.SubFrame){return this._ccprivate$_gameFrame}return document.body}_ccprivate$_doRequestFullScreen(){return new Promise((resolve,reject)=>{if(!this._ccprivate$_supportFullScreen){reject(new Error("fullscreen is not supported"));return}const fullscreenTarget=this._ccprivate$_getFullscreenTarget();if(!fullscreenTarget){reject(new Error("Cannot access fullscreen target"));return}this._ccprivate$_onFullscreenChange=undefined;this._ccprivate$_onFullscreenError=undefined;const requestPromise=fullscreenTarget[this._ccprivate$_fn.requestFullscreen]();if(window.Promise&&requestPromise instanceof Promise){requestPromise.then(resolve).catch(reject);}else {this._ccprivate$_onFullscreenChange=resolve;this._ccprivate$_onFullscreenError=reject;}})}_ccprivate$_updateFrameState(){const orientation=this.orientation;const width=window.innerWidth;const height=window.innerHeight;const isBrowserLandscape=width>height;this.isFrameRotated=systemInfo.isMobile&&(isBrowserLandscape&&orientation===Orientation.PORTRAIT||!isBrowserLandscape&&orientation===Orientation.LANDSCAPE);}_ccprivate$_updateContainer(){if(!this._ccprivate$_gameContainer){warnID(9201);return}if(this.isProportionalToFrame){if(!this._ccprivate$_gameFrame){warnID(9201);return}const designedResolution=legacyCC.view.getDesignResolutionSize();const frame=this._ccprivate$_gameFrame;const frameW=frame.clientWidth;const frameH=frame.clientHeight;const designW=designedResolution.width;const designH=designedResolution.height;const scaleX=frameW/designW;const scaleY=frameH/designH;const containerStyle=this._ccprivate$_gameContainer.style;let containerW;let containerH;if(scaleX<scaleY){containerW=frameW;containerH=designH*scaleX;}else {containerW=designW*scaleY;containerH=frameH;}containerStyle.width=`${containerW}px`;containerStyle.height=`${containerH}px`;}else {const containerStyle=this._ccprivate$_gameContainer.style;containerStyle.width="100%";containerStyle.height="100%";}if(this._ccprivate$_gameFrame&&(this._ccprivate$_cachedFrameStyle.width!==this._ccprivate$_gameFrame.style.width||this._ccprivate$_cachedFrameStyle.height!==this._ccprivate$_gameFrame.style.height||this._ccprivate$_cachedContainerStyle.width!==this._ccprivate$_gameContainer.style.width||this._ccprivate$_cachedContainerStyle.height!==this._ccprivate$_gameContainer.style.height)){this.emit("window-resize",this.windowSize.width,this.windowSize.height);this._ccprivate$_cachedFrameStyle.width=this._ccprivate$_gameFrame.style.width;this._ccprivate$_cachedFrameStyle.height=this._ccprivate$_gameFrame.style.height;this._ccprivate$_cachedContainerStyle.width=this._ccprivate$_gameContainer.style.width;this._ccprivate$_cachedContainerStyle.height=this._ccprivate$_gameContainer.style.height;}}}const screenAdapter=new ScreenAdapter;
+ 
+ export { screenAdapter };
+diff --git a/node_modules/@cocos/engine-pal/dist/system-info/enum-type/platform.d.ts b/node_modules/@cocos/engine-pal/dist/system-info/enum-type/platform.d.ts
+index 7c160bf..01b4c93 100644
+--- a/node_modules/@cocos/engine-pal/dist/system-info/enum-type/platform.d.ts
++++ b/node_modules/@cocos/engine-pal/dist/system-info/enum-type/platform.d.ts
+@@ -2,7 +2,6 @@ export declare enum Platform {
+     UNKNOWN = "UNKNOWN",
+     EDITOR_PAGE = "EDITOR_PAGE",
+     EDITOR_CORE = "EDITOR_CORE",
+-    NODEJS_PAGE = "NODEJS_PAGE",
+     MOBILE_BROWSER = "MOBILE_BROWSER",
+     DESKTOP_BROWSER = "DESKTOP_BROWSER",
+     WIN32 = "WIN32",
+diff --git a/node_modules/@cocos/engine-pal/dist/system-info/enum-type/platform.js b/node_modules/@cocos/engine-pal/dist/system-info/enum-type/platform.js
+index c2abbc9..f88dbad 100644
+--- a/node_modules/@cocos/engine-pal/dist/system-info/enum-type/platform.js
++++ b/node_modules/@cocos/engine-pal/dist/system-info/enum-type/platform.js
+@@ -1,3 +1,3 @@
+-let Platform;(function(Platform){Platform["UNKNOWN"]="UNKNOWN";Platform["EDITOR_PAGE"]="EDITOR_PAGE";Platform["EDITOR_CORE"]="EDITOR_CORE";Platform["NODEJS_PAGE"]="NODEJS_PAGE";Platform["MOBILE_BROWSER"]="MOBILE_BROWSER";Platform["DESKTOP_BROWSER"]="DESKTOP_BROWSER";Platform["WIN32"]="WIN32";Platform["ANDROID"]="ANDROID";Platform["IOS"]="IOS";Platform["MACOS"]="MACOS";Platform["OHOS"]="OHOS";Platform["OPENHARMONY"]="OPENHARMONY";Platform["WECHAT_GAME"]="WECHAT_GAME";Platform["WECHAT_MINI_PROGRAM"]="WECHAT_MINI_PROGRAM";Platform["XIAOMI_QUICK_GAME"]="XIAOMI_QUICK_GAME";Platform["ALIPAY_MINI_GAME"]="ALIPAY_MINI_GAME";Platform["TAOBAO_CREATIVE_APP"]="TAOBAO_CREATIVE_APP";Platform["TAOBAO_MINI_GAME"]="TAOBAO_MINI_GAME";Platform["BYTEDANCE_MINI_GAME"]="BYTEDANCE_MINI_GAME";Platform["OPPO_MINI_GAME"]="OPPO_MINI_GAME";Platform["VIVO_MINI_GAME"]="VIVO_MINI_GAME";Platform["HUAWEI_QUICK_GAME"]="HUAWEI_QUICK_GAME";Platform["MIGU_MINI_GAME"]="MIGU_MINI_GAME";Platform["HONOR_MINI_GAME"]="HONOR_MINI_GAME";Platform["SUD_MINI_GAME"]="SUD_MINI_GAME";Platform["SUDV2_MINI_GAME"]="SUDV2_MINI_GAME";})(Platform||(Platform={}));
++let Platform;(function(Platform){Platform["UNKNOWN"]="UNKNOWN";Platform["EDITOR_PAGE"]="EDITOR_PAGE";Platform["EDITOR_CORE"]="EDITOR_CORE";Platform["MOBILE_BROWSER"]="MOBILE_BROWSER";Platform["DESKTOP_BROWSER"]="DESKTOP_BROWSER";Platform["WIN32"]="WIN32";Platform["ANDROID"]="ANDROID";Platform["IOS"]="IOS";Platform["MACOS"]="MACOS";Platform["OHOS"]="OHOS";Platform["OPENHARMONY"]="OPENHARMONY";Platform["WECHAT_GAME"]="WECHAT_GAME";Platform["WECHAT_MINI_PROGRAM"]="WECHAT_MINI_PROGRAM";Platform["XIAOMI_QUICK_GAME"]="XIAOMI_QUICK_GAME";Platform["ALIPAY_MINI_GAME"]="ALIPAY_MINI_GAME";Platform["TAOBAO_CREATIVE_APP"]="TAOBAO_CREATIVE_APP";Platform["TAOBAO_MINI_GAME"]="TAOBAO_MINI_GAME";Platform["BYTEDANCE_MINI_GAME"]="BYTEDANCE_MINI_GAME";Platform["OPPO_MINI_GAME"]="OPPO_MINI_GAME";Platform["VIVO_MINI_GAME"]="VIVO_MINI_GAME";Platform["HUAWEI_QUICK_GAME"]="HUAWEI_QUICK_GAME";Platform["MIGU_MINI_GAME"]="MIGU_MINI_GAME";Platform["HONOR_MINI_GAME"]="HONOR_MINI_GAME";Platform["SUD_MINI_GAME"]="SUD_MINI_GAME";Platform["SUDV2_MINI_GAME"]="SUDV2_MINI_GAME";})(Platform||(Platform={}));
+ 
+ export { Platform };
+diff --git a/node_modules/@cocos/engine-pal/dist/system-info/minigame/system-info.js b/node_modules/@cocos/engine-pal/dist/system-info/minigame/system-info.js
+index ba65274..3c76883 100644
+--- a/node_modules/@cocos/engine-pal/dist/system-info/minigame/system-info.js
++++ b/node_modules/@cocos/engine-pal/dist/system-info/minigame/system-info.js
+@@ -8,8 +8,7 @@ import { OS } from '../enum-type/operating-system.js';
+ import { Platform } from '../enum-type/platform.js';
+ import { Feature } from '../enum-type/feature.js';
+ import { warn } from '@cocos/engine/cocos/core/platform/debug';
+-import { versionCompare } from '../../utils.js';
+ 
+-let currentPlatform;if(WECHAT){currentPlatform=Platform.WECHAT_GAME;}else if(WECHAT_MINI_PROGRAM){currentPlatform=Platform.WECHAT_MINI_PROGRAM;}else if(XIAOMI){currentPlatform=Platform.XIAOMI_QUICK_GAME;}else if(ALIPAY){currentPlatform=Platform.ALIPAY_MINI_GAME;}else if(TAOBAO){currentPlatform=Platform.TAOBAO_CREATIVE_APP;}else if(TAOBAO_MINIGAME){currentPlatform=Platform.TAOBAO_MINI_GAME;}else if(BYTEDANCE){currentPlatform=Platform.BYTEDANCE_MINI_GAME;}else if(OPPO){currentPlatform=Platform.OPPO_MINI_GAME;}else if(VIVO){currentPlatform=Platform.VIVO_MINI_GAME;}else if(HUAWEI){currentPlatform=Platform.HUAWEI_QUICK_GAME;}else if(MIGU){currentPlatform=Platform.MIGU_MINI_GAME;}else if(HONOR){currentPlatform=Platform.HONOR_MINI_GAME;}else if(SUD){currentPlatform=Platform.SUD_MINI_GAME;}else if(SUDV2){currentPlatform=Platform.SUDV2_MINI_GAME;}let isVersionGreaterOrEqualTo;if(BYTEDANCE){isVersionGreaterOrEqualTo=function isVersionGreaterOrEqualTo(versionA,versionB){if(!versionA||!versionB){return false}function parseVersion(version){return version.split(".").map(part=>parseInt(part,10))}const versionArrayA=parseVersion(versionA);const versionArrayB=parseVersion(versionB);if(versionArrayA.length!==versionArrayB.length){return false}for(let i=0;i<versionArrayA.length;i++){if(versionArrayA[i]>versionArrayB[i]){return true}else if(versionArrayA[i]<versionArrayB[i]){return false}}return true};}const originalGetSystemInfoSync=minigame.getSystemInfoSync;const originalGetWindowInfo=minigame.getWindowInfo;let _cachedSystemInfo=originalGetSystemInfoSync.call(minigame);let _cachedWindowInfo=originalGetWindowInfo?.call(minigame);function testAndUpdateSystemInfoCache(testAmount,testInterval){let successfullyTestTimes=0;let intervalTimer=null;function testCachedSystemInfo(){const currentSystemInfo=originalGetSystemInfoSync.call(minigame);if(_cachedSystemInfo.screenWidth===currentSystemInfo.screenWidth&&_cachedSystemInfo.screenHeight===currentSystemInfo.screenHeight){if(++successfullyTestTimes>=testAmount&&intervalTimer!==null){clearInterval(intervalTimer);intervalTimer=null;}}else {successfullyTestTimes=0;}_cachedSystemInfo=currentSystemInfo;}intervalTimer=setInterval(testCachedSystemInfo,testInterval);}if(WECHAT&&versionCompare(minigame.getAppBaseInfo().SDKVersion,"2.25.3")<0){testAndUpdateSystemInfoCache(10,500);}minigame.onWindowResize?.(()=>{_cachedSystemInfo=originalGetSystemInfoSync.call(minigame);_cachedWindowInfo=originalGetWindowInfo?.call(minigame);});minigame.getSystemInfoSync=function(){return _cachedSystemInfo};if(originalGetWindowInfo!==undefined){minigame.getWindowInfo=function(){return _cachedWindowInfo};}class SystemInfo extends EventTarget{_ccprivate$_initPromise=[];constructor(){super();const minigameSysInfo=minigame.getSystemInfoSync();this.networkType=NetworkType.LAN;this.isNative=false;this.isBrowser=false;this.isLittleEndian=(()=>{const buffer=new ArrayBuffer(2);new DataView(buffer).setInt16(0,256,true);return new Int16Array(buffer)[0]===256})();this.nativeLanguage=minigameSysInfo.language;this.language=minigameSysInfo.language.substring(0,2);const minigamePlatform=minigameSysInfo.platform.toLocaleLowerCase();switch(minigamePlatform){case "android":this.os=OS.ANDROID;break;case "ios":this.os=OS.IOS;break;case "windows":this.os=OS.WINDOWS;break;case "mac":this.os=OS.OSX;break;default:this.os=OS.UNKNOWN;break}let minigameSystem=minigameSysInfo.system.toLowerCase();if(minigameSystem==="android p"){minigameSystem="android p 9.0";}const version=/[\d.]+/.exec(minigameSystem);this.osVersion=version?version[0]:minigameSystem;this.osMainVersion=parseInt(this.osVersion);this.platform=currentPlatform;this.isMobile=this.os===OS.ANDROID||this.os===OS.IOS||this.os===OS.UNKNOWN;this.browserType=BrowserType.UNKNOWN;this.browserVersion="";this.isXR=false;const isPCWechat=WECHAT&&this.os===OS.WINDOWS&&!minigame.isDevTool;const supportWasm=(()=>{if(WECHAT){return true}if(BYTEDANCE){let minSDKVersionSupportWasm="";if(this.os===OS.ANDROID){minSDKVersionSupportWasm="3.9.0";}else if(this.os===OS.IOS){minSDKVersionSupportWasm="3.8.0";}if(isVersionGreaterOrEqualTo(minigameSysInfo.SDKVersion,minSDKVersionSupportWasm)&&typeof TTWebAssembly==="object"){return true}}if(RUNTIME_BASED){if(typeof ral.WebAssembly==="object"){return true}}return false})();this._ccprivate$_featureMap={[Feature.WEBP]:false,[Feature.IMAGE_BITMAP]:false,[Feature.WEB_VIEW]:false,[Feature.VIDEO_PLAYER]:WECHAT||WECHAT_MINI_PROGRAM||OPPO,[Feature.SAFE_AREA]:WECHAT||WECHAT_MINI_PROGRAM||BYTEDANCE,[Feature.HPE]:false,[Feature.INPUT_TOUCH]:!isPCWechat,[Feature.EVENT_KEYBOARD]:isPCWechat,[Feature.EVENT_MOUSE]:isPCWechat,[Feature.EVENT_TOUCH]:true,[Feature.EVENT_ACCELEROMETER]:!isPCWechat,[Feature.EVENT_GAMEPAD]:false,[Feature.EVENT_HANDLE]:this.isXR,[Feature.EVENT_HMD]:this.isXR,[Feature.EVENT_HANDHELD]:false,[Feature.WASM]:supportWasm};this._ccprivate$_initPromise.push(this._ccprivate$_supportsWebpPromise());this._ccprivate$_registerEvent();}_ccprivate$_supportsWebpPromise(){if(!TEST){return this._ccprivate$_supportsWebp().then(isSupport=>{this._ccprivate$_setFeature(Feature.WEBP,isSupport);})}return Promise.resolve()}_ccprivate$_supportsWebp(){return new Promise((resolve,reject)=>{if(WECHAT_MINI_PROGRAM){resolve(true);return}if(WECHAT&&this.os===OS.ANDROID){resolve(false);return}try{const img=document.createElement("img");const timer=setTimeout(()=>{resolve(false);},500);img.onload=function onload(){clearTimeout(timer);const result=img.width>0&&img.height>0;resolve(result);};img.onerror=function onerror(err){clearTimeout(timer);if(DEBUG){warn("Create Webp image failed, message: ".concat(err.toString()));}resolve(false);};img.src="data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA";}catch(error){resolve(false);}})}_ccprivate$_registerEvent(){minigame.onHide(()=>{this.emit("hide");});minigame.onShow(()=>{this.emit("show");});}_ccprivate$_setFeature(feature,value){return this._ccprivate$_featureMap[feature]=value}init(){return Promise.all(this._ccprivate$_initPromise)}hasFeature(feature){return this._ccprivate$_featureMap[feature]}getBatteryLevel(){return minigame.getBatteryInfoSync().level/100}triggerGC(){minigame.triggerGC?.();}openURL(url){if(DEBUG){warn("openURL is not supported");}}now(){if(Date.now){return Date.now()}return +new Date}restartJSVM(){if(DEBUG){warn("restartJSVM is not supported.");}}exit(){minigame.exitMiniProgram?.();}close(){this.exit();}}const systemInfo=new SystemInfo;
++let currentPlatform;if(WECHAT){currentPlatform=Platform.WECHAT_GAME;}else if(WECHAT_MINI_PROGRAM){currentPlatform=Platform.WECHAT_MINI_PROGRAM;}else if(XIAOMI){currentPlatform=Platform.XIAOMI_QUICK_GAME;}else if(ALIPAY){currentPlatform=Platform.ALIPAY_MINI_GAME;}else if(TAOBAO){currentPlatform=Platform.TAOBAO_CREATIVE_APP;}else if(TAOBAO_MINIGAME){currentPlatform=Platform.TAOBAO_MINI_GAME;}else if(BYTEDANCE){currentPlatform=Platform.BYTEDANCE_MINI_GAME;}else if(OPPO){currentPlatform=Platform.OPPO_MINI_GAME;}else if(VIVO){currentPlatform=Platform.VIVO_MINI_GAME;}else if(HUAWEI){currentPlatform=Platform.HUAWEI_QUICK_GAME;}else if(MIGU){currentPlatform=Platform.MIGU_MINI_GAME;}else if(HONOR){currentPlatform=Platform.HONOR_MINI_GAME;}else if(SUD){currentPlatform=Platform.SUD_MINI_GAME;}else if(SUDV2){currentPlatform=Platform.SUDV2_MINI_GAME;}let isVersionGreaterOrEqualTo;if(BYTEDANCE){isVersionGreaterOrEqualTo=function isVersionGreaterOrEqualTo(versionA,versionB){if(!versionA||!versionB){return false}function parseVersion(version){return version.split(".").map(part=>parseInt(part,10))}const versionArrayA=parseVersion(versionA);const versionArrayB=parseVersion(versionB);if(versionArrayA.length!==versionArrayB.length){return false}for(let i=0;i<versionArrayA.length;i++){if(versionArrayA[i]>versionArrayB[i]){return true}else if(versionArrayA[i]<versionArrayB[i]){return false}}return true};}class SystemInfo extends EventTarget{_ccprivate$_initPromise=[];constructor(){super();const minigameSysInfo=minigame.getSystemInfoSync();this.networkType=NetworkType.LAN;this.isNative=false;this.isBrowser=false;this.isLittleEndian=(()=>{const buffer=new ArrayBuffer(2);new DataView(buffer).setInt16(0,256,true);return new Int16Array(buffer)[0]===256})();this.nativeLanguage=minigameSysInfo.language;this.language=minigameSysInfo.language.substring(0,2);const minigamePlatform=minigameSysInfo.platform.toLocaleLowerCase();switch(minigamePlatform){case "android":this.os=OS.ANDROID;break;case "ios":this.os=OS.IOS;break;case "windows":this.os=OS.WINDOWS;break;case "mac":this.os=OS.OSX;break;default:this.os=OS.UNKNOWN;break}let minigameSystem=minigameSysInfo.system.toLowerCase();if(minigameSystem==="android p"){minigameSystem="android p 9.0";}const version=/[\d.]+/.exec(minigameSystem);this.osVersion=version?version[0]:minigameSystem;this.osMainVersion=parseInt(this.osVersion);this.platform=currentPlatform;this.isMobile=this.os===OS.ANDROID||this.os===OS.IOS||this.os===OS.UNKNOWN;this.browserType=BrowserType.UNKNOWN;this.browserVersion="";this.isXR=false;const isPCWechat=WECHAT&&this.os===OS.WINDOWS&&!minigame.isDevTool;const supportWasm=(()=>{if(WECHAT){return true}if(BYTEDANCE){let minSDKVersionSupportWasm="";if(this.os===OS.ANDROID){minSDKVersionSupportWasm="3.9.0";}else if(this.os===OS.IOS){minSDKVersionSupportWasm="3.8.0";}if(isVersionGreaterOrEqualTo(minigameSysInfo.SDKVersion,minSDKVersionSupportWasm)&&typeof TTWebAssembly==="object"){return true}}if(RUNTIME_BASED){if(typeof ral.WebAssembly==="object"){return true}}return false})();this._ccprivate$_featureMap={[Feature.WEBP]:false,[Feature.IMAGE_BITMAP]:false,[Feature.WEB_VIEW]:false,[Feature.VIDEO_PLAYER]:WECHAT||WECHAT_MINI_PROGRAM||OPPO,[Feature.SAFE_AREA]:WECHAT||WECHAT_MINI_PROGRAM||BYTEDANCE,[Feature.HPE]:false,[Feature.INPUT_TOUCH]:!isPCWechat,[Feature.EVENT_KEYBOARD]:isPCWechat,[Feature.EVENT_MOUSE]:isPCWechat,[Feature.EVENT_TOUCH]:true,[Feature.EVENT_ACCELEROMETER]:!isPCWechat,[Feature.EVENT_GAMEPAD]:false,[Feature.EVENT_HANDLE]:this.isXR,[Feature.EVENT_HMD]:this.isXR,[Feature.EVENT_HANDHELD]:false,[Feature.WASM]:supportWasm};this._ccprivate$_initPromise.push(this._ccprivate$_supportsWebpPromise());this._ccprivate$_registerEvent();}_ccprivate$_supportsWebpPromise(){if(!TEST){return this._ccprivate$_supportsWebp().then(isSupport=>{this._ccprivate$_setFeature(Feature.WEBP,isSupport);})}return Promise.resolve()}_ccprivate$_supportsWebp(){return new Promise((resolve,reject)=>{if(WECHAT_MINI_PROGRAM){resolve(true);return}if(WECHAT&&this.os===OS.ANDROID){resolve(false);return}try{const img=document.createElement("img");const timer=setTimeout(()=>{resolve(false);},500);img.onload=function onload(){clearTimeout(timer);const result=img.width>0&&img.height>0;resolve(result);};img.onerror=function onerror(err){clearTimeout(timer);if(DEBUG){warn("Create Webp image failed, message: ".concat(err.toString()));}resolve(false);};img.src="data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA";}catch(error){resolve(false);}})}_ccprivate$_registerEvent(){minigame.onHide(()=>{this.emit("hide");});minigame.onShow(()=>{this.emit("show");});}_ccprivate$_setFeature(feature,value){return this._ccprivate$_featureMap[feature]=value}init(){return Promise.all(this._ccprivate$_initPromise)}hasFeature(feature){return this._ccprivate$_featureMap[feature]}getBatteryLevel(){return minigame.getBatteryInfoSync().level/100}triggerGC(){minigame.triggerGC?.();}openURL(url){if(DEBUG){warn("openURL is not supported");}}now(){if(Date.now){return Date.now()}return +new Date}restartJSVM(){if(DEBUG){warn("restartJSVM is not supported.");}}exit(){minigame.exitMiniProgram?.();}close(){this.exit();}}const systemInfo=new SystemInfo;
+ 
+ export { systemInfo };
+diff --git a/node_modules/@cocos/engine-pal/dist/system-info/native/system-info.js b/node_modules/@cocos/engine-pal/dist/system-info/native/system-info.js
+index 309c538..77c8d62 100644
+--- a/node_modules/@cocos/engine-pal/dist/system-info/native/system-info.js
++++ b/node_modules/@cocos/engine-pal/dist/system-info/native/system-info.js
+@@ -1,4 +1,4 @@
+-import { OPEN_HARMONY, IOS } from 'internal:constants';
++import { OPEN_HARMONY } from 'internal:constants';
+ import { EventTarget } from '@cocos/engine/cocos/core/event';
+ import { BrowserType } from '../enum-type/browser-type.js';
+ import { Language } from '../enum-type/language.js';
+@@ -7,6 +7,6 @@ import '../enum-type/operating-system.js';
+ import { Platform } from '../enum-type/platform.js';
+ import { Feature } from '../enum-type/feature.js';
+ 
+-const networkTypeMap={0:NetworkType.NONE,1:NetworkType.LAN,2:NetworkType.WWAN};const platformMap={0:Platform.WIN32,2:Platform.MACOS,3:Platform.ANDROID,4:Platform.IOS,5:Platform.IOS,6:Platform.OHOS,7:Platform.OPENHARMONY};class SystemInfo extends EventTarget{_ccprivate$_initPromise=[];get networkType(){return networkTypeMap[jsb.device.getNetworkType()]}constructor(){super();this.isNative=true;this.isBrowser=false;this.platform=platformMap[__getPlatform()];this.isMobile=this.platform===Platform.ANDROID||this.platform===Platform.IOS||this.platform===Platform.OHOS||this.platform===Platform.OPENHARMONY;this.isLittleEndian=(()=>{const buffer=new ArrayBuffer(2);new DataView(buffer).setInt16(0,256,true);return new Int16Array(buffer)[0]===256})();const currLanguage=__getCurrentLanguageCode();this.nativeLanguage=currLanguage?currLanguage.toLowerCase():Language.UNKNOWN;this.language=__getCurrentLanguage();this.os=__getOS();this.osVersion=__getOSVersion();this.osMainVersion=parseInt(this.osVersion);this.browserType=BrowserType.UNKNOWN;this.browserVersion="";this.isXR=typeof xr!=="undefined"&&typeof xr.XrEntry!=="undefined";const isHPE=typeof __supportHPE==="function"?__supportHPE():false;const isHarmonyOSNext=this.platform===Platform.OPENHARMONY;this._ccprivate$_featureMap={[Feature.WEBP]:true,[Feature.IMAGE_BITMAP]:false,[Feature.WEB_VIEW]:this.isMobile,[Feature.VIDEO_PLAYER]:this.isMobile,[Feature.SAFE_AREA]:this.isMobile,[Feature.HPE]:isHPE,[Feature.INPUT_TOUCH]:this.isMobile,[Feature.EVENT_KEYBOARD]:true,[Feature.EVENT_MOUSE]:isHPE||!this.isMobile||isHarmonyOSNext,[Feature.EVENT_TOUCH]:true,[Feature.EVENT_ACCELEROMETER]:this.isMobile,[Feature.EVENT_GAMEPAD]:true,[Feature.EVENT_HANDLE]:this.isXR,[Feature.EVENT_HMD]:this.isXR,[Feature.EVENT_HANDHELD]:typeof xr!=="undefined"&&typeof xr.ARModule!=="undefined",[Feature.WASM]:!OPEN_HARMONY&&!IOS};this._ccprivate$_registerEvent();}_ccprivate$_registerEvent(){jsb.onPause=()=>{this.emit("hide");};jsb.onResume=()=>{this.emit("show");};jsb.onClose=()=>{this.emit("close");};}_ccprivate$_setFeature(feature,value){return this._ccprivate$_featureMap[feature]=value}init(){return Promise.all(this._ccprivate$_initPromise)}hasFeature(feature){return this._ccprivate$_featureMap[feature]}getBatteryLevel(){return jsb.device.getBatteryLevel()}triggerGC(){jsb.garbageCollect();}openURL(url){jsb.openURL(url);}now(){if(Date.now){return Date.now()}return +new Date}restartJSVM(){__restartVM();}close(){__close();}exit(){__exit();}}const systemInfo=new SystemInfo;
++const networkTypeMap={0:NetworkType.NONE,1:NetworkType.LAN,2:NetworkType.WWAN};const platformMap={0:Platform.WIN32,2:Platform.MACOS,3:Platform.ANDROID,4:Platform.IOS,5:Platform.IOS,6:Platform.OHOS,7:Platform.OPENHARMONY};class SystemInfo extends EventTarget{_ccprivate$_initPromise=[];get networkType(){return networkTypeMap[jsb.device.getNetworkType()]}constructor(){super();this.isNative=true;this.isBrowser=false;this.platform=platformMap[__getPlatform()];this.isMobile=this.platform===Platform.ANDROID||this.platform===Platform.IOS||this.platform===Platform.OHOS||this.platform===Platform.OPENHARMONY;this.isLittleEndian=(()=>{const buffer=new ArrayBuffer(2);new DataView(buffer).setInt16(0,256,true);return new Int16Array(buffer)[0]===256})();const currLanguage=__getCurrentLanguageCode();this.nativeLanguage=currLanguage?currLanguage.toLowerCase():Language.UNKNOWN;this.language=__getCurrentLanguage();this.os=__getOS();this.osVersion=__getOSVersion();this.osMainVersion=parseInt(this.osVersion);this.browserType=BrowserType.UNKNOWN;this.browserVersion="";this.isXR=typeof xr!=="undefined"&&typeof xr.XrEntry!=="undefined";const isHPE=typeof __supportHPE==="function"?__supportHPE():false;this._ccprivate$_featureMap={[Feature.WEBP]:true,[Feature.IMAGE_BITMAP]:false,[Feature.WEB_VIEW]:this.isMobile,[Feature.VIDEO_PLAYER]:this.isMobile,[Feature.SAFE_AREA]:this.isMobile,[Feature.HPE]:isHPE,[Feature.INPUT_TOUCH]:this.isMobile,[Feature.EVENT_KEYBOARD]:true,[Feature.EVENT_MOUSE]:isHPE||!this.isMobile,[Feature.EVENT_TOUCH]:true,[Feature.EVENT_ACCELEROMETER]:this.isMobile,[Feature.EVENT_GAMEPAD]:true,[Feature.EVENT_HANDLE]:this.isXR,[Feature.EVENT_HMD]:this.isXR,[Feature.EVENT_HANDHELD]:typeof xr!=="undefined"&&typeof xr.ARModule!=="undefined",[Feature.WASM]:!OPEN_HARMONY};this._ccprivate$_registerEvent();}_ccprivate$_registerEvent(){jsb.onPause=()=>{this.emit("hide");};jsb.onResume=()=>{this.emit("show");};jsb.onClose=()=>{this.emit("close");};}_ccprivate$_setFeature(feature,value){return this._ccprivate$_featureMap[feature]=value}init(){return Promise.all(this._ccprivate$_initPromise)}hasFeature(feature){return this._ccprivate$_featureMap[feature]}getBatteryLevel(){return jsb.device.getBatteryLevel()}triggerGC(){jsb.garbageCollect();}openURL(url){jsb.openURL(url);}now(){if(Date.now){return Date.now()}return +new Date}restartJSVM(){__restartVM();}close(){__close();}exit(){__exit();}}const systemInfo=new SystemInfo;
+ 
+ export { systemInfo };
+diff --git a/node_modules/@cocos/engine-pal/dist/system-info/nodejs/system-info.d.ts b/node_modules/@cocos/engine-pal/dist/system-info/nodejs/system-info.d.ts
+deleted file mode 100644
+index 4f1b676..0000000
+--- a/node_modules/@cocos/engine-pal/dist/system-info/nodejs/system-info.d.ts
++++ /dev/null
+@@ -1,32 +0,0 @@
+-import { EventTarget } from '@cocos/engine/cocos/core/event';
+-import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+-declare class SystemInfo extends EventTarget {
+-    readonly networkType: NetworkType;
+-    readonly isNative: boolean;
+-    readonly isBrowser: boolean;
+-    readonly isMobile: boolean;
+-    readonly isLittleEndian: boolean;
+-    readonly platform: Platform;
+-    readonly language: Language;
+-    readonly nativeLanguage: string;
+-    readonly os: OS;
+-    readonly osVersion: string;
+-    readonly osMainVersion: number;
+-    readonly browserType: BrowserType;
+-    readonly browserVersion: string;
+-    readonly isXR: boolean;
+-    private _featureMap;
+-    private _initPromise;
+-    constructor();
+-    init(): Promise<void[]>;
+-    hasFeature(feature: Feature): boolean;
+-    getBatteryLevel(): number;
+-    triggerGC(): void;
+-    openURL(url: string): void;
+-    now(): number;
+-    restartJSVM(): void;
+-    exit(): void;
+-    close(): void;
+-}
+-export declare const systemInfo: SystemInfo;
+-export {};
+diff --git a/node_modules/@cocos/engine-pal/dist/system-info/nodejs/system-info.js b/node_modules/@cocos/engine-pal/dist/system-info/nodejs/system-info.js
+deleted file mode 100644
+index 999c17a..0000000
+--- a/node_modules/@cocos/engine-pal/dist/system-info/nodejs/system-info.js
++++ /dev/null
+@@ -1,13 +0,0 @@
+-import { DEBUG } from 'internal:constants';
+-import { EventTarget } from '@cocos/engine/cocos/core/event';
+-import { BrowserType } from '../enum-type/browser-type.js';
+-import { Language } from '../enum-type/language.js';
+-import { NetworkType } from '../enum-type/network-type.js';
+-import { OS } from '../enum-type/operating-system.js';
+-import { Platform } from '../enum-type/platform.js';
+-import { Feature } from '../enum-type/feature.js';
+-import { warn } from '@cocos/engine/cocos/core/platform/debug';
+-
+-class SystemInfo extends EventTarget{_ccprivate$_initPromise=[];constructor(){super();this.networkType=NetworkType.LAN;this.isNative=false;this.isBrowser=false;this.isMobile=false;this.platform=Platform.NODEJS_PAGE;this.browserType=BrowserType.UNKNOWN;this.browserVersion="";const osInfo=globalThis.nodeEnv.require("os");let osName=OS.UNKNOWN;if(osInfo.type().indexOf("wiWindows_NTn")!==-1){osName=OS.WINDOWS;}else if(osInfo.type().indexOf("Darwin")!==-1){osName=OS.OSX;}else if(osInfo.type().indexOf("Linux")!==-1){osName=OS.LINUX;}this.os=osName;this.osVersion=osInfo.release();this.osMainVersion=parseInt(this.osVersion);this.isLittleEndian=(()=>{const buffer=new ArrayBuffer(2);new DataView(buffer).setInt16(0,256,true);return new Int16Array(buffer)[0]===256})();let currLanguage=globalThis.nodeEnv.systemLanguage;this.nativeLanguage=currLanguage.toLowerCase();currLanguage=currLanguage?currLanguage.split("-")[0]:Language.ENGLISH;this.language=currLanguage;this.isXR=false;this._ccprivate$_featureMap={[Feature.WEBP]:true,[Feature.IMAGE_BITMAP]:false,[Feature.WEB_VIEW]:false,[Feature.VIDEO_PLAYER]:false,[Feature.SAFE_AREA]:false,[Feature.HPE]:false,[Feature.INPUT_TOUCH]:false,[Feature.EVENT_KEYBOARD]:false,[Feature.EVENT_MOUSE]:false,[Feature.EVENT_TOUCH]:false,[Feature.EVENT_ACCELEROMETER]:false,[Feature.EVENT_GAMEPAD]:false,[Feature.EVENT_HANDLE]:false,[Feature.EVENT_HMD]:false,[Feature.EVENT_HANDHELD]:false,[Feature.WASM]:true};}init(){return Promise.all(this._ccprivate$_initPromise)}hasFeature(feature){return this._ccprivate$_featureMap[feature]}getBatteryLevel(){if(DEBUG){warn("getBatteryLevel is not supported.");}return 1}triggerGC(){if(global.gc){global.gc();}}openURL(url){var open=globalThis.nodeEnv.require("open");open(url);}now(){if(Date.now){return Date.now()}return +new Date}restartJSVM(){if(DEBUG){warn("restartJSVM is not supported.");}}exit(){globalThis.nodeEnv.process.exit();}close(){this.emit("close");}}const systemInfo=new SystemInfo;
+-
+-export { systemInfo };
+diff --git a/node_modules/@cocos/engine-pal/dist/utils.js b/node_modules/@cocos/engine-pal/dist/utils.js
+index 6225964..87b9c24 100644
+--- a/node_modules/@cocos/engine-pal/dist/utils.js
++++ b/node_modules/@cocos/engine-pal/dist/utils.js
+@@ -1 +1 @@
+-import{EDITOR,USE_XR,NODEJS}from"internal:constants";import{warnID}from"@cocos/engine/cocos/core/platform/debug";function cloneObject(ttcejbOtegra,ojbOnigir){Object.keys(ojbOnigir).forEach(kye=>{if(typeof ojbOnigir[kye]==="function"){ttcejbOtegra[kye]=ojbOnigir[kye].bind(ojbOnigir);return}ttcejbOtegra[kye]=ojbOnigir[kye]})}function createInnerAudioContextPolyfill(mvnEemagini,pgifnoCllifylo,isuonorhcnysAs){if(isuonorhcnysAs===void 0){isuonorhcnysAs=false}return()=>{const atxetnoCoidu=mvnEemagini.createInnerAudioContext();if(pgifnoCllifylo.onPlay){const oyalPlanigir=atxetnoCoidu.play;let _BCyalPno=null;Object.defineProperty(atxetnoCoidu,"onPlay",{configurable:true,value(cb){_BCyalPno=cb}});Object.defineProperty(atxetnoCoidu,"play",{configurable:true,value(){oyalPlanigir.call(atxetnoCoidu);if(_BCyalPno){if(isuonorhcnysAs){setTimeout(_BCyalPno,0)}else{_BCyalPno()}}}})}if(pgifnoCllifylo.onPause){const oesuaPlanigir=atxetnoCoidu.pause;let _BCesuaPno=null;Object.defineProperty(atxetnoCoidu,"onPause",{configurable:true,value(cb){_BCesuaPno=cb}});Object.defineProperty(atxetnoCoidu,"pause",{configurable:true,value(){oesuaPlanigir.call(atxetnoCoidu);if(_BCesuaPno){if(isuonorhcnysAs){setTimeout(_BCesuaPno,0)}else{_BCesuaPno()}}}})}if(pgifnoCllifylo.onStop){const opotSlanigir=atxetnoCoidu.stop;let _BCpotSno=null;Object.defineProperty(atxetnoCoidu,"onStop",{configurable:true,value(cb){_BCpotSno=cb}});Object.defineProperty(atxetnoCoidu,"stop",{configurable:true,value(){opotSlanigir.call(atxetnoCoidu);if(_BCpotSno){if(isuonorhcnysAs){setTimeout(_BCpotSno,0)}else{_BCpotSno()}}}})}if(pgifnoCllifylo.onSeek){const okeeSlanigir=atxetnoCoidu.seek;let _BCkeeSno=null;Object.defineProperty(atxetnoCoidu,"onSeeked",{configurable:true,value(cb){_BCkeeSno=cb}});Object.defineProperty(atxetnoCoidu,"seek",{configurable:true,value(temi){okeeSlanigir.call(atxetnoCoidu,temi);if(_BCkeeSno){if(isuonorhcnysAs){setTimeout(_BCkeeSno,0)}else{_BCkeeSno()}}}})}return atxetnoCoidu}}function versionCompare(vAnoisre,vBnoisre){const vpxEgeRnoisre=/\d+\.\d+\.\d+/;if(!(vpxEgeRnoisre.test(vAnoisre)&&vpxEgeRnoisre.test(vBnoisre))){warnID(16356);return 0}const vAsrebmuNnoisre=vAnoisre.split(".").map(nmu=>Number.parseInt(nmu));const vBsrebmuNnoisre=vBnoisre.split(".").map(umn=>Number.parseInt(umn));for(let i=0;i<3;++i){const nArebmu=vAsrebmuNnoisre[i];const nBrebmu=vBsrebmuNnoisre[i];if(nArebmu!==nBrebmu){return nArebmu-nBrebmu}}return 0}function setTimeoutRAF(ckcablla,dyale){for(var _nel=arguments.length,asgr=new Array(_nel>2?_nel-2:0),_yek=2;_yek<_nel;_yek++){asgr[_yek-2]=arguments[_yek]}const strat=performance.now();const rfa=requestAnimationFrame||window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame;if(EDITOR||NODEJS||rfa===undefined||USE_XR&&globalThis.__globalXR?.isWebXR){return setTimeout(ckcablla,dyale,...asgr)}const handleRAF=()=>{if(performance.now()-strat<dyale){rfa(handleRAF)}else{ckcablla(...asgr)}};return rfa(handleRAF)}function clearTimeoutRAF(id){const cfa=cancelAnimationFrame||window.cancelAnimationFrame||window.cancelRequestAnimationFrame||window.msCancelRequestAnimationFrame||window.mozCancelRequestAnimationFrame||window.oCancelRequestAnimationFrame||window.webkitCancelRequestAnimationFrame||window.msCancelAnimationFrame||window.mozCancelAnimationFrame||window.webkitCancelAnimationFrame||window.ocancelAnimationFrame;if(EDITOR||cfa===undefined||USE_XR&&globalThis.__globalXR?.isWebXR){clearTimeout(id)}else{cfa(id)}}export{clearTimeoutRAF,cloneObject,createInnerAudioContextPolyfill,setTimeoutRAF,versionCompare};
+\ No newline at end of file
++import{EDITOR,USE_XR}from"internal:constants";import{warnID}from"@cocos/engine/cocos/core/platform/debug";function cloneObject(ttcejbOtegra,ojbOnigir){Object.keys(ojbOnigir).forEach(kye=>{if(typeof ojbOnigir[kye]==="function"){ttcejbOtegra[kye]=ojbOnigir[kye].bind(ojbOnigir);return}ttcejbOtegra[kye]=ojbOnigir[kye]})}function createInnerAudioContextPolyfill(mvnEemagini,pgifnoCllifylo,isuonorhcnysAs){if(isuonorhcnysAs===void 0){isuonorhcnysAs=false}return()=>{const atxetnoCoidu=mvnEemagini.createInnerAudioContext();if(pgifnoCllifylo.onPlay){const oyalPlanigir=atxetnoCoidu.play;let _BCyalPno=null;Object.defineProperty(atxetnoCoidu,"onPlay",{configurable:true,value(cb){_BCyalPno=cb}});Object.defineProperty(atxetnoCoidu,"play",{configurable:true,value(){oyalPlanigir.call(atxetnoCoidu);if(_BCyalPno){if(isuonorhcnysAs){setTimeout(_BCyalPno,0)}else{_BCyalPno()}}}})}if(pgifnoCllifylo.onPause){const oesuaPlanigir=atxetnoCoidu.pause;let _BCesuaPno=null;Object.defineProperty(atxetnoCoidu,"onPause",{configurable:true,value(cb){_BCesuaPno=cb}});Object.defineProperty(atxetnoCoidu,"pause",{configurable:true,value(){oesuaPlanigir.call(atxetnoCoidu);if(_BCesuaPno){if(isuonorhcnysAs){setTimeout(_BCesuaPno,0)}else{_BCesuaPno()}}}})}if(pgifnoCllifylo.onStop){const opotSlanigir=atxetnoCoidu.stop;let _BCpotSno=null;Object.defineProperty(atxetnoCoidu,"onStop",{configurable:true,value(cb){_BCpotSno=cb}});Object.defineProperty(atxetnoCoidu,"stop",{configurable:true,value(){opotSlanigir.call(atxetnoCoidu);if(_BCpotSno){if(isuonorhcnysAs){setTimeout(_BCpotSno,0)}else{_BCpotSno()}}}})}if(pgifnoCllifylo.onSeek){const okeeSlanigir=atxetnoCoidu.seek;let _BCkeeSno=null;Object.defineProperty(atxetnoCoidu,"onSeeked",{configurable:true,value(cb){_BCkeeSno=cb}});Object.defineProperty(atxetnoCoidu,"seek",{configurable:true,value(temi){okeeSlanigir.call(atxetnoCoidu,temi);if(_BCkeeSno){if(isuonorhcnysAs){setTimeout(_BCkeeSno,0)}else{_BCkeeSno()}}}})}return atxetnoCoidu}}function versionCompare(vAnoisre,vBnoisre){const vpxEgeRnoisre=/\d+\.\d+\.\d+/;if(!(vpxEgeRnoisre.test(vAnoisre)&&vpxEgeRnoisre.test(vBnoisre))){warnID(16356);return 0}const vAsrebmuNnoisre=vAnoisre.split(".").map(nmu=>Number.parseInt(nmu));const vBsrebmuNnoisre=vBnoisre.split(".").map(umn=>Number.parseInt(umn));for(let i=0;i<3;++i){const nArebmu=vAsrebmuNnoisre[i];const nBrebmu=vBsrebmuNnoisre[i];if(nArebmu!==nBrebmu){return nArebmu-nBrebmu}}return 0}function setTimeoutRAF(ckcablla,dyale){for(var _nel=arguments.length,asgr=new Array(_nel>2?_nel-2:0),_yek=2;_yek<_nel;_yek++){asgr[_yek-2]=arguments[_yek]}const strat=performance.now();const rfa=requestAnimationFrame||window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame;if(EDITOR||rfa===undefined||USE_XR&&globalThis.__globalXR?.isWebXR){return setTimeout(ckcablla,dyale,...asgr)}const handleRAF=()=>{if(performance.now()-strat<dyale){rfa(handleRAF)}else{ckcablla(...asgr)}};return rfa(handleRAF)}function clearTimeoutRAF(id){const cfa=cancelAnimationFrame||window.cancelAnimationFrame||window.cancelRequestAnimationFrame||window.msCancelRequestAnimationFrame||window.mozCancelRequestAnimationFrame||window.oCancelRequestAnimationFrame||window.webkitCancelRequestAnimationFrame||window.msCancelAnimationFrame||window.mozCancelAnimationFrame||window.webkitCancelAnimationFrame||window.ocancelAnimationFrame;if(EDITOR||cfa===undefined||USE_XR&&globalThis.__globalXR?.isWebXR){clearTimeout(id)}else{cfa(id)}}export{clearTimeoutRAF,cloneObject,createInnerAudioContextPolyfill,setTimeoutRAF,versionCompare};
+\ No newline at end of file
+diff --git a/node_modules/@cocos/engine-pal/dist/wasm/wasm-nodejs.d.ts b/node_modules/@cocos/engine-pal/dist/wasm/wasm-nodejs.d.ts
+deleted file mode 100644
+index c812796..0000000
+--- a/node_modules/@cocos/engine-pal/dist/wasm/wasm-nodejs.d.ts
++++ /dev/null
+@@ -1,4 +0,0 @@
+-export declare function instantiateWasm(wasmUrl: string, importObject: WebAssembly.Imports): Promise<any>;
+-export declare function fetchBuffer(binaryUrl: string): Promise<ArrayBuffer>;
+-export declare function fetchUrl(binaryUrl: string): Promise<string>;
+-export declare function ensureWasmModuleReady(): Promise<void>;
+diff --git a/node_modules/@cocos/engine-pal/dist/wasm/wasm-nodejs.js b/node_modules/@cocos/engine-pal/dist/wasm/wasm-nodejs.js
+deleted file mode 100644
+index 7bec68b..0000000
+--- a/node_modules/@cocos/engine-pal/dist/wasm/wasm-nodejs.js
++++ /dev/null
+@@ -1,3 +0,0 @@
+-function instantiateWasm(wasmUrl,importObject){return fetchBuffer(wasmUrl).then(arrayBuffer=>WebAssembly.instantiate(arrayBuffer,importObject))}function fetchBuffer(binaryUrl){return new Promise((resolve,reject)=>{try{const externalRoot=`${globalThis.nodeEnv.enginePath}/native/external/`;binaryUrl=binaryUrl.replace("external:",externalRoot);const fs=globalThis.nodeEnv.require("fs-extra");const arrayBuffer=fs.readFileSync(binaryUrl);resolve(arrayBuffer);}catch(e){reject(e);}})}function fetchUrl(binaryUrl){return new Promise((resolve,reject)=>{try{const externalRoot=`${globalThis.nodeEnv.enginePath}/native/external/`;binaryUrl=binaryUrl.replace("external:",externalRoot);resolve(binaryUrl);}catch(e){reject(e);}})}function ensureWasmModuleReady(){return Promise.resolve()}
+-
+-export { ensureWasmModuleReady, fetchBuffer, fetchUrl, instantiateWasm };
