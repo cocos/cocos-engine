@@ -297,56 +297,56 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/non-minigame.ts",
-                "pal/audio": "pal/audio/web/player.ts",
-                "pal/system-info": "pal/system-info/web/system-info.ts",
-                "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
-                "pal/input": "pal/input/web/index.ts",
-                "pal/env": "pal/env/web/env.ts",
-                "pal/pacer": "pal/pacer/pacer-web.ts",
-                "pal/wasm": "pal/wasm/wasm-web.ts"
+                "pal/minigame": "pal/minigame/non-minigame.js",
+                "pal/audio": "pal/audio/web/player.js",
+                "pal/system-info": "pal/system-info/web/system-info.js",
+                "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.js",
+                "pal/input": "pal/input/web/index.js",
+                "pal/env": "pal/env/web/env.js",
+                "pal/pacer": "pal/pacer/pacer-web.js",
+                "pal/wasm": "pal/wasm/wasm-web.js"
             }
         },
         {
             "test": "context.buildTimeConstants && context.buildTimeConstants.NATIVE",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/non-minigame.ts",
-                "pal/audio": "pal/audio/native/player.ts",
-                "pal/system-info": "pal/system-info/native/system-info.ts",
-                "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
-                "pal/input": "pal/input/native/index.ts",
-                "pal/env": "pal/env/native/env.ts",
-                "pal/pacer": "pal/pacer/pacer-native.ts",
-                "pal/wasm": "pal/wasm/wasm-native.ts"
+                "pal/minigame": "pal/minigame/non-minigame.js",
+                "pal/audio": "pal/audio/native/player.js",
+                "pal/system-info": "pal/system-info/native/system-info.js",
+                "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.js",
+                "pal/input": "pal/input/native/index.js",
+                "pal/env": "pal/env/native/env.js",
+                "pal/pacer": "pal/pacer/pacer-native.js",
+                "pal/wasm": "pal/wasm/wasm-native.js"
             }
         },
         {
             "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
-                "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/system-info": "pal/system-info/minigame/system-info.ts",
-                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
-                "pal/input": "pal/input/minigame/index.ts",
-                "pal/env": "pal/env/minigame/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts",
-                "pal/wasm": "pal/wasm/wasm-minigame.ts"
+                "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.js",
+                "pal/audio": "pal/audio/minigame/player.js",
+                "pal/system-info": "pal/system-info/minigame/system-info.js",
+                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.js",
+                "pal/input": "pal/input/minigame/index.js",
+                "pal/env": "pal/env/minigame/env.js",
+                "pal/pacer": "pal/pacer/pacer-minigame.js",
+                "pal/wasm": "pal/wasm/wasm-minigame.js"
             }
         },
         {
             "test": "context.buildTimeConstants && context.buildTimeConstants.RUNTIME_BASED",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/runtime.ts",
-                "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/system-info": "pal/system-info/minigame/system-info.ts",
-                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
-                "pal/input": "pal/input/minigame/index.ts",
-                "pal/env": "pal/env/runtime/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts",
-                "pal/wasm": "pal/wasm/wasm-minigame.ts"
+                "pal/minigame": "pal/minigame/runtime.js",
+                "pal/audio": "pal/audio/minigame/player.js",
+                "pal/system-info": "pal/system-info/minigame/system-info.js",
+                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.js",
+                "pal/input": "pal/input/minigame/index.js",
+                "pal/env": "pal/env/runtime/env.js",
+                "pal/pacer": "pal/pacer/pacer-minigame.js",
+                "pal/wasm": "pal/wasm/wasm-minigame.js"
             }
         },
         {
@@ -538,6 +538,13 @@
             "internal": false
         },
 
+        "NODEJS": {
+            "comment": "Running in the Node.js environment.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
         "EDITOR": {
             "comment": "Running in the editor.",
             "type": "boolean",
@@ -609,10 +616,24 @@
             "ccGlobal": true,
             "internal": false
         },
+        "SUD": {
+            "comment": "Running in the sud's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "SUDV2": {
+            "comment": "Running in the sud v2's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
         "RUNTIME_BASED": {
             "comment": "Running in runtime based environment.",
             "type": "boolean",
-            "value": "$OPPO || $VIVO || $HUAWEI || $COCOSPLAY || $QTT || $LINKSURE",
+            "value": "$OPPO || $VIVO || $HUAWEI || $COCOSPLAY || $QTT || $LINKSURE || $SUD || $SUDV2",
             "ccGlobal": true,
             "internal": false
         },
