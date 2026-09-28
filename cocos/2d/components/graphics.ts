@@ -264,6 +264,9 @@ export class Graphics extends UIRenderer {
     public onEnable (): void {
         super.onEnable();
         this._updateMtlForGraphics();
+        // The node may have moved while disabled. hasChangedFlags only lives for one frame,
+        // so Model.updateTransform would miss it and keep rendering with a stale world matrix.
+        this.model?.updateWorldBound();
     }
 
     public onDestroy (): void {
