@@ -640,7 +640,7 @@ const aabbWithOBB = (function (): (aabb: AABB, obb: OBB) => number {
         for (let i = 0; i < 3; ++i) { // Fill out rest of axis
             vec3Cross(test[6 + i * 3 + 0], test[i], test[3]);
             vec3Cross(test[6 + i * 3 + 1], test[i], test[4]);
-            vec3Cross(test[6 + i * 3 + 1], test[i], test[5]);
+            vec3Cross(test[6 + i * 3 + 2], test[i], test[5]);
         }
 
         vec3Subtract(min, aabb.center, aabb.halfExtents);
