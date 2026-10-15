@@ -210,7 +210,7 @@ class SystemInfo extends EventTarget {
             [Feature.SAFE_AREA]: WECHAT || WECHAT_MINI_PROGRAM || BYTEDANCE,
             [Feature.HPE]: false,
 
-            [Feature.INPUT_TOUCH]: !isPCWechat,
+            [Feature.INPUT_TOUCH]: true,
             [Feature.EVENT_KEYBOARD]: isPCWechat,
             [Feature.EVENT_MOUSE]: isPCWechat,
             [Feature.EVENT_TOUCH]: true,

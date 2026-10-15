@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR_NOT_IN_PREVIEW, HTML5, NATIVE } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, HTML5, NATIVE, WECHAT } from 'internal:constants';
 import { AccelerometerInputSource, GamepadInputDevice, HMDInputDevice, HandheldInputDevice,
     HandleInputDevice, KeyboardInputSource, MouseInputSource, TouchInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
@@ -381,19 +381,25 @@ export class Input {
 
         if (sys.hasFeature(sys.Feature.EVENT_MOUSE)) {
             mouseInput.on(InputEventType.MOUSE_DOWN, (event): void => {
-                self._needSimulateTouchMoveEvent = true;
-                self._simulateEventTouch(event);
+                if (!WECHAT) {
+                    // The mouse event on the PC on the WeChat mini game platform will also simulate a touch event.
+                    self._needSimulateTouchMoveEvent = true;
+                    self._simulateEventTouch(event);
+                }
                 self._dispatchEventMouse(event);
             });
             mouseInput.on(InputEventType.MOUSE_MOVE, (event): void => {
-                if (self._needSimulateTouchMoveEvent) {
+                if (!WECHAT && self._needSimulateTouchMoveEvent) {
                     self._simulateEventTouch(event);
                 }
                 self._dispatchEventMouse(event);
             });
             mouseInput.on(InputEventType.MOUSE_UP, (event): void => {
-                self._needSimulateTouchMoveEvent = false;
-                self._simulateEventTouch(event);
+                if (!WECHAT) {
+                    // The mouse event on the PC on the WeChat mini game platform will also simulate a touch event.
+                    self._needSimulateTouchMoveEvent = false;
+                    self._simulateEventTouch(event);
+                }
                 self._dispatchEventMouse(event);
             });
             mouseInput.on(InputEventType.MOUSE_WHEEL, (event): void => {
