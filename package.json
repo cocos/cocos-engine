@@ -10,7 +10,7 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002 -o http://127.0.0.1:8002/playground/index.html",
-    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run fetch-ral",
+    "postinstall": "patch-package --error-on-fail && node scripts/spread-pal.cjs && node scripts/spread-adapter.cjs && gulp build-debug-infos && gulp build-declarations",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -59,13 +59,16 @@
     "typedoc-plugin-external-module-name": "^4.0.3",
     "typescript": "^4.3.5",
     "vconsole": "^3.3.0",
-    "yargs": "^12.0.5"
+    "yargs": "^12.0.5",
+    "patch-package": "8.0.0"
   },
   "dependencies": {
     "@cocos/ammo": "1.2.0",
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.8",
     "@cocos/dragonbones-js": "^1.0.1",
-    "@cocos/physx": "1.0.7"
+    "@cocos/physx": "1.0.7",
+    "@cocos/engine-platforms": "1.0.6",
+    "@cocos/engine-pal": "1.0.4"
   }
 }
