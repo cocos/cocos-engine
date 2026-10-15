@@ -397,6 +397,18 @@ export const sys: Record<string, any> = {
      * @default 119
      */
     LINKSURE_MINI_GAME: 119,
+    /**
+     * @property {Number} SUD_MINI_GAME
+     * @readOnly
+     * @default 120
+     */
+    SUD_MINI_GAME: 120,
+    /**
+     * @property {Number} SUDV2_MINI_GAME
+     * @readOnly
+     * @default 121
+     */
+    SUDV2_MINI_GAME: 121,
 
     /**
      * @en Browser Type - WeChat inner browser
