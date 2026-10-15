@@ -28,6 +28,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci --ignore-scripts
+    - run: node scripts/spread-pal.cjs
     - run: npx gulp build-debug-infos
     - run: node ./scripts/compile-native-ts.js 
     #- run: echo "::remove-matcher owner=circular-reference-check::"
