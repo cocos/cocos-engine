@@ -18,7 +18,8 @@
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
     "checkout-engine-version": "node ./scripts/checkout-engine-version.js",
     "varify-engine-version": "node ./scripts/varify-engine-version.js",
-    "test": "gulp test"
+    "test": "gulp test",
+    "postinstall": "patch-package --error-on-fail && node scripts/spread-pal.cjs && node scripts/spread-adapter.cjs"
   },
   "repository": {
     "type": "git",
@@ -52,13 +53,16 @@
     "typedoc-plugin-external-module-name": "^4.0.3",
     "typescript": "^4.2.3",
     "vconsole": "^3.3.0",
-    "yargs": "^12.0.5"
+    "yargs": "^12.0.5",
+    "patch-package": "8.0.0"
   },
   "dependencies": {
     "@cocos/ammo": "1.1.1",
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.3",
     "@cocos/dragonbones-js": "^1.0.1",
-    "@cocos/physx": "1.0.2"
+    "@cocos/physx": "1.0.2",
+    "@cocos/engine-platforms": "1.0.6",
+    "@cocos/engine-pal": "1.0.4"
   }
 }
