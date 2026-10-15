@@ -283,7 +283,7 @@ async function doBuild ({
     const useWebGPU = flags['WEBGPU'];
     let platform = options.platform as PlatformType;
     if (!platform) {
-        ["HTML5", "NATIVE", "WECHAT", "BAIDU", "XIAOMI", "ALIPAY", "BYTEDANCE", "OPPO", "VIVO", "HUAWEI", "COCOSPLAY", "QTT", "LINKSURE"].some(key => {
+        ["HTML5", "NATIVE", "WECHAT", "BAIDU", "XIAOMI", "ALIPAY", "BYTEDANCE", "OPPO", "VIVO", "HUAWEI", "COCOSPLAY", "QTT", "LINKSURE", "SUD", "SUDV2", "NODEJS"].some(key => {
             if (buildTimeConstants[key]) {
                 platform = key as PlatformType;
                 return true;
