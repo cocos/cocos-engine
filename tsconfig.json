@@ -17,6 +17,9 @@
     "paths": {
         "cc.decorator": [
             "cocos/core/data/decorators/index.ts"
+        ],
+        "@cocos/engine/*": [
+            "*"
         ]
     },
     "types": [
