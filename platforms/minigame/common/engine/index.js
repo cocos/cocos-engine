@@ -1,2 +1,0 @@
-require('./Editbox');
-require('./AssetManager');
