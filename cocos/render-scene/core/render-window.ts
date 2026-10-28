@@ -21,12 +21,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { DEBUG } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, TextureFlagBit, TextureFlags,
 } from '../../gfx';
+import { warn } from '../../core/platform/debug';
 import { Root } from '../../root';
 import { Camera } from '../scene';
 
@@ -41,7 +43,10 @@ export interface IRenderWindowInfo {
     externalFlag?: TextureFlags; // external texture type normal or oes
 }
 
-const orientationMap: Record<Orientation, SurfaceTransform> = {
+// NOTE: `Orientation` is a flag enum whose composite members (LANDSCAPE, AUTO) are never
+// actual runtime orientations, so this map intentionally only covers the physical ones.
+// It is therefore typed as Partial rather than a total Record<Orientation, ...>.
+const orientationMap: Partial<Record<Orientation, SurfaceTransform>> = {
     [Orientation.PORTRAIT]: SurfaceTransform.IDENTITY,
     [Orientation.LANDSCAPE_RIGHT]: SurfaceTransform.ROTATE_90,
     [Orientation.PORTRAIT_UPSIDE_DOWN]: SurfaceTransform.ROTATE_180,
@@ -253,7 +258,11 @@ export class RenderWindow {
      */
     public resize (width: number, height: number): void {
         if (this._swapchain) {
-            this._swapchain.resize(width, height, orientationMap[screenAdapter.orientation]);
+            const surfaceTransform = orientationMap[screenAdapter.orientation];
+            if (DEBUG && surfaceTransform === undefined) {
+                warn(`Unexpected screen orientation: ${screenAdapter.orientation}`);
+            }
+            this._swapchain.resize(width, height, surfaceTransform || SurfaceTransform.IDENTITY);
             this._width = this._swapchain.width;
             this._height = this._swapchain.height;
         } else {
