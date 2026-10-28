@@ -100,6 +100,10 @@ declare module 'internal:constants' {
      */
     export const LINKSURE: boolean;
 
+    export const SUD: boolean;
+
+    export const SUDV2: boolean;
+
     /**
      * Running in mini game.
      */
