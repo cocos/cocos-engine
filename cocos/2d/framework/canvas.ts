@@ -222,7 +222,9 @@ export class Canvas extends RenderRoot2D {
 
     protected _onResizeCamera (): void {
         if (this._cameraComponent && this._alignCanvasWithScreen) {
-            if (this._cameraComponent.targetTexture) {
+            if (EDITOR_NOT_IN_PREVIEW && !this._cameraComponent.targetTexture) {
+                this._cameraComponent.orthoHeight = view.getDesignResolutionSize().height / 2;
+            } else if (this._cameraComponent.targetTexture) {
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
             } else {
                 const size = screen.windowSize;

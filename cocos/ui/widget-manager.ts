@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, DEV } from 'internal:constants';
+import { EDITOR, DEV, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { director, DirectorEvent } from '../game/director';
 import { Vec2, Vec3, visibleRect, js, cclegacy, approx, EPSILON } from '../core';
@@ -65,6 +65,7 @@ function align (node: Node, widget: Widget): void {
     const targetAnchor = useGlobal ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
 
     const isRoot = useGlobal;
+    const useDesignResolution = EDITOR_NOT_IN_PREVIEW && target instanceof Scene;
     node.getPosition(_tempPos);
     const uiTrans = node._getUITransformComp()!;
     let x = _tempPos.x;
@@ -77,8 +78,8 @@ function align (node: Node, widget: Widget): void {
         let localRight = 0;
         const targetWidth = targetSize.width;
         if (isRoot) {
-            localLeft = visibleRect.left.x;
-            localRight = visibleRect.right.x;
+            localLeft = useDesignResolution ? 0 : visibleRect.left.x;
+            localRight = useDesignResolution ? targetWidth : visibleRect.right.x;
         } else {
             localLeft = -targetAnchor.x * targetWidth;
             localRight = localLeft + targetWidth;
@@ -139,8 +140,8 @@ function align (node: Node, widget: Widget): void {
         let localBottom = 0;
         const targetHeight = targetSize.height;
         if (isRoot) {
-            localBottom = visibleRect.bottom.y;
-            localTop = visibleRect.top.y;
+            localBottom = useDesignResolution ? 0 : visibleRect.bottom.y;
+            localTop = useDesignResolution ? targetHeight : visibleRect.top.y;
         } else {
             localBottom = -targetAnchor.y * targetHeight;
             localTop = localBottom + targetHeight;
