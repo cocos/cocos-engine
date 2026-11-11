@@ -124,21 +124,10 @@ export class TTF extends TTFUtils implements IAssembler {
         if (!renderData) {
             return;
         }
-        const uiTrans = comp.node._getUITransformComp()!;
-        const width = uiTrans.width;
-        const height = uiTrans.height;
-        const appX = uiTrans.anchorX * width;
-        const appY = uiTrans.anchorY * height;
-
-        const data = renderData.data;
-        data[0].x = -appX; // l
-        data[0].y = -appY; // b
-        data[1].x = width - appX; // r
-        data[1].y = -appY; // b
-        data[2].x = -appX; // l
-        data[2].y = height - appY; // t
-        data[3].x = width - appX; // r
-        data[3].y = height - appY; // t
+        const trans = comp.node._getUITransformComp()!;
+        comp.textRenderData.uiTransAnchorX = trans.anchorX;
+        comp.textRenderData.uiTransAnchorY = trans.anchorY;
+        this.generateVertexData(comp.textStyle, comp.textLayoutData, comp.textRenderData);
     }
 
     updateUVs (comp: Label): void {
