@@ -105,6 +105,28 @@ describe(`Node`, () => {
         expect(node.active).toBe(true);
     });
 
+    test.each([180, 135, -135, 90.01])('keeps a planar angle when reparented under %d degrees', (angle) => {
+        const root = new Node();
+        const parent = new Node();
+        const child = new Node();
+        root.addChild(parent);
+        root.addChild(child);
+        parent.angle = angle;
+
+        child.setParent(parent, true);
+        expect(child.eulerAngles.x).toBe(0);
+        expect(child.eulerAngles.y).toBe(0);
+        // At a half turn either sign represents the same angle.
+        if (angle === 180) {
+            expect(Math.abs(child.angle)).toBeCloseTo(180, 5);
+        } else {
+            expect(child.angle).toBeCloseTo(-angle, 5);
+        }
+
+        child.setParent(root, true);
+        expect(child.angle).toBeCloseTo(0, 5);
+    });
+
     test('set parent and keep world transform', () => {
         let scene = new Scene('temp');
         let node = new Node();
@@ -673,6 +695,6 @@ describe(`Node`, () => {
         let theta = Math.PI / 2;
         node.setWorldRotation(0, 0, Math.cos(theta / 2), Math.sin(theta / 2));
 
-        expect(node.angle).toEqual(theta / Math.PI * 180);
+        expect(node.angle).toBeCloseTo(theta / Math.PI * 180, 10);
     });
 });

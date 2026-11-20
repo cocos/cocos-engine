@@ -29,7 +29,7 @@ import { NodeUIProperties } from './node-ui-properties';
 import { cclegacy } from '../core/global-exports';
 import { nodePolyfill } from './node-dev';
 import { ISchedulable } from '../core/scheduler';
-import { approx, EPSILON, Mat3, mat4, Mat4, quat, Quat, v3, Vec3 } from '../core/math';
+import { approx, EPSILON, Mat3, mat4, Mat4, quat, Quat, toDegree, v3, Vec3 } from '../core/math';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { errorID, warnID, error, log, getError } from '../core/platform/debug';
@@ -1821,7 +1821,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     get eulerAngles (): Readonly<Vec3> {
         if (this._eulerDirty) {
-            Quat.toEuler(this._euler, this._lrot);
+            const { x, y, z, w } = this._lrot;
+            if (x === 0 && y === 0) {
+                // Keep a Z-only rotation on Z when angle reads the Euler cache.
+                this._euler.set(0, 0, toDegree(Math.atan2(2 * z * w, w * w - z * z)));
+            } else {
+                Quat.toEuler(this._euler, this._lrot);
+            }
             this._eulerDirty = false;
         }
         return this._euler;

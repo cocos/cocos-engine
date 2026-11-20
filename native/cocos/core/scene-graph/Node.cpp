@@ -772,6 +772,21 @@ void Node::setForward(const Vec3 &dir) {
     setWorldRotation(qTemp);
 }
 
+const Vec3 &Node::getEulerAngles() const {
+    if (_eulerDirty) {
+        auto *thiz = const_cast<Node *>(this);
+        const auto &q = _localRotation;
+        if (q.x == 0.F && q.y == 0.F) {
+            // Keep a Z-only rotation on Z when angle reads the Euler cache.
+            thiz->_euler.set(0.F, 0.F, mathutils::toDegree(std::atan2(2.F * q.z * q.w, q.w * q.w - q.z * q.z)));
+        } else {
+            Quaternion::toEuler(q, false, &thiz->_euler);
+        }
+        thiz->_eulerDirty = false;
+    }
+    return _euler;
+}
+
 void Node::setAngle(float val) {
     if (_euler.approxEquals({0, 0, val})) {
         return;

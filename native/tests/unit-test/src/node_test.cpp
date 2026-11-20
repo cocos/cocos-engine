@@ -103,6 +103,24 @@ TEST(NodeTest, activeInHierarchyChanged) {
 
 */
 
+TEST(NodeTest, planarAngleAfterReparenting) {
+    IntrusivePtr<Node> root(new Node());
+    IntrusivePtr<Node> parent(new Node());
+    IntrusivePtr<Node> child(new Node());
+    parent->setParent(root);
+    child->setParent(root);
+    parent->setAngle(180.F);
+
+    child->setParent(parent, true);
+    const auto &euler = child->getEulerAngles();
+    EXPECT_FLOAT_EQ(euler.x, 0.F);
+    EXPECT_FLOAT_EQ(euler.y, 0.F);
+    EXPECT_NEAR(std::abs(child->getAngle()), 180.F, 1e-4F);
+
+    child->setParent(root, true);
+    EXPECT_NEAR(child->getAngle(), 0.F, 1e-4F);
+}
+
 TEST(NodeTest, setWorldScale000_and_rotation) {
     cc::IntrusivePtr<cc::Node> parent(new Node());
 
