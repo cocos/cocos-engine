@@ -32,7 +32,7 @@ import { Vec2 } from '../../../core';
 /** @mangle */
 export class B2CircleShape extends B2Shape2D implements ICircleShape {
     get worldRadius (): number {
-        return B2.CircleShapeGetRadius(this._shapes[0]) * PHYSICS_2D_PTM_RATIO;
+        return B2.ShapeGetRadius(this._shapes[0]) * PHYSICS_2D_PTM_RATIO;
     }
 
     _worldPosition = new Vec2();
