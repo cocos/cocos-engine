@@ -40,4 +40,23 @@ export default function (parent: Node, _steps = 0) {
         parent.removeAllChildren();
     }
 
+    // The public radius uses the current Box2D circle shape in scene units.
+    {
+        const node = new Node('CircleCollider2D');
+        parent.addChild(node);
+        node.addComponent(physics2d.RigidBody2D);
+        const circle = node.addComponent(physics2d.CircleCollider2D);
+        circle.radius = 12;
+        circle.apply();
+        expect(circle.worldRadius).toBeCloseTo(12);
+
+        node.setScale(-2, 3, 1);
+        circle.radius = 18;
+        circle.apply();
+        expect(circle.worldRadius).toBeCloseTo(36);
+
+        node.destroy();
+        parent.removeAllChildren();
+    }
+
 }
