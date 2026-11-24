@@ -38,6 +38,10 @@ export class TextOutputLayoutData {
     // Node info
     public canvasSize = new Size(); // ttf
 
+    // Texture coverage in the original (top-left origin) canvas coordinates.
+    public canvasRect = new Rect();
+    public layoutCanvasSize = new Size();
+
     public canvasPadding = new Rect(); // ttf
     public contentSizeExtend = Size.ZERO.clone(); // ttf
 
@@ -47,6 +51,8 @@ export class TextOutputLayoutData {
         this.parsedString.length = 0;
         this.nodeContentSize.set(0, 0);
         this.canvasSize.set();
+        this.canvasRect.set(0, 0, 0, 0);
+        this.layoutCanvasSize.set();
         this.canvasPadding.set();
         this.contentSizeExtend.set();
         this.startPosition.set();

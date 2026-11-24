@@ -104,22 +104,25 @@ export class TextProcessing {
             this._fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
+            this._calculateCanvasRect(style, layout, outputLayoutData);
             // check & limit canvas size
             while ((outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)
                 && (loopTime <= MAX_CALCULATION_NUM)) {
                 loopTime++;
                 if (loopTime > MAX_CALCULATION_NUM) {
-                    this._fontScale = 1;
+                    break;
                 } else {
                     // Current Canvas Size max dimension
                     const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
                     const canvasScaleToMaxSizeRatio = MAX_SIZE / maxValue;
                     this._fontScale *=  canvasScaleToMaxSizeRatio;
-                    this._fontScale = Math.max(1, this._fontScale);
                 }
 
+                // SHRINK must use the layout canvas, never the cropped texture size.
+                outputLayoutData.canvasSize.set(outputLayoutData.layoutCanvasSize);
                 this._updatePaddingRect(style, outputLayoutData);
                 this._calculateLabelFont(style, layout, outputLayoutData, inputString);
+                this._calculateCanvasRect(style, layout, outputLayoutData);
             }
         } else {
             if (!style.fntConfig) { // for char
@@ -439,10 +442,59 @@ export class TextProcessing {
 
     // -------------------- Render Processing Part --------------------------
 
+    private _calculateCanvasRect (style: TextStyle, layout: TextLayout, data: TextOutputLayoutData): void {
+        const { canvasSize, layoutCanvasSize, canvasRect, canvasPadding } = data;
+        layoutCanvasSize.set(canvasSize);
+        canvasRect.set(0, 0, canvasSize.width, canvasSize.height);
+        if (canvasSize.width <= MAX_SIZE && canvasSize.height <= MAX_SIZE) return;
+
+        this._calculateFillTextStartPosition(style, layout, data);
+        const fontSize = style.actualFontSize;
+        const lineHeight = this._getLineHeight(layout.lineHeight, fontSize, style.fontSize);
+        // Conservative fallback for native Canvas, which only exposes advance width.
+        const guard = fontSize * 2 + 2;
+        const effect = (style.isOutlined ? style.outlineWidth * this._fontScale : 0)
+            + (style.hasShadow ? style.shadowBlur * this._fontScale * 3 : 0);
+        const extraX = effect + (style.hasShadow ? Math.abs(style.shadowOffsetX * this._fontScale) : 0);
+        const extraY = effect + (style.hasShadow ? Math.abs(style.shadowOffsetY * this._fontScale) : 0);
+        let left = canvasSize.width;
+        let right = 0;
+        let top = canvasSize.height;
+        let bottom = 0;
+        for (let i = 0; i < data.parsedString.length; ++i) {
+            const text = data.parsedString[i];
+            if (!text.length) continue;
+            const width = safeMeasureText(this._context!, text, style.fontDesc);
+            let x = data.startPosition.x;
+            if (layout.horizontalAlign === HorizontalTextAlignment.CENTER as number) x -= width / 2;
+            else if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT as number) x -= width;
+            const y = data.startPosition.y + i * lineHeight;
+            left = Math.min(left, x - guard - extraX - canvasPadding.width * this._fontScale);
+            right = Math.max(right, x + width + guard + extraX + canvasPadding.width * this._fontScale);
+            top = Math.min(top, y - guard - extraY);
+            bottom = Math.max(bottom, y + guard + extraY
+                + (style.isUnderline ? Math.abs(style.underlineHeight * this._fontScale) : 0));
+        }
+        left = Math.max(0, Math.floor(left));
+        top = Math.max(0, Math.floor(top));
+        right = Math.min(canvasSize.width, Math.ceil(right));
+        bottom = Math.min(canvasSize.height, Math.ceil(bottom));
+        // Empty or fully clipped text still needs a valid transparent texture.
+        if (right <= left || bottom <= top) {
+            canvasRect.set(0, 0, Math.min(1, canvasSize.width), Math.min(1, canvasSize.height));
+        } else {
+            canvasRect.set(left, top, right - left, bottom - top);
+        }
+        canvasSize.set(canvasRect.width, canvasRect.height);
+    }
+
     private _updateLabelDimensions (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData): void {
         const { canvasSize } = outputLayoutData;
         canvasSize.width = Math.min(canvasSize.width, MAX_SIZE);
         canvasSize.height = Math.min(canvasSize.height, MAX_SIZE);
+        // If retries cannot fit the texture, clip instead of stretching the remainder.
+        outputLayoutData.canvasRect.width = canvasSize.width;
+        outputLayoutData.canvasRect.height = canvasSize.height;
 
         const canvas = this._canvas!;
         const context = this._context!;
@@ -458,7 +510,7 @@ export class TextProcessing {
 
     private _calculateFillTextStartPosition (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData): void {
         let labelX = 0;
-        const { canvasSize, canvasPadding } = outputLayoutData;
+        const { layoutCanvasSize: canvasSize, canvasPadding } = outputLayoutData;
         if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT as number) {
             labelX = canvasSize.width - canvasPadding.width;
         } else if (layout.horizontalAlign === HorizontalTextAlignment.CENTER as number) {
@@ -504,6 +556,8 @@ export class TextProcessing {
         context.font = style.fontDesc;
 
         this._calculateFillTextStartPosition(style, layout, outputLayoutData);
+        outputLayoutData.startPosition.x -= outputLayoutData.canvasRect.x;
+        outputLayoutData.startPosition.y -= outputLayoutData.canvasRect.y;
         const lineHeight = this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize);
         // use round for line join to avoid sharp intersect point
         context.lineJoin = 'round';
@@ -1220,8 +1274,27 @@ export class TextProcessing {
             tmpRect.y = letterDef.v;
 
             let py = letterInfo.y + layout.letterOffsetY;
+            let letterPositionX = letterInfo.x + layout.linesOffsetX[letterInfo.line];
+            const clipChar = !style.fntConfig && layout.overFlow === Overflow.CLAMP as number;
 
-            if (layout.textHeightTemp > 0) {
+            if (clipChar) {
+                // CHAR atlas rectangles use texture pixels; positions use label units.
+                const scale = style.bmfontScale;
+                if (!(scale > 0) || nodeContentSize.width <= 0 || nodeContentSize.height <= 0) continue;
+                const left = Math.max(0, letterPositionX);
+                const right = Math.min(nodeContentSize.width, letterPositionX + tmpRect.width * scale);
+                const top = Math.min(nodeContentSize.height, py);
+                const bottom = Math.max(0, py - tmpRect.height * scale);
+                if (right <= left || top <= bottom) continue;
+                tmpRect.x += (left - letterPositionX) / scale;
+                tmpRect.y += (py - top) / scale;
+                tmpRect.width = (right - left) / scale;
+                tmpRect.height = (top - bottom) / scale;
+                letterPositionX = left;
+                py = top;
+            }
+
+            if (!clipChar && layout.textHeightTemp > 0) {
                 if (py > layout.tailoredTopY) {
                     const clipTop = py - layout.tailoredTopY;
                     tmpRect.y += clipTop;
@@ -1237,7 +1310,7 @@ export class TextProcessing {
             const lineIndex = letterInfo.line;
             const px = letterInfo.x + letterDef.w / 2 * style.bmfontScale + layout.linesOffsetX[lineIndex];
 
-            if (layout.textWidthTemp > 0) {
+            if (!clipChar && layout.textWidthTemp > 0) {
                 if (this._isHorizontalClamped(layout, outputLayoutData, px, lineIndex)) {
                     if (layout.overFlow === Overflow.CLAMP as number) {
                         tmpRect.width = 0;
@@ -1247,7 +1320,6 @@ export class TextProcessing {
 
             if (tmpRect.height > 0 && tmpRect.width > 0) {
                 const isRotated = this._determineRect(style);
-                const letterPositionX = letterInfo.x + layout.linesOffsetX[letterInfo.line];
                 const offset = outputRenderData.quadCount;
                 outputRenderData.quadCount += 4; // Hard Code
                 this.updateQuatCount(outputRenderData);

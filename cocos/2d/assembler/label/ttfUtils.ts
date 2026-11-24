@@ -173,15 +173,23 @@ export class TTFUtils {
         const height = nodeContentSize.height;
         const appX = outputRenderData.uiTransAnchorX * width;
         const appY = outputRenderData.uiTransAnchorY * height;
+        const rect = outputLayoutData.canvasRect;
+        const canvas = outputLayoutData.layoutCanvasSize;
+        const scaleX = canvas.width > 0 ? width / canvas.width : 0;
+        const scaleY = canvas.height > 0 ? height / canvas.height : 0;
+        const left = rect.x * scaleX - appX;
+        const right = (rect.x + rect.width) * scaleX - appX;
+        const top = height - rect.y * scaleY - appY;
+        const bottom = height - (rect.y + rect.height) * scaleY - appY;
 
-        data[0].x = -appX; // l
-        data[0].y = -appY; // b
-        data[1].x = width - appX; // r
-        data[1].y = -appY; // b
-        data[2].x = -appX; // l
-        data[2].y = height - appY; // t
-        data[3].x = width - appX; // r
-        data[3].y = height - appY; // t
+        data[0].x = left;
+        data[0].y = bottom;
+        data[1].x = right;
+        data[1].y = bottom;
+        data[2].x = left;
+        data[2].y = top;
+        data[3].x = right;
+        data[3].y = top;
     }
 
     updateVertexData (comp: Label): void {
