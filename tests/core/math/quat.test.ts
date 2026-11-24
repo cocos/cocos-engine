@@ -117,6 +117,33 @@ describe('Test Quat', () => {
         expect(Vec3.equals(v0, expect0)).toBe(true);
     });
 
+    test('toEuler close to 90 degrees around z', () => {
+        for (const z of [89.9, 89.99, 89.999, -89.9, -89.999]) {
+            const q0 = Quat.fromEuler(new Quat(), 30, 60, z);
+            const v0 = Quat.toEuler(new Vec3(), q0);
+            const q1 = Quat.fromEuler(new Quat(), v0.x, v0.y, v0.z);
+            expect(Math.abs(Quat.dot(q0, q1))).toBeCloseTo(1, 12);
+            expect(v0.z).toBeCloseTo(z, 6);
+        }
+    });
+
+    test('toEulerInYXZOrder close to 90 degrees around x', () => {
+        const fromYXZ = (x: number, y: number, z: number) => {
+            const q = new Quat();
+            Quat.rotateY(q, q, y * Math.PI / 180);
+            Quat.rotateX(q, q, x * Math.PI / 180);
+            return Quat.rotateZ(q, q, z * Math.PI / 180);
+        };
+        for (const x of [89, 89.9, 89.999, -89, -89.999]) {
+            const q0 = fromYXZ(x, 30, 60);
+            const v0 = new Vec3();
+            Quat.toEulerInYXZOrder(v0, q0);
+            const q1 = fromYXZ(v0.x, v0.y, v0.z);
+            expect(Math.abs(Quat.dot(q0, q1))).toBeCloseTo(1, 12);
+            expect(v0.x).toBeCloseTo(x, 6);
+        }
+    });
+
     test('rotateTowards', () => {
         const q0 = new Quat(Math.sin(Math.PI / 8), 0, 0, Math.cos(Math.PI / 8));
         const q1 = new Quat(Math.sin(Math.PI / 3), 0, 0, Math.cos(Math.PI / 3));
