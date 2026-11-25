@@ -71,14 +71,14 @@ struct ITexture2DCreateInfo {
     /**
      * @en The selected base mipmap level
      * @zh 选择使用的最小 mipmap 层级。
-     * @default 1
+     * @default 0
      */
     ccstd::optional<uint32_t> baseLevel;
 
     /**
      * @en The selected maximum mipmap level
      * @zh 选择使用的最大 mipmap 层级。
-     * @default 1
+     * @default 1000
      */
     ccstd::optional<uint32_t> maxLevel;
 };

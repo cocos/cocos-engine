@@ -92,7 +92,7 @@ export class TiledMap extends Component {
      * @en The TiledMap Asset.
      * @zh TiledMap 资源。
      * @property {TiledMapAsset} tmxAsset
-     * @default ""
+     * @default null
      */
 
     @type(TiledMapAsset)
