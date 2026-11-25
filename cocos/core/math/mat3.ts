@@ -654,9 +654,13 @@ export class Mat3 extends ValueType {
 
         // from http://www.geometrictools.com/Documentation/EulerAngles.pdf
         // YXZ order
-        if (a21 < 0.999) {
-            if (a21 > -0.999) {
-                v.x = Math.asin(-a21);
+        // a20 and a22 are cos(x) * sin(y) and cos(x) * cos(y), so their length is cos(x). Taking x from
+        // atan2 keeps its precision close to +-90 degrees, where asin(-a21) loses it, so only a cos(x)
+        // too small to tell y and z apart is treated as gimbal lock.
+        const cosX = Math.sqrt(a20 * a20 + a22 * a22);
+        if (cosX >= 1e-8 || a21 < 0) {
+            if (cosX >= 1e-8) {
+                v.x = Math.atan2(-a21, cosX);
                 v.y = Math.atan2(a20, a22);
                 v.z = Math.atan2(a01, a11);
                 return true;

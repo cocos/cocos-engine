@@ -43,7 +43,6 @@ const sin = Math.sin;
 const cos = Math.cos;
 const sqrt = Math.sqrt;
 const atan2 = Math.atan2;
-const asin = Math.asin;
 const sign = Math.sign;
 
 /**
@@ -645,21 +644,26 @@ export class Quat extends ValueType {
         let heading = 0;
         let attitude = 0;
         const test = x * y + z * w;
-        if (test > 0.499999) {
+        const sqx = x * x;
+        const sqy = y * y;
+        const sqz = z * z;
+        // sin(bank) * cos(attitude) and cos(bank) * cos(attitude): their length is cos(attitude), so the
+        // attitude comes from atan2, which keeps its precision close to +-90 degrees, unlike asin(2 * test)
+        const bankSin = 2 * x * w - 2 * y * z;
+        const bankCos = 1 - 2 * sqx - 2 * sqz;
+        const attitudeCos = sqrt(bankSin * bankSin + bankCos * bankCos);
+        if (attitudeCos < 1e-8 && test > 0) {
             bank = 0; // default to zero
             heading = toDegree(2 * atan2(x, w));
             attitude = 90;
-        } else if (test < -0.499999) {
+        } else if (attitudeCos < 1e-8) {
             bank = 0; // default to zero
             heading = -toDegree(2 * atan2(x, w));
             attitude = -90;
         } else {
-            const sqx = x * x;
-            const sqy = y * y;
-            const sqz = z * z;
-            bank = toDegree(atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz));
+            bank = toDegree(atan2(bankSin, bankCos));
             heading = toDegree(atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz));
-            attitude = toDegree(asin(2 * test));
+            attitude = toDegree(atan2(2 * test, attitudeCos));
             if (outerZ) {
                 bank = -180 * sign(bank + 1e-6) + bank;
                 heading = -180 * sign(heading + 1e-6) + heading;
