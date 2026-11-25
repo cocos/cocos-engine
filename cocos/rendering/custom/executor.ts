@@ -1686,6 +1686,22 @@ export class Executor {
     private _removeDeviceResource (): void {
         const pipeline: any = context.pipeline;
         const resourceUses = pipeline.resourceUses;
+        // Names this frame's graph references. Compiler is the only other writer of this list and
+        // it does not contribute in release builds, so without this every MANAGED resource reads as
+        // unused and is released and reallocated once per frame.
+        const rg = context.renderGraph;
+        const use = (resName: string): void => {
+            if (!resourceUses.includes(resName)) resourceUses.push(resName);
+        };
+        for (let v = 0; v !== rg.nv(); ++v) {
+            if (rg.h(RenderGraphValue.RasterPass, v)) {
+                const rasterPass = rg.j<RasterPass>(v);
+                for (const [resName] of rasterPass.rasterViews) use(resName);
+                for (const [resName] of rasterPass.computeViews) use(resName);
+            } else if (rg.h(RenderGraphValue.Compute, v)) {
+                for (const [resName] of rg.j<ComputePass>(v).computeViews) use(resName);
+            }
+        }
         const deletes: string[] = [];
         const deviceTexs = context.deviceTextures;
         for (const [name, dTex] of deviceTexs) {
